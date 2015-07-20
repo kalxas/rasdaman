@@ -51,6 +51,7 @@ using namespace std;
 #include "raslib/rmdebug.hh"
 #include "oidif.hh"
 #include "adminif.hh"
+#include "../common/src/logging/easylogging++.hh"
 
 extern char globalConnectId[256];
 
@@ -67,8 +68,8 @@ DatabaseIf::disconnect() throw (r_Error)
         int error = sqlite3_close(sqliteConn);
         if (error != SQLITE_OK)
         {
-          TALK( "Error while disconnecting;");
-          RMDBGMIDDLE(4, RMDebug::module_adminif, "DatabaseIf", "error occured while disconnecting;");
+          LDEBUG << "Error while disconnecting;";
+          LTRACE << "error occured while disconnecting;";
         }
         sqliteConn = NULL;
     }
@@ -80,16 +81,16 @@ DatabaseIf::connect() throw (r_Error)
     if (sqliteConn == NULL)
     {
         int error = sqlite3_open(globalConnectId, &sqliteConn);
-        RMInit::logOut << "Connecting to " << globalConnectId << endl;
+        LINFO << "Connecting to " << globalConnectId;
         if (error != SQLITE_OK)
         {
-            TALK( "connect unsuccessful; wrong connect string?" );
+            LDEBUG << "connect unsuccessful; wrong connect string?";
             cout << "Error: connect unsuccessful; wrong connect string '" << globalConnectId << "'?" << endl;
             throw r_Error( 830 );
         }
         else
         {
-            TALK( "connect ok" );
+            LDEBUG << "connect ok";
         }
     }
 }
@@ -110,15 +111,12 @@ DatabaseIf::isConsistent() throw (r_Error)
 void
 DatabaseIf::createDB(__attribute__ ((unused)) const char* dbName, __attribute__ ((unused)) const char* schemaName, __attribute__ ((unused)) const char* volumeName) throw (r_Error)
 {
-    RMDBGENTER(4, RMDebug::module_adminif, "DatabaseIf", "create(" << dbName << ", " << schemaName << ", " << volumeName << ");");
-    ENTER("DatabaseIf::createDB, dbName=" << dbName << ", schemaName=" << schemaName << ", volumeName=" << volumeName);
-
     try
     {
         if (AdminIf::getCurrentDatabaseIf() != 0)
         {
-            RMDBGMIDDLE(5, RMDebug::module_adminif, "DatabaseIf", "another database is open;");
-            TALK("Error: another database is open");
+            LTRACE << "another database is open;";
+            LDEBUG <<"Error: another database is open";
             throw r_Error(r_Error::r_Error_DatabaseOpen);
         }
         connect();
@@ -347,28 +345,20 @@ DatabaseIf::createDB(__attribute__ ((unused)) const char* dbName, __attribute__ 
     }
     catch (r_Error& err)
     {
-        RMDBGMIDDLE(0, RMDebug::module_adminif, "DatabaseIf", "create(" << dbName <<
+        LTRACE << "create(" << dbName <<
                     ", " << schemaName << ", " << volumeName <<
-                    ") error caught " << err.what() << " " << err.get_errorno());
+                    ") error caught " << err.what() << " " << err.get_errorno();
         throw; // rethrow exception
     }
-
-    LEAVE("DatabaseIf::createDB");
-    RMDBGEXIT(4, RMDebug::module_adminif, "DatabaseIf", "create(" << dbName <<
-              ", " << schemaName << ", " << volumeName << ");");
 }
 
 void
 DatabaseIf::destroyDB(const char* dbName) throw (r_Error)
 {
-    RMDBGENTER(4, RMDebug::module_adminif, "DatabaseIf", "destroyDB(" << dbName << ");");
-    ENTER("DatabaseIf::destroyDB, dbName=" << dbName);
-
     if (AdminIf::getCurrentDatabaseIf() != 0)
     {
-        RMDBGMIDDLE(5, RMDebug::module_adminif, "DatabaseIf", "another database is already open;");
-        LEAVE("Error: another database is already open");
-        RMInit::logOut << "Another database is already open." << std::endl << "Cannot destroy database " << dbName << "." << std::endl;
+        LTRACE << "another database is already open;";
+        LFATAL << "Another database is already open.\n" << "Cannot destroy database " << dbName << ".";
         throw r_Error(r_Error::r_Error_DatabaseOpen);
     }
     connect();
@@ -401,9 +391,6 @@ DatabaseIf::destroyDB(const char* dbName) throw (r_Error)
     DROP_TABLE("RAS_NULLVALUES");
 
     disconnect();
-
-    LEAVE("DatabaseIf::destroyDB");
-    RMDBGEXIT(4, RMDebug::module_adminif, "DatabaseIf", "destroyDB(" << dbName << ");");
 }
 
 #ifndef RMANVERSION

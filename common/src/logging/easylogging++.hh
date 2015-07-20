@@ -40,6 +40,7 @@
 #pragma GCC diagnostic ignored "-Wshadow"
 #pragma GCC diagnostic ignored "-Wswitch-default"
 #pragma GCC diagnostic ignored "-Wctor-dtor-privacy"
+#pragma GCC diagnostic ignored "-Wsign-promo"
 
 #ifndef EASYLOGGINGPP_H
 #define EASYLOGGINGPP_H
@@ -4020,3 +4021,4 @@ private:
 #pragma GCC diagnostic warning "-Wshadow"
 #pragma GCC diagnostic warning "-Wswitch-default"
 #pragma GCC diagnostic warning "-Wctor-dtor-privacy"
+#pragma GCC diagnostic warning "-Wsign-promo"

@@ -40,15 +40,15 @@ rasdaman GmbH.
 #include <string.h>
 #include <stdio.h>
 
-#include "raslib/rmdebug.hh"
 #include "debug.hh"
 
 #include "servercomm/callbackmgr.hh"
 
+#include "../common/src/logging/easylogging++.hh"
 
 CallBackManager::CallBackManager(unsigned int size)
 {
-    RMDBGONCE(1, RMDebug::module_servercomm, "CallBackManager", "CallBackManager(" << size << ")" )
+    LTRACE << "CallBackManager(" << size << ")";
 
     callbacks = new callback_desc_t[size];
     maxCallbacks = size;
@@ -59,7 +59,7 @@ CallBackManager::CallBackManager(unsigned int size)
 
 CallBackManager::~CallBackManager(void)
 {
-    RMDBGONCE(1, RMDebug::module_servercomm, "CallBackManager", "~CallBackManager()" )
+    LTRACE << "~CallBackManager()";
 
     delete [] callbacks;
 }
@@ -67,8 +67,7 @@ CallBackManager::~CallBackManager(void)
 
 void CallBackManager::setMaximumSize(unsigned int size)
 {
-    RMDBGONCE(1, RMDebug::module_servercomm, "CallBackManager", "setMaximumSize(" << size << ")" )
-
+    LTRACE << "setMaximumSize(" << size << ")";
     callback_desc_t *newcb = new callback_desc_t[size];
 
     if (callbacks != NULL)
@@ -155,18 +154,16 @@ int CallBackManager::executePending(void)
 {
     unsigned int i;
 
-    RMDBGENTER(2, RMDebug::module_servercomm, "CallBackManager", "executePending()" )
-
     for (i=0; i<numPending; i++)
     {
-        RMDBGMIDDLE(3, RMDebug::module_servercomm, "CallBackManager", "callback function " << i << "..." );
+        LTRACE << "callback function " << i << "...";
         callbacks[i].function(callbacks[i].context);
     }
 
     if (overflowDetected)
     {
-        TALK( "CallBackManager::executePending(): overflow detected, number of pending calls: " << numPending );
-        RMInit::logOut << "Internal error: callback overflow." << endl;
+        LDEBUG << "CallBackManager::executePending(): overflow detected, number of pending calls: " << numPending;
+        LERROR << "Internal error: callback overflow.";
         overflowDetected = 0;
     }
 

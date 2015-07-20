@@ -46,6 +46,7 @@ using namespace std;
 
 #include "debug-srv.hh"
 #include "raslib/rminit.hh"
+#include "../common/src/logging/easylogging++.hh"
 
 extern bool hostCmp( const char *h1, const char *h2);
 
@@ -79,7 +80,7 @@ void User::changePassword(const char *encrPass)
 void User::changePTPassword(const char *plainTextPass)
 {
     messageDigest(plainTextPass,passWord,"MD5");
-    //RMInit::logOut<<"passwd="<<passWord<< " strlen="<<strlen(passWord)<<std::endl;
+    //LINFO<<"passwd="<<passWord<< " strlen="<<strlen(passWord);
 }
 
 const char* User::getName()
@@ -94,9 +95,9 @@ long User::getUserID()
 
 bool User::isThisMe(const char *name,const char *encrPass)
 {
-    //RMInit::logOut<<"Is this me: "<<name<<'/'<<userName<<std::endl;
-    //RMInit::logOut<<"My Pass="<<passWord<<std::endl;
-    //RMInit::logOut<<"His one="<<encrPass<<std::endl;
+    //LINFO<<"Is this me: "<<name<<'/'<<userName;
+    //LINFO<<"My Pass="<<passWord;
+    //LINFO<<"His one="<<encrPass;
 
     return (strcmp(name,userName)==0 && strcmp(encrPass,passWord)==0) ? true:false;
 }
@@ -169,7 +170,7 @@ bool User::removeDatabaseRights(const char *databName)
     list<UserDBRight>::iterator iter=dbRList.begin();
     for(unsigned int i=0; i<dbRList.size(); i++)
     {
-        //if(iter->ptrDatabase==NULL) { RMInit::logOut<<"Huo!!"<<std::endl;break;}
+        //if(iter->ptrDatabase==NULL) { LINFO<<"Huo!!";break;}
 
         if(strcmp(iter->ptrDatabase->getName(),databName)==0)
         {
@@ -301,10 +302,10 @@ User& UserManager::operator[](int x)
 User& UserManager::operator[](const char* userName)
 {
     list<User>::iterator iter=userList.begin();
-    //RMInit::logOut<<"Size="<<userList.size()<<std::endl;
+    //LINFO<<"Size="<<userList.size();
     for(unsigned int i=0; i<userList.size(); i++)
     {
-        //RMInit::logOut<<i<<" "<<iter->getName()<<" "<<iter->isValid()<<std::endl;
+        //LINFO<<i<<" "<<iter->getName()<<" "<<iter->isValid();
         if(strcmp(iter->getName(),userName)==0) return *iter;
         iter++;
     }
@@ -392,7 +393,7 @@ Authorization::Authorization()
     if (pathLen >= FILENAME_MAX)
     {
         authFileName[FILENAME_MAX-1] = '\0';    // force-terminate string before printing
-        RMInit::logOut << "Warning: authentication file path longer than allowed by OS, file likely cannot be accessed: " << authFileName << endl;
+        LWARNING << "Warning: authentication file path longer than allowed by OS, file likely cannot be accessed: " << authFileName;
     }
     globalInitAdminRight=admR_none;
     globalInitDatabRight=dbR_none;
@@ -406,7 +407,7 @@ bool Authorization::acceptEntry(const char *header)
     char *auth=strstr(myheader,"Authorization:");
     if(!auth) return false;
 
-    //TALK("auth="<<auth);
+    //LDEBUG << "auth=" << auth;
 
     char *scheme=strtok(auth+strlen("Authorization:")," ");
     if(!scheme) return false;
@@ -414,7 +415,7 @@ bool Authorization::acceptEntry(const char *header)
     char *uname=strtok(NULL,":");
     char *upass=strtok(NULL," \r\n\t");
 
-    //TALK("Auth. scheme="<<scheme<<" user="<<uname<<"  pass="<<upass);
+    //LDEBUG << "Auth. scheme=" << scheme << " user=" << uname << "  pass=" << upass;
 
     curUser=userManager.acceptEntry(uname,upass);
     if(curUser==NULL) return false;
@@ -540,9 +541,7 @@ int Authorization::readAuthFile()
 {
     int result = RC_OK;     // enum values from rasmgr_users.hh
 
-    ENTER( "Authorization::readAuthFile: enter." );
-
-    VLOG << "Inspecting authorization file '"<<authFileName<< "'...";
+    LDEBUG << "Inspecting authorization file '"<<authFileName<< "'...";
 
     std::ifstream ifs(authFileName);
     if(!ifs)
@@ -553,7 +552,7 @@ int Authorization::readAuthFile()
         int ver=verifyAuthFile(ifs);
         if(ver)
             result = ver;
-        TALK( "Authorization::readAuthFile: verifyAuthFile returned ." << result );
+        LDEBUG << "Authorization::readAuthFile: verifyAuthFile returned ." << result;
     }
 
     if (result == RC_OK)
@@ -570,7 +569,7 @@ int Authorization::readAuthFile()
         authorization.setGlobalInitAdminRights(header.globalInitAdmR);
         authorization.setGlobalInitDatabRights(header.globalInitDbsR);
 
-        TALK( "Authorization::readAuthFile: Auth file host="<<header.hostName<<" lastUserID="<<header.lastUserID );
+        LDEBUG << "Authorization::readAuthFile: Auth file host="<<header.hostName<<" lastUserID="<<header.lastUserID;
         initcrypt(header.lastUserID);
 
         for(int i=0; i<header.countUsers; i++)
@@ -581,7 +580,7 @@ int Authorization::readAuthFile()
             decrypt(&uRec,sizeof(uRec));
 
             User &u=userManager.loadUser(uRec);
-            TALK( "Authorization::readAuthFile: User "<<i<<" "<<u.getName() );
+            LDEBUG << "Authorization::readAuthFile: User "<<i<<" "<<u.getName();
 
             for(int j=0; j<uRec.countRights; j++)
             {
@@ -600,26 +599,25 @@ int Authorization::readAuthFile()
     switch(result)
     {
     case RC_OK:
-        VLOG << "ok" << endl;
+        LDEBUG << "ok";
         break;
     case  ERRAUTHFNOTF:
-        RMInit::logOut<<"Warning: User authorization file not found, using default user settings."<<std::endl;
+        LWARNING << "Warning: User authorization file not found, using default user settings.";
         break;
     case  ERRAUTHFCORR:
-        RMInit::logOut<<"Error: User authorization file is corrupt, aborting."<<std::endl;
+        LERROR<<"Error: User authorization file is corrupt, aborting.";
         break;
     case  ERRAUTHFWRHOST:
-        RMInit::logOut<<"Error: User authorization file is not for this host."<<std::endl;
+        LERROR<<"Error: User authorization file is not for this host.";
         break;
     case  ERRAUTHFVERS:
-        RMInit::logOut<<"Error: User authorization file is incompatible due to different encryption used - see migration documentation."<<std::endl;
+        LERROR<<"Error: User authorization file is incompatible due to different encryption used - see migration documentation.";
         break;
     default:                            // should not occur, internal enum mismatch
-        RMInit::logOut<<"Error: Internal evaluation error."<<std::endl;
+        LERROR<<"Error: Internal evaluation error.";
         break;
     }
 
-    LEAVE( "Authorization::readAuthFile: leave. result=" << result );
     return result;
 } // readAuthFile()
 
@@ -677,22 +675,22 @@ int Authorization::verifyAuthFile(std::ifstream &ifs)
     ifs.seekg(0,std::ios::end);
     long endpos=ifs.tellg();
     ifs.seekg(cpos,std::ios::beg);
-    //RMInit::logOut<<"c="<<cpos<<"  end="<<endpos<<std::endl;
+    //LINFO<<"c="<<cpos<<"  end="<<endpos;
 
     for(;;)
     {
         int r = endpos-cpos > MAXBUFF ? MAXBUFF : endpos-cpos;
         if(r==0)
-            break; //{ RMInit::logOut<<"xx"<<std::endl; break; }
+            break; //{ LINFO<<"xx"; break; }
         ifs.read((char*)buff,r);
         if(!ifs)
-            break; //{ RMInit::logOut<<"yy"<<std::endl; break; }
+            break; //{ LINFO<<"yy"; break; }
         cpos +=r;
 
         decrypt(buff,r);
 
         EVP_DigestUpdate(&mdctx,buff,static_cast<size_t>(r));
-        //RMInit::logOut<<"verify "<<r<<std::endl;
+        //LINFO<<"verify "<<r;
     }
 
     EVP_DigestFinal(&mdctx, md_value, &md_len);
@@ -715,7 +713,7 @@ void Authorization::initcrypt(int seed)
 void Authorization::crypt(void *vbuffer,int length)
 {
     unsigned char *buff=static_cast<unsigned char*>(vbuffer);
-    // RMInit::logOut<<" crypt length="<<length<<flush;
+    // LINFO<<" crypt length="<<length;
     for(int i=0; i<length; i++) buff[i]^=randomGenerator(); //rand();
 }
 void Authorization::decrypt(void *vbuffer,int length)
@@ -866,11 +864,8 @@ const char *Authorization::getAltAuthFileName()
 // save auth file at original place, i.e., under the name of authFile
 bool Authorization::saveOrigAuthFile()
 {
-    ENTER( "Authorization::saveOrigAuthFile: enter." );
-
     bool result = saveAuthFile();
 
-    LEAVE( "Authorization::saveOrigAltAuthFile: leave. result=" << result );
     return result;
 }
 
@@ -880,8 +875,6 @@ bool Authorization::saveAltAuthFile()
     bool result = true;
     const char *tempfileTemplate = ".XXXXXX";                   // 6 * 'X', see man mkstemp()
     char origFileName[ sizeof(authFileName) + sizeof(tempfileTemplate) ];   // temp copy of auth file
-
-    ENTER( "Authorization::saveAltAuthFile: enter." );
 
     // save original file name
     (void) strcpy( origFileName, authFileName );
@@ -894,7 +887,7 @@ bool Authorization::saveAltAuthFile()
     if (altFile < 0)                    // error in creating file name
     {
         int tempError = errno;
-        TALK( "Authorization::saveAltAuthFile: error creating alternate file name: " << strerror(tempError) );
+        LDEBUG << "Authorization::saveAltAuthFile: error creating alternate file name: " << strerror(tempError);
         result = false;
     }
     if (result == true)
@@ -903,18 +896,17 @@ bool Authorization::saveAltAuthFile()
         // so close it again, being happy that we have a valid file name. bad hack, though.
         int closeResult = close( altFile );
         if (closeResult != 0)
-            TALK( "Authorization::saveAltAuthFile: error in temporary closing file, ignoring that." );
+            LDEBUG << "Authorization::saveAltAuthFile: error in temporary closing file, ignoring that.";
     }
 
     if (result == true)
     {
         (void) strcpy( authFileName, altAuthFileName );     // set file to be written to alternate name
         result = saveAuthFile();                      // save file, name has been substituted successfully
-        TALK( "Authorization::saveAltAuthFile: save to " << authFileName << " done, result=" << result );
+        LDEBUG << "Authorization::saveAltAuthFile: save to " << authFileName << " done, result=" << result;
         (void) strcpy( authFileName, origFileName );  // restore original auth file name
     }
 
-    LEAVE( "Authorization::saveAltAuthFile: leave. result=" << result );
     return result;
 }
 

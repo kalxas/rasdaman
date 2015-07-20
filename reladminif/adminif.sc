@@ -42,6 +42,7 @@ rasdaman GmbH.
 #include "adminif.hh"
 #include "raslib/rmdebug.hh"
 #include "objectbroker.hh"
+#include "../common/src/logging/easylogging++.hh"
 
 extern char globalConnectId[256];
 
@@ -71,17 +72,16 @@ void checkCounter(const char* counterName, const char* column,
                 checkoid = queryTable.nextColumnLong();
                 if (checkoid > nextoid)
                 {
-                    RMInit::logOut << "The administrative tables for " << tableDescr << " is inconsistent." << endl;
-                    RMInit::logOut << "Counter " << column << " in table " << table << ": " << checkoid << endl;
-                    RMInit::logOut << "Counter in table RAS_COUNTERS with name '" << counterName << "': " << nextoid << std::endl;
+                    LWARNING << "The administrative tables for " << tableDescr << " is inconsistent.";
+                    LWARNING << "Counter " << column << " in table " << table << ": " << checkoid;
+                    LWARNING << "Counter in table RAS_COUNTERS with name '" << counterName << "': " << nextoid;
                     retval = false;
                 }
             }
         }
         else
         {
-            RMInit::logOut << "Error: value for counter '" << counterName << "' not found in the database." << endl;
-            LEAVE("Error: value for counter '" << counterName << "' not found in the database.");
+            LFATAL << "Error: value for counter '" << counterName << "' not found in the database.";
             throw r_Error(r_Error::r_Error_ObjectUnknown);
         }
     }
@@ -89,22 +89,19 @@ void checkCounter(const char* counterName, const char* column,
 
 AdminIf::AdminIf() throw (r_Error)
 {
-    RMDBGENTER(4, RMDebug::module_adminif, "Adminif", "AdminIf()");
-    ENTER( "AdminIf::AdminIf" );
-
     int error = sqlite3_open(globalConnectId, &sqliteConn);
-    RMInit::logOut << "Connecting to " << globalConnectId << endl;
+    LINFO << "Connecting to " << globalConnectId;
     if (error != SQLITE_OK)
     {
         validConnection = false;
-        TALK( "connect unsuccessful; wrong connect string?" );
+        LDEBUG << "connect unsuccessful; wrong connect string?";
         cout << "Error: connect unsuccessful; wrong connect string '" << globalConnectId << "'?" << endl;
         throw r_Error( 830 );
     }
     else
     {
         validConnection = true;
-        TALK( "connect ok" );
+        LDEBUG << "connect ok";
     }
 
     ObjectBroker::init();
@@ -129,10 +126,7 @@ AdminIf::AdminIf() throw (r_Error)
     }
     if (!consistent)
     {
-        RMInit::logOut << "Database inconsistent." << std::endl;
+        LFATAL << "Database inconsistent.";
         throw r_Error(DATABASE_INCONSISTENT);
     }
-
-    LEAVE( "AdminIf::AdminIf" );
-    RMDBGEXIT(4, RMDebug::module_adminif, "Adminif", "AdminIf() " << validConnection);
 }

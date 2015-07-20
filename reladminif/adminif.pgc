@@ -45,6 +45,8 @@ EXEC SQL include sqlglobals.h;
 #include "raslib/rmdebug.hh"
 #include "objectbroker.hh"
 
+#include "../common/src/logging/easylogging++.hh"
+
 extern char globalConnectId[256];
 extern char globalDbUser[255];
 extern char globalDbPasswd[255];
@@ -53,9 +55,6 @@ const char AdminIf::dbmsName[SYSTEMNAME_MAXLEN]="PostgreSQL";
 
 AdminIf::AdminIf() throw (r_Error)
 {
-    RMDBGENTER(4, RMDebug::module_adminif, "Adminif", "AdminIf()");
-    ENTER( "AdminIf::AdminIf" );
-
     EXEC SQL BEGIN DECLARE SECTION;
         char    id[STRING_MAXLEN];
         char    user[STRING_MAXLEN];
@@ -71,45 +70,42 @@ AdminIf::AdminIf() throw (r_Error)
         if ( strlen(globalDbPasswd) > 0 )
         {
             strncpy((char *)&passwd, globalDbPasswd, sizeof(passwd)-1);
-            TALK( "EXEC SQL CONNECT TO " << id << "USER" << user << "USING" << passwd);
+            LDEBUG << "EXEC SQL CONNECT TO " << id << "USER" << user << "USING" << passwd;
             EXEC SQL CONNECT TO :id USER :user USING :passwd;
         }
         else
         {
-            TALK( "EXEC SQL CONNECT TO " << id << "USER" << user );
+            LDEBUG << "EXEC SQL CONNECT TO " << id << "USER" << user;
             EXEC SQL CONNECT TO :id USER :user;
         }
     }
     else
     {
-        TALK( "EXEC SQL CONNECT TO " << id );
+        LDEBUG << "EXEC SQL CONNECT TO " << id;
         EXEC SQL CONNECT TO :id;
     }
 
     if (check("AdminIf Connect\0"))
     {
         validConnection = false;
-        TALK( "connect unsuccessful; wrong connect string?" );
+        LDEBUG << "connect unsuccessful; wrong connect string?";
         cout << "Error: connect unsuccessful; wrong connect string '" << globalConnectId << "' ?" << endl;
         throw r_Error( 830 );
     }
     else
     {
         validConnection = true;
-        TALK( "connect ok" );
+        LDEBUG << "connect ok";
     }
 
-    TALK( "EXEC SQL ROLLBACK WORK" );
+    LDEBUG << "EXEC SQL ROLLBACK WORK";
     EXEC SQL ROLLBACK WORK;
 
 #ifndef FASTCONNECT
-    TALK( "EXEC SQL DISCONNECT CURRENT" );
+    LDEBUG << "EXEC SQL DISCONNECT CURRENT";
     EXEC SQL DISCONNECT CURRENT;
 #endif
 
     ObjectBroker::init();
-
-    LEAVE( "AdminIf::AdminIf, SQLCODE=" << SQLCODE );
-    RMDBGEXIT(4, RMDebug::module_adminif, "Adminif", "AdminIf() " << validConnection);
 }
 

@@ -38,6 +38,7 @@ rasdaman GmbH.
 
 #include "debug-srv.hh"
 #include "raslib/rminit.hh"
+#include "../common/src/logging/easylogging++.hh"
 
 extern bool hostCmp( const char *h1, const char *h2);
 
@@ -117,7 +118,7 @@ void  DatabaseHost::regDownServer()
 
 bool  DatabaseHost::isBusy()
 {
-    //RMInit::logOut<<"DBH="<<hostName<<"s="<<connServers<<" d="<<connDatabases<<std::endl;
+    //LINFO << "DBH=" << hostName << "s=" << connServers << " d=" << connDatabases;
     return activServers ? true:false; //(connServers + connDatabases) ? true:false;
 }
 
@@ -470,18 +471,18 @@ void Database::setTraceWriteTrans(bool how)
 
 void Database::startWriteTransaction()
 {
-    if(traceWT) RMInit::logOut<<"  DbName="<<databaseName<<" rwTrans-in"<<std::endl;
+    if(traceWT) LINFO << "  DbName=" << databaseName << " rwTrans-in";
     countWriteTransactions++;
 }
 
 void Database::endWriteTransaction()
 {
-    if(traceWT) RMInit::logOut<<"  DbName="<<databaseName<<" rwTrans-out"<<std::endl;
+    if(traceWT) LINFO << "  DbName=" << databaseName << " rwTrans-out";
     countWriteTransactions--;
 }
 int Database::getWriteTransactionCount()
 {
-    if(traceWT) RMInit::logOut<<"  DbName="<<databaseName<<" ask rwTrans? ("<<countWriteTransactions<<")"<<std::endl;
+    if(traceWT) LINFO << "  DbName=" << databaseName << " ask rwTrans? (" << countWriteTransactions << ")";
     return countWriteTransactions;
 }
 

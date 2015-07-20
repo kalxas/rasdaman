@@ -27,7 +27,6 @@ rasdaman GmbH.
  * CLASS:  ServerHost, HostManager
  *
  * COMMENTS:
- * - undefine TALK_SECRET fpr production release!!!
  *
 */
 
@@ -38,13 +37,7 @@ rasdaman GmbH.
 
 #include "debug-srv.hh"
 #include "raslib/rminit.hh"
-
-// clear this def for production release!!!
-#define TALK_SECRET(a) { } //TALK(a)
-#ifndef DEBUG
-#undef TALK_SECRET
-#define TALK_SECRET(a) { /* TALK(a) */ }
-#endif // DEBUG
+#include "../common/src/logging/easylogging++.hh"
 
 #ifdef SOLARIS
 #define PORTMAP        // define to use function declarations for old interfaces
@@ -74,7 +67,7 @@ ServerHost::ServerHost()
     valid=false;
     startedServers=0;
     isuseLocalHost=true;
-    TALK( "ServerHost::ServerHost(): hostName=" << this->hostName << ", netwName=" << this->netwName << ", listenPort=" << this->listenPort << ", isinternal=" << this->isinternal << ", valid=" << valid );
+    LDEBUG << "ServerHost::ServerHost(): hostName=" << this->hostName << ", netwName=" << this->netwName << ", listenPort=" << this->listenPort << ", isinternal=" << this->isinternal << ", valid=" << valid;
 }
 
 ServerHost::~ServerHost()
@@ -83,7 +76,7 @@ ServerHost::~ServerHost()
 
 bool ServerHost::isValid() // used for the protection element
 {
-    TALK( "ServerHost::isValid() -> " << valid );
+    LDEBUG << "ServerHost::isValid() -> " << valid;
     return valid;
 }
 
@@ -118,7 +111,7 @@ void  ServerHost::init(const char* newHostName,const char* newNetwName,int newLi
     isup = newIsinternal;
 
     valid=true;
-    TALK( "ServerHost::init(): hostName=" << this->hostName << ", netwName=" << this->netwName << ", listenPort=" << this->listenPort << ", isinternal=" << this->isinternal << ", valid=" << valid );
+    LDEBUG << "ServerHost::init(): hostName=" << this->hostName << ", netwName=" << this->netwName << ", listenPort=" << this->listenPort << ", isinternal=" << this->isinternal << ", valid=" << valid;
 }
 
 char* ServerHost::getDescriptionHeader(char *destBuffer)
@@ -186,7 +179,7 @@ bool ServerHost::checkStatus()
     {
         setNotUp();
         //close(socket);
-        TALK( "ServerHost::checkStatus() -> false (no socket)" );
+        LDEBUG << "ServerHost::checkStatus() -> false (no socket)";
         return false;
     }
     const char *text="POST getstatus HTTP/1.1\r\nAccept: text/plain\r\nUserAgent: RasMGR/1.0\r\n\r\nRasMGR";
@@ -197,7 +190,7 @@ bool ServerHost::checkStatus()
     {
         setNotUp();
         close(socket);
-        TALK( "ServerHost::checkStatus() -> false (cannot write socket)" );
+        LDEBUG << "ServerHost::checkStatus() -> false (cannot write socket)";
         return false;
     }
 
@@ -207,7 +200,7 @@ bool ServerHost::checkStatus()
     if(nbytes<0)
     {
         setNotUp();
-        TALK( "ServerHost::checkStatus() -> false (cannot read socket)" );
+        LDEBUG << "ServerHost::checkStatus() -> false (cannot read socket)" ;
         return false;
     }
 
@@ -215,7 +208,7 @@ bool ServerHost::checkStatus()
     if(body==NULL)
     {
         setNotUp();
-        TALK( "ServerHost::checkStatus() -> false (null body)" );
+        LDEBUG << "ServerHost::checkStatus() -> false (null body)";
         return false;
     }
 
@@ -224,13 +217,13 @@ bool ServerHost::checkStatus()
 
     isup=true;
 
-    TALK( "ServerHost::checkStatus() -> true (all done)" );
+    LDEBUG << "ServerHost::checkStatus() -> true (all done)";
     return true;
 } // checkStatus()
 
 int   ServerHost::countDefinedServers()
 {
-    TALK_SECRET( "ServerHost::countDefinedServers enter." );
+    LDEBUG << "ServerHost::countDefinedServers enter.";
 
     int count=0;
     for(int i=0; i<rasManager.countServers(); i++)
@@ -239,13 +232,13 @@ int   ServerHost::countDefinedServers()
             count++;
     }
 
-    TALK_SECRET( "ServerHost::countDefinedServers leave -> " << count );
+    LDEBUG << "ServerHost::countDefinedServers leave -> " << count;
     return count;
 }
 
 int   ServerHost::getConnectionSocket()
 {
-    TALK_SECRET( "ServerHost::getConnectionSocket enter." );
+    LDEBUG << "ServerHost::getConnectionSocket enter.";
 
     // create socket
     int sock;
@@ -253,10 +246,10 @@ int   ServerHost::getConnectionSocket()
     getprotoptr=getprotobyname("tcp");
     sock=socket(PF_INET,SOCK_STREAM,getprotoptr->p_proto);
     int tempErrno = errno;
-    TALK_SECRET( "ServerHost::getConnectionSocket socket(PF_INET,SOCK_STREAM," << getprotoptr->p_proto << ") -> " << sock );
+    LDEBUG << "ServerHost::getConnectionSocket socket(PF_INET,SOCK_STREAM," << getprotoptr->p_proto << ") -> " << sock;
     if (sock < 0)
     {
-        TALK_SECRET( "ServerHost::getConnectionSocket cannot create socket: " << strerror( tempErrno ) );
+        LDEBUG << "ServerHost::getConnectionSocket cannot create socket: " << strerror( tempErrno );
         return -1;
     }
 
@@ -267,32 +260,32 @@ int   ServerHost::getConnectionSocket()
     servername.sin_port=htons(listenPort);
 
     // try to resolve address - either by name or IP address -- PB 2007-jun-25
-    TALK_SECRET( "ServerHost::getConnectionSocket: trying to resolve name " << netwName << " ... " );
+    LDEBUG << "ServerHost::getConnectionSocket: trying to resolve name " << netwName << " ... ";
     hostinfo=gethostbyname(netwName);
     if(hostinfo==NULL)
     {
         close(sock);
-        TALK_SECRET( "ServerHost::getConnectionSocket leave (invalid hostinfo) -> -1" );
+        LDEBUG << "ServerHost::getConnectionSocket leave (invalid hostinfo) -> -1";
         return -1;
     }
     servername.sin_addr=*(struct in_addr*)hostinfo->h_addr;
 
     // connect to slave-manager
     int connectResult = connect(sock,(struct sockaddr*)&servername,sizeof(servername));
-    TALK_SECRET( "ServerHost::getConnectionSocket connect() to host=" << hostinfo->h_name << ", listen port=" << servername.sin_port << " -> " << connectResult );
+    LDEBUG << "ServerHost::getConnectionSocket connect() to host=" << hostinfo->h_name << ", listen port=" << servername.sin_port << " -> " << connectResult;
     if(connectResult < 0)
     {
         close(sock);
         if (errno)
         {
             tempErrno = errno;
-            TALK_SECRET( "ServerHost::getConnectionSocket close(" << sock << ") -> " << strerror(tempErrno) );
+            LDEBUG << "ServerHost::getConnectionSocket close(" << sock << ") -> " << strerror(tempErrno);
         }
-        TALK_SECRET( "ServerHost::getConnectionSocket leave (cannot connect to slave mgr " << hostinfo << ") -> -1" );
+        LDEBUG << "ServerHost::getConnectionSocket leave (cannot connect to slave mgr " << hostinfo << ") -> -1";
         return -1;
     }
 
-    TALK_SECRET( "ServerHost::getConnectionSocket leave -> " << sock );
+    LDEBUG << "ServerHost::getConnectionSocket leave -> " << sock;
     return sock;
 }
 
@@ -349,18 +342,16 @@ void  ServerHost::changeListenPort(int newListenPort)
 //**********************************************************************
 HostManager::HostManager()
 {
-    TALK( "HostManager::HostManager()" );
+    LDEBUG << "HostManager::HostManager()";
 }
 
 HostManager::~HostManager()
 {
-    TALK( "HostManager::~HostManager()" );
+    LDEBUG << "HostManager::~HostManager()";
 }
 
 bool HostManager::insertInternalHost()
 {
-    ENTER( "HostManager::insertInternalHost()" );
-
     bool result = false;    // function result
 
     ServerHost tempServerHost;
@@ -378,15 +369,12 @@ bool HostManager::insertInternalHost()
         result = true;
     }
 
-    LEAVE( "HostManager::insertInternalHost() -> " << result );
     return result;
 }
 
 bool HostManager::insertNewHost(const char* hostName,const char *netwName,int listenport)
 {
     bool result = true; // function result
-
-    ENTER( "HostManager::insertNewHost( hostName=" << hostName << ", netwName=" << netwName << ", listenport=" << listenport << " )" );
 
     if(testUniqueness(hostName)==false)
         result = false;
@@ -405,14 +393,11 @@ bool HostManager::insertNewHost(const char* hostName,const char *netwName,int li
         result = true;
     }
 
-    LEAVE( "HostManager::insertNewHost() -> " << result );
     return result;
 }
 
 bool HostManager::removeHost(const char *hostName)
 {
-    ENTER( "HostManager::removeHost( hostName=" << hostName << " )" );
-
     list<ServerHost>::iterator iter=hostList.begin();
     for(unsigned int i=0; i<hostList.size(); i++)
     {
@@ -420,7 +405,6 @@ bool HostManager::removeHost(const char *hostName)
         {
             if(iter->countDefinedServers()>0)
             {
-                LEAVE( "HostManager::removeHost() -> false" );
                 return false;
             }
             hostList.erase(iter);
@@ -429,19 +413,15 @@ bool HostManager::removeHost(const char *hostName)
         iter++;
     }
 
-    LEAVE( "HostManager::removeHost() -> true" );
     return true;
 }
 
 // FIXME: check for end of list
 ServerHost& HostManager::operator[](int x)
 {
-    ENTER( "HostManager::operator[] ( x=" << x << " )" );
-
     list<ServerHost>::iterator iter=hostList.begin();
     for(int i=0; i<x; i++) iter++;
 
-    LEAVE( "HostManager::operator[]" );
     return *iter;
 }
 
@@ -450,21 +430,17 @@ ServerHost& HostManager::operator[](int x)
 //  protElem (uninitialized object, not valid) if not found
 ServerHost& HostManager::operator[](const char* hostName)
 {
-    ENTER( "HostManager::operator[] ( hostName=" << hostName << " )" );
-
     list<ServerHost>::iterator iter=hostList.begin();
     for(unsigned int i=0; i<hostList.size(); i++)
     {
         if(hostCmp(iter->getName(),hostName))
         {
-            LEAVE( "HostManager::operator[] -> found" );
             return *iter;
         }
 
         iter++;
     }
 
-    LEAVE( "HostManager::operator[] -> not found" );
     return protElem;
 }
 
@@ -515,7 +491,7 @@ int HostManager::postSlaveMGR(char *body,char *outBuffer)
         int  licServ;
         sscanf(body,"%s %d",name,&licServ);
 
-        TALK_SECRET( "HostManager::postSlaveMGR: name="<<name<<" lics="<<licServ );
+        LDEBUG << "HostManager::postSlaveMGR: name="<<name<<" lics="<<licServ;
 
         ServerHost &sh=operator[](name);
         if(sh.isValid()==false)
@@ -524,7 +500,7 @@ int HostManager::postSlaveMGR(char *body,char *outBuffer)
             break;
         }
 
-        TALK_SECRET( "HostManager::postSlaveMGR: Ok, valid." );
+        LDEBUG << "HostManager::postSlaveMGR: Ok, valid.";
         sh.setIsUp(true);
         strcpy(answBuffer,"Welcome!");
 
@@ -538,11 +514,8 @@ int HostManager::postSlaveMGR(char *body,char *outBuffer)
 
 bool HostManager::reset()
 {
-    ENTER( "HostManager::reset()" );
-
     if(config.isTestModus()==false)
     {
-        LEAVE( "HostManager::reset() -> false" );
         return false;
     }
 
@@ -551,7 +524,6 @@ bool HostManager::reset()
     {
         if(iter->countDefinedServers()>0)
         {
-            LEAVE( "HostManager::reset() -> false" );
             return false;
         }
     }
@@ -561,7 +533,6 @@ bool HostManager::reset()
         hostList.pop_front();
     }
 
-    LEAVE( "HostManager::reset() -> true" );
     return true;
 }
 

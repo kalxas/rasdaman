@@ -49,6 +49,7 @@ rasdaman GmbH.
 
 #include "debug-srv.hh"
 #include "raslib/rminit.hh"
+#include "../common/src/logging/easylogging++.hh"
 
 /*************************************************************************
  *
@@ -73,60 +74,46 @@ rasdaman GmbH.
 
 IOSelector::IOSelector()
 {
-    ENTER( "IOSelector::IOSelector: enter." );
     FD_ZERO(& watchReadFdSet);
     FD_ZERO(& watchWriteFdSet);
     FD_ZERO(& watchExceptFdSet);
     tvptr = NULL;
-    LEAVE( "IOSelector::IOSelector: leave." );
 }
 
 void IOSelector::setTimeout(int sec,int millisec)
 {
-    ENTER( "IOSelector::setTimeout: enter. timeout=" << sec << "." << millisec << " secs." );
     tvinit.tv_sec=sec;
     tvinit.tv_usec=millisec * 1000;
     tvptr=&tv; // yes, yes, &tv
-    LEAVE( "IOSelector::setTimeout: leave." );
 }
 
 void IOSelector::disableTimeout()
 {
-    ENTER( "IOSelector::disableTimeout: enter." );
     tvptr=NULL;
-    LEAVE( "IOSelector::disableTimeout: leave." );
 }
 
 // add socket to the socket set watched for incoming requests
 void IOSelector::setReadSocket(int socket)
 {
-    ENTER( "IOSelector::setReadSocket: enter. add to watchReadSet: " << socket );
     FD_SET(socket,&watchReadFdSet);
-    LEAVE( "IOSelector::setReadSocket: leave." );
 }
 
 // remove socket from read socket set
 void IOSelector::clearReadSocket(int socket)
 {
-    ENTER( "IOSelector::clearReadSocket: enter. remove from watchReadSet: " << socket );
     FD_CLR(socket,&watchReadFdSet);
-    LEAVE( "IOSelector::clearReadSocket: leave." );
 }
 
 // add socket to the socket set watched for outgoing requests
 void IOSelector::setWriteSocket(int socket)
 {
-    ENTER( "IOSelector::setWriteSocket: enter. add to watchWriteSet: " << socket );
     FD_SET(socket,&watchWriteFdSet);
-    LEAVE( "IOSelector::setWriteSocket: leave." );
 }
 
 // remove socket from write socket set
 void IOSelector::clearWriteSocket(int socket)
 {
-    ENTER( "IOSelector::clearWriteSocket: enter. remove from watchWriteSet: " << socket );
     FD_CLR(socket,&watchWriteFdSet);
-    LEAVE( "IOSelector::clearWriteSocket: leave." );
 }
 
 // result = outcome of select() request:
@@ -141,30 +128,28 @@ int IOSelector::waitForRequest()
 {
     int result;
 
-    ENTER( "IOSelector::waitForRequest: enter." );
-
     resultReadFdSet =watchReadFdSet;
     resultWriteFdSet=watchWriteFdSet;
     // error unused
     // tv has to be reloaded every time; if tvptr is NULL it doesn't matter
     tv.tv_sec  = tvinit.tv_sec;
     tv.tv_usec = tvinit.tv_usec;
-    TALK( "IOSelector::waitForRequest: timeout=" << tv.tv_sec << "sec " << tv.tv_usec << "microsec." );
+    LDEBUG << "IOSelector::waitForRequest: timeout=" << tv.tv_sec << "sec " << tv.tv_usec << "microsec.";
 
     result = select(FD_SETSIZE,&resultReadFdSet,&resultWriteFdSet,NULL,tvptr);
     if (result < 0)
     {
-        TALK( "IOSelector::waitForRequest: select error: " << strerror(errno) );
+        LDEBUG << "IOSelector::waitForRequest: select error: " << strerror(errno);
     }
     else // if ( result == 0)
     {
-        TALK( "IOSelector::waitForRequest: select() successful, result=" << result );
+        LDEBUG << "IOSelector::waitForRequest: select() successful, result=" << result;
     }
 
 #if 0  // unsuccessful try
     else // (result > 0)
     {
-        TALK( "IOSelector::waitForRequest: select() successful, returned " << result );
+        LDEBUG << "IOSelector::waitForRequest: select() successful, returned " << result;
         int isPending = 0;
         for (int i=0; i<FD_SETSIZE && isPending==0; i++)
         {
@@ -172,20 +157,19 @@ int IOSelector::waitForRequest()
             isPending = (int) FD_ISSET( i, &resultReadFdSet );
             if ( isPending )
             {
-                TALK( "IOSelector::waitForRequest: input pending on socket " << i );
+                LDEBUG << "IOSelector::waitForRequest: input pending on socket " << i;
                 result = i;             // report this socket
             }
             isPending = (int) FD_ISSET( i, &resultWriteFdSet );
             if ( isPending )
             {
-                TALK( "IOSelector::waitForRequest: output pending on socket " << i );
+                LDEBUG << "IOSelector::waitForRequest: output pending on socket " << i;
                 result = i;             // report this socket
             }
         }
     }
 #endif // 0
 
-    LEAVE( "IOSelector::waitForRequest: leave. result=" << result );
     return result;
 }
 
@@ -201,8 +185,6 @@ int IOSelector::someWaitingSocket()
     int waitingSocket = 0;          // some socket waiting to be treated
     bool found = false;             // result of FD_ISSET() call
 
-    ENTER( "IOSelector::someWaitingSocket: enter. lastVisited=" << lastVisited );
-
     for ( int i=0; i<FD_SETSIZE && waitingSocket==0; i++ )      // walk through max all possible FDs
     {
         lastVisited = (lastVisited == FD_SETSIZE) ? 0 : lastVisited+1;
@@ -211,8 +193,6 @@ int IOSelector::someWaitingSocket()
         if ( found )                // cannot use FD_ISSET in if()
             waitingSocket = lastVisited;
     }
-
-    LEAVE( "IOSelector::someWaitingSocket: leave. waitingSocket=" << waitingSocket );
 
     if ( found)
         return waitingSocket;
@@ -238,20 +218,18 @@ bool IOSelector::isWriteSocket(int socket)
 
 void IOSelector::closeForcedAllSockets()
 {
-    ENTER( "IOSelector::closeForcedAllSockets: enter." );
     for(int i=0; i<FD_SETSIZE; i++)
     {
         if(FD_ISSET(i,&watchReadFdSet) || FD_ISSET(i,&watchWriteFdSet))
         {
-            TALK( "IOSelector::closeForcedAllSockets: closing " << i );
+            LDEBUG << "IOSelector::closeForcedAllSockets: closing " << i;
             int result = close(i);
             if (result < 0)
             {
-                TALK( "IOSelector::closeListenSocket: error closing socket: " << strerror(errno) );
+                LDEBUG << "IOSelector::closeListenSocket: error closing socket: " << strerror(errno);
             }
         }
     }
-    LEAVE( "IOSelector::closeForcedAllSockets: leave." );
 }
 
 
@@ -279,99 +257,84 @@ time_t NbJob::currentTime = 0;
 
 NbJob::NbJob()
 {
-    ENTER( "NbJob::NbJob: enter." );
     socket = -1;
     lastActionTime=0;
     outputBuffer = 0;
     inputBuffer  = 0;
     bigError = false;
-    LEAVE( "NbJob::NbJob: leave." );
 }
 
 void NbJob::init(IOSelector *newPselector,int maxInputBuffer)
 {
-    ENTER( "NbJob::init: enter. maxInputBuffer=" << maxInputBuffer );
     this->pselector = newPselector;
     this->maxInputLength = maxInputBuffer;
     messageTerminator = '\0';
-    LEAVE( "NbJob::init: leave." );
 }
 
 // dropped (being redundant) in favour of closeConnection() -- PB 2003-jun-04
 #ifdef NEVER_AGAIN
 void NbJob::reset()
 {
-    ENTER( "NbJob::reset: enter." );
     clearConnection();
     clearInputBuffer();
     clearOutputBuffer();
-    LEAVE( "NbJob::reset: leave." );
 }
 #endif
 
 void NbJob::clearInputBuffer()
 {
-    ENTER( "NbJob::clearInputBuffer: enter." );
     if(inputBuffer)
         delete[] inputBuffer;
     inputBuffer = 0;
     nextReadPos = 0;
-    LEAVE( "NbJob::clearInputBuffer: leave." );
 }
 
 void NbJob::clearOutputBuffer()
 {
-    ENTER( "NbJob::clearOutputBuffer: enter." );
     if(outputBuffer)
         delete[] outputBuffer;
     outputBuffer = 0;
     nextWritePos = 0;
-    LEAVE( "NbJob::clearOutputBuffer: leave." );
 }
 
 // clear connection completely, close socket
 void NbJob::clearConnection()
 {
-    ENTER( "NbJob::clearConnection: enter." );
     if(socket > 0)
     {
         pselector->clearReadSocket(socket);
         pselector->clearWriteSocket(socket);
         int result = close(socket);
         int tempErrno = errno;
-        TALK( "NbJob::clearConnection: close() on socket " << socket << " returned " << result );
+        LDEBUG << "NbJob::clearConnection: close() on socket " << socket << " returned " << result;
         if (result != 0)
         {
-            TALK( "NbJob::clearConnection: error closing socket: " << strerror(tempErrno) );
+            LDEBUG << "NbJob::clearConnection: error closing socket: " << strerror(tempErrno);
         }
         socket = -1;
         bigError = false;
     }
-    LEAVE( "NbJob::clearConnection: leave." );
 }
 
 // returns true if the current job is too old
 bool NbJob::processJobTimeout()
 {
     bool result = (messageReadyTime + timeOutInterv > currentTime) ?  false:true;
-    TALK( "NbJob::processJobTimeout: result=" << result );
+    LDEBUG << "NbJob::processJobTimeout: result=" << result;
     return result;
 }
 
 // on timeout, reset all buffers but don't close socket
 bool NbJob::cleanUpIfTimeout()
 {
-    ENTER( "NbJob::cleanUpIfTimeout: enter." );
-
     bool result = (socket < 0 ) || (lastActionTime + timeOutInterv > currentTime) ? false : true;
 
     if (result==true)
     {
-        TALK("NbJob::cleanUpIfTimeout: client timeout on socket " << socket);
+        LDEBUG <<"NbJob::cleanUpIfTimeout: client timeout on socket " << socket;
         closeConnection();
     }
 
-    LEAVE( "NbJob::cleanUpIfTimeout: leave. result=" << result );
     return result;
 }
 
@@ -383,14 +346,11 @@ bool NbJob::cleanUpIfTimeout()
 
 NbJob::acceptStatus NbJob::acceptConnection(int listenSocket)
 {
-    ENTER( "NbJob::acceptConnection: enter. listenSocket=" << listenSocket );
-
     if(socket>0)
     {
         bool result = cleanUpIfTimeout();
         if(result == false)
         {
-            LEAVE("NbJob::acceptConnection: leave. cleanUpIfIimeout() returned: no timeout yet.");
             return acs_Iambusy;
             // free again
         }
@@ -402,7 +362,6 @@ NbJob::acceptStatus NbJob::acceptConnection(int listenSocket)
     inputBuffer = new char[maxInputLength];
     if(inputBuffer == NULL)
     {
-        LEAVE("NbJob::acceptConnection: leave. out of memory.");
         return acs_outofmem;
     }
 
@@ -419,17 +378,9 @@ NbJob::acceptStatus NbJob::acceptConnection(int listenSocket)
     // there shouldn't be any wait because of the select() call just passed via waitForRequest()
     socket=accept(listenSocket,(struct sockaddr*)&internetAddress,&size);
     int saveerrno=errno;
-    TALK("NbJob::acceptConnection: accept() with socket " << listenSocket << " returned " << socket << ", sin_port=" << htons(internetAddress.sin_port) << ", requestor=" << inet_ntoa(internetAddress.sin_addr) );
+    LDEBUG <<"NbJob::acceptConnection: accept() with socket " << listenSocket << " returned " << socket << ", sin_port=" << htons(internetAddress.sin_port) << ", requestor=" << inet_ntoa(internetAddress.sin_addr);
     if(socket<0)
     {
-        if(saveerrno==EAGAIN)
-        {
-            LEAVE("NbJob::acceptConnection: leave. no pending connections");
-        }
-        else
-        {
-            LEAVE("NbJob::acceptConnection: leave. accept error " << strerror(saveerrno) );
-        }
         return acs_nopending;
     }
 
@@ -446,41 +397,36 @@ NbJob::acceptStatus NbJob::acceptConnection(int listenSocket)
     // basically we should always have at least one pending request because a select() came before
     if (activeSocket == 0)
     {
-        TALK( "NbJob::acceptConnection: found NO active socket." );
+        LDEBUG << "NbJob::acceptConnection: found NO active socket.";
     }
     else
     {
-        TALK( "NbJob::acceptConnection: found active socket " << activeSocket );
+        LDEBUG << "NbJob::acceptConnection: found active socket " << activeSocket;
     }
 
 # endif // NEVER_AGAIN
 
-    LEAVE( "NbJob::acceptConnection: leave. acs_accepted, cloned socket is " << socket);
     return acs_accepted;
 } // acceptConnection()
 
 // this method got the body of reset() which (being redundant) has been dropped -- PB 2003-jun-04
 void NbJob::closeConnection()
 {
-    ENTER( "NbJob::closeConnection: enter." );
     clearConnection();
     clearInputBuffer();
     clearOutputBuffer();
-    LEAVE( "NbJob::closeConnection: leave." );
 }
 
 // PB 2003-may-29: to fix bug that connections cloned by accept() remain open, so the number grows infinitely
 // ...but this doesn't work yet, don't use it...
 void NbJob::closeSocket()
 {
-    ENTER( "NbJob::closeSocket: enter. socket=" << socket );
     int result = close(socket);
     if (result != 0)
     {
-        TALK( "NbJob::closeSocket: error closing socket: " << strerror(errno) );
+        LDEBUG << "NbJob::closeSocket: error closing socket: " << strerror(errno);
     }
     socket = -1;
-    LEAVE( "NbJob::closeSocket: leave." );
 }
 
 void NbJob::markAction()
@@ -509,22 +455,21 @@ bool NbJob::readPartialMessage()
 {
     bool messOK;
 
-    ENTER("NbJob::readPartialMessage: enter." );
     markAction();
     errno = 0;
     int nbytes = read(socket,inputBuffer + nextReadPos, static_cast<size_t>(maxInputLength - nextReadPos));
-    TALK("NbJob::readPartialMessage: read() with socket=" << socket << " returned " << nbytes );
+    LDEBUG <<"NbJob::readPartialMessage: read() with socket=" << socket << " returned " << nbytes;
 
     if(nbytes)  // wrote some bytes
     {
-        TALK( "NbJob::readPartialMessage: read socket("<<socket<<") "<<nbytes<<" bytes to pos="<<nextReadPos);
+        LDEBUG << "NbJob::readPartialMessage: read socket("<<socket<<") "<<nbytes<<" bytes to pos="<<nextReadPos;
         nextReadPos += nbytes;
         inputBuffer[nextReadPos] = 0;
         messOK = isMessageOK();
 
         if(messOK)
         {
-            TALK("NbJob::readPartialMessage: socket read completed on " << socket );
+            LDEBUG <<"NbJob::readPartialMessage: socket read completed on " << socket;
             messageReadyTime = currentTime;
         }
     }
@@ -534,27 +479,26 @@ bool NbJob::readPartialMessage()
         switch(saveerrno)
         {
         case EINTR:
-            TALK("NbJob::readPartialMessage: read: EINTR, retry please");
+            LDEBUG <<"NbJob::readPartialMessage: read: EINTR, retry please";
             break;
 
         case EAGAIN:
-            TALK("NbJob::readPartialMessage: read: EAGAIN, retry please");
+            LDEBUG <<"NbJob::readPartialMessage: read: EAGAIN, retry please";
             break;
 
         case 0:
-            TALK("NbJob::readPartialMessage: read: Premature End-of-file");
+            LDEBUG <<"NbJob::readPartialMessage: read: Premature End-of-file";
             bigError=true;
             break;
 
         default:
-            TALK("NbJob::readPartialMessage: read: error " << saveerrno );
+            LDEBUG <<"NbJob::readPartialMessage: read: error " << saveerrno;
             bigError = true;
             break;
         }
         messOK = false;
     }
 
-    LEAVE("NbJob::readPartialMessage: leave. read completed=" << messOK );
     return messOK;
 } // readPartialMessage()
 
@@ -567,7 +511,6 @@ const char* NbJob::getMessage()
 // set socket to write mode
 bool NbJob::initSendAnswer(const char *message)
 {
-    ENTER("NbJob::initSendAnswer: enter. message=" << message );
     bool result = true;
 
     markAction();
@@ -576,7 +519,7 @@ bool NbJob::initSendAnswer(const char *message)
     outputBuffer = new char[answerLength];
     if (outputBuffer == NULL)
     {
-        TALK( "NbJob::initSendAnswer: error: out of memory." );
+        LDEBUG << "NbJob::initSendAnswer: error: out of memory.";
         result = false;
         // FIXME: close socket?
     }
@@ -590,7 +533,6 @@ bool NbJob::initSendAnswer(const char *message)
         pselector->clearReadSocket(socket); // sa fie
     }
 
-    LEAVE("NbJob::initSendAnswer: leave. result=" << result );
     return result;
 }
 
@@ -600,21 +542,19 @@ bool NbJob::writePartialMessage()
 {
     bool result = false;
 
-    ENTER("NbJob::writePartialMessage: enter." );
-
     markAction();
     errno = 0;
     int nbytes = write(socket,outputBuffer + nextWritePos,static_cast<size_t>(answerLength - nextWritePos));
-    TALK("NbJob::writePartialMessage: write() with socket=" << socket << " returned " << nbytes );
+    LDEBUG <<"NbJob::writePartialMessage: write() with socket=" << socket << " returned " << nbytes;
 
     if(nbytes)
     {
-        TALK("NbJob::writePartialMessage: write to socket=" << socket << ", " << nbytes << " bytes to pos=" << nextWritePos << ", answerLength=" << answerLength );
+        LDEBUG <<"NbJob::writePartialMessage: write to socket=" << socket << ", " << nbytes << " bytes to pos=" << nextWritePos << ", answerLength=" << answerLength;
         nextWritePos += nbytes;
 
         if(nextWritePos == answerLength) // everything written?
         {
-            TALK("NbJob::writePartialMessage: write completed.");
+            LDEBUG <<"NbJob::writePartialMessage: write completed.";
             // closeConnection(); // was here, now shifted up the hierarchy -- PB 2003-jun-10
             result =  true;
         }
@@ -625,25 +565,24 @@ bool NbJob::writePartialMessage()
         switch(saveerrno)
         {
         case EINTR:
-            TALK("NbJob::writePartialMessage: EINTR, retry please");
+            LDEBUG <<"NbJob::writePartialMessage: EINTR, retry please";
             break;
 
         case EAGAIN:
-            TALK("NbJob::writePartialMessage: EAGAIN, retry please");
+            LDEBUG <<"NbJob::writePartialMessage: EAGAIN, retry please";
             break;
 
         case 0:
-            TALK("NbJob::writePartialMessage: premature client hang up.");
+            LDEBUG <<"NbJob::writePartialMessage: premature client hang up.";
             bigError=true;
             break;
 
         default:
-            TALK("NbJob::writePartialMessage: error "<< strerror(saveerrno) );
+            LDEBUG <<"NbJob::writePartialMessage: error "<< strerror(saveerrno);
             bigError = true;
             break;
         }
     }
-    LEAVE("NbJob::writePartialMessage: leave. result=" << result );
     return result;
 }
 
@@ -651,13 +590,13 @@ bool NbJob::writePartialMessage()
 bool NbJob::isOperationPending()
 {
     bool result = socket > 0 ? true:false;
-    TALK("NbJob::isOperationPending (i.e.: socket open) -> " << result );
+    LDEBUG <<"NbJob::isOperationPending (i.e.: socket open) -> " << result;
     return result;
 }
 
 void NbJob::printStatus()
 {
-    TALK( "NbJob::printStatus: socket=" << socket << ", isRead=" << (int) pselector->isReadSocket(socket) << ", isWrite=" << (int) pselector->isWriteSocket(socket) );
+    LDEBUG << "NbJob::printStatus: socket=" << socket << ", isRead=" << (int) pselector->isReadSocket(socket) << ", isWrite=" << (int) pselector->isWriteSocket(socket);
 }
 
 //################################################################################################
@@ -672,8 +611,6 @@ NbServerComm::NbServerComm()
 
 void NbServerComm::initJobs(int newMaxJobs)
 {
-    ENTER( "NbServerComm::initJobs: enter. maxJobs=" << newMaxJobs );
-
     this->maxJobs = newMaxJobs;
     job = new NbJob[newMaxJobs];
 
@@ -681,22 +618,16 @@ void NbServerComm::initJobs(int newMaxJobs)
     {
         job[i].init(&selector,MAXMSG);
     }
-
-    LEAVE( "NbServerComm::initJobs: leave." );
 }
 
 NbServerComm::~NbServerComm()
 {
-    ENTER( "NbServerComm::~NbServerComm: enter." );
     closeListenSocket();
-    LEAVE( "NbServerComm::~NbServerComm: leave." );
 }
 
 // opens the central listen socket
 bool NbServerComm::initListenSocket(int listenPort)
 {
-    ENTER( "NbServerComm::initListenSocket: enter. listenPort=" << listenPort );
-
     struct protoent *getprotoptr = getprotobyname("tcp");
 
     struct sockaddr_in name;
@@ -707,7 +638,7 @@ bool NbServerComm::initListenSocket(int listenPort)
     listenSocket=socket(PF_INET,SOCK_STREAM,getprotoptr->p_proto);
     if(listenSocket < 0)
     {
-        TALK( "NbServerComm::initListenSocket: socket error: " << strerror(errno) );
+        LDEBUG << "NbServerComm::initListenSocket: socket error: " << strerror(errno);
         exitbyerror("socket");
     }
 
@@ -718,67 +649,61 @@ bool NbServerComm::initListenSocket(int listenPort)
 
     val =fcntl(listenSocket,F_GETFL,0);
     if(val & O_NONBLOCK)
-        TALK("NbServerComm::initListenSocket: socket " << listenSocket << " is nonblocking" );
+        LDEBUG <<"NbServerComm::initListenSocket: socket " << listenSocket << " is nonblocking";
 
 #ifdef SO_REUSEADDR
     val = 1;
     unsigned int len = sizeof( val );
     if(setsockopt( listenSocket, SOL_SOCKET, SO_REUSEADDR, (char*)&val, len ))
     {
-        TALK( "NbServerComm::initListenSocket: cannot set address reusable using setsockopt: " << strerror(errno) );
+        LDEBUG << "NbServerComm::initListenSocket: cannot set address reusable using setsockopt: " << strerror(errno);
     }
 #endif
 
     int sockResult = bind(listenSocket,(sockaddr*)&name,sizeof(name));
-    TALK( "NbServerComm::initListenSocket: bind() with socket=" << listenSocket << ", name.port=" << name.sin_port << " returned " << sockResult );
+    LDEBUG << "NbServerComm::initListenSocket: bind() with socket=" << listenSocket << ", name.port=" << name.sin_port << " returned " << sockResult;
     if (sockResult < 0)
     {
-        TALK( "NbServerComm::initListenSocket: cannot set address reusable using bind: " << strerror(errno) );
+        LDEBUG << "NbServerComm::initListenSocket: cannot set address reusable using bind: " << strerror(errno);
         exitbyerror("bind");
     }
 
     int queuesize=SOMAXCONN; // the maximum number allowed by SO!!
     sockResult = listen(listenSocket,queuesize);
-    TALK("NbServerComm::initListenSocket: listen() with socket=" << listenSocket << ", queuesize=" << queuesize << " returned " << sockResult );
+    LDEBUG <<"NbServerComm::initListenSocket: listen() with socket=" << listenSocket << ", queuesize=" << queuesize << " returned " << sockResult;
     if(sockResult < 0)
     {
-        TALK( "NbServerComm::initListenSocket: listen error: " << strerror(errno) );
+        LDEBUG << "NbServerComm::initListenSocket: listen error: " << strerror(errno);
         exitbyerror("listen");
     }
 
     selector.setReadSocket(listenSocket);       // add this socket to the read watch list
 
-    LEAVE( "NbServerComm::initListenSocket: leave." );
     return true;
 }
 
 void NbServerComm::closeListenSocket()
 {
-    ENTER( "NbServerComm::closeListenSocket: enter." );
     if(listenSocket>0)
     {
         selector.clearReadSocket(listenSocket);
-        TALK( "NbServerComm::closeListenSocket: closing socket " << listenSocket );
+        LDEBUG << "NbServerComm::closeListenSocket: closing socket " << listenSocket;
         int result = close(listenSocket);
         if (result < 0)
         {
-            TALK( "NbServerComm::closeListenSocket: error closing socket: " << strerror(errno) );
+            LDEBUG << "NbServerComm::closeListenSocket: error closing socket: " << strerror(errno);
         }
         listenSocket = -1;
     }
-    LEAVE( "NbServerComm::closeListenSocket: leave." );
 }
 
 void NbServerComm::shouldExit()
 {
-    ENTER( "NbServerComm::shouldExit: enter." );
     exitRequest=true;
-    LEAVE( "NbServerComm::shouldExit: leave." );
 }
 
 bool NbServerComm::mayExit()
 {
-    ENTER( "NbServerComm::mayExit: enter." );
     bool result = true;
 
     if(exitRequest==false)
@@ -794,25 +719,20 @@ bool NbServerComm::mayExit()
         }
     }
 
-    LEAVE( "NbServerComm::mayExit: leave. result=" << result );
     return result;
 }
 
 void NbServerComm::lookForTimeout()
 {
-    ENTER( "NbServerComm::lookForTimeout: enter." );
     for(int i=0; i<maxJobs; i++)
     {
         job[i].cleanUpIfTimeout();
     }
-    LEAVE( "NbServerComm::lookForTimeout: leave." );
 }
 
 // look through all write jobs and write out pending message
 void NbServerComm::dispatchWriteRequest()
 {
-    ENTER( "NbServerComm::dispatchWriteRequest: enter." );
-
     int i;
     for(i=0; i<maxJobs; i++)
     {
@@ -821,34 +741,30 @@ void NbServerComm::dispatchWriteRequest()
         {
             if(selector.isWriteSocket(socket))
             {
-                TALK( "flushing write job " << i << ", socket " << socket );
+                LDEBUG << "flushing write job " << i << ", socket " << socket;
                 bool result = job[i].writePartialMessage();
                 if (result == true)
                 {
-                    TALK( "job done, closing connection " << i << ", socket " << socket );
+                    LDEBUG << "job done, closing connection " << i << ", socket " << socket;
                     job[i].closeConnection(); // was in writePartialMessage() -- PB 2003-jun-10
                 }
                 else
                 {
-                    TALK( "connection " << i << "write error, socket " << socket );
+                    LDEBUG << "connection " << i << "write error, socket " << socket;
                 }
             }
             else
             {
-                TALK( "job " << i << ": socket not writable, nothing to do." );
+                LDEBUG << "job " << i << ": socket not writable, nothing to do.";
             }
         }
     } // for
-
-    LEAVE( "NbServerComm::dispatchWriteRequest: leave." );
 }
 
 // look through all read jobs and load msg buffers
 // NB: as opposed to write, here is no closeSocket! why??
 void NbServerComm::dispatchReadRequest()
 {
-    ENTER( "NbServerComm::dispatchReadRequest: enter." );
-
     int i;
     for(i=0; i<maxJobs; i++)
     {
@@ -857,29 +773,25 @@ void NbServerComm::dispatchReadRequest()
         {
             if(selector.isReadSocket(socket))
             {
-                TALK( "NbServerComm::dispatchReadRequest: flush reading job " << i << ", socket " << socket << " -- NO CLOSE!?!" );
+                LDEBUG << "NbServerComm::dispatchReadRequest: flush reading job " << i << ", socket " << socket << " -- NO CLOSE!?!";
                 // result code was not queried, added it -- PB 2004-jul-16
                 bool allOk = job[i].readPartialMessage();
                 if (allOk)
                 {
-                    TALK( "connection " << i << " done reading, socket " << socket );
+                    LDEBUG << "connection " << i << " done reading, socket " << socket;
                     // no close here, connection used for writing afterwards
                 }
                 else    // could not read
                 {
-                    TALK( "connection " << i << " read error, socket " << socket );
+                    LDEBUG << "connection " << i << " read error, socket " << socket;
                 }
             }
         }
     } // for
-
-    LEAVE( "NbServerComm::dispatchReadRequest: leave." );
 }
 
 void NbServerComm::connectNewClients()
 {
-    ENTER( "NbServerComm::connectNewClients: enter." );
-
     // why only for read sockets? because we process _incoming_ requests
     if(selector.isReadSocket(listenSocket))
     {
@@ -887,13 +799,13 @@ void NbServerComm::connectNewClients()
         {
             // we try to connect as many pending connections as possible
 
-            TALK( "NbServerComm::connectNewClients: trying to open #" << i << " of " << maxJobs << " sockets (initially: read)." );
+            LDEBUG << "NbServerComm::connectNewClients: trying to open #" << i << " of " << maxJobs << " sockets (initially: read).";
             // the accept() call inside this below will clone the socket, so we get many read sockets
             NbJob::acceptStatus status = job[i].acceptConnection(listenSocket);
 
             if(status == NbJob::acs_nopending || status == NbJob::acs_outofmem)
             {
-                TALK( "NbServerComm::connectNewClients: aborting, bad status:" << status );
+                LDEBUG << "NbServerComm::connectNewClients: aborting, bad status:" << status;
                 break;
                 // first, because there is no pending request, second, because out of mem is not solved by retry
             }
@@ -901,18 +813,14 @@ void NbServerComm::connectNewClients()
     }
     else
     {
-        TALK( "NbServerComm::connectNewClients: master socket is no read socket: " << listenSocket );
+        LDEBUG << "NbServerComm::connectNewClients: master socket is no read socket: " << listenSocket;
     }
-
-    LEAVE( "NbServerComm::connectNewClients: leave." );
 }
 
 void NbServerComm::closeForcedAllSockets()
 {
-    ENTER( "NbServerComm::closeForcedAllSockets: enter." );
     if(mypid != getpid())
         selector.closeForcedAllSockets();
-    LEAVE( "NbServerComm::closeForcedAllSockets: leave." );
 }
 
 void NbServerComm::printStatus()
@@ -920,7 +828,7 @@ void NbServerComm::printStatus()
     int i;
     for(i=0; i<maxJobs; i++)
     {
-        TALK( "NbServerComm::printStatus: connection #" << i << ":" );
+        LDEBUG << "NbServerComm::printStatus: connection #" << i << ":";
         job[i].printStatus();
     }
     return;

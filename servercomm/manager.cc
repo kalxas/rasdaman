@@ -70,13 +70,13 @@ extern int noTimeOut;
 #include "clientcomm/rpcif.h"
 #endif
 
-#include "raslib/rmdebug.hh"
 #include "raslib/minterval.hh"
 #include "raslib/oid.hh"
 #include "raslib/endian.hh"
 
 #include "servercomm/servercomm.hh"
 
+#include "../common/src/logging/easylogging++.hh"
 
 extern "C" {
     void garbageCollection( int );
@@ -341,7 +341,7 @@ RPCFUNCTIONDEF( rpckilltableentry_1, unsigned long* killId )
     // Get a pointer to the actual servercomm object.
     ServerComm* sc = ServerComm::actual_servercomm;
 
-    RMInit::logOut << " Kill specific table entry request received for client ID " << kId << "." << endl;
+    LINFO << " Kill specific table entry request received for client ID " << kId << ".";
 
     if( sc && !sc->clientTbl.empty() )
     {
@@ -353,7 +353,7 @@ RPCFUNCTIONDEF( rpckilltableentry_1, unsigned long* killId )
         {
             if( (*iter)->clientId == kId )
             {
-                RMInit::logOut << "ID " << (*iter)->clientId << " found, deleting..." << endl;
+                LINFO << "ID " << (*iter)->clientId << " found, deleting...";
 
                 sc->deleteClientTblEntry( (*iter)->clientId );
 
@@ -433,7 +433,7 @@ RPCFUNCTIONDEF( rpcopendb_1, OpenDBParams* params )
     const char* dbName   = params->dbName;
     const char* userName = params->userName;
 
-    RMInit::logOut << "Client called ... ";
+    LINFO << "Client called ... ";
 
     //
     // Create a new entry in the client table (should be moved to ServerComm):
@@ -451,7 +451,7 @@ RPCFUNCTIONDEF( rpcopendb_1, OpenDBParams* params )
     // Put the context information in the static control list
     sc->clientTbl.push_back( contextStore );
 
-    // RMInit::logOut << "assigned id " << *clientId << endl;
+    // LINFO << "assigned id " << *clientId;
 
     // check acces permission
 
@@ -749,8 +749,6 @@ extern "C"
 GetMDDRes*
 RPCFUNCTIONDEF( rpcgetnextmdd_1, unsigned long* callingClientId )
 {
-    RMDBGENTER(2, RMDebug::module_servercomm, "Manager", "rpcgetnextmdd_1" )
-
     secureResultBufferForRPC = (char*)&rpcGetMDDRes;
 
     r_Minterval mddDomain;
@@ -793,7 +791,6 @@ RPCFUNCTIONDEF( rpcgetnextmdd_1, unsigned long* callingClientId )
     if( !rpcGetMDDRes.typeStructure ) rpcGetMDDRes.typeStructure = strdup("");
     // the other 2 are not null
 
-    RMDBGEXIT(2, RMDebug::module_servercomm, "Manager", "rpcgetnextmdd_1" )
     return &rpcGetMDDRes;
 }
 
@@ -814,8 +811,6 @@ extern "C"
 GetElementRes*
 RPCFUNCTIONDEF( rpcgetnextelement_1, unsigned long* callingClientId )
 {
-    RMDBGENTER(2, RMDebug::module_servercomm, "Manager", "rpcgetnextelement_1" )
-
     secureResultBufferForRPC = (char*)&rpcGetElementRes;
 
     freeDynamicRPCData();
@@ -829,7 +824,6 @@ RPCFUNCTIONDEF( rpcgetnextelement_1, unsigned long* callingClientId )
     rpcGetElementRes.status = sc->getNextElement( *callingClientId, rpcGetElementRes.data.confarray_val,
                               rpcGetElementRes.data.confarray_len );
 
-    RMDBGEXIT(2, RMDebug::module_servercomm, "Manager", "rpcgetnextelement_1" )
     return &rpcGetElementRes;
 }
 
@@ -849,8 +843,6 @@ extern "C"
 GetMDDRes*
 RPCFUNCTIONDEF( rpcgetmddbyoid_1, OIdSpecParams* params )
 {
-    RMDBGENTER(2, RMDebug::module_servercomm, "Manager", "rpcgetmddbyoid_1" )
-
     secureResultBufferForRPC = (char*)&rpcGetMDDRes;
 
     r_Minterval mddDomain;
@@ -891,7 +883,6 @@ RPCFUNCTIONDEF( rpcgetmddbyoid_1, OIdSpecParams* params )
     if( !rpcGetMDDRes.typeStructure ) rpcGetMDDRes.typeStructure = strdup("");
     // the other 2 are not null
 
-    RMDBGEXIT(2, RMDebug::module_servercomm, "Manager", "rpcgetmddbyoid_1" )
     return &rpcGetMDDRes;
 }
 
@@ -912,8 +903,6 @@ extern "C"
 GetTileRes*
 RPCFUNCTIONDEF( rpcgetnexttile_1, unsigned long* callingClientId )
 {
-    RMDBGENTER(2, RMDebug::module_servercomm, "Manager", "rpcgetnexttile_1" )
-
     secureResultBufferForRPC = (char*)&rpcGetTileRes;
 
     freeDynamicRPCData();
@@ -946,7 +935,6 @@ RPCFUNCTIONDEF( rpcgetnexttile_1, unsigned long* callingClientId )
     free(secureRpcMarray->domain);
     free(secureRpcMarray);
 
-    RMDBGEXIT(2, RMDebug::module_servercomm, "Manager", "rpcgetnexttile_1" )
     return &rpcGetTileRes;
 }
 
@@ -1281,8 +1269,6 @@ extern "C"
 GetCollRes*
 RPCFUNCTIONDEF( rpcgetcollbyname_1, NameSpecParams* params )
 {
-    RMDBGENTER(2, RMDebug::module_servercomm, "Manager", "rpcgetcollbyname_1" )
-
     secureResultBufferForRPC = (char*)&rpcGetCollRes;
 
     r_OId       oid;
@@ -1324,7 +1310,6 @@ RPCFUNCTIONDEF( rpcgetcollbyname_1, NameSpecParams* params )
     if( !rpcGetCollRes.typeStructure ) rpcGetCollRes.typeStructure = strdup("");
 
     // Return the result
-    RMDBGEXIT(2, RMDebug::module_servercomm, "Manager", "rpcgetcollbyname_1" )
     return &rpcGetCollRes;
 }
 
@@ -1345,7 +1330,6 @@ extern "C"
 GetCollRes*
 RPCFUNCTIONDEF( rpcgetcollbyoid_1, OIdSpecParams* params )
 {
-    RMDBGENTER(2, RMDebug::module_servercomm, "Manager", "rpcgetcollbyoid_1" )
 
     secureResultBufferForRPC = (char*)&rpcGetCollRes;
 
@@ -1387,7 +1371,6 @@ RPCFUNCTIONDEF( rpcgetcollbyoid_1, OIdSpecParams* params )
     // oid is not null,
 
     // Return the result
-    RMDBGEXIT(2, RMDebug::module_servercomm, "Manager", "rpcgetcollbyoid_1" )
     return &rpcGetCollRes;
 }
 
@@ -1407,8 +1390,6 @@ extern "C"
 GetCollOIdsRes*
 RPCFUNCTIONDEF( rpcgetcolloidsbyname_1, NameSpecParams* params )
 {
-    RMDBGENTER(2, RMDebug::module_servercomm, "Manager", "rpcgetcolloidsbyname_1" )
-
     secureResultBufferForRPC = (char*)&rpcGetCollOidsRes;
 
     r_OId       oid;
@@ -1452,7 +1433,6 @@ RPCFUNCTIONDEF( rpcgetcolloidsbyname_1, NameSpecParams* params )
     // oid is not null
 
     // Return the result
-    RMDBGEXIT(2, RMDebug::module_servercomm, "Manager", "rpcgetcolloidsbyname_1" )
     return &rpcGetCollOidsRes;
 }
 
@@ -1473,8 +1453,6 @@ extern "C"
 GetCollOIdsRes*
 RPCFUNCTIONDEF( rpcgetcolloidsbyoid_1, OIdSpecParams* params )
 {
-    RMDBGENTER(2, RMDebug::module_servercomm, "Manager", "rpcgetcolloidsbyname_1" )
-
     secureResultBufferForRPC = (char*)&rpcGetCollOidsRes;
 
     r_OId       oid( params->oid );
@@ -1518,7 +1496,6 @@ RPCFUNCTIONDEF( rpcgetcolloidsbyoid_1, OIdSpecParams* params )
     if( !rpcGetCollOidsRes.collName      ) rpcGetCollOidsRes.collName      = strdup("");
 
     // Return the result
-    RMDBGEXIT(2, RMDebug::module_servercomm, "Manager", "rpcgetcolloidsbyname_1" )
     return &rpcGetCollOidsRes;
 }
 
@@ -1747,7 +1724,7 @@ static void callback_garbage_collection(void *context)
 
     if( sc && !sc->clientTbl.empty() )
     {
-        RMInit::dbgOut << "Garbage Collection ... " << flush;
+        LDEBUG << "Garbage Collection ... ";
 
 #ifdef RMANDEBUG
         sc->printServerStatus( RMInit::dbgOut );
@@ -1759,18 +1736,18 @@ static void callback_garbage_collection(void *context)
             iter = sc->clientTbl.begin();
             unsigned long now = static_cast<long unsigned int>(time( NULL ));
 
-            RMDBGONCE(2, RMDebug::module_servercomm, "Manager", "checking " << sc->clientTbl.size() << " clients..." );
+            LTRACE << "checking " << sc->clientTbl.size() << " clients...";
             while ( iter != sc->clientTbl.end() )
             {
                 if( now - (*iter)->lastActionTime >= sc->clientTimeout )
                 {
-                    RMInit::logOut << "Message: Found timed-out client with id " << (*iter)->clientId
+                    LINFO << "Message: Found timed-out client with id " << (*iter)->clientId
                                    << " (" << (*iter)->clientIdText << ", "
-                                   << now - (*iter)->lastActionTime << "s)..." << flush;
+                                   << now - (*iter)->lastActionTime << "s)...";
 
                     if( sc->deleteClientTblEntry( (*iter)->clientId ) == 0 )
                     {
-                        RMInit::logOut << "deleted." << endl;
+                        LINFO << "deleted.";
 
                         sc->informRasMGR(SERVER_AVAILABLE);
                         // reset the iterator (otherwise, it would skip one object
@@ -1779,7 +1756,7 @@ static void callback_garbage_collection(void *context)
                     }
                     else
                     {
-                        RMInit::logOut << "deletion postponed." << endl;
+                        LINFO << "deletion postponed.";
                         iter++;
                     }
                 }
@@ -1787,7 +1764,7 @@ static void callback_garbage_collection(void *context)
                     iter++;
             }
         }
-        RMInit::dbgOut << "garbage collection done." << endl;
+        LDEBUG << "garbage collection done.";
     }
 }
 

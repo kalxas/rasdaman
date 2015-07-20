@@ -47,6 +47,7 @@ using namespace std;
 #include "rasmgr_error.hh"
 #include "raslib/rminit.hh"
 #include <arpa/inet.h>
+#include "../common/src/logging/easylogging++.hh"
 
 #ifndef RMANVERSION
 #error "Please specify RAMNVERSION variable!"
@@ -71,7 +72,6 @@ void migrateExtraParams(const char *orig, char *migrated);
 
 int RasControl::processRequest(char* reqMessage, char *answMessage)
 {
-    ENTER( "RasControl::processRequest: enter. rascontrol msg: " << reqMessage );
     splitRequest(reqMessage);
 
     const char *command=argc ? token[0].take() : "#";
@@ -80,7 +80,7 @@ int RasControl::processRequest(char* reqMessage, char *answMessage)
     {
         if(command)
         {
-            TALK( "RasControl::processRequest: command=" << command );
+            LDEBUG << "RasControl::processRequest: command=" << command;
 
             if     (isCommand(RASMGRCMD_HELLO))  helloCommand();
             else if(isCommand(RASMGRCMD_HELP))   helpCommand();
@@ -106,12 +106,12 @@ int RasControl::processRequest(char* reqMessage, char *answMessage)
             else
             {
                 errorInCommand("Invalid command; try HELP." );
-                RMInit::logOut << "Invalid command word: " << command << endl;
+                LERROR << "Invalid command word: " << command;
             }
         }
         else
         {
-            RMInit::logOut << "Error in request: " << reqMessage << endl;
+            LERROR << "Error in request: " << reqMessage;
             errorInCommand("Error in request." );
         }
     }
@@ -119,10 +119,9 @@ int RasControl::processRequest(char* reqMessage, char *answMessage)
     {
         strcpy(answBuffer,"Error: ");
         e.getString(answBuffer + strlen(answBuffer));
-        RMInit::logOut << answBuffer << endl;
+        LERROR << answBuffer;
     }
 
-    LEAVE( "RasControl::processRequest: leave. answerBuffer: " << answBuffer );
     return prepareAnswer(answMessage);
 }
 
@@ -156,8 +155,6 @@ void RasControl::exitCommand()
     bool configResult = false;
     bool authResult = false;
 
-    ENTER( "RasControl::exitCommand: enter" );
-
     (void) strcpy( answBuffer, "Exiting rascontrol session." );
 
     if (configDirty)
@@ -183,8 +180,6 @@ void RasControl::exitCommand()
 
     // (!configDirty ? "" : "Configuration was changed but not saved, storing rescue copy to " << config.getAltConfigFileName() << "..." << (configResult ? "ok" : "failed") << "." << endl),
     // (!authDirty   ? "" : "Authorisation was changed but not saved, storing rescue copy to " << authorization.getAltAuthFileName()   << "..." << (authResult ? "ok" : "failed") << "." << endl) );
-
-    LEAVE( "RasControl::exitCommand: leave. answBuffer=" << answBuffer );
 }
 
 void RasControl::listCommand()
@@ -620,8 +615,6 @@ void RasControl::defineDatabases()
 
 void RasControl::defineRasHosts()
 {
-    ENTER( "RasControl::defineRasHosts()" );
-
     checkPermission(admR_config);
 
     const char *hostName=getValueOf(RASMGRCMD_HOST);
@@ -640,21 +633,16 @@ void RasControl::defineRasHosts()
     if(hostmanager.insertNewHost(hostName,netName,listenPort)==false)
     {
         sprintf(answBuffer,"Error: Host %s already defined.",hostName);
-        LEAVE( "RasControl::defineRasHosts()" );
         return;
     }
     else
     {
         sprintf(answBuffer,"Defining server host %s port=%lu",hostName,listenPort);
     }
-
-    LEAVE( "RasControl::defineRasHosts()" );
 }
 
 void RasControl::defineRasServers()
 {
-    ENTER( "RasControl::defineRasServers()" );
-
     checkPermission(admR_config);
     bool inConfigFile = authorization.isInConfigFile();
 
@@ -696,7 +684,6 @@ void RasControl::defineRasServers()
     if(!sTypeStr)
     {
         errorInCommand("Missing server type, specify one of r (RPC), h (HTTP) or n (RNP).");
-        LEAVE( "RasControl::defineRasServers()" );
         return;
     }
 
@@ -716,7 +703,6 @@ void RasControl::defineRasServers()
     if(!serverType)
     {
         errorInCommand("Illegal server type, use one of [r|h|n].");
-        LEAVE( "RasControl::defineRasServers()" );
         return;
     }
 
@@ -743,7 +729,6 @@ void RasControl::defineRasServers()
         else
         {
             errorInCommand("Incorrect autorestart option, use one of [on|off].");
-            LEAVE( "RasControl::defineRasServers()" );
             return;
         }
     }
@@ -752,14 +737,12 @@ void RasControl::defineRasServers()
     if(rasManager.insertNewServer(serverName,hostName,serverType,static_cast<long>(listenPort))==false)
     {
         sprintf(answBuffer,"Error: server name already existing.");
-        LEAVE( "RasControl::defineRasServers()" );
         return;
     }
 
     if(inConfigFile && !dbhName)
     {
         sprintf(answBuffer,"Error: no database host specified.");
-        LEAVE( "RasControl::defineRasServers()" );
         return;
     }
 
@@ -785,14 +768,10 @@ void RasControl::defineRasServers()
     if(serverType==SERVERTYPE_FLAG_RNP)
         sprintf(answBuffer,"Defining server %s of type RNP on host %s port=%lu",serverName,hostName,listenPort);
 
-    LEAVE( "RasControl::defineRasServers()" );
 }
 
 void RasControl::defineInPeers()
 {
-
-    ENTER( "RasControl::defineInPeers()" );
-
     const char *hostName=getValueOf("inpeer");
     checkUnexpectedTokens();
 
@@ -801,22 +780,15 @@ void RasControl::defineInPeers()
     for (unsigned int i = 0; i < config.inpeers.size(); i++) {
         if (hostCmp(config.inpeers[i],hostName)) { 
             sprintf(answBuffer,"Error: Inpeer rasmanager %s already defined.",hostName);
-            LEAVE( "RasControl::defineInPeers()" );
             return;        
         }       
     }
     config.inpeers.push_back(strdup(hostName));
     sprintf(answBuffer,"Defining inpeer rasmgr %s",hostName);
-
-    LEAVE( "RasControl::defineInPeers()" );
-
 }
 
 void RasControl::defineOutPeers()
 {
-
-    ENTER( "RasControl::defineOutPeers()" );
-
     const char *hostName=getValueOf("outpeer");
     const char *portStr =getValueOf("-port");
     checkUnexpectedTokens();
@@ -830,7 +802,6 @@ void RasControl::defineOutPeers()
     for (unsigned int i = 0; i < config.outpeers.size(); i++) {
         if (!strcmp(config.outpeers[i],hostName)) { 
             sprintf(answBuffer,"Error: Outpeer rasmanager %s already defined.",hostName);
-            LEAVE( "RasControl::defineOutPeers()" );
             return;        
         }       
     }
@@ -872,11 +843,10 @@ void RasControl::defineOutPeers()
     
     if (!success)
     {
-        VLOG << "\nAttention! Outpeer " << config.outpeers[config.outpeers.size() - 1] << " can not be reached!\n" << flush;
+        LDEBUG << "\nAttention! Outpeer " << config.outpeers[config.outpeers.size() - 1] << " can not be reached!\n";
     }   
     close(sockfd);
     freeaddrinfo(ai);
-    LEAVE( "RasControl::defineOutPeers()" );
 }
 
 
@@ -1699,8 +1669,6 @@ void RasControl::upCommand()
 
 void RasControl::upRasServers()
 {
-    ENTER( "RasControl::upRasServers()" );
-
     checkPermission(admR_sysup);
 
     const char *srvName =getValueOf(RASMGRCMD_SRV);
@@ -1712,7 +1680,7 @@ void RasControl::upRasServers()
 
         checkUnexpectedTokens();
 
-        TALK( "server name: " << srvName );
+        LDEBUG << "server name: " << srvName;
         RasServer &r=getServer(srvName);
 
         // just debug
@@ -1720,14 +1688,12 @@ void RasControl::upRasServers()
         {
             r.forceAvailable();
             sprintf(answBuffer,"Server forced to be available again");
-            LEAVE( "RasControl::upRasServers() -- " << answBuffer );
             return;
         }
 
         if(r.isUp())
         {
             errorInCommand("Server is already up.");
-            LEAVE( "RasControl::upRasServers() -- " << answBuffer );
             return;
         }
         int rasp = flagDebug ? r.startServerInDebugger(answBuffer):r.startServer();
@@ -1752,7 +1718,6 @@ void RasControl::upRasServers()
             break;
         default: break;
         }
-        LEAVE( "RasControl::upRasServers()" );
         return;
     }
 
@@ -1774,7 +1739,6 @@ void RasControl::upRasServers()
             break;
 
         }
-        LEAVE( "RasControl::upRasServers()" );
         return;
     }
 
@@ -1798,13 +1762,11 @@ void RasControl::upRasServers()
 
         }
         sprintf(answBuffer,"Started %d servers on %d hosts",countUpSrv,countUpHosts);
-        LEAVE( "RasControl::upRasServers() -- "  << answBuffer );
         return;
     }
 
     errorInCommand("Up what?");
 
-    LEAVE( "RasControl::upRasServers()" );
 }
 
 int RasControl::upAllServersOnHost(const char*hostName)
@@ -2078,7 +2040,7 @@ void RasControl::resetCommand()
     userManager.reset();
     userManager.loadDefaults();
 
-    VLOG <<"rasmgr was succesfully reset."<<std::endl;
+    LDEBUG <<"rasmgr was succesfully reset.";
     sprintf(answBuffer,"rasmgr was succesfully reset.");
 }
 
@@ -2152,7 +2114,7 @@ void RasControl::splitRequest(const char* reqMessage)
     strncpy(commandBuffer+1,reqMessage,MAXMSG-1);
     commandBuffer[MAXMSG]=0;
 
-    TALK("RasControl::splitRequest: (a) Com="<<commandBuffer);
+    LDEBUG <<"RasControl::splitRequest: (a) Com="<<commandBuffer;
 
     char *temp = commandBuffer;
 
@@ -2276,7 +2238,7 @@ DatabaseHost& RasControl::getDatabaseHost(const char *name)
 }
 ServerHost& RasControl::getServerHost(const char *name)
 {
-    TALK( "RasControl::getServerHost( " << name << " )" );
+    LDEBUG << "RasControl::getServerHost( " << name << " )";
     ServerHost &host = hostmanager[name];
     if(host.isValid()==false) throw RCErrorInvalidName("server host");
     return host;
@@ -2339,7 +2301,7 @@ void RasControl::listRights()
         //sprintf(answBuffer,"Unknown user %s",userName);
         return;
     }
-    //RMInit::logOut<<"list rights of user "<<userName<<"  "<<user.getAdminRights()<<"  "<<user.getDefaultDBRights()<<std::endl;
+    //LINFO << "list rights of user " << userName << "  " << user.getAdminRights() << "  " << user.getDefaultDBRights();
     sprintf(answBuffer,"List of rights defined for user %s",userName);
     sprintf(answBuffer+strlen(answBuffer),"\r\n administrative rights: [%s]",authorization.convertAdminRights(user.getAdminRights()));
     sprintf(answBuffer+strlen(answBuffer),"\r\n default database rights: [%s]",authorization.convertDatabRights(user.getDefaultDBRights()));

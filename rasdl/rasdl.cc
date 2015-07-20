@@ -96,6 +96,7 @@ using namespace std;
 
 #include "raslib/rminit.hh"
 #include "raslib/rmdebug.hh"
+#include "../common/src/logging/easylogging++.hh"
 
 #define MAXMSG 1024
 
@@ -368,19 +369,17 @@ printHeader( const char* headerFileName2 )
 void
 disconnectDB( bool commitTa )
 {
-    ENTER( "disconnectDB, commitTa =" << commitTa  );
-
     if( ta )
     {
         if(commitTa )
         {
             ta->commit();
-            TALK( "TA committed." );
+            LDEBUG << "TA committed.";
         }
         else
         {
             ta->abort();
-            TALK( "TA aborted." );
+            LDEBUG << "TA aborted.";
         }
 
         delete ta;
@@ -389,7 +388,7 @@ disconnectDB( bool commitTa )
         if( db )
         {
             db->close();
-            TALK( "DB closed." );
+            LDEBUG << "DB closed.";
             delete db;
             db = NULL;
         }
@@ -400,18 +399,15 @@ disconnectDB( bool commitTa )
             admin = NULL;
         }
     }
-    LEAVE( "disconnectDB" );
 }
 
 void
 connectDB( const char* baseName2, bool openDb, bool openTa ) throw (r_Error, RasdlError)
 {
-    ENTER( "connectDB, basename=" << baseName2 );
-
     admin = AdminIf::instance();
     if( !admin )
     {
-        TALK( "cannot create adminIf instance" );
+        LDEBUG << "cannot create adminIf instance";
         throw RasdlError( NOCONNECTION );
     }
 
@@ -419,9 +415,9 @@ connectDB( const char* baseName2, bool openDb, bool openTa ) throw (r_Error, Ras
     {
         // connect to the database
         db = new DatabaseIf();
-        // TALK( "adding dbf to adminif" );
+        // LDEBUG << "adding dbf to adminif";
         // admin->setCurrentDatabaseIf( db );
-        TALK( "opening db" );
+        LDEBUG << "opening db";
         db->open( baseName2 );
     }
 
@@ -429,11 +425,9 @@ connectDB( const char* baseName2, bool openDb, bool openTa ) throw (r_Error, Ras
     {
         // start transaction
         ta = new TransactionIf();
-        TALK( "opening ta" );
+        LDEBUG << "opening ta";
         ta->begin( db );
     }
-
-    LEAVE( "connectDB" );
 }
 
 // check whether command fits with given keyword (case insensitive), maybe after stripping leading whitespace
@@ -700,7 +694,7 @@ parseParams(int argc, char* argv[]) throw (r_Error, RasdlError)
     if( cmlHHGen.isPresent() && !cmlReadMeta.isPresent() )
         throw RasdlError( ILLEGALHHCOMBI );
 
-    TALK( "connect=" << globalConnectId );
+    LDEBUG << "connect=" << globalConnectId;
 } // parseParams()
 
 void
@@ -731,14 +725,26 @@ readMode() throw (r_Error, RasdlError)
     cout << "ok" << endl;
 }
 
-
+_INITIALIZE_EASYLOGGINGPP
 
 int
 main( int argc, char* argv[] )
 {
+    //Logging configuration: to standard output, LDEBUG and LTRACE are not enabled
+    easyloggingpp::Configurations defaultConf;
+    defaultConf.setToDefault();
+    defaultConf.set(easyloggingpp::Level::All,
+            easyloggingpp::ConfigurationType::Format, "%datetime %level %log");
+    defaultConf.set(easyloggingpp::Level::All,
+            easyloggingpp::ConfigurationType::ToFile, "false");
+    defaultConf.set(easyloggingpp::Level::All,
+            easyloggingpp::ConfigurationType::ToStandardOutput, "true");
+    defaultConf.set(easyloggingpp::Level::Debug,
+            easyloggingpp::ConfigurationType::Enabled, "false");
+    defaultConf.set(easyloggingpp::Level::Trace,
+            easyloggingpp::ConfigurationType::Enabled, "false");
+    easyloggingpp::Loggers::reconfigureAllLoggers ( defaultConf );
     SET_OUTPUT( false );        // ...unless we are otherwise instructed by --debug parameter
-
-    ENTER( "main()" );
 
     int result = EXIT_FAILURE;  // program exit code
 
@@ -753,13 +759,13 @@ main( int argc, char* argv[] )
         switch( progMode )
         {
         case M_READ:
-            TALK( "command is: M_READ" );
+            LDEBUG << "command is: M_READ";
             connectDB( baseName, true, true );
             readMode();
             disconnectDB( true );
             break;
         case M_DELBASETYPE:
-            TALK( "command is: M_DELBASETYPE" );
+            LDEBUG << "command is: M_DELBASETYPE";
             cout << "Deleting basetype " << deleteName << "..." << flush;
             connectDB( baseName, true, true );
             TypeFactory::deleteStructType( deleteName );
@@ -767,7 +773,7 @@ main( int argc, char* argv[] )
             cout << "ok" << endl;
             break;
         case M_DELMDDTYPE:
-            TALK( "command is: M_DELMDDTYPE" );
+            LDEBUG << "command is: M_DELMDDTYPE";
             cout << "Deleting MDD type " << deleteName << "..." << flush;
             connectDB( baseName, true, true );
             TypeFactory::deleteMDDType( deleteName );
@@ -775,7 +781,7 @@ main( int argc, char* argv[] )
             cout << "ok" << endl;
             break;
         case M_DELSETTYPE:
-            TALK( "command is: M_DELSETTYPE" );
+            LDEBUG << "command is: M_DELSETTYPE";
             cout << "Deleting set type " << deleteName << "..." << flush;
             connectDB( baseName, true, true );
             TypeFactory::deleteSetType( deleteName );
@@ -783,7 +789,7 @@ main( int argc, char* argv[] )
             cout << "ok" << endl;
             break;
         case M_CREATEDATABASE:
-            TALK( "command is: M_CREATEDATABASE" );
+            LDEBUG << "command is: M_CREATEDATABASE";
             cout << "Creating base " << baseName;
 #ifdef BASEDB_O2
             cout << " with schema " << dbSchema;
@@ -801,25 +807,25 @@ main( int argc, char* argv[] )
             cout << "ok" << endl;
             break;
         case M_DELDATABASE:
-            TALK( "command is: M_DELDATABASE" );
+            LDEBUG << "command is: M_DELDATABASE";
             cout << "Deleting database " << baseName << "...";
-            TALK( "connecting" );
+            LDEBUG << "connecting";
             connectDB( baseName, false, false );
-            TALK( "creating new DatabaseIf" );
+            LDEBUG << "creating new DatabaseIf";
             db = new DatabaseIf();
-            TALK( "destroying db" );
+            LDEBUG << "destroying db";
             db->destroyDB(baseName);
             disconnectDB( true );
             cout << "ok" << endl;
             break;
         case M_PRINT:
-            TALK( "command is: M_PRINT" );
+            LDEBUG << "command is: M_PRINT";
             connectDB( baseName, true, true );
             printNames();
             disconnectDB( false );  // abort TA - we did only reading
             break;
         case M_INVALID:
-            TALK( "command is: M_INVALID" );
+            LDEBUG << "command is: M_INVALID";
             cerr << ERROR_NOACTION << endl;
             break;
         default:
@@ -848,6 +854,5 @@ main( int argc, char* argv[] )
 
     cout << argv[0] << " done." << endl;
 
-    LEAVE( "main() -> " << result );
     return( result );
 }

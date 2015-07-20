@@ -490,8 +490,6 @@ parseParams(int argc, char** argv) throw(RasqlError, r_Error)
 void
 openDatabase() throw(r_Error)
 {
-    ENTER("openDatabase");
-
     if (!dbIsOpen)
     {
         sprintf(globalConnectId, "%s", baseName);
@@ -507,71 +505,60 @@ openDatabase() throw(r_Error)
         dbIsOpen = true;
         INFO(" ok" << endl << flush);
     }
-
-    LEAVE("openDatabase");
 } // openDatabase()
 
 void
 closeDatabase() throw(r_Error)
 {
-    ENTER("closeDatabase");
-
     if (dbIsOpen)
     {
-        TALK("database was open, closing it");
+        LDEBUG << "database was open, closing it";
         server->closeDB(DQ_CLIENT_ID);
         delete myAdmin;
         dbIsOpen = false;
     }
 
-    LEAVE("closeDatabase");
     return;
 } // closeDatabase()
 
 void
 openTransaction(bool readwrite) throw(r_Error)
 {
-    ENTER("openTransaction, readwrite=" << (readwrite ? "rw" : "ro"));
-
     if (!taIsOpen)
     {
         if (readwrite)
         {
-            TALK("transaction was closed, opening rw...");
+            LDEBUG << "transaction was closed, opening rw...";
             server->beginTA(DQ_CLIENT_ID, false);
-            TALK("ok");
+            LDEBUG << "ok";
         }
         else
         {
-            TALK("transaction was closed, opening ro...");
+            LDEBUG << "transaction was closed, opening ro...";
             server->beginTA(DQ_CLIENT_ID, true);
-            TALK("ok");
+            LDEBUG << "ok";
         }
 
         taIsOpen = true;
     }
-
-    LEAVE("openTransaction");
 } // openTransaction()
 
 void
 closeTransaction(bool doCommit) throw(r_Error)
 {
-    ENTER("closeTransaction, doCommit=" << doCommit);
-
     if (taIsOpen)
     {
         if (doCommit)
         {
-            TALK("transaction was open, committing it...");
+            LDEBUG << "transaction was open, committing it...";
             server->commitTA(DQ_CLIENT_ID);
-            TALK("ok");
+            LDEBUG << "ok";
         }
         else
         {
-            TALK("transaction was open, aborting it...");
+            LDEBUG << "transaction was open, aborting it...";
             server->abortTA(DQ_CLIENT_ID);
-            TALK("ok");
+            LDEBUG << "ok";
         }
         taIsOpen = false;
     }
@@ -580,14 +567,11 @@ closeTransaction(bool doCommit) throw(r_Error)
         LockManager * lockManager = LockManager::Instance();
         lockManager->clearLockTable();
     }
-    LEAVE("closeTransaction");
     return;
 } // closeTransaction()
 
 void printScalar(char* buffer, QtData* data, unsigned int resultIndex)
 {
-    ENTER("printScalar");
-
     INFO("  Result object " << resultIndex << ": ");
 
     switch (data->getDataType())
@@ -659,8 +643,6 @@ void printScalar(char* buffer, QtData* data, unsigned int resultIndex)
         break;
     }
     INFO(endl << flush);
-
-    LEAVE("printScalar");
 } // printScalar()
 
 
@@ -668,8 +650,6 @@ void printScalar(char* buffer, QtData* data, unsigned int resultIndex)
 
 void printResult(Tile* tile, int resultIndex) throw(RasqlError)
 {
-    ENTER("printResult");
-
     const char* theStuff = tile->getContents();
     r_Bytes numCells = tile->getSize();
 
@@ -698,7 +678,7 @@ void printResult(Tile* tile, int resultIndex) throw(RasqlError)
     {
         char defFileName[FILENAME_MAX];
         (void) snprintf(defFileName, sizeof (defFileName) - 1, outFileMask, resultIndex);
-        TALK("filename for #" << resultIndex << " is " << defFileName);
+        LDEBUG << "filename for #" << resultIndex << " is " << defFileName;
 
         // special treatment only for DEFs
         r_Data_Format mafmt = tile->getDataFormat();
@@ -759,13 +739,10 @@ void printResult(Tile* tile, int resultIndex) throw(RasqlError)
         break;
     } // switch(outputType)
 
-    LEAVE("printResult");
 } // printResult()
 
 void printOutput(unsigned short status, ExecuteQueryRes* result) throw(RasqlError)
 {
-    ENTER("printOutput");
-
     switch (status)
     {
     case STATUS_MDD:
@@ -834,8 +811,6 @@ void printOutput(unsigned short status, ExecuteQueryRes* result) throw(RasqlErro
             }
         }
     }
-
-    LEAVE("printOutput");
 }
 
 /*
@@ -846,7 +821,6 @@ void printOutput(unsigned short status, ExecuteQueryRes* result) throw(RasqlErro
  */
 r_Marray_Type * getTypeFromDatabase(const char *mddTypeName2) throw(RasqlError, r_Error)
 {
-    ENTER("getTypeFromDatabase, mddTypeName=" << mddTypeName2);
     r_Marray_Type *retval = NULL;
     char* typeStructure = NULL;
 
@@ -859,23 +833,23 @@ r_Marray_Type * getTypeFromDatabase(const char *mddTypeName2) throw(RasqlError, 
         {
             typeStructure = strdup("marray<char>");
         }
-        TALK("type structure is " << typeStructure);
+        LDEBUG << "type structure is " << typeStructure;
     }
 
     catch(r_Error & err)
     {
         if (err.get_kind() == r_Error::r_Error_DatabaseClassUndefined)
         {
-            TALK("Type is not a well known type: " << typeStructure);
+            LDEBUG << "Type is not a well known type: " << typeStructure;
             typeStructure = new char[strlen(mddTypeName2) + 1];
             // earlier code tried this one below, but I feel we better are strict -- PB 2003-jul-06
             // strcpy(typeStructure, mddTypeName2);
-            // TALK( "using instead: " << typeStructure );
+            // LDEBUG <<  "using instead: " << typeStructure;
             throw RasqlError(MDDTYPEINVALID);
         }
         else // unanticipated error
         {
-            TALK("Error during type retrieval from database: " << err.get_errorno() << " " << err.what());
+            LDEBUG << "Error during type retrieval from database: " << err.get_errorno() << " " << err.what();
             throw;
         }
     }
@@ -884,16 +858,16 @@ r_Marray_Type * getTypeFromDatabase(const char *mddTypeName2) throw(RasqlError, 
     r_Type* tempType = NULL;
     try{
         tempType = r_Type::get_any_type(typeStructure);
-        TALK("get_any_type() for this type returns: " << tempType);
+        LDEBUG << "get_any_type() for this type returns: " << tempType;
         if (tempType->isMarrayType())
         {
             retval = (r_Marray_Type*) tempType;
             tempType = NULL;
-            TALK("found MDD type: " << retval);
+            LDEBUG << "found MDD type: " << retval;
         }
         else
         {
-            TALK("type is not an marray type: " << typeStructure);
+            LDEBUG << "type is not an marray type: " << typeStructure;
             SECURE_DELETE_PTR(tempType);
             retval = NULL;
             throw RasqlError(MDDTYPEINVALID);
@@ -902,7 +876,7 @@ r_Marray_Type * getTypeFromDatabase(const char *mddTypeName2) throw(RasqlError, 
 
     catch(r_Error & err)
     {
-        TALK("Error during retrieval of MDD type structure (" << typeStructure << "): " << err.get_errorno() << " " << err.what());
+        LDEBUG << "Error during retrieval of MDD type structure (" << typeStructure << "): " << err.get_errorno() << " " << err.what();
         SECURE_FREE_PTR(typeStructure);
         SECURE_DELETE_PTR(tempType);
         throw;
@@ -910,7 +884,6 @@ r_Marray_Type * getTypeFromDatabase(const char *mddTypeName2) throw(RasqlError, 
 
     SECURE_FREE_PTR(typeStructure);
 
-    LEAVE("getTypeFromDatabase, retval=" << retval);
     return retval;
 } // getTypeFromDatabase()
 
@@ -940,10 +913,8 @@ void doStuff() throw(RasqlError, r_Error)
     RPCMarray *marray = NULL;
     r_Bytes baseTypeSize = 0;
 
-    ENTER("doStuff");
-
     r_OQL_Query query(queryString);
-    TALK("query is: " << query.get_query());
+    LDEBUG << "query is: " << query.get_query();
 
     try {
         if (fileName != NULL)
@@ -966,7 +937,7 @@ void doStuff() throw(RasqlError, r_Error)
 
             fseek(fileD, 0, SEEK_END);
             long size = ftell(fileD);
-            TALK("file size is " << size << " bytes");
+            LDEBUG << "file size is " << size << " bytes";
 
             if (size == 0)
             {
@@ -977,7 +948,7 @@ void doStuff() throw(RasqlError, r_Error)
             if (!mddDomainDef)
             {
                 mddDomain = r_Minterval(1) << r_Sinterval(static_cast<r_Range>(0), static_cast<r_Range>(size) - 1);
-                TALK("domain set to " << mddDomain);
+                LDEBUG << "domain set to " << mddDomain;
             }
             else if (size != static_cast<long>(mddDomain.cell_count() * mddType->base_type().size()))
             {
@@ -1007,7 +978,7 @@ void doStuff() throw(RasqlError, r_Error)
             }
             catch(std::bad_alloc)
             {
-                TALK("Unable to claim memory: " << size << " Bytes");
+                LDEBUG << "Unable to claim memory: " << size << " Bytes";
                 throw RasqlError(UNABLETOCLAIMRESOURCEFORFILE);
             }
 
@@ -1127,19 +1098,15 @@ void doStuff() throw(RasqlError, r_Error)
     ObjectBroker::clearBroker();
 
     INFO("ok." << endl << flush);
-    LEAVE("doStuff");
 }
 
 void
 crash_handler(__attribute__ ((unused)) int sig, __attribute__ ((unused)) siginfo_t* info, void * ucontext)
 {
-    ENTER("crash_handler");
-
     print_stacktrace(ucontext);
     // clean up connection in case of segfault
     closeTransaction(false);
     ObjectBroker::clearBroker();
-    LEAVE("crash_handler");
     exit(SEGFAULT_EXIT_CODE);
 }
 
@@ -1151,14 +1118,16 @@ _INITIALIZE_EASYLOGGINGPP
 int main(int argc, char** argv)
 {
     //TODO-GM: find a better way to do this
-#ifdef RMANRASNET
     easyloggingpp::Configurations defaultConf;
     defaultConf.setToDefault();
-    defaultConf.set(easyloggingpp::Level::Error,
+    defaultConf.set(easyloggingpp::Level::All,
                     easyloggingpp::ConfigurationType::Format,
-                    "%datetime %level %loc %log %func ");
+                    "%datetime %level %log");
+    defaultConf.set(easyloggingpp::Level::Debug,
+                    easyloggingpp::ConfigurationType::Enabled, "false");
+    defaultConf.set(easyloggingpp::Level::Trace,
+                    easyloggingpp::ConfigurationType::Enabled, "false");
     easyloggingpp::Loggers::reconfigureAllLoggers(defaultConf);
-#endif
 
     SET_OUTPUT(false); // inhibit unconditional debug output, await cmd line evaluation
 

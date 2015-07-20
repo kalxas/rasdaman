@@ -54,6 +54,7 @@ rasdaman GmbH.
 
 // debug facility; relies on -DDEBUG at compile time
 #include "debug-clt.hh"
+#include "../../common/src/logging/easylogging++.hh"
 
 //installSignalHandlers function should be called first in main function
 //in order to receive a signal in your program
@@ -176,7 +177,7 @@ signalHandler(int sig)
         return;
     else
     {
-        TALK( "fatal signal, exiting." << flush );
+        LDEBUG << "fatal signal, exiting.";
         exit(sig);
     }
 }
@@ -184,8 +185,6 @@ signalHandler(int sig)
 void
 installSignalHandlers()
 {
-    ENTER( "installSignalHandlers" );
-
     signal(SIGINT, signalHandler);
     signal(SIGTERM, signalHandler);
     signal(SIGHUP, signalHandler);
@@ -233,6 +232,5 @@ installSignalHandlers()
     signal(SIGUNUSED, signalHandler);
 #endif
 #endif
-    LEAVE( "installSignalHandlers" );
 }
 

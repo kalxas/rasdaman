@@ -52,6 +52,8 @@ rasdaman GmbH.
 
 #include "externs.h"
 
+#include "../common/src/logging/easylogging++.hh"
+
 // defined in rasserver.cc
 extern char globalConnectId[256];
 
@@ -72,7 +74,6 @@ bool AdminIf::_isAborted = false;
 bool
 AdminIf::isAborted()
 {
-    RMDBGENTER(4, RMDebug::module_adminif, "Adminif", "isAborted()");
     bool retval=false;
 
 #ifdef READ_ONLY_RMAN
@@ -80,41 +81,39 @@ AdminIf::isAborted()
 #else
     retval=_isAborted;
 #endif
-    RMDBGEXIT(4, RMDebug::module_adminif, "AdminIf", "isAborted() " << retval);
     return retval;
 }
 
 void
 AdminIf::setAborted(bool newAborted)
 {
-    RMDBGONCE(4, RMDebug::module_adminif, "AdminIf", "setAborted(" << newAborted << ") " << _isAborted);
+    LTRACE << "setAborted(" << newAborted << ") " << _isAborted;
     _isAborted = newAborted;
 }
 
 DatabaseIf*
 AdminIf::getCurrentDatabaseIf()
 {
-    RMDBGONCE(4, RMDebug::module_adminif, "Adminif", "getCurrentDatabaseIf() " << myDatabaseIf);
+    LTRACE << "getCurrentDatabaseIf() " << myDatabaseIf;
     return myDatabaseIf;
 }
 
 void
 AdminIf::setCurrentDatabaseIf(DatabaseIf* db)
 {
-    RMDBGONCE(4, RMDebug::module_adminif, "Adminif", "setCurrentDatabaseIf(" << db << ") " << myDatabaseIf);
+    LTRACE << "setCurrentDatabaseIf(" << db << ") " << myDatabaseIf;
     myDatabaseIf = db;
 }
 
 AdminIf*
 AdminIf::instance()
 {
-    RMDBGENTER(4, RMDebug::module_adminif, "Adminif", "instance() " << myInstance);
     AdminIf* retval=NULL;
 
     int hostResult = gethostname(systemName, sizeof(systemName) );
     if (hostResult != 0)
     {
-        RMDBGONCE(4, RMDebug::module_adminif, "Adminif", "Error: cannot obtain hostname, using 'localhost'; errno=" << errno );
+        LTRACE << "Error: cannot obtain hostname, using 'localhost'; errno=" << errno;
         (void) strcpy( systemName, DEFAULT_SYSTEM_NAME );
     }
     if(!myInstance)
@@ -124,14 +123,11 @@ AdminIf::instance()
     if(validConnection)
         retval=myInstance;
 
-    RMDBGEXIT(4, RMDebug::module_adminif, "Adminif", "instance() " << retval);
     return retval;
 }
 
 AdminIf::~AdminIf()
 {
-    RMDBGENTER(4, RMDebug::module_adminif, "Adminif", "~AdminIf()");
-
     myInstance = NULL;
     ObjectBroker::deinit();
 
@@ -148,27 +144,26 @@ AdminIf::~AdminIf()
 
     OId::oidResolve.setOutput(0);
 #endif
-    RMDBGEXIT(4, RMDebug::module_adminif, "Adminif", "~AdminIf()");
 }
 
 void
 AdminIf::setReadOnlyTA(bool newReadOnlyTA)
 {
-    RMDBGONCE(4, RMDebug::module_adminif, "Adminif", "setReadOnlyTA(" << newReadOnlyTA << ")" << readOnlyTA);
+    LTRACE << "setReadOnlyTA(" << newReadOnlyTA << ")" << readOnlyTA;
     readOnlyTA = newReadOnlyTA;
 }
 
 bool
 AdminIf::isReadOnlyTA()
 {
-    RMDBGONCE(4, RMDebug::module_adminif, "Adminif", "isReadOnlyTA()" << readOnlyTA);
+    LTRACE << "isReadOnlyTA()" << readOnlyTA;
     return readOnlyTA;
 }
 
 char*
 AdminIf::getSystemName()
 {
-    RMDBGONCE(4, RMDebug::module_adminif, "Adminif", "getSystemName()" <<systemName);
+    LTRACE << "getSystemName()" << systemName;
     return systemName;
 }
 

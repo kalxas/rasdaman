@@ -51,6 +51,7 @@ using namespace std;
 
 #include "debug-srv.hh"
 #include "raslib/rmdebug.hh"
+#include "../common/src/logging/easylogging++.hh"
 
 
 
@@ -99,7 +100,6 @@ MasterComm::~MasterComm()
 
 void MasterComm::Run()
 {
-    ENTER("MasterComm::Run: enter." );
     RMTIMER( "MasterComm", "Run" );         // benchmark this routine, if enabled
 
     initListenSocket(config.getListenPort());       // connect/bind the central listen socket
@@ -111,11 +111,11 @@ void MasterComm::Run()
 
     selector.setTimeout( config.getPollFrequency() , 0 );
 
-    VLOG << "Entering server mode, prepared to receive requests." << endl << endl;
+    LDEBUG << "Entering server mode, prepared to receive requests.";
 
     while(mayExit()==false)
     {
-        TALK("MasterComm::Run: new request cycle, status before processing is:" );
+        LDEBUG <<"MasterComm::Run: new request cycle, status before processing is:";
         printStatus();
 
         if(commit)
@@ -123,31 +123,31 @@ void MasterComm::Run()
 
         int answerLen=0;
 
-        TALK("MasterComm::Run: (c) Waiting...");
+        LDEBUG <<"MasterComm::Run: (c) Waiting...";
 
         // wait for incoming requests, using select()
         int r=selector.waitForRequest();        // 0 is timeout, <0 error, >0 success
         // again, IOSelector level here!
 
-        TALK("MasterComm::Run: (d) It's ringing..." << r);
+        LDEBUG <<"MasterComm::Run: (d) It's ringing..." << r;
 
         localServerManager.cleanChild(); // sa fie
 
         if(r<0)                     // nothing to read
         {
-            TALK("MasterComm::Run: (f1) it's a signal (or a socket failure)...");
+            LDEBUG <<"MasterComm::Run: (f1) it's a signal (or a socket failure)...";
             continue;
         }
         if(r==0)                    // timeout, nothing to read
         {
-            TALK("MasterComm::Run: (f2) nothing, look for timeouts...");
+            LDEBUG <<"MasterComm::Run: (f2) nothing, look for timeouts...";
             lookForTimeout();
             continue;
         }
         if(r>0)                     // something is pending
         {
 
-            TALK("MasterComm::Run: (e) Got request, r=" << r << "...");
+            LDEBUG <<"MasterComm::Run: (e) Got request, r=" << r << "...";
 
             // iterate over all jobs to see what we can read / reconnect (?) / write
             dispatchWriteRequest(); // first this, to increase the chance to free a client
@@ -156,7 +156,7 @@ void MasterComm::Run()
 
             for(int i=0; i<maxJobs; i++)
             {
-                TALK( "- request processing: " << i );  // fake similar entry to benchmark logger
+                LDEBUG << "- request processing: " << i;  // fake similar entry to benchmark logger
                 // creates too large log files, so omit in production:
                 // BenchmarkTimer *bPtr = new BenchmarkTimer("request processing");// print job start time to log
 
@@ -167,7 +167,6 @@ void MasterComm::Run()
             }
         }
     }
-    LEAVE("MasterComm::Run: leave." );
 } // Run()
 
 // keep connection open after processing request?
@@ -177,33 +176,27 @@ static bool keepConnection;
 
 void MasterComm::processJob(NbJob &currentJob)
 {
-    ENTER( "MasterComm::processJob: enter." );
-
     if(currentJob.isOperationPending()==false )
     {
-        LEAVE( "MasterComm::processJob: leave. isOperationPending=false" );
         return;
     }
 
     if(currentJob.wasError())               // low-level comm error
     {
-        TALK( "MasterComm::processJob: closing connection." );
+        LDEBUG << "MasterComm::processJob: closing connection." ;
         currentJob.closeConnection();
-        LEAVE( "MasterComm::processJob: leave." );
         return;
     }
 
     if(currentJob.isMessageOK() == false)
     {
-        LEAVE( "MasterComm::processJob: leave. isMessageOK=false" );
         return;
     }
 
     if(fillInBuffer(currentJob.getMessage())==false)    // fill msg into answer buffer header + body
     {
-        TALK( "MasterComm::processJob: closing connection." );
+        LDEBUG << "MasterComm::processJob: closing connection.";
         currentJob.closeConnection();
-        LEAVE( "MasterComm::processJob: leave. fillInBuffer=false" );
         return;
     }
 
@@ -216,13 +209,13 @@ void MasterComm::processJob(NbJob &currentJob)
     if(outLen && answer != 2) // sending the answer
         // FIXME: what is answer==2 ? never happens! -- PB 2003-jun-10
     {
-        TALK( "MasterComm::processJob: init sending answer for outBuffer, set socket to write mode." );
+        LDEBUG << "MasterComm::processJob: init sending answer for outBuffer, set socket to write mode.";
         currentJob.initSendAnswer(outBuffer);
     }
 
     if(outLen == 0) // no answer to send
     {
-        TALK( "MasterComm::processJob: no answer to send, closing connection." );
+        LDEBUG << "MasterComm::processJob: no answer to send, closing connection.";
         currentJob.closeConnection();
     }
 
@@ -231,7 +224,7 @@ void MasterComm::processJob(NbJob &currentJob)
         // ...and 1 comes back for POST rasservernewstatus
     {
         // the only known until now
-        TALK( "MasterComm::processJob: delayedOp, therefore changeServerStatus()." );
+        LDEBUG << "MasterComm::processJob: delayedOp, therefore changeServerStatus().";
         rasManager.changeServerStatus(body);
     }
     /* Two words about this delayedOperation. If a remote server crashes, the remote rasmgr
@@ -244,11 +237,10 @@ void MasterComm::processJob(NbJob &currentJob)
     // EXPERIMENTAL: close sockets as soon and as always as possible
     // if (! keepConnection)        // singleton request or comm error
     // {
-    // TALK( "MasterComm::processJob: singleton request, closing connection." );
+    // LDEBUG << "MasterComm::processJob: singleton request, closing connection.";
     // currentJob.closeConnection();
     // }
 
-    LEAVE( "MasterComm::processJob: leave." );
 }  // processJob()
 
 
@@ -280,8 +272,6 @@ bool isIp(char *str)
 // checks if the request comes from a known inpeer
 bool hostCmpPeer(char *h1, char *h2) 
 {
-    ENTER( "hostCmpPeer( " << h1 << ", " << h2 << " )" );
-
     bool result = false;
 
     if ( h1 == NULL && h2 == NULL )
@@ -381,8 +371,6 @@ bool hostCmpPeer(char *h1, char *h2)
 // NB: keepConnection is static above -- bad hack, see there
 int MasterComm::processRequest( NbJob &currentJob )
 {
-    ENTER( "MasterComm::processRequest: enter. inBuffer=" << inBuffer );
-
     // inBuffer: header + body Ok, output in outBuffer, which is not initialized here
     outBuffer[0]=0;     // mark outBuffer as empty
     int answer = 0;
@@ -395,9 +383,9 @@ int MasterComm::processRequest( NbJob &currentJob )
     if(isMessage("POST peerrequest"))
     {
 
-        VLOG << now() << " peer request from "
+        LDEBUG << now() << " peer request from "
              << getClientAddr( currentJob.getSocket() )
-             << ": " << "'get server'..." << flush;
+             << ": " << "'get server'...";
         
         bool known = false;
         char* hostName = body;
@@ -413,13 +401,13 @@ int MasterComm::processRequest( NbJob &currentJob )
         {
             int rc = getFreeServer(fake, true);   
             keepConnection = true; 
-            VLOG << "ok" << endl;
+            LDEBUG << "ok";
         }
         else
         {
             answerAccessDeniedCode();
             keepConnection = true;
-            VLOG << "denied." << endl;
+            LDEBUG << "denied.";
         }
     }
     else if(isMessage("POST rasservernewstatus"))
@@ -454,9 +442,9 @@ int MasterComm::processRequest( NbJob &currentJob )
             }
             if (newstatus != SERVER_REGULARSIG && newstatus != SERVER_AVAILABLE)    // don't blow up the log file with "still alive" signals
             {
-                VLOG << now() << " status info from server " << serverName
+                LDEBUG << now() << " status info from server " << serverName
                      << " @ " << getClientAddr( currentJob.getSocket() )
-                     << ": '" << statusText << "'...ok" << endl;
+                     << ": '" << statusText << "'...ok";
             }
 
             keepConnection = false;         // singleton msg slave -> master
@@ -464,52 +452,51 @@ int MasterComm::processRequest( NbJob &currentJob )
         }
         else // malformed request
         {
-            VLOG << now() << " Error: malformed request (ignoring it) from "
+            LDEBUG << now() << " Error: malformed request (ignoring it) from "
                  << getClientAddr( currentJob.getSocket() )
-                 << ": '" << body << "'" << endl;
+                 << ": '" << body << "'";
         }
     }
     else if( (fake = isMessage("POST getfreeserver2")) || isMessage("POST getfreeserver"))
     {
-        VLOG << now() << " client request from "
+        LDEBUG << now() << " client request from "
              << getClientAddr( currentJob.getSocket() )
-             << ": " << "'get server'..." << flush;
+             << ": " << "'get server'...";
 
         if(authorization.acceptEntry(header))
         {
             int rc = getFreeServer(fake, false);   // returns std rasdaman errors -- FIXME: error ignored!
             keepConnection = (rc == MSG_OK) ? true : false; // 200 is "ok"
-            VLOG << "ok" << endl;
+            LDEBUG << "ok";
         }
         else
         {
             answerAccessDeniedCode();
             keepConnection = false;     // this is a final answer, don't keep conn open afterwards
-            VLOG << "denied." << endl;
+            LDEBUG << "denied.";
         }
 
     }
     else if(isMessage("POST rascontrol"))
     {
-        VLOG << now() << " rascontrol request from "
+        LDEBUG << now() << " rascontrol request from "
              << getClientAddr( currentJob.getSocket() )
-             << ": '" << body << "'..." << flush;
+             << ": '" << body << "'...";
 
         if(authorization.acceptEntry(header))
         {
             rascontrol.processRequest(body,outBuffer);
             keepConnection = true;      // rascontrol connection accepted, so keep it
-            VLOG << "ok" << endl;
+            LDEBUG << "ok";
         }
         else
         {
             answerAccessDenied();
             keepConnection = false;     // this is a final answer, don't keep conn open afterwards
-            VLOG << "denied." << endl;
+            LDEBUG << "denied.";
         }
     }
 
-    LEAVE( "MasterComm::processRequest: leave. answer=" << answer << ", keepConnection=" << keepConnection );
     return answer;
 } // processRequest()
 
@@ -531,7 +518,7 @@ bool MasterComm::fillInBuffer(const char *s)
     body=strstr(inBuffer, RASMGRPROT_DOUBLE_EOL );  // find double EOL, this is where body starts
     if(body == NULL)                // not found? this means a protocol syntax error
     {
-        TALK( "MasterComm::fillInBuffer: Error in rasmgr protocol encountered (2xEOL missing). msg=" << inBuffer );
+        LDEBUG << "MasterComm::fillInBuffer: Error in rasmgr protocol encountered (2xEOL missing). msg=" << inBuffer;
         return false; // only if client is stupid
     }
 
@@ -546,23 +533,23 @@ void MasterComm::doCommit()
 {
     if(config.isTestModus()==false)
     {
-        TALK( "MasterComm::doCommit: deprecated, should not be called any longer." );
+        LDEBUG << "MasterComm::doCommit: deprecated, should not be called any longer.";
 #if 0 // now done by saveCommand() directly
         if(commitAuthOnly==false)
         {
-            VLOG << "Save configuration file...";
-            if(config.saveConfigFile()) VLOG << "OK" << std::endl;
-            else                        VLOG << "Failed" << std::endl;
+            LDEBUG << "Save configuration file...";
+            if(config.saveConfigFile()) LDEBUG << "OK";
+            else                        LDEBUG << "Failed";
         }
 
-        VLOG << "Save authorization file...";
-        if(authorization.saveAuthFile()) VLOG << "OK" << std::endl;
-        else                             VLOG << "Failed" << std::endl;
+        LDEBUG << "Save authorization file...";
+        if(authorization.saveAuthFile()) LDEBUG << "OK";
+        else                             LDEBUG << "Failed";
 #endif
     }
     else
     {
-        RMInit::logOut<<"Save requested, but not permitted during test modus!"<<std::endl;
+        LWARNING<<"Save requested, but not permitted during test modus!";
     }
     commit=false;
 }
@@ -610,8 +597,6 @@ int MasterComm::getFreeServer(bool fake, bool frompeer)
     char accessType[5];
     char prevID[200]="(none)";
 
-    ENTER("MasterComm::getFreeServer: enter. fake=" << fake << ", body="<<body<<'*');
-
     // initialize server name
     strcpy( serverName, "(none)" );
 
@@ -619,8 +604,7 @@ int MasterComm::getFreeServer(bool fake, bool frompeer)
     int count = sscanf(body,"%s %s %s %s",databaseName,serverType,accessType, prevID);
     if (count != 4 && count != 3)
     {
-        RMInit::logOut << "Error (internal): Cannot parse msg body received from client." << endl;
-        LEAVE("MasterComm::getFreeServer: leave. Fatal error: cannot parse msg body string '" << body << "'" );
+        LERROR << "Error (internal): Cannot parse msg body received from client.";
         return MSG_ILLEGAL;
     }
 
@@ -630,7 +614,7 @@ int MasterComm::getFreeServer(bool fake, bool frompeer)
     if(count >3)
         clientID.init(prevID);
     
-    TALK("GetFreeServer: db = " << databaseName << ", requested server type = " << serverType << ", access type = " << accessType << ", clientID="<<clientID<<" prevID="<< prevID );
+    LDEBUG << "GetFreeServer: db = " << databaseName << ", requested server type = " << serverType << ", access type = " << accessType << ", clientID="<<clientID<<" prevID="<< prevID;
 
     char sType=0;                   // type of server requested, values SERVERTYPE_*
     bool writeTransaction;              // true <=> write transaction requested
@@ -655,7 +639,7 @@ int MasterComm::getFreeServer(bool fake, bool frompeer)
             sType=SERVERTYPE_FLAG_RNP;
         if(sType==0)
         {
-            RMInit::logOut << "Error: unknown server type: " << serverType << endl;
+            LERROR << "Error: unknown server type: " << serverType;
             answCode=MSG_UNKNOWNSERVERTYPE;
             break;
         }
@@ -667,12 +651,12 @@ int MasterComm::getFreeServer(bool fake, bool frompeer)
             writeTransaction=true;
         else
         {
-            RMInit::logOut << "Error: unknown transaction type: " << accessType << endl;
+            LERROR << "Error: unknown transaction type: " << accessType;
             answCode=MSG_UNKNOWNACCESSTYPE;
             break;
         }
 
-        TALK("accessType="<<accessType<<" writeTransaction="<<writeTransaction);
+        LDEBUG << "accessType=" << accessType<<" writeTransaction="<<writeTransaction;
 
         // --- check against database state ------------------------
 
@@ -680,7 +664,7 @@ int MasterComm::getFreeServer(bool fake, bool frompeer)
         Database &db=dbManager[databaseName];
         if(db.isValid()==false)
         {
-            RMInit::logOut << "Error: database not found: " << databaseName << endl;
+            LERROR << "Error: database not found: " << databaseName;
             answCode=MSG_DATABASENOTFOUND;
             break;
         }
@@ -688,7 +672,7 @@ int MasterComm::getFreeServer(bool fake, bool frompeer)
         // if r/w TA requested: is this compatible with the database's transaction state?
         if(writeTransaction==true && db.getWriteTransactionCount() && allowMultipleWriteTransactions == false)
         {
-            RMInit::logOut << "Error: write transaction in progress, conflicts with request." << endl;
+            LERROR << "Error: write transaction in progress, conflicts with request.";
             answCode=MSG_WRITETRANSACTION;
             break;
         }
@@ -699,12 +683,12 @@ int MasterComm::getFreeServer(bool fake, bool frompeer)
         // FIXME: should be "round robin" strategy wrt server hosts;
         // take last used per server host is fine to reduce swapping
         int countSuitableServers=0;     // number of servers we can choose from
-        TALK( "starting to search for server of type " << sType << "..." );
+        LDEBUG << "starting to search for server of type " << sType << "..." ;
         for(int i=0; i<db.countConnectionsToRasServers(); i++)
         {
             // inspect next server
             RasServer &r=rasManager[db.getRasServerName(i)]; 
-            TALK( "  srv #" << i << ": name=" << r.getName() << ", type=" << r.getType() << ", isUp=" << r.isUp() << ", isAvailable=" << r.isAvailable() );
+            LDEBUG << "  srv #" << i << ": name=" << r.getName() << ", type=" << r.getType() << ", isUp=" << r.isUp() << ", isAvailable=" << r.isAvailable();
             if(sType == r.getType())    // type matches request?
             {
                 if(r.isUp())        // server is up?
@@ -717,8 +701,8 @@ int MasterComm::getFreeServer(bool fake, bool frompeer)
                     // returns: 0=OK, otherwise rasdaman errors 801, 805 -- PB 2003-nov-20
                     if(cbs != 0)
                     {
-                        TALK("MasterComm::getFreeServer: clientQueue.canBeServed(" << clientID << "," << databaseName << "," << sType << "," << fake << ") -> " << cbs );
-                        RMInit::logOut << "Error: no server available, error code: " << cbs << endl;
+                        LDEBUG <<"MasterComm::getFreeServer: clientQueue.canBeServed(" << clientID << "," << databaseName << "," << sType << "," << fake << ") -> " << cbs;
+                        LERROR << "Error: no server available, error code: " << cbs;
                         answCode = cbs;
                         break;
                     }
@@ -731,7 +715,7 @@ int MasterComm::getFreeServer(bool fake, bool frompeer)
                             r.startWriteTransaction(db); // nothing real happens, no error can occur
                         else
                             r.startReadTransaction(db); // nothing real happens, no error can occur
-                        TALK("MasterComm::getFreeServer: You have the server.");
+                        LDEBUG <<"MasterComm::getFreeServer: You have the server.";
                         // answCode is same as initialised if we come here
                     }
 
@@ -751,24 +735,24 @@ int MasterComm::getFreeServer(bool fake, bool frompeer)
                         }
                         if (strstr(ipString, "127.") != ipString) { 
                             // respond with this one 
-                            TALK( "responding with IP address " << ipString << " for host " << r.getHostNetwName() );
+                            LDEBUG << "responding with IP address " << ipString << " for host " << r.getHostNetwName();
                             sprintf(answerString,"%s %ld %s ",ipString,r.getPort(),authorization.getCapability(r.getName(),databaseName,!writeTransaction) );
                         } 
                         else
                         {
-                            TALK( "Error: can't determine IP address (h_errno=" << h_errno << "), responding with host name " << r.getName() );
+                            LDEBUG << "Error: can't determine IP address (h_errno=" << h_errno << "), responding with host name " << r.getName();
                             sprintf(answerString,"%s %ld %s ",r.getHostNetwName(),r.getPort(),authorization.getCapability(r.getName(),databaseName,!writeTransaction) );                        
                         }
                     }
                     else    // ok, for the _unlikely_ case we just return the name as is
                     {
-                        TALK( "Error: can't determine IP address (h_errno=" << h_errno << "), responding with host name " << r.getName() );
+                        LDEBUG << "Error: can't determine IP address (h_errno=" << h_errno << "), responding with host name " << r.getName();
                         sprintf(answerString,"%s %ld %s ",r.getHostNetwName(),r.getPort(),authorization.getCapability(r.getName(),databaseName,!writeTransaction) );
                     }
 
                     // remember server name
                     strncpy( serverName, r.getName(), sizeof(serverName) );                    
-                    TALK( "answerString=" << answerString );
+                    LDEBUG << "answerString=" << answerString;
                     break;
                 }
             }
@@ -815,15 +799,15 @@ int MasterComm::getFreeServer(bool fake, bool frompeer)
                 }
             }
             if (!found) {
-                RMInit::logOut << "Error: no suitable free server available." << endl;
+                LERROR << "Error: no suitable free server available.";
                 answCode = MSG_NOSUITABLESERVER;
                 break;
             } else if (!frompeer) {
                 char * answString = strstr(msg, RASMGRPROT_DOUBLE_EOL );  // find double EOL, this is where body starts
                 if(answString == NULL)                // not found? this means a protocol syntax error
                 {
-                    TALK( "MasterComm::fillInBuffer: Error in rasmgr protocol encountered (2xEOL missing). msg=" << msg );
-                    RMInit::logOut << "Error: no suitable free server available." << endl;
+                    LDEBUG << "MasterComm::fillInBuffer: Error in rasmgr protocol encountered (2xEOL missing). msg=" << msg;
+                    LERROR << "Error: no suitable free server available.";
                     answCode = MSG_NOSUITABLESERVER;
                     break;
                 }
@@ -839,9 +823,9 @@ int MasterComm::getFreeServer(bool fake, bool frompeer)
         // oops?? why not uniformly check against answCode? -- PB 2003-nov-20
         if(answerString[0]==0)
         {
-            RMInit::logOut << "Error: cannot find any free server; answer code: " << answCode << " -> ";
+            LERROR << "Error: cannot find any free server; answer code: " << answCode << " -> ";
             answCode = MSG_SYSTEMOVERLOADED;
-            RMInit::logOut << answCode << endl;
+            LERROR << answCode;
             break;
         }
 
@@ -861,7 +845,6 @@ int MasterComm::getFreeServer(bool fake, bool frompeer)
     // creates too large log files, so omit in production:
     // freeServerTimePtr->result();     // print time elapsed
 
-    LEAVE("MasterComm::getFreeServer: leave. answCode=" << answCode << ", server=" << serverName << ", outBuffer=" << outBuffer );
     return answCode; //strlen(outBuffer)+1;
 } // getFreeServer()
 
@@ -874,12 +857,11 @@ int MasterComm::getFreeServer(bool fake, bool frompeer)
 //  answer  the reply from the peer
 const char* MasterComm::askOutpeer(int peer, char* outmsg) {
 
-    ENTER( "MasterComm::askOutpeer: enter." );
     struct protoent* getprotoptr = getprotobyname("tcp");
     struct hostent *hostinfo = gethostbyname(config.outpeers[static_cast<unsigned long>(peer)]);
     if(hostinfo==NULL)
     {
-        RMInit::logOut << "Error locating RasMGR" << config.outpeers[static_cast<unsigned long>(peer)] <<" ("<<strerror(errno)<<')'<<endl;
+        LERROR << "Error locating RasMGR" << config.outpeers[static_cast<unsigned long>(peer)] <<" ("<<strerror(errno)<<')';
     }
 
     sockaddr_in internetSocketAddress;
@@ -895,13 +877,13 @@ const char* MasterComm::askOutpeer(int peer, char* outmsg) {
     sock = socket(PF_INET,SOCK_STREAM,getprotoptr->p_proto);
     if(sock<0)   
     {
-        RMInit::logOut << "askOutpeer: cannot open socket to RasMGR, ("<<strerror(errno)<<')'<<endl;
+        LERROR << "askOutpeer: cannot open socket to RasMGR, ("<<strerror(errno)<<')';
         return answer;
     }
     
     if(connect(sock,(struct sockaddr*)&internetSocketAddress,sizeof(internetSocketAddress)) < 0)
     {
-        RMInit::logOut <<"askOutpeer: Connection to RasMGR failed! ("<<strerror(errno)<<')'<<endl;
+        LERROR <<"askOutpeer: Connection to RasMGR failed! ("<<strerror(errno)<<')';
         close(sock);
         return answer;
     }     
@@ -925,7 +907,7 @@ const char* MasterComm::askOutpeer(int peer, char* outmsg) {
 
     if(nbytes<0)
     {
-        RMInit::logOut << "Error writing message to RasMGR" << config.outpeers[static_cast<unsigned long>(peer)] << " ("<<strerror(errno)<<')' << endl;
+        LERROR << "Error writing message to RasMGR" << config.outpeers[static_cast<unsigned long>(peer)] << " ("<<strerror(errno)<<')';
         close(sock);
         return answer;
     }
@@ -949,11 +931,10 @@ const char* MasterComm::askOutpeer(int peer, char* outmsg) {
 
     if(nbytes<0)
     {
-        RMInit::logOut << "Error reading answer from RasMGR" << config.outpeers[static_cast<unsigned long>(peer)] <<" ("<<strerror(errno)<<')'<<endl;
+        LERROR << "Error reading answer from RasMGR" << config.outpeers[static_cast<unsigned long>(peer)] <<" ("<<strerror(errno)<<')';
         sprintf(answer,"HTTP/1.1 %d %s\r\nContent-type: text/plain\r\nContent-length: %d\r\n\r\n%d %s",400,"Error",6,MSG_NOSUITABLESERVER,"Error"); // again, as it might get changed above
         return answer;
     }
-    LEAVE("MasterComm::askOutpeer: leave. answer=" << answer );
     return answer;
     
 
@@ -991,13 +972,13 @@ const char* MasterComm::convertAnswerCode(int code)
         answer = MSG_SYSTEMOVERLOADED_STR;
         break;
     default:
-        // RMInit::logOut<<"Default value not allowed ="<<code<<endl; assert( 0 != 0); break;
+        // LERROR<<"Default value not allowed ="<<code; assert( 0 != 0); break;
         // no program aborts deeply inside!!! -- PB 2003-jun-25
         answer = MSG_ILLEGAL_STR;
         break;
     }
 
-    TALK("MasterComm::convertAnswerCode: code=" << code << ", answer=" << answer );
+    LDEBUG <<"MasterComm::convertAnswerCode: code=" << code << ", answer=" << answer;
     return answer;
 }
 
@@ -1010,13 +991,10 @@ const char* MasterComm::convertAnswerCode(int code)
 //  false       otherwise
 bool MasterComm::isMessage(const char *messageStart)
 {
-    ENTER( "MasterComm::isMessage, messageStart=" << messageStart );
-
     bool rasp= (strncasecmp(header,messageStart,strlen(messageStart))==0) ? true:false;
     if(rasp)
-        TALK("(b) Message="<<messageStart);
+        LDEBUG <<"(b) Message="<<messageStart;
 
-    LEAVE( "MasterComm::isMessage, result=" << rasp );
     return rasp;
 }
 
@@ -1085,8 +1063,6 @@ ClientQueue::~ClientQueue()
 //  - server assignment error in errorCode
 void ClientQueue::put(ClientID &clientID, const char *dbName, char serverType, int errorCode)
 {
-    ENTER("ClientQueue::put: start, clientID=" << clientID << ", db=" << dbName << ", serverType=" << serverType << ", errorCode=" << errorCode );
-
     // --- input parameter check ---------------
 
     if(clientID.isValid() == false)     // invalid clientID's are not put in queue
@@ -1102,7 +1078,7 @@ void ClientQueue::put(ClientID &clientID, const char *dbName, char serverType, i
     ClientEntry *client = 0;        // ptr to a list entry
 
     // iterate thru list of client requests
-    TALK( "iterating through list, client table size=" << clients.size() );
+    LDEBUG << "iterating through list, client table size=" << clients.size();
     for(int i=0; i<static_cast<int>(clients.size()); i++)
     {
         ClientEntry& curClient = clients[static_cast<unsigned int>(i)];    // list entry to be inspected
@@ -1113,7 +1089,7 @@ void ClientQueue::put(ClientID &clientID, const char *dbName, char serverType, i
         {
             if(i==0)            // do only for 1st element
             {
-                TALK("ClientQueue::put: cleaned up client "<<curClient.clientID );
+                LDEBUG <<"ClientQueue::put: cleaned up client "<<curClient.clientID;
                 clients.pop_front();    // remove this first element
                 i--; // set back loop ctr
             }
@@ -1134,7 +1110,7 @@ void ClientQueue::put(ClientID &clientID, const char *dbName, char serverType, i
         newClient.activ = true;
         newClient.updateTime();
         clients.push_back(newClient);
-        TALK("ClientQueue::put, new client first time, id="<<clientID );
+        LDEBUG <<"ClientQueue::put, new client first time, id="<<clientID;
     }
     else                        // matching entry found
     {
@@ -1144,7 +1120,7 @@ void ClientQueue::put(ClientID &clientID, const char *dbName, char serverType, i
             // wants the same thing
             client->errorCode  = errorCode;
             client->updateTime();
-            TALK("ClientQueue::put, id=" << clientID << ", db=" << dbName << ", serverType=" << serverType << ": updated" );
+            LDEBUG <<"ClientQueue::put, id=" << clientID << ", db=" << dbName << ", serverType=" << serverType << ": updated";
         }
         else
         {
@@ -1154,11 +1130,10 @@ void ClientQueue::put(ClientID &clientID, const char *dbName, char serverType, i
             newClient.activ = true;
             newClient.updateTime();
             clients.push_back(newClient);
-            TALK("ClientQueue::put, known client db=" << dbName << ", serverType=" << serverType << ", but different request: id="<<clientID );
+            LDEBUG <<"ClientQueue::put, known client db=" << dbName << ", serverType=" << serverType << ", but different request: id="<<clientID;
         }
     }
 
-    LEAVE("ClientQueue::put: done." );
 } // ClientQueue::put()
 
 // canBeServed: determine whether given request can be served
@@ -1183,7 +1158,7 @@ int ClientQueue::canBeServed(ClientID &clientID, const char *dbName, char server
         {
             if(i==0)
             {
-                TALK("ClientQueue::canBeServed  id="<<client.clientID<<" cleaned up");
+                LDEBUG <<"ClientQueue::canBeServed  id="<<client.clientID<<" cleaned up";
                 clients.pop_front();
                 i--;
             }
@@ -1203,12 +1178,11 @@ int ClientQueue::canBeServed(ClientID &clientID, const char *dbName, char server
                     client.activ = false;
                     if(i==0)
                     {
-                        TALK("ClientQueue::canBeServed  id="<<client.clientID<<" cleaned up, you get a server");
+                        LDEBUG <<"ClientQueue::canBeServed  id="<<client.clientID<<" cleaned up, you get a server";
                         clients.pop_front();
                         i--;
                     }
                 }
-                LEAVE("ClientQueue::canBeServed  id="<<clientID<<" yes (1)");
                 return 0; // OK, it can be served
             }
             else // it's another client
@@ -1219,17 +1193,14 @@ int ClientQueue::canBeServed(ClientID &clientID, const char *dbName, char server
                     // If there would be a client waiting because of 806 then:
                     // - either we want to write and have also 806, and wouldn't be here at all,
                     // - or we want to read and we don't care for that 806
-                    LEAVE("ClientQueue::canBeServed  id="<<clientID<<" no:"<<client.errorCode);
                     return client.errorCode;
                 }
-                LEAVE("ClientQueue::canBeServed  id="<<clientID<<" yes (r/w)");
                 return 0; // OK, can be served
             }
         }
     }
 
     // if we are here, it can be served. There are clients, but not for the same reason
-    LEAVE("ClientQueue::canBeServed id="<<clientID<<" yes (2)");
     return 0;
 }
 

@@ -52,6 +52,7 @@ static const char rcsid[] = "@(#)reladminif,DatabaseIf: $Id: databaseif.ec,v 1.9
 #include "config.h"
 #include "version.h"
 #include "debug/debug.hh"
+#include "../common/src/logging/easylogging++.hh"
 
 using namespace std;
 
@@ -84,43 +85,34 @@ extern char globalDbPasswd[256];
 void
 DatabaseIf::disconnect() throw (r_Error)
 {
-    RMDBGENTER(4, RMDebug::module_adminif, "DatabaseIf", "disconnect()");
-    ENTER( "DatabaseIf::disconnect" );
-
-    TALK( "EXEC SQL ROLLBACK WORK" );
+    LDEBUG << "EXEC SQL ROLLBACK WORK";
     EXEC SQL ROLLBACK WORK;
     // 'ok' or 'no begin work issued' (which happens at a close database)
     if (SQLCODE != SQLOK && SQLCODE != -255)
     {
         check("DatabaseIf::disconnect() ROLLBACK\0");
-        TALK( "Error while issuing ROLLBACK");
-        RMDBGMIDDLE(4, RMDebug::module_adminif, "DatabaseIf", "error occured while issuing a ROLLBACK");
+        LDEBUG << "Error while issuing ROLLBACK";
+        LTRACE << "error occured while issuing a ROLLBACK";
     }
 
-    TALK( "EXEC SQL DISCONNECT CURRENT" );
+    LDEBUG << "EXEC SQL DISCONNECT CURRENT";
     EXEC SQL DISCONNECT rasdaConn;
     if (SQLCODE != SQLOK)
     {
         check("DatabaseIf::disconnect() DISCONNECT\0");
-        TALK( "Error while issuing DISCONNECT");
-        RMDBGMIDDLE(4, RMDebug::module_adminif, "DatabaseIf", "error occured while issuing a DISCONNECT");
+        LDEBUG << "Error while issuing DISCONNECT";
+        LTRACE << "error occured while issuing a DISCONNECT";
     }
 
-    TALK( "PQfinish..." );
+    LDEBUG << "PQfinish...";
     PQfinish(pgConn);
     pgConn = NULL;
-    TALK( "pgConn NULL now, status: PQstatus(pgConn)=" + PQstatus(pgConn) );
-
-    LEAVE( "DatabaseIf::disconnect, SQLCODE=" << SQLCODE );
-    RMDBGEXIT(4, RMDebug::module_adminif, "DatabaseIf", "disconnect() SQLCODE=" << SQLCODE);
+    LDEBUG << "pgConn NULL now, status: PQstatus(pgConn)=" + PQstatus(pgConn);
 }
 
 void
 DatabaseIf::connect() throw (r_Error)
 {
-    RMDBGENTER(4, RMDebug::module_adminif, "DatabaseIf", "connect()");
-    ENTER( "DatabaseIf::connect" );
-
     EXEC SQL BEGIN DECLARE SECTION;
         char    id[STRING_MAXLEN];
         char    user[STRING_MAXLEN];
@@ -131,31 +123,31 @@ DatabaseIf::connect() throw (r_Error)
     strcpy((char *)&user, globalDbUser);
     strcpy((char *)&passwd, globalDbPasswd);
 
-    //TALK("user " << globalDbUser << ", pass: " << globalDbPasswd);
+    //LDEBUG <<"user " << globalDbUser << ", pass: " << globalDbPasswd;
 
     if (strlen(globalDbUser) > 0)
     {
         if (strlen(globalDbPasswd) > 0)
         {
-            TALK( "EXEC SQL CONNECT TO " << id << " USER " << globalDbUser << " USING ***********" );
+            LDEBUG << "EXEC SQL CONNECT TO " << id << " USER " << globalDbUser << " USING ***********";
             EXEC SQL CONNECT TO :id AS rasdaConn USER :user USING :passwd;
         }
         else
         {
-            TALK( "EXEC SQL CONNECT TO " << id << " USER " << globalDbUser );
+            LDEBUG << "EXEC SQL CONNECT TO " << id << " USER " << globalDbUser;
             EXEC SQL CONNECT TO :id AS rasdaConn USER :user;
         }
     }
     else
     {
-        TALK( "EXEC SQL CONNECT TO " << id );
+        LDEBUG << "EXEC SQL CONNECT TO " << id;
         EXEC SQL CONNECT TO :id AS rasdaConn;       // "AS" param must be same as down in ECPGget_connection()
     }
     if (SQLCODE != SQLOK)
     {
         check("DatabaseIf::connect() CONNECT");
-        RMDBGMIDDLE(4, RMDebug::module_adminif, "DatabaseIf", "connect() SQLCODE=" << SQLCODE);
-        TALK( "error in connect, SQLCODE=" << SQLCODE );
+        LTRACE << "connect() SQLCODE=" << SQLCODE;
+        LDEBUG << "error in connect, SQLCODE=" << SQLCODE;
         generateException();
     }
 
@@ -197,22 +189,15 @@ DatabaseIf::connect() throw (r_Error)
     if (parsed_host != NULL) { free (parsed_host); }
     if (pgConn == NULL || PQstatus(pgConn) == CONNECTION_BAD)
     {
-        RMDBGMIDDLE(4, RMDebug::module_adminif, "DatabaseIf", "Error: cannot obtain libpq connection" );
-        TALK( "Error: cannot obtain libpq connection" );
+        LTRACE << "Error: cannot obtain libpq connection";
+        LDEBUG << "Error: cannot obtain libpq connection";
         generateException();
     }
-
-    LEAVE( "DatabaseIf::connect, SQLCODE=" << SQLCODE << ", PQstatus=" << PQstatus(pgConn) );
-    RMDBGEXIT(4, RMDebug::module_adminif, "DatabaseIf", "connect()");
-
 }
 
 void
 DatabaseIf::checkCompatibility() throw (r_Error)
 {
-    RMDBGENTER(4, RMDebug::module_adminif, "DatabaseIf", "checkCompatibility()");
-    ENTER( "DatabaseIf::checkCompatibility" );
-
     EXEC SQL BEGIN DECLARE SECTION;
         long rasver1;               // rasdaman version as stored in db
         long schemaver1;            // schema version as stored in db
@@ -220,7 +205,7 @@ DatabaseIf::checkCompatibility() throw (r_Error)
         const char *myArchitecture = RASARCHITECTURE; // used for architecture selection
     EXEC SQL END DECLARE SECTION;
 
-    TALK( "EXEC SQL SELECT ServerVersion, IFVersion INTO :rasver1, :schemaver1 FROM RAS_ADMIN WHERE Architecture = " << myArchitecture );
+    LDEBUG << "EXEC SQL SELECT ServerVersion, IFVersion INTO :rasver1, :schemaver1 FROM RAS_ADMIN WHERE Architecture = " << myArchitecture;
     EXEC SQL SELECT
         ServerVersion, IFVersion
        INTO
@@ -229,7 +214,7 @@ DatabaseIf::checkCompatibility() throw (r_Error)
         RAS_ADMIN
        WHERE
         Architecture = :myArchitecture;
-    TALK( "-> rasver1=" << rasver1 << ", schemaver1=" << schemaver1 );
+    LDEBUG << "-> rasver1=" << rasver1 << ", schemaver1=" << schemaver1;
     if (SQLCODE != SQLOK)
     {
         check("DatabaseIf::baseDBMSOpen() check schema\0");
@@ -238,12 +223,12 @@ DatabaseIf::checkCompatibility() throw (r_Error)
 
         if (SQLCODE == SQLNODATAFOUND)
         {
-            RMInit::logOut << "The Database is incompatible with the current RasServer." << std::endl \
-                           << "Database has no entry for the current platform." << std::endl \
-                           << "You are using rasserver:" << std::endl \
-                           << "\tversion	" << RMANVERSION << std::endl \
-                           << "\tschema	" << RASSCHEMAVERSION << std::endl \
-                           << "\tplatform " << RASARCHITECTURE << std::endl;
+            LERROR << "The Database is incompatible with the current RasServer./n" \
+                           << "Database has no entry for the current platform./n"l \
+                           << "You are using rasserver:/n" \
+                           << "\tversion	" << RMANVERSION <<"\n" \
+                           << "\tschema	" << RASSCHEMAVERSION << "\n" \
+                           << "\tplatform " << RASARCHITECTURE;
             EXEC SQL DECLARE admincursor CURSOR FOR
             SELECT
             ServerVersion, IFVersion, Architecture
@@ -259,18 +244,18 @@ DatabaseIf::checkCompatibility() throw (r_Error)
                     if (SQLCODE != SQLNODATAFOUND)
                     {
                         check("DatabaseIf::checkCompatibility()\0");
-                        RMInit::logOut << "DBMS Error occured during compatibility check." << std::endl \
-                                       << "Please see Debug Log for additional information." << std::endl;
+                        LERROR << "DBMS Error occured during compatibility check.\n" \
+                                       << "Please see Debug Log for additional information.";
                         EXEC SQL CLOSE admincursor;
                         generateException();
                     }
                     break;
                 }
-                RMInit::logOut << "Found database entries for rasserver:" << std::endl \
-                               << "\tversion	" << rasver1 << std::endl \
-                               << "\tschema	" << schemaver1 << std::endl \
-                               << "\tplatform " << arch1 << std::endl << std::endl \
-                               << "Please see Migration Documentation." << std::endl;
+                LINFO << "Found database entries for rasserver:\n" \
+                               << "\tversion	" << rasver1 << "\n" \
+                               << "\tschema	" << schemaver1 << "\n" \
+                               << "\tplatform " << arch1 << "\n\n" \
+                               << "Please see Migration Documentation.";
             }
             while (true);
 
@@ -279,8 +264,8 @@ DatabaseIf::checkCompatibility() throw (r_Error)
         }
         else
         {
-            RMInit::logOut << "DBMS Error occured during compatibility check." << std::endl \
-                           << "Please see Debug Log for additional information." << std::endl;
+            LERROR << "DBMS Error occured during compatibility check.\n" \
+                           << "Please see Debug Log for additional information.";
             generateException();
         }
     }
@@ -288,47 +273,41 @@ DatabaseIf::checkCompatibility() throw (r_Error)
     {
         if (schemaver1 != RASSCHEMAVERSION)
         {
-            RMInit::logOut << "The Database is incompatible with the current RasServer." << std::endl \
-                           << "The database was generated with:" << std::endl \
-                           << "\tversion	" << rasver1 << std::endl \
-                           << "\tschema	" << schemaver1 << std::endl \
-                           << "\tplatform " << arch1 << std::endl << std::endl \
-                           << "You are using rasserver:" << std::endl \
-                           << "\tversion	" << RMANVERSION << std::endl \
-                           << "\tschema	" << RASSCHEMAVERSION << std::endl \
-                           << "\tplatform " << RASARCHITECTURE << std::endl \
-                           << "Please see Migration Documentation." << std::endl;
+            LFATAL << "The Database is incompatible with the current RasServer.\n" \
+                           << "The database was generated with:\n" \
+                           << "\tversion	" << rasver1 << "\n" \
+                           << "\tschema	" << schemaver1 << "\n" \
+                           << "\tplatform " << arch1 << "\n\n" \
+                           << "You are using rasserver:" << "\n"l \
+                           << "\tversion	" << RMANVERSION << "\n" \
+                           << "\tschema	" << RASSCHEMAVERSION << "\n" \
+                           << "\tplatform " << RASARCHITECTURE << "\n" \
+                           << "Please see Migration Documentation.";
             throw r_Error(DATABASE_INCOMPATIBLE);
         }
 #if 0 // do not check against release, v6 has same schema as v5! -- PB 2005-sep-18
         // check only against major release number -- PB 2003-sep-08
         if (rasver1/1000 != DatabaseIf::rmanverToLong()/1000)
         {
-            RMInit::logOut << "The Database is incompatible with the current RasServer." << std::endl \
-                           << "The database was generated with:" << std::endl \
-                           << "\tversion	" << rasver1 << std::endl \
-                           << "\tschema	" << schemaver1 << std::endl \
-                           << "\tplatform " << arch1 << std::endl << std::endl \
-                           << "You are using rasserver:" << std::endl \
-                           << "\tversion	" << RMANVERSION << std::endl \
-                           << "\tschema	" << RASSCHEMAVERSION << std::endl \
-                           << "\tplatform " << RASARCHITECTURE << std::endl \
-                           << "Please see Migration Documentation." << std::endl;
+            LFATAL << "The Database is incompatible with the current RasServer.\n" \
+                           << "The database was generated with:\n" \
+                           << "\tversion	" << rasver1 << "\n" \
+                           << "\tschema	" << schemaver1 << "\n" \
+                           << "\tplatform " << arch1 << "\n\n" \
+                           << "You are using rasserver:\n" \
+                           << "\tversion	" << RMANVERSION << "\n" \
+                           << "\tschema	" << RASSCHEMAVERSION << "\n" \
+                           << "\tplatform " << RASARCHITECTURE << "\n" \
+                           << "Please see Migration Documentation.";
             throw r_Error(DATABASE_INCOMPATIBLE);
         }
 #endif // 0
     }
-
-    LEAVE( "DatabaseIf::checkCompatibility" );
-    RMDBGEXIT(4, RMDebug::module_adminif, "DatabaseIf", "checkComptatibility()");
 }
 
 bool
 DatabaseIf::isConsistent() throw (r_Error)
 {
-    RMDBGENTER(4, RMDebug::module_adminif, "DatabaseIf", "isConsistent()");
-    ENTER( "DatabaseIf::isConsistent" );
-
     bool retval=true;
 
     EXEC SQL BEGIN DECLARE SECTION;
@@ -342,13 +321,13 @@ DatabaseIf::isConsistent() throw (r_Error)
     oidind = 0;
 
     (void) strncpy( name2, const_cast<char*>(OId::counterNames[OId::DBMINTERVALOID]), (size_t) sizeof(name2) );
-    TALK( "EXEC SQL SELECT NextValue INTO :nextoid FROM RAS_COUNTERS WHERE CounterName = " << name2 );
+    LDEBUG << "EXEC SQL SELECT NextValue INTO :nextoid FROM RAS_COUNTERS WHERE CounterName = " << name2;
     EXEC SQL SELECT NextValue INTO :nextoid
        FROM
         RAS_COUNTERS
        WHERE
         CounterName = :name2;
-    TALK( "-> nextoid=" << nextoid );
+    LDEBUG << "-> nextoid=" << nextoid;
     if (check("DatabaseIf::isConsistent() SELECT DBMINTERVALOID"))
         generateException();
 
@@ -356,11 +335,11 @@ DatabaseIf::isConsistent() throw (r_Error)
     // EXEC SQL SELECT MAX(DomainId) INTO :checkoid INDICATOR :oidind
     //  FROM RAS_DOMAINS;
     checkoid = 0;
-    TALK( "SELECT DomainId..." );
+    LDEBUG << "SELECT DomainId...";
     EXEC SQL SELECT DomainId INTO :checkoid INDICATOR :oidind
        FROM RAS_DOMAINS
        ORDER BY DomainId DESC LIMIT 1;
-    TALK( "-> SQLCODE=" << SQLCODE );
+    LDEBUG << "-> SQLCODE=" << SQLCODE;
     // now "no data" means no error, but that we need to initialize the empty table
     if (SQLCODE < 0)
     {
@@ -369,8 +348,8 @@ DatabaseIf::isConsistent() throw (r_Error)
     }
     if ((checkoid > nextoid) && (oidind == 0))
     {
-        RMInit::logOut << "The administrative tables for Domain Data is inconsistent.	Please call support." << std::endl;
-        RMInit::dbgOut << std::endl << "Counter in RAS_DOMAINS : " << checkoid << std::endl << "Counter in RAS_COUNTERS : " << nextoid << std::endl;
+        LERROR << "The administrative tables for Domain Data is inconsistent.	Please call support.";
+        LDEBUG << "Counter in RAS_DOMAINS : " << checkoid << "\n" << "Counter in RAS_COUNTERS : " << nextoid;
         retval=false;
     }
     checkoid = 0;
@@ -380,7 +359,7 @@ DatabaseIf::isConsistent() throw (r_Error)
     if(retval)
     {
         (void) strncpy( name2, const_cast<char*>(OId::counterNames[OId::MDDOID]), (size_t) sizeof(name2) );
-        TALK( "SELECT NextValue FROM RAS_COUNTERS..." );
+        LDEBUG << "SELECT NextValue FROM RAS_COUNTERS...";
         EXEC SQL SELECT NextValue INTO :nextoid
         FROM RAS_COUNTERS
         WHERE CounterName = :name2;
@@ -390,7 +369,7 @@ DatabaseIf::isConsistent() throw (r_Error)
         // EXEC SQL SELECT MAX(MDDId) INTO :checkoid INDICATOR :oidind
         //  FROM RAS_MDDOBJECTS;
         checkoid = 0;
-        TALK( "SELECT MDDId FROM RAS_MDDOBJECTS..." );
+        LDEBUG << "SELECT MDDId FROM RAS_MDDOBJECTS...";
         EXEC SQL SELECT MDDId INTO :checkoid INDICATOR :oidind
         FROM RAS_MDDOBJECTS
         ORDER BY MDDId DESC LIMIT 1;
@@ -403,8 +382,8 @@ DatabaseIf::isConsistent() throw (r_Error)
 
         if ((checkoid > nextoid) && (oidind == 0))
         {
-            RMInit::logOut << "The administrative tables for MDD Objects is inconsistent.	Please call support." << std::endl;
-            RMInit::dbgOut << std::endl << "Counter in RAS_MDDOBJECTS : " << checkoid << std::endl << "Counter in RAS_COUNTERS : " << nextoid << std::endl;
+            LERROR << "The administrative tables for MDD Objects is inconsistent.	Please call support.";
+            LDEBUG << "Counter in RAS_MDDOBJECTS : " << checkoid << "\n" << "Counter in RAS_COUNTERS : " << nextoid;
             retval=false;
         }
         checkoid = 0;
@@ -424,7 +403,7 @@ DatabaseIf::isConsistent() throw (r_Error)
         // EXEC SQL SELECT MAX(MDDCollId) INTO :checkoid INDICATOR :oidind
         //  FROM RAS_MDDCOLLNAMES;
         checkoid = 0;
-        TALK( "SELECT MDDCollId FROM RAS_MDDCOLLNAMES..." );
+        LDEBUG << "SELECT MDDCollId FROM RAS_MDDCOLLNAMES...";
         EXEC SQL SELECT MDDCollId INTO :checkoid INDICATOR :oidind
         FROM RAS_MDDCOLLNAMES
         ORDER BY MDDCollId DESC LIMIT 1;
@@ -437,8 +416,8 @@ DatabaseIf::isConsistent() throw (r_Error)
 
         if ((checkoid > nextoid) && (oidind == 0))
         {
-            RMInit::logOut << "The administrative tables for MDD Collections is inconsistent.	Please call support." << std::endl;
-            RMInit::dbgOut << std::endl << "Counter in RAS_MDDCOLLNAMES : " << checkoid << std::endl << "Counter in RAS_COUNTERS : " << nextoid << std::endl;
+            LERROR << "The administrative tables for MDD Collections is inconsistent.	Please call support.";
+            LDEBUG << "Counter in RAS_MDDCOLLNAMES : " << checkoid << "\n" << "Counter in RAS_COUNTERS : " << nextoid;
             retval=false;
         }
         checkoid = 0;
@@ -458,11 +437,11 @@ DatabaseIf::isConsistent() throw (r_Error)
         // EXEC SQL SELECT MAX(MDDTypeOId) INTO :checkoid INDICATOR :oidind
         //  FROM RAS_MDDTYPES;
         checkoid = 0;
-        TALK( "SELECT MDDTypeOId FROM RAS_MDDTYPES..." );
+        LDEBUG << "SELECT MDDTypeOId FROM RAS_MDDTYPES...";
         EXEC SQL SELECT MDDTypeOId INTO :checkoid INDICATOR :oidind
         FROM RAS_MDDTYPES
         ORDER BY MDDTypeOId DESC LIMIT 1;
-        TALK( "SELECT MDDTypeOId FROM RAS_MDDTYPES..." );
+        LDEBUG << "SELECT MDDTypeOId FROM RAS_MDDTYPES...";
         // now "no data" means no error, but that we need to initialize the empty table
         if (SQLCODE < 0)
         {
@@ -472,8 +451,8 @@ DatabaseIf::isConsistent() throw (r_Error)
 
         if (checkoid > nextoid)
         {
-            RMInit::logOut << "The administrative tables for MDDTypes is inconsistent.	Please call support." << std::endl;
-            RMInit::dbgOut << std::endl << "Counter in RAS_MDDTYPES : " << checkoid << std::endl << "Counter in RAS_COUNTERS : " << nextoid << " real " << nextoid << std::endl;
+            LERROR << "The administrative tables for MDDTypes is inconsistent.	Please call support.";
+            LDEBUG << "Counter in RAS_MDDTYPES : " << checkoid << "\n" << "Counter in RAS_COUNTERS : " << nextoid << " real " << nextoid;
             retval=false;
         }
         checkoid = 0;
@@ -493,7 +472,7 @@ DatabaseIf::isConsistent() throw (r_Error)
         // EXEC SQL SELECT MAX(MDDBaseTypeOId) INTO :checkoid INDICATOR :oidind
         //  FROM RAS_MDDBASETYPES;
         checkoid = 0;
-        TALK( "SELECT MDDBaseTypeOId FROM RAS_MDDBASETYPES..." );
+        LDEBUG << "SELECT MDDBaseTypeOId FROM RAS_MDDBASETYPES...";
         EXEC SQL SELECT MDDBaseTypeOId INTO :checkoid INDICATOR :oidind
         FROM RAS_MDDBASETYPES
         ORDER BY MDDBaseTypeOId DESC LIMIT 1;
@@ -506,8 +485,8 @@ DatabaseIf::isConsistent() throw (r_Error)
 
         if (checkoid > nextoid)
         {
-            RMInit::logOut << "The administrative tables for MDDBaseTypes is inconsistent.	Please call support." << std::endl;
-            RMInit::dbgOut << std::endl << "Counter in RAS_MDDBASETYPES : " << checkoid << std::endl << "Counter in RAS_COUNTERS : " << nextoid << " real " << nextoid << std::endl;
+            LERROR << "The administrative tables for MDDBaseTypes is inconsistent.	Please call support.";
+            LDEBUG << "Counter in RAS_MDDBASETYPES : " << checkoid << "\n" << "Counter in RAS_COUNTERS : " << nextoid << " real " << nextoid;
             retval=false;
         }
         checkoid = 0;
@@ -527,7 +506,7 @@ DatabaseIf::isConsistent() throw (r_Error)
         // EXEC SQL SELECT MAX(MDDDimTypeOId) INTO :checkoid INDICATOR :oidind
         //  FROM RAS_MDDDIMTYPES;
         checkoid = 0;
-        TALK( "SELECT MDDDimTypeOId FROM RAS_MDDDIMTYPES..." );
+        LDEBUG << "SELECT MDDDimTypeOId FROM RAS_MDDDIMTYPES...";
         EXEC SQL SELECT MDDDimTypeOId INTO :checkoid INDICATOR :oidind
         FROM RAS_MDDDIMTYPES
         ORDER BY MDDDimTypeOId DESC LIMIT 1;
@@ -540,8 +519,8 @@ DatabaseIf::isConsistent() throw (r_Error)
 
         if (checkoid > nextoid)
         {
-            RMInit::logOut << "The administrative tables for MDDDimensionTypes is inconsistent.	Please call support." << std::endl;
-            RMInit::dbgOut << std::endl << "Counter in RAS_MDDDIMTYPES : " << checkoid << std::endl << "Counter in RAS_COUNTERS : " << nextoid << " real " << nextoid << std::endl;
+            LERROR << "The administrative tables for MDDDimensionTypes is inconsistent.	Please call support.";
+            LDEBUG << "Counter in RAS_MDDDIMTYPES : " << checkoid << "\n" << "Counter in RAS_COUNTERS : " << nextoid << " real " << nextoid;
             retval=false;
         }
         checkoid = 0;
@@ -561,7 +540,7 @@ DatabaseIf::isConsistent() throw (r_Error)
         // EXEC SQL SELECT MAX(MDDDomTypeOId) INTO :checkoid INDICATOR :oidind
         //  FROM RAS_MDDDOMTYPES;
         checkoid = 0;
-        TALK( "SELECT MDDDomTypeOId FROM RAS_MDDDOMTYPES..." );
+        LDEBUG << "SELECT MDDDomTypeOId FROM RAS_MDDDOMTYPES...";
         EXEC SQL SELECT MDDDomTypeOId INTO :checkoid INDICATOR :oidind
         FROM RAS_MDDDOMTYPES
         ORDER BY MDDDomTypeOId DESC LIMIT 1;
@@ -574,8 +553,8 @@ DatabaseIf::isConsistent() throw (r_Error)
 
         if (checkoid > nextoid)
         {
-            RMInit::logOut << "The administrative tables for MDDDomainTypes is inconsistent.	Please call support." << std::endl;
-            RMInit::dbgOut << std::endl << "Counter in RAS_MDDDOMTYPES : " << checkoid << std::endl << "Counter in RAS_COUNTERS : " << nextoid << " real " << nextoid << std::endl;
+            LERROR << "The administrative tables for MDDDomainTypes is inconsistent.	Please call support.";
+            LDEBUG << "Counter in RAS_MDDDOMTYPES : " << checkoid << "\n" << "Counter in RAS_COUNTERS : " << nextoid << " real " << nextoid;
             retval=false;
         }
         checkoid = 0;
@@ -595,7 +574,7 @@ DatabaseIf::isConsistent() throw (r_Error)
         // EXEC SQL SELECT MAX(BaseTypeId) INTO :checkoid INDICATOR :oidind
         //  FROM RAS_BASETYPENAMES;
         checkoid = 0;
-        TALK( "SELECT BaseTypeId FROM RAS_BASETYPENAMES..." );
+        LDEBUG << "SELECT BaseTypeId FROM RAS_BASETYPENAMES...";
         EXEC SQL SELECT BaseTypeId INTO :checkoid INDICATOR :oidind
         FROM RAS_BASETYPENAMES
         ORDER BY BaseTypeId DESC LIMIT 1;
@@ -608,8 +587,8 @@ DatabaseIf::isConsistent() throw (r_Error)
 
         if ((checkoid > nextoid) && (oidind == 0))
         {
-            RMInit::logOut << "The administrative tables for StructTypes is inconsistent.	Please call support." << std::endl;
-            RMInit::dbgOut << std::endl << "Counter in RAS_BASETYPENAMES : " << checkoid << std::endl << "Counter in RAS_COUNTERS : " << nextoid << std::endl;
+            LERROR << "The administrative tables for StructTypes is inconsistent.	Please call support.";
+            LDEBUG << "Counter in RAS_BASETYPENAMES : " << checkoid << "\n" << "Counter in RAS_COUNTERS : " << nextoid;
             retval=false;
         }
         checkoid = 0;
@@ -629,7 +608,7 @@ DatabaseIf::isConsistent() throw (r_Error)
         // EXEC SQL SELECT MAX(SetTypeId) INTO :checkoid INDICATOR :oidind
         //  FROM RAS_SETTYPES;
         checkoid = 0;
-        TALK( "SELECT SetTypeId FROM RAS_SETTYPES..." );
+        LDEBUG << "SELECT SetTypeId FROM RAS_SETTYPES...";
         EXEC SQL SELECT SetTypeId INTO :checkoid INDICATOR :oidind
         FROM RAS_SETTYPES
         ORDER BY SetTypeId DESC LIMIT 1;
@@ -642,8 +621,8 @@ DatabaseIf::isConsistent() throw (r_Error)
 
         if ((checkoid > nextoid) && (oidind == 0))
         {
-            RMInit::logOut << "The administrative tables for MDDTypes is inconsistent.	Please call support." << std::endl;
-            RMInit::dbgOut << std::endl << "Counter in RAS_SETTYPES : " << checkoid << std::endl << "Counter in RAS_COUNTERS : " << nextoid << std::endl;
+            LERROR << "The administrative tables for MDDTypes is inconsistent.	Please call support.";
+            LDEBUG << "Counter in RAS_SETTYPES : " << checkoid << "\n" << "Counter in RAS_COUNTERS : " << nextoid;
             retval=false;
         }
         checkoid = 0;
@@ -663,7 +642,7 @@ DatabaseIf::isConsistent() throw (r_Error)
         // EXEC SQL SELECT MAX(BlobId) INTO :checkoid INDICATOR :oidind
         //  FROM RAS_TILES;
         checkoid = 0;
-        TALK( "SELECT BlobId FROM RAS_TILES..." );
+        LDEBUG << "SELECT BlobId FROM RAS_TILES...";
         EXEC SQL SELECT BlobId INTO :checkoid INDICATOR :oidind
         FROM RAS_TILES
         ORDER BY BlobId DESC LIMIT 1;
@@ -676,8 +655,8 @@ DatabaseIf::isConsistent() throw (r_Error)
 
         if ((checkoid > nextoid) && (oidind == 0))
         {
-            RMInit::logOut << "The administrative tables for BLOB Data is inconsistent.	Please call support." << std::endl;
-            RMInit::dbgOut << std::endl << "Counter in RAS_TILES : " << checkoid << std::endl << "Counter in RAS_COUNTERS : " << nextoid << std::endl;
+            LERROR << "The administrative tables for BLOB Data is inconsistent.	Please call support.";
+            LDEBUG << "Counter in RAS_TILES : " << checkoid << "\n" << "Counter in RAS_COUNTERS : " << nextoid;
             retval=false;
         }
         checkoid = 0;
@@ -697,7 +676,7 @@ DatabaseIf::isConsistent() throw (r_Error)
         // EXEC SQL SELECT MAX(MDDObjIxOId) INTO :checkoid INDICATOR :oidind
         //  FROM RAS_HIERIX;
         checkoid = 0;
-        TALK( "SELECT MDDObjIxOId FROM RAS_HIERIX..." );
+        LDEBUG << "SELECT MDDObjIxOId FROM RAS_HIERIX...";
         EXEC SQL SELECT MDDObjIxOId INTO :checkoid INDICATOR :oidind
         FROM RAS_HIERIX
         ORDER BY MDDObjIxOId DESC LIMIT 1;
@@ -710,8 +689,8 @@ DatabaseIf::isConsistent() throw (r_Error)
 
         if (checkoid > (nextoid * 512 + OId::MDDHIERIXOID))
         {
-            RMInit::logOut << "The administrative tables for hierarchical MDD indexes is inconsistent.	Please call support." << std::endl;
-            RMInit::dbgOut << std::endl << "Counter in RAS_HIERIX : " << checkoid << std::endl << "Counter in RAS_COUNTERS : " << nextoid << " real " << (nextoid * 512 + OId::MDDHIERIXOID) << std::endl;
+            LERROR << "The administrative tables for hierarchical MDD indexes is inconsistent.	Please call support.";
+            LDEBUG << "Counter in RAS_HIERIX : " << checkoid << "\n" << "Counter in RAS_COUNTERS : " << nextoid << " real " << (nextoid * 512 + OId::MDDHIERIXOID);
             retval=false;
         }
         checkoid = 0;
@@ -731,7 +710,7 @@ DatabaseIf::isConsistent() throw (r_Error)
         // EXEC SQL SELECT MAX(StorageId) INTO :checkoid INDICATOR :oidind
         //  FROM RAS_STORAGE;
         checkoid=0;
-        TALK( "SELECT StorageId FROM RAS_STORAGE..." );
+        LDEBUG << "SELECT StorageId FROM RAS_STORAGE...";
         EXEC SQL SELECT StorageId INTO :checkoid INDICATOR :oidind
         FROM RAS_STORAGE
         ORDER BY StorageId DESC LIMIT 1;
@@ -744,8 +723,8 @@ DatabaseIf::isConsistent() throw (r_Error)
 
         if ((checkoid > nextoid) && (oidind == 0))
         {
-            RMInit::logOut << "Fatal error: administrative tables for MDD storage structures are inconsistent.	Please call support." << std::endl;
-            RMInit::dbgOut << std::endl << "Counter in RAS_STORAGE : " << checkoid << std::endl << "Counter in RAS_COUNTERS : " << nextoid << std::endl;
+            LERROR << "Fatal error: administrative tables for MDD storage structures are inconsistent.	Please call support.";
+            LDEBUG << "Counter in RAS_STORAGE : " << checkoid << "\n" << "Counter in RAS_COUNTERS : " << nextoid;
             retval=false;
         }
         checkoid=0;
@@ -753,17 +732,12 @@ DatabaseIf::isConsistent() throw (r_Error)
         oidind=0;
     }
 
-    LEAVE( "DatabaseIf::isConsistent, retval=" << retval );
-    RMDBGEXIT(4, RMDebug::module_adminif, "DatabaseIf", "isConsistent() " << retval);
     return retval;
 }
 
 void
 DatabaseIf::createDB( const char* dbName, const char* schemaName,  const char* volumeName) throw(r_Error)
 {
-    RMDBGENTER(4, RMDebug::module_adminif, "DatabaseIf", "create(" << dbName << ", " << schemaName << ", " << volumeName << ")");
-    ENTER( "DatabaseIf::createDB, dbName=" << dbName << ", schemaName=" << schemaName << ", volumeName=" << volumeName );
-
     unsigned int i=0;
     EXEC SQL BEGIN DECLARE SECTION;
         long id;
@@ -777,12 +751,12 @@ DatabaseIf::createDB( const char* dbName, const char* schemaName,  const char* v
     {
         if (AdminIf::getCurrentDatabaseIf() != 0)
         {
-            RMDBGMIDDLE(5, RMDebug::module_adminif, "DatabaseIf", "another database is open");
-            TALK( "Error: another database is open" );
+            LTRACE << "another database is open";
+            LDEBUG << "Error: another database is open";
             throw r_Error(r_Error::r_Error_DatabaseOpen);
         }
         connect();
-        TALK( "EXEC SQL BEGIN WORK;");
+        LDEBUG << "EXEC SQL BEGIN WORK;";
         EXEC SQL BEGIN WORK;
         if(check("DatabaseIf::create() BEGIN WORK\0"))
             generateException();
@@ -791,9 +765,9 @@ DatabaseIf::createDB( const char* dbName, const char* schemaName,  const char* v
                 // does database exist already?
                 if (databaseExists(dbName))
                 {
-                    RMDBGMIDDLE(5, RMDebug::module_adminif, "DatabaseIf", "database already exists");
-                    RMInit::logOut << "Database creation failed: database exists already." << std::endl;
-                    TALK( "Error: database exists." );
+                    LTRACE << "database already exists";
+                    LFATAL << "Database creation failed: database exists already.";
+                    LDEBUG << "Error: database exists.";
                     throw r_Error(DATABASE_EXISTS);
                 }
         */
@@ -801,7 +775,7 @@ DatabaseIf::createDB( const char* dbName, const char* schemaName,  const char* v
         // --- start table/index creation ------------------------------
 
         // no index here because there is only one entry in the table
-        TALK( "EXEC SQL CREATE TABLE RAS_ADMIN ( IFVersion INTEGER NOT NULL, Architecture VARCHAR(20) NOT NULL, ServerVersion INTEGER NOT NULL) " );
+        LDEBUG << "EXEC SQL CREATE TABLE RAS_ADMIN ( IFVersion INTEGER NOT NULL, Architecture VARCHAR(20) NOT NULL, ServerVersion INTEGER NOT NULL) ";
         EXEC SQL CREATE TABLE RAS_ADMIN (
         IFVersion INTEGER NOT NULL,
         Architecture VARCHAR(20) NOT NULL,
@@ -814,13 +788,13 @@ DatabaseIf::createDB( const char* dbName, const char* schemaName,  const char* v
         idd = DatabaseIf::rmanverToLong();
         (void) strncpy( name, RASARCHITECTURE, (size_t) sizeof(name) );
 
-        TALK( "EXEC SQL INSERT INTO RAS_ADMIN (IFVersion, Architecture, ServerVersion) VALUES (" << id << ", " << name << ", " << idd << ")" );
+        LDEBUG << "EXEC SQL INSERT INTO RAS_ADMIN (IFVersion, Architecture, ServerVersion) VALUES (" << id << ", " << name << ", " << idd << ")";
         EXEC SQL INSERT INTO RAS_ADMIN (IFVersion, Architecture, ServerVersion) VALUES (:id, :name, :idd);
         if(check("DatabaseIf::create() INSERT INTO RAS_ADMIN\0"))
             generateException();
 
         // no index here because there is only 20 entries in the table
-        TALK( "EXEC SQL CREATE TABLE RAS_COUNTERS ( NextValue INTEGER NOT NULL, CounterName VARCHAR(20) NOT NULL)" );
+        LDEBUG << "EXEC SQL CREATE TABLE RAS_COUNTERS ( NextValue INTEGER NOT NULL, CounterName VARCHAR(20) NOT NULL)";
         EXEC SQL CREATE TABLE RAS_COUNTERS (
         NextValue INTEGER NOT NULL,
         CounterName VARCHAR(20) NOT NULL
@@ -833,13 +807,13 @@ DatabaseIf::createDB( const char* dbName, const char* schemaName,  const char* v
         {
             (void) strncpy( name, const_cast<char*>(OId::counterNames[i]), (size_t) sizeof(name) );
             id = 1;
-            TALK( "EXEC SQL INSERT INTO RAS_COUNTERS (CounterName, NextValue) VALUES (" << name << "," << id << ")" );
+            LDEBUG << "EXEC SQL INSERT INTO RAS_COUNTERS (CounterName, NextValue) VALUES (" << name << "," << id << ")";
             EXEC SQL INSERT INTO RAS_COUNTERS (CounterName, NextValue) VALUES (:name, :id);
             if(check("DatabaseIf::create() INSERT INTO RAS_COUNTERS\0"))
                 generateException();
         }
 
-        TALK( "...and several more tables..." );
+        LDEBUG << "...and several more tables...";
 
         // relblobif
         EXEC SQL CREATE TABLE RAS_TILES (
@@ -1251,7 +1225,7 @@ DatabaseIf::createDB( const char* dbName, const char* schemaName,  const char* v
 		if(check("DatabaseIf::create() INSERT INTO RAS_DBUPDATES\0"))
 			generateException();
 
-        TALK( "EXEC SQL COMMIT WORK" );
+        LDEBUG << "EXEC SQL COMMIT WORK";
         EXEC SQL COMMIT WORK;
         if(check("DatabaseIf::create() COMMIT WORK"))
             generateException();
@@ -1261,28 +1235,21 @@ DatabaseIf::createDB( const char* dbName, const char* schemaName,  const char* v
     catch (r_Error& err)
     {
         // abort TA, ignore any error there
-        TALK( "EXEC SQL ABORT WORK;");
+        LDEBUG << "EXEC SQL ABORT WORK;";
         EXEC SQL ABORT WORK;
 
-        RMDBGMIDDLE(0, RMDebug::module_adminif, "DatabaseIf", "create(" << dbName << ", " << schemaName << ", " << volumeName << ") error caught " << err.what() << " " << err.get_errorno());
+        LTRACE << "create(" << dbName << ", " << schemaName << ", " << volumeName << ") error caught " << err.what() << " " << err.get_errorno();
         throw; // rethrow exception
     }
-
-    LEAVE( "DatabaseIf::createDB, SQLCODE=" << SQLCODE );
-    RMDBGEXIT(4, RMDebug::module_adminif, "DatabaseIf", "create(" << dbName << ", " << schemaName << ", "   << volumeName << ")");
 }
 
 void
 DatabaseIf::destroyDB(const char* dbName) throw(r_Error)
 {
-    RMDBGENTER(4, RMDebug::module_adminif, "DatabaseIf", "destroyDB(" << dbName << ")");
-    ENTER( "DatabaseIf::destroyDB, dbName=" << dbName );
-
     if (AdminIf::getCurrentDatabaseIf() != 0)
     {
-        RMDBGMIDDLE(5, RMDebug::module_adminif, "DatabaseIf", "another database is already open");
-        LEAVE( "Error: another database is already open" );
-        RMInit::logOut << "Another database is already open." << std::endl << "Cannot destroy database " << dbName << "." << std::endl;
+        LTRACE << "another database is already open";
+        LFATAL << "Another database is already open.\n" << "Cannot destroy database " << dbName << ".";
         throw r_Error(r_Error::r_Error_DatabaseOpen);
     }
     connect();
@@ -1293,17 +1260,16 @@ DatabaseIf::destroyDB(const char* dbName) throw(r_Error)
         // {
             if (!databaseExists(dbName))
             {
-                RMDBGMIDDLE(5, RMDebug::module_adminif, "DatabaseIf", "unknown database");
-                LEAVE( "Error: Database unknown" );
-                RMInit::logOut << "Database " << dbName << " not found." << std::endl << "Cannot destroy database " << dbName << "." << std::endl;
+                LTRACE << "unknown database";
+                LFATAL << "Database " << dbName << " not found.\n" << "Cannot destroy database " << dbName << ".";
                 throw r_Error(r_Error::r_Error_DatabaseUnknown);
             }
         // }
         // catch (r_Error& err)
         // {
-        //  RMInit::logOut << "Caught exception while trying to check for existence of database: " << err.what() << " " << err.get_errorno() << " " << err.get_kind() << endl;
-        //  RMInit::logOut << "Continuing with destruction of the database" << endl;
-        //  TALK( "Continuing destruction of the database after error " << err.get_errorno() << " " << err.get_kind() );
+        //  LERROR << "Caught exception while trying to check for existence of database: " << err.what() << " " << err.get_errorno() << " " << err.get_kind();
+        //  LERROR << "Continuing with destruction of the database";
+        //  LDEBUG << "Continuing destruction of the database after error " << err.get_errorno() << " " << err.get_kind();
         // }
     */
 
@@ -1421,9 +1387,6 @@ DatabaseIf::destroyDB(const char* dbName) throw(r_Error)
     check("DatabaseIf::destroyDB() COMMIT\0");
 
     disconnect();
-
-    LEAVE( "DatabaseIf::destroyDB" );
-    RMDBGEXIT(4, RMDebug::module_adminif, "DatabaseIf", "destroyDB(" << dbName << ")");
 }
 
 #ifndef RMANVERSION

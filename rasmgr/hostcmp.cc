@@ -45,8 +45,6 @@ hostCmp( const char *h1, const char *h2);
 
 bool hostCmp( const char *h1, const char *h2)
 {
-    ENTER( "hostCmp( " << h1 << ", " << h2 << " )" );
-
     bool result = false;
 
     if ( h1 == NULL && h2 == NULL )
@@ -65,7 +63,6 @@ bool hostCmp( const char *h1, const char *h2)
             result = ( strncmp(h1,h2,strlen(h1))==0 && h2[strlen(h1)]=='.' );
     }
 
-    LEAVE( "Configuration::hostCmp() -> " << result );
     return result;
 }
 

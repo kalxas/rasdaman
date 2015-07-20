@@ -36,6 +36,7 @@ rasdaman GmbH.
 #include "config.h"
 #include "rasmgr_users.hh"
 #include "raslib/rminit.hh"
+#include "../common/src/logging/easylogging++.hh"
 
 RandomGenerator::RandomGenerator()
 {
@@ -52,7 +53,7 @@ bool RandomGenerator::setFileVersion(long version)
 
     if(version == 1 )
     {
-        if(firstCall) RMInit::logOut<<"Authorization file will be migrated to the new version"<<std::endl;
+        if(firstCall) LINFO << "Authorization file will be migrated to the new version";
         firstCall=false;
         return true;
     }
@@ -135,9 +136,8 @@ To avoid such trouble, we put a table here generated with:
        for(int j=0;j<25;j++)
         {
       unsigned char b=rand();
-      RMInit::logOut<<(unsigned int)b<<',';
+      LINFO << (unsigned int)b << ',';
      }
-       RMInit::logOut<<std::endl;
       }
     return 0;
 

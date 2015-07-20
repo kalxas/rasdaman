@@ -120,6 +120,8 @@ extern "C" int gethostname(char *name, int namelen);
 #include<netdb.h>
 #include<iostream>
 
+#include "../common/src/logging/easylogging++.hh"
+
 using namespace std;
 // init globals for server initialization
 // RMINITGLOBALS('S')
@@ -161,7 +163,7 @@ ServerComm::ServerComm()
 {
     if( actual_servercomm )
     {
-        RMInit::logOut << "Internal Error: Tried to instantiate more than one ServerComm object." << endl;
+        LFATAL << "Internal Error: Tried to instantiate more than one ServerComm object.";
         exit( EXITCODE_ONE );
     }
 
@@ -181,7 +183,7 @@ ServerComm::ServerComm( unsigned long timeOut, unsigned long managementInterval 
 {
     if( actual_servercomm )
     {
-        RMInit::logOut << "Internal Error: Tried to instantiate more than one ServerComm object." << endl;
+        LFATAL << "Internal Error: Tried to instantiate more than one ServerComm object.";
         exit( EXITCODE_ONE );
     }
 
@@ -228,66 +230,65 @@ throw( r_Error )
     // install a signal handler to catch alarm signals for garbage collection
     signal( SIGALRM, garbageCollection );
 
-    RMInit::logOut << "Testing if no other rasdaman RPC server with my listenPort (0x"<< hex << listenPort << dec <<") is already running on this CPU..." << flush;
+    LINFO << "Testing if no other rasdaman RPC server with my listenPort (0x"<< hex << listenPort << dec <<") is already running on this CPU...";
 
 
     char* myName = new char[256];
 
     if( gethostname( myName, 256 ) )
-        RMInit::logOut << endl << "Unable to determine my own hostname. Skipping this test." << endl;
+        LWARNING << "Unable to determine my own hostname. Skipping this test.";
     else if( clnt_create( myName, listenPort, RPCIFVERS, "tcp" ) )
     {
-        RMInit::logOut << MSG_FAILED << endl;
+        LFATAL << MSG_FAILED;
         exit( EXITCODE_ZERO );
     }
     else
-        RMInit::logOut << MSG_OK << endl;
+        LINFO << MSG_OK;
 
     delete[] myName;
 
     (void) pmap_unset(listenPort, RPCIFVERS);
 
-    RMInit::logOut << "Creating UDP services..." << flush;
+    LINFO << "Creating UDP services...";
     transp = svcudp_create(RPC_ANYSOCK);
     if (transp == NULL)
     {
-        RMInit::logOut << MSG_FAILED << endl;
+        LFATAL << MSG_FAILED;
         throw r_Error( r_Error::r_Error_General );
     }
 
-    RMInit::logOut << "registering UDP interface..." << flush;
+    LINFO << "registering UDP interface...";
     if (!svc_register(transp, listenPort, RPCIFVERS, rpcif_1_caller, IPPROTO_UDP))
     {
-        RMInit::logOut << MSG_FAILED << endl;
+        LFATAL << MSG_FAILED;
         throw r_Error( r_Error::r_Error_General );
     }
-    RMInit::logOut << MSG_OK << endl;
+    LINFO << MSG_OK;
 
-    RMInit::logOut << "Creating TCP services..." << flush;
+    LINFO << "Creating TCP services...";
     transp = svctcp_create(RPC_ANYSOCK, 0, 0);
     if (transp == NULL)
     {
-        RMInit::logOut << MSG_FAILED << endl;
+        LFATAL << MSG_FAILED;
         throw r_Error( r_Error::r_Error_General );
     }
 
-    RMInit::logOut << "registering TCP interface..." << flush;
+    LINFO << "registering TCP interface...";
     if (!svc_register(transp, listenPort, RPCIFVERS, rpcif_1_caller, IPPROTO_TCP))
     {
-        RMInit::logOut << MSG_FAILED << endl;
+        LFATAL << MSG_FAILED;
         throw r_Error( r_Error::r_Error_General );
     }
-    RMInit::logOut << MSG_OK << endl;
+    LINFO << MSG_OK;
 
-    RMInit::logOut << "Setting alarm clock for next garbage collection to " << garbageCollectionInterval
+    LINFO << "Setting alarm clock for next garbage collection to " << garbageCollectionInterval
                    << " secs...";
-    RMInit::logOut.flush();
     alarm( static_cast<unsigned int>(garbageCollectionInterval) );
-    RMInit::logOut << MSG_OK << endl;
+    LINFO << MSG_OK;
 
     signal (SIGTERM, rpcSignalHandler);
     informRasMGR(SERVER_AVAILABLE);
-    RMInit::logOut << "rasdaman server "<<serverName<<" is up." << endl;
+    LINFO << "rasdaman server "<<serverName<<" is up.";
 
     // now wait for client calls (exception guarded)
 #ifdef PURIFY
@@ -304,11 +305,9 @@ extern "C" {
 
 void our_svc_run()
 {
-    ENTER( "our_svc_run" );
-
     fd_set read_fd_set;
 
-    // TALK( "tcp_socket="<<get_socket(&svc_fdset,0) );
+    // LDEBUG << "tcp_socket="<<get_socket(&svc_fdset,0);
 
     struct timeval timeout;
     timeout.tv_sec= TIMEOUT_SELECT;
@@ -317,19 +316,19 @@ void our_svc_run()
     while(1)
     {
         read_fd_set=svc_fdset;
-        TALK( "RPC Server is waiting..." );
+        LDEBUG << "RPC Server is waiting...";
 
         int rasp=select(FD_SETSIZE,&read_fd_set,NULL,NULL,&timeout);
-        TALK( "RPC select returns: " << rasp );
+        LDEBUG << "RPC select returns: " << rasp;
         if(rasp>0)
         {
             svc_getreqset(&read_fd_set);
-            TALK( "RPC Request executed." );
+            LDEBUG << "RPC Request executed.";
         }
 
         if(rasp<=0)
         {
-            TALK( "our_svc_run(): Error: Timeout." ); // or a signal
+            LDEBUG << "our_svc_run(): Error: Timeout."; // or a signal
             // execute all pending callbacks. Redirect alarm signal first to make sure no
             // reentrance is possible!
 
@@ -350,13 +349,11 @@ void our_svc_run()
             if(bMemFailed)
             {
                 // no reason to continue
-                RMInit::logOut << "Internal error: rasserver: memory exhausted." << endl << flush;
+                LFATAL << "Internal error: rasserver: memory exhausted.";
                 exit( EXITCODE_ONE );
             }
         }
     }
-
-    LEAVE( "our_svc_run" );
 }
 
 
@@ -384,26 +381,26 @@ void rpcSignalHandler(__attribute__ ((unused)) int sig)
 void
 ServerComm::stopRpcServer()
 {
-    RMInit::logOut << "Shutdown request received." << endl;
+    LINFO << "Shutdown request received.";
     // Determine when next garbage collection would have occurred
     unsigned long nextGarbColl = static_cast<unsigned long>(time( NULL ));
     struct itimerval rttimer;
     getitimer( ITIMER_REAL, &rttimer );
     nextGarbColl += static_cast<unsigned long>(rttimer.it_value.tv_sec);
-    RMInit::logOut << "Next garbage collection would have been in " << rttimer.it_value.tv_sec << " sec, at "
+    LINFO << "Next garbage collection would have been in " << rttimer.it_value.tv_sec << " sec, at "
                    << ctime((time_t*)&nextGarbColl);
 
-    RMInit::logOut << "Unregistering interface...";
+    LINFO << "Unregistering interface...";
     svc_unregister( listenPort, RPCIFVERS );
 
-    RMInit::logOut << "shutting down services...";
+    LINFO << "shutting down services...";
     abortEveryThingNow();
 
-    RMInit::logOut << "informing rasmgr...";
+    LINFO << "informing rasmgr...";
     informRasMGR(SERVER_DOWN);
-    RMInit::logOut << MSG_OK << endl;
+    LINFO << MSG_OK;
 
-    RMInit::logOut << "rasdaman server " << serverName <<" is down." << endl;
+    LINFO << "rasdaman server " << serverName <<" is down.";
 
     exit(0);
     //  svc_exit();
@@ -413,8 +410,6 @@ ServerComm::stopRpcServer()
 void
 ServerComm::abortEveryThingNow()
 {
-    ENTER( "ServerComm::abortEveryThingNow()" );
-
     list<ServerComm::ClientTblElt*>::iterator iter;
     ServerComm *sc=ServerComm::actual_servercomm;
     iter = sc->clientTbl.begin();
@@ -428,8 +423,6 @@ ServerComm::abortEveryThingNow()
 
         iter++;
     }
-
-    LEAVE( "ServerComm::abortEveryThingNow()" );
 }
 
 /*************************************************************************
@@ -439,8 +432,6 @@ ServerComm::abortEveryThingNow()
  *************************************************************************/
 void rpcif_1_caller(struct svc_req *rqstp, SVCXPRT *transp)
 {
-    ENTER( "rpcif_1_caller(_,_)" );
-
     bool flagTransactionReady=false;
 
     bool isGetExtendedError=false;
@@ -471,15 +462,14 @@ void rpcif_1_caller(struct svc_req *rqstp, SVCXPRT *transp)
 
         signal( SIGALRM, garbageCollectionDummy );
         ServerComm::actual_servercomm->callback_mgr.executePending();
-        RMInit::logOut << "Internal error: rasserver panic: memory exhausted, terminating forcefully." << endl << flush;
+        LFATAL << "Internal error: rasserver panic: memory exhausted, terminating forcefully.";
         exit(1);
     }
 
     if (errTxt)
     {
         // this is not necessary, since the client gets an error code '42'
-        //RMInit::logOut << "rasserver: general exception from server caught by rpcif_1_caller!" << endl << errTxt << endl;
-        //RMInit::logOut.flush();
+        //LERROR << "rasserver: general exception from server caught by rpcif_1_caller!\n" << errTxt;
         //cerr << "rasserver: general exception from server caught by rpcif_1_caller!" << endl << errTxt << endl;
         ServerComm::actual_servercomm->setExtendedErrorInfo(errTxt);
         free(errTxt);
@@ -493,8 +483,6 @@ void rpcif_1_caller(struct svc_req *rqstp, SVCXPRT *transp)
 
     if(flagTransactionReady)
         ServerComm::actual_servercomm->informRasMGR(SERVER_AVAILABLE);
-
-    LEAVE( "rpcif_1_caller()" );
 }
 
 
@@ -512,8 +500,6 @@ void rpcif_1_caller(struct svc_req *rqstp, SVCXPRT *transp)
 
 int writeWholeMessage(int socket,char *destBuffer,int buffSize)
 {
-    ENTER( "writeWholeMessage( socket=" << socket << ", destBuffer=" << (destBuffer?destBuffer:"(null)") << ", buffSize=" << buffSize << " )" );
-
     // we write the whole message, including the ending '\0', which is already in
     // the buffSize provided by the caller
     int totalLength=0;
@@ -523,10 +509,9 @@ int writeWholeMessage(int socket,char *destBuffer,int buffSize)
         writeNow = write(socket,destBuffer+totalLength,static_cast<size_t>(buffSize-totalLength));
         if(writeNow == -1)
         {
-            TALK( "writeWholeMessage: bad socket write returned " << writeNow << ", errno=" << errno );
+            LDEBUG << "writeWholeMessage: bad socket write returned " << writeNow << ", errno=" << errno;
             if(errno == EINTR)
                 continue; // read was interrupted by signal (on bad SO's)
-            LEAVE( "writeWholeMessage(): error, errno=" << errno );
             return -1; // another error
         }
         totalLength+=writeNow;
@@ -534,8 +519,6 @@ int writeWholeMessage(int socket,char *destBuffer,int buffSize)
         if( totalLength==buffSize )
             break; // THE END
     }
-
-    LEAVE( "writeWholeMessage() -> " << totalLength );
     return totalLength;
 }
 
@@ -548,8 +531,7 @@ long infCount=0; // for debug only
 //  none, but function does exit() on error 8-()
 void ServerComm::informRasMGR( int what )
 {
-    ENTER( "ServerComm::informRasMGR, what=" << what );
-    TALK( "Informing dispatcher " << rasmgrHost << " port=" << rasmgrPort << " that server is available" );
+    LDEBUG << "Informing dispatcher " << rasmgrHost << " port=" << rasmgrPort << " that server is available";
     //what: 0 - going down
     //      1 - available
     //      2 - regular signal
@@ -562,8 +544,7 @@ void ServerComm::informRasMGR( int what )
     if (hostinfo==NULL)
     {
         cerr<< serverName<<": informRasMGR: cannot locate RasMGR host "<<rasmgrHost<<" ("<<strerror(errno)<<')'<<endl;
-        RMInit::logOut << "informRasMGR: cannot locate RasMGR host "<<rasmgrHost<<" ("<<strerror(errno)<<')'<<endl;
-        LEAVE( "ServerComm::informRasMGR: cannot locate RasMGR host "<<rasmgrHost << ": " << strerror(errno) );
+        LERROR << "informRasMGR: cannot locate RasMGR host "<<rasmgrHost<<" ("<<strerror(errno)<<')';
         return;
     }
 
@@ -598,29 +579,29 @@ void ServerComm::informRasMGR( int what )
         // should wait again because Linux will resend the signal later."
 
         sock=socket(PF_INET,SOCK_STREAM,getprotoptr->p_proto);
-        TALK( "Socket=" << sock << " protocol(tcp)=" << getprotoptr->p_proto );
+        LDEBUG << "Socket=" << sock << " protocol(tcp)=" << getprotoptr->p_proto;
 
         if(sock<0)
         {
             // if ( (retry%talkInterval) == 0)
             {
                 cerr << "Error in server '" << serverName << "': cannot open socket to rasmgr, (" << strerror(errno) << ')' << " still retrying..." << endl;
-                TALK( "ServerComm::informRasMGR: cannot open socket to RasMGR: " << strerror(errno) << "; retry " << retry << " of " << maxRetry );
-                RMInit::logOut << "Error: cannot open socket to rasmgr, (" << strerror(errno) << ')'<<endl;
+                LDEBUG << "ServerComm::informRasMGR: cannot open socket to RasMGR: " << strerror(errno) << "; retry " << retry << " of " << maxRetry;
+                LERROR << "Error: cannot open socket to rasmgr, (" << strerror(errno) << ')';
             }
             continue;
         }
         result = connect(sock,(struct sockaddr*)&internetSocketAddress,sizeof(internetSocketAddress));
-        TALK( "connect(socket=" << sock << ",htons(" << rasmgrPort << ")=" << internetSocketAddress.sin_port << ",in_addr=" << internetSocketAddress.sin_addr.s_addr << ")->" << result );
+        LDEBUG << "connect(socket=" << sock << ",htons(" << rasmgrPort << ")=" << internetSocketAddress.sin_port << ",in_addr=" << internetSocketAddress.sin_addr.s_addr << ")->" << result;
         if (result < 0)
         {
             // if( (retry%talkInterval) == 0)
             {
                 cerr << "Error in server '" << serverName << "': Connection to rasmgr failed (still retrying): "<<strerror(errno);
                 cerr << ". retry #" << retry << " of " << maxRetry << endl;
-                TALK( "ServerComm::informRasMGR: cannot connect to RasMGR: " << strerror(errno) << "; retry " << retry << " of " << maxRetry );
-                RMInit::logOut <<"Error: Cannot connect to rasmgr ("<<strerror(errno)<<')';
-                RMInit::logOut << " retry #" << retry << " of " << maxRetry << endl;
+                LDEBUG << "ServerComm::informRasMGR: cannot connect to RasMGR: " << strerror(errno) << "; retry " << retry << " of " << maxRetry;
+                LERROR <<"Error: Cannot connect to rasmgr ("<<strerror(errno)<<')';
+                LERROR << " retry #" << retry << " of " << maxRetry;
             }
             close(sock); //yes, some SO require this, like Tru64
             continue;
@@ -632,7 +613,7 @@ void ServerComm::informRasMGR( int what )
     if ( !ok )
     {
         cerr << "Error in server '" << serverName << "': Giving up on connecting, terminating." << endl;
-        RMInit::logOut << "Error: Giving up on connecting, terminating." << endl;
+        LERROR << "Error: Giving up on connecting, terminating.";
         if (sock)
             close(sock);
 
@@ -647,7 +628,7 @@ void ServerComm::informRasMGR( int what )
     // writing message;
     if(writeWholeMessage(sock,message,strlen(message)+1)<0)
     {
-        RMInit::logOut <<"Error: Connection to rasmgr failed. ("<<strerror(errno)<<')'<<endl;
+        LERROR <<"Error: Connection to rasmgr failed. ("<<strerror(errno)<<')';
         close(sock);
 
         // FIXME: extremely ugly. replace by retcode which
@@ -656,8 +637,6 @@ void ServerComm::informRasMGR( int what )
         exit( EXITCODE_RASMGR_FAILED );
     }
     close(sock);
-
-    LEAVE( "ServerComm::informRasMGR, ok=" << ok << ", retries=" << retry );
 } // ServerComm::informRasMGR()
 
 
@@ -667,8 +646,6 @@ void ServerComm::informRasMGR( int what )
 ServerComm::ClientTblElt*
 ServerComm::getClientContext( unsigned long clientId )
 {
-    ENTER( "ServerComm::getClientContext( " << clientId << " )" );
-
     ClientTblElt* returnValue=0;
 
     if( !clientTbl.empty() )
@@ -678,7 +655,7 @@ ServerComm::getClientContext( unsigned long clientId )
         iter = clientTbl.begin();
         while( iter != clientTbl.end() && (*iter)->clientId != clientId )
         {
-            TALK( "  inspecting entry with clientID " << (*iter)->clientId );
+            LDEBUG << "  inspecting entry with clientID " << (*iter)->clientId;
             iter++;
         }
 
@@ -691,13 +668,13 @@ ServerComm::getClientContext( unsigned long clientId )
 
             (*iter)->currentUsers++;
             (*iter)->lastActionTime = static_cast<long unsigned int>(time( NULL ));
-            TALK( "valid entry found, current users now: " << (*iter)->currentUsers );
+            LDEBUG << "valid entry found, current users now: " << (*iter)->currentUsers;
         }
     }
 
     // this output will be done lateron, in the caller:
     // if( returnValue == 0 )
-    //  RMInit::logOut << "Error: client not registered." << endl;
+    //  LERROR << "Error: client not registered.";
 
     // this trick did not work, broke the HTTP server
     //  if(isHttpServer==false ) uniqueClientContext = returnValue;
@@ -705,16 +682,12 @@ ServerComm::getClientContext( unsigned long clientId )
 #ifdef RMANDEBUG
     ServerComm::printServerStatus( RMInit::logOut ); // pretty verbose
 #endif
-
-    LEAVE( "ServerComm::getClientContext()" );
     return returnValue;
 }
 
 void
 ServerComm::clientEndRequest()
 {
-    ENTER( "ServerComm::clientEndRequest()" );
-
 #ifdef RMANDEBUG
     printServerStatus( RMInit::dbgOut );        // pretty verbose
 #endif
@@ -723,8 +696,6 @@ ServerComm::clientEndRequest()
 
     //  if(isHttpServer==false && uniqueClientContext != NULL)
     //    uniqueClientContext->endRequest();
-
-    LEAVE( "ServerComm::clientEndRequest()" );
 }
 
 /*************************************************************************
@@ -755,7 +726,7 @@ ServerComm::printServerStatus( ostream& s )
             if (*iter==NULL)
             {
                 s << "Error: null context found." << endl;
-                RMInit::logOut << "Error: null context found." << endl;
+                LERROR << "Error: null context found.";
                 continue;
             }
 
@@ -858,11 +829,9 @@ ServerComm::getServerStatus( ServerStatRes& returnStruct )
 void
 ServerComm::addClientTblEntry( ClientTblElt *context ) throw ( r_Error )
 {
-    ENTER( "addClientTblEntry()" );
-
     if (context==NULL)
     {
-        RMInit::logOut << "Error: ServerComm::addClientTblEntry(): client context is NULL." << endl;
+        LFATAL << "Error: ServerComm::addClientTblEntry(): client context is NULL.";
         throw r_Error( r_Error::r_Error_RefNull );
     }
 
@@ -871,8 +840,6 @@ ServerComm::addClientTblEntry( ClientTblElt *context ) throw ( r_Error )
 #ifdef RMANDEBUG
     ServerComm::printServerStatus( RMInit::logOut ); // quite verbose
 #endif
-
-    LEAVE( "addClientTblEntry()" );
 }
 
 
@@ -882,15 +849,13 @@ ServerComm::addClientTblEntry( ClientTblElt *context ) throw ( r_Error )
 unsigned short
 ServerComm::deleteClientTblEntry( unsigned long clientId )
 {
-    ENTER( "deleteClientTblEntry( " << clientId << " )" );
-
     unsigned short returnValue = 0;
 
     ClientTblElt* context = getClientContext( clientId );
 
     if( !context )
     {
-        TALK( "Warning: in ServerComm::deleteClientTblEntry(): null context, " << "client " << clientId << " not found." );
+        LDEBUG << "Warning: in ServerComm::deleteClientTblEntry(): null context, " << "client " << clientId << " not found.";
         return 1;  // desired client id was not found in the client table
     }
 
@@ -898,7 +863,7 @@ ServerComm::deleteClientTblEntry( unsigned long clientId )
     {
         // In this case, the client table entry was under use before our getClientContext() call.
         context->release();
-        TALK( "Client context of user "<<clientId<<" has current users ="<<context->currentUsers );
+        LDEBUG << "Client context of user "<<clientId<<" has current users ="<<context->currentUsers;
         return 2;
     }
 
@@ -915,7 +880,7 @@ ServerComm::deleteClientTblEntry( unsigned long clientId )
     // If the current transaction belongs to this client, abort it.
     if( transactionActive == clientId )
     {
-        RMInit::logOut << "aborting transaction..." << RMInit::logOut.flush();
+        LINFO << "aborting transaction...";
         context->transaction.abort();
         transactionActive = 0;
     }
@@ -924,7 +889,7 @@ ServerComm::deleteClientTblEntry( unsigned long clientId )
     // (e.g. after connection breakdowns)
     if( strcmp( context->baseName, "none" ) != 0 )
     {
-        RMInit::logOut << "closing database..." << RMInit::logOut.flush();
+        LINFO << "closing database...";
 
         context->database.close();
 
@@ -949,9 +914,7 @@ ServerComm::deleteClientTblEntry( unsigned long clientId )
     // (delete is controlled by the destructor of the ClientTblElt object)
     delete context;
 
-    TALK( "client table now has " << clientTbl.size() << " entries." );
-
-    LEAVE( "deleteClientTblEntry()" );
+    LDEBUG << "client table now has " << clientTbl.size() << " entries.";
     return returnValue;
 }
 
@@ -1029,8 +992,6 @@ ServerComm::ClientTblElt::ClientTblElt( const char* clientText, unsigned long cl
       evaluationTimer(0),
       clientParams(0)
 {
-    ENTER( "ServerComm::ClientTblElt::ClientTblElt( clientText=" << (clientText?clientText:"(null)") << ", client=0x" << hex << client << dec << " )" );
-
     creationTime = static_cast<long unsigned int>(time( NULL ));
 
     clientIdText = new char[strlen(clientText)+1];
@@ -1044,8 +1005,6 @@ ServerComm::ClientTblElt::ClientTblElt( const char* clientText, unsigned long cl
 
     clientParams = new r_Parse_Params();
     clientParams->add("exactformat", &exactFormat, r_Parse_Params::param_type_int);
-
-    LEAVE( "ServerComm::ClientTblElt::ClientTblElt()" );
 }
 
 
@@ -1075,7 +1034,7 @@ void
 ServerComm::ClientTblElt::release()
 {
     if( currentUsers == 0 )
-        RMInit::logOut << "Warning: releasing a non-active client." << endl;
+        LWARNING << "Warning: releasing a non-active client.";
 
     currentUsers--;
     lastActionTime = static_cast<long unsigned int>(time( NULL ));
@@ -1085,7 +1044,7 @@ void
 ServerComm::ClientTblElt::endRequest()
 {
     if(currentUsers != 0)
-        RMInit::logOut << "Warning: Client ended request without releasing context. Forcing release now." << endl;
+        LWARNING << "Warning: Client ended request without releasing context. Forcing release now.";
 
     currentUsers=0;
     lastActionTime = static_cast<long unsigned int>(time( NULL ));
@@ -1094,13 +1053,11 @@ ServerComm::ClientTblElt::endRequest()
 void
 ServerComm::ClientTblElt::releaseTransferStructures()
 {
-    ENTER( "ServerComm::ClientTblElt::releaseTransferStructures()" );
-    RMDBGENTER(2, RMDebug::module_servercomm, "ServerComm::ClientTblElt", "releaseTransferStructures()")
     // delete the transfer iterator
 
     if( transferCollIter )
     {
-        RMDBGMIDDLE(2, RMDebug::module_servercomm, "ServerComm::ClientTblElt", "release transferCollIter" )
+        LTRACE << "release transferCollIter";
         delete transferCollIter;
         transferCollIter = 0;
     }
@@ -1108,7 +1065,7 @@ ServerComm::ClientTblElt::releaseTransferStructures()
     // delete transfer data
     if( transferData )
     {
-        RMDBGMIDDLE(2, RMDebug::module_servercomm, "ServerComm::ClientTblElt", "release transferData" )
+        LTRACE << "release transferData";
 
         QtNode::QtDataList::iterator dataIter;
 
@@ -1121,10 +1078,8 @@ ServerComm::ClientTblElt::releaseTransferStructures()
 
                 // Consistency Check: should be the last reference.
                 //        if( (*dataIter)->getRefNo() > 1 )
-                //    {
-                //          RMInit::logOut << endl << "Internal error in releaseTransferStructures: references left, object " << RMInit::logOut.flush();
-                //          (*dataIter)->printStatus( RMInit::logOut );
-                //      RMInit::logOut << endl;
+                //        {
+                //          LERROR << "Internal error in releaseTransferStructures: references left, object ";
                 //        }
 
                 // Just tupel elements which are not further referenced are deleted.
@@ -1142,7 +1097,7 @@ ServerComm::ClientTblElt::releaseTransferStructures()
     // the transferData will check objects because of the bugfix.  therefore the objects may deleted only after the check.
     if( transferColl )
     {
-        RMDBGMIDDLE(2, RMDebug::module_servercomm, "ServerComm::ClientTblElt", "release transferColl" )
+        LTRACE << "release transferColl";
         transferColl->releaseAll();
         delete transferColl;
         transferColl = 0;
@@ -1151,7 +1106,7 @@ ServerComm::ClientTblElt::releaseTransferStructures()
     // delete transfer data iterator
     if( transferDataIter )
     {
-        RMDBGMIDDLE(2, RMDebug::module_servercomm, "ServerComm::ClientTblElt", "release transferDataIter" )
+        LTRACE << "release transferDataIter";
         delete transferDataIter;
         transferDataIter = 0;
     }
@@ -1159,7 +1114,7 @@ ServerComm::ClientTblElt::releaseTransferStructures()
     // delete the temporary PersMDDObj
     if( assembleMDD )
     {
-        RMDBGMIDDLE(2, RMDebug::module_servercomm, "ServerComm::ClientTblElt", "release assembleMDD" )
+        LTRACE << "release assembleMDD";
         delete assembleMDD;
         assembleMDD = 0;
     }
@@ -1167,7 +1122,7 @@ ServerComm::ClientTblElt::releaseTransferStructures()
     // delete the transfer MDDobj
     if( transferMDD )
     {
-        RMDBGMIDDLE(2, RMDebug::module_servercomm, "ServerComm::ClientTblElt", "release transferMDD" )
+        LTRACE << "release transferMDD";
         delete transferMDD;
         transferMDD = 0;
     }
@@ -1175,7 +1130,7 @@ ServerComm::ClientTblElt::releaseTransferStructures()
     // vector< Tile* >* transTiles;
     if( transTiles )
     {
-        RMDBGMIDDLE(2, RMDebug::module_servercomm, "ServerComm::ClientTblElt", "release transTiles" )
+        LTRACE << "release transTiles";
         // Tiles are deleted by the MDDObject owing them.
         // release( transTiles->begin(), transTiles->end() );
         delete transTiles;
@@ -1185,7 +1140,7 @@ ServerComm::ClientTblElt::releaseTransferStructures()
     // vector< Tile* >::iterator* tileIter;
     if( tileIter )
     {
-        RMDBGMIDDLE(2, RMDebug::module_servercomm, "ServerComm::ClientTblElt", "release tileIter" )
+        LTRACE << "release tileIter";
         delete tileIter;
         tileIter = 0;
     }
@@ -1193,7 +1148,7 @@ ServerComm::ClientTblElt::releaseTransferStructures()
     // delete deletable tiles
     if( deletableTiles )
     {
-        RMDBGMIDDLE(2, RMDebug::module_servercomm, "ServerComm::ClientTblElt", "release deletableTiles" )
+        LTRACE << "release deletableTiles";
 
         vector<Tile*>::iterator iter;
 
@@ -1208,16 +1163,16 @@ ServerComm::ClientTblElt::releaseTransferStructures()
     // delete persistent MDD collections
     if( persMDDCollections )
     {
-        RMDBGMIDDLE(2, RMDebug::module_servercomm, "ServerComm::ClientTblElt", "release persMDDCollections" )
+        LTRACE << "release persMDDCollections";
 
         vector<MDDColl*>::iterator collIter;
 
         for( collIter=persMDDCollections->begin(); collIter!=persMDDCollections->end(); collIter++ )
             if( *collIter )
             {
-                RMDBGMIDDLE(2, RMDebug::module_servercomm, "ServerComm::ClientTblElt", "before PersMDDColl::releaseAll()" )
+                LTRACE << "before PersMDDColl::releaseAll()";
                 (*collIter)->releaseAll();
-                RMDBGMIDDLE(2, RMDebug::module_servercomm, "ServerComm::ClientTblElt", "after	PersMDDColl::releaseAll()" )
+                LTRACE << "after   PersMDDColl::releaseAll()";
                 delete *collIter;
             }
 
@@ -1242,8 +1197,6 @@ ServerComm::ClientTblElt::releaseTransferStructures()
     if( transferTimer ) delete transferTimer;
     transferTimer = 0;
 #endif
-    RMDBGEXIT(2, RMDebug::module_servercomm, "ServerComm::ClientTblElt", "releaseTransferStructures()")
-    LEAVE( "ServerComm::ClientTblElt::releaseTransferStructures()" );
 }
 
 
@@ -1297,8 +1250,6 @@ bool AccessControl::isClient()
 
 int AccessControl::crunchCapability(const char *capability)
 {
-    ENTER( "AccessControl::crunchCapability( capability=" << (capability?capability:"(null)") << " )" );
-
     // verify capability is original
     char capaQ[200];
     strcpy(capaQ,"$Canci");
@@ -1307,7 +1258,6 @@ int AccessControl::crunchCapability(const char *capability)
     char *digest=strstr(capaQ,"$D");
     if(digest==NULL)
     {
-        LEAVE( "AccessControl::crunchCapability(): error: digest not found -> " << CAPABILITY_REFUSED );
         return CAPABILITY_REFUSED;
     }
 
@@ -1315,14 +1265,13 @@ int AccessControl::crunchCapability(const char *capability)
     digest++;
     digest++;
     digest[32]=0;
-    TALK( "Digest="<<digest );
+    LDEBUG << "Digest="<<digest;
 
     char testdigest[50];
     messageDigest(capaQ,testdigest,"MD5");
-    TALK( "testdg="<<testdigest );
+    LDEBUG << "testdg="<<testdigest;
     if(strcmp(testdigest,digest)!=0)
     {
-        LEAVE( "AccessControl::crunchCapability() digest error on '" << digest << "' -> " << CAPABILITY_REFUSED );
         return CAPABILITY_REFUSED;
     }
 
@@ -1342,7 +1291,6 @@ int AccessControl::crunchCapability(const char *capability)
 
     if(strcmp(serverName,cServerName)!=0)
     {
-        LEAVE( "AccessControl::crunchCapability() -> server name doesn't match, got: " << cServerName << ", need: " << serverName << " -> " << CAPABILITY_REFUSED );
         return CAPABILITY_REFUSED; //!!! Call is not for me
     }
 
@@ -1359,9 +1307,8 @@ int AccessControl::crunchCapability(const char *capability)
 
     weHaveClient=true;
 
-    TALK( "capability crunched: digest=" << digest << ", rights=" << rights << ", timeout=" << timeout << "(remaining time: " << DeltaT << "), cServerName=" << cServerName << ", okToRead=" << okToRead << ", okToWrite=" << okToWrite << "" );
+    LDEBUG << "capability crunched: digest=" << digest << ", rights=" << rights << ", timeout=" << timeout << "(remaining time: " << DeltaT << "), cServerName=" << cServerName << ", okToRead=" << okToRead << ", okToWrite=" << okToWrite << "";
 
-    LEAVE( "AccessControl::crunchCapability() -> 0 (ok)" );
     return 0; // OK for now
 }
 
@@ -1393,7 +1340,7 @@ void AccessControl::wantToRead()
 {
     if(okToRead==false)
     {
-        RMInit::logOut << "Error: no permission for read operation." << endl;
+        LFATAL << "Error: no permission for read operation.";
         throw r_Eno_permission(); //r_Error(NO_PERMISSION_FOR_OPERATION);
     }
 }
@@ -1402,7 +1349,7 @@ void AccessControl::wantToWrite()
 {
     if(okToWrite==false)
     {
-        RMInit::logOut << "Error: no permission for write operation." << endl;
+        LFATAL << "Error: no permission for write operation.";
         throw r_Eno_permission(); //r_Error(NO_PERMISSION_FOR_OPERATION);
     }
 

@@ -39,12 +39,7 @@ using namespace std;
 #include "reladminif/objectbroker.hh"
 #include "raslib/mitera.hh"
 
-// #undef DEBUG_HH
-// #include "debug.hh"
-#undef ENTER
-#define ENTER(a)    RMInit::logOut << "ENTER " << a << endl << flush;
-#undef LEAVE
-#define LEAVE(a)    RMInit::logOut << "LEAVE " << a << endl << flush;
+#include "../common/src/logging/easylogging++.hh"
 
 //#include <akgtime.hh>
 
@@ -52,17 +47,13 @@ using namespace std;
 
 FastCollectionCreator::FastCollectionCreator(const char *collName, const char *collTypeName)
 {
-    ENTER( "FastCollectionCreator::FastCollectionCreator(" << collName << "," << collTypeName << ")" );
     collectionName     = collName;
 
     collectionTypeName = collTypeName;
-    LEAVE( "FastCollectionCreator::FastCollectionCreator()" );
 }
 
 r_OId FastCollectionCreator::createCollection()
 {
-    ENTER( "FastCollectionCreator::createCollection()" );
-
     verifyName(collectionName);
 
     // allocate a new OId
@@ -72,45 +63,42 @@ r_OId FastCollectionCreator::createCollection()
 
     CollectionType* collType = static_cast<CollectionType*>(const_cast<SetType*>(TypeFactory::mapSetType( collectionTypeName )));
 
-    RMInit::logOut<<"Creating collection "<<collectionName<<" with type "<<collectionTypeName<<"...";
+    LINFO << "Creating collection " << collectionName << " with type " << collectionTypeName << "...";
     if( collType )
     {
         try
         {
             MDDColl* coll = MDDColl::createMDDCollection(collectionName, OId(oid.get_local_oid()), collType);
             delete coll;
-            RMInit::logOut << "OK" << std::endl;
+            LINFO << "OK";
         }
         catch( r_Error& obj )
         {
             if (obj.get_kind() == r_Error::r_Error_NameNotUnique)
             {
-                RMInit::logOut << "collection name exists already... FAILED" << std::endl;
+                LERROR << "collection name exists already... FAILED";
             }
             else
             {
-                RMInit::logOut << obj.get_errorno() << " " << obj.what() << std::endl;
+                LERROR << obj.get_errorno() << " " << obj.what();
             }
             throw;
         }
     }
     else
     {
-        RMInit::logOut << "collection type not found... FAILED" << std::endl;
+        LFATAL << "collection type not found... FAILED";
         throw r_Error(COLLTYPE_NULL);
     }
 
-    ENTER( "FastCollectionCreator::createCollection()" );
     return oid;
 }
 
 void FastCollectionCreator::verifyName( const char* name ) throw(r_Error)
 {
-    ENTER( "FastCollectionCreator::verifyName(" << (long) name << ")" );
-
     if(!name)
     {
-        RMInit::logOut << "FastCollectionCreator::verifyName() name is null!" << std::endl;
+        LFATAL << "FastCollectionCreator::verifyName() name is null!";
         throw r_Error(INVALIDOBJECTNAME);
     }
 
@@ -131,11 +119,9 @@ void FastCollectionCreator::verifyName( const char* name ) throw(r_Error)
     if(*cptr)
     {
         //invalid character in object name
-        RMInit::logOut << "FastCollectionCreator::verifyName(" << name << ") invalid name!" << std::endl;
+        LFATAL << "FastCollectionCreator::verifyName(" << name << ") invalid name!";
         throw r_Error(INVALIDOBJECTNAME);
     }
-
-    LEAVE( "FastCollectionCreator::verifyName(" << name << ") -> ok" );
 }
 
 
@@ -143,50 +129,32 @@ void FastCollectionCreator::verifyName( const char* name ) throw(r_Error)
 
 FastMDDCreator::FastMDDCreator()
 {
-    ENTER( "FastMDDCreator::FastMDDCreator()" );
-
     comprData  = 0;
 
     storageFormat = r_TMC;
     formatParams  = NULL;
-
-    LEAVE( "FastMDDCreator::FastMDDCreator()" );
 }
 
 FastMDDCreator::~FastMDDCreator()
 {
-    ENTER( "FastMDDCreator::~FastMDDCreator()" );
-
     if(comprData) free(comprData);
-
-    LEAVE( "FastMDDCreator::~FastMDDCreator()" );
 }
 
 void FastMDDCreator::setCollectionName(const char* collName)
 {
-    ENTER( "FastMDDCreator::setCollectionName(" << collName << ")" );
-
     collectionName = collName;
-
-    LEAVE( "FastMDDCreator::setCollectionName()" );
 }
 
 void FastMDDCreator::setMDDTypeName(const char* _mddTypeName)
 {
-    ENTER( "FastMDDCreator::setMDDTypeName(" << _mddTypeName << ")" );
-
     mddTypeName = _mddTypeName;
-
-    LEAVE( "FastMDDCreator::setMDDTypeName()" );
 }
 
 void FastMDDCreator::verifyCompatibility(MDDColl* collection) throw (r_Error)
 {
-    ENTER( "FastMDDCreator::verifyCompatibility(_)" );
-
     if (collection->isPersistent())
     {
-        //RMInit::logOut<<"OK, colection exists and is  persistent"<<endl;
+        //LINFO << "OK, colection exists and is  persistent";
     }
     else
     {
@@ -194,40 +162,36 @@ void FastMDDCreator::verifyCompatibility(MDDColl* collection) throw (r_Error)
     }
 
     char* collTypeStructure = collection->getCollectionType()->getTypeStructure();
-    //RMInit::logOut<<"collTypeStructure="<<collTypeStructure<<endl;
+    //LINFO << "collTypeStructure=" << collTypeStructure;
 
     const MDDType* mddType = TypeFactory::mapMDDType( mddTypeName.c_str() );
     if(mddType == NULL) throw r_Error(MDDTYPE_NULL);
 
     char* mddTypeStructure  = mddType->getTypeStructure();
-    //RMInit::logOut<<"mddTypeStructure="<<mddTypeStructure<<endl;
+    //LINFO << "mddTypeStructure=" << mddTypeStructure;
 
 
     if(mddType->compatibleWithDomain( &definitionInterval ))
     {
-        //RMInit::logOut<<"compatibil with domain: "<<definitionInterval<<endl;
+        //LINFO << "compatibil with domain: " << definitionInterval;
     }
     else throw r_Error(r_Error::r_Error_CollectionElementTypeMismatch);
-    //RMInit::logOut<<"incompatibil with domain"<<endl;
+    //LFATAL << "incompatibil with domain";
 
     if(collection->getCollectionType()->compatibleWith( mddType ))
     {
-        //RMInit::logOut<<"compatibil with collection"<<endl;
+        //LINFO << "compatibil with collection";
     }
     else
         throw r_Error(r_Error::r_Error_CollectionElementTypeMismatch);
-    //RMInit::logOut<<"incompatibil with collection"<<endl;
+    //LFATAL << "incompatibil with collection";
 
     free( collTypeStructure );
     free( mddTypeStructure );
-
-    LEAVE( "FastMDDCreator::verifyCompatibility()" );
 }
 
 r_OId FastMDDCreator::createMDD(const char *domain)
 {
-    ENTER( "FastMDDCreator::createMDD(" << domain << ")" );
-
     definitionInterval = r_Minterval(domain);
 
     MDDColl* collection = MDDColl::getMDDCollection( collectionName.c_str() );
@@ -260,14 +224,11 @@ r_OId FastMDDCreator::createMDD(const char *domain)
 
     delete collection;
 
-    LEAVE( "FastMDDCreator::createMDD() -> " << mddOId );
     return mddOId;
 }
 
 r_OId FastMDDCreator::createRCxMDD(const char *domain, const char *tileDomain)
 {
-    ENTER( "FastMDDCreator::createRCxMDD(" << domain << "," << tileDomain << ")" );
-
     definitionInterval = r_Minterval(domain);
     r_Minterval tileInterval = r_Minterval(tileDomain);
 
@@ -300,15 +261,11 @@ r_OId FastMDDCreator::createRCxMDD(const char *domain, const char *tileDomain)
     collection->releaseAll();
 
     delete collection;
-
-    LEAVE( "FastMDDCreator::createRCxMDD() -> " << mddOId );
     return mddOId;
 }
 
 vector<r_Minterval> FastMDDCreator::getTileDomains(r_OId mddOId2, const char *stripeDomain)
 {
-    ENTER( "FastMDDCreator::getTileDomains(" << mddOId2 << "," << stripeDomain << ")" );
-
     mymdd = new MDDObj( OId(mddOId2.get_local_oid()) );
 
     r_Minterval stripeInterval(stripeDomain);
@@ -323,15 +280,11 @@ vector<r_Minterval> FastMDDCreator::getTileDomains(r_OId mddOId2, const char *st
     }
     delete tiles;
     delete mymdd;
-
-    LEAVE( "FastMDDCreator::getTileDomains()" );
     return result;
 }
 
 void FastMDDCreator::addStripe(r_OId _mddOId, const char *stripeDomain, const char *tileDomain)
 {
-    ENTER( "FastMDDCreator::addStripe(" << _mddOId << "," << stripeDomain << "," << tileDomain << ")" );
-
     mddOId = _mddOId;
 
     r_Minterval stripeInterval(stripeDomain);
@@ -349,7 +302,7 @@ void FastMDDCreator::addStripe(r_OId _mddOId, const char *stripeDomain, const ch
     {
         //iterate through the partitions in the search domain
         r_Minterval currentSlInterval = iter.nextArea();
-        //RMInit::logOut<<"inserting tile: "<< currentSlInterval<<endl;
+        //LINFO << "inserting tile: " << currentSlInterval;
 
         createCompressedTileData(currentSlInterval, baseType);
 
@@ -360,15 +313,11 @@ void FastMDDCreator::addStripe(r_OId _mddOId, const char *stripeDomain, const ch
     }
 
     delete mymdd;
-
-    LEAVE( "FastMDDCreator::addStripe()" );
 }
 
 
 void FastMDDCreator::createCompressedTileData(r_Minterval& tileInterval, const BaseType* baseType)
 {
-    ENTER( "FastMDDCreator::createCompressedTileData(" << tileInterval << "," << baseType << ")" );
-
     static unsigned int lastSize = 0;
     unsigned int uncompressedSize = tileInterval.cell_count() * static_cast<unsigned int>(cellSize);
 
@@ -396,7 +345,5 @@ void FastMDDCreator::createCompressedTileData(r_Minterval& tileInterval, const B
     comprDataSize = static_cast<int>(newSize);
 
     lastSize= uncompressedSize;
-
-    LEAVE( "FastMDDCreator::createCompressedTileData()" );
 }
 

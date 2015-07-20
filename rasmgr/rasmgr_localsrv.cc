@@ -59,6 +59,7 @@ using namespace std;
 #include "raslib/rminit.hh"
 
 #include "debug-srv.hh"
+#include "../common/src/logging/easylogging++.hh"
 
 
 // aux function for now() to avoid a compiler warning (see 'man strftime')
@@ -127,14 +128,12 @@ LocalServerManager::~LocalServerManager()
 }
 bool LocalServerManager::startNewServer(const char* commandline)
 {
-    ENTER( "LocalServerManager::startNewServer: enter. cmdLine=" << commandline );
     char *localcomm;
     localcomm = new char[ARG_MAX];
 
     if (static_cast<int>(strlen(commandline)) >= ARG_MAX)
     {
-        VLOG <<"Error: rasserver launch command line too long: " << commandline <<std::endl;
-        LEAVE( "LocalServerManager::startNewServer: leave. cmd line too long, result=false." );
+        LDEBUG << "Error: rasserver launch command line too long: " << commandline;
         return false;
     }
 
@@ -163,8 +162,7 @@ bool LocalServerManager::startNewServer(const char* commandline)
     LocalServer &lcs=operator[](serverName);
     if(lcs.isValid())
     {
-        VLOG <<"Server "<<serverName<<" is already up."<<std::endl;
-        LEAVE( "LocalServerManager::startNewServer: leave. srv already up, result=false." );
+        LDEBUG <<"Server "<<serverName<<" is already up.";
         return false;
     }
 
@@ -177,26 +175,25 @@ bool LocalServerManager::startNewServer(const char* commandline)
         LocalServer temp;
         temp.init(serverName,pid);
         srvList.push_back(temp);
-        TALK( "LocalServerManager::startNewServer: leave. parent process. result=true." );
-        VLOG << now() << " starting server "<<serverName<<", executable " << fileName << "; pid "<<pid<< "..." << endl;
+        LDEBUG << "LocalServerManager::startNewServer: leave. parent process. result=true.";
+        LDEBUG << now() << " starting server "<<serverName<<", executable " << fileName << "; pid "<<pid<< "...";
 
     }
     else
     {
         //child
 
-        TALK( "LocalServerManager::startNewServer: leave. child process, fileName=" << fileName );
+        LDEBUG << "LocalServerManager::startNewServer: leave. child process, fileName=" << fileName;
 
         masterCommunicator.closeForcedAllSockets();
 
         execvp(fileName, argv+2);
         int execErrno = errno;
-        RMInit::logOut<<"Error: cannot fork server "<<fileName<< ": " << strerror (execErrno) << std::endl;
-        TALK( "LocalServerManager::startNewServer: cannot fork server "<<fileName<< ": " << strerror (execErrno) );
+        LERROR << "Error: cannot fork server " << fileName << ": " << strerror (execErrno);
+        LDEBUG << "LocalServerManager::startNewServer: cannot fork server "<<fileName<< ": " << strerror (execErrno);
         exit(1); // if return from exec...
     }
     delete[] localcomm;
-    LEAVE( "LocalServerManager::startNewServer: leave. result=true." );
     return true;
 }
 int  LocalServerManager::countStartedServers()
@@ -211,8 +208,6 @@ int  LocalServerManager::countStartedServers()
 //  false   on error
 bool LocalServerManager::sendTerminateSignal(const char *serverName)
 {
-    ENTER( "LocalServerManager::sendTerminateSignal: enter. serverName=" << serverName );
-
     bool found = false; // list entry pertaining to serverName found?
     bool result = false;    // function result
 
@@ -222,17 +217,17 @@ bool LocalServerManager::sendTerminateSignal(const char *serverName)
         if(strcmp(iter->getName(),serverName)==0)
         {
             found = true;
-            VLOG <<  now() << " shutting down rasdaman server " << iter->getName() << ", pid " << iter->getPID() << "..." << flush;
+            LDEBUG <<  now() << " shutting down rasdaman server " << iter->getName() << ", pid " << iter->getPID() << "...";
             int killResult = kill(iter->getPID(),SIGTERM);
             if (killResult == -1)
             {
-                RMInit::logOut << "Error: " << strerror(errno) << endl;
+                LERROR << "Error: " << strerror(errno);
                 result = false;
             }
             else
             {
                 iter = srvList.erase(iter);
-                VLOG << "ok" << endl;
+                LDEBUG << "ok";
                 result = true;
                 break;
             }
@@ -243,11 +238,10 @@ bool LocalServerManager::sendTerminateSignal(const char *serverName)
 
     if (!found)
     {
-        RMInit::logOut << "failed: server unknown." << endl;
+        LERROR << "failed: server unknown.";
         result = false;
     }
 
-    LEAVE( "LocalServerManager::sendTerminateSignal: leave. result=" << result );
     return result;
 }
 
@@ -258,8 +252,6 @@ bool LocalServerManager::sendTerminateSignal(const char *serverName)
 //  false   on error
 bool LocalServerManager::killServer(const char *serverName)
 {
-    ENTER( "LocalServerManager::killServer: enter. serverName=" << serverName );
-
     bool found = false; // list entry pertaining to serverName found?
     bool result = false;    // function result
 
@@ -269,20 +261,20 @@ bool LocalServerManager::killServer(const char *serverName)
         if(strcmp(iter->getName(),serverName)==0)
         {
             found = true;
-            VLOG <<  now() << " killing rasdaman server " << iter->getName() << ", pid " << iter->getPID() << "..." << flush;
+            LDEBUG <<  now() << " killing rasdaman server " << iter->getName() << ", pid " << iter->getPID() << "...";
 
             // try graceful termination first
             int killResult = kill(iter->getPID(),SIGTERM);
             killResult = kill(iter->getPID(),SIGKILL);
             if (killResult == -1)
             {
-                RMInit::logOut << "Error: " << strerror(errno) << endl;
+                LERROR << "Error: " << strerror(errno);
                 result = false;
             }
             if (killResult >= 0)
             {
                 iter = srvList.erase(iter);
-                VLOG << "ok" << endl;
+                LDEBUG << "ok";
                 result = true;
                 break;
             }
@@ -292,11 +284,10 @@ bool LocalServerManager::killServer(const char *serverName)
 
     if (!found)
     {
-        RMInit::logOut << "failed: server unknown." << endl;
+        LERROR << "failed: server unknown.";
         result = false;
     }
 
-    LEAVE( "LocalServerManager::killServer: leave. result=" << result );
     return result;
 }
 
@@ -309,18 +300,15 @@ LocalServer& LocalServerManager::operator[](int x)
 }
 LocalServer& LocalServerManager::operator[](const char* srvName)
 {
-    ENTER( "LocalServerManager::operator[]: enter. srvName=" << srvName );
     list<LocalServer>::iterator iter=srvList.begin();
     for(unsigned int i=0; i<srvList.size(); i++)
     {
         if(strcmp(iter->getName(),srvName)==0)
         {
-            LEAVE( "LocalServerManager::operator[]: leave. valid=" << (*iter).isValid() );
             return *iter;
         }
         iter++;
     }
-    LEAVE( "LocalServerManager::operator[]: leave. valid=" << protElem.isValid() );
     return protElem;
 }
 
@@ -330,11 +318,9 @@ void LocalServerManager::childSignalIn() //only signal calls this
 }
 void LocalServerManager::cleanChild()
 {
-    ENTER( "LocalServerManager::cleanChild: enter." );
 
     if(wasSignal==false)
     {
-        LEAVE( "LocalServerManager::cleanChild: leave. !wasSignal." );
         return;
     }
 
@@ -357,25 +343,24 @@ void LocalServerManager::cleanChild()
                 continue;
             break; // another error;
         }
-        VLOG << "rasdaman server process with pid " << exitpid << " has terminated." << std::endl;
+        LDEBUG << "rasdaman server process with pid " << exitpid << " has terminated.";
 
         list<LocalServer>::iterator iter=srvList.begin();
         for(unsigned int i=0; i<srvList.size(); i++)
         {
-            TALK( "LocalServerManager::cleanChild: inspecting rasdaman server " << iter->getName() << "." );
+            LDEBUG << "LocalServerManager::cleanChild: inspecting rasdaman server " << iter->getName() << ".";
             if(iter->getPID()==exitpid)
             {
-                TALK( "LocalServerManager::cleanChild: rasdaman server " << iter->getName() << " terminated illegally, status=" << status );
+                LDEBUG << "LocalServerManager::cleanChild: rasdaman server " << iter->getName() << " terminated illegally, status=" << status;
 
-                RMInit::logOut<<"Error: rasdaman server " << iter->getName() << ", pid " << exitpid << " terminated illegally, reason: ";
+                LERROR << "Error: rasdaman server " << iter->getName() << ", pid " << exitpid << " terminated illegally, reason: ";
                 // see 'man waitpid': decoding of status variable
                 if (WIFEXITED(status) != 0)
-                    RMInit::logOut << "exited with return code " << WEXITSTATUS(status);
+                    LERROR << "exited with return code " << WEXITSTATUS(status);
                 else if (WIFSIGNALED(status))
-                    RMInit::logOut << "uncaught signal " << WTERMSIG(status);
+                    LERROR << "uncaught signal " << WTERMSIG(status);
                 else
-                    RMInit::logOut << "(unknown reason)";
-                RMInit::logOut << endl;
+                    LERROR << "(unknown reason)";
 
                 // choices: restart silently the dead server or
                 // just tell the manager about it
@@ -391,17 +376,13 @@ void LocalServerManager::cleanChild()
     } //while
 
     wasSignal=false;
-    LEAVE( "LocalServerManager::cleanChild: leave." );
 }
 
 void LocalServerManager::reportDeadServer(LocalServer &srv)
 {
-    ENTER( "LocalServerManager::reportDeadServer: enter." );
-
     int dummy = -1;
     RasServer &r=rasManager[srv.getName()];
 
     if(r.isValid()) r.changeStatus(SERVER_CRASHED,dummy);
-    LEAVE( "LocalServerManager::reportDeadServer: leave." );
 }
 

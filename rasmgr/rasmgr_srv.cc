@@ -37,6 +37,7 @@ rasdaman GmbH.
 
 #include "debug-srv.hh"
 #include "raslib/rminit.hh"
+#include "../common/src/logging/easylogging++.hh"
 
 // host name returned when we don't have a valid one:
 #define NO_VALID_HOST "noValidHost"
@@ -164,15 +165,15 @@ void  RasServer::init(const char *srvName,const char* hostName,char newServerTyp
     {
     case SERVERTYPE_FLAG_RPC:
     case SERVERTYPE_FLAG_HTTP:
-        TALK( "Initializing activity counter to 1 for RPC/HTTP type server." );
+        LDEBUG << "Initializing activity counter to 1 for RPC/HTTP type server.";
         activityCounter = 1;
         break;
     case SERVERTYPE_FLAG_RNP:
-        TALK( "Initializing activity counter to 0 for RNP type server." );
+        LDEBUG << "Initializing activity counter to 0 for RNP type server.";
         activityCounter = 0;
         break;
     default:
-        TALK( "Error: illegal server type specifier " << newServerType << ", assuming '" << SERVERTYPE_FLAG_RNP << "'." );
+        LDEBUG << "Error: illegal server type specifier " << newServerType << ", assuming '" << SERVERTYPE_FLAG_RNP << "'.";
         break;
     }
 
@@ -395,7 +396,7 @@ int RasServer::startServerInDebugger(char *command)
     activityExpected=true;
     activityCounter = 0;
 
-    TALK( "RasServer::startServerInDebugger() -> " << command );
+    LDEBUG << "RasServer::startServerInDebugger() -> " << command;
     return RASSERVER_OK;
 }
 
@@ -437,8 +438,8 @@ int RasServer::startServer()
         + strlen(extraParam);
     if (commandLen > ARG_MAX)
     {
-        TALK( "RasServer::startServer(): fatal error: command line can host " << ARG_MAX << " bytes, but needs " << commandLen << "." );
-        RMInit::logOut<<"Error: rasserver command line too long, cannot launch. Disappointedly aborting server start." <<std::endl;
+        LDEBUG << "RasServer::startServer(): fatal error: command line can host " << ARG_MAX << " bytes, but needs " << commandLen << ".";
+        LERROR << "Error: rasserver command line too long, cannot launch. Disappointedly aborting server start.";
         return RASSERVER_CMDLINEOFLO;
     }
 
@@ -455,12 +456,12 @@ int RasServer::startServer()
 
     if(isinternal)
     {
-        TALK( "launching local server, command=" << command );
+        LDEBUG << "launching local server, command=" << command;
         localServerManager.startNewServer(command);
     }
     else
     {
-        TALK( "connecting to remote rasmgr" );
+        LDEBUG << "connecting to remote rasmgr";
         int socket=ptrServerHost->getConnectionSocket();
         if(socket<0)
             return RASSERVER_NOREMOTERASMGR;
@@ -487,14 +488,14 @@ int RasServer::downServer(bool forced)
     if(available==false && (forced == false || isstarting==true) )
     {
         downReq=true;
-        //RMInit::logOut<<"Down request, but working"<<std::endl;
+        //LERROR<<"Down request, but working"<<std::endl;
         return RASSERVER_OK;
     }
     return downNow();
 }
 int RasServer::downNow()
 {
-    //RMInit::logOut<<"Down server"<<std::endl;
+    //LINFO << "Down server";
     if(isinternal)
     {
         localServerManager.sendTerminateSignal(serverName);
@@ -556,33 +557,29 @@ int RasServer::killServer()
 
 void RasServer::changeStatus(int newStatus, __attribute__ ((unused)) long infCount)
 {
-    ENTER( "RasServer::changeStatus: enter. servername="<<serverName<<", newStatus="<<newStatus<<", c="<<infCount );
-
     if(activityExpected==false && newStatus==SERVER_AVAILABLE)
     {
-        RMInit::logOut<<"Error: Server intruder detected in server '"<<serverName<< "' (trying to manually start rasserver?)"<<std::endl;
+        LERROR << "Error: Server intruder detected in server '" << serverName << "' (trying to manually start rasserver?)";
         return;
     }
 
     if(newStatus == SERVER_REGULARSIG)
     {
-        TALK( "RasServer::changeStatus: SERVER_REGULARSIG from "<<serverName<<", newStatus=" << newStatus );
+        LDEBUG << "RasServer::changeStatus: SERVER_REGULARSIG from "<<serverName<<", newStatus=" << newStatus;
 
         if(available == false)
         {
-            TALK( "RasServer::changeStatus: "<<serverName<<" not available, SERVER_REGULARSIG ok, regularSignalCounter="<<regularSignalCounter);
+            LDEBUG << "RasServer::changeStatus: "<<serverName<<" not available, SERVER_REGULARSIG ok, regularSignalCounter="<<regularSignalCounter;
             regularSignalCounter--;
             if(regularSignalCounter > 0)
             {
-                LEAVE( "RasServer::changeStatus: leave. regularSignalCounter nonzero: " << regularSignalCounter );
                 return;
             }
             newStatus = SERVER_AVAILABLE;
-            TALK( "rasmgr: Dead client detected, server "<<serverName<<" is set free again." );
+            LDEBUG << "rasmgr: Dead client detected, server "<<serverName<<" is set free again.";
         }
         else
         {
-            LEAVE( "RasServer::changeStatus: leave. srv not available." );
             return;
         }
     }
@@ -592,7 +589,7 @@ void RasServer::changeStatus(int newStatus, __attribute__ ((unused)) long infCou
 
     isup=available= (newStatus == SERVER_AVAILABLE) ? true:false;
 
-    TALK( "RasServer::changeStatus: wasup=" << wasup << ", isup=" << isup );
+    LDEBUG << "RasServer::changeStatus: wasup=" << wasup << ", isup=" << isup;
 
     if(wasup==false && isup==true)
     {
@@ -621,21 +618,21 @@ void RasServer::changeStatus(int newStatus, __attribute__ ((unused)) long infCou
     {
         downReq=false;
         available=false; //until it's really down it shouldn't get any clients
-        TALK( "RasServer::changeStatus: srv down request, available - setting to unavailable and shutting down. ");
+        LDEBUG << "RasServer::changeStatus: srv down request, available - setting to unavailable and shutting down. ";
         downNow();
     }
 
     if(crashed)
     {
         crashCount++;
-        TALK( "server has crashed, current crash count is " << crashCount << ", activity count is " << activityCounter );
+        LDEBUG << "server has crashed, current crash count is " << crashCount << ", activity count is " << activityCounter;
         // restart if "work has started already" (see init() comment on different counting wrt. server types)
         // changed by PB 2003-nov-23
         // if(activityCounter && autorestart)
         if (activityCounter>1 && autorestart)
         {
             // a crashed server doesn't autorestart if it crashes before starting work.
-            TALK( "auto restart activated, restarting." );
+            LDEBUG << "auto restart activated, restarting.";
             startServer();
         }
     }
@@ -643,46 +640,41 @@ void RasServer::changeStatus(int newStatus, __attribute__ ((unused)) long infCou
     // commented out due to some error
     if(initialCountDown)
     {
-        TALK( "rasmgr: initialCountDown is " << initialCountDown );
+        LDEBUG << "rasmgr: initialCountDown is " << initialCountDown;
         if(available)
         {
-            TALK( "rasmgr: " << serverName << " is available." );
+            LDEBUG << "rasmgr: " << serverName << " is available.";
             currentCountDown--;
             if(currentCountDown==0)
             {
                 available=false;
-                TALK( "rasmgr: Countdown reached for "<<serverName<< ", shutting down." );
+                LDEBUG << "rasmgr: Countdown reached for "<<serverName<< ", shutting down.";
                 downNow();
             }
         }
         if(wasup==true && isup==false && currentCountDown==0)
         {
-            TALK( "rasmgr: wasup==true && isup==false && currentCountDown==0" );
-            TALK( "rasmgr: Restart after countdown for server "<<serverName<< "." );
+            LDEBUG << "rasmgr: wasup==true && isup==false && currentCountDown==0";
+            LDEBUG << "rasmgr: Restart after countdown for server "<<serverName<< ".";
             currentCountDown=initialCountDown;
             startServer();
         }
     }
 
-    LEAVE( "RasServer::changeStatus: leave. ns="<<newStatus<<"  av="<<available );
 } // changeStatus()
 
 void RasServer::startWriteTransaction(Database& dataBase)
 {
-    ENTER( "RasServer::startWriteTransaction: enter." );
     dataBase.startWriteTransaction();
     writeTransaction=true;
     connDatabase=&dataBase;
-    LEAVE( "RasServer::startWriteTransaction: leave. servername=" << serverName << ", rwTrans-in on db " << dataBase.getName() );
 }
 
 void RasServer::startReadTransaction(Database& dataBase)
 {
-    ENTER( "RasServer::startReadTransaction: enter." );
     dataBase.startReadTransaction();
     readTransaction=true;
     connDatabase=&dataBase;
-    LEAVE( "RasServer::startReadTransaction: leave. servername=" << serverName << " roTrans-in on db " << dataBase.getName() );
 }
 
 void RasServer::clearPendingTransaction()
@@ -716,7 +708,7 @@ bool RasServerManager::insertNewServer(const char *srvName,const char* hostName,
 
     if(result == true && serverType!=SERVERTYPE_FLAG_RPC && serverType!=SERVERTYPE_FLAG_HTTP && serverType!=SERVERTYPE_FLAG_RNP)
     {
-        TALK( "RasServerManager::insertNewServer: server " << srvName << " has illegal type " << serverType );
+        LDEBUG << "RasServerManager::insertNewServer: server " << srvName << " has illegal type " << serverType;
         result = false;
     }
 
@@ -805,12 +797,12 @@ int RasServerManager::changeServerStatus(char *reqMessage)
     long infCount;
 
     sscanf(reqMessage,"%s %d %ld",serverName,&newstatus,&infCount);
-    TALK( "RasServerManager::changeServerStatus: Trying to change status of "<<serverName<<" to "<<newstatus );
+    LDEBUG << "RasServerManager::changeServerStatus: Trying to change status of "<<serverName<<" to "<<newstatus;
     RasServer &r=operator[](serverName);
 
     if(r.isValid()==false)
     {
-        RMInit::logOut<<"Error: Unexpected message from rasserver '"<<serverName<<"'; new status is "<<newstatus<<std::endl;
+        LERROR << "Error: Unexpected message from rasserver '" << serverName << "'; new status is " << newstatus;
         return SERVERSTATUS_ERR;
     }
 
@@ -844,7 +836,7 @@ int RasServerManager::countUpServers()
         iter++;
     }
 
-    TALK( "RasServerManager::countUpServers() -> " << count );
+    LDEBUG << "RasServerManager::countUpServers() -> " << count;
     return count;
 
 }
@@ -854,11 +846,11 @@ void RasServerManager::printStatus()
     char buff[100];
     list<RasServer>::iterator iter=srvList.begin();
 
-    TALK( "RasServerManager::printStatus. current status is:" );
+    LDEBUG << "RasServerManager::printStatus. current status is:";
     for(unsigned int i=0; i<srvList.size(); i++)
     {
         iter->getDescription(buff);
-        TALK( "\t" << i << ": " << buff );
+        LDEBUG << "\t" << i << ": " << buff;
         iter++;
     }
 
