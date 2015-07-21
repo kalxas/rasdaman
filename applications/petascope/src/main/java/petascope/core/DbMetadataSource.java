@@ -2224,8 +2224,9 @@ public class DbMetadataSource implements IMetadataSource {
             s = conn.createStatement();
 
             String sqlQuery =
-                    " SELECT COALESCE(MIN(" + TABLE_VECTOR_COEFFICIENTS + "." + VECTOR_COEFFICIENTS_ORDER + ")," + min + "), " +
-                           " COALESCE(MAX(" + TABLE_VECTOR_COEFFICIENTS + "." + VECTOR_COEFFICIENTS_ORDER + ")," + max + ") "  +
+                    " SELECT MIN(" + TABLE_VECTOR_COEFFICIENTS + "." + VECTOR_COEFFICIENTS_ORDER + ")," +
+                           " MAX(" + TABLE_VECTOR_COEFFICIENTS + "." + VECTOR_COEFFICIENTS_ORDER + ")," +
+                           " COUNT(" + TABLE_VECTOR_COEFFICIENTS + "." + VECTOR_COEFFICIENTS_ORDER + ")" +
                           " FROM " + TABLE_VECTOR_COEFFICIENTS + ", "
                                    + TABLE_GRID_AXIS           + ", "
                                    + TABLE_COVERAGE            +
@@ -2244,17 +2245,20 @@ public class DbMetadataSource implements IMetadataSource {
             log.debug("SQL query : " + sqlQuery);
             ResultSet r = s.executeQuery(sqlQuery);
             if (r.next()) {
+                //check if count is not 0
+                if(r.getInt(3) == 0){
+                    // no intersection on this slices
+                    throw new PetascopeException(ExceptionCode.InvalidRequest,
+                        covName + " does not contain any slices in the given subset (between coefficients '" + lo + "' and '" + hi + "')."
+                        );
+                }
                 outCells[0] = r.getInt(1);
                 outCells[1] = r.getInt(2);
-                if (min != max && lo.compareTo(hi) == 0 && outCells[0] == min && outCells[1] == max) {
-                    // Aggregators have been coalesced to boundary values but because there is no intersection on this slice
-                    throw new PetascopeException(ExceptionCode.InvalidRequest,
-                            covName + " does not intersect with slicing point '" + lo + "'."
-                            );
-                }
             } else {
-                throw new PetascopeException(ExceptionCode.InternalComponentError,
-                        "No tuples returned from " + TABLE_VECTOR_COEFFICIENTS + ": check the metadata.");
+                // no intersection on this slices
+                throw new PetascopeException(ExceptionCode.InvalidRequest,
+                        "Could not connect to metadata source."
+                        );
             }
 
             s.close();
