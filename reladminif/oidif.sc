@@ -37,17 +37,14 @@ rasdaman GmbH.
 #include "sqlglobals.h"
 
 #include "oidif.hh"
-#include "raslib/rmdebug.hh"
 #include "sqlerror.hh"
 #include "adminif.hh"
 #include "sqlitewrapper.hh"
+#include "../common/src/logging/easylogging++.hh"
 
 void
 OId::initialize()
 {
-    RMDBGENTER(4, RMDebug::module_adminif, "OId", "initialize()");
-    ENTER( "OId::initialize" );
-
     loadedOk = false;
 
     SQLiteQuery query("SELECT NextValue FROM RAS_COUNTERS ORDER BY CounterId");
@@ -56,38 +53,32 @@ OId::initialize()
     while (query.nextRow() && i < OId::maxCounter)
     {
         nextoid = query.nextColumnLong();
-        TALK( "-> nextoid=" << nextoid );
+        LDEBUG << "-> nextoid=" << nextoid;
         *counterIds[i] = nextoid;
-        RMDBGMIDDLE(4, RMDebug::module_adminif, "OIdIf", "read " << counterNames[i] << " " << *counterIds[i]);
+        LTRACE << "read " << counterNames[i] << " " << *counterIds[i];
         ++i;
     }
 
     loadedOk = true;
-
-    LEAVE( "OId::initialize" );
-    RMDBGEXIT(4, RMDebug::module_adminif, "OId", "initialize()");
 }
 
 void
 OId::deinitialize()
 {
-    RMDBGENTER(4, RMDebug::module_adminif, "OId", "deinitialize()");
-    ENTER( "OId::deinitialize" );
-
     if (AdminIf::isReadOnlyTA())
     {
-        RMDBGMIDDLE(4, RMDebug::module_adminif, "OIdIf", "do nothing is read only");
+        LTRACE << "do nothing is read only";
     }
     else
     {
         if (AdminIf::isAborted())
         {
-            RMDBGMIDDLE(4, RMDebug::module_adminif, "OIdIf", "do nothing is aborted");
+            LTRACE << "do nothing is aborted";
         }
 
         else if(loadedOk==false)
         {
-            RMDBGMIDDLE(4, RMDebug::module_adminif, "OIdIf", "avoiding to write uninitialized counters into DB");
+            LTRACE << "avoiding to write uninitialized counters into DB";
         }
 
         else
@@ -101,7 +92,4 @@ OId::deinitialize()
     }
 
     loadedOk = false;
-
-    LEAVE( "OId::deinitialize" );
-    RMDBGEXIT(4, RMDebug::module_adminif, "OId", "deinitialize()");
 }

@@ -40,7 +40,6 @@ rasdaman GmbH.
 #include "sqlitewrapper.hh"
 
 #include "objectbroker.hh"
-#include "raslib/rmdebug.hh"
 #include "sqlerror.hh"
 #include "relindexif/dbtcindex.hh"
 #include "relindexif/indexid.hh"
@@ -52,12 +51,11 @@ rasdaman GmbH.
 #include "externs.h"
 #include "catalogmgr/typefactory.hh"
 
+#include "../common/src/logging/easylogging++.hh"
+
 DBObject*
 ObjectBroker::loadInlineTile(const OId& id) throw (r_Error)
 {
-    RMDBGENTER(11, RMDebug::module_adminif, "ObjectBroker", "loadInlineTile(" << id << ")");
-    ENTER("ObjectBroker::loadInlineTile, oid=" << id);
-
     DBObject* retval = 0;
     OIdMap::iterator i = theTileIndexMappings.find(id);
     if (i != theTileIndexMappings.end())
@@ -70,11 +68,11 @@ ObjectBroker::loadInlineTile(const OId& id) throw (r_Error)
         try
         {
             retval = new InlineTile(id);
-            RMDBGMIDDLE(11, RMDebug::module_adminif, "ObjectBroker", "found in db");
+            LTRACE << "found in db";
         }
         catch (r_Error& error)
         {
-            RMDBGMIDDLE(11, RMDebug::module_adminif, "ObjectBroker", "not found in db");
+            LTRACE << "not found in db";
             if (retval)
             {
                 delete retval;
@@ -98,8 +96,6 @@ ObjectBroker::loadInlineTile(const OId& id) throw (r_Error)
             }
             else
             {
-                RMDBGEXIT(11, RMDebug::module_adminif, "ObjectBroker", "db error not found in db");
-                LEAVE("ObjectBroker::getOIdOfSetType, object not found");
                 throw r_Error(r_Error::r_Error_ObjectUnknown);
             }
         }
@@ -107,16 +103,12 @@ ObjectBroker::loadInlineTile(const OId& id) throw (r_Error)
         theInlineTiles.insert(myPair);
     }
 
-    LEAVE("ObjectBroker::loadInlineTile, retval=" << retval);
-    RMDBGEXIT(11, RMDebug::module_adminif, "ObjectBroker", "loadInlineTile(" << id << ")");
     return retval;
 }
 
 OId
 ObjectBroker::getOIdOfSetType(const char* name) throw (r_Error)
 {
-    ENTER("ObjectBroker::getOIdOfSetType, name=" << name);
-
     long long setoid;
 
     OId retval;
@@ -131,24 +123,20 @@ ObjectBroker::getOIdOfSetType(const char* name) throw (r_Error)
     {
         setoid = query.nextColumnLong();
         retval = OId(setoid, OId::SETTYPEOID);
-        RMDBGONCE(11, RMDebug::module_adminif, "ObjectBroker", "is in db with " << retval);
+        LTRACE << "is in db with " << retval;
     }
     else
     {
-        RMDBGONCE(11, RMDebug::module_adminif, "ObjectBroker", "is not in db");
-        LEAVE("ObjectBroker::getOIdOfSetType, object not found");
+        LTRACE << "is not in db";
         throw r_Error(r_Error::r_Error_ObjectUnknown);
     }
 
-    LEAVE("ObjectBroker::getOIdOfSetType, retval=" << retval);
     return retval;
 }
 
 MDDType*
 ObjectBroker::getMDDTypeByName(const char* name) throw (r_Error)
 {
-    ENTER("ObjectBroker::getMDDTypeByName, name=" << name);
-
     long long mddtoidv;
 
     MDDType* retval = 0;
@@ -178,7 +166,6 @@ ObjectBroker::getMDDTypeByName(const char* name) throw (r_Error)
         unsigned int len = strlen(name);
         if (len > DBNamedObject::MAXNAMELENGTH)
         {
-            LEAVE("ObjectBroker::getMDDTypeByName(): type name exceeding max length: " << name);
             throw r_Error(TYPENAMEISTOOLONG);
         }
 
@@ -187,25 +174,21 @@ ObjectBroker::getMDDTypeByName(const char* name) throw (r_Error)
         {
             mddtoidv = query.nextColumnLong();
             retval = (MDDType*) getObjectByOId(OId(mddtoidv));
-            RMDBGONCE(11, RMDebug::module_adminif, "ObjectBroker", "is in db with " << retval);
+            LTRACE << "is in db with " << retval;
         }
         else
         {
-            RMDBGONCE(11, RMDebug::module_adminif, "ObjectBroker", "is not in db");
-            LEAVE("ObjectBroker::getMDDTypeByName(): object not found");
+            LTRACE << "is not in db";
             throw r_Error(r_Error::r_Error_ObjectUnknown);
         }
     }
 
-    LEAVE("ObjectBroker::getMDDTypeByName, retval=" << retval);
     return retval;
 }
 
 OId
 ObjectBroker::getOIdOfMDDType(const char* name) throw (r_Error)
 {
-    ENTER("ObjectBroker::getOIdOfMDDType, name=" << name);
-
     char mddtname[STRING_MAXLEN];
     long long mddtoid;
 
@@ -213,7 +196,6 @@ ObjectBroker::getOIdOfMDDType(const char* name) throw (r_Error)
     unsigned int len = strlen(name);
     if (len > DBNamedObject::MAXNAMELENGTH)
     {
-        LEAVE("ObjectBroker::getOIdOfMDDType(): name exceeds max length:" << name);
         throw r_Error(TYPENAMEISTOOLONG);
     }
     (void) strncpy(mddtname, const_cast<char*>(name), (size_t) sizeof (mddtname));
@@ -223,29 +205,24 @@ ObjectBroker::getOIdOfMDDType(const char* name) throw (r_Error)
     {
         mddtoid = query.nextColumnLong();
         retval = OId(mddtoid, OId::MDDTYPEOID);
-        RMDBGONCE(11, RMDebug::module_adminif, "ObjectBroker", "is in db with " << retval);
+        LTRACE << "is in db with " << retval;
     }
     else
     {
-        RMDBGONCE(11, RMDebug::module_adminif, "ObjectBroker", "is not in db");
-        LEAVE("ObjectBroker::getOIdOfMDDType(): object not in db");
+        LTRACE << "is not in db";
         throw r_Error(r_Error::r_Error_ObjectUnknown);
     }
 
-    LEAVE("ObjectBroker::getOIdOfMDDType, retval=" << retval);
     return retval;
 }
 
 OId
 ObjectBroker::getOIdOfMDDBaseType(const char* name) throw (r_Error)
 {
-    ENTER("ObjectBroker::getOIdOfMDDBaseType, name=" << name);
-
     OId retval;
     unsigned int len = strlen(name);
     if (len > DBNamedObject::MAXNAMELENGTH)
     {
-        LEAVE("ObjectBroker::getOIdOfMDDBaseType(): name exceeds max length:" << name);
         throw r_Error(TYPENAMEISTOOLONG);
     }
 
@@ -254,29 +231,24 @@ ObjectBroker::getOIdOfMDDBaseType(const char* name) throw (r_Error)
     {
         long long mddboid = query.nextColumnLong();
         retval = OId(mddboid, OId::MDDBASETYPEOID);
-        RMDBGONCE(11, RMDebug::module_adminif, "ObjectBroker", "is in db with " << retval);
+        LTRACE << "is in db with " << retval;
     }
     else
     {
-        RMDBGONCE(11, RMDebug::module_adminif, "ObjectBroker", "is not in db");
-        LEAVE("ObjectBroker::getOIdOfMDDBaseType(): object not in db");
+        LTRACE << "is not in db";
         throw r_Error(r_Error::r_Error_ObjectUnknown);
     }
 
-    LEAVE("ObjectBroker::getOIdOfMDDBaseType, retval=" << retval);
     return retval;
 }
 
 OId
 ObjectBroker::getOIdOfMDDDimensionType(const char* name) throw (r_Error)
 {
-    ENTER( "ObjectBroker::getOIdOfMDDDimensionType, name=" << name );
-
     OId retval;
     unsigned int len = strlen(name);
     if (len > DBNamedObject::MAXNAMELENGTH)
     {
-        LEAVE( "ObjectBroker::getOIdOfMDDDimensionType(): name exceeds max length:" << name );
         throw r_Error(TYPENAMEISTOOLONG);
     }
 
@@ -285,29 +257,24 @@ ObjectBroker::getOIdOfMDDDimensionType(const char* name) throw (r_Error)
     {
         long long mdddioid = query.nextColumnLong();
         retval = OId(mdddioid, OId::MDDDIMTYPEOID);
-        RMDBGONCE(11, RMDebug::module_adminif, "ObjectBroker", "is in db with " << retval);
+        LTRACE << "is in db with " << retval;
     }
     else
     {
-        RMDBGONCE(11, RMDebug::module_adminif, "ObjectBroker", "is not in db");
-        LEAVE("ObjectBroker::getOIdOfMDDDimensionType(): object not in db");
+        LTRACE << "is not in db";
         throw r_Error(r_Error::r_Error_ObjectUnknown);
     }
 
-    LEAVE( "ObjectBroker::getOIdOfMDDDimensionType, retval=" << retval );
     return retval;
 }
 
 OId
 ObjectBroker::getOIdOfMDDDomainType(const char* name) throw (r_Error)
 {
-    ENTER( "ObjectBroker::getOIdOfMDDDomainType, name=" << name );
-
     OId retval;
     unsigned int len = strlen(name);
     if (len > DBNamedObject::MAXNAMELENGTH)
     {
-        LEAVE( "ObjectBroker::getOIdOfMDDDomainType(): name exceeds max length:" << name );
         throw r_Error(TYPENAMEISTOOLONG);
     }
 
@@ -316,29 +283,25 @@ ObjectBroker::getOIdOfMDDDomainType(const char* name) throw (r_Error)
     {
         long long mdddooid = query.nextColumnLong();
         retval = OId(mdddooid, OId::MDDDOMTYPEOID);
-        RMDBGONCE(11, RMDebug::module_adminif, "ObjectBroker", "is in db with " << retval);
+        LTRACE << "is in db with " << retval;
     }
     else
     {
-        RMDBGONCE(11, RMDebug::module_adminif, "ObjectBroker", "is not in db");
-        LEAVE("ObjectBroker::getOIdOfMDDDomainType(): object not in db");
+        LTRACE << "is not in db";
         throw r_Error(r_Error::r_Error_ObjectUnknown);
     }
 
-    LEAVE( "ObjectBroker::getOIdOfMDDDomainType, retval=" << retval );
     return retval;
 }
 
 OId
 ObjectBroker::getOIdOfStructType(const char* name) throw (r_Error)
 {
-    ENTER( "ObjectBroker::getOIdOfStructType, name=" << name );
 
     OId retval;
     unsigned int len = strlen(name);
     if (len > DBNamedObject::MAXNAMELENGTH)
     {
-        LEAVE( "ObjectBroker::getOIdOfStructType(): name exceeds max length:" << name );
         throw r_Error(TYPENAMEISTOOLONG);
     }
 
@@ -347,29 +310,24 @@ ObjectBroker::getOIdOfStructType(const char* name) throw (r_Error)
     {
         long long structoid = query.nextColumnLong();
         retval = OId(structoid, OId::STRUCTTYPEOID);
-        RMDBGONCE(11, RMDebug::module_adminif, "ObjectBroker", "is in db with " << retval);
+        LTRACE << "is in db with " << retval;
     }
     else
     {
-        RMDBGONCE(11, RMDebug::module_adminif, "ObjectBroker", "is not in db");
-        LEAVE( "ObjectBroker::getOIdOfStructType(): object not in db" );
+        LTRACE << "is not in db";
         throw r_Error(r_Error::r_Error_ObjectUnknown);
     }
 
-    LEAVE( "ObjectBroker::getOIdOfStructType, retval=" << retval );
     return retval;
 }
 
 OId
 ObjectBroker::getOIdOfMDDSet(const char* name) throw (r_Error)
 {
-    ENTER( "ObjectBroker::getOIdOfMDDSet, name=" << name );
-
     OId retval;
     unsigned int len = strlen(name);
     if (len > DBNamedObject::MAXNAMELENGTH)
     {
-        LEAVE( "ObjectBroker::getOIdOfMDDSet(): name exceeds max length:" << name );
         throw r_Error(TYPENAMEISTOOLONG);
     }
 
@@ -378,30 +336,25 @@ ObjectBroker::getOIdOfMDDSet(const char* name) throw (r_Error)
     {
         long long colloid = query.nextColumnLong();
         retval = OId(colloid, OId::MDDCOLLOID);
-        RMDBGONCE(11, RMDebug::module_adminif, "ObjectBroker", "is in db with " << retval);
+        LTRACE << "is in db with " << retval;
     }
     else
     {
-            RMDBGONCE(11, RMDebug::module_adminif, "ObjectBroker", "is not in db");
-            LEAVE( "ObjectBroker::getOIdOfMDDSet(): object not in db" );
+            LTRACE << "is not in db";
             throw r_Error(r_Error::r_Error_ObjectUnknown);
     }
 
-    LEAVE( "ObjectBroker::getOIdOfMDDSet, retval=" << retval );
     return retval;
 }
 
 OIdSet*
 ObjectBroker::getAllSetTypes() throw (r_Error)
 {
-    RMDBGENTER(11, RMDebug::module_adminif, "ObjectBroker", "getAllSetTypes()");
-    ENTER( "ObjectBroker::getAllSetTypes" );
-
     OIdSet* retval = new OIdSet();
     DBObjectPMap& theMap = ObjectBroker::getMap(OId::SETTYPEOID);
     for (DBObjectPMap::iterator i = theMap.begin(); i != theMap.end(); i++)
     {
-        RMDBGMIDDLE(11, RMDebug::module_adminif, "ObjectBroker", "inserted from memory " << (*i).first);
+        LTRACE << "inserted from memory " << (*i).first;
         retval->insert((*i).first);
     }
 
@@ -413,27 +366,22 @@ ObjectBroker::getAllSetTypes() throw (r_Error)
     {
         oid = query.nextColumnLong();
         id = OId(oid, OId::SETTYPEOID);
-        RMDBGMIDDLE(11, RMDebug::module_adminif, "ObjectBroker", "read " << id << " " << id.getType());
-        TALK( "got object " << id << " " << id.getType());
+        LTRACE << "read " << id << " " << id.getType();
+        LDEBUG << "got object " << id << " " << id.getType();
         retval->insert(id);
     }
 
-    LEAVE( "ObjectBroker::getAllSetTypes" );
-    RMDBGEXIT(11, RMDebug::module_adminif, "ObjectBroker", "getAllSetTypes() ");
     return retval;
 }
 
 OIdSet*
 ObjectBroker::getAllMDDTypes() throw (r_Error)
 {
-    RMDBGENTER(11, RMDebug::module_adminif, "ObjectBroker", "getAllMDDTypes()");
-    ENTER( "ObjectBroker::getAllMDDTypes" );
-
     OIdSet* retval = new OIdSet();
     DBObjectPMap& theMap = ObjectBroker::getMap(OId::MDDTYPEOID);
     for (DBObjectPMap::iterator i = theMap.begin(); i != theMap.end(); i++)
     {
-        RMDBGMIDDLE(11, RMDebug::module_adminif, "ObjectBroker", "inserted from memory " << (*i).first);
+        LTRACE << "inserted from memory " << (*i).first;
         retval->insert((*i).first);
     }
 
@@ -445,27 +393,22 @@ ObjectBroker::getAllMDDTypes() throw (r_Error)
     {
         oid = query.nextColumnLong();
         id = OId(oid, OId::MDDTYPEOID);
-        RMDBGMIDDLE(11, RMDebug::module_adminif, "ObjectBroker", "read " << id << " " << id.getType());
-        TALK( "got object " << id << " " << id.getType() );
+        LTRACE << "read " << id << " " << id.getType();
+        LDEBUG << "got object " << id << " " << id.getType();
         retval->insert(id);
     }
 
-    LEAVE( "ObjectBroker::getAllMDDTypes, retval=" << retval );
-    RMDBGEXIT(11, RMDebug::module_adminif, "ObjectBroker", "getAllMDDTypes() ");
     return retval;
 }
 
 OIdSet*
 ObjectBroker::getAllMDDBaseTypes() throw (r_Error)
 {
-    RMDBGENTER(11, RMDebug::module_adminif, "ObjectBroker", "getAllMDDBaseTypes()");
-    ENTER( "ObjectBroker::getAllMDDBaseTypes" );
-
     OIdSet* retval = new OIdSet();
     DBObjectPMap& theMap = ObjectBroker::getMap(OId::MDDBASETYPEOID);
     for (DBObjectPMap::iterator i = theMap.begin(); i != theMap.end(); i++)
     {
-        RMDBGMIDDLE(11, RMDebug::module_adminif, "ObjectBroker", "inserted from memory " << (*i).first);
+        LTRACE << "inserted from memory " << (*i).first;
         retval->insert((*i).first);
     }
 
@@ -477,27 +420,23 @@ ObjectBroker::getAllMDDBaseTypes() throw (r_Error)
     {
         oid = query.nextColumnLong();
         id = OId(oid, OId::MDDBASETYPEOID);
-        RMDBGMIDDLE(11, RMDebug::module_adminif, "ObjectBroker", "read " << id << " " << id.getType());
-        TALK( "got object " << id << " " << id.getType() );
+        LTRACE <<   "read " << id << " " << id.getType();
+        LDEBUG << "got object " << id << " " << id.getType();
         retval->insert(id);
     }
 
-    LEAVE( "ObjectBroker::getAllMDDBaseTypes, retval=" << retval );
-    RMDBGEXIT(11, RMDebug::module_adminif, "ObjectBroker", "getAllMDDBaseTypes() ");
     return retval;
 }
 
 OIdSet*
 ObjectBroker::getAllMDDDimensionTypes() throw (r_Error)
 {
-    RMDBGENTER(11, RMDebug::module_adminif, "ObjectBroker", "getAllMDDDimensionTypes()");
-    ENTER( "ObjectBroker::getAllMDDDimensionTypes" );
 
     OIdSet* retval = new OIdSet();
     DBObjectPMap& theMap = ObjectBroker::getMap(OId::MDDDIMTYPEOID);
     for (DBObjectPMap::iterator i = theMap.begin(); i != theMap.end(); i++)
     {
-        RMDBGMIDDLE(11, RMDebug::module_adminif, "ObjectBroker", "inserted from memory " << (*i).first);
+        LTRACE << "inserted from memory " << (*i).first;
         retval->insert((*i).first);
     }
 
@@ -509,27 +448,22 @@ ObjectBroker::getAllMDDDimensionTypes() throw (r_Error)
     {
         oid = query.nextColumnLong();
         id = OId(oid, OId::MDDDIMTYPEOID);
-        RMDBGMIDDLE(11, RMDebug::module_adminif, "ObjectBroker", "read " << id << " " << id.getType());
-        TALK( "got object " << id << " " << id.getType() );
+        LTRACE << "read " << id << " " << id.getType();
+        LDEBUG << "got object " << id << " " << id.getType();
         retval->insert(id);
     }
 
-    LEAVE( "ObjectBroker::getAllMDDDimensionTypes, retval=" << retval );
-    RMDBGEXIT(11, RMDebug::module_adminif, "ObjectBroker", "getAllMDDDimensionTypes() ");
     return retval;
 }
 
 OIdSet*
 ObjectBroker::getAllMDDDomainTypes() throw (r_Error)
 {
-    RMDBGENTER(11, RMDebug::module_adminif, "ObjectBroker", "getAllMDDDomainTypes()");
-    ENTER( "ObjectBroker::getAllMDDDomainTypes" );
-
     OIdSet* retval = new OIdSet();
     DBObjectPMap& theMap = ObjectBroker::getMap(OId::MDDDOMTYPEOID);
     for (DBObjectPMap::iterator i = theMap.begin(); i != theMap.end(); i++)
     {
-        RMDBGMIDDLE(11, RMDebug::module_adminif, "ObjectBroker", "inserted from memory " << (*i).first);
+        LTRACE << "inserted from memory " << (*i).first;
         retval->insert((*i).first);
     }
 
@@ -541,27 +475,22 @@ ObjectBroker::getAllMDDDomainTypes() throw (r_Error)
     {
         oid = query.nextColumnLong();
         id = OId(oid, OId::MDDDOMTYPEOID);
-        RMDBGMIDDLE(11, RMDebug::module_adminif, "ObjectBroker", "read " << id << " " << id.getType());
-        TALK( "got object " << id << " " << id.getType() );
+        LTRACE << "read " << id << " " << id.getType();
+        LDEBUG << "got object " << id << " " << id.getType();
         retval->insert(id);
     }
 
-    LEAVE( "ObjectBroker::getAllMDDDomainTypes" );
-    RMDBGEXIT(11, RMDebug::module_adminif, "ObjectBroker", "getAllMDDDomainTypes() ");
     return retval;
 }
 
 OIdSet*
 ObjectBroker::getAllStructTypes() throw (r_Error)
 {
-    RMDBGENTER(11, RMDebug::module_adminif, "ObjectBroker", "getAllStructTypes()");
-    ENTER( "ObjectBroker::getAllStructTypes" );
-
     OIdSet* retval = new OIdSet();
     DBObjectPMap& theMap = ObjectBroker::getMap(OId::STRUCTTYPEOID);
     for (DBObjectPMap::iterator i = theMap.begin(); i != theMap.end(); i++)
     {
-        RMDBGMIDDLE(11, RMDebug::module_adminif, "ObjectBroker", "inserted from memory " << (*i).first);
+        LTRACE << "inserted from memory " << (*i).first;
         retval->insert((*i).first);
     }
 
@@ -573,27 +502,22 @@ ObjectBroker::getAllStructTypes() throw (r_Error)
     {
         oid = query.nextColumnLong();
         id = OId(oid, OId::STRUCTTYPEOID);
-        RMDBGMIDDLE(11, RMDebug::module_adminif, "ObjectBroker", "read " << id << " " << id.getType());
-        TALK( "got object " << id << " " << id.getType() );
+        LTRACE << "read " << id << " " << id.getType();
+        LDEBUG << "got object " << id << " " << id.getType();
         retval->insert(id);
     }
 
-    LEAVE( "ObjectBroker::getAllStructTypes, retval=" << retval );
-    RMDBGEXIT(11, RMDebug::module_adminif, "ObjectBroker", "getAllStructTypes() ");
     return retval;
 }
 
 OIdSet*
 ObjectBroker::getAllMDDObjects() throw (r_Error)
 {
-    RMDBGENTER(11, RMDebug::module_adminif, "ObjectBroker", "getAllMDDObjects()");
-    ENTER( "ObjectBroker::getAllMDDObjects" );
-
     OIdSet* retval = new OIdSet();
     DBObjectPMap& theMap = ObjectBroker::getMap(OId::MDDOID);
     for (DBObjectPMap::iterator i = theMap.begin(); i != theMap.end(); i++)
     {
-        RMDBGMIDDLE(11, RMDebug::module_adminif, "ObjectBroker", "inserted from memory " << (*i).first);
+        LTRACE << "inserted from memory " << (*i).first;
         retval->insert((*i).first);
     }
 
@@ -605,27 +529,22 @@ ObjectBroker::getAllMDDObjects() throw (r_Error)
     {
         oid = query.nextColumnLong();
         id = OId(oid, OId::MDDOID);
-        RMDBGMIDDLE(11, RMDebug::module_adminif, "ObjectBroker", "read " << id << " " << id.getType());
-        TALK( "got object " << id << " " << id.getType() );
+        LTRACE << "read " << id << " " << id.getType();
+        LDEBUG << "got object " << id << " " << id.getType();
         retval->insert(id);
     }
-
-    LEAVE( "ObjectBroker::getAllMDDObjects, retval=" << retval );
-    RMDBGEXIT(11, RMDebug::module_adminif, "ObjectBroker", "getAllMDDObjects() ");
     return retval;
 }
 
 OIdSet*
 ObjectBroker::getAllMDDSets() throw (r_Error)
 {
-    RMDBGENTER(11, RMDebug::module_adminif, "ObjectBroker", "getAllMDDSets()");
-    ENTER( "ObjectBroker::getAllMDDSets" );
 
     OIdSet* retval = new OIdSet();
     DBObjectPMap& theMap = ObjectBroker::getMap(OId::MDDCOLLOID);
     for (DBObjectPMap::iterator i = theMap.begin(); i != theMap.end(); i++)
     {
-        RMDBGMIDDLE(11, RMDebug::module_adminif, "ObjectBroker", "inserted from memory " << (*i).first);
+        LTRACE << "inserted from memory " << (*i).first;
         retval->insert((*i).first);
     }
 
@@ -637,12 +556,10 @@ ObjectBroker::getAllMDDSets() throw (r_Error)
     {
         oid = query.nextColumnLong();
         id = OId(oid, OId::MDDCOLLOID);
-        RMDBGMIDDLE(11, RMDebug::module_adminif, "ObjectBroker", "read " << id << " " << id.getType());
-        TALK( "got object " << id << " " << id.getType() );
+        LTRACE << "read " << id << " " << id.getType();
+        LDEBUG << "got object " << id << " " << id.getType();
         retval->insert(id);
     }
 
-    LEAVE( "ObjectBroker::getAllMDDSets, retval=" << retval );
-    RMDBGEXIT(11, RMDebug::module_adminif, "ObjectBroker", "getAllMDDSets() ");
     return retval;
 }

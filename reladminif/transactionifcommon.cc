@@ -34,27 +34,26 @@ rasdaman GmbH.
 #include "adminif.hh"
 #include "catalogmgr/typefactory.hh"
 #include "oidif.hh"
-#include "raslib/rmdebug.hh"
 #include "databaseif.hh"
 #include "externs.h"
 #include "objectbroker.hh"
 #include "raslib/error.hh"
 #include "dbobject.hh"
 #include "sqlerror.hh"
+#include "../common/src/logging/easylogging++.hh"
 
 DatabaseIf* TransactionIf::lastBase = NULL;
 
 DatabaseIf*
 TransactionIf::getDatabaseIf()
 {
-    RMDBGONCE(2, RMDebug::module_adminif, "TransactionIf", "getDatabaseIf() " << lastBase << endl);
+    LTRACE << "getDatabaseIf() " << lastBase;
     return lastBase;
 }
 
 void
 TransactionIf::begin( DatabaseIf* currBase, bool readOnly ) throw ( r_Error )
 {
-    RMDBGENTER(4, RMDebug::module_adminif, "TransactionIf", "begin(" << currBase->getName() << ", " << readOnly << ")");
     try
     {
         currBase->baseDBMSOpen();
@@ -66,7 +65,6 @@ TransactionIf::begin( DatabaseIf* currBase, bool readOnly ) throw ( r_Error )
     }
     lastBase = currBase;
     begin(readOnly);
-    RMDBGEXIT(4, RMDebug::module_adminif, "TransactionIf", "begin(" << currBase->getName() << ", " << readOnly << ") ");
 }
 
 

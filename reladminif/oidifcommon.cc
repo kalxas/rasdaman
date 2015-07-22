@@ -41,7 +41,7 @@ rasdaman GmbH.
 #include "externs.h"
 #include "sqlerror.hh"
 #include "raslib/error.hh"
-#include "raslib/rmdebug.hh"
+#include "../common/src/logging/easylogging++.hh"
 
 #ifdef RMANBENCHMARK
 RMTimer OId::oidAlloc("OId","allocateOId");
@@ -141,15 +141,14 @@ bool OId::loadedOk = false;
 void
 OId::allocateOId(OId& id, OIdType type, OIdCounter howMany)
 {
-    RMDBGENTER(4, RMDebug::module_adminif, "OId", "allocateOId(" << id << ", " << (OIdType)type << ")");
     if (howMany == 0)
     {
-        RMInit::logOut << "OId::allocateOId(" << id << ", " << type << ", " << howMany << ") allocation of zero oids not supported" << endl;
+        LFATAL << "OId::allocateOId(" << id << ", " << type << ", " << howMany << ") allocation of zero oids not supported";
         throw r_Error(r_Error::r_Error_CreatingOIdFailed);
     }
     if (type == INVALID || type == INNEROID || type == ATOMICTYPEOID || type > maxCounter)
     {
-        RMInit::logOut << "OIDs of the specified type (" << type << " cannot be allocated." << endl;
+        LFATAL << "OIDs of the specified type (" << type << " cannot be allocated.";
         throw r_Error(r_Error::r_Error_CreatingOIdFailed);
     }
     else
@@ -158,45 +157,36 @@ OId::allocateOId(OId& id, OIdType type, OIdCounter howMany)
         *counterIds[type] = *counterIds[type] + howMany;
     }
     id.oidtype = type;
-    RMDBGEXIT(4, RMDebug::module_adminif, "OId", "allocateOId(" << id << ", " << type << ") ");
 }
 
 OId::OId(const OId& oldOId)
 {
-    RMDBGENTER(4, RMDebug::module_adminif, "OId", "OId(" << oldOId << ")");
     oid = oldOId.oid;
     oidtype = oldOId.oidtype;
-    RMDBGEXIT(4, RMDebug::module_adminif, "OId", "OId(" << oldOId << ")");
 }
 
 OId::OId()
 {
-    RMDBGENTER(4, RMDebug::module_adminif, "OId", "OId()");
     oidtype = INVALID;
     oid = 0;
-    RMDBGEXIT(4, RMDebug::module_adminif, "OId", "OId()");
 }
 
 OId::OId(OIdPrimitive newId)
 {
-    RMDBGENTER(4, RMDebug::module_adminif, "OId", "OId(OIdPrimitive " << newId << ")");
     oid = newId / OId::ID_MULTIPLIER;
     oidtype = static_cast<OId::OIdType>(newId - static_cast<OIdPrimitive>(static_cast<OIdPrimitive>(oid) * OId::ID_MULTIPLIER));
-    RMDBGEXIT(4, RMDebug::module_adminif, "OId", "OId(OIdPrimitive " << newId << ") ID " << oid << " TYPE " << oidtype);
 }
 
 OId::OId(OIdCounter newId, OIdType type)
 {
-    RMDBGENTER(4, RMDebug::module_adminif, "OId", "OId(" << newId << "," << type << ")");
     oidtype = type;
     oid = newId;
-    RMDBGEXIT(4, RMDebug::module_adminif, "OId", "OId(" << newId << "," << type << ")");
 }
 
 OId::OIdType
 OId::getType() const
 {
-    RMDBGONCE(4, RMDebug::module_adminif, "OId", "getType() " << oidtype);
+    LTRACE << "getType() " << oidtype;
     return oidtype;
 }
 
@@ -209,20 +199,20 @@ OId::print_status(ostream& s) const
 OId::OIdCounter
 OId::getCounter() const
 {
-    RMDBGONCE(4, RMDebug::module_adminif, "OId", "getCounter() " << oid);
+    LTRACE << "getCounter() " << oid;
     return oid;
 }
 
 OId::operator long long() const
 {
-    RMDBGONCE(4, RMDebug::module_adminif, "OId", "operator() " << oid);
+    LTRACE << "operator() " << oid;
     return oid * OId::ID_MULTIPLIER + oidtype;
 }
 
 bool
 OId::operator!= (const OId& one) const
 {
-    RMDBGONCE(4, RMDebug::module_adminif, "OId", "operator!=(" << one << ") " << *this);
+    LTRACE << "operator!=(" << one << ") " << *this;
     return !(OId::operator==(one));
 }
 
@@ -238,14 +228,14 @@ OId::operator== (const OId& one) const
     {
         retval = false;
     }
-    RMDBGONCE(4, RMDebug::module_adminif, "OId", "operator==(" << one << ") " << *this << " retval=" << retval);
+    LTRACE << "operator==(" << one << ") " << *this << " retval=" << retval;
     return retval;
 }
 
 OId&
 OId::operator=(const OId& old)
 {
-    RMDBGONCE(4, RMDebug::module_adminif, "OId", "operator=(" << old << ") "<< *this);
+    LTRACE << "operator=(" << old << ") "<< *this;
     if (this != &old)
     {
         oid = old.oid;
@@ -266,7 +256,7 @@ OId::operator<(const OId& old) const
     {
         retval = (oidtype < old.oidtype);
     }
-    RMDBGONCE(4, RMDebug::module_adminif, "OId", "operator<(" << old << ") " << *this << " retval=" << retval);
+    LTRACE << "operator<(" << old << ") " << *this << " retval=" << retval;
     return retval;
 }
 
@@ -282,7 +272,7 @@ OId::operator>(const OId& old) const
     {
         retval = (oidtype > old.oidtype);
     }
-    RMDBGONCE(4, RMDebug::module_adminif, "OId", "operator>(" << old << ") " << *this << " retval=" << retval);
+    LTRACE << "operator>(" << old << ") " << *this << " retval=" << retval;
     return retval;
 }
 
@@ -298,7 +288,7 @@ OId::operator<=(const OId& old) const
     {
         retval = (oidtype < old.oidtype);
     }
-    RMDBGONCE(4, RMDebug::module_adminif, "OId", "operator<=(" << old << ") " << *this << " retval=" << retval);
+    LTRACE << "operator<=(" << old << ") " << *this << " retval=" << retval;
     return retval;
 }
 
@@ -314,14 +304,14 @@ OId::operator>=(const OId& old) const
     {
         retval = (oidtype > old.oidtype);
     }
-    RMDBGONCE(4, RMDebug::module_adminif, "OId", "operator>=(" << old << ") " << *this << " retval=" << retval);
+    LTRACE << "operator>=(" << old << ") " << *this << " retval=" << retval;
     return retval;
 }
 
 bool
 operator== (const long long one, const OId& two)
 {
-    RMDBGONCE(4, RMDebug::module_adminif, "OId", "operator==(" << one << "," << two << ")");
+    LTRACE << "operator==(" << one << "," << two << ")";
     bool retval = false;
     // see conversion operator above
     if ((static_cast<long long>(two)) == one)
@@ -332,7 +322,7 @@ operator== (const long long one, const OId& two)
 bool
 operator== (const OId& two, const long long one)
 {
-    RMDBGONCE(4, RMDebug::module_adminif, "OId", "operator==(" << two << "," << one << ")");
+    LTRACE << "operator==(" << two << "," << one << ")";
     bool retval=false;
     // see conversion operator above
     if ((static_cast<long long>(two)) == one)

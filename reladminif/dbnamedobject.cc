@@ -39,7 +39,7 @@ rasdaman GmbH.
 #include <stdlib.h>
 #include "dbnamedobject.hh"
 #include "dbobject.hh"
-#include "raslib/rmdebug.hh"
+#include "../common/src/logging/easylogging++.hh"
 
 // Beware: keep this value less or equal to STRING_MAXLEN in externs.h!
 #define MAXNAMELENGTH_CONST 200
@@ -59,7 +59,7 @@ DBNamedObject::DBNamedObject(const OId& id) throw (r_Error)
         myName(NULL),
         myNameSize(0)
 {
-    RMDBGONCE(9, RMDebug::module_adminif, "DBNamedObject", "DBNamedObject(" << myOId << ")");
+    LTRACE << "DBNamedObject(" << myOId << ")";
 }
 
 DBNamedObject::DBNamedObject()
@@ -67,7 +67,7 @@ DBNamedObject::DBNamedObject()
         myName(NULL),
         myNameSize(0)
 {
-    RMDBGONCE(9, RMDebug::module_adminif, "DBNamedObject", "DBNamedObject()");
+    LTRACE << "DBNamedObject()";
     setName(defaultName);
 }
 
@@ -76,7 +76,7 @@ DBNamedObject::DBNamedObject(const DBNamedObject& old)
         myName(NULL),
         myNameSize(0)
 {
-    RMDBGONCE(9, RMDebug::module_adminif, "DBNamedObject", "DBNamedObject(const DBNamedObject& old)");
+    LTRACE << "DBNamedObject(const DBNamedObject& old)";
     setName(old.getName());
 }
 
@@ -85,7 +85,7 @@ DBNamedObject::DBNamedObject(const char* name)
         myName(NULL),
         myNameSize(0)
 {
-    RMDBGONCE(9, RMDebug::module_adminif, "DBNamedObject", "DBNamedObject(" << name << ")");
+    LTRACE << "DBNamedObject(" << name << ")";
     setName(name);
 }
 
@@ -94,26 +94,24 @@ DBNamedObject::DBNamedObject(const OId& id, const char* name)
         myName(NULL),
         myNameSize(0)
 {
-    RMDBGONCE(9, RMDebug::module_adminif, "DBNamedObject", "DBNamedObject(" << myOId << ", " << name << ")");
+    LTRACE << "DBNamedObject(" << myOId << ", " << name << ")";
     setName(name);
 }
 
 DBNamedObject::~DBNamedObject()
 {
-    RMDBGENTER(9, RMDebug::module_adminif, "DBNamedObject", "~DBNamedObject() " << myOId);
     if (myName)
     {
         free(myName);
         myName = NULL;
     }
     myNameSize = 0;
-    RMDBGEXIT(9, RMDebug::module_adminif, "DBNamedObject", "~DBNamedObject() " << myOId);
 }
 
 DBNamedObject&
 DBNamedObject::operator=(const DBNamedObject& old)
 {
-    RMDBGONCE(9, RMDebug::module_adminif, "DBNamedObject", "operator=(" << old.getName() << ") " << myName);
+    LTRACE << "operator=(" << old.getName() << ") " << myName;
     if (this != &old)
     {
         DBObject::operator=(old);
@@ -125,17 +123,16 @@ DBNamedObject::operator=(const DBNamedObject& old)
 const char*
 DBNamedObject::getName() const
 {
-    RMDBGONCE(9, RMDebug::module_adminif, "DBNamedObject", "getName() " << myName);
+    LTRACE << "getName() " << myName;
     return myName;
 }
 
 void
 DBNamedObject::setName(const char* newname)
 {
-    RMDBGENTER(9, RMDebug::module_adminif, "DBNamedObject", "setName(" << newname << ")");
     if (myName)
     {
-        RMDBGMIDDLE(10, RMDebug::module_adminif, "DBNamedObject", "myName\t:" << myName);
+        LTRACE << "myName\t:" << myName;
         free(myName);
         myName=NULL;
     }
@@ -146,16 +143,14 @@ DBNamedObject::setName(const char* newname)
     myNameSize = (len + 1) * sizeof(char);
     strncpy(myName, newname, len);
     *(myName + len) = 0;
-    RMDBGEXIT(9, RMDebug::module_adminif, "DBNamedObject", "setName(" << myName << ")");
 }
 
 void
 DBNamedObject::setName(const short length, const char* data)
 {
-    RMDBGENTER(9, RMDebug::module_adminif, "DBNamedObject", "setName(" << length << ", data ) " << myOId);
     if (myName)
     {
-        RMDBGMIDDLE(10,RMDebug::module_adminif, "DBNamedObject", "myName\t:" << myName);
+        LTRACE << "myName\t:" << myName;
         free(myName);
         myName=NULL;
     }
@@ -168,8 +163,7 @@ DBNamedObject::setName(const short length, const char* data)
     myNameSize = (len + 1) * sizeof(char);
     strncpy(myName, data, len);
     *(myName + len) = 0;
-    RMDBGMIDDLE(10,RMDebug::module_adminif, "DBNamedObject", "myName\t:" << myName);
-    RMDBGEXIT(9, RMDebug::module_adminif, "DBNamedObject", "setName(" << length << ", data ) " << myOId);
+    LTRACE << "myName\t:" << myName;
 }
 
 r_Bytes

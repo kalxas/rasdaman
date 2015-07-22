@@ -37,13 +37,13 @@ rasdaman GmbH.
 #include "dbref.hh"
 #include <iostream>
 #include <stdio.h>
-#include "raslib/rmdebug.hh"
 #include "objectbroker.hh"
 #include "indexmgr/indexds.hh"
 #include "relindexif/dbrcindexds.hh"
 #include "relindexif/dbtcindex.hh"
 #include "indexmgr/hierindexds.hh"
 #include "debug/debug.hh"
+#include "../common/src/logging/easylogging++.hh"
 
 template <class T> bool
 DBRef<T>::pointerCaching = true;
@@ -51,14 +51,14 @@ DBRef<T>::pointerCaching = true;
 template <class T> void
 DBRef<T>::setPointerCaching(bool useIt)
 {
-    RMDBGONCE(10, RMDebug::module_adminif, "DBRef", "setPointerCaching(" << useIt << ") " << pointerCaching );
+    LTRACE << "setPointerCaching(" << useIt << ") " << pointerCaching;
     pointerCaching = useIt;
 }
 
 template <class T> bool
 DBRef<T>::getPointerCaching()
 {
-    RMDBGONCE(10, RMDebug::module_adminif, "DBRef", "getPointerCaching() " << pointerCaching );
+    LTRACE << "getPointerCaching() " << pointerCaching;
     return pointerCaching;
 }
 
@@ -68,7 +68,7 @@ DBRef<T>::DBRef(void)
         objId(DBOBJID_NONE),
         pointerValid(false)
 {
-    RMDBGONCE(11, RMDebug::module_adminif, "DBRef", "DBRef()");
+    LTRACE << "DBRef()";
 }
 
 
@@ -78,7 +78,7 @@ DBRef<T>::DBRef(const OId &id)
         objId(id),
         pointerValid(false)
 {
-    RMDBGONCE(11, RMDebug::module_adminif, "DBRef", "DBRef(" << id << ")");
+    LTRACE << "DBRef(" << id << ")";
 }
 
 
@@ -88,7 +88,7 @@ DBRef<T>::DBRef(long long id)
         objId(id),
         pointerValid(false)
 {
-    RMDBGONCE(11, RMDebug::module_adminif, "DBRef", "DBRef(long long " << id << ")");
+    LTRACE << "DBRef(long long " << id << ")";
 }
 
 
@@ -98,7 +98,6 @@ DBRef<T>::DBRef(const DBRef<T> &src)
         objId(src.objId),
         pointerValid(src.pointerValid)
 {
-    RMDBGENTER(11, RMDebug::module_adminif, "DBRef", "DBRef(const DBRef) src.OId=" << src.objId);
     if (pointerCaching)
     {
         if (src.object)
@@ -116,7 +115,6 @@ DBRef<T>::DBRef(const DBRef<T> &src)
         }
     }
 
-    RMDBGEXIT(11, RMDebug::module_adminif, "DBRef", "DBRef(const DBRef) " << objId);
 }
 
 
@@ -126,18 +124,17 @@ DBRef<T>::DBRef(T *newPtr)
         objId(DBOBJID_NONE),
         pointerValid(true)
 {
-    RMDBGENTER(11, RMDebug::module_adminif, "DBRef", "DBRef(const T* " << newPtr << ")");
 
     if (object != 0)
     {
         objId = object->getOId();
         object->incrementReferenceCount();
-        RMDBGMIDDLE(11, RMDebug::module_adminif, "DBRef", "DBRef(T* " << newPtr->getOId() << ")");
+        LTRACE << "DBRef(T* " << newPtr->getOId() << ")";
     }
     else
     {
         pointerValid = false;
-        RMDBGMIDDLE(11, RMDebug::module_adminif, "DBRef", "DBRef(T* 0) " << objId);
+        LTRACE << "DBRef(T* 0) " << objId;
     }
 }
 
@@ -145,17 +142,14 @@ DBRef<T>::DBRef(T *newPtr)
 template <class T>
 DBRef<T>::~DBRef(void)
 {
-    RMDBGENTER(11, RMDebug::module_adminif, "DBRef", "~DBRef() " << objId);
     if ((object != 0) && pointerCaching)
         object->decrementReferenceCount();
     object = 0;
-    RMDBGEXIT(11, RMDebug::module_adminif, "DBRef", "~DBRef() " << objId);
 }
 
 template <class T>
 bool DBRef<T>::operator<(const DBRef<T>& other) const
 {
-    RMDBGENTER(3, RMDebug::module_adminif, "DBRef", "DBRef<T>::operator<(" << other.objId << ", " << (r_Ptr)other.object << ") " << objId << ", " << (r_Ptr)object);
     int ret = operator==(other);
     return (ret == -1);
 }
@@ -163,14 +157,12 @@ bool DBRef<T>::operator<(const DBRef<T>& other) const
 template <class T>
 bool operator< (const DBRef<T> &me, const DBRef<T> &him)
 {
-    RMDBGENTER(3, RMDebug::module_adminif, "DBRef", "operator<({" << me.getOId() << "}, {" << him.getOId() << "})");
     return me.operator<(him);
 }
 
 template <class T>
 int DBRef<T>::operator==(const DBRef<T> &src) const
 {
-    RMDBGENTER(3, RMDebug::module_adminif, "DBRef", "operator==(" << src.objId << ", " << (r_Ptr)src.object << ") " << objId << ", " << (r_Ptr)object);
     int retval = 0;
     if (isInitialised())
     {
@@ -284,7 +276,6 @@ int DBRef<T>::operator==(const DBRef<T> &src) const
         }
         //else is 0
     }
-    RMDBGEXIT(11, RMDebug::module_adminif, "DBRef", "operator==(" << src.objId << ") " << retval);
     return retval;
 }
 
@@ -292,7 +283,6 @@ int DBRef<T>::operator==(const DBRef<T> &src) const
 template <class T>
 DBRef<T> &DBRef<T>::operator=(const DBRef<T> &src)
 {
-    RMDBGENTER(11, RMDebug::module_adminif, "DBRef", "operator=(" << src.objId << ") " << objId);
     if ((object != 0) && pointerCaching)
     {
         object->decrementReferenceCount();
@@ -314,7 +304,6 @@ DBRef<T> &DBRef<T>::operator=(const DBRef<T> &src)
             objId = object->getOId();
     }
 
-    RMDBGEXIT(11, RMDebug::module_adminif, "DBRef", "operator=(" << src.objId << ") " << objId);
     return *this;
 }
 
@@ -322,7 +311,6 @@ DBRef<T> &DBRef<T>::operator=(const DBRef<T> &src)
 template<class T>
 DBRef<T> &DBRef<T>::operator=(T *newPtr)
 {
-    RMDBGENTER(11, RMDebug::module_adminif, "DBRef", "operator=( at " << newPtr << " ) " << objId);
     if ((object != 0) && pointerCaching)
         object->decrementReferenceCount();
 
@@ -338,7 +326,6 @@ DBRef<T> &DBRef<T>::operator=(T *newPtr)
         object->incrementReferenceCount();
         pointerValid = true;
     }
-    RMDBGEXIT(11, RMDebug::module_adminif, "DBRef", "operator=( at " << newPtr << " ) " << objId);
     return *this;
 }
 
@@ -346,17 +333,14 @@ DBRef<T> &DBRef<T>::operator=(T *newPtr)
 template <class T>
 T &DBRef<T>::operator *(void) throw ( r_Error )
 {
-    RMDBGENTER(11, RMDebug::module_adminif, "DBRef", "operator*() " << objId);
-
     if (is_null())
     {
-        TALK( "DBRef::operator*(): object not found " << objId);
-        RMDBGMIDDLE(2, RMDebug::module_adminif, "DBRef", "object was not found " << objId);
+        LDEBUG << "DBRef::operator*(): object not found " << objId;
+        LTRACE << "object was not found " << objId;
         r_Error err = r_Error(r_Error::r_Error_RefNull);
         throw err;
     }
 
-    RMDBGEXIT(11, RMDebug::module_adminif, "DBRef", "operator*() " << objId);
     return *object;
 }
 
@@ -364,17 +348,14 @@ T &DBRef<T>::operator *(void) throw ( r_Error )
 template <class T>
 const T &DBRef<T>::operator *(void) const throw ( r_Error )
 {
-    RMDBGENTER(11, RMDebug::module_adminif, "DBRef", "operator*() const " << objId);
-
     if (is_null())
     {
-        TALK( "DBRef::operator*(): object not found " << objId);
-        RMDBGMIDDLE(2, RMDebug::module_adminif, "DBRef", "object was not found " << objId);
+        LDEBUG << "DBRef::operator*(): object not found " << objId;
+        LTRACE << "object was not found " << objId;
         r_Error err = r_Error(r_Error::r_Error_RefNull);
         throw err;
     }
 
-    RMDBGEXIT(11, RMDebug::module_adminif, "DBRef", "operator*() " << objId);
     return *object;
 }
 
@@ -384,17 +365,15 @@ const T &DBRef<T>::operator *(void) const throw ( r_Error )
 template <class T>
 T &DBRef<T>::operator[](int idx) const throw(r_Error)
 {
-    RMDBGENTER(11, RMDebug::module_adminif, "DBRef", "operator[](" << idx << ") " << objId);
 
     if (is_null())
     {
-        TALK( "DBRef::operator[](): object not found " << objId);
-        RMDBGMIDDLE(2, RMDebug::module_adminif, "DBRef", "object was not found " << objId);
+        LDEBUG << "DBRef::operator[](): object not found " << objId;
+        LTRACE << "object was not found " << objId;
         r_Error err = r_Error(r_Error::r_Error_RefNull);
         throw err;
     }
 
-    RMDBGEXIT(11, RMDebug::module_adminif, "DBRef", "operator[](" << idx << ") " << objId);
     return *((this + idx).object);
 }
 
@@ -403,17 +382,14 @@ T &DBRef<T>::operator[](int idx) const throw(r_Error)
 template <class T>
 T *DBRef<T>::operator->(void) throw(r_Error)
 {
-    RMDBGENTER(11, RMDebug::module_adminif, "DBRef", "operator->() " << objId);
-
     if (is_null())
     {
-        TALK( "DBRef::operator->(): object not found " << objId);
-        RMDBGMIDDLE(2, RMDebug::module_adminif, "DBRef", "object was not found " << objId);
+        LDEBUG << "DBRef::operator->(): object not found " << objId;
+        LTRACE << "object was not found " << objId;
         r_Error err = r_Error(r_Error::r_Error_RefNull);
         throw err;
     }
 
-    RMDBGEXIT(11, RMDebug::module_adminif, "DBRef", "operator->() " << objId);
     return object;
 }
 
@@ -421,17 +397,14 @@ T *DBRef<T>::operator->(void) throw(r_Error)
 template <class T>
 const T *DBRef<T>::operator->(void) const throw(r_Error)
 {
-    RMDBGENTER(11, RMDebug::module_adminif, "DBRef", "operator->() const " << objId);
-
     if (is_null())
     {
-        TALK( "DBRef::operator->(): object not found " << objId);
-        RMDBGMIDDLE(2, RMDebug::module_adminif, "DBRef", "object was not found " << objId);
+        LDEBUG << "DBRef::operator->(): object not found " << objId;
+        LTRACE << "object was not found " << objId;
         r_Error err = r_Error(r_Error::r_Error_RefNull);
         throw err;
     }
 
-    RMDBGEXIT(11, RMDebug::module_adminif, "DBRef", "operator->() const " << objId);
     return object;
 }
 
@@ -439,17 +412,14 @@ const T *DBRef<T>::operator->(void) const throw(r_Error)
 template <class T>
 T *DBRef<T>::ptr(void) throw(r_Error)
 {
-    RMDBGENTER(11, RMDebug::module_adminif, "DBRef", "ptr() " << objId);
-
     if (is_null())
     {
-        TALK( "DBRef::ptr(): object not found " << objId);
-        RMDBGMIDDLE(2, RMDebug::module_adminif, "DBRef", "object was not found " << objId);
+        LDEBUG << "DBRef::ptr(): object not found " << objId;
+        LTRACE << "object was not found " << objId;
         r_Error err = r_Error(r_Error::r_Error_RefNull);
         throw err;
     }
 
-    RMDBGEXIT(11, RMDebug::module_adminif, "DBRef", "ptr() " << objId);
     return object;
 }
 
@@ -457,17 +427,14 @@ T *DBRef<T>::ptr(void) throw(r_Error)
 template <class T>
 const T *DBRef<T>::ptr(void) const throw(r_Error)
 {
-    RMDBGENTER(11, RMDebug::module_adminif, "DBRef", "ptr() " << objId);
-
     if (is_null())
     {
-        TALK( "DBRef::ptr(): object not found " << objId);
-        RMDBGMIDDLE(2, RMDebug::module_adminif, "DBRef", "object was not found " << objId);
+        LDEBUG << "DBRef::ptr(): object not found " << objId;
+        LTRACE << "object was not found " << objId;
         r_Error err = r_Error(r_Error::r_Error_RefNull);
         throw err;
     }
 
-    RMDBGEXIT(11, RMDebug::module_adminif, "DBRef", "ptr() " << objId);
     return object;
 }
 
@@ -481,17 +448,14 @@ OId DBRef<T>::getObjId()
 template <class T>
 DBRef<T>::operator T*() throw (r_Error)
 {
-    RMDBGENTER(11, RMDebug::module_adminif, "DBRef", "operator T*() " << objId);
-
     if (is_null())
     {
-        TALK( "DBRef::T*(): object not found " << objId);
-        RMDBGMIDDLE(2, RMDebug::module_adminif, "DBRef", "object was not found " << objId);
+        LDEBUG << "DBRef::T*(): object not found " << objId;
+        LTRACE << "object was not found " << objId;
         r_Error err = r_Error(r_Error::r_Error_RefNull);
         throw err;
     }
 
-    RMDBGEXIT(11, RMDebug::module_adminif, "DBRef", "operator T*() " << objId);
     return object;
 }
 
@@ -499,17 +463,14 @@ DBRef<T>::operator T*() throw (r_Error)
 template <class T>
 DBRef<T>::operator const T*() const throw (r_Error)
 {
-    RMDBGENTER(11, RMDebug::module_adminif, "DBRef", "operator const T*() const" << objId);
-
     if (is_null())
     {
-        TALK( "DBRef::T*(): object not found " << objId);
-        RMDBGMIDDLE(2, RMDebug::module_adminif, "DBRef", "object was not found " << objId);
+        LDEBUG << "DBRef::T*(): object not found " << objId;
+        LTRACE << "object was not found " << objId;
         r_Error err = r_Error(r_Error::r_Error_RefNull);
         throw err;
     }
 
-    RMDBGEXIT(11, RMDebug::module_adminif, "DBRef", "operator const T*() " << objId);
     return object;
 }
 
@@ -543,7 +504,7 @@ void DBRef<T>::delete_object(void)
         {
             err = r_Error(r_Error::r_Error_ObjectUnknown);
         }
-        RMDBGONCE(0, RMDebug::module_adminif, "DBRef", "delete_object() " << objId << " not ok")
+        LTRACE << "delete_object() " << objId << " not ok";
         throw err;
     }
 }
@@ -575,28 +536,23 @@ bool DBRef<T>::is_valid(void) const
 template <class T>
 void DBRef<T>::release()
 {
-    RMDBGENTER(11, RMDebug::module_adminif, "DBRef", "release() " << objId);
     if ((object != 0) && pointerCaching)
     {
         object->decrementReferenceCount();
     }
     object = 0;
-    RMDBGEXIT(11, RMDebug::module_adminif, "DBRef", "release() " << objId);
 }
 
 
 template <class T>
 DBRef<T>::operator DBRef<DBObject>() const
 {
-    RMDBGENTER(11, RMDebug::module_adminif, "DBRef", "operator DBRef<DBObject>() " << objId);
     if (object && pointerCaching)
     {
-        RMDBGEXIT(11, RMDebug::module_adminif, "DBRef", "operator DBRef<DBObject>(" << object << ") " << objId);
         return DBRef<DBObject>(object);
     }
     else
     {
-        RMDBGEXIT(11, RMDebug::module_adminif, "DBRef", "operator DBRef<DBObject>(" << objId << ") " << objId);
         return DBRef<DBObject>(objId);
     }
 }
@@ -604,12 +560,10 @@ DBRef<T>::operator DBRef<DBObject>() const
 template <class T>
 DBRef<T>::operator DBRef<InlineTile>() const throw (r_Error)
 {
-    RMDBGENTER(11, RMDebug::module_adminif, "DBRef", "operator DBRef<InlineTile>() " << objId);
     if (object && pointerCaching)
     {
         if (object->getObjectType() == OId::INLINETILEOID)
         {
-            RMDBGEXIT(11, RMDebug::module_adminif, "DBRef", "operator DBRef<InlineTile>() " << objId);
             return DBRef<InlineTile>((InlineTile*)object);
         }
     }
@@ -617,25 +571,21 @@ DBRef<T>::operator DBRef<InlineTile>() const throw (r_Error)
     {
         if (objId.getType() == OId::INLINETILEOID)
         {
-            RMDBGEXIT(11, RMDebug::module_adminif, "DBRef", "operator DBRef<InlineTile>() " << objId);
             return DBRef<InlineTile>(objId);
         }
     }
-    TALK( "DBRef::<InlineTile>(): operator mismatch" << objId);
-    RMDBGEXIT(0, RMDebug::module_adminif, "DBRef", "operator DBRef<InlineTile>() mismatch " << objId);
+    LDEBUG << "DBRef::<InlineTile>(): operator mismatch" << objId;
     throw r_Error(r_Error::r_Error_DatabaseClassMismatch);
 }
 
 template <class T>
 DBRef<T>::operator DBRef<DBTile>() const throw (r_Error)
 {
-    RMDBGENTER(11, RMDebug::module_adminif, "DBRef", "operator DBRef<DBTile>() " << objId << "; object=" << (long) object );
-    TALK( "DBRef::DBRef<DBTile>(): object=" << (long) object );
+    LDEBUG << "DBRef::DBRef<DBTile>(): object=" << (long) object;
     if (object && pointerCaching)
     {
         if ((object->getObjectType() == OId::BLOBOID) || (object->getObjectType() == OId::INLINETILEOID))
         {
-            RMDBGEXIT(11, RMDebug::module_adminif, "DBRef", "operator DBRef<DBTile>() " << objId);
             return DBRef<DBTile>((DBTile*)object);
         }
     }
@@ -643,34 +593,30 @@ DBRef<T>::operator DBRef<DBTile>() const throw (r_Error)
     {
         if ((objId.getType() == OId::BLOBOID) || (objId.getType() == OId::INLINETILEOID))
         {
-            RMDBGEXIT(11, RMDebug::module_adminif, "DBRef", "operator DBRef<DBTile>() " << objId);
             return DBRef<DBTile>(objId);
         }
     }
     if (object)
     {
-        TALK( "DBRef::DBRef<DBTile>(): object->getObjectType()=" << object->getObjectType() );
+        LDEBUG << "DBRef::DBRef<DBTile>(): object->getObjectType()=" << object->getObjectType();
     }
-    TALK( "DBRef::DBRef<DBTile>():  objId->getObjectType()=" <<  objId.getType() );
-    TALK( "DBRef::DBRef<DBTile>(): operator mismatch" << objId );
+    LDEBUG << "DBRef::DBRef<DBTile>():  objId->getObjectType()=" <<  objId.getType();
+    LDEBUG << "DBRef::DBRef<DBTile>(): operator mismatch" << objId;
     if (object)
     {
-        RMDBGMIDDLE(0, RMDebug::module_adminif, "DBRef", "object->getObjectType()=" << object->getObjectType() );
+        LTRACE << "object->getObjectType()=" << object->getObjectType();
     }
-    RMDBGMIDDLE(0, RMDebug::module_adminif, "DBRef", "objId->getObjectType()=" <<  objId.getType() );
-    RMDBGEXIT(0, RMDebug::module_adminif, "DBRef", "operator DBRef<DBTile>() mismatch " << objId);
+    LTRACE << "objId->getObjectType()=" <<  objId.getType();
     throw r_Error(r_Error::r_Error_DatabaseClassMismatch);
 }
 
 template <class T>
 DBRef<T>::operator DBRef<BLOBTile>() const throw (r_Error)
 {
-    RMDBGENTER(11, RMDebug::module_adminif, "DBRef", "operator DBRef<BLOBTile>() " << objId);
     if (object && pointerCaching)
     {
         if (object->getObjectType() == OId::BLOBOID || (object->getObjectType() == OId::INLINETILEOID))
         {
-            RMDBGEXIT(11, RMDebug::module_adminif, "DBRef", "operator DBRef<BLOBTile>() " << objId);
             return DBRef<BLOBTile>((BLOBTile*)object);
         }
     }
@@ -678,24 +624,20 @@ DBRef<T>::operator DBRef<BLOBTile>() const throw (r_Error)
     {
         if ((objId.getType() == OId::BLOBOID) || (objId.getType() == OId::INLINETILEOID))
         {
-            RMDBGEXIT(11, RMDebug::module_adminif, "DBRef", "operator DBRef<BLOBTile>() " << objId);
             return DBRef<BLOBTile>(objId);
         }
     }
-    TALK( "DBRef::DBRef<BLOBTile>(): operator mismatch" << objId);
-    RMDBGEXIT(0, RMDebug::module_adminif, "DBRef", "operator DBRef<BLOBTile>() mismatch " << objId);
+    LDEBUG << "DBRef::DBRef<BLOBTile>(): operator mismatch" << objId;
     throw r_Error(r_Error::r_Error_DatabaseClassMismatch);
 }
 
 template <class T>
 DBRef<T>::operator DBRef<DBTCIndex>() const throw (r_Error)
 {
-    RMDBGENTER(11, RMDebug::module_adminif, "DBRef", "operator DBRef<DBTCIndex>() " << objId);
     if (object && pointerCaching)
     {
         if (object->getObjectType() == OId::DBTCINDEXOID)
         {
-            RMDBGEXIT(11, RMDebug::module_adminif, "DBRef", "operator DBRef<DBTCIndex>() " << objId);
             return DBRef<DBTCIndex>((DBTCIndex*)object);
         }
     }
@@ -703,24 +645,20 @@ DBRef<T>::operator DBRef<DBTCIndex>() const throw (r_Error)
     {
         if (objId.getType() == OId::DBTCINDEXOID)
         {
-            RMDBGEXIT(11, RMDebug::module_adminif, "DBRef", "operator DBRef<DBTCIndex>() " << objId);
             return DBRef<DBTCIndex>(objId);
         }
     }
-    TALK( "DBRef::DBRef<DBTCIndex>(): operator mismatch" << objId);
-    RMDBGEXIT(0, RMDebug::module_adminif, "DBRef", "operator DBRef<DBTCIndex>() mismatch " << objId);
+    LDEBUG << "DBRef::DBRef<DBTCIndex>(): operator mismatch" << objId;
     throw r_Error(r_Error::r_Error_DatabaseClassMismatch);
 }
 
 template <class T>
 DBRef<T>::operator DBRef<DBHierIndex>() const throw (r_Error)
 {
-    RMDBGENTER(11, RMDebug::module_adminif, "DBRef", "operator DBRef<DBHierIndex>() " << objId);
     if (object && pointerCaching)
     {
         if ((object->getObjectType() == OId::MDDHIERIXOID) || (object->getObjectType() == OId::DBTCINDEXOID))
         {
-            RMDBGEXIT(11, RMDebug::module_adminif, "DBRef", "operator DBRef<DBHierIndex>() " << objId);
             return DBRef<DBHierIndex>((DBHierIndex*)object);
         }
     }
@@ -728,12 +666,10 @@ DBRef<T>::operator DBRef<DBHierIndex>() const throw (r_Error)
     {
         if ((objId.getType() == OId::MDDHIERIXOID) || (objId.getType() == OId::DBTCINDEXOID))
         {
-            RMDBGEXIT(11, RMDebug::module_adminif, "DBRef", "operator DBRef<DBHierIndex>() " << objId);
             return DBRef<DBHierIndex>(objId);
         }
     }
-    TALK( "DBRef::DBRef<DBHierIndex>(): operator mismatch" << objId);
-    RMDBGEXIT(0, RMDebug::module_adminif, "DBRef", "operator DBRef<DBHierIndex>() mismatch " << objId);
+    LDEBUG << "DBRef::DBRef<DBHierIndex>(): operator mismatch" << objId;
     throw r_Error(r_Error::r_Error_DatabaseClassMismatch);
 }
 
@@ -741,12 +677,10 @@ DBRef<T>::operator DBRef<DBHierIndex>() const throw (r_Error)
 template <class T>
 DBRef<T>::operator DBRef<DBRCIndexDS>() const throw (r_Error)
 {
-    RMDBGENTER(11, RMDebug::module_adminif, "DBRef", "operator DBRef<DBRCIndexDS>() " << objId);
     if (object && pointerCaching)
     {
         if (object->getObjectType() == OId::MDDRCIXOID)
         {
-            RMDBGEXIT(11, RMDebug::module_adminif, "DBRef", "operator DBRef<DBRCIndexDS>() " << objId);
             return DBRef<DBRCIndexDS>((DBRCIndexDS*)object);
         }
     }
@@ -754,12 +688,10 @@ DBRef<T>::operator DBRef<DBRCIndexDS>() const throw (r_Error)
     {
         if (objId.getType() == OId::MDDRCIXOID)
         {
-            RMDBGEXIT(11, RMDebug::module_adminif, "DBRef", "operator DBRef<DBRCIndexDS>() " << objId);
             return DBRef<DBRCIndexDS>(objId);
         }
     }
-    TALK( "DBRef::DBRef<DBRCIndexDS>(): operator mismatch" << objId);
-    RMDBGEXIT(0, RMDebug::module_adminif, "DBRef", "operator DBRef<DBRCIndexDS>() mismatch " << objId);
+    LDEBUG << "DBRef::DBRef<DBRCIndexDS>(): operator mismatch" << objId;
     throw r_Error(r_Error::r_Error_DatabaseClassMismatch);
 }
 
@@ -767,12 +699,10 @@ DBRef<T>::operator DBRef<DBRCIndexDS>() const throw (r_Error)
 template <class T>
 DBRef<T>::operator HierIndexDS*() const throw (r_Error)
 {
-    RMDBGENTER(11, RMDebug::module_adminif, "DBRef", "operator HierIndexDS*() " << objId);
     if (object && pointerCaching)
     {
         if ((object->getObjectType() == OId::MDDHIERIXOID) || (object->getObjectType() == OId::DBTCINDEXOID))
         {
-            RMDBGEXIT(11, RMDebug::module_adminif, "DBRef", "operator HierIndexDS*() " << objId);
             return (HierIndexDS*)object;
         }
     }
@@ -780,7 +710,6 @@ DBRef<T>::operator HierIndexDS*() const throw (r_Error)
     {
         if (objId.getType() == OId::MDDHIERIXOID)
         {
-            RMDBGEXIT(11, RMDebug::module_adminif, "DBRef", "operator IndexDS*() DBHierIndexId" << objId);
             DBRef<DBHierIndex> t(objId);
             return static_cast<HierIndexDS*>(t.ptr());
         }
@@ -788,14 +717,12 @@ DBRef<T>::operator HierIndexDS*() const throw (r_Error)
         {
             if (objId.getType() == OId::DBTCINDEXOID)
             {
-                RMDBGEXIT(11, RMDebug::module_adminif, "DBRef", "operator IndexDS*() DBTCIndexId" << objId);
                 DBRef<DBTCIndex> t(objId);
                 return static_cast<HierIndexDS*>(t.ptr());
             }
         }
     }
-    TALK( "DBRef::HierIndexDS*(): operator mismatch" << objId);
-    RMDBGEXIT(0, RMDebug::module_adminif, "DBRef", "operator HierIndexDS*() mismatch " << objId);
+    LDEBUG << "DBRef::HierIndexDS*(): operator mismatch" << objId;
     throw r_Error(r_Error::r_Error_DatabaseClassMismatch);
 }
 
@@ -803,12 +730,10 @@ DBRef<T>::operator HierIndexDS*() const throw (r_Error)
 template <class T>
 DBRef<T>::operator IndexDS*() const throw (r_Error)
 {
-    RMDBGENTER(11, RMDebug::module_adminif, "DBRef", "operator IndexDS*() " << objId);
     if (object && pointerCaching)
     {
         if ((object->getObjectType() == OId::MDDHIERIXOID) || (object->getObjectType() == OId::DBTCINDEXOID) || (object->getObjectType() == OId::MDDRCIXOID))
         {
-            RMDBGEXIT(11, RMDebug::module_adminif, "DBRef", "operator IndexDS*() " << objId);
             return (IndexDS*)object;
         }
     }
@@ -816,7 +741,6 @@ DBRef<T>::operator IndexDS*() const throw (r_Error)
     {
         if (objId.getType() == OId::MDDHIERIXOID)
         {
-            RMDBGEXIT(11, RMDebug::module_adminif, "DBRef", "operator IndexDS*() DBHierIndexId" << objId);
             DBRef<DBHierIndex> t(objId);
             return (IndexDS*)t.ptr();
         }
@@ -824,7 +748,6 @@ DBRef<T>::operator IndexDS*() const throw (r_Error)
         {
             if (objId.getType() == OId::DBTCINDEXOID)
             {
-                RMDBGEXIT(11, RMDebug::module_adminif, "DBRef", "operator IndexDS*() DBTCIndexId" << objId);
                 DBRef<DBTCIndex> t(objId);
                 return static_cast<IndexDS*>(t.ptr());
             }
@@ -832,15 +755,13 @@ DBRef<T>::operator IndexDS*() const throw (r_Error)
             {
                 if (objId.getType() == OId::MDDRCIXOID)
                 {
-                    RMDBGEXIT(11, RMDebug::module_adminif, "DBRef", "operator IndexDS*() DBRCIndexId" << objId);
                     DBRef<DBRCIndexDS> t(objId);
                     return static_cast<IndexDS*>(t.ptr());
                 }
             }
         }
     }
-    TALK( "DBRef::IndexDS*(): operator mismatch" << objId);
-    RMDBGEXIT(0, RMDebug::module_adminif, "DBRef", "operator IndexDS*() mismatch " << objId);
+    LDEBUG << "DBRef::IndexDS*(): operator mismatch" << objId;
     throw r_Error(r_Error::r_Error_DatabaseClassMismatch);
 }
 
@@ -848,7 +769,6 @@ DBRef<T>::operator IndexDS*() const throw (r_Error)
 template <class T>
 bool DBRef<T>::is_null(void) const
 {
-    RMDBGENTER(11, RMDebug::module_adminif, "DBRef", "is_null() " << objId);
     bool retval = false;
     T* t = 0;
     if (object == 0)
@@ -862,10 +782,10 @@ bool DBRef<T>::is_null(void) const
             try
             {
                 t = static_cast<T*>(ObjectBroker::getObjectByOId(objId));
-                RMDBGMIDDLE(11, RMDebug::module_adminif, "DBRef", "found object");
+                LTRACE << "found object";
                 t->incrementReferenceCount();
                 (const_cast<DBRef<T>*>(this))->object = t;
-                RMDBGMIDDLE(11, RMDebug::module_adminif, "DBRef", "object is at: " << object << " found object was at: " << t);
+                LTRACE << "object is at: " << object << " found object was at: " << t;
             }
             catch (r_Error& err)
             {
@@ -885,10 +805,10 @@ bool DBRef<T>::is_null(void) const
                 try
                 {
                     t = static_cast<T*>(ObjectBroker::getObjectByOId(objId));
-                    RMDBGMIDDLE(11, RMDebug::module_adminif, "DBRef", "found object");
+                    LTRACE << "found object";
                     t->incrementReferenceCount();
                     (const_cast<DBRef<T>*>(this))->object = t;
-                    RMDBGMIDDLE(11, RMDebug::module_adminif, "DBRef", "object is at: " << object << " found object was at: " << t);
+                    LTRACE << "object is at: " << object << " found object was at: " << t;
                 }
                 catch (r_Error& err)
                 {
@@ -908,6 +828,5 @@ bool DBRef<T>::is_null(void) const
             //retval = false; is done in initialize
         }
     }
-    RMDBGEXIT(11, RMDebug::module_adminif, "DBRef", "is_null() " << objId << " " << retval);
     return retval;
 }

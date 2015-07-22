@@ -36,8 +36,8 @@ rasdaman GmbH.
 #include "externs.h"
 #include "adminif.hh"
 #include "databaseif.hh"
-#include "raslib/rmdebug.hh"
 #include "raslib/error.hh"
+#include "../common/src/logging/easylogging++.hh"
 
 void
 EOId::print_status(std::ostream& s) const
@@ -65,13 +65,12 @@ EOId::EOId(const char* systemname, const char* dbname, OId::OIdCounter id, OId::
         databaseName(dbname),
         systemName(systemname)
 {
-    RMDBGONCE(10, RMDebug::module_adminif, "EOId", "EOId(" << systemname << "," << dbname << "," << id << "," << type << ")");
+    LTRACE << "EOId(" << systemname << "," << dbname << "," << id << "," << type << ")";
 }
 
 EOId::EOId(const OId& id)
     :   OId(id)
 {
-    RMDBGENTER(10, RMDebug::module_adminif, "EOId", "EOId(" << id << ")");
     if (AdminIf::getCurrentDatabaseIf())
     {
         systemName = (AdminIf::getSystemName());
@@ -79,16 +78,14 @@ EOId::EOId(const OId& id)
     }
     else
     {
-        RMDBGMIDDLE(10, RMDebug::module_adminif, "EOId", "EOId(" << id << ") no current databaseif");
+        LTRACE << "EOId(" << id << ") no current databaseif";
         throw r_Error(r_Error::r_Error_TransactionNotOpen);
     }
-    RMDBGEXIT(10, RMDebug::module_adminif, "EOId", "EOId(" << id << ")");
 }
 
 EOId::EOId()
     :   OId()
 {
-    RMDBGENTER(10, RMDebug::module_adminif, "EOId", "EOId()");
     if (AdminIf::getCurrentDatabaseIf())
     {
         systemName = (AdminIf::getSystemName());
@@ -96,21 +93,20 @@ EOId::EOId()
     }
     else
     {
-        RMDBGMIDDLE(10, RMDebug::module_adminif, "EOId", "EOId() no current databaseif");
+        LTRACE << "EOId() no current databaseif";
         throw r_Error(r_Error::r_Error_TransactionNotOpen);
     }
-    RMDBGEXIT(10, RMDebug::module_adminif, "EOId", "EOId()");
 }
 
 EOId::~EOId()
 {
-    RMDBGONCE(10, RMDebug::module_adminif, "EOId", "~EOId()");
+    LTRACE <<  "~EOId()";
 }
 
 const char*
 EOId::getSystemName() const
 {
-    RMDBGONCE(10, RMDebug::module_adminif, "EOId", "getSystemName() " << systemName.c_str());
+    LTRACE << "getSystemName() " << systemName.c_str();
     return systemName.c_str();
 }
 
@@ -118,7 +114,7 @@ EOId::getSystemName() const
 const char*
 EOId::getBaseName() const
 {
-    RMDBGONCE(10, RMDebug::module_adminif, "EOId", "getBaseName() " << databaseName.c_str());
+    LTRACE << "getBaseName() " << databaseName.c_str();
     return databaseName.c_str();
 }
 
@@ -126,7 +122,7 @@ EOId::getBaseName() const
 OId
 EOId::getOId() const
 {
-    RMDBGONCE(10, RMDebug::module_adminif, "EOId", "getOId() " << (OId)*this);
+    LTRACE << "getOId() " << (OId)*this;
     return static_cast<OId>(*this);
 }
 
@@ -134,7 +130,6 @@ EOId::getOId() const
 void
 EOId::allocateEOId(EOId& eoid, OId::OIdType t) throw (r_Error)
 {
-    RMDBGENTER(10, RMDebug::module_adminif, "EOId", "allocateEOId(" << eoid << "," << t << ")");
     if (AdminIf::getCurrentDatabaseIf())
     {
         eoid.systemName = AdminIf::getSystemName();
@@ -142,17 +137,16 @@ EOId::allocateEOId(EOId& eoid, OId::OIdType t) throw (r_Error)
     }
     else
     {
-        RMDBGMIDDLE(10, RMDebug::module_adminif, "EOId", "allocateEOId(" << eoid << ") no current databaseif");
+        LTRACE << "allocateEOId(" << eoid << ") no current databaseif";
         throw r_Error(r_Error::r_Error_TransactionNotOpen);
     }
     allocateOId(eoid, t);
-    RMDBGEXIT(10, RMDebug::module_adminif, "EOId", "allocateEOId(" << eoid << "," << t << ")");
 }
 
 bool
 EOId::operator==(const EOId& one) const
 {
-    RMDBGONCE(10, RMDebug::module_adminif, "EOId", "operator==(" << one << ")");
+    LTRACE << "operator==(" << one << ")";
     bool retval=false;
     if(OId::operator==(one))
         if(systemName == one.systemName)
@@ -164,14 +158,14 @@ EOId::operator==(const EOId& one) const
 bool
 EOId::operator!=(const EOId& one) const
 {
-    RMDBGONCE(10, RMDebug::module_adminif, "EOId", "operator!=(" << one << ")");
+    LTRACE << "operator!=(" << one << ")";
     return !EOId::operator==(one);
 }
 
 EOId&
 EOId::operator=(const EOId& old)
 {
-    RMDBGONCE(10, RMDebug::module_adminif, "EOId", "operator=(" << old << ")");
+    LTRACE << "operator=(" << old << ")";
     if(this != &old)
     {
         OId::operator=(old);
@@ -184,7 +178,7 @@ EOId::operator=(const EOId& old)
 bool
 EOId::operator<(const EOId& old) const
 {
-    RMDBGONCE(10, RMDebug::module_adminif, "EOId", "operator<(" << old << ")");
+    LTRACE << "operator<(" << old << ")";
     bool retval=false;
     if (OId::operator<(old))
         retval=true;
@@ -198,7 +192,7 @@ EOId::operator<(const EOId& old) const
 bool
 EOId::operator>(const EOId& old) const
 {
-    RMDBGONCE(10, RMDebug::module_adminif, "EOId", "operator>(" << old << ")");
+    LTRACE << "operator>(" << old << ")";
     bool retval=false;
     if (OId::operator>(old))
         retval=true;
@@ -212,7 +206,7 @@ EOId::operator>(const EOId& old) const
 bool
 EOId::operator<=(const EOId& old) const
 {
-    RMDBGONCE(10, RMDebug::module_adminif, "EOId", "operator<=(" << old << ")");
+    LTRACE << "operator<=(" << old << ")";
     bool retval=false;
     if (operator<(old))
         retval=true;
@@ -224,7 +218,7 @@ EOId::operator<=(const EOId& old) const
 bool
 EOId::operator>=(const EOId& old) const
 {
-    RMDBGONCE(10, RMDebug::module_adminif, "EOId", "operator<=(" << old << ")");
+    LTRACE << "operator<=(" << old << ")";
     bool retval=false;
     if (operator>(old))
         retval=true;

@@ -24,14 +24,14 @@ rasdaman GmbH.
 #include "dbobjectiditerator.hh"
 #include "objectbroker.hh"
 #include "dbref.hh"
-#include "raslib/rmdebug.hh"
+#include "../common/src/logging/easylogging++.hh"
 
 template<class T>
 DBObjectIdIterator<T>::DBObjectIdIterator(const DBObjectIdIterator<T>& oidlist)
     :   mySet(NULL),
         counter(0)
 {
-    RMDBGONCE(7, RMDebug::module_adminif, "DBObjectIdIterator", "DBObjectIdIterator(const DBObjectIdIterator<T>&)");
+    LTRACE << "DBObjectIdIterator(const DBObjectIdIterator<T>&)";
     mySet = oidlist.mySet;
     myIter = mySet->begin();
 }
@@ -41,7 +41,7 @@ DBObjectIdIterator<T>::DBObjectIdIterator(const std::set<DBRef<T>, std::less<DBR
     :   mySet(NULL),
         counter(0)
 {
-    RMDBGONCE(7, RMDebug::module_adminif, "DBObjectIdIterator", "DBObjectIdIterator(OIdSet)");
+    LTRACE << "DBObjectIdIterator(OIdSet)";
     mySet = const_cast<std::set<DBRef<T>, std::less<DBRef<T> > >*>(&oidlist);
     myIter = mySet->begin();
 }
@@ -49,7 +49,7 @@ DBObjectIdIterator<T>::DBObjectIdIterator(const std::set<DBRef<T>, std::less<DBR
 template<class T> void
 DBObjectIdIterator<T>::reset()
 {
-    RMDBGONCE(7, RMDebug::module_adminif, "DBObjectIdIterator","reset()");
+    LTRACE << "reset()";
     myIter = mySet->begin();
     counter = 0;
 }
@@ -57,7 +57,6 @@ DBObjectIdIterator<T>::reset()
 template<class T> bool
 DBObjectIdIterator<T>::not_done() const
 {
-    RMDBGENTER(7, RMDebug::module_adminif, "DBObjectIdIterator","not_done()");
     bool retval = false;
     if (myIter == mySet->end())
     {
@@ -74,14 +73,13 @@ DBObjectIdIterator<T>::not_done() const
             retval = true;
         }
     }
-    RMDBGEXIT(7, RMDebug::module_adminif, "DBObjectIdIterator","not_done() " << retval);
     return retval;
 }
 
 template<class T> void
 DBObjectIdIterator<T>::advance()
 {
-    RMDBGONCE(7, RMDebug::module_adminif, "DBObjectIdIterator","advance() " << counter);
+    LTRACE << "advance() " << counter;
     myIter++;
     counter++;
 }
@@ -89,14 +87,14 @@ DBObjectIdIterator<T>::advance()
 template<class T> DBRef<T>
 DBObjectIdIterator<T>::get_element() const
 {
-    RMDBGONCE(7, RMDebug::module_adminif, "DBObjectIdIterator", "get_element() " << (*myIter).getOId());
+    LTRACE << "get_element() " << (*myIter).getOId();
     return (*myIter);
 }
 
 template<class T>
 DBObjectIdIterator<T>::~DBObjectIdIterator()
 {
-    RMDBGONCE(7, RMDebug::module_adminif, "DBObjectIdIterator", "~DBObjectIdIterator()");
+    LTRACE << "~DBObjectIdIterator()";
     mySet = NULL;
     counter = 0;
 }

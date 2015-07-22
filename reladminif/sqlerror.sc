@@ -41,9 +41,9 @@ rasdaman GmbH.
 #include "sqlerror.hh"
 #include "externs.h"
 
-#include "raslib/rmdebug.hh"
 #include "raslib/error.hh"
 #include "debug-srv.hh"
+#include "../common/src/logging/easylogging++.hh"
 
 // general message buffer size
 #define BUFFER_SIZE 4000
@@ -90,9 +90,8 @@ failOnError(const char *stmt, sqlite3 *sqliteConn) throw (r_Error)
 {
     if (is_error(sqliteConn))
     {
-        RMInit::logOut << "SQL query failed: " << stmt << endl;
-        RMInit::logOut << "Database error, code: " << error_code <<
-                ", message: " << error_message << endl;
+        LFATAL << "SQL query failed: " << stmt;
+        LFATAL << "Database error, code: " << error_code << ", message: " << error_message;
         throw r_Ebase_dbms( error_code, error_message );
     }
 }
@@ -102,8 +101,7 @@ warnOnError(const char *stmt, sqlite3 *sqliteConn) throw (r_Error)
 {
     if (is_error(sqliteConn))
     {
-        RMInit::logOut << "SQL query failed: " << stmt << endl;
-        RMInit::logOut << "Database warning, code: " << error_code <<
-                ", message: " << error_message << endl;
+        LERROR << "SQL query failed: " << stmt;
+        LERROR << "Database warning, code: " << error_code << ", message: " << error_message;
     }
 }

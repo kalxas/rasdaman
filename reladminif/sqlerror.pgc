@@ -49,9 +49,9 @@ static const char rcsid[] = "@(#)reladminif,SQLError: $Id: sqlerror.ec,v 1.4 200
 #include "sqlerror.hh"
 #include "externs.h"
 
-#include "raslib/rmdebug.hh"
 #include "raslib/error.hh"
 #include "debug-srv.hh"
+#include "../common/src/logging/easylogging++.hh"
 
 // general embedded SQL related definitions
 EXEC SQL include "sqlglobals.h";
@@ -117,7 +117,7 @@ void disp_sqlstate_err(char* msgbuf, size_t length)
     characters_written = strlen(error_buffer);
     if (characters_written > length)
     {
-        RMInit::logOut << "error message didn't fit into buffer: " << error_buffer << endl;
+        LERROR << "error message didn't fit into buffer: " << error_buffer;
     }
     else
     {
@@ -136,7 +136,7 @@ void disp_error(const char* stmt, char* msgbuf, size_t length)
     size_t error_len = strlen(error_buffer);
 
     if (error_len > length)
-        RMInit::logOut << "error message didn't fit into buffer: " << error_buffer << endl;
+        LERROR << "error message didn't fit into buffer: " << error_buffer;
     else
     {
         strcat(msgbuf, error_buffer);
@@ -164,7 +164,7 @@ char* disp_exception(const char* stmt, int sqlerr_code)
         disp_error(stmt, msgbuf, BUFFER_SIZE);
         break;
     default:
-        RMInit::logOut << "Invalid exception state for " << stmt << " " << sqlerr_code << endl;
+        LERROR << "Invalid exception state for " << stmt << " " << sqlerr_code;
         break;
     }
     return msgbuf;
@@ -180,7 +180,7 @@ check(const char* stmt) throw (r_Error)
     char* msg = disp_exception(stmt, sqlstate_err());
     if (msg != NULL)
     {
-        RMInit::logOut << msg << endl;
+        LERROR << msg;
         snprintf(lastErrorMsg, LASTERRORMSGLEN,"%s\n" , msg);
         delete [] msg;
         msg = NULL;
@@ -192,8 +192,8 @@ check(const char* stmt) throw (r_Error)
 void
 generateException() throw (r_Error)
 {
-    TALK( "Throwing Exception (SQLCODE=" << SQLCODE << "): " << lastErrorMsg );
-    RMInit::logOut << "Throwing Exception (SQLCODE=" << SQLCODE << "): " << lastErrorMsg << endl;
+    LDEBUG << "Throwing Exception (SQLCODE=" << SQLCODE << "): " << lastErrorMsg;
+    LFATAL << "Throwing Exception (SQLCODE=" << SQLCODE << "): " << lastErrorMsg;
     throw r_Ebase_dbms( SQLCODE, lastErrorMsg );
 } // generateException()
 

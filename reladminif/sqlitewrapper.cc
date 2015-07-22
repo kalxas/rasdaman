@@ -36,6 +36,7 @@ rasdaman GmbH.
 #include <cstdarg>
 #include <cstdio>
 #include <bool.h>
+#include "../common/src/logging/easylogging++.hh"
 
 extern sqlite3* sqliteConn;
 
@@ -45,7 +46,7 @@ stmt(NULL), columnCounter(0)
     query = query;
     sqlite3_prepare_v2(sqliteConn, q, -1, &stmt, NULL);
     //RMInit::logOut << "SQL query: " << query << endl;
-    TALK("SQL query: " << query);
+    LDEBUG << "SQL query: " << query;
 }
 
 SQLiteQuery::SQLiteQuery(const char *format, ...) :
@@ -59,7 +60,7 @@ stmt(NULL), columnCounter(0)
     query = q;
     sqlite3_prepare_v2(sqliteConn, query, -1, &stmt, NULL);
     //RMInit::logOut << "SQL query: " << query << endl;
-    TALK("SQL query: " << query);
+    LDEBUG << "SQL query: " << query;
 }
 
 SQLiteQuery::~SQLiteQuery()
@@ -121,7 +122,7 @@ void SQLiteQuery::execute(int fail)
 void SQLiteQuery::execute(const char* query)
 {
     //RMInit::logOut << "SQL query: " << query << endl;
-    TALK("SQL query: " << query);
+    LDEBUG << "SQL query: " << query;
     sqlite3_exec(sqliteConn, query, 0, 0, 0);
     failOnError(query, sqliteConn);
 }
@@ -134,7 +135,7 @@ void SQLiteQuery::executeWithParams(const char* format, ...)
     vsnprintf(query, QUERY_MAXLEN, format, args);
     va_end(args);
     //RMInit::logOut << "SQL query: " << query << endl;
-    TALK("SQL query: " << query);
+    LDEBUG << "SQL query: " << query;
     sqlite3_exec(sqliteConn, query, 0, 0, 0);
     failOnError(query, sqliteConn);
 }

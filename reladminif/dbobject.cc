@@ -46,9 +46,10 @@ using namespace std;
 #include "dbobject.hh"
 #include "adminif.hh"
 #include "externs.h"
-#include "raslib/rmdebug.hh"
 #include "raslib/error.hh"
 #include "eoid.hh"
+
+#include "../common/src/logging/easylogging++.hh"
 
 #ifdef RMANBENCHMARK
 RMTimer DBObject::readTimer = RMTimer("DBObject","read");
@@ -89,21 +90,20 @@ DBObject::getMemorySize() const
 void
 DBObject::setCached(bool newCached)
 {
-    RMDBGONCE(10, RMDebug::module_adminif, "DBObject", "setCached(" << (int)newCached << ") " << myOId);
+    LTRACE << "setCached(" << (int)newCached << ") " << myOId;
     _isCached = newCached;
 }
 
 bool
 DBObject::isCached() const
 {
-    RMDBGONCE(10, RMDebug::module_adminif, "DBObject", "isCached()" << (int) _isCached)
+    LTRACE << "isCached()" << (int) _isCached;
     return _isCached;
 }
 
 void
 DBObject::destroy()
 {
-    RMDBGENTER(10, RMDebug::module_adminif, "DBObject", "destroy() " << myOId);
 #ifdef RMANDEBUG
     OId tempid(myOId);
 #endif
@@ -114,43 +114,38 @@ DBObject::destroy()
             //exception may be possible when !isModified()
             if (!AdminIf::isReadOnlyTA())
             {
-                RMDBGMIDDLE(10, RMDebug::module_adminif, "DBObject", "deleting object " << myOId);
+                LTRACE << "deleting object " << myOId;
                 delete this;//is dynamic and may be deleted
             }
             else
             {
                 if (!_isPersistent)
                 {
-                    RMDBGMIDDLE(10, RMDebug::module_adminif, "DBObject", "deleting object " << myOId);
+                    LTRACE << "deleting object " << myOId;
                     //is dynamic and may be deleted
                     delete this;
                 }
             }
         }
     }
-#ifdef RMANDEBUG
-    RMDBGEXIT(10, RMDebug::module_adminif, "DBObject", "destroy() " << tempid);
-#else
-    RMDBGEXIT(10, RMDebug::module_adminif, "DBObject", "destroy()");
-#endif
 }
 
 void
 DBObject::release()
 {
-    RMDBGONCE(10, RMDebug::module_adminif, "DBObject", "release() ");
+    LTRACE << "release() ";
     //no dynamic memory
 }
 
 void DBObject::incrementReferenceCount(void)
 {
-    RMDBGONCE(10, RMDebug::module_adminif, "DBObject", "incrementReferenceCount() " << referenceCount);
+    LTRACE << "incrementReferenceCount() " << referenceCount;
     referenceCount++;
 }
 
 void DBObject::decrementReferenceCount(void)
 {
-    RMDBGONCE(10, RMDebug::module_adminif, "DBObject", "decrementReferenceCount() " <<referenceCount);
+    LTRACE << "decrementReferenceCount() " <<referenceCount;
     referenceCount--;
     if (referenceCount == 0)
         destroy();
@@ -159,7 +154,7 @@ void DBObject::decrementReferenceCount(void)
 int
 DBObject::getReferenceCount(void) const
 {
-    RMDBGONCE(10, RMDebug::module_adminif, "DBObject", "getReferenceCount() " <<referenceCount);
+    LTRACE << "getReferenceCount() " <<referenceCount;
     return referenceCount;
 }
 
@@ -173,7 +168,7 @@ DBObject::DBObject()
         objecttype(OId::INVALID),
         referenceCount(0)
 {
-    RMDBGONCE(10, RMDebug::module_adminif, "DBObject", "DBObject() " << myOId);
+    LTRACE << "DBObject() " << myOId;
 }
 
 DBObject::DBObject(const DBObject& old)
@@ -185,7 +180,7 @@ DBObject::DBObject(const DBObject& old)
         objecttype(old.objecttype),
         referenceCount(old.referenceCount)
 {
-    RMDBGONCE(10, RMDebug::module_adminif, "DBObject", "DBObject(const DBObject& old)" << myOId);
+    LTRACE << "DBObject(const DBObject& old)" << myOId;
 }
 
 //constructs an object and reads it from the database.  the oid must match the type of the object.
@@ -197,13 +192,13 @@ DBObject::DBObject(const OId& id) throw (r_Error)
         referenceCount(0)
 {
     //flags must be set by readFromDb()
-    RMDBGONCE(10, RMDebug::module_adminif, "DBObject", "DBObject(" << myOId << ")");
+    LTRACE << "DBObject(" << myOId << ")";
 }
 
 DBObject&
 DBObject::operator=(const DBObject& old)
 {
-    RMDBGONCE(10, RMDebug::module_adminif, "DBObject", "operator=(" << old.myOId << ")");
+    LTRACE << "operator=(" << old.myOId << ")";
     if (this != &old)
     {
         _isPersistent = old._isPersistent;
@@ -221,7 +216,6 @@ DBObject::operator=(const DBObject& old)
 void
 DBObject::setPersistent(bool newPersistent) throw (r_Error)
 {
-    RMDBGENTER(6, RMDebug::module_adminif, "DBObject", "setPersistent(" << (int)newPersistent << ") " << myOId);
     if (newPersistent)
     {
         //make object persistent
@@ -235,18 +229,17 @@ DBObject::setPersistent(bool newPersistent) throw (r_Error)
                 _isPersistent = true;
                 _isModified = true;
                 ObjectBroker::registerDBObject(this);
-                RMDBGMIDDLE(6, RMDebug::module_adminif, "DBObject", "persistent\t: yes, was not persistent");
+                LTRACE << "persistent\t: yes, was not persistent";
             }
             else     //read only transaction
             {
-                RMDBGEXIT(6, RMDebug::module_adminif, "DBObject", "ReadOnlyTransaction");
-                RMInit::logOut << "DBObject::setPersistent() read only transaction" << endl;
+                LFATAL << "DBObject::setPersistent() read only transaction";
                 throw r_Error(r_Error::r_Error_TransactionReadOnly);
             }
         }
         else     //is already persitent
         {
-            RMDBGMIDDLE(6, RMDebug::module_adminif, "DBObject", "persistent\t: yes, was already persistent");
+            LTRACE << "persistent\t: yes, was already persistent";
         }
     }
     else     //delete the object from database
@@ -256,30 +249,28 @@ DBObject::setPersistent(bool newPersistent) throw (r_Error)
             if (!AdminIf::isReadOnlyTA())
             {
                 //may be deleted to database
-                RMDBGMIDDLE(6, RMDebug::module_adminif, "DBObject", "persistent\t: no, was persistent");
+                LTRACE << "persistent\t: no, was persistent";
                 _isPersistent = false;
                 _isModified = true;
             }
             else     //read only transaction
             {
-                RMDBGEXIT(6, RMDebug::module_adminif, "DBObject", "ReadOnlyTransaction");
-                RMInit::logOut << "DBObject::setPersistent() read only transaction" << endl;
+                LFATAL << "DBObject::setPersistent() read only transaction";
                 throw r_Error(r_Error::r_Error_TransactionReadOnly);
             }
         }
         else
         {
-            RMDBGMIDDLE(6, RMDebug::module_adminif, "DBObject", "persistent\t: no, was not persistent");
+            LTRACE << "persistent\t: no, was not persistent";
         }
     }
-    RMDBGEXIT(6, RMDebug::module_adminif, "DBObject", "setPersistent(" << (int)newPersistent << ") " << myOId);
 }
 
 //tells if an object is persistent.
 bool
 DBObject::isPersistent() const
 {
-    RMDBGONCE(6, RMDebug::module_adminif, "DBObject", "isPersistent()" << (int)_isPersistent);
+    LTRACE << "isPersistent()" << (int)_isPersistent;
     return _isPersistent;
 }
 
@@ -288,7 +279,6 @@ DBObject::isPersistent() const
 void
 DBObject::validate() throw (r_Error)
 {
-    RMDBGENTER(9, RMDebug::module_adminif, "DBObject", "validate() " << myOId);
     if (_isModified)
     {
         if (!AdminIf::isReadOnlyTA())
@@ -299,7 +289,7 @@ DBObject::validate() throw (r_Error)
                 {
                     if (_isPersistent)
                     {
-                        RMDBGMIDDLE(11, RMDebug::module_adminif, "DBObject", "is persistent and modified and in database");
+                        LTRACE << "is persistent and modified and in database";
 #ifdef RMANBENCHMARK
                         updateTimer.resume();
 #endif
@@ -310,7 +300,7 @@ DBObject::validate() throw (r_Error)
                     }
                     else
                     {
-                        RMDBGMIDDLE(11, RMDebug::module_adminif, "DBObject", "is not persistent and in database");
+                        LTRACE << "is not persistent and in database";
 #ifdef RMANBENCHMARK
                         deleteTimer.resume();
 #endif
@@ -324,7 +314,7 @@ DBObject::validate() throw (r_Error)
                 {
                     if (_isPersistent)
                     {
-                        RMDBGMIDDLE(11, RMDebug::module_adminif, "DBObject", "is persistent and modified and not in database");
+                        LTRACE << "is persistent and modified and not in database";
 
 #ifdef RMANBENCHMARK
                         insertTimer.resume();
@@ -354,113 +344,100 @@ DBObject::validate() throw (r_Error)
     {
         //do not do anything: not modified
     }
-    RMDBGEXIT(9, RMDebug::module_adminif, "DBObject", "validate() " << myOId);
 }
 
 void
 DBObject::setModified() throw (r_Error)
 {
-    RMDBGENTER(8, RMDebug::module_adminif, "DBObject", "setModified() " << myOId);
     if (!AdminIf::isReadOnlyTA())
         _isModified = true;
     else
     {
-        RMDBGMIDDLE(5, RMDebug::module_adminif, "DBObject", "readonly transaction " << myOId);
+        LTRACE << "readonly transaction " << myOId;
         //this happens really a lot.
-        //RMInit::logOut << "DBObject::setModified() read only transaction" << endl;
+        //LFATAL << "DBObject::setModified() read only transaction";
         //throw r_Error(r_Error::r_Error_TransactionReadOnly);
         _isModified = true;
     }
-    RMDBGEXIT(8, RMDebug::module_adminif, "DBObject", "setModified() " << myOId);
 }
 
 bool
 DBObject::isModified() const
 {
-    RMDBGONCE(8, RMDebug::module_adminif, "DBObject", "isModified() " << (int)_isModified);
+    LTRACE << "isModified() " << (int)_isModified;
     return _isModified;
 }
 
 OId
 DBObject::getOId() const
 {
-    RMDBGONCE(8, RMDebug::module_adminif, "DBObject", "getOId() " << myOId);
+    LTRACE << "getOId() " << myOId;
     return myOId;
 }
 
 EOId
 DBObject::getEOId() const
 {
-    RMDBGONCE(8, RMDebug::module_adminif, "DBObject", "getEOId() " << myOId);
+    LTRACE << "getEOId() " << myOId;
     return EOId(myOId);
 }
 
 OId::OIdType
 DBObject::getObjectType() const
 {
-    RMDBGONCE(8, RMDebug::module_adminif, "DBObject", "getObjectType() " << objecttype);
+    LTRACE << "getObjectType() " << objecttype;
     return objecttype;
 }
 
 DBObject::~DBObject()
 {
-    RMDBGENTER(10, RMDebug::module_adminif, "DBObject", "~DBObject() " << myOId);
     ObjectBroker::deregisterDBObject(myOId);
-    RMDBGEXIT(10, RMDebug::module_adminif, "DBObject", "~DBObject() " << myOId);
 }
 
 void
 DBObject::updateInDb() throw (r_Error)
 {
-    RMDBGENTER(10, RMDebug::module_adminif, "DBObject", "updateInDb() " << myOId);
     _isModified = false;
     _isInDatabase = true;
     _isPersistent = true;
-    RMDBGEXIT(10, RMDebug::module_adminif, "DBObject", "updateInDb() " << myOId);
 }
 
 //writes the object into the database.  the object must not be in the database.
 void
 DBObject::insertInDb() throw (r_Error)
 {
-    RMDBGENTER(10, RMDebug::module_adminif, "DBObject", "insertInDb() " << myOId);
     _isModified = false;
     _isInDatabase = true;
     _isPersistent = true;
-    RMDBGEXIT(10, RMDebug::module_adminif, "DBObject", "insertInDb() " << myOId);
 }
 
 void
 DBObject::deleteFromDb() throw (r_Error)
 {
-    RMDBGENTER(10, RMDebug::module_adminif, "DBObject", "deleteFromDb() " << myOId);
     _isModified = false;
     _isInDatabase = false;
     _isPersistent = false;
-    RMDBGEXIT(10, RMDebug::module_adminif, "DBObject", "deleteFromDb() " << myOId);
 }
 
 void
 DBObject::readFromDb() throw (r_Error)
 {
-    RMDBGENTER(10, RMDebug::module_adminif, "DBObject", "readFromDb() " << myOId);
     _isPersistent = true;
     _isModified = false;
     _isInDatabase = true;
-    RMDBGEXIT(10, RMDebug::module_adminif, "DBObject", "readFromDb() " << myOId);
 }
 
 BinaryRepresentation
 DBObject::getBinaryRepresentation() const throw (r_Error)
 {
-    RMInit::logOut << "getBinaryRepresentation() for " << objecttype << " not implemented" << endl;
+    LFATAL << "getBinaryRepresentation() for " << objecttype << " not implemented";
     throw r_Error(BINARYEXPORTNOTSUPPORTEDFOROBJECT);
 }
 
 void
 DBObject::setBinaryRepresentation(__attribute__ ((unused)) const BinaryRepresentation& br) throw (r_Error)
 {
-    RMInit::logOut << "setBinaryRepresentation() for " << objecttype << " not implemented" << endl;
+    LFATAL << "setBinaryRepresentation() for " << objecttype << " not implemented";
     throw r_Error(BINARYIMPORTNOTSUPPORTEDFOROBJECT);
 }
 

@@ -48,11 +48,12 @@ rasdaman GmbH.
 #include "databaseif.hh"
 #include "adminif.hh"
 #include "raslib/rminit.hh"
-#include "raslib/rmdebug.hh"
 #include "externs.h"
 #include "sqlerror.hh"
 #include "raslib/error.hh"
 #include "relcatalogif/alltypes.hh"
+
+#include "../common/src/logging/easylogging++.hh"
 
 // defined in rasserver.cc
 extern char globalConnectId[256];
@@ -61,7 +62,6 @@ const char* DatabaseIf::DefaultDatabaseName = DEFAULT_DBNAME;
 
 DatabaseIf::~DatabaseIf()
 {
-    RMDBGENTER(4, RMDebug::module_adminif, "DatabaseIf", "~DatabaseIf()");
     if (isConnected())
     {
         baseDBMSClose();
@@ -74,31 +74,28 @@ DatabaseIf::~DatabaseIf()
 
     connected = false;
     opened = false;
-    RMDBGEXIT(4, RMDebug::module_adminif, "DatabaseIf", "~DatabaseIf()");
 }
 
 bool
 DatabaseIf::isConnected() const
 {
-    RMDBGONCE(4, RMDebug::module_adminif, "DatabaseIf", "isConnected() " << connected);
+    LTRACE << "isConnected() " << connected;
     return connected;
 }
 
 bool
 DatabaseIf::isOpen() const
 {
-    RMDBGONCE(4, RMDebug::module_adminif, "DatabaseIf", "isOpen() " << opened);
+    LTRACE << "isOpen() " << opened;
     return opened;
 }
 
 void
 DatabaseIf::open(const char* dbName) throw(r_Error)
 {
-    RMDBGENTER(4, RMDebug::module_adminif, "DatabaseIf", "open(" << dbName << ")");
-
     if (opened)
     {
-        RMDBGMIDDLE(4, RMDebug::module_adminif, "DatabaseIf", "another database is already open");
+        LTRACE << "another database is already open";
         throw r_Error(r_Error::r_Error_DatabaseOpen);
     }
     else
@@ -106,8 +103,8 @@ DatabaseIf::open(const char* dbName) throw(r_Error)
         //cannot do any further error checking
         if ( 0 ) // we allow any other database name -- strcmp(dbName, DefaultDatabaseName))
         {
-            RMDBGMIDDLE(4, RMDebug::module_adminif, "DatabaseIf", "database name unknown");
-            RMInit::logOut << "b_DatabaseIf::open(" << dbName << ") dbName=" << dbName << std::endl;
+            LTRACE << "database name unknown";
+            LFATAL << "b_DatabaseIf::open(" << dbName << ") dbName=" << dbName;
             throw r_Error(r_Error::r_Error_DatabaseUnknown);
         }
         else
@@ -116,25 +113,23 @@ DatabaseIf::open(const char* dbName) throw(r_Error)
             myName = strdup(dbName);
         }
     }
-    RMDBGEXIT(4, RMDebug::module_adminif, "DatabaseIf", "open(" << dbName << ")");
 }
 
 void
 DatabaseIf::baseDBMSOpen() throw (r_Error)
 {
-    RMDBGENTER(4, RMDebug::module_adminif, "DatabaseIf", "baseDBMSOpen() " << ((myName)? myName:"NULL"));
     if (connected)
     {
-        RMDBGMIDDLE(4, RMDebug::module_adminif, "DatabaseIf", "databasename is already connected");
+        LTRACE << "databasename is already connected";
         throw r_Error(r_Error::r_Error_TransactionOpen);
     }
 #ifdef RMANDEBUG
     if (AdminIf::getCurrentDatabaseIf())
     {
-        RMDBGMIDDLE(0, RMDebug::module_adminif, "DatabaseIf", "baseDBMSOpen() CurrentDatabaseIf != 0");
-        RMInit::logOut << "Transaction begin:" << std::endl \
-                       << "There seems to be another database connection active (Internal State 1)." << std::endl \
-                       << "Please contact Customer support." << std::endl;
+        LTRACE << "baseDBMSOpen() CurrentDatabaseIf != 0";
+        LFATAL << "Transaction begin:\n" \
+                       << "There seems to be another database connection active (Internal State 1).\n" \
+                       << "Please contact Customer support.";
         throw r_Error(DATABASE_OPEN);
     }
 #endif
@@ -145,7 +140,7 @@ DatabaseIf::baseDBMSOpen() throw (r_Error)
 #ifdef DBMS_PGSQL // cannot have this check in PostgreSQL -- PB 2005-jan-09
     if (!databaseExists(myName))
     {
-        RMInit::logOut << "Database " << ((myName)? myName: "NULL") << " unknown" << std::endl;
+        LFATAL << "Database " << ((myName)? myName: "NULL") << " unknown";
         throw r_Error(r_Error::r_Error_DatabaseUnknown);
     }
 #endif // DBMS_PGSQL
@@ -159,17 +154,15 @@ DatabaseIf::baseDBMSOpen() throw (r_Error)
     checkCompatibility();
     if (!isConsistent())
     {
-        RMInit::logOut << "Database " << ((myName)? myName: "NULL") << " inconsistent" << std::endl;
+        LFATAL << "Database " << ((myName)? myName: "NULL") << " inconsistent";
         throw r_Error(DATABASE_INCONSISTENT);
     }
 #endif
-    RMDBGEXIT(4, RMDebug::module_adminif, "DatabaseIf", "baseDBMSOpen()");
 }
 
 void
 DatabaseIf::close()
 {
-    RMDBGENTER(4, RMDebug::module_adminif, "DatabaseIf", "close()");
     opened = false;
     if (myName)
     {
@@ -181,13 +174,11 @@ DatabaseIf::close()
         disconnect();
         connected = false;
     }
-    RMDBGEXIT(4, RMDebug::module_adminif, "DatabaseIf", "close()");
 }
 
 void
 DatabaseIf::baseDBMSClose()
 {
-    RMDBGENTER(4, RMDebug::module_adminif, "DatabaseIf", "baseDBMSClose()");
 #ifdef RMANDEBUG
     if (AdminIf::getCurrentDatabaseIf() == this)
     {
@@ -198,12 +189,11 @@ DatabaseIf::baseDBMSClose()
     else
     {
         //this happens when a transaction is killed by the server
-        RMDBGONCE(0, RMDebug::module_adminif, "DatabaseIf", "baseDBMSClose() current DatabaseIf != this");
+        LTRACE << "baseDBMSClose() current DatabaseIf != this";
     }
 #endif
     disconnect();
     connected = false;
-    RMDBGEXIT(4, RMDebug::module_adminif, "DatabaseIf", "baseDBMSClose()");
 }
 
 DatabaseIf::DatabaseIf()
@@ -212,13 +202,13 @@ DatabaseIf::DatabaseIf()
         connected(false)
 
 {
-    RMDBGONCE(4, RMDebug::module_adminif, "DatabaseIf", "DatabaseIf()");
+    LTRACE << "DatabaseIf()";
 }
 
 const char*
 DatabaseIf::getName() const
 {
-    RMDBGONCE(4, RMDebug::module_adminif, "DatabaseIf", "getName() " << ((myName)? myName:"NULL"));
+    LTRACE << "getName() " << ((myName)? myName:"NULL");
     return myName;
 }
 
@@ -248,6 +238,6 @@ operator << (ostream& stream, DatabaseIf& db)
 void
 DatabaseIf::garbage( )
 {
-    RMDBGONCE(0,    RMDebug::module_adminif, "DatabaseIf", "garbage() NOT IMPLEMENTED");
+    LTRACE << "garbage() NOT IMPLEMENTED";
 }
 

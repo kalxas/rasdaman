@@ -38,7 +38,6 @@ rasdaman GmbH.
 #include "sqlitewrapper.hh"
 
 #include "transactionif.hh"
-#include "raslib/rmdebug.hh"
 #include "adminif.hh"
 #include "oidif.hh"
 #include "catalogmgr/typefactory.hh"
@@ -46,13 +45,11 @@ rasdaman GmbH.
 #include "objectbroker.hh"
 #include "databaseif.hh"
 #include "dbobject.hh"
+#include "../common/src/logging/easylogging++.hh"
 
 void
 TransactionIf::begin( bool readOnly ) throw ( r_Error )
 {
-    RMDBGENTER(2, RMDebug::module_adminif, "TransactionIf", "begin(" << readOnly << ")");
-    ENTER( "TransactionIf::begin, readOnly=" << readOnly );
-
     isReadOnly = readOnly;
     AdminIf::setAborted(false);
     AdminIf::setReadOnlyTA(readOnly);
@@ -87,40 +84,34 @@ TransactionIf::begin( bool readOnly ) throw ( r_Error )
 
     OId::initialize();
     TypeFactory::initialize();
-
-    LEAVE( "TransactionIf::begin" );
-    RMDBGEXIT(2, RMDebug::module_adminif, "TransactionIf", "begin(" << readOnly << ") ");
 }
 
 void
 TransactionIf::commit() throw (  r_Error  )
 {
-    RMDBGENTER(2, RMDebug::module_adminif, "TransactionIf", "commit()");
-    ENTER( "TransactionIf::commit" );
-
     if (isReadOnly)
     {
-        RMDBGMIDDLE(9, RMDebug::module_adminif, "TransactionIf", "read only: aborting");
-        TALK( "TA is readonly: aborting" );
+        LTRACE << "read only: aborting";
+        LDEBUG << "TA is readonly: aborting";
         abort();
     }
     else
     {
         AdminIf::setAborted(false);
-        RMDBGMIDDLE(9, RMDebug::module_adminif, "TransactionIf", "set aborted false");
+        LTRACE << "set aborted false";
         TypeFactory::freeTempTypes();
-        RMDBGMIDDLE(9, RMDebug::module_adminif, "TransactionIf", "freed temp types");
+        LTRACE << "freed temp types";
         ObjectBroker::clearBroker();
-        RMDBGMIDDLE(9, RMDebug::module_adminif, "TransactionIf", "cleared broker");
+        LTRACE << "cleared broker";
         OId::deinitialize();
-        RMDBGMIDDLE(9, RMDebug::module_adminif, "TransactionIf", "wrote oid counters");
+        LTRACE << "wrote oid counters";
         AdminIf::setReadOnlyTA(false);
-        RMDBGMIDDLE(9, RMDebug::module_adminif, "TransactionIf", "committing");
+        LTRACE << "committing";
 
         SQLiteQuery::execute("COMMIT TRANSACTION");
         if (lastBase)
         {
-            RMDBGMIDDLE(9, RMDebug::module_adminif, "TransactionIf", "closing dbms");
+            LTRACE << "closing dbms";
             lastBase->baseDBMSClose();
         }
     }
@@ -139,16 +130,11 @@ TransactionIf::commit() throw (  r_Error  )
     OId::oidResolve.stop();
 #endif
 
-    LEAVE( "TransactionIf::commit" );
-    RMDBGEXIT(2, RMDebug::module_adminif, "TransactionIf", "commit() " << endl << endl);
 }
 
 void
 TransactionIf::abort()
 {
-    RMDBGENTER(2, RMDebug::module_adminif, "TransactionIf", "abort()");
-    ENTER( "TransactionIf::abort" );
-
     SQLiteQuery::execute("ROLLBACK TRANSACTION");
 
     AdminIf::setAborted(true);
@@ -173,7 +159,4 @@ TransactionIf::abort()
 
     OId::oidResolve.stop();
 #endif
-
-    LEAVE( "TransactionIf::abort" );
-    RMDBGEXIT(2, RMDebug::module_adminif, "TransactionIf", "abort() " << endl << endl);
 }

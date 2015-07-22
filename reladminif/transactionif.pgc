@@ -41,7 +41,6 @@ static const char rcsid[] = "@(#)reladminif,TransactionIf: $Id: transactionif.ec
 EXEC SQL include sqlglobals.h;
 
 #include "transactionif.hh"
-#include "raslib/rmdebug.hh"
 #include "adminif.hh"
 #include "oidif.hh"
 #include "catalogmgr/typefactory.hh"
@@ -49,6 +48,7 @@ EXEC SQL include sqlglobals.h;
 #include "objectbroker.hh"
 #include "databaseif.hh"
 #include "dbobject.hh"
+#include "../common/src/logging/easylogging++.hh"
 
 // PG stuff for libpg connection maintenance
 #include "libpq-fe.h"
@@ -58,14 +58,11 @@ extern PGconn *pgConn;
 void
 TransactionIf::begin( bool readOnly ) throw ( r_Error )
 {
-    RMDBGENTER(2, RMDebug::module_adminif, "TransactionIf", "begin(" << readOnly << ")");
-    ENTER( "TransactionIf::begin, readOnly=" << readOnly );
-
     isReadOnly = readOnly;
     AdminIf::setAborted(false);
     AdminIf::setReadOnlyTA(readOnly);
 
-    TALK( "EXEC SQL BEGIN WORK" );
+    LDEBUG << "EXEC SQL BEGIN WORK";
     EXEC SQL BEGIN WORK;
     if (sqlca.sqlwarn[2] == 'W')    // real error, not just a warning
     {
@@ -73,24 +70,22 @@ TransactionIf::begin( bool readOnly ) throw ( r_Error )
     }
     else
     {
-        RMDBGMIDDLE(4, RMDebug::module_adminif, "TransactionIf", "error occured while issuing BEGIN");
-        LEAVE( "TransactionIf::begin(): error during BEGIN: " << SQLCODE );
+        LTRACE << "error occured while issuing BEGIN";
         generateException();
     }
 
     if (readOnly)
     {
-        TALK( "EXEC SQL SET TRANSACTION READ ONLY" );
+        LDEBUG << "EXEC SQL SET TRANSACTION READ ONLY";
         EXEC SQL SET TRANSACTION READ ONLY;
         // no error check, as this doesn't inhibit work
     }
 
     // prelim.:have additional libpq TA -- PB 2005-jan-09
-    TALK( "PQexec( pgConn, BEGIN )" );
+    LDEBUG << "PQexec( pgConn, BEGIN )";
     PGresult *pgResult = PQexec( pgConn, "BEGIN" );
     if (PQresultStatus(pgResult) != PGRES_COMMAND_OK)
     {
-        LEAVE( "TransactionIf::begin() Error: cannot open libpq TA: " << PQerrorMessage(pgConn) );
         PQclear(pgResult);
         generateException();
     }
@@ -118,63 +113,55 @@ TransactionIf::begin( bool readOnly ) throw ( r_Error )
 
     OId::initialize();
     TypeFactory::initialize();
-
-    LEAVE( "TransactionIf::begin, SQLCODE=" << SQLCODE );
-    RMDBGEXIT(2, RMDebug::module_adminif, "TransactionIf", "begin(" << readOnly << ") ");
 }
 
 void
 TransactionIf::commit() throw (  r_Error  )
 {
-    RMDBGENTER(2, RMDebug::module_adminif, "TransactionIf", "commit()");
-    ENTER( "TransactionIf::commit" );
-
     if (isReadOnly)
     {
-        RMDBGMIDDLE(9, RMDebug::module_adminif, "TransactionIf", "read only: aborting");
-        TALK( "TA is readonly: aborting" );
+        LTRACE << "read only: aborting";
+        LDEBUG << "TA is readonly: aborting";
         abort();
     }
     else
     {
         AdminIf::setAborted(false);
-        RMDBGMIDDLE(9, RMDebug::module_adminif, "TransactionIf", "set aborted false");
+        LTRACE << "set aborted false";
         TypeFactory::freeTempTypes();
-        RMDBGMIDDLE(9, RMDebug::module_adminif, "TransactionIf", "freed temp types");
+        LTRACE << "freed temp types";
         ObjectBroker::clearBroker();
-        RMDBGMIDDLE(9, RMDebug::module_adminif, "TransactionIf", "cleared broker");
+        LTRACE << "cleared broker";
         OId::deinitialize();
-        RMDBGMIDDLE(9, RMDebug::module_adminif, "TransactionIf", "wrote oid counters");
+        LTRACE << "wrote oid counters";
         AdminIf::setReadOnlyTA(false);
-        RMDBGMIDDLE(9, RMDebug::module_adminif, "TransactionIf", "committing");
+        LTRACE << "committing";
 
         // prelim.:have additional libpq TA -- PB 2005-jan-09
-        TALK( "PQexec( pgConn, END )" );
+        LDEBUG << "PQexec( pgConn, END )";
         PGresult *pgResult = PQexec( pgConn, "END" );
         if (PQresultStatus(pgResult) != PGRES_COMMAND_OK)
         {
-            LEAVE( "TransactionIf::commit() Error: cannot commit libpq TA: " << PQerrorMessage(pgConn) );
             PQclear(pgResult);
             generateException();
         }
         PQclear(pgResult);
 
-        TALK( "EXEC SQL COMMIT WORK" );
+        LDEBUG << "EXEC SQL COMMIT WORK";
         EXEC SQL COMMIT WORK;
         if (SQLCODE == -604)    // = "no TA open" - seems to be a hickup from our double transaction
             // so we ignore it; FIXME: reinvestigate! -- PB 25-aug-2005
         {
-            TALK( "TransactionIf::commit(): ignoring 'no TA open' error (SQLCODE -604) during COMMIT." );
+            LDEBUG << "TransactionIf::commit(): ignoring 'no TA open' error (SQLCODE -604) during COMMIT.";
         }
         else if (check("TransactionIf::begin() COMMIT\0"))
         {
-            RMDBGMIDDLE(4, RMDebug::module_adminif, "TransactionIf", "error occured while issuing COMMIT");
-            LEAVE( "TransactionIf::commit(): error during COMMIT:" << SQLCODE );
+            LTRACE << "error occured while issuing COMMIT";
             generateException();
         }
         if (lastBase)
         {
-            RMDBGMIDDLE(9, RMDebug::module_adminif, "TransactionIf", "closing dbms");
+            LTRACE << "closing dbms";
             lastBase->baseDBMSClose();
         }
     }
@@ -192,23 +179,16 @@ TransactionIf::commit() throw (  r_Error  )
 
     OId::oidResolve.stop();
 #endif
-
-    LEAVE( "TransactionIf::commit" );
-    RMDBGEXIT(2, RMDebug::module_adminif, "TransactionIf", "commit() " << endl << endl);
 }
 
 void
 TransactionIf::abort()
 {
-    RMDBGENTER(2, RMDebug::module_adminif, "TransactionIf", "abort()");
-    ENTER( "TransactionIf::abort" );
-
     // prelim.:have additional libpq TA -- PB 2005-jan-09
-    TALK( "PQexec( pgConn, ABORT )" );
+    LDEBUG << "PQexec( pgConn, ABORT )";
     PGresult *pgResult = PQexec( pgConn, "ABORT" );
     if (PQresultStatus(pgResult) != PGRES_COMMAND_OK)
     {
-        LEAVE( "TransactionIf::abort() Error: cannot abort libpq TA: " << PQerrorMessage(pgConn) );
         PQclear(pgResult);
         generateException();
     }
@@ -220,12 +200,12 @@ TransactionIf::abort()
     OId::deinitialize();
     AdminIf::setReadOnlyTA(false);
 
-    TALK( "EXEC SQL ROLLBACK WORK" );
+    LDEBUG << "EXEC SQL ROLLBACK WORK";
     EXEC SQL ROLLBACK WORK;
     if (check("TransactionIf::abort() ROLLBACK\0"))
     {
-        RMDBGMIDDLE(4, RMDebug::module_adminif, "TransactionIf", "error occured while issuing ROLLBACK");
-        TALK( "TransactionIf::abort(): error during ROLLBACK, still continuing: " << SQLCODE );
+        LTRACE << "error occured while issuing ROLLBACK";
+        LDEBUG << "TransactionIf::abort(): error during ROLLBACK, still continuing: " << SQLCODE;
     }
     if(lastBase)
         lastBase->baseDBMSClose();
@@ -243,8 +223,5 @@ TransactionIf::abort()
 
     OId::oidResolve.stop();
 #endif
-
-    LEAVE( "TransactionIf::abort, SQLCODE=" << SQLCODE );
-    RMDBGEXIT(2, RMDebug::module_adminif, "TransactionIf", "abort() " << endl << endl);
 }
 
