@@ -1,4 +1,5 @@
 from master.generator.model.range_type_field import RangeTypeField
+from master.generator.model.range_type_nill_value import RangeTypeNilValue
 from util.gdal_util import GDALGmlUtil
 
 
@@ -17,5 +18,8 @@ class GdalRangeFieldsGenerator:
         """
         fields = []
         for range_field in self.gdal_dataset.get_fields_range_type():
-            fields.append(RangeTypeField(range_field.field_name, "", "", range_field.nill_values, range_field.uom_code))
+            nill_values = []
+            for nill_value in range_field.nill_values:
+                nill_values.append(RangeTypeNilValue("", nill_value))
+            fields.append(RangeTypeField(range_field.field_name, "", "", nill_values, range_field.uom_code))
         return fields

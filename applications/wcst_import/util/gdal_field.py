@@ -4,7 +4,7 @@ class GDALField:
         A representation of a gml field
         :param str field_name: the name of the field
         :param str uom_code: the unit of measure
-        :param str nill_values: any nill values
+        :param list[str] nill_values: any nill values
         :return:
         """
         self.nill_values = nill_values

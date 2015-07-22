@@ -164,11 +164,16 @@ class GDALGmlUtil:
                 if len(dfn) > i - 1:
                     nil_value = str(dfn[i - 1])
 
+            if nil_value is None:
+                nil_values = [None]
+            else:
+                nil_values = nil_value.strip().split(",")
+
             # Get the unit of measure
             uom = band.GetUnitType() if band.GetUnitType() else ConfigManager.default_unit_of_measure
 
             # Add it to the list of fields
-            fields.append(GDALField(field_name, uom, nil_value))
+            fields.append(GDALField(field_name, uom, nil_values))
 
         return fields
 

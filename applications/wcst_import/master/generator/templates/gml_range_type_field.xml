@@ -2,9 +2,7 @@
             <swe:Quantity definition="{{definition}}">
                 <swe:description>{{description}}</swe:description>
                 <swe:nilValues>
-                    <swe:NilValues>
-                        {{nilValues}}
-                    </swe:NilValues>
+{{nilValues}}
                 </swe:nilValues>
                 <swe:uom code="{{uom}}"/>
             </swe:Quantity>
