@@ -27,27 +27,24 @@ rasdaman GmbH.
 
 #include <cstdlib>
 #include <iostream>
+#include "../common/src/logging/easylogging++.hh"
 
 using namespace std;
 
 CacheValue::CacheValue(char* newData, r_Bytes newSize, bool newUpdate, OId& newOId, long newBlobOid, void* tile, r_Data_Format newDataformat) :
 data(newData), update(newUpdate), size(newSize), myOId(newOId), blobOid(newBlobOid), dataFormat(newDataformat)
 {
-    TENTER("CacheValue::CacheValue( ptr = " << (void*)this << ", data = " << (void*)newData << ", size = " << newSize << ", oid = " << newOId.getCounter() << " )");
     referencingTiles.insert(tile);
-    TLEAVE("CacheValue::CacheValue()");
 }
 
 CacheValue::~CacheValue()
 {
-    TENTER("CacheValue::~CacheValue( ptr = " << (void*)this << " )");
     if (data && referencingTiles.empty())
     {
-        TTALK("freeing data = " << (void*)data);
+        LDEBUG << "freeing data = " << (void*)data;
         free(data);
         data = NULL;
     }
-    TLEAVE("CacheValue::~CacheValue()");
 }
 
 char* CacheValue::getData()

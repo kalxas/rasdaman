@@ -42,8 +42,8 @@ rasdaman GmbH.
 #include "dbrcindexds.hh"
 #include "reladminif/sqlerror.hh"
 #include "reladminif/sqlglobals.h"
-#include "raslib/rmdebug.hh"
 #include "reladminif/sqlitewrapper.hh"
+#include "../common/src/logging/easylogging++.hh"
 
 // container size for index node
 // BEWARE: keep these parameters always consistent!
@@ -56,9 +56,6 @@ DBRCIndexDS::BytesPerTupel = BYTES_PER_TUPLE;
 void
 DBRCIndexDS::insertInDb() throw (r_Error)
 {
-    RMDBGENTER(5, RMDebug::module_indexif, "DBRCIndexDS", "insertInDb() " << myOId);
-    ENTER("DBRCIndexDS::insertInDb");
-
     int header = 1010;
     int headersize = 4;
 
@@ -91,13 +88,13 @@ DBRCIndexDS::insertInDb() throw (r_Error)
     char* upperfixedbuf = (char*) mymalloc(fixessize);
     char* lowerfixedbuf = (char*) mymalloc(fixessize);
 
-    RMDBGMIDDLE(8, RMDebug::module_indexif, "DBRCIndexDS", "complete " << completesize << " bounds " << boundssize << " fixes " << fixessize);
-    TALK("DBRCIndexDS: complete " << completesize << " bounds " << boundssize << " fixes " << fixessize);
+    LTRACE << "complete " << completesize << " bounds " << boundssize << " fixes " << fixessize;
+    LDEBUG << "DBRCIndexDS: complete " << completesize << " bounds " << boundssize << " fixes " << fixessize;
 
     // insert myDomain in buffers
     myDomain.insertInDb(&(lowerboundsbuf[0]), &(upperboundsbuf[0]), &(lowerfixedbuf[0]), &(upperfixedbuf[0]));
-    RMDBGMIDDLE(5, RMDebug::module_indexif, "DBRCIndexDS", "domain " << myDomain << " stored as " << InlineMinterval(dimension, &(lowerboundsbuf[0]), &(upperboundsbuf[0]), &(lowerfixedbuf[0]), &(upperfixedbuf[0])));
-    TALK("DBRCIndexDS: domain " << myDomain << " stored as " << InlineMinterval(dimension, &(lowerboundsbuf[0]), &(upperboundsbuf[0]), &(lowerfixedbuf[0]), &(upperfixedbuf[0])));
+    LTRACE << "domain " << myDomain << " stored as " << InlineMinterval(dimension, &(lowerboundsbuf[0]), &(upperboundsbuf[0]), &(lowerfixedbuf[0]), &(upperfixedbuf[0]));
+    LDEBUG << "DBRCIndexDS: domain " << myDomain << " stored as " << InlineMinterval(dimension, &(lowerboundsbuf[0]), &(upperboundsbuf[0]), &(lowerfixedbuf[0]), &(upperfixedbuf[0]));
 
     char* insertionpointer = completebuffer;
 
@@ -153,7 +150,7 @@ DBRCIndexDS::insertInDb() throw (r_Error)
             strcat(printbuf, bytebuf);
         }
 #endif // 0
-        TALK(printbuf);
+        LDEBUG << printbuf;
     }
 #endif //RMANDEBUG
 
@@ -168,17 +165,11 @@ DBRCIndexDS::insertInDb() throw (r_Error)
 
     // (4) --- dbobject insert
     DBObject::insertInDb();
-
-    LEAVE("DBRCIndexDS::insertInDb");
-    RMDBGEXIT(5, RMDebug::module_indexif, "DBRCIndexDS", "insertInDb() " << myOId);
 }
 
 void
 DBRCIndexDS::readFromDb() throw (r_Error)
 {
-    RMDBGENTER(5, RMDebug::module_indexif, "DBRCIndexDS", "readFromDb() " << myOId);
-    ENTER("DBRCIndexDS::readFromDb");
-
 #ifdef RMANBENCHMARK
     DBObject::readTimer.resume();
 #endif
@@ -206,8 +197,8 @@ DBRCIndexDS::readFromDb() throw (r_Error)
     }
     else
     {
-        RMInit::logOut << "DBHierIndex::readFromDb() - index entry: "
-                << id1 << " not found in the database." << endl;
+        LFATAL << "DBHierIndex::readFromDb() - index entry: "
+                << id1 << " not found in the database.";
         throw r_Ebase_dbms(SQLITE_NOTFOUND, "index entry not found in the database.");
     }
 
@@ -221,7 +212,7 @@ DBRCIndexDS::readFromDb() throw (r_Error)
             (void) sprintf(bytebuf, " %2X", (unsigned char) completebuffer[i]);
             strcat(printbuf, bytebuf);
         }
-        TALK(printbuf);
+        LDEBUG << printbuf;
     }
 #endif // RMANDEBUG
 
@@ -285,7 +276,7 @@ DBRCIndexDS::readFromDb() throw (r_Error)
         boundssize = sizeof (r_Range) * dimension; //number of bytes for bounds in 2 domains
     }
 
-    TALK("blobformat: " << blobformat << " boundssize: " << boundssize << " dimension: " << dimension);
+    LDEBUG << "blobformat: " << blobformat << " boundssize: " << boundssize << " dimension: " << dimension;
 
     if (blobformat >= 9)
     {
@@ -312,12 +303,12 @@ DBRCIndexDS::readFromDb() throw (r_Error)
     // additional plausi check
     if (blobsize != bytesdone + completesize)
     {
-        RMInit::logOut << "DBRCIndexDS::readFromDb() blob size inconsistency: blobSize (" << blobsize << " != bytesdone (" << bytesdone << ") + completesize (" << completesize << ")";
-        TALK("DBRCIndexDS::readFromDb() blob size inconsistency: blobSize (" << blobsize << " != bytesdone (" << bytesdone << ") + completesize (" << completesize << ")");
+        LFATAL << "DBRCIndexDS::readFromDb() blob size inconsistency: blobSize (" << blobsize << " != bytesdone (" << bytesdone << ") + completesize (" << completesize << ")";
+        LDEBUG << "DBRCIndexDS::readFromDb() blob size inconsistency: blobSize (" << blobsize << " != bytesdone (" << bytesdone << ") + completesize (" << completesize << ")";
         throw r_Error(r_Error::r_Error_LimitsMismatch);
     }
 
-    RMDBGMIDDLE(7, RMDebug::module_indexif, "DBRCIndexDS", "dimension " << dimension << ", base oid type " << myBaseOIdType << ", base counter " << myBaseCounter << ", size " << mySize << ", complete data size " << completesize);
+    LTRACE << "dimension " << dimension << ", base oid type " << myBaseOIdType << ", base counter " << myBaseCounter << ", size " << mySize << ", complete data size " << completesize;
 
     int* oldupperboundsbuf = NULL;
     int* oldlowerboundsbuf = NULL;
@@ -363,7 +354,7 @@ DBRCIndexDS::readFromDb() throw (r_Error)
 
     // rebuild attributes from buffers
     myDomain = InlineMinterval(dimension, &(lowerboundsbuf[0]), &(upperboundsbuf[0]), &(lowerfixedbuf[0]), &(upperfixedbuf[0]));
-    RMDBGMIDDLE(5, RMDebug::module_indexif, "DBRCIndexDS", "domain " << myDomain << " constructed from " << InlineMinterval(dimension, &(lowerboundsbuf[0]), &(upperboundsbuf[0]), &(lowerfixedbuf[0]), &(upperfixedbuf[0])));
+    LTRACE << "domain " << myDomain << " constructed from " << InlineMinterval(dimension, &(lowerboundsbuf[0]), &(upperboundsbuf[0]), &(lowerfixedbuf[0]), &(upperfixedbuf[0]));
 
     if (blobformat == 8 || blobformat == 9)
     {
@@ -385,23 +376,14 @@ DBRCIndexDS::readFromDb() throw (r_Error)
 
     // (5) --- dbobject read
     DBObject::readFromDb();
-
-    LEAVE("DBRCIndexDS::readFromDb, myOId=" << myOId);
-    RMDBGEXIT(5, RMDebug::module_indexif, "DBRCIndexDS", "readFromDb() " << myOId);
 }
 
 void
 DBRCIndexDS::deleteFromDb() throw (r_Error)
 {
-    RMDBGENTER(8, RMDebug::module_indexif, "DBRCIndexDS", "deleteFromDb() " << myOId);
-    ENTER("DBRCIndexDS::deleteFromDb");
-
     long long id3 = myOId;
     // (3) --- delete tuple
     SQLiteQuery::executeWithParams("DELETE FROM RAS_RCINDEXDYN WHERE Id = %lld", id3);
     // (4) --- dbobject delete
     DBObject::deleteFromDb();
-
-    LEAVE("DBRCIndexDS::deleteFromDb");
-    RMDBGEXIT(8, RMDebug::module_indexif, "DBRCIndexDS", "deleteFromDb() " << myOId);
 }

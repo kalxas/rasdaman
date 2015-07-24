@@ -26,6 +26,7 @@ rasdaman GmbH.
 
 #include <algorithm>
 #include <set>
+#include "../common/src/logging/easylogging++.hh"
 
 using namespace std;
 
@@ -43,15 +44,13 @@ void TileCache::insert(KeyType key, ValueType value)
         return;
     }
     
-    TENTER("TileCache::insert( " << key << " )");
-    
     CacheValue* tileToCache = value;
     if (contains(key))
     {
         CacheValue* tile = cache[key];
         if (tile == NULL)
         {
-            RMInit::logOut << "Error: cached NULL value!" << endl;
+            LERROR << "Error: cached NULL value!";
             remove(key);
         }
         else
@@ -73,7 +72,7 @@ void TileCache::insert(KeyType key, ValueType value)
                 tile = NULL;
             }
         }
-        TTALK("already inserted");
+        LDEBUG << "already inserted";
     }
     
     cache.insert(CachePairType(key, tileToCache));
@@ -81,12 +80,10 @@ void TileCache::insert(KeyType key, ValueType value)
     cacheSize += tileToCache->getSize();
     readjustCache();
     
-    TLEAVE("TileCache::insert()");
 }
 
 ValueType TileCache::get(KeyType key)
 {
-    TENTER("TileCache::get( " << key << " )");
     CacheValue* ret = NULL;
     if (contains(key))
     {
@@ -98,22 +95,20 @@ ValueType TileCache::get(KeyType key)
     }
     else
     {
-        TTALK("key not found");
+        LDEBUG << "key not found";
     }
-    TLEAVE("TileCache::get()");
     return ret;
 }
 
 bool TileCache::contains(KeyType key)
 {
     bool ret = cache.find(key) != cache.end();
-    TTALK("TileCache::contains( " << key << " = " << ret << " )");
+    LDEBUG << "TileCache::contains( " << key << " = " << ret << " )";
     return ret;
 }
 
 ValueType TileCache::remove(KeyType key)
 {
-    TENTER("TileCache::remove( " << key << " )");
     CacheValue* ret = NULL;
     if (contains(key))
     {
@@ -128,15 +123,13 @@ ValueType TileCache::remove(KeyType key)
     }
     else
     {
-        TTALK("key not found");
+        LDEBUG << "key not found";
     }
-    TLEAVE("TileCache::remove()");
     return ret;
 }
 
 void TileCache::removeKey(KeyType key)
 {
-    TENTER("TileCache::removeKey( " << key << " )");
     CacheValue* ret = NULL;
     if (contains(key))
     {
@@ -152,35 +145,29 @@ void TileCache::removeKey(KeyType key)
     }
     else
     {
-        TTALK("key not found");
+        LDEBUG << "key not found";
     }
-    TLEAVE("TileCache::removeKey()");
 }
 void TileCache::clear()
 {
-    TENTER("TileCache::clear() - clear cache of size: " << cache.size());
-    
     typedef CacheType::iterator it_type;
     for (it_type it = cache.begin(); it != cache.end(); it++)
     {
-        TTALK("TileCache::clear() - removing key " << it->first);
+        LDEBUG << "TileCache::clear() - removing key " << it->first;
         CacheValue* value = it->second;
         BLOBTile::writeCachedToDb(value);
     }
     cache.clear();
     lru.clear();
     cacheSize = 0;
-    
-    TLEAVE("TileCache::clear()");
 }
 
 void TileCache::readjustCache()
 {
-    TENTER("TileCache::readjustCache( cache size = " << cacheSize << ", cache limit = " << cacheLimit << " )");
     if (cacheSize > cacheLimit)
     {
         long count = 0;
-        TTALK("freeing up space from cache...");
+        LDEBUG << "freeing up space from cache...";
         
         if (cacheSize > cacheLimit && lru.size() > 0)
         {
@@ -199,26 +186,23 @@ void TileCache::readjustCache()
                 }
             }
         }
-        TTALK("removed " << count << " blobs from cache.");
+        LDEBUG << "removed " << count << " blobs from cache.";
     }
-    TLEAVE("TileCache::readjustCache()");
 }
 
 void TileCache::updateValue(ValueType value)
 {
-    TENTER("TileCache::updateValue()");
     CacheLRU::iterator pos = std::find(lru.begin(), lru.end(), value);
     if (pos != lru.end())
     {
-        TTALK("moving to beginning of LRU list.");
+        LDEBUG << "moving to beginning of LRU list.";
         lru.splice(lru.begin(), lru, pos);
     }
     else
     {
-        TTALK("inserting at beginning of LRU list.");
+        LDEBUG << "inserting at beginning of LRU list.";
         lru.insert(lru.begin(), value);
     }
-    TLEAVE("TileCache::updateValue()");
 }
 
 void TileCache::removeValue(ValueType value)

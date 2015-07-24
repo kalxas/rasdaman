@@ -44,7 +44,7 @@ rasdaman GmbH.
 
 #include "dbrcindexds.hh"
 #include "reladminif/sqlerror.hh"
-#include "raslib/rmdebug.hh"
+#include "../common/src/logging/easylogging++.hh"
 
 // general embedded SQL related definitions
 EXEC SQL include "../reladminif/sqlglobals.h";
@@ -63,9 +63,6 @@ DBRCIndexDS::BytesPerTupel = BYTES_PER_TUPLE;
 void
 DBRCIndexDS::insertInDb() throw (r_Error)
 {
-    RMDBGENTER(5, RMDebug::module_indexif, "DBRCIndexDS", "insertInDb() " << myOId);
-    ENTER( "DBRCIndexDS::insertInDb" );
-
     int header = 1010; 
     int headersize = 4;
 	
@@ -109,13 +106,13 @@ DBRCIndexDS::insertInDb() throw (r_Error)
     char* upperfixedbuf = static_cast<char*>(mymalloc(fixessize));
     char* lowerfixedbuf = static_cast<char*>(mymalloc(fixessize));
 
-    RMDBGMIDDLE(8, RMDebug::module_indexif, "DBRCIndexDS", "complete " << completesize << " bounds " << boundssize << " fixes " << fixessize);
-    TALK( "DBRCIndexDS: complete " << completesize << " bounds " << boundssize << " fixes " << fixessize);
+    LTRACE << "complete " << completesize << " bounds " << boundssize << " fixes " << fixessize;
+    DEBUG << "DBRCIndexDS: complete " << completesize << " bounds " << boundssize << " fixes " << fixessize;
 
     // insert myDomain in buffers
     myDomain.insertInDb(&(lowerboundsbuf[0]), &(upperboundsbuf[0]), &(lowerfixedbuf[0]), &(upperfixedbuf[0]));
-    RMDBGMIDDLE(5, RMDebug::module_indexif, "DBRCIndexDS", "domain " << myDomain << " stored as " << InlineMinterval(dimension, &(lowerboundsbuf[0]), &(upperboundsbuf[0]), &(lowerfixedbuf[0]), &(upperfixedbuf[0])));
-    TALK( "DBRCIndexDS: domain " << myDomain << " stored as " << InlineMinterval(dimension, &(lowerboundsbuf[0]), &(upperboundsbuf[0]), &(lowerfixedbuf[0]), &(upperfixedbuf[0])) );
+    LTRACE << "domain " << myDomain << " stored as " << InlineMinterval(dimension, &(lowerboundsbuf[0]), &(upperboundsbuf[0]), &(lowerfixedbuf[0]), &(upperfixedbuf[0]));
+    LDEBUG << "DBRCIndexDS: domain " << myDomain << " stored as " << InlineMinterval(dimension, &(lowerboundsbuf[0]), &(upperboundsbuf[0]), &(lowerfixedbuf[0]), &(upperfixedbuf[0]));
 
     char* insertionpointer = completebuffer;
 
@@ -171,49 +168,45 @@ DBRCIndexDS::insertInDb() throw (r_Error)
             strcat( printbuf, bytebuf );
         }
 #endif // 0
-        TALK( printbuf );
+        LDEBUG << printbuf;
     }
 #endif //RMANDEBUG
 
     // (2) --- create, open, write, close blob; generates new 'oid' for subsequent storage in tuple
-    TALK( "lo_creat()" );
+    LDEBUG << "lo_creat()";
     blobOid = lo_creat( pgConn, INV_READ|INV_WRITE );      // create -- not clear what INV_* here means so indicate all
     if (blobOid == 0)
     {
         free(completebuffer);
         completebuffer = NULL;
-        RMInit::logOut << "DBRCIndexDS::insertInDb() cannot create blob, error: " << PQerrorMessage(pgConn) << endl;
-        LEAVE( "DBRCIndexDS::insertInDb(pgConn)" );
+        LFATAL << "DBRCIndexDS::insertInDb() cannot create blob, error: " << PQerrorMessage(pgConn);
         generateException();
     }
-    TALK( "lo_open() for oid " << blobOid );
+    LDEBUG << "lo_open() for oid " << blobOid;
     int fd = lo_open( pgConn, blobOid, INV_WRITE );  // no error code indicated, 0 seems to be no error
-    TALK( "lo_write() for fd " << fd << " with " << completesize << " bytes" );
+    LDEBUG << "lo_write() for fd " << fd << " with " << completesize << " bytes";
     int loResult = lo_write( pgConn, fd, completebuffer, completesize );
     if (loResult < 0)
     {
         free(completebuffer);
         completebuffer = NULL;
-        RMInit::logOut << "DBRCIndexDS::insertInDb() cannot write blob, error: " << PQerrorMessage(pgConn) << endl;
-        LEAVE( "DBRCIndexDS::insertInDb() cannot write blob, error " << PQerrorMessage(pgConn) );
+        LFATAL << "DBRCIndexDS::insertInDb() cannot write blob, error: " << PQerrorMessage(pgConn);
         generateException();
     }
     else if (loResult != static_cast<int>(completesize))      // did not get all
     {
         free(completebuffer);
         completebuffer = NULL;
-        RMInit::dbgOut << "BLOB (" << myOId << ") insert: wrote " << loResult << " instead of " << completesize << " bytes" << endl;
-        LEAVE( "DBRCIndexDS::insertInDb() wrote " << loResult << " instead of " << completesize << " bytes" );
+        LDEBUG << "BLOB (" << myOId << ") insert: wrote " << loResult << " instead of " << completesize << " bytes";
         generateException();
     }
-    TALK( "lo_close(), " << completesize << " bytes written" );
+    LDEBUG << "lo_close(), " << completesize << " bytes written";
     loResult = lo_close( pgConn, fd );
     if (loResult < 0)               // can't close, don't know if data are written
     {
         free(completebuffer);
         completebuffer = NULL;
-        RMInit::logOut << "DBRCIndexDS::insertInDb() ignoring lo_close() error: " << PQerrorMessage(pgConn) << endl;
-        LEAVE( "DBRCIndexDS::insertInDb() cannot lo_close(): " << PQerrorMessage(pgConn) );
+        LFATAL << "DBRCIndexDS::insertInDb() ignoring lo_close() error: " << PQerrorMessage(pgConn);
         generateException();
     }
     free(completebuffer);
@@ -222,24 +215,22 @@ DBRCIndexDS::insertInDb() throw (r_Error)
     count2 = 0; // we only have one entry
 #ifdef NOTYET   // should be in future
     /*
-        TALK( "EXEC SQL INSERT INTO RAS_RCINDEXDYN ( Id, Count, DynData ) VALUES ( " << id2 << "," << count2 << "," << blobOid << " )" );
+        LDEBUG << "EXEC SQL INSERT INTO RAS_RCINDEXDYN ( Id, Count, DynData ) VALUES ( " << id2 << "," << count2 << "," << blobOid << " )";
         EXEC SQL INSERT INTO RAS_RCINDEXDYN ( Id, Count, DynData )
             VALUES ( :id2, :count2, :blobOid );
         if (SQLCODE != SQLOK)
         {
             check("DBRCIndexDS::insertInDb() insert into RAS_HIERIXDYN\0");
-            LEAVE( "DBRCIndexDS::insertInDb(): db access error: " << SQLCODE );
             generateException();
         }
     */
 #endif // NOTYET
     // alternative solution for now:
     (void) snprintf( pgQuery, sizeof(pgQuery), "INSERT INTO RAS_RCINDEXDYN ( Id, Count, DynData ) VALUES ( %lld, %d, %d )", id2, count2, blobOid );
-    TALK( pgQuery );
+    LDEBUG << pgQuery;
     pgResult = PQexec( pgConn, pgQuery );
     if (PQresultStatus(pgResult) != PGRES_COMMAND_OK)
     {
-        LEAVE( "DBRCIndexDS::insertInDb() libpq 'insert RAS_HIERIX' error: " << PQerrorMessage(pgConn) );
         PQclear( pgResult );
         generateException();
     }
@@ -247,17 +238,11 @@ DBRCIndexDS::insertInDb() throw (r_Error)
 
     // (4) --- dbobject insert
     DBObject::insertInDb();
-
-    LEAVE( "DBRCIndexDS::insertInDb" );
-    RMDBGEXIT(5, RMDebug::module_indexif, "DBRCIndexDS", "insertInDb() " << myOId);
 }
 
 void
 DBRCIndexDS::readFromDb() throw (r_Error)
 {
-    RMDBGENTER(5, RMDebug::module_indexif, "DBRCIndexDS", "readFromDb() " << myOId);
-    ENTER( "DBRCIndexDS::readFromDb" );
-
 #ifdef RMANBENCHMARK
     DBObject::readTimer.resume();
 #endif
@@ -288,23 +273,21 @@ DBRCIndexDS::readFromDb() throw (r_Error)
     // (2) --- get tuple
 #ifdef NOTYET   // should be in future
     /*
-        TALK( "EXEC SQL SELECT DynData FROM RAS_RCINDEXDYN WHERE Id = " << id1 );
+        LDEBUG << "EXEC SQL SELECT DynData FROM RAS_RCINDEXDYN WHERE Id = " << id1;
         EXEC SQL SELECT DynData FROM RAS_RCINDEXDYN WHERE Id = :id1;
         if (SQLCODE != SQLOK)
         {
             check("DBRCIndexDS::readFromDb() select from RAS_RCINDEXDYN");
-            LEAVE("DBRCIndexDS::readFromDb() 'select from RAS_RCINDEXDYN' error: " << SQLCODE );
             generateException();
         }
     */
 #endif // NOTYET
     // alternative solution for now:
     (void) snprintf( pgQuery, sizeof(pgQuery), "SELECT DynData FROM RAS_RCINDEXDYN WHERE Id = %lld", id1 );
-    TALK( pgQuery );
+    LDEBUG << pgQuery;
     pgResult = PQexec( pgConn, pgQuery );
     if (PQresultStatus(pgResult) != PGRES_TUPLES_OK)
     {
-        LEAVE( "DBRCIndexDS::readFromDb() libpq 'insert RAS_HIERIX' error: " << PQerrorMessage(pgConn) );
         PQclear( pgResult );
         generateException();
     }
@@ -312,39 +295,36 @@ DBRCIndexDS::readFromDb() throw (r_Error)
     PQclear( pgResult );
 
     // (3) --- open, read, close blob
-    TALK( "lo_open()" );
+    LDEBUG << "lo_open()";
     int fd = lo_open( pgConn, blobOid, INV_READ );      // open; manual tells no error indication
-    TALK( "lo_lseek() end" );
+    LDEBUG << "lo_lseek() end";
     int blobSize = lo_lseek( pgConn, fd, 0, SEEK_END ); // determine blob size; FIXME: more efficient method??
-    TALK( "lo_lseek() start" );
+    LDEBUG << "lo_lseek() start";
     (void) lo_lseek( pgConn, fd, 0, SEEK_SET );     // rewind for reading
     char* completebuffer = static_cast<char*>(mymalloc(static_cast<size_t>(blobSize)));   // receives blob contents
     if (completebuffer == NULL)
     {
-        RMInit::logOut << "DBRCIndexDS::readFromDb() cannot allocate blob buffer" << endl;
-        LEAVE( "DBRCIndexDS::readFromDb: cannot allocate blob buffer" );
+        LFATAL << "DBRCIndexDS::readFromDb() cannot allocate blob buffer";
         throw r_Error( r_Error::r_Error_MemoryAllocation );
     }
-    TALK( "lo_read() for " << blobSize << " bytes" );   // read blob
+    LDEBUG << "lo_read() for " << blobSize << " bytes";   // read blob
     int loResult = lo_read( pgConn, fd, completebuffer, static_cast<size_t>(blobSize) );
     if (loResult < 0)
     {
-        RMInit::logOut << "DBRCIndexDS::readFromDb() cannot read blob, error: " << loResult << endl;
-        LEAVE( "DBRCIndexDS::readFromDb: cannot read blob, error " << loResult );
+        LFATAL << "DBRCIndexDS::readFromDb() cannot read blob, error: " << loResult;
         throw r_Error( r_Error::r_Error_BaseDBMSFailed );
     }
     else if (loResult != blobSize)              // did not get all
     {
-        RMInit::dbgOut << "BLOB (" << myOId << ") read: want to read (" << blobSize << " bytes, but got " << loResult << " bytes" << endl;
-        LEAVE( "DBRCIndexDS::readFromDb: want to read " << blobSize << " bytes, but got " << loResult << " bytes" );
+        LDEBUG << "BLOB (" << myOId << ") read: want to read (" << blobSize << " bytes, but got " << loResult << " bytes";
         throw r_Error( r_Error::r_Error_LimitsMismatch );
     }
-    TALK( "lo_close()" );
+    LDEBUG << "lo_close()";
     int ignoredPgResult = lo_close( pgConn, fd );       // close blob
     if (ignoredPgResult < 0)                // we note, but ignore errors, as we have the data
     {
-        RMInit::logOut << "DBRCIndexDS::readFromDb() ignoring lo_close() error: " << ignoredPgResult << endl;
-        TALK( "DBRCIndexDS::readFromDb: ignoring lo_close() error: " << ignoredPgResult );
+        LERROR << "DBRCIndexDS::readFromDb() ignoring lo_close() error: " << ignoredPgResult;
+        LDEBUG << "DBRCIndexDS::readFromDb: ignoring lo_close() error: " << ignoredPgResult;
     }
 
 #ifdef RMANDEBUG        // dump low-level blob byte string
@@ -357,7 +337,7 @@ DBRCIndexDS::readFromDb() throw (r_Error)
             (void) sprintf( bytebuf, " %2X", (unsigned char) completebuffer[i] );
             strcat( printbuf, bytebuf );
         }
-        TALK( printbuf );
+        LDEBUG << printbuf;
     }
 #endif // RMANDEBUG
 
@@ -415,7 +395,7 @@ DBRCIndexDS::readFromDb() throw (r_Error)
         boundssize = sizeof(r_Range) * dimension;   //number of bytes for bounds in 2 domains
     }
 
-    TALK( "blobformat: " << blobformat << " boundssize: " << boundssize << " dimension: " << dimension);
+    LDEBUG << "blobformat: " << blobformat << " boundssize: " << boundssize << " dimension: " << dimension;
     
     if (blobformat >= 9) {
 
@@ -440,12 +420,12 @@ DBRCIndexDS::readFromDb() throw (r_Error)
     // additional plausi check
     if (blobSize != static_cast<int>(bytesdone + completesize))
     {
-        RMInit::logOut << "DBRCIndexDS::readFromDb() blob size inconsistency: blobSize (" << blobSize << " != bytesdone (" << bytesdone << ") + completesize (" << completesize << ")";
-        TALK( "DBRCIndexDS::readFromDb() blob size inconsistency: blobSize (" << blobSize << " != bytesdone (" << bytesdone << ") + completesize (" << completesize << ")" );
+        LFATAL << "DBRCIndexDS::readFromDb() blob size inconsistency: blobSize (" << blobSize << " != bytesdone (" << bytesdone << ") + completesize (" << completesize << ")";
+        LDEBUG << "DBRCIndexDS::readFromDb() blob size inconsistency: blobSize (" << blobSize << " != bytesdone (" << bytesdone << ") + completesize (" << completesize << ")";
         throw r_Error( r_Error::r_Error_LimitsMismatch );
     }
 
-    RMDBGMIDDLE(7, RMDebug::module_indexif, "DBRCIndexDS", "dimension " << dimension << ", base oid type " << myBaseOIdType << ", base counter " << myBaseCounter << ", size " << mySize << ", complete data size " << completesize );
+    LTRACE << "dimension " << dimension << ", base oid type " << myBaseOIdType << ", base counter " << myBaseCounter << ", size " << mySize << ", complete data size " << completesize;
 
     int* oldupperboundsbuf = NULL;
     int* oldlowerboundsbuf = NULL;
@@ -487,7 +467,7 @@ DBRCIndexDS::readFromDb() throw (r_Error)
 
     // rebuild attributes from buffers
     myDomain = InlineMinterval(dimension, &(lowerboundsbuf[0]), &(upperboundsbuf[0]), &(lowerfixedbuf[0]), &(upperfixedbuf[0]));
-    RMDBGMIDDLE(5, RMDebug::module_indexif, "DBRCIndexDS", "domain " << myDomain << " constructed from " << InlineMinterval(dimension, &(lowerboundsbuf[0]), &(upperboundsbuf[0]), &(lowerfixedbuf[0]), &(upperfixedbuf[0])));
+    LTRACE << "domain " << myDomain << " constructed from " << InlineMinterval(dimension, &(lowerboundsbuf[0]), &(upperboundsbuf[0]), &(lowerfixedbuf[0]), &(upperfixedbuf[0]));
 
 	if (blobformat == 8 || blobformat == 9) {
 		free(oldlowerboundsbuf);
@@ -509,16 +489,11 @@ DBRCIndexDS::readFromDb() throw (r_Error)
     // (5) --- dbobject read
     DBObject::readFromDb();
 
-    LEAVE( "DBRCIndexDS::readFromDb, myOId=" << myOId );
-    RMDBGEXIT(5, RMDebug::module_indexif, "DBRCIndexDS", "readFromDb() " << myOId);
 }
 
 void
 DBRCIndexDS::deleteFromDb() throw (r_Error)
 {
-    RMDBGENTER(8, RMDebug::module_indexif, "DBRCIndexDS", "deleteFromDb() " << myOId);
-    ENTER( "DBRCIndexDS::deleteFromDb" );
-
 #ifdef NOTYET   // should be in future
     /*
         EXEC SQL BEGIN DECLARE SECTION;
@@ -540,7 +515,7 @@ DBRCIndexDS::deleteFromDb() throw (r_Error)
     // (2) --- fetch blob oid
 #ifdef NOTYET   // should be in future
     /*
-        TALK( "EXEC SQL SELECT DynData FROM RAS_RCINDEXDYN WHERE Id = " << id3 );
+        LDEBUG << "EXEC SQL SELECT DynData FROM RAS_RCINDEXDYN WHERE Id = " << id3;
         EXEC SQL SELECT DynData FROM RAS_RCINDEXDYN
             WHERE Id = :id3;
         if (check("DBRCIndexDS::deleteFromDb() RAS_RCINDEX") != 0)
@@ -549,11 +524,10 @@ DBRCIndexDS::deleteFromDb() throw (r_Error)
 #endif // NOTYET
     // alternative solution for now:
     (void) snprintf( pgQuery, sizeof(pgQuery), "SELECT DynData FROM RAS_RCINDEXDYN WHERE Id = %lld", id3 );
-    TALK( pgQuery );
+    LDEBUG << pgQuery;
     pgResult = PQexec( pgConn, pgQuery );
     if (PQresultStatus(pgResult) != PGRES_TUPLES_OK)
     {
-        LEAVE( "DBRCIndexDS::deleteFromDb() libpq 'select RAS_RCINDEXDYN' error: " << PQerrorMessage(pgConn) );
         PQclear( pgResult );
         generateException();
     }
@@ -564,38 +538,33 @@ DBRCIndexDS::deleteFromDb() throw (r_Error)
     int loResult = lo_unlink( pgConn, blobOid );
     if (loResult < 0)                   // no disaster if we can't so no exception
     {
-        TALK( "DBRCIndexDS::deleteFromDb() warning: libpq 'unlink blob' error: " << PQerrorMessage(pgConn) );
+        LDEBUG << "DBRCIndexDS::deleteFromDb() warning: libpq 'unlink blob' error: " << PQerrorMessage(pgConn);
     }
 
     // (3) --- delete tuple
 #ifdef NOTYET   // should be in future
     /*
-        TALK( "EXEC SQL DELETE FROM RAS_RCINDEXDYN WHERE Id = " << id3 );
+        LDEBUG << "EXEC SQL DELETE FROM RAS_RCINDEXDYN WHERE Id = " << id3;
         EXEC SQL DELETE FROM RAS_RCINDEXDYN
             WHERE Id = :id3;
         if (SQLCODE != SQLOK)
         {
             check("DBRCIndexDS::deleteFromDb() delete from RAS_RCINDEX");
-            LEAVE("DBRCIndexDS::deleteFromDb() 'delete from RAS_RCINDEX' error: " << SQLCODE );
             generateException();
         }
     */
 #endif // NOTYET
     // alternative solution for now:
     (void) snprintf( pgQuery, sizeof(pgQuery), "DELETE FROM RAS_RCINDEXDYN WHERE Id = %lld", id3 );
-    TALK( pgQuery );
+    LDEBUG << pgQuery;
     pgResult = PQexec( pgConn, pgQuery );
     if (PQresultStatus(pgResult) != PGRES_COMMAND_OK)
     {
-        LEAVE( "DBRCIndexDS::deleteFromDb() libpq 'select RAS_RCINDEXDYN' error: " << PQerrorMessage(pgConn) );
         PQclear( pgResult );
         generateException();
     }
 
     // (4) --- dbobject delete
     DBObject::deleteFromDb();
-
-    LEAVE( "DBRCIndexDS::deleteFromDb" );
-    RMDBGEXIT(8, RMDebug::module_indexif, "DBRCIndexDS", "deleteFromDb() " << myOId);
 }
 

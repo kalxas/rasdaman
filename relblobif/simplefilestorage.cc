@@ -28,6 +28,7 @@ rasdaman GmbH.
 #include "reladminif/oidif.hh"
 #include "simplefilestorage.hh"
 #include "debug/debug-srv.hh"
+#include "../common/src/logging/easylogging++.hh"
 
 using namespace std;
 
@@ -43,12 +44,11 @@ SimpleFileStorage::SimpleFileStorage(const string& path) throw (r_Error) : root_
     {
         generateError("file storage data directory not found", path, FILEDATADIR_NOTFOUND);
     }
-    TALK("SimpleFileStorage initialized on root path" << path);
+    LDEBUG << "SimpleFileStorage initialized on root path" << path;
 }
 
 void SimpleFileStorage::insert(const char* data, r_Bytes size, int BlobId) throw (r_Error)
 {
-    ENTER("SimpleFileStorage::insert with BlobID="<<BlobId);
     vector<string> path;
     getPath(BlobId, &path);
     string file_path = path[0]; // Root path
@@ -84,12 +84,10 @@ void SimpleFileStorage::insert(const char* data, r_Bytes size, int BlobId) throw
     {
         generateError("failed writing data to file", file_path, FAILEDWRITINGTODISK);
     }
-    LEAVE("SimpleFileStorage::insert");
 }
 
 void SimpleFileStorage::update(const char* data, r_Bytes size, int BlobId) throw (r_Error)
 {
-    ENTER("SimpleFileStorage::update");
     vector<string> path;
     getPath(BlobId, &path);
     string file_path = path[0]; // Root path
@@ -126,12 +124,10 @@ void SimpleFileStorage::update(const char* data, r_Bytes size, int BlobId) throw
     {
         generateError("failed writing data to blob file", file_path, FAILEDWRITINGTODISK);
     }
-    LEAVE("SimpleFileStorage::update");
 }
 
 void SimpleFileStorage::retrieve(int BlobId, char** data, r_Bytes* size) throw (r_Error)
 {
-    ENTER("SimpleFileStorage::read");
     string path;
     getPath(BlobId, &path);
     struct stat status;
@@ -163,32 +159,27 @@ void SimpleFileStorage::retrieve(int BlobId, char** data, r_Bytes* size) throw (
     {
         generateError("failed reading data from blob file", path, FAILEDREADINGFROMDISK);
     }
-    LEAVE("SimpleFileStorage::read");
 }
 
 void SimpleFileStorage::remove(int BlobId) throw (r_Error)
 {
-    ENTER("SimpleFileStorage::remove");
     string path;
     getPath(BlobId, &path);
     if (unlink(path.c_str()) < 0)
     {
-        RMInit::logOut << endl << "Warning: failed deleting blob file from disk - " << path << endl;
-        RMInit::logOut << "Reason: " << strerror(errno) << endl << endl;
+        LWARNING << "Warning: failed deleting blob file from disk - " << path;
+        LWARNING << "Reason: " << strerror(errno);
 //        generateError("", path, FAILEDREMOVINGFILE);
     }
-    LEAVE("SimpleFileStorage::remove");
 }
 
 void SimpleFileStorage::getPath(int BlobId, vector<string> *path)
 {
-    ENTER("SimpleFileStorage::getPath");
     path->clear();
     path->push_back(root_path);
     stringstream aux;
     aux << BlobId;
     path->push_back(aux.str());
-    LEAVE("SimpleFileStorage::getPath");
 }
 
 void SimpleFileStorage::getPath(int BlobId, string *path)
@@ -202,7 +193,7 @@ void SimpleFileStorage::getPath(int BlobId, string *path)
 
 void SimpleFileStorage::generateError(const char* message, string path, int errorCode) throw (r_Error)
 {
-    RMInit::logOut << endl << "Error: " << message << " - " << path << endl;
-    RMInit::logOut << "Reason: " << strerror(errno) << endl << endl;
+    LFATAL << "Error: " << message << " - " << path;
+    LFATAL << "Reason: " << strerror(errno);
     throw r_Error(static_cast<unsigned int>(errorCode));
 }
