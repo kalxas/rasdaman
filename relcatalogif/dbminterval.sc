@@ -38,9 +38,9 @@ rasdaman GmbH.
 #include "reladminif/sqlerror.hh"
 #include "reladminif/externs.h"
 #include "dbminterval.hh"
-#include "raslib/rmdebug.hh"
 #include "reladminif/sqlglobals.h"
 #include "reladminif/sqlitewrapper.hh"
+#include "../common/src/logging/easylogging++.hh"
 
 DBMinterval::DBMinterval()
     :   DBObject(),
@@ -87,20 +87,16 @@ DBMinterval::DBMinterval(const r_Minterval& old)
 
 DBMinterval::~DBMinterval()
 {
-    RMDBGENTER(4, RMDebug::module_catalogif, "DBMinterval", "~DBMinterval() " << myOId);
     validate();
-    RMDBGEXIT(4, RMDebug::module_catalogif, "DBMinterval", "~DBMinterval() " << myOId);
 }
 
 DBMinterval&
 DBMinterval::operator=(const DBMinterval& old)
 {
-    RMDBGENTER(11, RMDebug::module_catalogif, "DBMinterval", "operator=(" << old.getOId() << ") with me " << myOId);
     if (this == &old)
         return *this;
     r_Minterval::operator=(old);
     setModified();
-    RMDBGEXIT(11, RMDebug::module_catalogif, "DBMinterval", "operator=(" << old.getOId() << ") with me " << myOId);
     return *this;
 }
 
@@ -179,8 +175,8 @@ DBMinterval::updateInDb() throw (r_Error)
     }
     else
     {
-        RMInit::logOut << "DBMinterval::updateInDb() - domain object: "
-                << domainid << " not found in the database." << endl;
+        LFATAL << "DBMinterval::updateInDb() - domain object: "
+                << domainid << " not found in the database.";
         throw r_Ebase_dbms( SQLITE_NOTFOUND, "domain object not found in the database." );
     }
 
@@ -272,8 +268,8 @@ DBMinterval::readFromDb() throw (r_Error)
     }
     else
     {
-        RMInit::logOut << "DBMinterval::readFromDb() - domain object: "
-                << domainid << " not found in the database.." << endl;
+        LFATAL << "DBMinterval::readFromDb() - domain object: "
+                << domainid << " not found in the database..";
         throw r_Ebase_dbms( SQLITE_NOTFOUND, "domain object not found in the database." );
     }
 
@@ -309,8 +305,8 @@ DBMinterval::readFromDb() throw (r_Error)
         }
         else
         {
-            RMInit::logOut << "DBMinterval::readFromDb() - domain object: "
-                    << domainid << " has no dimension " << count << " description in the database." << endl;
+            LFATAL << "DBMinterval::readFromDb() - domain object: "
+                    << domainid << " has no dimension " << count << " description in the database.";
             throw r_Ebase_dbms( SQLITE_NOTFOUND, "domain object has no dimension description in the database." );
         }
 

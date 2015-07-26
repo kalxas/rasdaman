@@ -41,7 +41,6 @@ EXEC SQL include "../reladminif/sqlglobals.h";
 
 #include "config.h"
 #include "mdddomaintype.hh"
-#include "raslib/rmdebug.hh"
 #include "reladminif/objectbroker.hh"
 #include "reladminif/sqlerror.hh"
 #include "dbminterval.hh"
@@ -50,8 +49,6 @@ EXEC SQL include "../reladminif/sqlglobals.h";
 void
 MDDDomainType::insertInDb() throw (r_Error)
 {
-    RMDBGENTER(5, RMDebug::module_catalogif, "MDDDomainType", "insertInDb() " << myOId << " " << getTypeName());
-
     char* domstr = 0;
     EXEC SQL BEGIN DECLARE SECTION;
         long    mddtypeid;
@@ -72,15 +69,11 @@ MDDDomainType::insertInDb() throw (r_Error)
         generateException();
 
     DBObject::insertInDb();
-
-    RMDBGEXIT(5, RMDebug::module_catalogif, "MDDDomainType", "insertInDb() " << myOId);
 }
 
 void
 MDDDomainType::readFromDb() throw (r_Error)
 {
-    RMDBGENTER(5, RMDebug::module_catalogif, "MDDDomainType", "readFromDb() " << myOId);
-
     EXEC SQL BEGIN DECLARE SECTION;
         long    mddtypeid1;
         char    mddtypename1[STRING_MAXLEN];
@@ -113,15 +106,11 @@ MDDDomainType::readFromDb() throw (r_Error)
 #endif
 
     DBObject::readFromDb();
-
-    RMDBGEXIT(5, RMDebug::module_catalogif, "MDDDomainType", "readFromDb() " << myOId);
 }
 
 void
 MDDDomainType::deleteFromDb() throw (r_Error)
 {
-    RMDBGENTER(5, RMDebug::module_catalogif, "MDDDomainType", "deleteFromDb() " << myOId << " " << getTypeName());
-
     EXEC SQL BEGIN DECLARE SECTION;
         long    mddtypeid2;
     EXEC SQL END DECLARE SECTION;
@@ -137,6 +126,4 @@ MDDDomainType::deleteFromDb() throw (r_Error)
     myDomain->setCached(false);
 
     DBObject::deleteFromDb();
-
-    RMDBGEXIT(5, RMDebug::module_catalogif, "MDDDomainType", "deleteFromDb() " << myOId);
 }

@@ -37,16 +37,15 @@ rasdaman GmbH.
 
 #include "config.h"
 #include "mdddimensiontype.hh"
-#include "raslib/rmdebug.hh"
 #include "reladminif/objectbroker.hh"
 #include "reladminif/sqlerror.hh"
 #include "reladminif/sqlglobals.h"
 #include "reladminif/sqlitewrapper.hh"
+#include "../common/src/logging/easylogging++.hh"
 
 void
 MDDDimensionType::insertInDb() throw (r_Error)
 {
-    RMDBGENTER(5, RMDebug::module_catalogif, "MDDDimensionType", "insertInDb() " << myOId << " " << getTypeName());
     long long mddtypeid;
     long long mddbasetypeid;
     short dimension;
@@ -57,18 +56,16 @@ MDDDimensionType::insertInDb() throw (r_Error)
     (void) strncpy(mddtypename, const_cast<char*>(getName()), (size_t) sizeof (mddtypename));
     DBObject* obj = (DBObject*)const_cast<BaseType*>(getBaseType());
     mddbasetypeid = obj->getOId();
-    RMDBGMIDDLE(5, RMDebug::module_catalogif, "MDDDimensionType", " typeid " << mddtypeid << " name " << mddtypename << " basetypeoid " << mddbasetypeid << "dimension " << dimension)
+    LTRACE << " typeid " << mddtypeid << " name " << mddtypename << " basetypeoid " << mddbasetypeid << "dimension " << dimension;
 
     SQLiteQuery::executeWithParams("INSERT INTO RAS_MDDDIMTYPES ( MDDDimTypeOId, MDDTypeName, BaseTypeId, Dimension) VALUES (%lld, '%s', %lld, %d)",
                                    mddtypeid, mddtypename, mddbasetypeid, dimension);
     DBObject::insertInDb();
-    RMDBGEXIT(5, RMDebug::module_catalogif, "MDDDimensionType", "insertInDb() " << myOId);
 }
 
 void
 MDDDimensionType::readFromDb() throw (r_Error)
 {
-    RMDBGENTER(5, RMDebug::module_catalogif, "MDDDimensionType", "readFromDb() " << myOId);
 #ifdef RMANBENCHMARK
     DBObject::readTimer.resume();
 #endif
@@ -91,8 +88,8 @@ MDDDimensionType::readFromDb() throw (r_Error)
     }
     else
     {
-        RMInit::logOut << "MDDDimensionType::readFromDb() - mdd type: "
-                << mddtypeid << " not found in the database." << endl;
+        LFATAL << "MDDDimensionType::readFromDb() - mdd type: "
+                << mddtypeid << " not found in the database.";
         throw r_Ebase_dbms(SQLITE_NOTFOUND, "mdd type object not found in the database.");
     }
 
@@ -102,18 +99,15 @@ MDDDimensionType::readFromDb() throw (r_Error)
 #ifdef RMANBENCHMARK
     DBObject::readTimer.pause();
 #endif
-    RMDBGMIDDLE(6, RMDebug::module_catalogif, "MDDDimensionType", "myBaseType at " << myBaseType);
+    LTRACE << "myBaseType at " << myBaseType;
     DBObject::readFromDb();
-    RMDBGEXIT(5, RMDebug::module_catalogif, "MDDDimensionType", "readFromDb() " << myOId);
 }
 
 void
 MDDDimensionType::deleteFromDb() throw (r_Error)
 {
-    RMDBGENTER(5, RMDebug::module_catalogif, "MDDDimensionType", "deleteFromDb() " << myOId << " " << getTypeName());
     long long mddtypeid = myOId.getCounter();
     SQLiteQuery::executeWithParams("DELETE FROM RAS_MDDDIMTYPES WHERE MDDDimTypeOId = %lld",
                                    mddtypeid);
     DBObject::deleteFromDb();
-    RMDBGEXIT(5, RMDebug::module_catalogif, "MDDDimensionType", "deleteFromDb() " << myOId);
 }

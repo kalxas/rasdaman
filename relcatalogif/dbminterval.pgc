@@ -38,7 +38,6 @@ rasdaman GmbH.
 #include "reladminif/sqlerror.hh"
 #include "reladminif/externs.h"
 #include "dbminterval.hh"
-#include "raslib/rmdebug.hh"
 
 EXEC SQL include "../reladminif/sqlglobals.h";
 
@@ -87,20 +86,16 @@ DBMinterval::DBMinterval(const r_Minterval& old)
 
 DBMinterval::~DBMinterval()
 {
-    RMDBGENTER(4, RMDebug::module_catalogif, "DBMinterval", "~DBMinterval() " << myOId);
     validate();
-    RMDBGEXIT(4, RMDebug::module_catalogif, "DBMinterval", "~DBMinterval() " << myOId);
 }
 
 DBMinterval&
 DBMinterval::operator=(const DBMinterval& old)
 {
-    RMDBGENTER(11, RMDebug::module_catalogif, "DBMinterval", "operator=(" << old.getOId() << ") with me " << myOId);
     if (this == &old)
         return *this;
     r_Minterval::operator=(old);
     setModified();
-    RMDBGEXIT(11, RMDebug::module_catalogif, "DBMinterval", "operator=(" << old.getOId() << ") with me " << myOId);
     return *this;
 }
 

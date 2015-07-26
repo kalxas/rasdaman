@@ -35,13 +35,13 @@ rasdaman GmbH.
 static const char rcsid[] = "@(#)catalogif,BaseType: $Id: basetype.C,v 1.11 2001/06/20 08:06:37 hoefner Exp $";
 
 #include "basetype.hh"
-#include "raslib/rmdebug.hh"
 #include "reladminif/externs.h"
+#include "../common/src/logging/easylogging++.hh"
 
 BaseType::BaseType(const char* name)
 	:	Type(name)
 	{
-        RMDBGONCE(7, RMDebug::module_catalogif, "BaseType", "BaseType(" << getName() << ")");
+        LTRACE << "BaseType(" << getName() << ")";
 	}
 
 /*************************************************************
@@ -55,13 +55,13 @@ BaseType::BaseType(const char* name)
 BaseType::BaseType()
 	:	Type("unnamed basetype")
 	{
-	RMDBGONCE(7, RMDebug::module_catalogif, "BaseType", "BaseType()");
+        LTRACE << "BaseType()";
 	}
 
 BaseType::BaseType(const OId& id) throw (r_Error)
 	:	Type(id)
 	{
-	RMDBGONCE(7, RMDebug::module_catalogif, "BaseType", "BaseType(" << myOId << ")");
+        LTRACE << "BaseType(" << myOId << ")";
 	}
 
 BaseType::BaseType(const BaseType& old)
@@ -122,9 +122,7 @@ BaseType::getCondenseOp( Ops::OpType op ) const
 int
 BaseType::compatibleWith(const Type* aType) const
 	{
-	RMDBGENTER(7, RMDebug::module_catalogif, "BaseType", "compatibleWith(" << aType->getName() << ") " << getName());
 	int retval = (myType == aType->getType());
-	RMDBGEXIT(7, RMDebug::module_catalogif, "BaseType", "compatibleWith(" << aType->getName() << ") " << getName() << " " << retval);
 	return retval;
 	}
 

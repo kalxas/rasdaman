@@ -42,16 +42,14 @@ EXEC SQL include "../reladminif/sqlglobals.h";
 
 #include "debug-srv.hh"
 #include "structtype.hh"
-#include "raslib/rmdebug.hh"
 #include "reladminif/sqlerror.hh"
 #include "reladminif/externs.h"
 #include "reladminif/objectbroker.hh"
-
+#include "../common/src/logging/easylogging++.hh"
 
 void
 StructType::insertInDb() throw (r_Error)
 {
-    RMDBGENTER(5, RMDebug::module_catalogif, "StructType", "insertInDb() " << myOId);
     EXEC SQL BEGIN DECLARE SECTION;
         long         structtypeid;
         char         structtypename[VARCHAR_MAXLEN];
@@ -63,13 +61,12 @@ StructType::insertInDb() throw (r_Error)
     (void) strncpy( structtypename, const_cast<char*>(getTypeName()), (size_t) sizeof(structtypename) );
     structtypeid = myOId.getCounter();
 
-    TALK( "EXEC SQL INSERT INTO RAS_BASETYPENAMES ( BaseTypeId, BaseTypeName) VALUES ( " << structtypeid << ", " << structtypename << ")" );
+    LDEBUG << "EXEC SQL INSERT INTO RAS_BASETYPENAMES ( BaseTypeId, BaseTypeName) VALUES ( " << structtypeid << ", " << structtypename << ")";
     EXEC SQL INSERT INTO RAS_BASETYPENAMES ( BaseTypeId, BaseTypeName)
        VALUES   ( :structtypeid, :structtypename);
     if (SQLCODE != SQLOK)
     {
         check("StructType::insertInDb() INSERT INTO RAS_BASETYPENAMES");
-        LEAVE("StructType::insertInDb() INSERT INTO RAS_BASETYPENAMES error: " << SQLCODE );
         generateException();
     }
 
@@ -80,60 +77,53 @@ StructType::insertInDb() throw (r_Error)
         DBObject* obj = (DBObject*)const_cast<BaseType*>(getElemType(count));
 
         elementtype = obj->getOId();
-        RMDBGMIDDLE(6, RMDebug::module_catalogif, "StructType", "element " << count << ". id\t:" << elementtype);
+        LTRACE << "element " << count << ". id\t:" << elementtype;
 
-        TALK( "EXEC SQL INSERT INTO RAS_BASETYPES ( BaseTypeId, ContentType, Count, ContentTypeName) VALUES ( " << structtypeid << ", " << elementtype << ", " << count << ", " << elementname << ")" );
+        LDEBUG << "EXEC SQL INSERT INTO RAS_BASETYPES ( BaseTypeId, ContentType, Count, ContentTypeName) VALUES ( " << structtypeid << ", " << elementtype << ", " << count << ", " << elementname << ")";
         EXEC SQL INSERT INTO RAS_BASETYPES ( BaseTypeId, ContentType, Count, ContentTypeName    )
         VALUES  ( :structtypeid, :elementtype, :count, :elementname);
         if (SQLCODE != SQLOK)
         {
             check("StructType::insertInDb() INSERT INTO RAS_BASETYPES");
-            LEAVE("StructType::insertInDb() INSERT INTO RAS_BASETYPES error: " << SQLCODE );
             generateException();
         }
     }
     DBObject::insertInDb();
-    RMDBGEXIT(5, RMDebug::module_catalogif, "StructType", "insertInDb()");
 }
 
 void
 StructType::deleteFromDb() throw (r_Error)
 {
-    RMDBGENTER(5, RMDebug::module_catalogif, "StructType", "deleteFromDb() " << myOId);
     EXEC SQL BEGIN DECLARE SECTION;
         long    basetypeid3;
     EXEC SQL END DECLARE SECTION;
 
     basetypeid3 = myOId.getCounter();
 
-    TALK( "EXEC SQL DELETE FROM RAS_BASETYPENAMES WHERE BaseTypeId = " << basetypeid3 );
+    LDEBUG << "EXEC SQL DELETE FROM RAS_BASETYPENAMES WHERE BaseTypeId = " << basetypeid3;
     EXEC SQL DELETE FROM RAS_BASETYPENAMES
        WHERE BaseTypeId = :basetypeid3;
     if (SQLCODE != SQLOK)
     {
         check("StructType::deleteFromDb() DELETE FROM RAS_BASETYPENAMES");
-        LEAVE("StructType::deleteFromDb() DELETE FROM RAS_BASETYPENAMES error: " << SQLCODE );
         generateException();
     }
 
-    TALK( "EXEC SQL DELETE FROM RAS_BASETYPES WHERE BaseTypeId = " << basetypeid3 );
+    LDEBUG << "EXEC SQL DELETE FROM RAS_BASETYPES WHERE BaseTypeId = " << basetypeid3;
     EXEC SQL DELETE FROM RAS_BASETYPES
        WHERE BaseTypeId = :basetypeid3;
     if (SQLCODE != SQLOK)
     {
         check("StructType::deleteFromDb() DELETE FROM RAS_BASETYPES");
-        LEAVE("StructType::deleteFromDb() DELETE FROM RAS_BASETYPES error: " << SQLCODE );
         generateException();
     }
 
     DBObject::deleteFromDb();
-    RMDBGEXIT(5, RMDebug::module_catalogif, "StructType", "deleteFromDb() " << myOId);
 }
 
 void
 StructType::readFromDb() throw (r_Error)
 {
-    RMDBGENTER(5, RMDebug::module_catalogif, "StructType", "readFromDb() " << myOId);
     short count = 0;
 
     EXEC SQL BEGIN DECLARE SECTION;
@@ -141,12 +131,12 @@ StructType::readFromDb() throw (r_Error)
         long long elementtypeid1;
         char      basetypename1[VARCHAR_MAXLEN];
         char      elementname1[VARCHAR_MAXLEN];
-        long      count1;     // added PB 2005­jan-09
+        long      count1;     // added PB 2005Â­jan-09
     EXEC SQL END DECLARE SECTION;
 
     basetypeid1 = myOId.getCounter();
 
-    TALK( "EXEC SQL SELECT BaseTypeName INTO :basetypename1 FROM RAS_BASETYPENAMES WHERE BaseTypeId = " << basetypeid1 );
+    LDEBUG << "EXEC SQL SELECT BaseTypeName INTO :basetypename1 FROM RAS_BASETYPENAMES WHERE BaseTypeId = " << basetypeid1;
     EXEC SQL SELECT BaseTypeName
        INTO :basetypename1
        FROM RAS_BASETYPENAMES
@@ -154,7 +144,6 @@ StructType::readFromDb() throw (r_Error)
     if (SQLCODE != SQLOK)
     {
         check("StructType::readFromDb() SELECT FROM RAS_BASETYPENAMES");
-        LEAVE("StructType::readFromDb() SELECT FROM RAS_BASETYPENAMES error: " << SQLCODE );
         if (SQLCODE == SQLNODATAFOUND)  // was: 100 -- PB 2005-feb-13
             throw r_Error(r_Error::r_Error_ObjectUnknown);
         else
@@ -163,7 +152,7 @@ StructType::readFromDb() throw (r_Error)
 
     setName(basetypename1);
 
-    TALK( "EXEC SQL DECLARE c CURSOR FOR SELECT ContentTypeName, ContentType, Count FROM RAS_BASETYPES WHERE BaseTypeId = " << basetypeid1 << " ORDER BY Count" );
+    LDEBUG << "EXEC SQL DECLARE c CURSOR FOR SELECT ContentTypeName, ContentType, Count FROM RAS_BASETYPES WHERE BaseTypeId = " << basetypeid1 << " ORDER BY Count";
     EXEC SQL DECLARE c CURSOR FOR
        SELECT ContentTypeName, ContentType, Count
        FROM RAS_BASETYPES
@@ -172,10 +161,9 @@ StructType::readFromDb() throw (r_Error)
     if (SQLCODE != SQLOK)
     {
         check("StructType::readFromDb() DECLARE");
-        LEAVE("StructType::readFromDb() DECLARE error: " << SQLCODE );
     }
 
-    TALK( "EXEC SQL OPEN c" );
+    LDEBUG << "EXEC SQL OPEN c";
     EXEC SQL OPEN c;
     check("StructType::readFromDb() OPEN");
 
@@ -184,7 +172,7 @@ StructType::readFromDb() throw (r_Error)
         memset(elementname1, 0, VARCHAR_MAXLEN);
         // bug fix (FIXME: what about other DBMSs?), was this: -- PB 2005-jan-09
         //  EXEC SQL FETCH c INTO :elementname1, :elementtypeid1;
-        TALK( "EXEC SQL FETCH c INTO :elementname1, :elementtypeid1, :count1;" )
+        LDEBUG << "EXEC SQL FETCH c INTO :elementname1, :elementtypeid1, :count1;";
         EXEC SQL FETCH c INTO :elementname1, :elementtypeid1, :count1;
         if (SQLCODE != SQLOK)
         {
@@ -192,25 +180,23 @@ StructType::readFromDb() throw (r_Error)
             {
                 check("StructType::readFromDb() FETCH");
                 cout << "FETCHED " << count << endl;
-                TALK( "EXEC SQL CLOSE c" );
+                LDEBUG << "EXEC SQL CLOSE c";
                 EXEC SQL CLOSE c;
-                TALK( "EXEC SQL FREE c" );
+                LDEBUG << "EXEC SQL FREE c";
                 EXEC SQL FREE c;
                 generateException();
             }
             break;
         }
-        RMDBGMIDDLE(7, RMDebug::module_catalogif, "StructType", count << ". contenttypeid is " << elementtypeid1 << " elementname is " << elementname1);
+        LTRACE << count << ". contenttypeid is " << elementtypeid1 << " elementname is " << elementname1;
         addElementPriv((char*)elementname1, (BaseType*)ObjectBroker::getObjectByOId(OId(elementtypeid1)));
         count++;
     }
     while (1);      // FIXME: make it (SQLCODE == SQLOK)
 
-    TALK( "EXEC SQL CLOSE c" );
+    LDEBUG << "EXEC SQL CLOSE c";
     EXEC SQL CLOSE c;
 
     DBObject::readFromDb();
-
-    RMDBGEXIT(5, RMDebug::module_catalogif, "StructType", "readFromDb() " << myOId);
 }
 

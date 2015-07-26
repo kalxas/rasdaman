@@ -30,29 +30,28 @@ rasdaman GmbH.
 
 #include "config.h"
 #include "inlineminterval.hh"
-#include "raslib/rmdebug.hh"
+#include "../common/src/logging/easylogging++.hh"
 
 InlineMinterval::InlineMinterval()
     :   r_Minterval(static_cast<r_Dimension>(0))
 {
-    RMDBGONCE(10, RMDebug::module_catalogif, "InlineMinterval", "InlineMinterval()");
+    LTRACE << "InlineMinterval()";
 }
 
 InlineMinterval::~InlineMinterval()
 {
-    RMDBGONCE(10, RMDebug::module_catalogif, "InlineMinterval", "~InlineMinterval()");
+    LTRACE << "~InlineMinterval()";
 }
 
 InlineMinterval::InlineMinterval(r_Dimension dim)
     :   r_Minterval(dim)
 {
-    RMDBGONCE(10, RMDebug::module_catalogif, "InlineMinterval", "InlineMinterval(" << dim << ")");
+    LTRACE << "InlineMinterval(" << dim << ")";
 }
 
 InlineMinterval::InlineMinterval(r_Dimension dim, r_Range* lowerbound, r_Range* upperbound, char* lowerfixed, char* upperfixed)
     :   r_Minterval(dim)
 {
-    RMDBGENTER(10, RMDebug::module_catalogif, "InlineMinterval", "InlineMinterval(" << dim << ", lb, ub, lf, uf)");
     char undefined = '*';
     streamInitCnt = dim;
 
@@ -76,47 +75,41 @@ InlineMinterval::InlineMinterval(r_Dimension dim, r_Range* lowerbound, r_Range* 
             intervals[count].set_high(undefined);
         }
     }
-    RMDBGEXIT(10, RMDebug::module_catalogif, "InlineMinterval", "InlineMinterval(" << dim << ", lb, ub, lf, uf)");
 }
 
 InlineMinterval::InlineMinterval(const InlineMinterval& old)
     :   r_Minterval(old)
 {
-    RMDBGONCE(10, RMDebug::module_catalogif, "InlineMinterval", "InlineMinterval(InlineMinterval)");
+    LTRACE << "InlineMinterval(InlineMinterval)";
 }
 
 InlineMinterval::InlineMinterval(const r_Minterval& old)
     :   r_Minterval(old)
 {
-    RMDBGONCE(10, RMDebug::module_catalogif, "InlineMinterval", "InlineMinterval(r_Minterval)");
+    LTRACE << "InlineMinterval(r_Minterval)";
 }
 
 InlineMinterval&
 InlineMinterval::operator=(const InlineMinterval& old)
 {
-    RMDBGENTER(10, RMDebug::module_catalogif, "InlineMinterval", "operator=()");
     if (this == &old)
         return *this;
     r_Minterval::operator=(old);
-    RMDBGEXIT(10, RMDebug::module_catalogif, "InlineMinterval", "operator=()");
     return *this;
 }
 
 InlineMinterval&
 InlineMinterval::operator=(const r_Minterval& old)
 {
-    RMDBGENTER(10, RMDebug::module_catalogif, "InlineMinterval", "operator=()");
     if (this == &old)
         return *this;
     r_Minterval::operator=(old);
-    RMDBGEXIT(10, RMDebug::module_catalogif, "InlineMinterval", "operator=()");
     return *this;
 }
 
 void
 InlineMinterval::insertInDb(r_Range* lowerbound, r_Range* upperbound, char* lowerfixed, char* upperfixed) const
 {
-    RMDBGENTER(10, RMDebug::module_catalogif, "InlineMinterval", "insertInDb(lb, ub, lf, uf)");
     char undefined = '*';
     for (unsigned int count = 0; count < dimensionality; count++)
     {
@@ -139,6 +132,5 @@ InlineMinterval::insertInDb(r_Range* lowerbound, r_Range* upperbound, char* lowe
             upperfixed[count] = undefined;
         }
     }
-    RMDBGEXIT(10, RMDebug::module_catalogif, "InlineMinterval", "insertInDb(lb, ub, lf, uf)");
 }
 

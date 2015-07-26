@@ -41,17 +41,14 @@ rasdaman GmbH.
 #include "mddtype.hh"
 #include "reladminif/sqlerror.hh"
 #include "reladminif/sqlglobals.h"
-#include "raslib/rmdebug.hh"
 #include "reladminif/objectbroker.hh"
 #include "reladminif/sqlitewrapper.hh"
+#include "../common/src/logging/easylogging++.hh"
 
 void
 SetType::insertInDb() throw (r_Error)
 {
-    RMDBGENTER(5, RMDebug::module_catalogif, "SetType", "insertInDb() " << myOId << " " << getTypeName());
-    ENTER("SetType::insertInDb()")
-
-            long long mddtypeid;
+    long long mddtypeid;
     char settypename[VARCHAR_MAXLEN];
     long long settypeid;
     long long nullvalueoid;
@@ -70,15 +67,11 @@ SetType::insertInDb() throw (r_Error)
                                        settypeid, nullvalueoid);
     }
     DBObject::insertInDb();
-
-    LEAVE("SetType::insertInDb()");
-    RMDBGEXIT(5, RMDebug::module_catalogif, "SetType", "insertInDb() " << myOId);
 }
 
 void
 SetType::deleteFromDb() throw (r_Error)
 {
-    RMDBGENTER(5, RMDebug::module_catalogif, "SetType", "deleteFromDb() " << myOId << " " << getTypeName());
     long long settypeid = myOId.getCounter();
 
     SQLiteQuery::executeWithParams("DELETE FROM RAS_SETTYPES WHERE SetTypeId = %lld",
@@ -92,14 +85,11 @@ SetType::deleteFromDb() throw (r_Error)
     }
 
     DBObject::deleteFromDb();
-    RMDBGEXIT(5, RMDebug::module_catalogif, "SetType", "deleteFromDb() " << myOId);
 }
 
 void
 SetType::readFromDb() throw (r_Error)
 {
-    RMDBGENTER(5, RMDebug::module_catalogif, "SetType", "readFromDb() " << myOId);
-    ENTER("SetType::readFromDb()");
 #ifdef RMANBENCHMARK
     DBObject::readTimer.resume();
 #endif
@@ -120,8 +110,8 @@ SetType::readFromDb() throw (r_Error)
     }
     else
     {
-        RMInit::logOut << "SetType::readFromDb() - set type: "
-                << settypeid << " not found in the database." << endl;
+        LFATAL << "SetType::readFromDb() - set type: "
+                << settypeid << " not found in the database.";
         throw r_Ebase_dbms(SQLITE_NOTFOUND, "set type object not found in the database.");
     }
     setName(settypename);
@@ -135,18 +125,15 @@ SetType::readFromDb() throw (r_Error)
         nullvalueoid = queryNull.nextColumnLong();
         nullValues = (DBMinterval*) ObjectBroker::getObjectByOId(OId(nullvalueoid, OId::DBMINTERVALOID));
         nullValues->setCached(true);
-        TALK("Got null values: " << nullValues->get_string_representation());
+        LDEBUG << "Got null values: " << nullValues->get_string_representation();
     }
     else
     {
-        TALK("No null values found.");
+        LDEBUG << "No null values found.";
     }
     DBObject::readFromDb();
 
 #ifdef RMANBENCHMARK
     DBObject::readTimer.pause();
 #endif
-
-    LEAVE("SetType::readFromDb()");
-    RMDBGEXIT(5, RMDebug::module_catalogif, "SetType", "readFromDb() " << myOId);
 }

@@ -37,17 +37,16 @@ rasdaman GmbH.
 
 #include "debug-srv.hh"
 #include "structtype.hh"
-#include "raslib/rmdebug.hh"
 #include "reladminif/sqlerror.hh"
 #include "reladminif/externs.h"
 #include "reladminif/objectbroker.hh"
 #include "reladminif/sqlglobals.h"
 #include "reladminif/sqlitewrapper.hh"
+#include "../common/src/logging/easylogging++.hh"
 
 void
 StructType::insertInDb() throw (r_Error)
 {
-    RMDBGENTER(5, RMDebug::module_catalogif, "StructType", "insertInDb() " << myOId);
     long long structtypeid;
     char structtypename[VARCHAR_MAXLEN];
     long long elementtype;
@@ -66,19 +65,17 @@ StructType::insertInDb() throw (r_Error)
         DBObject* obj = (DBObject*)const_cast<BaseType*>(getElemType(count));
 
         elementtype = obj->getOId();
-        RMDBGMIDDLE(6, RMDebug::module_catalogif, "StructType", "element " << count << ". id\t:" << elementtype);
+        LTRACE << "element " << count << ". id\t:" << elementtype;
 
         SQLiteQuery::executeWithParams("INSERT INTO RAS_BASETYPES (BaseTypeId, ContentType, Count, ContentTypeName) VALUES (%lld, %lld, %d, '%s')",
                                        structtypeid, elementtype, count, elementname);
     }
     DBObject::insertInDb();
-    RMDBGEXIT(5, RMDebug::module_catalogif, "StructType", "insertInDb()");
 }
 
 void
 StructType::readFromDb() throw (r_Error)
 {
-    RMDBGENTER(5, RMDebug::module_catalogif, "StructType", "readFromDb() " << myOId);
     short count = 0;
 
     long long basetypeid;
@@ -97,8 +94,8 @@ StructType::readFromDb() throw (r_Error)
     }
     else
     {
-        RMInit::logOut << "StructType::readFromDb() - base type: "
-                << basetypeid << " not found in the database." << endl;
+        LFATAL << "StructType::readFromDb() - base type: "
+                << basetypeid << " not found in the database.";
         throw r_Ebase_dbms(SQLITE_NOTFOUND, "base type object not found in the database.");
     }
     setName(basetypename);
@@ -111,24 +108,20 @@ StructType::readFromDb() throw (r_Error)
         elementtypeid = query2.nextColumnLong();
         count1 = query2.nextColumnInt();
 
-        RMDBGMIDDLE(7, RMDebug::module_catalogif, "StructType", count << ". contenttypeid is " << elementtypeid << " elementname is " << elementname);
+        LTRACE << count << ". contenttypeid is " << elementtypeid << " elementname is " << elementname;
         addElementPriv((char*) elementname, (BaseType*) ObjectBroker::getObjectByOId(OId(elementtypeid)));
         count++;
     }
     DBObject::readFromDb();
-
-    RMDBGEXIT(5, RMDebug::module_catalogif, "StructType", "readFromDb() " << myOId);
 }
 
 void
 StructType::deleteFromDb() throw (r_Error)
 {
-    RMDBGENTER(5, RMDebug::module_catalogif, "StructType", "deleteFromDb() " << myOId);
     long long basetypeid = myOId.getCounter();
     SQLiteQuery::executeWithParams("DELETE FROM RAS_BASETYPENAMES WHERE BaseTypeId = %lld",
                                    basetypeid);
     SQLiteQuery::executeWithParams("DELETE FROM RAS_BASETYPES WHERE BaseTypeId = %lld",
                                    basetypeid);
     DBObject::deleteFromDb();
-    RMDBGEXIT(5, RMDebug::module_catalogif, "StructType", "deleteFromDb() " << myOId);
 }

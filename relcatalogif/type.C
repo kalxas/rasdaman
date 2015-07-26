@@ -37,7 +37,7 @@ rasdaman GmbH.
 #include <cstring>
 #include <ctype.h>
 #include "type.hh"
-#include "raslib/rmdebug.hh"
+#include "../common/src/logging/easylogging++.hh"
 #include "reladminif/externs.h"
 
 /************************************************************
@@ -51,19 +51,19 @@ rasdaman GmbH.
 Type::Type()
 	:	DBNamedObject("unnamed type")
 	{
-	RMDBGONCE(4, RMDebug::module_catalogif, "Type", "Type()");
+        LTRACE << "Type()";
 	}
 
 Type::Type(const OId& id) throw (r_Error)
 	:	DBNamedObject(id)
 	{
-	RMDBGONCE(4, RMDebug::module_catalogif, "Type", "Type(" << myOId << ")");
+        LTRACE << "Type(" << myOId << ")";
 	}
 
 Type::Type(const char* name)
 	:	DBNamedObject(name)
 	{
-	RMDBGONCE(4, RMDebug::module_catalogif, "Type", "Type(" << name << ")");
+        LTRACE << "Type(" << name << ")";
 	}
 
 Type::Type(const Type& old)

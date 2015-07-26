@@ -23,6 +23,7 @@ rasdaman GmbH.
 #include "collectiontype.hh"
 #include "mddtype.hh"
 #include "debug/debug-srv.hh"
+#include "../common/src/logging/easylogging++.hh"
 
 r_Bytes
 CollectionType::getMemorySize() const
@@ -103,17 +104,13 @@ CollectionType::compatibleWith(const Type* aType) const
 
 DBMinterval* CollectionType::getNullValues() const
 {
-  ENTER("CollectionType::getNullValues()");
   if (nullValues != NULL) {
-    TALK("returning null values: " << nullValues->get_string_representation());
+    LDEBUG << "returning null values: " << nullValues->get_string_representation();
   }
-  LEAVE("CollectionType::getNullValues()");
   return nullValues;
 }
 
 void CollectionType::setNullValues(const r_Minterval &newNullValues)
 {
-  ENTER("CollectionType::setNullValues( " << newNullValues.get_string_representation() << " )");
   nullValues = new DBMinterval(newNullValues);
-  LEAVE("CollectionType::setNullValues");
 }

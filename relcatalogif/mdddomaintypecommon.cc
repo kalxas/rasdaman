@@ -22,7 +22,6 @@ rasdaman GmbH.
 */
 #include "config.h"
 #include "mymalloc/mymalloc.h"
-#include "raslib/rmdebug.hh"
 #include "mdddomaintype.hh"
 #include "mdddimensiontype.hh"
 #ifdef __APPLE__
@@ -36,6 +35,7 @@ rasdaman GmbH.
 #include "reladminif/externs.h"
 #include "reladminif/objectbroker.hh"
 #include "dbminterval.hh"
+#include "../common/src/logging/easylogging++.hh"
 #include <cstring>
 #include <string>
 
@@ -49,14 +49,12 @@ MDDDomainType::MDDDomainType(const OId& id) throw (r_Error)
     :   MDDBaseType(id),
         myDomain(0)
 {
-    RMDBGENTER(4, RMDebug::module_catalogif, "MDDDomainType", "MDDDomainType(" << id <<")");
     if (objecttype == OId::MDDDOMTYPEOID)
     {
         mySubclass = MDDDOMAINTYPE;
         readFromDb();
     }
-    RMDBGMIDDLE(8, RMDebug::module_catalogif, "MDDDomainType", "Domain\t:" << *myDomain);
-    RMDBGEXIT(4, RMDebug::module_catalogif, "MDDDomainType", "MDDDomainType(" << id <<")");
+    LTRACE << "Domain\t:" << *myDomain;
 }
 
 MDDDomainType::MDDDomainType(const char* newTypeName, const BaseType* newBaseType, const r_Minterval& newDomain)
@@ -146,19 +144,15 @@ MDDDomainType::print_status( ostream& s ) const
 
 MDDDomainType::~MDDDomainType()
 {
-    RMDBGENTER(4, RMDebug::module_catalogif, "MDDDomainType", "~MDDDomainType() " << myOId << " " << getTypeName());
-
     validate();
     if (myDomain)
         delete myDomain;
     myDomain = 0;
-    RMDBGEXIT(4, RMDebug::module_catalogif, "MDDDomainType", "~MDDDomainType() " << myOId << " " << getTypeName());
 }
 
 int
 MDDDomainType::compatibleWith(const Type* aType) const
 {
-    RMDBGENTER(11, RMDebug::module_catalogif, "MDDDomainType", "compatibleWith(" << aType->getName() << ") " << getName());
     bool retval = false;
     if (aType->getType() == MDDTYPE)
     {
@@ -175,17 +169,17 @@ MDDDomainType::compatibleWith(const Type* aType) const
                     }
                     else
                     {
-                        RMDBGMIDDLE(6, RMDebug::module_catalogif, "MDDDomainType", "domain marray types have incompatible domains");
+                        LTRACE << "domain marray types have incompatible domains";
                     }
                 }
                 else
                 {
-                    RMDBGMIDDLE(6, RMDebug::module_catalogif, "MDDDomainType", "domain marray types have different dimensions");
+                    LTRACE << "domain marray types have different dimensions";
                 }
             }
             else
             {
-                RMDBGMIDDLE(6, RMDebug::module_catalogif, "MDDDomainType", "basetypes are not equal");
+                LTRACE << "basetypes are not equal";
             }
         }
         else
@@ -200,25 +194,24 @@ MDDDomainType::compatibleWith(const Type* aType) const
                     }
                     else
                     {
-                        RMDBGMIDDLE(6, RMDebug::module_catalogif, "MDDDomainType", "dimension marray type has wrong dimension")
+                        LTRACE << "dimension marray type has wrong dimension";
                     }
                 }
                 else
                 {
-                    RMDBGMIDDLE(6, RMDebug::module_catalogif, "MDDDomainType", "basetypes are not equal");
+                    LTRACE << "basetypes are not equal";
                 }
             }
             else
             {
-                RMDBGMIDDLE(6, RMDebug::module_catalogif, "MDDDomainType", "not a dimension/domain type");
+                LTRACE << "not a dimension/domain type";
             }
         }
     }
     else
     {
-        RMInit::logOut << "MDDDomainType::compatibleWith() was passed a type that is not an marray type (" << aType->getName() << endl;
+       LERROR << "MDDDomainType::compatibleWith() was passed a type that is not an marray type (" << aType->getName();
     }
-    RMDBGEXIT(11, RMDebug::module_catalogif, "MDDDomainType", "compatibleWith(" << aType->getName() << ") " << getName() << " retval " << retval);
     return retval;
 }
 

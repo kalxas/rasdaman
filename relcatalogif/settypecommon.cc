@@ -32,7 +32,6 @@ rasdaman GmbH.
 #include <string.h>
 #include "reladminif/sqlerror.hh"
 #include "reladminif/externs.h"
-#include "raslib/rmdebug.hh"
 #include "reladminif/objectbroker.hh"
 #include "mddtype.hh"
 
@@ -88,7 +87,5 @@ SetType::SetType()
 
 SetType::~SetType()
 {
-    RMDBGENTER(4, RMDebug::module_catalogif, "SetType", "~SetType() " << myOId);
     validate();
-    RMDBGEXIT(4, RMDebug::module_catalogif, "SetType", "~SetType() " << myOId);
 }

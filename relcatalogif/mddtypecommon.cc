@@ -30,10 +30,10 @@ rasdaman GmbH.
 #include <iostream>
 #include <string.h>
 #include "raslib/minterval.hh"
-#include "raslib/rmdebug.hh"
 #include "reladminif/sqlerror.hh"
 #include "mddtype.hh"
 #include "reladminif/externs.h"
+#include "../common/src/logging/easylogging++.hh"
 
 r_Bytes
 MDDType::getMemorySize() const
@@ -88,9 +88,7 @@ MDDType& MDDType::operator=(const MDDType& old)
 
 MDDType::~MDDType()
 {
-    RMDBGENTER(6, RMDebug::module_catalogif, "MDDType", "~MDDType() " << myOId);
     validate();
-    RMDBGEXIT(6, RMDebug::module_catalogif, "MDDType", "~MDDType() " << myOId);
 }
 
 char*
@@ -118,7 +116,7 @@ MDDType::print_status( ostream& s ) const
 int
 MDDType::compatibleWith(const Type* aType) const
 {
-    RMDBGONCE(11, RMDebug::module_catalogif, "MDDType", "compatibleWith(" << aType->getName() << ") " << (aType->getType() != MDDTYPE));
+    LTRACE << "compatibleWith(" << aType->getName() << ") " << (aType->getType() != MDDTYPE);
     if(aType->getType() != MDDTYPE)
         return 0;
     else
@@ -128,7 +126,7 @@ MDDType::compatibleWith(const Type* aType) const
 int
 MDDType::compatibleWithDomain(__attribute__ ((unused)) const r_Minterval* aDomain ) const
 {
-    RMDBGONCE(11, RMDebug::module_catalogif, "MDDType", "compatibleWithDomain(" << *aDomain << ") " << 1);
+    LTRACE << "compatibleWithDomain(" << *aDomain << ") " << 1;
     return 1;
 }
 

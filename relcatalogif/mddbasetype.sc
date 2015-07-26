@@ -36,17 +36,16 @@ rasdaman GmbH.
 #include "config.h"
 #include "debug-srv.hh"
 #include "mddbasetype.hh"
-#include "raslib/rmdebug.hh"
 #include "reladminif/sqlerror.hh"
 #include "reladminif/externs.h"
 #include "reladminif/objectbroker.hh"
 #include "reladminif/sqlglobals.h"
 #include "reladminif/sqlitewrapper.hh"
+#include "../common/src/logging/easylogging++.hh"
 
 void
 MDDBaseType::insertInDb() throw (r_Error)
 {
-    RMDBGENTER(6, RMDebug::module_catalogif, "MDDBaseType", "insertInDb() " << myOId << " " << getTypeName());
     long long mddtypeid;
     long long mddbasetypeid;
     char mddtypename[STRING_MAXLEN];
@@ -59,13 +58,11 @@ MDDBaseType::insertInDb() throw (r_Error)
     SQLiteQuery::executeWithParams("INSERT INTO RAS_MDDBASETYPES ( MDDBaseTypeOId, MDDTypeName, BaseTypeId) VALUES (%lld, '%s', %lld)",
                                    mddtypeid, mddtypename, mddbasetypeid);
     DBObject::insertInDb();
-    RMDBGEXIT(5, RMDebug::module_catalogif, "MDDBaseType", "insertInDb() " << myOId);
 }
 
 void
 MDDBaseType::readFromDb() throw (r_Error)
 {
-    RMDBGENTER(5, RMDebug::module_catalogif, "MDDBaseType", "readFromDb() " << myOId);
 #ifdef RMANBENCHMARK
     DBObject::readTimer.resume();
 #endif
@@ -85,8 +82,8 @@ MDDBaseType::readFromDb() throw (r_Error)
     }
     else
     {
-        RMInit::logOut << "MDDBaseType::readFromDb() - mdd type: "
-                << mddtypeid << " not found in the database." << endl;
+        LFATAL << "MDDBaseType::readFromDb() - mdd type: "
+                << mddtypeid << " not found in the database.";
         throw r_Ebase_dbms(SQLITE_NOTFOUND, "mdd type object not found in the database.");
     }
 
@@ -96,16 +93,13 @@ MDDBaseType::readFromDb() throw (r_Error)
     DBObject::readTimer.pause();
 #endif
     DBObject::readFromDb();
-    RMDBGEXIT(5, RMDebug::module_catalogif, "MDDBaseType", "readFromDb() " << myOId);
 }
 
 void
 MDDBaseType::deleteFromDb() throw (r_Error)
 {
-    RMDBGENTER(5, RMDebug::module_catalogif, "MDDBaseType", "deleteFromDb() " << myOId << " " << getTypeName());
     long long mddtypeid = myOId.getCounter();
     SQLiteQuery::executeWithParams("DELETE FROM RAS_MDDBASETYPES WHERE MDDBaseTypeOId = %lld",
                                    mddtypeid);
     DBObject::deleteFromDb();
-    RMDBGEXIT(5, RMDebug::module_catalogif, "MDDBaseType", "deleteFromDb() " << myOId);
 }

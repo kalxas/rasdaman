@@ -37,19 +37,17 @@ rasdaman GmbH.
 
 #include "config.h"
 #include "mdddomaintype.hh"
-#include "raslib/rmdebug.hh"
 #include "reladminif/objectbroker.hh"
 #include "reladminif/sqlerror.hh"
 #include "reladminif/sqlglobals.h"
 #include "reladminif/sqlitewrapper.hh"
 #include "dbminterval.hh"
+#include "../common/src/logging/easylogging++.hh"
 #include <cstring>
 
 void
 MDDDomainType::insertInDb() throw (r_Error)
 {
-    RMDBGENTER(5, RMDebug::module_catalogif, "MDDDomainType", "insertInDb() " << myOId << " " << getTypeName());
-
     long long mddtypeid;
     long long mddbasetypeid;
     long long domainid;
@@ -63,14 +61,11 @@ MDDDomainType::insertInDb() throw (r_Error)
     SQLiteQuery::executeWithParams("INSERT INTO RAS_MDDDOMTYPES ( MDDDomTypeOId, MDDTypeName, BaseTypeId, DomainId) VALUES (%lld, '%s', %lld, %lld)",
                                    mddtypeid, mddtypename, mddbasetypeid, domainid);
     DBObject::insertInDb();
-    RMDBGEXIT(5, RMDebug::module_catalogif, "MDDDomainType", "insertInDb() " << myOId);
 }
 
 void
 MDDDomainType::readFromDb() throw (r_Error)
 {
-    RMDBGENTER(5, RMDebug::module_catalogif, "MDDDomainType", "readFromDb() " << myOId);
-
     long long mddtypeid;
     long long mddbasetypeid;
     long long domainid;
@@ -89,8 +84,8 @@ MDDDomainType::readFromDb() throw (r_Error)
     }
     else
     {
-        RMInit::logOut << "MDDDomainType::readFromDb() - mdd type: "
-                << mddtypeid << " not found in the database." << endl;
+        LFATAL << "MDDDomainType::readFromDb() - mdd type: "
+                << mddtypeid << " not found in the database.";
         throw r_Ebase_dbms(SQLITE_NOTFOUND, "mdd type object not found in the database.");
     }
 
@@ -103,19 +98,15 @@ MDDDomainType::readFromDb() throw (r_Error)
     DBObject::readTimer.pause();
 #endif
     DBObject::readFromDb();
-    RMDBGEXIT(5, RMDebug::module_catalogif, "MDDDomainType", "readFromDb() " << myOId);
 }
 
 void
 MDDDomainType::deleteFromDb() throw (r_Error)
 {
-    RMDBGENTER(5, RMDebug::module_catalogif, "MDDDomainType", "deleteFromDb() " << myOId << " " << getTypeName());
-
     long long mddtypeid = myOId.getCounter();
     SQLiteQuery::executeWithParams("DELETE FROM RAS_MDDDOMTYPES WHERE MDDDomTypeOId = %lld",
                                    mddtypeid);
     myDomain->setPersistent(false);
     myDomain->setCached(false);
     DBObject::deleteFromDb();
-    RMDBGEXIT(5, RMDebug::module_catalogif, "MDDDomainType", "deleteFromDb() " << myOId);
 }

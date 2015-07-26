@@ -36,16 +36,15 @@ rasdaman GmbH.
 
 #include "config.h"
 #include "mddtype.hh"
-#include "raslib/rmdebug.hh"
 #include "reladminif/sqlerror.hh"
 #include "reladminif/externs.h"
 #include "reladminif/sqlglobals.h"
 #include "reladminif/sqlitewrapper.hh"
+#include "../common/src/logging/easylogging++.hh"
 
 void
 MDDType::insertInDb() throw (r_Error)
 {
-    RMDBGENTER(7, RMDebug::module_catalogif, "MDDType", "insertInDb() " << myOId << " " << getTypeName());
     long long mddtypeid;
     char mddtypename[VARCHAR_MAXLEN];
 
@@ -55,13 +54,11 @@ MDDType::insertInDb() throw (r_Error)
     SQLiteQuery::executeWithParams("INSERT INTO RAS_MDDTYPES ( MDDTypeOId, MDDTypeName ) VALUES (%lld, '%s')",
                                    mddtypeid, mddtypename);
     DBObject::insertInDb();
-    RMDBGEXIT(7, RMDebug::module_catalogif, "MDDType", "insertInDb() " << myOId);
 }
 
 void
 MDDType::readFromDb() throw (r_Error)
 {
-    RMDBGENTER(7, RMDebug::module_catalogif, "MDDType", "readFromDb() " << myOId);
 #ifdef RMANBENCHMARK
     DBObject::readTimer.resume();
 #endif
@@ -78,8 +75,8 @@ MDDType::readFromDb() throw (r_Error)
     }
     else
     {
-        RMInit::logOut << "MDDType::readFromDb() - mdd type: "
-                << mddtypeid << " not found in the database." << endl;
+        LFATAL << "MDDType::readFromDb() - mdd type: "
+                << mddtypeid << " not found in the database.";
         throw r_Ebase_dbms(SQLITE_NOTFOUND, "mdd type object not found in the database.");
     }
 
@@ -88,16 +85,13 @@ MDDType::readFromDb() throw (r_Error)
     DBObject::readTimer.pause();
 #endif
     DBObject::readFromDb();
-    RMDBGEXIT(7, RMDebug::module_catalogif, "MDDType", "readFromDb() " << myOId);
 }
 
 void
 MDDType::deleteFromDb() throw (r_Error)
 {
-    RMDBGENTER(7, RMDebug::module_catalogif, "MDDType", "deleteFromDb() " << myOId << " " << getTypeName());
     long long mddtypeid = myOId.getCounter();
     SQLiteQuery::executeWithParams("DELETE FROM RAS_MDDTYPES WHERE MDDTypeOId = %lld",
                                    mddtypeid);
     DBObject::deleteFromDb();
-    RMDBGEXIT(7, RMDebug::module_catalogif, "MDDType", "deleteFromDb() " << myOId);
 }

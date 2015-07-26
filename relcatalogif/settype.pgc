@@ -44,15 +44,12 @@ EXEC SQL include "../reladminif/sqlglobals.h";
 #include "mddtype.hh"
 #include "reladminif/sqlerror.hh"
 #include "reladminif/externs.h"
-#include "raslib/rmdebug.hh"
 #include "reladminif/objectbroker.hh"
+#include "../common/src/logging/easylogging++.hh"
 
 void
 SetType::insertInDb() throw (r_Error)
 {
-    RMDBGENTER(5, RMDebug::module_catalogif, "SetType", "insertInDb() " << myOId << " " << getTypeName());
-    ENTER("SetType::insertInDb()")
-
     EXEC SQL BEGIN DECLARE SECTION;
         long long  mddtypeid;
         char    settypename[VARCHAR_MAXLEN];
@@ -64,13 +61,12 @@ SetType::insertInDb() throw (r_Error)
     settypeid = myOId.getCounter();
     mddtypeid = getMDDType()->getOId();
 
-    TALK( "EXEC SQL INSERT INTO RAS_SETTYPES ( SetTypeId, SetTypeName, MDDTypeOId) VALUES( " << settypeid << ", " << settypename << ", " << mddtypeid << " )" );
+    LDEBUG << "EXEC SQL INSERT INTO RAS_SETTYPES ( SetTypeId, SetTypeName, MDDTypeOId) VALUES( " << settypeid << ", " << settypename << ", " << mddtypeid << " )";
     EXEC SQL INSERT INTO RAS_SETTYPES ( SetTypeId, SetTypeName, MDDTypeOId)
        VALUES   ( :settypeid, :settypename, :mddtypeid);
     if (SQLCODE != SQLOK)
     {
         check("SetType::insertInDb()");
-        LEAVE("SetType::insertInDb() error: " << SQLCODE );
         generateException();
     }
 
@@ -79,49 +75,42 @@ SetType::insertInDb() throw (r_Error)
         nullValues->setPersistent(true);
         nullvalueoid = nullValues->getOId().getCounter();
 
-        TALK("EXEC SQL INSERT INTO RAS_NULLVALUES ( SetTypeOId, NullValueOId) VALUES	( " << settypeid << ", " << nullvalueoid << " )");
+        LDEBUG << "EXEC SQL INSERT INTO RAS_NULLVALUES ( SetTypeOId, NullValueOId) VALUES	( " << settypeid << ", " << nullvalueoid << " )";
         EXEC SQL INSERT INTO RAS_NULLVALUES ( SetTypeOId, NullValueOId)
           VALUES    ( :settypeid, :nullvalueoid );
         if (SQLCODE != SQLOK)
         {
             check("SetType::insertInDb()");
-            LEAVE("SetType::insertInDb() error: " << SQLCODE );
             generateException();
         }
     }
 
     DBObject::insertInDb();
-
-    LEAVE("SetType::insertInDb()");
-    RMDBGEXIT(5, RMDebug::module_catalogif, "SetType", "insertInDb() " << myOId);
 }
 
 void
 SetType::deleteFromDb() throw (r_Error)
 {
-    RMDBGENTER(5, RMDebug::module_catalogif, "SetType", "deleteFromDb() " << myOId << " " << getTypeName());
     EXEC SQL BEGIN DECLARE SECTION;
         long    settypeid3;
     EXEC SQL END DECLARE SECTION;
 
     settypeid3 = myOId.getCounter();
 
-    TALK( "EXEC SQL DELETE FROM RAS_SETTYPES WHERE RAS_SETTYPES.SetTypeId = " << settypeid3 );
+    LDEBUG << "EXEC SQL DELETE FROM RAS_SETTYPES WHERE RAS_SETTYPES.SetTypeId = " << settypeid3;
     EXEC SQL DELETE FROM RAS_SETTYPES WHERE RAS_SETTYPES.SetTypeId = :settypeid3;
     if (SQLCODE != SQLOK)
     {
         check("SetType::deleteFromDb()");
-        LEAVE("SetType::deleteFromDb() error: " << SQLCODE );
         generateException();
     }
 
-    TALK("EXEC SQL DELETE FROM RAS_NULLVALUES WHERE SetTypeOId = " << settypeid3);
+    LDEBUG << "EXEC SQL DELETE FROM RAS_NULLVALUES WHERE SetTypeOId = " << settypeid3;
     EXEC SQL DELETE FROM RAS_NULLVALUES
     WHERE SetTypeOId = :settypeid3;
     if (SQLCODE != SQLOK && SQLCODE != SQLNODATAFOUND)
     {
         check("SetType::deleteFromDb()");
-        LEAVE("SetType::deleteFromDb() error: " << SQLCODE );
         generateException();
     }
 
@@ -132,14 +121,11 @@ SetType::deleteFromDb() throw (r_Error)
     }
 
     DBObject::deleteFromDb();
-    RMDBGEXIT(5, RMDebug::module_catalogif, "SetType", "deleteFromDb() " << myOId);
 }
 
 void
 SetType::readFromDb() throw (r_Error)
 {
-    RMDBGENTER(5, RMDebug::module_catalogif, "SetType", "readFromDb() " << myOId);
-    ENTER("SetType::readFromDb()");
 #ifdef RMANBENCHMARK
     DBObject::readTimer.resume();
 #endif
@@ -154,12 +140,12 @@ SetType::readFromDb() throw (r_Error)
     settypeid1 = myOId.getCounter();
     mddtypeid1 = 0;
 
-    TALK( "EXEC SQL SELECT SetTypeName, MDDTypeOId INTO :settypename1, :mddtypeid1 FROM RAS_SETTYPES WHERE SetTypeId = " << settypeid1 );
+    LDEBUG << "EXEC SQL SELECT SetTypeName, MDDTypeOId INTO :settypename1, :mddtypeid1 FROM RAS_SETTYPES WHERE SetTypeId = " << settypeid1;
     EXEC SQL SELECT SetTypeName, MDDTypeOId
        INTO :settypename1, :mddtypeid1
        FROM RAS_SETTYPES
        WHERE SetTypeId = :settypeid1;
-    TALK("Sql code: " << SQLCODE);
+    LDEBUG << "Sql code: " << SQLCODE;
     if (check("SetType::readFromDb()") != 0)
     {
         if (SQLCODE == SQLNODATAFOUND)  // was: 100 -- PB 2005-feb-13
@@ -179,7 +165,7 @@ SetType::readFromDb() throw (r_Error)
 
     if (nullValuesTableCheck == 1)
     {
-        TALK("EXEC SQL SELECT NullValueOId INTO :nullvalueoid2 FROM RAS_NULLVALUES WHERE SetTypeOId = " << settypeid1);
+        LDEBUG << "EXEC SQL SELECT NullValueOId INTO :nullvalueoid2 FROM RAS_NULLVALUES WHERE SetTypeOId = " << settypeid1;
         EXEC SQL SELECT NullValueOId INTO :nullvalueoid2
           FROM RAS_NULLVALUES
           WHERE SetTypeOId = :settypeid1;
@@ -187,25 +173,24 @@ SetType::readFromDb() throw (r_Error)
         {
             if (SQLCODE != SQLNODATAFOUND)
             {
-                LEAVE("SetType::readFromDb()");
                 generateException();
             }
             else
             {
                 SQLCODE = SQLOK;
-                TALK("No null values found.");
+                LDEBUG << "No null values found.";
             }
         }
         else
         {
             nullValues = (DBMinterval*)ObjectBroker::getObjectByOId(OId(nullvalueoid2, OId::DBMINTERVALOID));
             nullValues->setCached(true);
-            TALK("Got null values: " << nullValues->get_string_representation());
+            LDEBUG << "Got null values: " << nullValues->get_string_representation();
         }
     }
     else
     {
-        TALK("No support for null values in the database, please upgrade.");
+        LDEBUG << "No support for null values in the database, please upgrade.";
     }
 
     DBObject::readFromDb();
@@ -213,8 +198,5 @@ SetType::readFromDb() throw (r_Error)
 #ifdef RMANBENCHMARK
     DBObject::readTimer.pause();
 #endif
-
-    LEAVE("SetType::readFromDb()");
-    RMDBGEXIT(5, RMDebug::module_catalogif, "SetType", "readFromDb() " << myOId);
 }
 
