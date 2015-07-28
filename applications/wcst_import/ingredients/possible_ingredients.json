@@ -45,7 +45,9 @@
       "__comment__": "[OPTIONAL]The tiling of the coverage in rasql format",
       "tiling": "ALIGNED [0:500, 0:500]",
       "__comment__": "[OPTIONAL] If you want to import in wms as well set this variable to true",
-      "wms_import": true
+      "wms_import": true,
+      "__comment__" : "[OPTIONAL] Specify the names of the bands, in cases the automatic inference (default: field_1, ...) is not good enough"
+      "band_names" : ["red", "green", "blue"]
     }
   },
   "recipe": {
@@ -62,7 +64,9 @@
       "__comment__": "The time step between two slices, expressed in days, hours, minutes and seconds",
       "time_step": "2 days 10 minutes 3 seconds",
       "__comment__": "[OPTIONAL]The tiling of the coverage in rasql format",
-      "tiling": "ALIGNED [0:1000, 0:1000, 0:2]"
+      "tiling": "ALIGNED [0:1000, 0:1000, 0:2]",
+      "__comment__" : "[OPTIONAL] Specify the names of the bands, in cases the automatic inference (default: field_1, ...) is not good enough"
+      "band_names" : ["red", "green", "blue"]
     }
   },
   "recipe": {
@@ -87,7 +91,9 @@
       "__comment__": "The time crs to be used with the 2d crs to create a compound crs for the whole coverage",
       "time_crs": "http://kahlua.eecs.jacobs-university.de:8080/def/crs/OGC/0/AnsiDate",
       "__comment__": "[OPTIONAL]The tiling of the coverage in rasql format",
-      "tiling": "ALIGNED [0:10, 0:1000, 0:500]"
+      "tiling": "ALIGNED [0:10, 0:1000, 0:500]",
+      "__comment__" : "[OPTIONAL] Specify the names of the bands, in cases the automatic inference (default: field_1, ...) is not good enough"
+      "band_names" : ["red", "green", "blue"]
     }
   }
 }

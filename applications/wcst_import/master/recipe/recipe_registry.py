@@ -41,7 +41,7 @@ class RecipeRegistry:
         else:
             recipe = self.registry[session.get_recipe()['name']](session)
             log.title("Initialization")
-            log.info("Collected files: " + str(map(lambda f: str(f), session.get_files())))
+            log.info("Collected files: " + str(map(lambda f: str(f), session.get_files()[:10])) + "...")
 
             log.title("\nValidation")
             recipe.validate()
