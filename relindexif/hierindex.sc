@@ -40,19 +40,16 @@ rasdaman GmbH.
 #include "debug-srv.hh"
 
 #include "hierindex.hh"
-#include "raslib/rmdebug.hh"
 #include "reladminif/sqlerror.hh"
 #include "reladminif/sqlglobals.h"
 #include "relblobif/blobtile.hh"
 #include "indexmgr/keyobject.hh"
 #include "reladminif/sqlitewrapper.hh"
+#include "../common/src/logging/easylogging++.hh"
 
 void
 DBHierIndex::insertInDb() throw (r_Error)
 {
-    RMDBGENTER(5, RMDebug::module_indexif, "DBHierIndex", "insertInDb() " << myOId);
-    ENTER("DBHierIndex::insertInDb(), myOId=" << myOId);
-
     // old format a 13, new format >= 1009 (to align with dbrcindex.pgc)
     long long header = 1010;
 
@@ -93,57 +90,50 @@ DBHierIndex::insertInDb() throw (r_Error)
     char* completebuffer = (char*) mymalloc(completesize);
     if (completebuffer == NULL)
     {
-        RMInit::logOut << "DBHierIndex::insertInDb() cannot malloc buffer" << endl;
-        LEAVE("DBHierIndex::insertInDb() cannot malloc buffer");
+        LFATAL << "DBHierIndex::insertInDb() cannot malloc buffer";
         throw r_Error(r_Error::r_Error_MemoryAllocation);
     }
     r_Range* upperboundsbuf = (r_Range*) mymalloc(boundssize);
     if (upperboundsbuf == NULL)
     {
-        RMInit::logOut << "DBHierIndex::insertInDb() cannot malloc buffer" << endl;
-        LEAVE("DBHierIndex::insertInDb() cannot malloc buffer");
+        LFATAL << "DBHierIndex::insertInDb() cannot malloc buffer";
         throw r_Error(r_Error::r_Error_MemoryAllocation);
     }
     r_Range* lowerboundsbuf = (r_Range*) mymalloc(boundssize);
     if (lowerboundsbuf == NULL)
     {
-        RMInit::logOut << "DBHierIndex::insertInDb() cannot malloc buffer" << endl;
-        LEAVE("DBHierIndex::insertInDb() cannot malloc buffer");
+        LFATAL << "DBHierIndex::insertInDb() cannot malloc buffer";
         throw r_Error(r_Error::r_Error_MemoryAllocation);
     }
     char* upperfixedbuf = (char*) mymalloc(fixessize);
     if (upperfixedbuf == NULL)
     {
-        RMInit::logOut << "DBHierIndex::insertInDb() cannot malloc buffer" << endl;
-        LEAVE("DBHierIndex::insertInDb() cannot malloc buffer");
+        LFATAL << "DBHierIndex::insertInDb() cannot malloc buffer";
         throw r_Error(r_Error::r_Error_MemoryAllocation);
     }
     char* lowerfixedbuf = (char*) mymalloc(fixessize);
     if (lowerfixedbuf == NULL)
     {
-        RMInit::logOut << "DBHierIndex::insertInDb() cannot malloc buffer" << endl;
-        LEAVE("DBHierIndex::insertInDb() cannot malloc buffer");
+        LFATAL << "DBHierIndex::insertInDb() cannot malloc buffer";
         throw r_Error(r_Error::r_Error_MemoryAllocation);
     }
     OId::OIdCounter* entryidsbuf = (OId::OIdCounter*)mymalloc(idssize);
     if (entryidsbuf == NULL)
     {
-        RMInit::logOut << "DBHierIndex::insertInDb() cannot malloc buffer" << endl;
-        LEAVE("DBHierIndex::insertInDb() cannot malloc buffer");
+        LFATAL << "DBHierIndex::insertInDb() cannot malloc buffer";
         throw r_Error(r_Error::r_Error_MemoryAllocation);
     }
     char* entrytypesbuf = (char*) mymalloc(typessize);
     if (entrytypesbuf == NULL)
     {
-        RMInit::logOut << "DBHierIndex::insertInDb() cannot malloc buffer" << endl;
-        LEAVE("DBHierIndex::insertInDb() cannot malloc buffer");
+        LFATAL << "DBHierIndex::insertInDb() cannot malloc buffer";
         throw r_Error(r_Error::r_Error_MemoryAllocation);
     }
 
-    RMDBGMIDDLE(8, RMDebug::module_indexif, "DBHierIndex", "complete=" << completesize << " bounds=" << boundssize << " fixes=" << fixessize << " ids=" << idssize << " types=" << typessize << ", size=" << size2 << " dimension=" << dimension2);
+    LTRACE << "complete=" << completesize << " bounds=" << boundssize << " fixes=" << fixessize << " ids=" << idssize << " types=" << typessize << ", size=" << size2 << " dimension=" << dimension2;
 
     myDomain.insertInDb(&(lowerboundsbuf[0]), &(upperboundsbuf[0]), &(lowerfixedbuf[0]), &(upperfixedbuf[0]));
-    RMDBGMIDDLE(5, RMDebug::module_indexif, "DBHierIndex", "domain " << myDomain << " stored as " << InlineMinterval(dimension2, &(lowerboundsbuf[0]), &(upperboundsbuf[0]), &(lowerfixedbuf[0]), &(upperfixedbuf[0])));
+    LTRACE << "domain " << myDomain << " stored as " << InlineMinterval(dimension2, &(lowerboundsbuf[0]), &(upperboundsbuf[0]), &(lowerfixedbuf[0]), &(upperfixedbuf[0]));
     //populate the buffers with data
     KeyObjectVector::iterator it = myKeyObjects.begin();
     InlineMinterval indom;
@@ -153,7 +143,7 @@ DBHierIndex::insertInDb() throw (r_Error)
         indom.insertInDb(&(lowerboundsbuf[(i + 1) * dimension2]), &(upperboundsbuf[(i + 1) * dimension2]), &(lowerfixedbuf[(i + 1) * dimension2]), &(upperfixedbuf[(i + 1) * dimension2]));
         entryidsbuf[i] = (*it).getObject().getOId().getCounter();
         entrytypesbuf[i] = (char) (*it).getObject().getOId().getType();
-        RMDBGMIDDLE(5, RMDebug::module_indexif, "DBHierIndex", "entry " << entryidsbuf[i] << " " << (OId::OIdType)entrytypesbuf[i] << " at " << InlineMinterval(dimension2, &(lowerboundsbuf[(i + 1) * dimension2]), &(upperboundsbuf[(i + 1) * dimension2]), &(lowerfixedbuf[(i + 1) * dimension2]), &(upperfixedbuf[(i + 1) * dimension2])));
+        LTRACE << "entry " << entryidsbuf[i] << " " << (OId::OIdType)entrytypesbuf[i] << " at " << InlineMinterval(dimension2, &(lowerboundsbuf[(i + 1) * dimension2]), &(upperboundsbuf[(i + 1) * dimension2]), &(lowerfixedbuf[(i + 1) * dimension2]), &(upperfixedbuf[(i + 1) * dimension2]));
     }
 
     // write the buffers in the complete buffer, free all unnecessary buffers
@@ -187,16 +177,11 @@ DBHierIndex::insertInDb() throw (r_Error)
     // (4) --- dbobject insert
     DBObject::insertInDb();
 
-    RMDBGEXIT(5, RMDebug::module_indexif, "DBHierIndex", "insertInDb() " << myOId);
-    LEAVE("DBHierIndex::insertInDb(), myOId=" << myOId);
 } // insertInDb()
 
 void
 DBHierIndex::readFromDb() throw (r_Error)
 {
-    RMDBGENTER(5, RMDebug::module_indexif, "DBHierIndex", "readFromDb() " << myOId);
-    ENTER("DBHierIndex::readFromDb(), myOId=" << myOId);
-
 #ifdef RMANBENCHMARK
     DBObject::readTimer.resume();
 #endif
@@ -232,8 +217,7 @@ DBHierIndex::readFromDb() throw (r_Error)
     }
     else
     {
-        RMInit::logOut << "DBHierIndex::readFromDb() - index entry: "
-                << id1 << " not found in the database." << endl;
+        LFATAL << "DBHierIndex::readFromDb() - index entry: " << id1 << " not found in the database.";
         throw r_Ebase_dbms(SQLITE_NOTFOUND, "index entry not found in the database.");
     }
 
@@ -246,16 +230,16 @@ DBHierIndex::readFromDb() throw (r_Error)
     else
         parent = OId(0, OId::INVALID);
 
-    r_Bytes idssize;
-    r_Bytes newidssize;
-    r_Bytes boundssize;
-    r_Bytes newboundssize;
+    r_Bytes idssize = 0;
+    r_Bytes newidssize = 0;
+    r_Bytes boundssize = 0;
+    r_Bytes newboundssize = 0;
 
     // blobformat == 8: old format, contains 13 in first byte
     // blobformat == 9: OIDcounter is now long, but r_Range is still int
     // blobformat == 10: r_Range is long as well
 
-    TALK("blobbuffer[0]: " << blobbuffer[0])
+    LDEBUG << "blobbuffer[0]: " << blobbuffer[0];
     if (blobbuffer[0] == 13)
     { // old format
         blobformat = 8;
@@ -287,7 +271,7 @@ DBHierIndex::readFromDb() throw (r_Error)
         }
     }
 
-    TALK("blobformat: " << blobformat);
+    LDEBUG << "blobformat: " << blobformat;
 
     //number of bytes for fixes for "size" entries and mydomain
     r_Bytes fixessize = sizeof (char) * (size1 + 1) * dimension1;
@@ -296,7 +280,7 @@ DBHierIndex::readFromDb() throw (r_Error)
     //number of bytes for the dynamic data
     r_Bytes completesize = headersize + boundssize * 2 + fixessize * 2 + idssize + typessize;
 
-    RMDBGMIDDLE(8, RMDebug::module_indexif, "DBHierIndex", "complete=" << completesize << " bounds=" << boundssize << " fixes=" << fixessize << " ids=" << idssize << " types=" << typessize << ", size=" << size1 << " dimension=" << dimension1);
+    LTRACE << "complete=" << completesize << " bounds=" << boundssize << " fixes=" << fixessize << " ids=" << idssize << " types=" << typessize << ", size=" << size1 << " dimension=" << dimension1;
 
     char* completebuffer = blobbuffer;
 
@@ -337,8 +321,7 @@ DBHierIndex::readFromDb() throw (r_Error)
 
     if (completesize != blobsize) // this because I don't trust computations
     {
-        RMInit::dbgOut << "BLOB (" << id1 << ") read: xcompletesize=" << completesize << ", but blobsize=" << blobsize << endl;
-        LEAVE("DBHierIndex::readFromDb: completesize=" << completesize << ", but blobsize=" << blobsize << " blobformat=" << blobformat);
+        LDEBUG << "BLOB (" << id1 << ") read: xcompletesize=" << completesize << ", but blobsize=" << blobsize;
         throw r_Error(r_Error::r_Error_LimitsMismatch);
     }
 
@@ -384,14 +367,14 @@ DBHierIndex::readFromDb() throw (r_Error)
     // rebuild the attributes from the buffers
     long i = 0;
     myDomain = InlineMinterval(dimension1, &(lowerboundsbuf[0]), &(upperboundsbuf[0]), &(lowerfixedbuf[0]), &(upperfixedbuf[i * dimension1]));
-    RMDBGMIDDLE(5, RMDebug::module_indexif, "DBHierIndex", "domain " << myDomain << " constructed from " << InlineMinterval(dimension1, &(lowerboundsbuf[0]), &(upperboundsbuf[0]), &(lowerfixedbuf[0]), &(upperfixedbuf[0])));
+    LTRACE << "domain " << myDomain << " constructed from " << InlineMinterval(dimension1, &(lowerboundsbuf[0]), &(upperboundsbuf[0]), &(lowerfixedbuf[0]), &(upperfixedbuf[0]));
     KeyObject theKey = KeyObject(DBObjectId(), myDomain);
     for (i = 0; i < size1; i++)
     {
         theKey.setDomain(InlineMinterval(dimension1, &(lowerboundsbuf[(i + 1) * dimension1]), &(upperboundsbuf[(i + 1) * dimension1]), &(lowerfixedbuf[(i + 1) * dimension1]), &(upperfixedbuf[(i + 1) * dimension1])));
         theKey.setObject(OId(entryidsbuf[i], (OId::OIdType)entrytypesbuf[i]));
         myKeyObjects.push_back(theKey);
-        RMDBGMIDDLE(5, RMDebug::module_indexif, "DBHierIndex", "entry " << entryidsbuf[i] << " " << (OId::OIdType)entrytypesbuf[i] << " at " << InlineMinterval(dimension1, &(lowerboundsbuf[(i + 1) * dimension1]), &(upperboundsbuf[(i + 1) * dimension1]), &(lowerfixedbuf[(i + 1) * dimension1]), &(upperfixedbuf[(i + 1) * dimension1])));
+        LTRACE << "entry " << entryidsbuf[i] << " " << (OId::OIdType)entrytypesbuf[i] << " at " << InlineMinterval(dimension1, &(lowerboundsbuf[(i + 1) * dimension1]), &(upperboundsbuf[(i + 1) * dimension1]), &(lowerfixedbuf[(i + 1) * dimension1]), &(upperfixedbuf[(i + 1) * dimension1]));
     }
 
     // we only needed to allocated bounds for format 8 and 9
@@ -421,16 +404,11 @@ DBHierIndex::readFromDb() throw (r_Error)
     // (5) --- fill dbobject
     DBObject::readFromDb();
 
-    RMDBGEXIT(5, RMDebug::module_indexif, "DBHierIndex", "readFromDb() " << myOId);
-    LEAVE("DBHierIndex::readFromDb(), myOId=" << myOId);
 } // readFromDb()
 
 void
 DBHierIndex::updateInDb() throw (r_Error)
 {
-    RMDBGENTER(5, RMDebug::module_indexif, "DBHierIndex", "updateInDb() " << myOId);
-    ENTER("DBHierIndex::updateInDb(), myOId=" << myOId);
-
     long long header = 1010;
 
     long long id4;
@@ -474,7 +452,7 @@ DBHierIndex::updateInDb() throw (r_Error)
 
     // populate the buffers with data
     myDomain.insertInDb(&(lowerboundsbuf[0]), &(upperboundsbuf[0]), &(lowerfixedbuf[0]), &(upperfixedbuf[0]));
-    RMDBGMIDDLE(5, RMDebug::module_indexif, "DBHierIndex", "domain " << myDomain << " stored as " << InlineMinterval(dimension4, &(lowerboundsbuf[0]), &(upperboundsbuf[0]), &(lowerfixedbuf[0]), &(upperfixedbuf[0])));
+    LTRACE << "domain " << myDomain << " stored as " << InlineMinterval(dimension4, &(lowerboundsbuf[0]), &(upperboundsbuf[0]), &(lowerfixedbuf[0]), &(upperfixedbuf[0]));
 
     KeyObjectVector::iterator it = myKeyObjects.begin();
     InlineMinterval indom;
@@ -484,10 +462,10 @@ DBHierIndex::updateInDb() throw (r_Error)
         indom.insertInDb(&(lowerboundsbuf[(i + 1) * dimension4]), &(upperboundsbuf[(i + 1) * dimension4]), &(lowerfixedbuf[(i + 1) * dimension4]), &(upperfixedbuf[(i + 1) * dimension4]));
         entryidsbuf[i] = (*it).getObject().getOId().getCounter();
         entrytypesbuf[i] = (char) (*it).getObject().getOId().getType();
-        RMDBGMIDDLE(5, RMDebug::module_indexif, "DBHierIndex", "entry " << entryidsbuf[i] << " " << (OId::OIdType)entrytypesbuf[i] << " at " << InlineMinterval(dimension4, &(lowerboundsbuf[(i + 1) * dimension4]), &(upperboundsbuf[(i + 1) * dimension4]), &(lowerfixedbuf[(i + 1) * dimension4]), &(upperfixedbuf[(i + 1) * dimension4])));
+        LTRACE << "entry " << entryidsbuf[i] << " " << (OId::OIdType)entrytypesbuf[i] << " at " << InlineMinterval(dimension4, &(lowerboundsbuf[(i + 1) * dimension4]), &(upperboundsbuf[(i + 1) * dimension4]), &(lowerfixedbuf[(i + 1) * dimension4]), &(upperfixedbuf[(i + 1) * dimension4]));
     }
 
-    RMDBGMIDDLE(8, RMDebug::module_indexif, "DBHierIndex", "complete=" << completesize << " bounds=" << boundssize << " fixes=" << fixessize << " ids=" << idssize << " types=" << typessize << ", size=" << size4 << " dimension=" << dimension4);
+    LTRACE << "complete=" << completesize << " bounds=" << boundssize << " fixes=" << fixessize << " ids=" << idssize << " types=" << typessize << ", size=" << size4 << " dimension=" << dimension4;
 
     // write the buffers in the complete buffer, plus starter byte
     // OUTDATED this indirection is necessary because of memory alignement of longs...
@@ -518,16 +496,11 @@ DBHierIndex::updateInDb() throw (r_Error)
     // (4) --- dbobject update
     DBObject::updateInDb();
 
-    RMDBGEXIT(5, RMDebug::module_indexif, "DBHierIndex", "updateInDb() " << myOId);
-    LEAVE("DBHierIndex::updateInDb(), myOId=" << myOId);
 } // updateInDb()
 
 void
 DBHierIndex::deleteFromDb() throw (r_Error)
 {
-    RMDBGENTER(8, RMDebug::module_indexif, "DBHierIndex", "deleteFromDb() " << myOId);
-    ENTER("DBHierIndex::deleteFromDb(), myOId=" << myOId);
-
     long long id = myOId.getCounter();
 
     OId oi;
@@ -555,6 +528,4 @@ DBHierIndex::deleteFromDb() throw (r_Error)
     SQLiteQuery::executeWithParams("DELETE FROM RAS_HIERIX WHERE MDDObjIxOId = %lld", id);
     DBObject::deleteFromDb();
 
-    RMDBGEXIT(8, RMDebug::module_indexif, "DBHierIndex", "deleteFromDb() " << myOId);
-    LEAVE("DBHierIndex::deleteFromDb(), myOId=" << myOId);
 } // deleteFromDb()

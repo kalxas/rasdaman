@@ -40,7 +40,6 @@ rasdaman GmbH.
 #include "hierindex.hh"
 #include "reladminif/objectbroker.hh"
 #include "reladminif/dbref.hh"
-#include "raslib/rmdebug.hh"
 #include "reladminif/lists.h"
 #include "reladminif/sqlerror.hh"
 #include "reladminif/externs.h"
@@ -49,6 +48,7 @@ rasdaman GmbH.
 #include "storagemgr/sstoragelayout.hh"
 #include "raslib/endian.hh"
 #include "debug.hh"
+#include "../common/src/logging/easylogging++.hh"
 
 DBHierIndex::DBHierIndex(const OId& id)
     :   HierIndexDS(id),
@@ -58,16 +58,10 @@ DBHierIndex::DBHierIndex(const OId& id)
         myDomain(static_cast<r_Dimension>(0)),
         currentDbRows(0)
 {
-    RMDBGENTER(7, RMDebug::module_indexif, "DBHierIndex", "DBHierIndex(" << myOId << ")");
-    ENTER( "DBHierIndex::DBHierIndex(" << myOId << ")" );
-
     if (id.getType() == OId::MDDHIERIXOID)
         readFromDb();
     maxSize = DBHierIndex::getOptimalSize(getDimension());
     myKeyObjects.reserve(maxSize);
-
-    LEAVE( "DBHierIndex::DBHierIndex(" << myOId << ")" );
-    RMDBGEXIT(7, RMDebug::module_indexif, "DBHierIndex", "DBHierIndex(" << myOId << ")");
 }
 
 DBHierIndex::DBHierIndex(r_Dimension dim, bool isNODE, bool makePersistent)
@@ -78,9 +72,6 @@ DBHierIndex::DBHierIndex(r_Dimension dim, bool isNODE, bool makePersistent)
         myDomain(dim),
         currentDbRows(-1)
 {
-    RMDBGENTER(7, RMDebug::module_indexif, "DBHierIndex", "DBHierIndex(" << dim << ", " << (int)isNODE << ", " << makePersistent << ") " << myOId);
-    ENTER( "DBHierIndex::DBHierIndex( dim=" << dim << ", isNODE=" << (int) isNODE << ", makePersistent=" << makePersistent << " ) - myOId=" << myOId );
-
     objecttype = OId::MDDHIERIXOID;
     if (makePersistent)
         setPersistent(true);
@@ -88,40 +79,30 @@ DBHierIndex::DBHierIndex(r_Dimension dim, bool isNODE, bool makePersistent)
     maxSize = getOptimalSize(dim);
     myKeyObjects.reserve(maxSize);
     setCached(true);
-
-    LEAVE( "DBHierIndex::DBHierIndex( dim=" << dim << ", isNODE=" << (int) isNODE << ", makePersistent=" << makePersistent << " ) - myOId=" << myOId );
-    RMDBGEXIT(7, RMDebug::module_indexif, "DBHierIndex", "DBHierIndex(" << dim << ", " << (int)isNODE << ", " << makePersistent << ") " << myOId);
 }
 
 IndexDS*
 DBHierIndex::getNewInstance() const
 {
-    ENTER( "DBHierIndex::getNewInstance()" );
-    LEAVE( "DBHierIndex::getNewInstance() - dim=" << getDimension() << ", !isLeaf=" << (!isLeaf()) );
     return new DBHierIndex(getDimension(), !isLeaf(), true);
 }
 
 OId::OIdPrimitive
 DBHierIndex::getIdentifier() const
 {
-    ENTER( "DBHierIndex::getIdentifier()" );
-    LEAVE( "DBHierIndex::getIdentifier() - myOId=" << myOId );
     return myOId;
 }
 
 bool
 DBHierIndex::removeObject(const KeyObject& entry)
 {
-    RMDBGENTER(4, RMDebug::module_indexif, "DBHierIndex", "removeObject(" << entry << ") " << myOId);
-    ENTER( "DBHierIndex::removeObject() - entry=" << entry << ", myOId=" << myOId );
-
     bool found = false;
     unsigned int pos = 0;
     OId oid(entry.getObject().getOId());
     for (KeyObjectVector::iterator i = myKeyObjects.begin(); i != myKeyObjects.end(); i++)
     {
-        RMDBGMIDDLE(9, RMDebug::module_indexif, "DBHierIndex", "at pos " << pos << " of " << myKeyObjects.size());
-        TALK( "DBHierIndex::removeObject() touching object in vector at pos " << pos << " of " << myKeyObjects.size());
+        LTRACE << "at pos " << pos << " of " << myKeyObjects.size();
+        LDEBUG << "DBHierIndex::removeObject() touching object in vector at pos " << pos << " of " << myKeyObjects.size();
         if (oid == (*i).getObject().getOId())
         {
             found = true;
@@ -131,21 +112,16 @@ DBHierIndex::removeObject(const KeyObject& entry)
         }
         else
         {
-            RMDBGMIDDLE(9, RMDebug::module_indexif, "DBHierIndex", "did not match " << oid << " with " << *i);
+            LTRACE << "did not match " << oid << " with " << *i;
         }
     }
 
-    LEAVE( "DBHierIndex::removeObject() - entry=" << entry << ", myOId=" << myOId << ", found=" << found );
-    RMDBGEXIT(4, RMDebug::module_indexif, "DBHierIndex", "removeObject(" << entry << ") " << myOId << " " << found);
     return found;
 }
 
 bool
 DBHierIndex::removeObject(unsigned int pos)
 {
-    RMDBGENTER(4, RMDebug::module_indexif, "DBHierIndex", "removeObject(" <<  pos << ") " << myOId);
-    ENTER( "DBHierIndex::removeObject() - pos=" << pos << ", myOId=" << myOId );
-
     bool found = false;
     if (pos <= myKeyObjects.size())
     {
@@ -154,8 +130,6 @@ DBHierIndex::removeObject(unsigned int pos)
         setModified();
     }
 
-    LEAVE( "DBHierIndex::removeObject() - pos=" << pos << ", myOId=" << myOId << ", found=" << found );
-    RMDBGEXIT(4, RMDebug::module_indexif, "DBHierIndex", "removeObject(" << pos << ") " << myOId << " " << found);
     return found;
 }
 
@@ -163,9 +137,6 @@ DBHierIndex::removeObject(unsigned int pos)
 void
 DBHierIndex::insertObject(const KeyObject& theKey, unsigned int pos)
 {
-    RMDBGENTER(8, RMDebug::module_indexif, "DBHierIndex", "insertObject(" << theKey << ", " << pos << ") " << myOId);
-    ENTER( "DBHierIndex::insertObject() - theKey=" << theKey << ", pos=" << pos << ", myOId=" << myOId );
-
     if (!isLeaf())
         DBHierIndexId(theKey.getObject())->setParent(this);
     if (myKeyObjects.size() == 0)
@@ -176,20 +147,15 @@ DBHierIndex::insertObject(const KeyObject& theKey, unsigned int pos)
     else
         extendCoveredDomain(theKey.getDomain());
     myKeyObjects.insert(myKeyObjects.begin() + pos, theKey);
-    TALK( "now have " << myKeyObjects.size() << " objects in key object vector." );
+    LDEBUG << "now have " << myKeyObjects.size() << " objects in key object vector.";
     setModified();
 
-    LEAVE( "DBHierIndex::insertObject() - theKey=" << theKey << ", pos=" << pos << ", myOId=" << myOId << ", CoveredDomain " << getCoveredDomain() << std::endl << std::endl );
-    TALK( "  CoveredDomain=" << getCoveredDomain() << std::endl << std::endl );
-    RMDBGEXIT(8, RMDebug::module_indexif, "DBHierIndex", "insertObject(" << theKey << ", " << pos << ") " << myOId << " CoveredDomain " << getCoveredDomain());
+    LDEBUG << "  CoveredDomain=" << getCoveredDomain();
 }
 
 void
 DBHierIndex::setObjectDomain(const r_Minterval& dom, unsigned int pos)
 {
-    RMDBGENTER(7, RMDebug::module_indexif, "DBHierIndex", "setObjectDomain(" << dom << ", " << pos << ") " << myOId);
-    ENTER( "DBHierIndex::setObjectDomain() - dom=" << dom << ", pos=" << pos << ", myOId=" << myOId );
-
     myKeyObjects[pos].setDomain(dom);
     //might be unneccessary/harmfull, check later
     extendCoveredDomain(dom);
@@ -200,50 +166,38 @@ DBHierIndex::setObjectDomain(const r_Minterval& dom, unsigned int pos)
         DBHierIndexId t(myKeyObjects[pos].getObject());
         t->setAssignedDomain(dom);
     }
-
-    LEAVE( "DBHierIndex::setObjectDomain() - dom=" << dom << ", pos=" << pos << ", myOId=" << myOId );
-    RMDBGEXIT(7, RMDebug::module_indexif, "DBHierIndex", "setObjectDomain(" << dom << ", " << pos << ") " << myOId);
 }
 
 void
 DBHierIndex::setObject(const KeyObject& theKey, unsigned int pos)
 {
-    RMDBGENTER(7, RMDebug::module_indexif, "DBHierIndex", "setObject(" << theKey << ", " << pos << ") " << myOId);
-    ENTER( "DBHierIndex::setObject() - theKey=" << theKey << ", pos=" << pos << ", myOId=" << myOId );
-
     myKeyObjects[pos] = theKey;
     setModified();
     if (!isLeaf())
     {
         DBHierIndexId(theKey.getObject())->setParent(this);
     }
-
-    LEAVE( "DBHierIndex::setObject() - theKey=" << theKey << ", pos=" << pos << ", myOId=" << myOId );
-    RMDBGEXIT(7, RMDebug::module_indexif, "DBHierIndex", "setObject(" << theKey << ", " << pos << ") " << myOId);
 }
 
 r_Minterval
 DBHierIndex::getCoveredDomain() const
 {
-    RMDBGONCE(7, RMDebug::module_indexif, "DBHierIndex", "getCoveredDomain() const " << myOId << " " << myDomain);
-    TALK( "DBHierIndex::getCoveredDomain( " << myOId << ") -> " << myDomain );
+    LTRACE << "getCoveredDomain() const " << myOId << " " << myDomain;
+    LDEBUG << "DBHierIndex::getCoveredDomain( " << myOId << ") -> " << myDomain;
     return myDomain;
 }
 
 r_Dimension
 DBHierIndex::getDimension() const
 {
-    RMDBGONCE(7, RMDebug::module_indexif, "DBDDObjIx", "getDimension() const " << myOId << " " << myDomain.dimension());
-    TALK( "DBHierIndex::getDimension( " << myOId << ") -> " << myDomain.dimension() );
+    LTRACE << "getDimension() const " << myOId << " " << myDomain.dimension();
+    LDEBUG << "DBHierIndex::getDimension( " << myOId << ") -> " << myDomain.dimension();
     return myDomain.dimension();
 }
 
 r_Bytes
 DBHierIndex::getTotalStorageSize() const
 {
-    RMDBGENTER(4, RMDebug::module_indexif, "DBHierIndex", "getTotalStorageSize() " << myOId);
-    ENTER( "DBHierIndex::getTotalStorageSize() - myOId=" << myOId );
-
     r_Bytes sz = 0;
 
     for (KeyObjectVector::const_iterator i = myKeyObjects.begin(); i != myKeyObjects.end(); i++)
@@ -251,16 +205,12 @@ DBHierIndex::getTotalStorageSize() const
         sz = sz + (static_cast<DBObject*>(ObjectBroker::getObjectByOId(i->getObject().getOId())))->getTotalStorageSize();
     }
 
-    LEAVE( "DBHierIndex::getTotalStorageSize( " << myOId << " ) for " << myKeyObjects.size() << " objects -> sz=" << sz );
-    RMDBGEXIT(4, RMDebug::module_indexif, "DBHierIndex", "getTotalStorageSize() " << myOId << " " << sz);
     return sz;
 }
 
 bool
 DBHierIndex::isValid() const
 {
-    ENTER( "DBHierIndex::isValid()" );
-
     bool valid = true;
     //may not be unsigned int (r_Area) because of error check
     int area = 0;
@@ -268,7 +218,7 @@ DBHierIndex::isValid() const
     {
         area = myDomain.cell_count();
         DBHierIndexId tempIx;
-        TALK( "inspecting " << myKeyObjects.size() << " objects in key object vector." );
+        LDEBUG << "inspecting " << myKeyObjects.size() << " objects in key object vector.";
         for (KeyObjectVector::const_iterator i = myKeyObjects.begin(); i != myKeyObjects.end(); i++)
         {
             if (myDomain.covers((*i).getDomain()))
@@ -291,7 +241,7 @@ DBHierIndex::isValid() const
                 }
                 else
                 {
-                    RMDBGONCE(0, RMDebug::module_indexif, "DBHierIndex", "isValid() " << myOId << " key does not cover domain: myDomain " << myDomain << " key " << *i);
+                    LTRACE << "isValid() " << myOId << " key does not cover domain: myDomain " << myDomain << " key " << *i;
                     valid = false;
                     break;
                 }
@@ -301,7 +251,7 @@ DBHierIndex::isValid() const
         {
             if (area < 0)
             {
-                RMDBGONCE(0, RMDebug::module_indexif, "DBHierIndex", "isValid() " << myOId << " there are double entries");
+                LTRACE << "isValid() " << myOId << " there are double entries";
                 valid = false;
             }
         }
@@ -319,7 +269,7 @@ DBHierIndex::isValid() const
             }
             else
             {
-                RMDBGONCE(0, RMDebug::module_indexif, "DBHierIndex", "isValid() " << myOId << " key does not intersect domain: myDomain " << myDomain << " key " << *i);
+                LTRACE << "isValid() " << myOId << " key does not intersect domain: myDomain " << myDomain << " key " << *i;
                 valid = false;
                 break;
             }
@@ -328,21 +278,18 @@ DBHierIndex::isValid() const
         {
             if (area < 0)
             {
-                RMDBGONCE(0, RMDebug::module_indexif, "DBHierIndex", "isValid() " << myOId << " there are double entries");
+                LTRACE << "isValid() " << myOId << " there are double entries";
                 valid = false;
             }
         }
     }
 
-    ENTER( "DBHierIndex::isValid() -> valid=" << valid );
     return valid;
 }
 
 void
 DBHierIndex::printStatus(unsigned int level, std::ostream& stream) const
 {
-    ENTER( "DBHierIndex::printStatus() - level=" << level );
-
     DBObjectId t;
     char* indent = new char[level*2 +1];
     for (unsigned int j = 0; j < level*2 ; j++)
@@ -361,7 +308,7 @@ DBHierIndex::printStatus(unsigned int level, std::ostream& stream) const
     DBObject::printStatus(level, stream);
     stream << " size " << myKeyObjects.size() << " domain " << myDomain << std::endl;
     int count = 0;
-    TALK( "inspecting " << myKeyObjects.size() << " objects in key object vector." );
+    LDEBUG << "inspecting " << myKeyObjects.size() << " objects in key object vector.";
     for (KeyObjectVector::const_iterator i = myKeyObjects.begin(); i != myKeyObjects.end(); i++)
     {
         stream << indent << " entry #" << count << " is " << *i << std::endl;
@@ -377,15 +324,13 @@ DBHierIndex::printStatus(unsigned int level, std::ostream& stream) const
         count++;
     }
     delete[] indent;
-
-    LEAVE( "DBHierIndex::printStatus()" );
 }
 
 unsigned int
 DBHierIndex::getSize() const
 {
-    RMDBGONCE(4, RMDebug::module_indexif, "DBHierIndex", "getSize() " << myOId << " " << myKeyObjects.size());
-    TALK( "DBHierIndex::getSize() - myOId=" << myOId << ", size=" << myKeyObjects.size() );
+    LTRACE << "getSize() " << myOId << " " << myKeyObjects.size();
+    LDEBUG << "DBHierIndex::getSize() - myOId=" << myOId << ", size=" << myKeyObjects.size();
     return myKeyObjects.size();
 }
 
@@ -393,29 +338,24 @@ bool
 DBHierIndex::isUnderFull() const
 {
     //redistribute in srptindexlogic has to be checked first before any other return value may be assigned
-    TALK( "DBHierIndex::isUnderFull() -> false" );
+    LDEBUG << "DBHierIndex::isUnderFull() -> false";
     return false;
 }
 
 bool
 DBHierIndex::isOverFull() const
 {
-    ENTER( "DBHierIndex::isOverFull()" );
-
     bool retval = false;
     if (getSize() >= maxSize)
         retval = true;
 
-    RMDBGONCE(4, RMDebug::module_indexif, "DBHierIndex", "isOverFull() " << myOId << " maxSize " << maxSize << " size " << getSize() << " retval " << retval)
-    LEAVE( "DBHierIndex::isOverFull() -> " << retval );
+    LTRACE << "isOverFull() " << myOId << " maxSize " << maxSize << " size " << getSize() << " retval " << retval;
     return retval;
 }
 
 unsigned int
 DBHierIndex::getOptimalSize(r_Dimension dim)
 {
-    ENTER( "DBHierIndex::getOptimalSize() - dim=" << dim );
-
     unsigned int retval = 0;
     //BLOCKSIZE
     unsigned int blocksize = 0;
@@ -460,120 +400,95 @@ DBHierIndex::getOptimalSize(r_Dimension dim)
     if (StorageLayout::DefaultIndexSize != 0)
         retval = StorageLayout::DefaultIndexSize;
 
-    LEAVE( "DBHierIndex::getOptimalSize() - maxSize=" << retval );
-    RMDBGONCE(4, RMDebug::module_indexif, "DBHierIndex", "getOptimalSize(" << dim << ") maxSize " << retval)
+    LTRACE << "getOptimalSize(" << dim << ") maxSize " << retval;
     return retval;
 }
 
 unsigned int
 DBHierIndex::getOptimalSize() const
 {
-    TALK( "DBHierIndex::getOptimalSize() -> " << maxSize );
+    LDEBUG << "DBHierIndex::getOptimalSize() -> " << maxSize;
     return maxSize;
 }
 
 r_Minterval
 DBHierIndex::getAssignedDomain() const
 {
-    TALK( "DBHierIndex::getAssignedDomain() -> " << myDomain );
+    LDEBUG << "DBHierIndex::getAssignedDomain() -> " << myDomain;
     return myDomain;
 }
 
 void
 DBHierIndex::setAssignedDomain(const r_Minterval& newDomain)
 {
-    RMDBGENTER(7, RMDebug::module_indexif, "DBHierIndex", "setAssignedDomain(" << newDomain << ") " << myOId);
-    ENTER( "DBHierIndex::setAssignedDomain() - newDomain=" << newDomain << ", myOId=" << myOId );
-
     myDomain = newDomain;
     setModified();
-
-    LEAVE( "DBHierIndex::setAssignedDomain()" );
-    RMDBGEXIT(7, RMDebug::module_indexif, "DBHierIndex", "setAssignedDomain(" << newDomain << ") " << myOId);
 }
 
 void
 DBHierIndex::extendCoveredDomain(const r_Minterval& newTilesExtents) throw (r_Edim_mismatch, r_Eno_interval)
 {
-    RMDBGENTER(7, RMDebug::module_indexif, "DBHierIndex", "extendCoveredDomain(" << newTilesExtents << ") " << myOId);
-    ENTER( "DBHierIndex::extendCoveredDomain() - newTilesExtents=" << newTilesExtents << ", myOId=" << myOId );
-
     myDomain.closure_with(newTilesExtents);
     setModified();
-
-    LEAVE( "DBHierIndex::extendCoveredDomain()" );
-    RMDBGEXIT(7, RMDebug::module_indexif, "DBHierIndex", "extendCoveredDomain(" << newTilesExtents << ") " << myOId);
 }
 
 void
 DBHierIndex::setParent(const HierIndexDS* newPa)
 {
-    RMDBGENTER(7, RMDebug::module_indexif, "DBHierIndex", "setParent(" << OId(newPa->getIdentifier()) << ") " << myOId);
-    ENTER( "DBHierIndex::setParent() - newPa=" << newPa << ", myOId=" << myOId );
-
     if (static_cast<OId::OIdPrimitive>(parent) != newPa->getIdentifier())
     {
         parent = newPa->getIdentifier();
         setModified();
     }
-
-    LEAVE( "DBHierIndex::setParent()" );
-    RMDBGEXIT(7, RMDebug::module_indexif, "DBHierIndex", "setParent(" << OId(newPa->getIdentifier()) << ") " << myOId);
 }
 
 HierIndexDS*
 DBHierIndex::getParent() const
 {
-    RMDBGONCE(7, RMDebug::module_indexif, "DBHierIndex", "getParent() const " << myOId << " " << parent << " " << parent);
-    ENTER( "DBHierIndex::getParent() - myOId=" << myOId << ", parent=" << parent );
-
+    LTRACE << "getParent() const " << myOId << " " << parent << " " << parent;
     DBHierIndexId t(parent);
 
-    LEAVE( "DBHierIndex::getParent() - t=" << t );
     return static_cast<HierIndexDS*>(t);
 }
 
 bool
 DBHierIndex::isRoot() const
 {
-    RMDBGONCE(7, RMDebug::module_indexif, "DBHierIndex", "isRoot() const " << myOId << " " << (int)(parent.getType() == OId::INVALID));
-    TALK( "DBHierIndex::isRoot() -> " << (parent.getType() == OId::INVALID) );
+    LTRACE << "isRoot() const " << myOId << " " << (int)(parent.getType() == OId::INVALID);
+    LDEBUG << "DBHierIndex::isRoot() -> " << (parent.getType() == OId::INVALID);
     return (parent.getType() == OId::INVALID);
 }
 
 bool
 DBHierIndex::isLeaf() const
 {
-    RMDBGONCE(7, RMDebug::module_indexif, "DBHierIndex", "isLeaf() const " << myOId << " " << (int)(!_isNode));
-    //TALK( "DBHierIndex::isLeaf() -> " <<  !_isNode );
+    LTRACE << "isLeaf() const " << myOId << " " << (int)(!_isNode);
+    //LDEBUG << "DBHierIndex::isLeaf() -> " <<  !_isNode;
     return !_isNode;
 }
 
 void
 DBHierIndex::setIsNode(bool isNodea)
 {
-    RMDBGONCE(7, RMDebug::module_indexif, "DBHierIndex", "setIsNode(" << isNodea << ") " << myOId << " was " << _isNode);
-    TALK( "DBHierIndex::setIsNode() - isNodea=" << isNodea );
+    LTRACE << "setIsNode(" << isNodea << ") " << myOId << " was " << _isNode;
+    LDEBUG << "DBHierIndex::setIsNode() - isNodea=" << isNodea;
     _isNode = isNodea;
 }
 
 void
 DBHierIndex::freeDS()
 {
-    TALK( "DBHierIndex::freeDS()" );
+    LDEBUG << "DBHierIndex::freeDS()";
     setPersistent(false);
 }
 bool
 DBHierIndex::isSameAs(const IndexDS* other) const
 {
-    ENTER( "DBHierIndex::isSameAs() - other=" << other );
-
     bool result = false;
     if (other->isPersistent())
         if (myOId == other->getIdentifier())
             result = true;
 
-    LEAVE( "DBHierIndex::isSameAs() -> " << result );
     return result;
 }
 
@@ -582,15 +497,15 @@ double
 DBHierIndex::getOccupancy() const
 {
     cout << "DBHierIndex::getOccupancy() const NOT IMPLEMENTED" << std::endl;
-    TALK( "DBHierIndex::getOccupancy() NOT IMPLEMENTED" );
+    LDEBUG << "DBHierIndex::getOccupancy() NOT IMPLEMENTED";
     return 0;
 }
 
 const KeyObject&
 DBHierIndex::getObject(unsigned int pos) const
 {
-    RMDBGONCE(4, RMDebug::module_indexif, "DBHierIndex", "getObject(" << pos << ") " << myOId << " " << myKeyObjects[pos]);
-    //TALK( "DBHierIndex::getObject() - pos=" << pos << ", myOId=" << myOId << " -> " << myKeyObjects[pos] );
+    LTRACE << "getObject(" << pos << ") " << myOId << " " << myKeyObjects[pos];
+    //LDEBUG << "DBHierIndex::getObject() - pos=" << pos << ", myOId=" << myOId << " -> " << myKeyObjects[pos];
 
     return myKeyObjects[pos];
 }
@@ -598,49 +513,39 @@ DBHierIndex::getObject(unsigned int pos) const
 void
 DBHierIndex::getObjects(KeyObjectVector& objs) const
 {
-    RMDBGENTER(4, RMDebug::module_indexif, "DBHierIndex", "getObjects() " << myOId);
-    ENTER( "DBHierIndex::getObjects() - myOId=" << myOId );
-
     for (KeyObjectVector::const_iterator keyIt = myKeyObjects.begin(); keyIt != myKeyObjects.end(); keyIt++)
     {
         objs.push_back(*keyIt);
     }
-
-    LEAVE( "DBHierIndex::getObjects() - size=" << objs.size() );
-    RMDBGEXIT(4, RMDebug::module_indexif, "DBHierIndex", "getObjects() " << myOId << " vec.size " << objs.size());
 }
 
 r_Minterval
 DBHierIndex::getObjectDomain(unsigned int pos) const
 {
-    RMDBGONCE(4, RMDebug::module_indexif, "DBHierIndex", "getObjectDomain(" <<  pos << ") " << myOId << " " << myKeyObjects[pos]);
-    //TALK( "DBHierIndex::getObjectDomain() - pos=" << pos << ", myOId=" << myOId << " -> " << myKeyObjects[pos] );
+    LTRACE << "getObjectDomain(" <<  pos << ") " << myOId << " " << myKeyObjects[pos];
+    //LDEBUG << "DBHierIndex::getObjectDomain() - pos=" << pos << ", myOId=" << myOId << " -> " << myKeyObjects[pos];
     return myKeyObjects[pos].getDomain();
 }
 
 unsigned int
 DBHierIndex::getHeight() const
 {
-    TALK( "DBHierIndex::getHeight() -> " << getHeightToLeaf() );
+    LDEBUG << "DBHierIndex::getHeight() -> " << getHeightToLeaf();
     return getHeightToLeaf();
 }
 
 unsigned int
 DBHierIndex::getHeightOfTree() const
 {
-    ENTER( "DBHierIndex::getHeightOfTree() - myOId=" << myOId );
-
     unsigned int retval = getHeightToLeaf() + getHeightToRoot();
 
-    LEAVE( "DBHierIndex::getHeightOfTree() -> " << retval );
-    RMDBGONCE(7, RMDebug::module_indexif, "DBHierIndex", "getHeightOfTree() const " << myOId << " " << retval);
+    LTRACE << "getHeightOfTree() const " << myOId << " " << retval;
     return retval;
 }
 
 unsigned int
 DBHierIndex::getHeightToRoot() const
 {
-    ENTER( "DBHierIndex::getHeightToRoot() - myOId=" << myOId );
 
     unsigned int retval = 0;
     if (isRoot())
@@ -652,15 +557,13 @@ DBHierIndex::getHeightToRoot() const
         retval = tp->getHeightToRoot() + 1;
     }
 
-    LEAVE( "DBHierIndex::getHeightToRoot() -> " << retval );
-    RMDBGONCE(7, RMDebug::module_indexif, "DBHierIndex", "getHeightToRoot() const " << myOId << " " << retval);
+    LTRACE << "getHeightToRoot() const " << myOId << " " << retval;
     return retval;
 }
 
 unsigned int
 DBHierIndex::getHeightToLeaf() const
 {
-    ENTER( "DBHierIndex::getHeightToLeaf() - myOId=" << myOId );
 
     unsigned int retval = 0;
     if (isLeaf())
@@ -672,17 +575,13 @@ DBHierIndex::getHeightToLeaf() const
         retval = tp->getHeightToLeaf() + 1;
     }
 
-    LEAVE( "DBHierIndex::getHeightToLeaf() -> " << retval );
-    RMDBGONCE(7, RMDebug::module_indexif, "DBHierIndex", "getHeightToLeaf() const " << myOId << " " << retval);
+    LTRACE << "getHeightToLeaf() const " << myOId << " " << retval;
     return retval;
 }
 
 unsigned int
 DBHierIndex::getTotalLeafCount() const
 {
-    RMDBGENTER(7, RMDebug::module_indexif, "DBHierIndex", "getTotalLeafCount() const " << myOId);
-    ENTER( "DBHierIndex::getTotalLeafCount() - myOId=" << myOId );
-
     unsigned int retval = 0;
     if (!isLeaf())
     {
@@ -707,17 +606,12 @@ DBHierIndex::getTotalLeafCount() const
         retval = 1;
     }
 
-    LEAVE( "DBHierIndex::getTotalLeafCount() -> " << retval );
-    RMDBGEXIT(7, RMDebug::module_indexif, "DBHierIndex", "getTotalLeafCount() const " << myOId << " " << retval);
     return retval;
 }
 
 unsigned int
 DBHierIndex::getTotalNodeCount() const
 {
-    RMDBGENTER(7, RMDebug::module_indexif, "DBHierIndex", "getTotalNodeCount() const " << myOId);
-    ENTER( "DBHierIndex::getTotalNodeCount() - myOId=" << myOId );
-
     unsigned int retval = 0;
     if (!isLeaf())
     {
@@ -737,17 +631,12 @@ DBHierIndex::getTotalNodeCount() const
     }
     //else : a leaf does not contain nodes
 
-    LEAVE( "DBHierIndex::getTotalNodeCount() -> " << retval );
-    RMDBGEXIT(7, RMDebug::module_indexif, "DBHierIndex", "getTotalNodeCount() const " << myOId << " " << retval);
     return retval;
 }
 
 unsigned int
 DBHierIndex::getTotalEntryCount() const
 {
-    RMDBGENTER(7, RMDebug::module_indexif, "DBHierIndex", "getTotoalEntryCount() const " << myOId);
-    ENTER( "DBHierIndex::getTotalEntryCount() - myOId=" << myOId );
-
     unsigned int retval = 0;
     if (isLeaf())
     {
@@ -766,32 +655,24 @@ DBHierIndex::getTotalEntryCount() const
         }
     }
 
-    LEAVE( "DBHierIndex::getTotalEntryCount() -> " << retval );
-    RMDBGEXIT(7, RMDebug::module_indexif, "DBHierIndex", "getTotoalEntryCount() const " << myOId << " " << retval);
     return retval;
 }
 
 void
 DBHierIndex::destroy()
 {
-    TALK( "DBObject::destroy()" );
+    LDEBUG << "DBObject::destroy()";
     DBObject::destroy();
 }
 
 DBHierIndex::~DBHierIndex()
 {
-    RMDBGENTER(7, RMDebug::module_indexif, "DBHierIndex", "~DBHierIndex() " << myOId);
-    ENTER( "DBHierIndex::~DBHierIndex() - myOId=" << myOId );
-
     validate();
     currentDbRows = 0;
     parent = OId(0);
     myKeyObjects.clear();
     maxSize = 0;
     _isNode = true;
-
-    LEAVE( "DBHierIndex::~DBHierIndex()" );
-    RMDBGEXIT(7, RMDebug::module_indexif, "DBHierIndex", "~DBHierIndex() " << myOId);
 }
 
 /*
@@ -820,8 +701,6 @@ value :
 BinaryRepresentation
 DBHierIndex::getBinaryRepresentation() const throw (r_Error)
 {
-    ENTER( "DBHierIndex::getBinaryRepresentation()" );
-
     BinaryRepresentation brp;
     brp.binaryName = getBinaryName();
     brp.binaryData = NULL;
@@ -857,7 +736,7 @@ DBHierIndex::getBinaryRepresentation() const throw (r_Error)
     OId::OIdCounter* entryidsbuf = new OId::OIdCounter[idssize];
     char* entrytypesbuf = new char[typessize];
 
-    RMDBGMIDDLE(8, RMDebug::module_indexif, "DBHierIndex", "complete " << completesize << " bounds " << boundssize << " fixes " << fixessize << " ids " << idssize << " types " << typessize);
+    LTRACE << "complete " << completesize << " bounds " << boundssize << " fixes " << fixessize << " ids " << idssize << " types " << typessize;
 
     //counter which keeps track of the bytes that have been written to the db
     r_Bytes byteswritten = 0;
@@ -865,7 +744,7 @@ DBHierIndex::getBinaryRepresentation() const throw (r_Error)
     r_Bytes bytestowrite = 0;
 
     myDomain.insertInDb(&(lowerboundsbuf[0]), &(upperboundsbuf[0]), &(lowerfixedbuf[0]), &(upperfixedbuf[0]));
-    RMDBGMIDDLE(5, RMDebug::module_indexif, "DBHierIndex", "domain " << myDomain << " stored as " << InlineMinterval(dimension2, &(lowerboundsbuf[0]), &(upperboundsbuf[0]), &(lowerfixedbuf[0]), &(upperfixedbuf[0])));
+    LTRACE << "domain " << myDomain << " stored as " << InlineMinterval(dimension2, &(lowerboundsbuf[0]), &(upperboundsbuf[0]), &(lowerfixedbuf[0]), &(upperfixedbuf[0]));
     //populate the buffers with data
     KeyObjectVector::const_iterator it = myKeyObjects.begin();
     InlineMinterval indom;
@@ -875,7 +754,7 @@ DBHierIndex::getBinaryRepresentation() const throw (r_Error)
         indom.insertInDb(&(lowerboundsbuf[(i+1)*dimension2]), &(upperboundsbuf[(i+1)*dimension2]), &(lowerfixedbuf[(i+1)*dimension2]), &(upperfixedbuf[(i+1)*dimension2]));
         entryidsbuf[i] = (*it).getObject().getOId().getCounter();
         entrytypesbuf[i] = static_cast<char>((*it).getObject().getOId().getType());
-        RMDBGMIDDLE(5, RMDebug::module_indexif, "DBHierIndex", "entry " << entryidsbuf[i] << " " << (OId::OIdType)entrytypesbuf[i] << " at " << InlineMinterval(dimension2, &(lowerboundsbuf[(i+1)*dimension2]), &(upperboundsbuf[(i+1)*dimension2]), &(lowerfixedbuf[(i+1)*dimension2]), &(upperfixedbuf[(i+1)*dimension2])));
+        LTRACE << "entry " << entryidsbuf[i] << " " << (OId::OIdType)entrytypesbuf[i] << " at " << InlineMinterval(dimension2, &(lowerboundsbuf[(i+1)*dimension2]), &(upperboundsbuf[(i+1)*dimension2]), &(lowerfixedbuf[(i+1)*dimension2]), &(upperfixedbuf[(i+1)*dimension2]));
     }
 
     //write the buffers in the complete buffer
@@ -933,7 +812,6 @@ DBHierIndex::getBinaryRepresentation() const throw (r_Error)
 
     delete [] completebuffer;
 
-    LEAVE( "DBHierIndex::getBinaryRepresentation()" );
     return brp;
 }
 
@@ -941,21 +819,19 @@ void
 DBHierIndex::setBinaryRepresentation(const BinaryRepresentation& brp) throw (r_Error)
 {
 	// This format is not efficient (but also not in use..), it should be reviewed against alignment issues
-    ENTER( "DBHierIndex::setBinaryRepresentation()" );
-
     if (memcmp(brp.binaryData, BinaryRepresentation::fileTag, 5) != 0)
     {
-        RMInit::logOut << "DBHierIndex::setBinaryRepresentation(brp:" << brp.binaryName << ") not a correct data set " << brp.binaryData << endl;
+        LFATAL << "DBHierIndex::setBinaryRepresentation(brp:" << brp.binaryName << ") not a correct data set " << brp.binaryData;
         throw r_Error();
     }
     if (brp.binaryData[5] != 1)
     {
-        RMInit::logOut << "DBHierIndex::setBinaryRepresentation(brp:" << brp.binaryName << ") not unknown export version " << static_cast<int>(brp.binaryData[5]) << endl;
+        LFATAL << "DBHierIndex::setBinaryRepresentation(brp:" << brp.binaryName << ") not unknown export version " << static_cast<int>(brp.binaryData[5]);
         throw r_Error();
     }
     if (brp.binaryData[6] != (r_Endian::get_endianness() == r_Endian::r_Endian_Little))
     {
-        RMInit::logOut << "DBHierIndex::setBinaryRepresentation(brp:" << brp.binaryName << ") endianess conversion not supported" << endl;
+        LFATAL << "DBHierIndex::setBinaryRepresentation(brp:" << brp.binaryName << ") endianess conversion not supported";
         throw r_Error();
     }
     size_t size1;
@@ -971,7 +847,7 @@ DBHierIndex::setBinaryRepresentation(const BinaryRepresentation& brp) throw (r_E
     char* temp = getBinaryName();
     if (strcmp(temp, brp.binaryName) != 0)
     {
-        RMInit::logOut << "DBHierIndex::setBinaryRepresentation(brp:" << brp.binaryName << ") my name should be " << temp << endl;
+        LFATAL << "DBHierIndex::setBinaryRepresentation(brp:" << brp.binaryName << ") my name should be " << temp;
         delete [] temp;
         throw r_Error();
     }
@@ -1001,8 +877,8 @@ DBHierIndex::setBinaryRepresentation(const BinaryRepresentation& brp) throw (r_E
     //number of bytes for the dynamic data
     r_Bytes completesize = boundssize * 2 + fixessize * 2 + idssize + typessize;
 
-    RMDBGMIDDLE(8, RMDebug::module_indexif, "DBHierIndex", "size " << size1 << " dimension " << dimension1 << " fixes " << fixessize << " ids " << idssize << " types " << typessize);
-    TALK( "DBHierIndex::setBinaryRepresentation(): size=" << size1 << ", dimension=" << dimension1 << ", fixes=" << fixessize << ", ids=" << idssize << ", types=" << typessize );
+    LTRACE << "size " << size1 << " dimension " << dimension1 << " fixes " << fixessize << " ids " << idssize << " types " << typessize;
+    LDEBUG << "DBHierIndex::setBinaryRepresentation(): size=" << size1 << ", dimension=" << dimension1 << ", fixes=" << fixessize << ", ids=" << idssize << ", types=" << typessize;
 
     char* completebuffer = new char[completesize];
     r_Range* upperboundsbuf = new r_Range[boundssize];
@@ -1027,14 +903,14 @@ DBHierIndex::setBinaryRepresentation(const BinaryRepresentation& brp) throw (r_E
     unsigned int i = 0;
     //rebuild the attributes from the buffers
     myDomain = InlineMinterval(dimension1, &(lowerboundsbuf[0]), &(upperboundsbuf[0]), &(lowerfixedbuf[0]), &(upperfixedbuf[i*dimension1]));
-    RMDBGMIDDLE(5, RMDebug::module_indexif, "DBHierIndex", "domain " << myDomain << " constructed from " << InlineMinterval(dimension1, &(lowerboundsbuf[0]), &(upperboundsbuf[0]), &(lowerfixedbuf[0]), &(upperfixedbuf[0])));
+    LTRACE << "domain " << myDomain << " constructed from " << InlineMinterval(dimension1, &(lowerboundsbuf[0]), &(upperboundsbuf[0]), &(lowerfixedbuf[0]), &(upperfixedbuf[0]));
     KeyObject theKey = KeyObject(DBObjectId(), myDomain);
     for (i = 0; i < size1; i++)
     {
         theKey.setDomain(InlineMinterval(dimension1, &(lowerboundsbuf[(i+1)*dimension1]), &(upperboundsbuf[(i+1)*dimension1]), &(lowerfixedbuf[(i+1)*dimension1]), &(upperfixedbuf[(i+1)*dimension1])));
         theKey.setObject(OId(entryidsbuf[i], static_cast<OId::OIdType>(entrytypesbuf[i])));
         myKeyObjects.push_back(theKey);
-        RMDBGMIDDLE(5, RMDebug::module_indexif, "DBHierIndex", "entry " << entryidsbuf[i] << " " << (OId::OIdType)entrytypesbuf[i] << " at " << InlineMinterval(dimension1, &(lowerboundsbuf[(i+1)*dimension1]), &(upperboundsbuf[(i+1)*dimension1]), &(lowerfixedbuf[(i+1)*dimension1]), &(upperfixedbuf[(i+1)*dimension1])));
+        LTRACE << "entry " << entryidsbuf[i] << " " << (OId::OIdType)entrytypesbuf[i] << " at " << InlineMinterval(dimension1, &(lowerboundsbuf[(i+1)*dimension1]), &(upperboundsbuf[(i+1)*dimension1]), &(lowerfixedbuf[(i+1)*dimension1]), &(upperfixedbuf[(i+1)*dimension1]));
     }
 
     delete [] upperboundsbuf;
@@ -1047,7 +923,5 @@ DBHierIndex::setBinaryRepresentation(const BinaryRepresentation& brp) throw (r_E
     _isPersistent = true;
     _isModified = true;
     currentDbRows = 1;
-
-    LEAVE( "DBHierIndex::setBinaryRepresentation()" );
 }
 

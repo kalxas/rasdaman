@@ -24,7 +24,6 @@ rasdaman GmbH.
 #include <unistd.h>
 
 #include "dbtcindex.hh"
-#include "raslib/rmdebug.hh"
 #include "reladminif/lists.h"
 #include "reladminif/sqlerror.hh"
 #include "reladminif/externs.h"
@@ -36,6 +35,7 @@ rasdaman GmbH.
 #include "reladminif/dbref.hh"
 #include "storagemgr/sstoragelayout.hh"
 #include "indexmgr/keyobject.hh"
+#include "../common/src/logging/easylogging++.hh"
 
 void
 DBTCIndex::setMappingHasChanged()
@@ -56,11 +56,9 @@ DBTCIndex::DBTCIndex(const OId& id)
         _isLoaded(false),
         hasBlob(false)
 {
-    RMDBGENTER(7, RMDebug::module_indexif, "DBTCIndex", "DBTCIndex(" << myOId << ")");
     throw r_Error(r_Error::r_Error_FeatureNotSupported);
     readFromDb();
     _isLoaded = !hasBlob;
-    RMDBGEXIT(7, RMDebug::module_indexif, "DBTCIndex", "DBTCIndex(" << myOId << ")");
 }
 
 IndexDS*
@@ -76,12 +74,10 @@ DBTCIndex::DBTCIndex(r_Dimension dim, bool isNode)
         _isLoaded(true),
         hasBlob(false)
 {
-    RMDBGENTER(7, RMDebug::module_indexif, "DBTCIndex", "DBTCIndex(" << dim << ", " << (int)_isLoaded << ") " << myOId);
     throw r_Error(r_Error::r_Error_FeatureNotSupported);
     objecttype = OId::DBTCINDEXOID;
     setPersistent(true);
     setCached(true);
-    RMDBGEXIT(7, RMDebug::module_indexif, "DBTCIndex", "DBTCIndex(" << dim << ") " << myOId);
 }
 
 void
@@ -100,7 +96,6 @@ DBTCIndex::printStatus(unsigned int level, std::ostream& stream) const
 
 DBTCIndex::~DBTCIndex()
 {
-    RMDBGENTER(7, RMDebug::module_indexif, "DBTCIndex", "~DBTCIndex() " << myOId);
     if (!isModified())
     {
         if (!AdminIf::isReadOnlyTA())
@@ -124,21 +119,18 @@ DBTCIndex::~DBTCIndex()
         validate();
     currentDbRows = 0;
     parent = OId(0);
-    RMDBGEXIT(7, RMDebug::module_indexif, "DBTCIndex", "~DBTCIndex() " << myOId);
 }
 
 void
 DBTCIndex::registerIOIds()
 {
-    RMDBGENTER(7, RMDebug::module_indexif, "DBTCIndex", "registerIOIds() " << myOId);
     for (KeyObjectVector::iterator i = myKeyObjects.begin(); i != myKeyObjects.end(); i++)
         if ((*i).getObject().getOId().getType() == OId::INNEROID)
         {
-            RMDBGMIDDLE(7, RMDebug::module_indexif, "DBTCIndex", "registering tileoid " << OId((*i).getObject().getOId().getCounter(), OId::INLINETILEOID) << " indexoid " << myOId);
+            LTRACE << "registering tileoid " << OId((*i).getObject().getOId().getCounter(), OId::INLINETILEOID) << " indexoid " << myOId;
             ObjectBroker::registerTileIndexMapping(OId((*i).getObject().getOId().getCounter(), OId::INLINETILEOID), myOId);
             hasBlob = true;
         }
-    RMDBGEXIT(7, RMDebug::module_indexif, "DBTCIndex", "registerIOIds() " << myOId);
 }
 
 void
@@ -180,7 +172,7 @@ DBTCIndex::removeInlineTile(InlineTile* it)
     }
     else
     {
-        RMDBGONCE(0, RMDebug::module_indexif, "DBTCIndex", "deregisterInlineTile(" << it->getOId() << ") it not found")
+        LTRACE << "deregisterInlineTile(" << it->getOId() << ") it not found";
     }
 }
 
@@ -199,7 +191,6 @@ DBTCIndex::addInlineTile(InlineTile* it)
 void
 DBTCIndex::insertInDb() throw (r_Error)
 {
-    RMDBGENTER(5, RMDebug::module_indexif, "DBTCIndex", "insertInDb() " << myOId);
     if (isLeaf())
     {
         decideForInlining();
@@ -214,13 +205,11 @@ DBTCIndex::insertInDb() throw (r_Error)
     DBHierIndex::insertInDb();
     if (isLeaf())
         changeIOIdToBOId();
-    RMDBGEXIT(5, RMDebug::module_indexif, "DBTCIndex", "insertInDb() " << myOId);
 }
 
 void
 DBTCIndex::readFromDb() throw (r_Error)
 {
-    RMDBGENTER(5, RMDebug::module_indexif, "DBTCIndex", "readFromDb() " << myOId);
     DBHierIndex::readFromDb();
     if (isLeaf())
     {
@@ -229,13 +218,11 @@ DBTCIndex::readFromDb() throw (r_Error)
     }
     inlineTileHasChanged = false;
     mappingHasChanged = false;
-    RMDBGEXIT(5, RMDebug::module_indexif, "DBTCIndex", "readFromDb() " << myOId);
 }
 
 void
 DBTCIndex::updateInDb() throw (r_Error)
 {
-    RMDBGENTER(5, RMDebug::module_indexif, "DBTCIndex", "updateInDb() " << myOId);
     if (isLeaf())
         decideForInlining();
     if (mappingHasChanged)
@@ -247,7 +234,6 @@ DBTCIndex::updateInDb() throw (r_Error)
     DBHierIndex::updateInDb();
     if (isLeaf())
         changeIOIdToBOId();
-    RMDBGEXIT(5, RMDebug::module_indexif, "DBTCIndex", "updateInDb() " << myOId);
 }
 
 InlineTile*
@@ -296,69 +282,63 @@ DBTCIndex::readyForRemoval(const OId& id)
 bool
 DBTCIndex::removeObject(const KeyObject& entry)
 {
-    RMDBGENTER(4, RMDebug::module_indexif, "DBTCIndex", "removeObject(" << entry << ") " << myOId);
     if (isLeaf())
         readyForRemoval(entry.getObject().getOId());
     bool found = DBHierIndex::removeObject(entry);
-    RMDBGEXIT(4, RMDebug::module_indexif, "DBTCIndex", "removeEntry(" << entry << ") " << myOId << " " << found);
     return found;
 }
 
 bool
 DBTCIndex::removeObject(unsigned int pos)
 {
-    RMDBGENTER(4, RMDebug::module_indexif, "DBTCIndex", "removeObject(" <<  pos << ") " << myOId);
     if (isLeaf())
         if (pos <= myKeyObjects.size())
             readyForRemoval(myKeyObjects[pos].getObject().getOId());
     bool found = DBHierIndex::removeObject(static_cast<unsigned int>(pos));
-    RMDBGEXIT(4, RMDebug::module_indexif, "DBTCIndex", "removeEntry(" << pos << ") " << myOId << " " << found);
     return found;
 }
 
 void
 DBTCIndex::decideForInlining()
 {
-    RMDBGENTER(5, RMDebug::module_indexif, "DBTCIndex", "decideForInlining() " << myOId);
     if (isLeaf())
     {
         InlineTile* itile = NULL;
         KeyObjectVector::iterator it;
         for (it = myKeyObjects.begin(); it != myKeyObjects.end(); it++)
         {
-            RMDBGMIDDLE(5, RMDebug::module_indexif, "DBTCIndex", " we do oid " << (*it));
+            LTRACE << " we do oid " << (*it);
             if ((*it).getObject().getOId().getType() == OId::INLINETILEOID)
             {
                 if ((itile = static_cast<InlineTile*>(ObjectBroker::isInMemory((*it).getObject().getOId()))) != 0)
                 {
-                    RMDBGMIDDLE(5, RMDebug::module_indexif, "DBTCIndex", "in memory");
+                    LTRACE << "in memory";
                     //decide for inlineing
                     if (itile->isInlined())
                     {
-                        RMDBGMIDDLE(5, RMDebug::module_indexif, "DBTCIndex", "inlined");
+                        LTRACE << "inlined";
                         if (itile->getSize() > StorageLayout::DefaultPCTMax)
                         {
-                            RMDBGMIDDLE(5, RMDebug::module_indexif, "DBTCIndex", "needs to be outlined");
+                            LTRACE << "needs to be outlined";
                             itile->outlineTile();
                         }
                     }
                     else
                     {
-                        RMDBGMIDDLE(5, RMDebug::module_indexif, "DBTCIndex", "outlined");
+                        LTRACE << "outlined";
                         if (itile->getSize() < StorageLayout::DefaultMinimalTileSize)
                         {
-                            RMDBGMIDDLE(5, RMDebug::module_indexif, "DBTCIndex", "needs to be inlined");
+                            LTRACE << "needs to be inlined";
                             itile->inlineTile(myOId);
                         }
                     }
                 }
                 else
                 {
-                    RMDBGMIDDLE(5, RMDebug::module_indexif, "DBTCIndex", "not in memory");
+                    LTRACE << "not in memory";
                 }
             }
         }
     }
-    RMDBGEXIT(5, RMDebug::module_indexif, "DBTCIndex", "decideForInlining() " << myOId);
 }
 

@@ -45,13 +45,12 @@ rasdaman GmbH.
 EXEC SQL include "../reladminif/sqlglobals.h";
 
 #include "dbtcindex.hh"
-#include "raslib/rmdebug.hh"
 #include "reladminif/sqlerror.hh"
+#include "../common/src/logging/easylogging++.hh"
 
 void
 DBTCIndex::deleteFromDb() throw (r_Error)
 {
-    RMDBGENTER(5, RMDebug::module_indexif, "DBTCIndex", "deleteFromDb() " << myOId);
     throw r_Error( r_Error::r_Error_BaseDBMSFailed );
 
     /*
@@ -69,7 +68,7 @@ DBTCIndex::deleteFromDb() throw (r_Error)
 
         id3 = myOId.getCounter();
 
-        TALK( "EXEC SQL DELETE FROM RAS_ITILES WHERE ITileId = " << id3 );
+        LDEBUG << "EXEC SQL DELETE FROM RAS_ITILES WHERE ITileId = " << id3;
         EXEC SQL DELETE FROM RAS_ITILES
             WHERE ITileId = :id3;
         if (SQLCODE != 0)
@@ -81,7 +80,7 @@ DBTCIndex::deleteFromDb() throw (r_Error)
             }
         }
 
-        TALK( "EXEC SQL DELETE FROM RAS_ITMAP WHERE IndexId = " << id3 );
+        LDEBUG << "EXEC SQL DELETE FROM RAS_ITMAP WHERE IndexId = " << id3;
         EXEC SQL DELETE FROM
                 RAS_ITMAP
             WHERE
@@ -94,15 +93,12 @@ DBTCIndex::deleteFromDb() throw (r_Error)
                 generateException();
             }
         }
-
-        RMDBGEXIT(5, RMDebug::module_indexif, "DBTCIndex", "deleteFromDb() " << myOId);
     */
 }
 
 void
 DBTCIndex::storeTiles()
 {
-    RMDBGENTER(5, RMDebug::module_indexif, "DBTCIndex", "storeTiles() " << myOId);
     throw r_Error( r_Error::r_Error_BaseDBMSFailed );
 
     /*
@@ -114,20 +110,20 @@ DBTCIndex::storeTiles()
 
     for (itit = inlineTiles.begin(); inlineTiles.end() != itit; itit++)
     {
-        RMDBGMIDDLE(5, RMDebug::module_indexif, "DBTCIndex", "InlineTile " << (*itit).second->getOId() << " has size " << ((InlineTile*)(*itit).second)->getStorageSize());
+        LTRACE << "InlineTile " << (*itit).second->getOId() << " has size " << ((InlineTile*)(*itit).second)->getStorageSize();
         blobSize = ((InlineTile*)(*itit).second)->getStorageSize() + blobSize;
     }
-    RMDBGMIDDLE(5, RMDebug::module_indexif, "DBTCIndex", "blobSize " << blobSize << " hasBlob " << (int)hasBlob);
+    LTRACE << "DBTCIndex", "blobSize " << blobSize << " hasBlob " << (int)hasBlob)
     if (hasBlob && (blobSize == 0))
     {
-        RMDBGMIDDLE(5, RMDebug::module_indexif, "DBTCIndex", "dropping blob");
+        LTRACE << "dropping blob";
         //drop blob
         EXEC SQL BEGIN DECLARE SECTION;
             long        blspcoid4;
         EXEC SQL END DECLARE SECTION;
         blspcoid4 = myOId.getCounter();
 
-        TALK( "EXEC SQL DELETE FROM RAS_ITILES WHERE ITileId = " << blspcoid4 );
+        LDEBUG << "EXEC SQL DELETE FROM RAS_ITILES WHERE ITileId = " << blspcoid4;
         EXEC SQL DELETE FROM RAS_ITILES WHERE ITileId = :blspcoid4;
         if (SQLCODE != 0)
         {
@@ -138,8 +134,8 @@ DBTCIndex::storeTiles()
             }
             else
             {
-                RMInit::logOut << "Tile container index: error in BLOB Space." << endl << "Please contact Customer support." << endl;
-                RMInit::dbgOut << "Tile container index: store tiles, but can't find my blob!" << endl;
+                LFATAL << "Tile container index: error in BLOB Space." << endl << "Please contact Customer support.";
+                LDEBUG << "Tile container index: store tiles, but can't find my blob!";
                 throw r_Error(TILE_CONTAINER_NOT_FOUND);
             }
         }
@@ -147,29 +143,28 @@ DBTCIndex::storeTiles()
     }
     else
     {
-        RMDBGMIDDLE(5, RMDebug::module_indexif, "DBTCIndex", "not dropping blob");
-        if (blobSize == 0)
+        LTRACE << "not dropping blob";
         {
-            RMDBGMIDDLE(5, RMDebug::module_indexif, "DBTCIndex", "nothing to insert");
+            LTRACE << "nothing to insert";
         }
         else
         {
             if (!hasBlob)
             {
-                RMDBGMIDDLE(5, RMDebug::module_indexif, "DBTCIndex", "but inserting blob");
+                LTRACE << "but inserting blob";
                 insertBlob();
             }
             hasBlob = true;
             cells = (char*)mymalloc(blobSize * sizeof(char));
             from = cells;
-            RMDBGMIDDLE(5, RMDebug::module_indexif, "DBTCIndex", "inserting " << blobSize << " bytes");
+            LTRACE << "inserting " << blobSize << " bytes";
             for (itit = inlineTiles.begin(); inlineTiles.end() != itit; itit++)
             {
-                RMDBGMIDDLE(5, RMDebug::module_indexif, "DBTCIndex", "inserting " << (*itit).second->getOId() << " from " << (r_Bytes)(from - cells));
+                LTRACE << "inserting " << (*itit).second->getOId() << " from " << (r_Bytes)(from - cells);
                 from = ((InlineTile*)((*itit).second))->insertInMemBlock(from);
-                RMDBGMIDDLE(5, RMDebug::module_indexif, "DBTCIndex", "inserted to " << (r_Bytes)(from - cells));
+                LTRACE << "inserted to " << (r_Bytes)(from - cells);
             }
-            RMDBGMIDDLE(5, RMDebug::module_indexif, "DBTCIndex", "will write " << (r_Bytes)(from - cells) << " bytes");
+            LTRACE << "will write " << (r_Bytes)(from - cells) << " bytes";
             writeInlineTiles(cells, blobSize);
             for (itit = inlineTiles.begin(); itit != inlineTiles.end(); itit++)
             {
@@ -178,15 +173,12 @@ DBTCIndex::storeTiles()
             }
         }
     }
-    RMDBGEXIT(5, RMDebug::module_indexif, "DBTCIndex", "storeTiles() " << myOId);
     */
 }
 
 void
 DBTCIndex::insertBlob()
 {
-    RMDBGENTER(5, RMDebug::module_indexif, "DBTCIndex", "insertBlob() " << myOId);
-
     throw r_Error( r_Error::r_Error_BaseDBMSFailed );
 
     EXEC SQL BEGIN DECLARE SECTION;
@@ -206,18 +198,16 @@ DBTCIndex::insertBlob()
         if (check("DBTCIndex::insertBlob()") != 0)
         {
             if (SQLCODE == -1)
-                RMInit::logOut << "Counter for DBTCIndexs corrupted." << endl << "Please increment Rows in RAS_COUNTERS manually." << endl;
+                LFATAL << "Counter for DBTCIndexs corrupted." << endl << "Please increment Rows in RAS_COUNTERS manually.";
             generateException();
         }
     */
     hasBlob = true;
-    RMDBGEXIT(5, RMDebug::module_indexif, "DBTCIndex", "insertBlob() " << myOId);
 }
 
 void
 DBTCIndex::writeInlineTiles(__attribute__ ((unused)) char* theblob, __attribute__ ((unused)) r_Bytes blobSize) throw (r_Error)
 {
-    RMDBGENTER(3, RMDebug::module_indexif, "DBTCIndex", "writeInlineTiles() " << myOId);
     throw r_Error( r_Error::r_Error_BaseDBMSFailed );
 
     /*
@@ -227,9 +217,9 @@ DBTCIndex::writeInlineTiles(__attribute__ ((unused)) char* theblob, __attribute_
 
     if (blobSize == 0)
     {
-        RMInit::logOut << "DBTCIndex encountered an internal Error: blobSize is zero." << endl;
-        RMInit::logOut << "Please check your Oracle Instance and contact Customer Support." << endl;
-        RMDBGONCE(0, RMDebug::module_indexif, "DBTCIndex", "writeInlineTiles blobSize = 0!");
+        LFATAL << "DBTCIndex encountered an internal Error: blobSize is zero.";
+        LFATAL << "Please check your Oracle Instance and contact Customer Support.";
+        LTRACE << "writeInlineTiles blobSize = 0!";
         throw r_Error(r_Error::r_Error_BaseDBMSFailed);
     }
     do
@@ -244,14 +234,12 @@ DBTCIndex::writeInlineTiles(__attribute__ ((unused)) char* theblob, __attribute_
     _isLoaded = false;
     inlineTileHasChanged = false;
 
-    RMDBGEXIT(3, RMDebug::module_indexif, "DBTCIndex", "writeInlineTiles() " << myOId << " " << myOId.getType());
     */
 }
 
 void
 DBTCIndex::readInlineTiles() throw (r_Error)
 {
-    RMDBGENTER(3, RMDebug::module_indexif, "DBTCIndex", "readInlineTiles() " << myOId);
     throw r_Error( r_Error::r_Error_BaseDBMSFailed );
 
     /*
@@ -276,10 +264,10 @@ DBTCIndex::readInlineTiles() throw (r_Error)
         inlineTiles = DBObjectPMap();
         InlineTile* t = NULL;
         char* end = (theblob + loblength);
-        RMDBGMIDDLE(3, RMDebug::module_indexif, "DBTCIndex", "end is at " << (r_Bytes)end);
+        LTRACE << "end is at " << (r_Bytes)end;
         while (theblob != end)
         {
-            RMDBGMIDDLE(3, RMDebug::module_indexif, "DBTCIndex", "reading from " << (r_Bytes)theblob);
+            LTRACE << "reading from " << (r_Bytes)theblob;
             t = new InlineTile(myOId, theblob);
             t->setCached(true);
             DBObjectPPair p(t->getOId(), t);
@@ -292,14 +280,12 @@ DBTCIndex::readInlineTiles() throw (r_Error)
         _isLoaded = true;
         inlineTileHasChanged = false;
         mappingHasChanged = false;
-        RMDBGEXIT(3, RMDebug::module_indexif, "DBTCIndex", "readInlineTiles() " << myOId);
         */
 }
 
 void
 DBTCIndex::updateTileIndexMappings() throw (r_Error)
 {
-    RMDBGENTER(5, RMDebug::module_indexif, "DBTCIndex", "updateTileIndexMappings() " << myOId);
     throw r_Error( r_Error::r_Error_BaseDBMSFailed );
 
     EXEC SQL BEGIN DECLARE SECTION;
@@ -309,7 +295,7 @@ DBTCIndex::updateTileIndexMappings() throw (r_Error)
 
     indexid = myOId.getCounter();
 
-    TALK( "EXEC SQL DELETE FROM RAS_ITMAP WHERE IndexId = " << indexid );
+    LDEBUG << "EXEC SQL DELETE FROM RAS_ITMAP WHERE IndexId = " << indexid;
     EXEC SQL DELETE FROM
         RAS_ITMAP
        WHERE
@@ -320,7 +306,7 @@ DBTCIndex::updateTileIndexMappings() throw (r_Error)
     {
         inlineid = OId((*itit).first).getCounter();
 
-        TALK( "EXEC SQL INSERT INTO RAS_ITMAP ( TileId, IndexId) VALUES	( " << inlineid << "," << indexid << ")" );
+        LDEBUG << "EXEC SQL INSERT INTO RAS_ITMAP ( TileId, IndexId) VALUES	( " << inlineid << "," << indexid << ")";
         EXEC SQL INSERT INTO RAS_ITMAP (
           TileId,
           IndexId
@@ -329,11 +315,10 @@ DBTCIndex::updateTileIndexMappings() throw (r_Error)
           :inlineid,
           :indexid
           );
-        RMDBGMIDDLE(6, RMDebug::module_indexif, "DBTCIndex", "TileId: " << inlineid << " IndexId: " << indexid);
+        LTRACE << "TileId: " << inlineid << " IndexId: " << indexid;
         if (check("DBTCIndex::updateTileIndexMappings() insert in RAS_ITMAP") != 0)
             generateException();
     }
     mappingHasChanged = false;
-    RMDBGEXIT(5, RMDebug::module_indexif, "DBTCIndex", "updateTileIndexMappings() " << myOId);
 }
 

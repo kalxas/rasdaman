@@ -37,13 +37,13 @@ rasdaman GmbH.
 #include "dbrcindexds.hh"
 #include "reladminif/objectbroker.hh"
 #include "reladminif/dbref.hh"
-#include "raslib/rmdebug.hh"
 #include "reladminif/lists.h"
 #include "reladminif/sqlerror.hh"
 #include "reladminif/externs.h"
 #include "relblobif/blobtile.hh"
 #include "indexmgr/keyobject.hh"
 #include "storagemgr/sstoragelayout.hh"
+#include "../common/src/logging/easylogging++.hh"
 
 DBRCIndexDS::DBRCIndexDS(const OId& id)
     :   IndexDS(id),
@@ -53,10 +53,8 @@ DBRCIndexDS::DBRCIndexDS(const OId& id)
         myDomain(0),
         currentDbRows(0)
 {
-    RMDBGENTER(7, RMDebug::module_indexif, "DBRCIndexDS", "DBRCIndexDS(" << myOId << ")");
     objecttype = OId::MDDRCIXOID;
     readFromDb();
-    RMDBGEXIT(7, RMDebug::module_indexif, "DBRCIndexDS", "DBRCIndexDS(" << myOId << ")");
 }
 
 DBRCIndexDS::DBRCIndexDS(const r_Minterval& definedDomain, unsigned int size, OId::OIdType theEntryType)
@@ -67,21 +65,19 @@ DBRCIndexDS::DBRCIndexDS(const r_Minterval& definedDomain, unsigned int size, OI
         myDomain(definedDomain),
         currentDbRows(-1)
 {
-    RMDBGENTER(7, RMDebug::module_indexif, "DBRCIndexDS", "DBRCIndexDS(" << definedDomain << ", " << size << ", " << theEntryType << ") " << myOId);
     objecttype = OId::MDDRCIXOID;
     OId t;
     OId::allocateOId(t, myBaseOIdType, mySize);
     myBaseCounter = t.getCounter();
-    RMDBGMIDDLE(7, RMDebug::module_indexif, "DBRCIndexDS", "base counter " << myBaseCounter);
+    LTRACE << "base counter " << myBaseCounter;
     setPersistent(true);
     setCached(true);
-    RMDBGEXIT(7, RMDebug::module_indexif, "DBRCIndexDS", "DBRCIndexDS(" << definedDomain << ", " << size << ", " << theEntryType << ") " << myOId);
 }
 
 IndexDS*
 DBRCIndexDS::getNewInstance() const
 {
-    RMInit::logOut << "DBRCIndexDS::getNewInstance() not suported" << std::endl;
+    LFATAL << "DBRCIndexDS::getNewInstance() not suported";
     throw r_Error(r_Error::r_Error_FeatureNotSupported);
 }
 
@@ -94,14 +90,14 @@ DBRCIndexDS::getIdentifier() const
 bool
 DBRCIndexDS::removeObject(const KeyObject& entry)
 {
-    RMInit::logOut << "DBRCIndexDS::removeObject(" << entry << ") not suported" << std::endl;
+    LFATAL << "DBRCIndexDS::removeObject(" << entry << ") not suported";
     throw r_Error(r_Error::r_Error_FeatureNotSupported);
 }
 
 bool
 DBRCIndexDS::removeObject(unsigned int pos)
 {
-    RMInit::logOut << "DBRCIndexDS::removeObject(" << pos << ") not suported" << std::endl;
+    LFATAL << "DBRCIndexDS::removeObject(" << pos << ") not suported";
     throw r_Error(r_Error::r_Error_FeatureNotSupported);
 }
 
@@ -109,45 +105,43 @@ DBRCIndexDS::removeObject(unsigned int pos)
 void
 DBRCIndexDS::insertObject(const KeyObject& theKey, unsigned int pos)
 {
-    RMInit::logOut << "DBRCIndexDS::insertObject(" << theKey << ", " << pos << ") not suported" << std::endl;
+    LFATAL << "DBRCIndexDS::insertObject(" << theKey << ", " << pos << ") not suported";
     throw r_Error(r_Error::r_Error_FeatureNotSupported);
 }
 
 void
 DBRCIndexDS::setObjectDomain(const r_Minterval& dom, unsigned int pos)
 {
-    RMInit::logOut << "DBRCIndexDS::setObjectDomain(" << dom << ", " << pos << ") not suported" << std::endl;
+    LFATAL << "DBRCIndexDS::setObjectDomain(" << dom << ", " << pos << ") not suported";
     throw r_Error(r_Error::r_Error_FeatureNotSupported);
 }
 
 void
 DBRCIndexDS::setObject(const KeyObject& theKey, unsigned int pos)
 {
-    RMInit::logOut << "DBRCIndexDS::setObject(" << theKey << ", " << pos << ") not suported" << std::endl;
+    LFATAL << "DBRCIndexDS::setObject(" << theKey << ", " << pos << ") not suported";
     throw r_Error(r_Error::r_Error_FeatureNotSupported);
 }
 
 r_Minterval
 DBRCIndexDS::getCoveredDomain() const
 {
-    RMDBGONCE(7, RMDebug::module_indexif, "DBRCIndexDS", "getCoveredDomain() const " << myOId << " " << myDomain);
+    LTRACE << "getCoveredDomain() const " << myOId << " " << myDomain;
     return myDomain;
 }
 
 r_Dimension
 DBRCIndexDS::getDimension() const
 {
-    RMDBGONCE(7, RMDebug::module_indexif, "DBDDObjIx", "getDimension() const " << myOId << " " << myDomain.dimension());
+    LTRACE << "getDimension() const " << myOId << " " << myDomain.dimension();
     return myDomain.dimension();
 }
 
 r_Bytes
 DBRCIndexDS::getTotalStorageSize() const
 {
-    RMDBGENTER(4, RMDebug::module_indexif, "DBRCIndexDS", "getTotalStorageSize() " << myOId);
     r_Bytes sz = 0;
 
-    RMDBGEXIT(4, RMDebug::module_indexif, "DBRCIndexDS", "getTotalStorageSize() " << myOId << " " << sz);
     return sz;
 }
 
@@ -221,7 +215,7 @@ DBRCIndexDS::getAssignedDomain() const
 void
 DBRCIndexDS::setAssignedDomain(const r_Minterval& newDomain)
 {
-    RMInit::logOut << "DBRCIndexDS::setAssignedDomain(" << newDomain << ") not suported" << std::endl;
+    LFATAL << "DBRCIndexDS::setAssignedDomain(" << newDomain << ") not suported";
     throw r_Error(r_Error::r_Error_FeatureNotSupported);
 }
 
@@ -243,21 +237,21 @@ DBRCIndexDS::isSameAs(const IndexDS* other) const
 const KeyObject&
 DBRCIndexDS::getObject(unsigned int pos) const
 {
-    RMInit::logOut << "DBRCIndexDS::getObject(" << pos << ") not suported" << std::endl;
+    LFATAL << "DBRCIndexDS::getObject(" << pos << ") not suported";
     throw r_Error(r_Error::r_Error_FeatureNotSupported);
 }
 
 void
 DBRCIndexDS::getObjects(__attribute__ ((unused)) KeyObjectVector& objs) const
 {
-    RMInit::logOut << "DBRCIndexDS::getObjects(vec) not suported" << std::endl;
+    LFATAL << "DBRCIndexDS::getObjects(vec) not suported";
     throw r_Error(r_Error::r_Error_FeatureNotSupported);
 }
 
 r_Minterval
 DBRCIndexDS::getObjectDomain(unsigned int pos) const
 {
-    RMInit::logOut << "DBRCIndexDS::getObjectDomain(" << pos << ") not suported" << std::endl;
+    LFATAL << "DBRCIndexDS::getObjectDomain(" << pos << ") not suported";
     throw r_Error(r_Error::r_Error_FeatureNotSupported);
 }
 
@@ -269,19 +263,15 @@ DBRCIndexDS::destroy()
 
 DBRCIndexDS::~DBRCIndexDS()
 {
-    RMDBGENTER(7, RMDebug::module_indexif, "DBRCIndexDS", "~DBRCIndexDS() " << myOId);
     validate();
     currentDbRows = 0;
-    RMDBGEXIT(7, RMDebug::module_indexif, "DBRCIndexDS", "~DBRCIndexDS() " << myOId);
 }
 
 void
 DBRCIndexDS::updateInDb() throw (r_Error)
 {
-    RMDBGENTER(5, RMDebug::module_indexif, "DBRCIndexDS", "updateInDb() " << myOId);
     // this operation is illegal
-    RMInit::logOut << "DBRCIndexDS::updateInDb() update is not possible" << std::endl;
+    LFATAL << "DBRCIndexDS::updateInDb() update is not possible";
     throw r_Error(r_Error::r_Error_FeatureNotSupported);
-    RMDBGEXIT(5, RMDebug::module_indexif, "DBRCIndexDS", "updateInDb() " << myOId);
 }
 

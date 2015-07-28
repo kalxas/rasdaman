@@ -38,48 +38,41 @@ rasdaman GmbH.
 #include "debug-srv.hh"
 
 #include "dbtcindex.hh"
-#include "raslib/rmdebug.hh"
 #include "reladminif/sqlerror.hh"
 #include "reladminif/sqlglobals.h"
 
 void
 DBTCIndex::deleteFromDb() throw (r_Error)
 {
-    RMDBGENTER(5, RMDebug::module_indexif, "DBTCIndex", "deleteFromDb() " << myOId);
     throw r_Error( r_Error::r_Error_BaseDBMSFailed );
 }
 
 void
 DBTCIndex::storeTiles()
 {
-    RMDBGENTER(5, RMDebug::module_indexif, "DBTCIndex", "storeTiles() " << myOId);
     throw r_Error( r_Error::r_Error_BaseDBMSFailed );
 }
 
 void
 DBTCIndex::insertBlob()
 {
-    RMDBGENTER(5, RMDebug::module_indexif, "DBTCIndex", "insertBlob() " << myOId);
     throw r_Error( r_Error::r_Error_BaseDBMSFailed );
 }
 
 void
 DBTCIndex::writeInlineTiles(__attribute__ ((unused)) char* theblob, __attribute__ ((unused)) r_Bytes blobSize) throw (r_Error)
 {
-    RMDBGENTER(3, RMDebug::module_indexif, "DBTCIndex", "writeInlineTiles() " << myOId);
     throw r_Error( r_Error::r_Error_BaseDBMSFailed );
 }
 
 void
 DBTCIndex::readInlineTiles() throw (r_Error)
 {
-    RMDBGENTER(3, RMDebug::module_indexif, "DBTCIndex", "readInlineTiles() " << myOId);
     throw r_Error( r_Error::r_Error_BaseDBMSFailed );
 }
 
 void
 DBTCIndex::updateTileIndexMappings() throw (r_Error)
 {
-    RMDBGENTER(5, RMDebug::module_indexif, "DBTCIndex", "updateTileIndexMappings() " << myOId);
     throw r_Error( r_Error::r_Error_BaseDBMSFailed );
 }
