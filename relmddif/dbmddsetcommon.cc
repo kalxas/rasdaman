@@ -24,7 +24,6 @@ rasdaman GmbH.
 #include <iostream>
 #include <set>
 #include "dbmddset.hh"
-#include "raslib/rmdebug.hh"
 #include "reladminif/sqlerror.hh"
 #include "reladminif/externs.h"
 #include "dbmddobj.hh"
@@ -33,6 +32,7 @@ rasdaman GmbH.
 #include "relcatalogif/collectiontype.hh"
 #include "reladminif/dbobjectiditerator.hh"
 #include "raslib/error.hh"
+#include "../common/src/logging/easylogging++.hh"
 
 void
 DBMDDSet::printStatus(unsigned int level, std::ostream& stream) const
@@ -59,21 +59,18 @@ DBMDDSet::printStatus(unsigned int level, std::ostream& stream) const
 bool
 DBMDDSet::contains_element(const DBMDDObjId& elem) const
 {
-    RMDBGENTER(4, RMDebug::module_mddif, "DBMDDSet", "contains_element(" << elem.getOId() << ") " << myOId);
     bool retval = false;
     DBMDDObjIdSet::const_iterator i = mySet.find(elem);
     if (i != mySet.end())
     {
         retval = true;
     }
-    RMDBGEXIT(4, RMDebug::module_mddif, "DBMDDSet", "contains_element(" << elem.getOId() << ") " << myOId << " " << retval);
     return retval;
 }
 
 void
 DBMDDSet::remove(DBMDDObjId& elem)
 {
-    RMDBGENTER(4, RMDebug::module_mddif, "DBMDDSet", "remove(" << elem.getOId() << ")");
     DBMDDObjIdSet::iterator i = mySet.find(elem);
     if (i != mySet.end())
     {
@@ -81,7 +78,6 @@ DBMDDSet::remove(DBMDDObjId& elem)
         mySet.erase(i);
         setModified();
     }
-    RMDBGEXIT(4, RMDebug::module_mddif, "DBMDDSet", "remove(" << elem.getOId() << ")");
 }
 
 void
@@ -98,17 +94,15 @@ DBMDDSet::removeAll()
 
 DBMDDSet::~DBMDDSet()
 {
-    RMDBGENTER(4, RMDebug::module_mddif, "DBMDDSet", "~DBMDDSet() " << myOId);
     validate();
     collType = NULL;
     mySet.clear();
-    RMDBGEXIT(4, RMDebug::module_mddif, "DBMDDSet", "~DBMDDSet() " << myOId);
 }
 
 const CollectionType*
 DBMDDSet::getCollType() const
 {
-    RMDBGONCE(4, RMDebug::module_mddif, "DBMDDSet", "getCollType() " << myOId << "\t" << collType->getName());
+    LTRACE << "getCollType() " << myOId << "\t" << collType->getName();
     return collType;
 }
 
@@ -152,24 +146,20 @@ DBMDDSet::deleteName()
 void
 DBMDDSet::releaseAll()
 {
-    RMDBGONCE(1, RMDebug::module_mddif, "DBMDDSet", "releaseAll() " << myOId << "\tdoes not do anything");
+    LTRACE << "releaseAll() " << myOId << "\tdoes not do anything";
 }
 
 DBMDDSetId
 DBMDDSet::getDBMDDSet(const char* name) throw (r_Error)
 {
-    RMDBGENTER(4, RMDebug::module_mddif, "DBMDDSet", "getDBMDDSet(" << name << ")");
     DBMDDSetId set(static_cast<DBMDDSet*>(ObjectBroker::getObjectByName(OId::MDDCOLLOID, name)));
-    RMDBGEXIT(4, RMDebug::module_mddif, "DBMDDSet", "getDBMDDSet(" << name << ")");
     return set;
 }
 
 DBMDDSetId
 DBMDDSet::getDBMDDSet(const OId& o) throw (r_Error)
 {
-    RMDBGENTER(4, RMDebug::module_mddif, "DBMDDSet", "getDBMDDSet(" << o << ")");
     DBMDDSetId set(static_cast<DBMDDSet*>(ObjectBroker::getObjectByOId(o)));
-    RMDBGEXIT(4, RMDebug::module_mddif, "DBMDDSet", "getDBMDDSet(" << o << ")");
     return set;
 }
 
@@ -219,8 +209,8 @@ DBMDDSet::DBMDDSet(const char* name, const CollectionType* type) throw (r_Error)
         setName("unnamed collection");
     if (type == NULL)
     {
-        RMDBGONCE(0, RMDebug::module_mddif, "DBMDDSet", "DBMDDSet(" << name << ", NULL)")
-        RMInit::logOut << "DBMDDSet::DBMDDSet() the collection type is NULL" << endl;
+        LTRACE << "DBMDDSet(" << name << ", NULL)";
+        LFATAL << "DBMDDSet::DBMDDSet() the collection type is NULL";
         throw r_Error(COLLECTIONTYPEISNULL);
     }
     objecttype = OId::MDDCOLLOID;
@@ -236,7 +226,7 @@ DBMDDSet::setPersistent(bool state) throw (r_Error)
         {
             r_Error t(RASTYPEUNKNOWN);
             t.setTextParameter("type", collType->getName());
-            RMDBGONCE(0, RMDebug::module_mddif, "DBMDDSet", "setPersistent(" << state << ") " << getName() << ", " << collType->getName() << " not persistent");
+            LTRACE << "setPersistent(" << state << ") " << getName() << ", " << collType->getName() << " not persistent";
             throw t;
         }
         try
@@ -252,8 +242,8 @@ DBMDDSet::setPersistent(bool state) throw (r_Error)
         }
         if (set)
         {
-            RMDBGMIDDLE(6, RMDebug::module_mddif, "DBMDDSet", "already have a set with name " << getName());
-            RMInit::logOut << "DBMDDSet::DBMDDSet() mdd collection with name \"" << getName() << "\" exists already" << endl;
+            LTRACE << "already have a set with name " << getName();
+            LFATAL << "DBMDDSet::DBMDDSet() mdd collection with name \"" << getName() << "\" exists already";
             throw r_Error(r_Error::r_Error_NameNotUnique);
         }
     }
@@ -268,19 +258,15 @@ DBMDDSet::DBMDDSet(const OId& id) throw (r_Error)
     :   DBNamedObject(id),
         collType(0)
 {
-    RMDBGENTER(4, RMDebug::module_mddif, "DBMDDSet", "DBMDDSet(" << myOId << ")");
     objecttype = OId::MDDCOLLOID;
     readFromDb();
-    RMDBGEXIT(4, RMDebug::module_mddif, "DBMDDSet", "DBMDDSet(" << myOId << ")");
 }
 
 void
 DBMDDSet::updateInDb() throw (r_Error)
 {
-    RMDBGENTER(4, RMDebug::module_mddif, "DBMDDSet", "updateInDb() " << myOId);
     deleteFromDb();
     insertInDb();
     DBObject::updateInDb();
-    RMDBGEXIT(4, RMDebug::module_mddif, "DBMDDSet", "updateInDb() " << myOId);
 }
 

@@ -34,7 +34,6 @@ rasdaman GmbH.
 
 #include "config.h"
 #include "reladminif/sqlerror.hh"
-#include "raslib/rmdebug.hh"
 #include "reladminif/externs.h"
 #include "dbstoragelayout.hh"
 #include "storagemgr/sstoragelayout.hh"
@@ -329,7 +328,6 @@ TABLE RAS_STORAGE (
 void
 DBStorageLayout::readFromDb() throw(r_Error)
 {
-    RMDBGENTER(5, RMDebug::module_storageif, "DBStorageLayout", "readFromDb() " << myOId);
     EXEC SQL BEGIN DECLARE SECTION;
         long    storageid1;
         long    domainid1;
@@ -469,7 +467,6 @@ DBStorageLayout::readFromDb() throw(r_Error)
     }
 
     DBObject::readFromDb();
-    RMDBGEXIT(5, RMDebug::module_storageif, "DBStorageLayout", "readFromDb() " << myOId);
 }
 
 void
@@ -483,7 +480,6 @@ DBStorageLayout::updateInDb() throw(r_Error)
 void
 DBStorageLayout::insertInDb() throw(r_Error)
 {
-    RMDBGENTER(5, RMDebug::module_storageif, "DBStorageLayout", "insertInDb() " << myOId);
     EXEC SQL BEGIN DECLARE SECTION;
         long    storageid2;
         long    domainid2;
@@ -619,14 +615,11 @@ DBStorageLayout::insertInDb() throw(r_Error)
     }
 
     DBObject::insertInDb();
-
-    RMDBGEXIT(5, RMDebug::module_storageif, "DBStorageLayout", "insertInDb() " << myOId);
 }
 
 void
 DBStorageLayout::deleteFromDb() throw(r_Error)
 {
-    RMDBGENTER(5, RMDebug::module_storageif, "DBStorageLayout", "deleteFrom() " << myOId);
     EXEC SQL BEGIN DECLARE SECTION;
         long    storageid3;
     EXEC SQL END DECLARE SECTION;
@@ -642,6 +635,4 @@ DBStorageLayout::deleteFromDb() throw(r_Error)
 
     tileConfiguration->setPersistent(false);
     DBObject::deleteFromDb();
-
-    RMDBGEXIT(5, RMDebug::module_storageif, "DBStorageLayout", "deleteFrom() " << myOId);
 }

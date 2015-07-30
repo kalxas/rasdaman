@@ -34,13 +34,13 @@ rasdaman GmbH.
 
 #include "config.h"
 #include "reladminif/sqlerror.hh"
-#include "raslib/rmdebug.hh"
 #include "reladminif/externs.h"
 #include "reladminif/sqlglobals.h"
 #include "dbstoragelayout.hh"
 #include "storagemgr/sstoragelayout.hh"
 #include "reladminif/objectbroker.hh"
 #include "reladminif/sqlitewrapper.hh"
+#include "../common/src/logging/easylogging++.hh"
 
 DBStorageLayout::DBStorageLayout()
 : DBObject(),
@@ -331,7 +331,6 @@ TABLE RAS_STORAGE (
 void
 DBStorageLayout::readFromDb() throw (r_Error)
 {
-    RMDBGENTER(5, RMDebug::module_storageif, "DBStorageLayout", "readFromDb() " << myOId);
     long long storageid1;
     long long domainid1;
     short domainid1ind;
@@ -454,13 +453,12 @@ DBStorageLayout::readFromDb() throw (r_Error)
     }
     else
     {
-        RMInit::logOut << "DBStorageLayout::readFromDb() - storage id: "
-                << storageid1 << " not found in the database." << endl;
+        LFATAL << "DBStorageLayout::readFromDb() - storage id: "
+                << storageid1 << " not found in the database.";
         throw r_Ebase_dbms(SQLITE_NOTFOUND, "mdd storage data not found in the database.");
     }
 
     DBObject::readFromDb();
-    RMDBGEXIT(5, RMDebug::module_storageif, "DBStorageLayout", "readFromDb() " << myOId);
 }
 
 void
@@ -474,7 +472,6 @@ DBStorageLayout::updateInDb() throw (r_Error)
 void
 DBStorageLayout::insertInDb() throw (r_Error)
 {
-    RMDBGENTER(5, RMDebug::module_storageif, "DBStorageLayout", "insertInDb() " << myOId);
     long long storageid2;
     long long domainid2;
 
@@ -558,20 +555,15 @@ DBStorageLayout::insertInDb() throw (r_Error)
     insert.execute();
 
     DBObject::insertInDb();
-
-    RMDBGEXIT(5, RMDebug::module_storageif, "DBStorageLayout", "insertInDb() " << myOId);
 }
 
 void
 DBStorageLayout::deleteFromDb() throw (r_Error)
 {
-    RMDBGENTER(5, RMDebug::module_storageif, "DBStorageLayout", "deleteFrom() " << myOId);
     long long storageid3;
 
     storageid3 = myOId.getCounter();
     SQLiteQuery::executeWithParams("DELETE FROM RAS_STORAGE WHERE StorageId = %lld", storageid3);
     tileConfiguration->setPersistent(false);
     DBObject::deleteFromDb();
-
-    RMDBGEXIT(5, RMDebug::module_storageif, "DBStorageLayout", "deleteFrom() " << myOId);
 }

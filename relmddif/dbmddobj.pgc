@@ -38,7 +38,6 @@ rasdaman GmbH.
 #include "reladminif/dbref.hh"
 #include "reladminif/sqlerror.hh"
 #include "reladminif/externs.h"
-#include "raslib/rmdebug.hh"
 #include "catalogmgr/typefactory.hh"
 #include "relcatalogif/mddbasetype.hh"
 #include "relcatalogif/basetype.hh"
@@ -48,6 +47,7 @@ rasdaman GmbH.
 #include "dbmddobj.hh"
 #include "relindexif/indexid.hh"
 #include "indexmgr/indexds.hh"
+#include "../common/src/logging/easylogging++.hh"
 
 #include "debug-srv.hh"
 
@@ -61,16 +61,10 @@ DBMDDObj::DBMDDObj()
         nullValues(NULL),
         storageLayoutId(new DBStorageLayout())
 {
-    RMDBGENTER(7, RMDebug::module_mddif, "DBMDDObj", "DBMDDObj()");
-    ENTER( "DBMDDObj::DBMDDObj" );
-
     objecttype = OId::MDDOID;
     myDomain = new DBMinterval();
     myDomain->setPersistent(true);
     storageLayoutId->setPersistent(true);
-
-    LEAVE( "DBMDDObj::DBMDDObj" );
-    RMDBGEXIT(7, RMDebug::module_mddif, "DBMDDObj", "DBMDDObj()");
 }
 
 DBMDDObj::DBMDDObj(const OId& id) throw (r_Error)
@@ -82,14 +76,8 @@ DBMDDObj::DBMDDObj(const OId& id) throw (r_Error)
         nullValues(NULL),
         storageLayoutId(0LL)
 {
-    RMDBGENTER(7, RMDebug::module_mddif, "DBMDDObj", "DBMDDObj(" << myOId << ")");
-    ENTER( "DBMDDObj::DBMDDObj, id=" << id );
-
     objecttype = OId::MDDOID;
     readFromDb();
-
-    LEAVE( "DBMDDObj::DBMDDObj" );
-    RMDBGEXIT(7, RMDebug::module_mddif, "DBMDDObj", "DBMDDObj(" << myOId << ")");
 }
 
 DBMDDObj::DBMDDObj( const MDDBaseType* newMDDType,
@@ -105,9 +93,6 @@ DBMDDObj::DBMDDObj( const MDDBaseType* newMDDType,
         nullValues(NULL),
         myDomain(NULL)
 {
-    RMDBGENTER(7, RMDebug::module_mddif, "DBMDDObj", "DBMDDObj(" << newMDDType->getName() << ", " << domain << ", Ix " << newObjIx.getOId() << ", Sl " << newSL.getOId() << ", " << newOId << ")");
-    ENTER( "DBMDDObj::DBMDDObj" );
-
     objecttype = OId::MDDOID;
     EXEC SQL BEGIN DECLARE SECTION;
         long    testoid1;
@@ -115,7 +100,7 @@ DBMDDObj::DBMDDObj( const MDDBaseType* newMDDType,
 
     testoid1 = newOId.getCounter();
 
-    TALK( "EXEC SQL SELECT MDDId INTO :testoid1 FROM RAS_MDDOBJECTS WHERE MDDId = " << testoid1 );
+    LDEBUG <<  "EXEC SQL SELECT MDDId INTO :testoid1 FROM RAS_MDDOBJECTS WHERE MDDId = " << testoid1;
     EXEC SQL SELECT
         MDDId
        INTO
@@ -130,8 +115,8 @@ DBMDDObj::DBMDDObj( const MDDBaseType* newMDDType,
         ((DBObject*)newSL.ptr())->setPersistent(false);
         if (SQLCODE == SQLOK)
         {
-            RMDBGMIDDLE(1, RMDebug::module_mddif, "DBMDDObj", "OId is already there");
-            RMInit::logOut << "DBMDDObj::DBMDDObj(...) OId already exists" << endl;
+            LTRACE << "OId is already there";
+            LFATAL << "DBMDDObj::DBMDDObj(...) OId already exists";
             throw r_Error(r_Error::r_Error_OIdNotUnique);
         }
         else
@@ -149,9 +134,6 @@ DBMDDObj::DBMDDObj( const MDDBaseType* newMDDType,
     _isModified = true;
     myOId = newOId;
     setPersistent(true);
-
-    LEAVE( "DBMDDObj::DBMDDObj, " << newMDDType->getName() << ", " << domain << ", Ix " << newObjIx.getOId() << ", " << myOId << ") " << myOId );
-    RMDBGEXIT(7, RMDebug::module_mddif, "DBMDDObj", "DBMDDObj(" << newMDDType->getName() << ", " << domain << ", Ix " << newObjIx.getOId() << ", " << myOId << ") " << myOId);
 }
 
 
@@ -164,9 +146,6 @@ DBMDDObj::DBMDDObj(const DBMDDObj& old)
         nullValues(NULL),
         myDomain(NULL)
 {
-    RMDBGENTER(7, RMDebug::module_mddif, "DBMDDObj", "DBMDDObj(const DBMDDObj&" <<  old.getOId() << ")");
-    ENTER( "DBMDDObj::DBMDDObj" );
-
     if (old.myDomain)
     {
         if (old.myDomain->isPersistent())
@@ -188,9 +167,6 @@ DBMDDObj::DBMDDObj(const DBMDDObj& old)
     storageLayoutId = old.storageLayoutId;
     persistentRefCount = old.persistentRefCount;
     mddType = old.mddType;
-
-    LEAVE( "DBMDDObj::DBMDDObj" );
-    RMDBGEXIT(7, RMDebug::module_mddif, "DBMDDObj", "DBMDDObj(const DBMDDObj& " << old.getOId() << ")");
 }
 
 DBMDDObj::DBMDDObj(const MDDBaseType* newMDDType, const r_Minterval& domain, const DBObjectId& newObjIx, const DBStorageLayoutId& newSL)
@@ -202,9 +178,6 @@ DBMDDObj::DBMDDObj(const MDDBaseType* newMDDType, const r_Minterval& domain, con
         nullValues(NULL),
         myDomain(NULL)
 {
-    RMDBGENTER(7, RMDebug::module_mddif, "DBMDDObj", "DBMDDObj(" << newMDDType->getName() << ", " << domain << ", Ix " << newObjIx.getOId() << ", Sl " << newSL.getOId() << ")");
-    ENTER( "DBMDDObj::DBMDDObj" );
-
     objecttype = OId::MDDOID;
     myDomain = new DBMinterval(domain);
     mddType = newMDDType;
@@ -215,16 +188,10 @@ DBMDDObj::DBMDDObj(const MDDBaseType* newMDDType, const r_Minterval& domain, con
             mddType = (MDDBaseType*)TypeFactory::addMDDType(newMDDType);
         setPersistent(true);
     */
-
-    LEAVE( "DBMDDObj::DBMDDObj" );
-    RMDBGEXIT(7, RMDebug::module_mddif, "DBMDDObj", "DBMDDObj(" << newMDDType->getName() << ", " << domain << ", Ix " << newObjIx.getOId() << ") " << myOId);
 }
 
 DBMDDObj::~DBMDDObj()
 {
-    RMDBGENTER(7, RMDebug::module_mddif, "DBMDDObj", "~DBMDDObj() " << myOId);
-    ENTER( "DBMDDObj::~DBMDDObj" );
-
     validate();
     if (myDomain)
         delete myDomain;
@@ -233,9 +200,6 @@ DBMDDObj::~DBMDDObj()
     if (nullValues)
         delete nullValues;
     nullValues = NULL;
-
-    LEAVE( "DBMDDObj::~DBMDDObj" );
-    RMDBGEXIT(7, RMDebug::module_mddif, "DBMDDObj", "~DBMDDObj() " << myOId);
 }
 
 DBStorageLayoutId
@@ -280,9 +244,6 @@ DBMDDObj::setCached(bool ic)
 void
 DBMDDObj::setPersistent(bool o) throw (r_Error)
 {
-    RMDBGENTER(7, RMDebug::module_mddif, "DBMDDObj", "setPersistent(" << (int)o << ") " << myOId);
-    ENTER( "DBMDDObj::setPersistent, o=" << o );
-
     DBObject::setPersistent(o);
     if (!o)
         setCached(false);
@@ -291,7 +252,7 @@ DBMDDObj::setPersistent(bool o) throw (r_Error)
     DBObjectId testIx(objIxId);
     if (testIx.is_null())
     {
-        RMDBGMIDDLE(0, RMDebug::module_mddif, "DBMDDObj", "index object is not valid " << myOId << " index " << objIxId.getOId());
+        LTRACE << "index object is not valid " << myOId << " index " << objIxId.getOId();
         throw r_Error(INDEX_OF_MDD_IS_NULL);
     }
     else
@@ -305,8 +266,8 @@ DBMDDObj::setPersistent(bool o) throw (r_Error)
 
     if (storageLayoutId.is_null())
     {
-        RMDBGMIDDLE(0, RMDebug::module_mddif, "DBMDDObj", "layout object is not valid " << myOId << " layout " << storageLayoutId.getOId());
-        RMInit::logOut << "DBMDDObj::setPersistent() layout object is not valid" << endl;
+        LTRACE << "layout object is not valid " << myOId << " layout " << storageLayoutId.getOId();
+        LFATAL << "DBMDDObj::setPersistent() layout object is not valid";
         throw r_Error(STORAGE_OF_MDD_IS_NULL);
     }
     else
@@ -315,9 +276,6 @@ DBMDDObj::setPersistent(bool o) throw (r_Error)
     }
     if (o && !mddType->isPersistent())
         mddType = (const MDDBaseType*)TypeFactory::addMDDType(mddType);
-
-    LEAVE( "DBMDDObj::setPersistent, o=" << o );
-    RMDBGEXIT(7, RMDebug::module_mddif, "DBMDDObj", "setPersistent(" << (int)o << ") " << myOId);
 }
 
 const char*
@@ -359,8 +317,6 @@ DBMDDObj::printStatus(unsigned int level, ostream& stream) const
 void
 DBMDDObj::setIx(const DBObjectId& newIx)
 {
-    ENTER( "DBMDDObj::setIx" );
-
     if (isPersistent())
     {
         if (objIxId.getOId() != newIx.getOId())
@@ -373,16 +329,11 @@ DBMDDObj::setIx(const DBObjectId& newIx)
     {
         objIxId = newIx;
     }
-
-    LEAVE( "DBMDDObj::setIx" );
 }
 
 void
 DBMDDObj::updateInDb() throw (r_Error)
 {
-    RMDBGENTER(7, RMDebug::module_mddif, "DBMDDObj", "updateInDb() " << myOId);
-    ENTER( "DBMDDObj::updateInDb" );
-
     EXEC SQL BEGIN DECLARE SECTION;
         long    mddoid3;
         long long  objindex3;
@@ -397,7 +348,7 @@ DBMDDObj::updateInDb() throw (r_Error)
     mddoid3 = myOId.getCounter();
     persRefCount3 = persistentRefCount;
 
-    TALK( "EXEC SQL UPDATE RAS_MDDOBJECTS SET PersRefCount = " << persRefCount3 << ", NodeOId = " << objindex3 << " WHERE MDDId = " << mddoid3 );
+    LDEBUG <<  "EXEC SQL UPDATE RAS_MDDOBJECTS SET PersRefCount = " << persRefCount3 << ", NodeOId = " << objindex3 << " WHERE MDDId = " << mddoid3;
     EXEC SQL UPDATE RAS_MDDOBJECTS SET PersRefCount = :persRefCount3, NodeOId = :objindex3
        WHERE MDDId = :mddoid3;
     if (SQLCODE != SQLOK)
@@ -408,11 +359,11 @@ DBMDDObj::updateInDb() throw (r_Error)
 
     if (nullValues != NULL)
     {
-        TALK("Updating null values");
+        LDEBUG << "Updating null values";
         nullValues->setPersistent(true);
         nullvalueoid = nullValues->getOId().getCounter();
 
-        TALK("EXEC SQL SELECT c.settypeid INTO :settypeoi FROM ras_mddcollnames as c, ras_mddcollections as m WHERE m.mddcollid = c.mddcollid and m.mddid = " << mddoid3);
+        LDEBUG << "EXEC SQL SELECT c.settypeid INTO :settypeoi FROM ras_mddcollnames as c, ras_mddcollections as m WHERE m.mddcollid = c.mddcollid and m.mddid = " << mddoid3;
         EXEC SQL SELECT c.settypeid
                  INTO :settypeoid
                  FROM ras_mddcollnames as c, ras_mddcollections as m
@@ -423,7 +374,7 @@ DBMDDObj::updateInDb() throw (r_Error)
             generateException();
         }
 
-        TALK("EXEC SQL SELECT COUNT(settypeoid) INTO :count FROM RAS_NULLVALUES WHERE settypeoid = " << settypeoid);
+        LDEBUG << "EXEC SQL SELECT COUNT(settypeoid) INTO :count FROM RAS_NULLVALUES WHERE settypeoid = " << settypeoid;
         EXEC SQL SELECT COUNT(settypeoid)
                  INTO :count
                  FROM RAS_NULLVALUES
@@ -435,7 +386,7 @@ DBMDDObj::updateInDb() throw (r_Error)
         }
 
         if (count > 0) {
-            TALK("EXEC SQL SELECT nullvalueoid INTO :oldnullvalueoid FROM RAS_NULLVALUES WHERE settypeoid = " << settypeoid)
+            LDEBUG << "EXEC SQL SELECT nullvalueoid INTO :oldnullvalueoid FROM RAS_NULLVALUES WHERE settypeoid = " << settypeoid;
             EXEC SQL SELECT nullvalueoid
                      INTO :oldnullvalueoid
                      FROM RAS_NULLVALUES
@@ -454,7 +405,7 @@ DBMDDObj::updateInDb() throw (r_Error)
                 delete oldNullValues;
             }
 
-            TALK("EXEC SQL DELETE FROM RAS_NULLVALUES WHERE nullvalueoid = " << oldnullvalueoid);
+            LDEBUG << "EXEC SQL DELETE FROM RAS_NULLVALUES WHERE nullvalueoid = " << oldnullvalueoid;
             EXEC SQL DELETE FROM RAS_NULLVALUES
                      WHERE nullvalueoid = :oldnullvalueoid;
             if (SQLCODE != SQLOK)
@@ -463,23 +414,17 @@ DBMDDObj::updateInDb() throw (r_Error)
                 generateException();
             }
         }
-        TALK("EXEC SQL INSERT INTO RAS_NULLVALUES (settypeoid, NullValueOId) VALUES (" << settypeoid << ", " << nullvalueoid << ");");
+        LDEBUG << "EXEC SQL INSERT INTO RAS_NULLVALUES (settypeoid, NullValueOId) VALUES (" << settypeoid << ", " << nullvalueoid << ");";
         EXEC SQL INSERT INTO RAS_NULLVALUES (settypeoid, NullValueOId)
                  VALUES (:settypeoid, :nullvalueoid);
     }
 
     DBObject::updateInDb();
-
-    LEAVE( "DBMDDObj::updateInDb" );
-    RMDBGEXIT(7, RMDebug::module_mddif, "DBMDDObj", "updateInDb() " << myOId);
 }
 
 void
 DBMDDObj::insertInDb() throw (r_Error)
 {
-    RMDBGENTER(7, RMDebug::module_mddif, "DBMDDObj", "insertInDb() " << myOId);
-    ENTER( "DBMDDObj::insertInDb" );
-
     EXEC SQL BEGIN DECLARE SECTION;
         long      mddoid;
         long long basetypeid;
@@ -496,7 +441,7 @@ DBMDDObj::insertInDb() throw (r_Error)
     domainid = myDomain->getOId().getCounter();
     persRefCount = persistentRefCount;
 
-    TALK( "EXEC SQL INSERT INTO RAS_MDDOBJECTS ( MDDId, BaseTypeOId, DomainId, PersRefCount, NodeOId, StorageOId) VALUES	( " << mddoid << "," << basetypeid<< "," << domainid<< "," << persRefCount << "," << objindex << "," << storage << ")" );
+    LDEBUG <<  "EXEC SQL INSERT INTO RAS_MDDOBJECTS ( MDDId, BaseTypeOId, DomainId, PersRefCount, NodeOId, StorageOId) VALUES	( " << mddoid << "," << basetypeid<< "," << domainid<< "," << persRefCount << "," << objindex << "," << storage << ")";
     EXEC SQL INSERT INTO RAS_MDDOBJECTS ( MDDId, BaseTypeOId, DomainId, PersRefCount, NodeOId, StorageOId)
        VALUES   ( :mddoid, :basetypeid, :domainid, :persRefCount, :objindex, :storage);
     if (SQLCODE != SQLOK)
@@ -506,24 +451,18 @@ DBMDDObj::insertInDb() throw (r_Error)
     }
 
     DBObject::insertInDb();
-
-    LEAVE( "DBMDDObj::insertInDb" );
-    RMDBGEXIT(7, RMDebug::module_mddif, "DBMDDObj", "insertInDb() " << myOId);
 }
 
 void
 DBMDDObj::deleteFromDb() throw (r_Error)
 {
-    RMDBGENTER(7, RMDebug::module_mddif, "DBMDDObj", "deleteFromDb() " << myOId);
-    ENTER( "DBMDDObj::deleteFromDb" );
-
     EXEC SQL BEGIN DECLARE SECTION;
         long    mddoid1;
     EXEC SQL END DECLARE SECTION;
 
     mddoid1 = myOId.getCounter();
 
-    TALK( "EXEC SQL DELETE FROM RAS_MDDOBJECTS WHERE MDDId = " << mddoid1 );
+    LDEBUG <<  "EXEC SQL DELETE FROM RAS_MDDOBJECTS WHERE MDDId = " << mddoid1;
     EXEC SQL DELETE FROM RAS_MDDOBJECTS WHERE MDDId = :mddoid1;
     if (SQLCODE != SQLOK)
     {
@@ -531,17 +470,11 @@ DBMDDObj::deleteFromDb() throw (r_Error)
         generateException();
     }
     DBObject::deleteFromDb();
-
-    LEAVE( "DBMDDObj::deleteFromDb" );
-    RMDBGEXIT(7, RMDebug::module_mddif, "DBMDDObj", "deleteFromDb() " << myOId);
 }
 
 void
 DBMDDObj::readFromDb() throw (r_Error)
 {
-    RMDBGENTER(7, RMDebug::module_mddif, "DBMDDObj", "readFromDb() " << myOId);
-    ENTER( "DBMDDObj::readFromDb" );
-
 #ifdef RMANBENCHMARK
     DBObject::readTimer.resume();
 #endif
@@ -556,7 +489,7 @@ DBMDDObj::readFromDb() throw (r_Error)
 
     mddoid2 = myOId.getCounter();
 
-    TALK( "EXEC SQL SELECT BaseTypeOId, DomainId, PersRefCount, NodeOId, StorageOId INTO :basetypeid2, :domainid2, :persRefCount2, :objindex2, :storage2 FROM RAS_MDDOBJECTS WHERE MDDId = " << mddoid2 );
+    LDEBUG <<  "EXEC SQL SELECT BaseTypeOId, DomainId, PersRefCount, NodeOId, StorageOId INTO :basetypeid2, :domainid2, :persRefCount2, :objindex2, :storage2 FROM RAS_MDDOBJECTS WHERE MDDId = " << mddoid2;
 
     EXEC SQL SELECT BaseTypeOId, DomainId, PersRefCount, NodeOId, StorageOId
        INTO :basetypeid2, :domainid2, :persRefCount2, :objindex2, :storage2
@@ -566,7 +499,7 @@ DBMDDObj::readFromDb() throw (r_Error)
     {
         if (SQLCODE == SQLNODATAFOUND)
         {
-            RMDBGMIDDLE(7, RMDebug::module_mddif, "DBMDDObj", "object not found");
+            LTRACE << "object not found";
             throw r_Error(r_Error::r_Error_ObjectUnknown);
         }
         else
@@ -587,9 +520,6 @@ DBMDDObj::readFromDb() throw (r_Error)
 #ifdef RMANBENCHMARK
     DBObject::readTimer.pause();
 #endif
-
-    LEAVE( "DBMDDObj::readFromDb" );
-    RMDBGEXIT(7, RMDebug::module_mddif, "DBMDDObj", "readFromDb() " << myOId);
 }
 
 
@@ -624,19 +554,15 @@ DBMDDObj::decrementPersRefCount()
 DBMinterval*
 DBMDDObj::getNullValues() const
 {
-  ENTER("DBMDDObj::getNullValues()");
   if (nullValues != NULL) {
-    TALK("returning null values: " << nullValues->get_string_representation());
+    LDEBUG << "returning null values: " << nullValues->get_string_representation();
   }
-  LEAVE("DBMDDObj::getNullValues()");
   return nullValues;
 }
 
 void
 DBMDDObj::setNullValues(const r_Minterval &newNullValues)
 {
-  ENTER("DBMDDObj::setNullValues( " << newNullValues.get_string_representation() << " )");
   nullValues = new DBMinterval(newNullValues);
   setModified();
-  LEAVE("DBMDDObj::setNullValues");
 }
