@@ -34,8 +34,6 @@ rasdaman GmbH.
 
 #include "dbmddobj.hh"
 
-#include "raslib/rmdebug.hh"
-
 RMINITGLOBALS('C')
 
 int

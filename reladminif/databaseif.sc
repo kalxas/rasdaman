@@ -48,7 +48,6 @@ rasdaman GmbH.
 using namespace std;
 
 #include "databaseif.hh"
-#include "raslib/rmdebug.hh"
 #include "oidif.hh"
 #include "adminif.hh"
 #include "../common/src/logging/easylogging++.hh"

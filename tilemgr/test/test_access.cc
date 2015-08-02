@@ -82,7 +82,6 @@ rasdaman GmbH.
 #endif
 
 #include "raslib/rminit.hh"
-#include "raslib/rmdebug.hh"
 #include "typefactory.hh"
 #include "ulongtype.hh"       // from the catalogif base DBMS interface module    
 

@@ -20,7 +20,6 @@ rasdaman GmbH.
 * For more information please see <http://www.rasdaman.org>
 * or contact Peter Baumann via <baumann@rasdaman.com>.
 */
-#include "raslib/rmdebug.hh"
 #include <iostream.h>
 #include <stdio.h>
 #include <string.h>
@@ -40,8 +39,6 @@ rasdaman GmbH.
 #include "dbmddcoll.hh"
 #include "dbmddcolloidentry.hh"
 #include "dbmddobj.hh"
-
-#include "raslib/rmdebug.hh"
 
 RMINITGLOBALS('C')
 

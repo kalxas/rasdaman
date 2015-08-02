@@ -56,7 +56,6 @@ using namespace std;
 # define ARG_MAX sysconf (_SC_ARG_MAX)
 #endif
 
-#include "raslib/rminit.hh"
 
 #include "debug-srv.hh"
 #include "../common/src/logging/easylogging++.hh"

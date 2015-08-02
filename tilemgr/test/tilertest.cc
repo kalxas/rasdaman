@@ -29,7 +29,6 @@ rasdaman GmbH.
 #endif
 #endif
 
-#include "raslib/rmdebug.hh"
 #include "raslib/minterval.hh"
 #include <iostream.h>
 #include <stdio.h>

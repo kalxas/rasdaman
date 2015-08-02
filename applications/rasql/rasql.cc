@@ -207,9 +207,7 @@ typedef enum
 #define PARAM_DEBUG "debug"
 #define HELP_DEBUG  "generate diagnostic output"
 
-#ifdef RMANRASNET
 #include "common/src/logging/easylogging++.hh"
-#endif
 
 // global variables and default settings
 // -------------------------------------
@@ -223,7 +221,7 @@ bool taIsOpen = false;
 // suppress regular messages in log? (cmd line parameter '--quiet')
 bool quietLog = false;
 // logging mechanism that respects 'quiet' flag:
-#define LOG(a) { if (!quietLog) std::cout << a; }
+#define INFO(a) { if (!quietLog) std::cout << a; }
 
 int  optionValueIndex=0;
 
@@ -446,14 +444,14 @@ openDatabase() throw (r_Error)
 
     if (! dbIsOpen)
     {
-        LOG( "opening database " << baseName << " at " << serverName << ":" << serverPort << "..." << flush );
+        INFO( "opening database " << baseName << " at " << serverName << ":" << serverPort << "..." << flush );
         db.set_servername(serverName, static_cast<int>(serverPort));
         db.set_useridentification(user, passwd);
         TALK( "database was closed, opening database=" << baseName << ", server=" << serverName << ", port=" << serverPort << ", user=" << user << ", passwd=" << passwd << "..." );
         db.open(baseName);
         TALK( "ok" );
         dbIsOpen = true;
-        LOG( "ok" << endl << flush );
+        INFO( "ok" << endl << flush );
     }
 
     LEAVE( "openDatabase" );
@@ -534,61 +532,61 @@ void printScalar( const r_Scalar& scalar )
     switch( scalar.get_type()->type_id() )
     {
     case r_Type::BOOL:
-        LOG( ( (static_cast<r_Primitive*>(&const_cast<r_Scalar&>(scalar)))->get_boolean() ? "t" : "f" ) << flush );
+        INFO( ( (static_cast<r_Primitive*>(&const_cast<r_Scalar&>(scalar)))->get_boolean() ? "t" : "f" ) << flush );
         break;
 
     case r_Type::CHAR:
-        LOG( static_cast<int>((static_cast<r_Primitive*>(&const_cast<r_Scalar&>(scalar)))->get_char()) << flush );
+        INFO( static_cast<int>((static_cast<r_Primitive*>(&const_cast<r_Scalar&>(scalar)))->get_char()) << flush );
         break;
 
     case r_Type::OCTET:
-        LOG( static_cast<int>((static_cast<r_Primitive*>(&const_cast<r_Scalar&>(scalar)))->get_octet()) << flush );
+        INFO( static_cast<int>((static_cast<r_Primitive*>(&const_cast<r_Scalar&>(scalar)))->get_octet()) << flush );
         break;
 
     case r_Type::SHORT:
-        LOG( (static_cast<r_Primitive*>(&const_cast<r_Scalar&>(scalar)))->get_short() << flush );
+        INFO( (static_cast<r_Primitive*>(&const_cast<r_Scalar&>(scalar)))->get_short() << flush );
         break;
 
     case r_Type::USHORT:
-        LOG( (static_cast<r_Primitive*>(&const_cast<r_Scalar&>(scalar)))->get_ushort() << flush );
+        INFO( (static_cast<r_Primitive*>(&const_cast<r_Scalar&>(scalar)))->get_ushort() << flush );
         break;
 
     case r_Type::LONG:
-        LOG( (static_cast<r_Primitive*>(&const_cast<r_Scalar&>(scalar)))->get_long() << flush );
+        INFO( (static_cast<r_Primitive*>(&const_cast<r_Scalar&>(scalar)))->get_long() << flush );
         break;
 
     case r_Type::ULONG:
-        LOG( (static_cast<r_Primitive*>(&const_cast<r_Scalar&>(scalar)))->get_ulong() << flush );
+        INFO( (static_cast<r_Primitive*>(&const_cast<r_Scalar&>(scalar)))->get_ulong() << flush );
         break;
 
     case r_Type::FLOAT:
-        LOG( (static_cast<r_Primitive*>(&const_cast<r_Scalar&>(scalar)))->get_float() << flush );
+        INFO( (static_cast<r_Primitive*>(&const_cast<r_Scalar&>(scalar)))->get_float() << flush );
         break;
 
     case r_Type::DOUBLE:
-        LOG( (static_cast<r_Primitive*>(&const_cast<r_Scalar&>(scalar)))->get_double() << flush );
+        INFO( (static_cast<r_Primitive*>(&const_cast<r_Scalar&>(scalar)))->get_double() << flush );
         break;
 
     case r_Type::COMPLEXTYPE1:
     case r_Type::COMPLEXTYPE2:
-        LOG( "(" << (static_cast<r_Complex*>(&const_cast<r_Scalar&>(scalar)))->get_re() << "," << (static_cast<r_Complex*>(&const_cast<r_Scalar&>(scalar)))->get_im() << ")" << flush );
+        INFO( "(" << (static_cast<r_Complex*>(&const_cast<r_Scalar&>(scalar)))->get_re() << "," << (static_cast<r_Complex*>(&const_cast<r_Scalar&>(scalar)))->get_im() << ")" << flush );
         break;
 
     case r_Type::STRUCTURETYPE:
     {
         r_Structure* structValue = static_cast<r_Structure*>(&const_cast<r_Scalar&>(scalar));
-        LOG( "{ " << flush );
+        INFO( "{ " << flush );
         for( unsigned int i=0; i<structValue->count_elements(); i++ )
         {
             printScalar( (*structValue)[i] );
             if( i < structValue->count_elements()-1 )
-                LOG( ", " << flush );
+                INFO( ", " << flush );
         }
-        LOG( " }" << endl );
+        INFO( " }" << endl );
     }
     break;
     default:
-        LOG( "scalar type " << scalar.get_type()->type_id() <<  "  not supported!" << endl );
+        INFO( "scalar type " << scalar.get_type()->type_id() <<  "  not supported!" << endl );
         break;
     }
     LEAVE( "printScalar" );
@@ -600,7 +598,7 @@ void printResult( /* r_Set< r_Ref_Any > result_set */ ) throw(RasqlError)
 {
     ENTER( "printResult" );
 
-    LOG( "Query result collection has " << result_set.cardinality() << " element(s):" << endl );
+    INFO( "Query result collection has " << result_set.cardinality() << " element(s):" << endl );
 
     if (displayType)
     {
@@ -645,7 +643,7 @@ void printResult( /* r_Set< r_Ref_Any > result_set */ ) throw(RasqlError)
             {
                 size_t numCells = r_Ref<r_GMarray>(*iter)->get_array_size();
                 const char* theStuff = r_Ref<r_GMarray>(*iter)->get_array();
-                LOG( "  Result object " << i << ": " );
+                INFO( "  Result object " << i << ": " );
                 for (unsigned int cnt = 0; cnt < numCells; cnt++)
                     cout << theStuff[cnt];
                 cout << endl;
@@ -655,7 +653,7 @@ void printResult( /* r_Set< r_Ref_Any > result_set */ ) throw(RasqlError)
             {
                 size_t numCells = r_Ref<r_GMarray>(*iter)->get_array_size();
                 const char* theStuff = r_Ref<r_GMarray>(*iter)->get_array();
-                LOG( "  Result object " << i << ": " );
+                INFO( "  Result object " << i << ": " );
                 cout << hex;
                 for (unsigned int cnt = 0; cnt < numCells; cnt++)
                     cout << setw(2) << static_cast<unsigned short>(0xff & theStuff[cnt]) << " ";
@@ -663,7 +661,7 @@ void printResult( /* r_Set< r_Ref_Any > result_set */ ) throw(RasqlError)
             }
             break;
             case OUT_FORMATTED:
-                LOG( "  Result object " << i << ":" << endl );
+                INFO( "  Result object " << i << ":" << endl );
                 // for (int cnt = 0; cnt < numCells; cnt++)
                 printScalar( *(r_Ref<r_Scalar>(*iter)) );
                 cout << endl;
@@ -713,7 +711,7 @@ void printResult( /* r_Set< r_Ref_Any > result_set */ ) throw(RasqlError)
                     break;
                 }
 
-                LOG( "  Result object " << i << ": going into file " << defFileName << "..." << flush );
+                INFO( "  Result object " << i << ": going into file " << defFileName << "..." << flush );
                 FILE *tfile = fopen( defFileName, "wb" );
                 if(tfile==NULL)
                 {
@@ -726,7 +724,7 @@ void printResult( /* r_Set< r_Ref_Any > result_set */ ) throw(RasqlError)
                     throw RasqlError(UNABLETOWRITETOFILE);
                 };
                 fclose(tfile);
-                LOG( "ok." << endl );
+                INFO( "ok." << endl );
             }
             break;
             default:
@@ -736,27 +734,27 @@ void printResult( /* r_Set< r_Ref_Any > result_set */ ) throw(RasqlError)
             break;
 
         case r_Type::POINTTYPE:
-            LOG( "  Result element " << i << ": " );
+            INFO( "  Result element " << i << ": " );
             cout << *(r_Ref<r_Point>(*iter)) << endl;
             break;
 
         case r_Type::SINTERVALTYPE:
-            LOG( "  Result element " << i << ": " );
+            INFO( "  Result element " << i << ": " );
             cout << *(r_Ref<r_Sinterval>(*iter)) << endl;
             break;
 
         case r_Type::MINTERVALTYPE:
-            LOG( "  Result element " << i << ": " );
+            INFO( "  Result element " << i << ": " );
             cout << *(r_Ref<r_Minterval>(*iter)) << endl;
             break;
 
         case r_Type::OIDTYPE:
-            LOG( "  Result element " << i << ": " );
+            INFO( "  Result element " << i << ": " );
             cout << *(r_Ref<r_OId>(*iter)) << endl;
             break;
 
         default:
-            LOG( "  Result element " << i << ": " << flush );
+            INFO( "  Result element " << i << ": " << flush );
             printScalar( *(r_Ref<r_Scalar>(*iter)) );
             cout << endl;
             // or simply
@@ -857,12 +855,12 @@ void doStuff( __attribute__ ((unused)) int argc, __attribute__ ((unused)) char**
         if ( ! mddTypeNameDef )
             mddTypeName = MDD_STRINGTYPE;
 
-        LOG( "fetching type information for " << mddTypeName << " from database, using readonly transaction..." << flush );
+        INFO( "fetching type information for " << mddTypeName << " from database, using readonly transaction..." << flush );
         mddType = getTypeFromDatabase( mddTypeName );
         closeTransaction( true );
-        LOG( "ok" << endl );
+        INFO( "ok" << endl );
 
-        LOG( "reading file " << fileName << "..." << flush );
+        INFO( "reading file " << fileName << "..." << flush );
         FILE* fileD = fopen( fileName, "r" );
         if (fileD == NULL)
             throw RasqlError( FILEINACCESSIBLE );
@@ -936,7 +934,7 @@ void doStuff( __attribute__ ((unused)) int argc, __attribute__ ((unused)) char**
 
         fclose( fileD );
 
-        LOG( "ok" << endl );
+        INFO( "ok" << endl );
 
         TALK( "setting up MDD with domain " << mddDomain << " and base type " << mddTypeName );
         fileMDD = new (mddTypeName) r_GMarray( mddDomain, mddType->base_type().size(), 0, false );
@@ -960,7 +958,7 @@ void doStuff( __attribute__ ((unused)) int argc, __attribute__ ((unused)) char**
         for ( i=1, iter.reset(); iter.not_done(); iter++, i++ )
         {
             r_Ref< r_GMarray > myConstant = *iter;
-            LOG( "  constant " << i << ": " );
+            INFO( "  constant " << i << ": " );
             myConstant->print_status( cout );
 // the following can be used for sporadic debugging of input files, but beware: is very verbose!
 #if 0
@@ -979,10 +977,10 @@ void doStuff( __attribute__ ((unused)) int argc, __attribute__ ((unused)) char**
 
         r_Marray<r_ULong>* mddConst = NULL;
 
-        LOG( "Executing insert query..." << flush );
+        INFO( "Executing insert query..." << flush );
         // third param is just to differentiate from retrieval
         r_oql_execute( query, result_set, 1 );
-        LOG( "ok" << endl );
+        INFO( "ok" << endl );
 
         // generate output only if explicitly requested
         if( output )
@@ -999,9 +997,9 @@ void doStuff( __attribute__ ((unused)) int argc, __attribute__ ((unused)) char**
 
         r_Marray<r_ULong>* mddConst = NULL;
 
-        LOG( "Executing update query..." << flush );
+        INFO( "Executing update query..." << flush );
         r_oql_execute( query );
-        LOG( "ok" << endl );
+        INFO( "ok" << endl );
 
         if( mddConst )
             delete mddConst;
@@ -1015,9 +1013,9 @@ void doStuff( __attribute__ ((unused)) int argc, __attribute__ ((unused)) char**
         // should be defined here, but is global; see def for reason
         // r_Set< r_Ref_Any > result_set;
 
-        LOG( "Executing retrieval query..." << flush );
+        INFO( "Executing retrieval query..." << flush );
         r_oql_execute( query, result_set );
-        LOG( "ok" << endl );
+        INFO( "ok" << endl );
 
         // generate output only if explicitly requested
         if( output )
@@ -1044,9 +1042,7 @@ crash_handler (__attribute__ ((unused)) int sig, __attribute__ ((unused)) siginf
     exit(SEGFAULT_EXIT_CODE);
 }
 
-#ifdef RMANRASNET
 _INITIALIZE_EASYLOGGINGPP
-#endif
 
 /*
  * returns 0 on success, -1 on error
@@ -1054,13 +1050,18 @@ _INITIALIZE_EASYLOGGINGPP
 int main(int argc, char** argv)
 {
     //TODO-GM: find a better way to do thiss
-#ifdef RMANRASNET
-//    easyloggingpp::Configurations defaultConf;
-//    defaultConf.setToDefault();
-//    easyloggingpp::Loggers::reconfigureAllLoggers(defaultConf);
 
-    easyloggingpp::Loggers::disableAll();
-#endif
+    easyloggingpp::Configurations defaultConf;
+    defaultConf.setToDefault();
+    defaultConf.set(easyloggingpp::Level::All,
+                    easyloggingpp::ConfigurationType::Format,
+                    "%datetime %level %log");
+    defaultConf.set(easyloggingpp::Level::Debug,
+                    easyloggingpp::ConfigurationType::Enabled, "false");
+    defaultConf.set(easyloggingpp::Level::Trace,
+                    easyloggingpp::ConfigurationType::Enabled, "false");
+    easyloggingpp::Loggers::reconfigureAllLoggers(defaultConf);
+
 
     SET_OUTPUT( false );        // inhibit unconditional debug output, await cmd line evaluation
 
@@ -1071,8 +1072,8 @@ int main(int argc, char** argv)
     {
         parseParams( argc, argv );
 
-        // put LOG after parsing parameters to respect a '--quiet'
-        LOG( argv[0] << ": rasdaman query tool v1.0, rasdaman " << RMANVERSION << " -- generated on " << COMPDATE << "." << endl );
+        // put INFO after parsing parameters to respect a '--quiet'
+        INFO( argv[0] << ": rasdaman query tool v1.0, rasdaman " << RMANVERSION << " -- generated on " << COMPDATE << "." << endl );
 
         openDatabase();
         doStuff( argc, argv );
@@ -1102,13 +1103,13 @@ int main(int argc, char** argv)
 
     if (retval != EXIT_SUCCESS && (dbIsOpen || taIsOpen) )
     {
-        LOG( "aborting transaction..." << flush );
+        INFO( "aborting transaction..." << flush );
         closeTransaction( false );  // abort transaction and close database, ignore any further exceptions
-        LOG( "ok" << endl );
+        INFO( "ok" << endl );
         closeDatabase();
     }
 
-    LOG( argv[0] << " done." << endl );
+    INFO( argv[0] << " done." << endl );
     return retval;
 } // main()
 

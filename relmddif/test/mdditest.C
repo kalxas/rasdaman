@@ -38,7 +38,6 @@ rasdaman GmbH.
 
 #include "dbdirix.hh"
 
-#include "raslib/rmdebug.hh"
 
 RMINITGLOBALS('C')
 int RManDebug2 = 8;

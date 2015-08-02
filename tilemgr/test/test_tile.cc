@@ -56,7 +56,6 @@ static const char rcsid[] = "@(#)cachetamgr,test_tile: $Id: test_tile.cc,v 1.26 
 #include "tilemgr/transtile.hh"
 #include "typefactory.hh"
 #include "raslib/rminit.hh"
-#include "raslib/rmdebug.hh"
 
 // global variable for AdminIf because of O2 d_Session::begin()
 extern char* myExecArgv0 = "";

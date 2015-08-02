@@ -95,7 +95,6 @@ using namespace std;
 #endif
 
 #include "raslib/rminit.hh"
-#include "raslib/rmdebug.hh"
 #include "../common/src/logging/easylogging++.hh"
 
 #define MAXMSG 1024

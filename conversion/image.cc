@@ -35,7 +35,6 @@ rasdaman GmbH.
 /*
 #include <strstream>
 
-#include "raslib/rminit.hh"
 #include "rasodmg/marray.hh"
 #include "rasodmg/ref.hh"
 #include "rasodmg/set.hh"

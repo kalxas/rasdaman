@@ -36,7 +36,6 @@ rasdaman GmbH.
 #include "rasmgr_users.hh"
 
 #include "debug-srv.hh"
-#include "raslib/rminit.hh"
 #include "../common/src/logging/easylogging++.hh"
 
 // host name returned when we don't have a valid one:

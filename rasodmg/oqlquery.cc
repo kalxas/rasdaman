@@ -52,7 +52,6 @@ static const char rcsid[] = "@(#)rasodmg, r_OQL_Query and r_oql_execute(): $Id: 
 #include "rasodmg/set.hh"
 #include "rasodmg/gmarray.hh"
 
-#include "raslib/rmdebug.hh"
 #include "clientcomm/clientcomm.hh"
 
 #include <algorithm>

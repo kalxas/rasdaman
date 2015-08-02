@@ -48,8 +48,6 @@ static const char rcsid[] = "@(#)servercomm, HttpServer: $Id: httpserver.cc,v 1.
 #include <unistd.h>    // for alarm(), gethostname()
 #include <iomanip>
 
-#include "raslib/rmdebug.hh"
-#include "raslib/rminit.hh"
 #include "raslib/error.hh"
 #include "raslib/minterval.hh"
 #include "raslib/endian.hh"
@@ -1714,7 +1712,6 @@ HttpServer::processRequest( unsigned long callingClientId, char* baseName, int r
 //**********************************************************************
 
 #include "raslib/error.hh"
-#include "raslib/rminit.hh"
 
 #include   "httpserver/defs.h"
 #include   "httpserver/protos.h"

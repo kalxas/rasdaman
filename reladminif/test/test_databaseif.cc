@@ -47,7 +47,6 @@ using namespace std;
 #include "databaseif.hh"
 #include "externs.h"
 
-#include "raslib/rmdebug.hh"
 #define DEBUG_MAIN
 #include "debug.hh"
 

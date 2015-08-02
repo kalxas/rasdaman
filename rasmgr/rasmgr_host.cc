@@ -36,7 +36,6 @@ rasdaman GmbH.
 #include "rasmgr_master.hh"
 
 #include "debug-srv.hh"
-#include "raslib/rminit.hh"
 #include "../common/src/logging/easylogging++.hh"
 
 #ifdef SOLARIS

@@ -84,9 +84,7 @@ using namespace std;
 #include "debug.hh"
 #endif
 
-#ifdef RMANRASNET
 #include "common/src/logging/easylogging++.hh"
-#endif
 
 extern "C" {
 #include <ppm.h>
@@ -187,7 +185,7 @@ const char *short_options = "hc:t:rs:d:u:p:v";
 static bool verbose = DEFAULT_VERBOSE;
 
 // conditional log output
-#define LOG if (verbose) cerr
+#define INFO if (verbose) cerr
 
 // --- globals --------------------------------------------
 // global variables to make readRow work (not nice, I know)
@@ -263,7 +261,7 @@ r_Minterval readHeader( const char *fName, bool mdd3d, unsigned int numSlices )
                  << r_Sinterval(static_cast<r_Range>(0), static_cast<r_Range>(rowsP) - 1);
     }
 
-    LOG << "header says: " << result << endl;
+    INFO << "header says: " << result << endl;
     return result;
 }
 
@@ -426,19 +424,19 @@ void createMarray(const r_Minterval &dom, r_Ref<r_GMarray> &mddPtr, PixelType pi
     switch (pixType)
     {
     case PIXEL_BOOL:
-        LOG << "creating MDD of type bool and extent " << dom << endl;
+        INFO << "creating MDD of type bool and extent " << dom << endl;
         mddPtr = static_cast<r_GMarray*>(new r_Marray<r_Boolean>(dom));
         break;
     case PIXEL_GREY: // create Bool out of pixel (just take blue)
-        LOG << "creating MDD of type grey and extent " << dom << endl;
+        INFO << "creating MDD of type grey and extent " << dom << endl;
         mddPtr = static_cast<r_GMarray*>(new r_Marray<r_Char>(dom));
         break;
     case PIXEL_COLOR: // create ULong out of pixel colors
-        LOG << "creating MDD of type color and extent " << dom << endl;
+        INFO << "creating MDD of type color and extent " << dom << endl;
         mddPtr = static_cast<r_GMarray*>(new r_Marray<RGBPixel>(dom));
         break;
     case PIXEL_UNSIGNED: // create Ushort
-        LOG << "creating MDD of type unsigned and extent " << dom << endl;
+        INFO << "creating MDD of type unsigned and extent " << dom << endl;
         mddPtr = static_cast<r_GMarray*>(new r_Marray<r_UShort>(dom));
         break;
     default:
@@ -478,22 +476,24 @@ printUsage(const char* name)
          << "      In this case all files must have same pixel type and x/y extent." << endl;
 }
 
-#ifdef RMANRASNET
-    _INITIALIZE_EASYLOGGINGPP
-#endif
+_INITIALIZE_EASYLOGGINGPP
 
 int
 main( int argc, char** argv )
 {
     //TODO-GM: find a better way to do this
-    #ifdef RMANRASNET
-        easyloggingpp::Configurations defaultConf;
-        defaultConf.setToDefault();
-        defaultConf.set(easyloggingpp::Level::Error,
-                        easyloggingpp::ConfigurationType::Format,
-                        "%datetime %level %loc %log %func ");
-        easyloggingpp::Loggers::reconfigureAllLoggers(defaultConf);
-    #endif
+
+    easyloggingpp::Configurations defaultConf;
+    defaultConf.setToDefault();
+    defaultConf.set(easyloggingpp::Level::All,
+                    easyloggingpp::ConfigurationType::Format,
+                    "%datetime %level %log");
+    defaultConf.set(easyloggingpp::Level::Debug,
+                    easyloggingpp::ConfigurationType::Enabled, "false");
+    defaultConf.set(easyloggingpp::Level::Trace,
+                    easyloggingpp::ConfigurationType::Enabled, "false");
+    easyloggingpp::Loggers::reconfigureAllLoggers(defaultConf);
+
 
     const char   *prog = argv[0];               // our name
     int           retval = EXIT_OK;             // program exit code
@@ -708,7 +708,7 @@ main( int argc, char** argv )
             tileSize = r_Minterval(2)
                        << r_Sinterval(static_cast<r_Range>(DEFAULT_TILE_LO), static_cast<r_Range>(DEFAULT_TILE_HI))
                        << r_Sinterval(static_cast<r_Range>(DEFAULT_TILE_LO), static_cast<r_Range>(DEFAULT_TILE_HI));
-        LOG << "tileSize = " << tileSize << endl;
+        INFO << "tileSize = " << tileSize << endl;
     }
     transferFormat = get_data_format_from_name( transferFormatString );
     if(transferFormat == r_Data_Format_NUMBER)
@@ -739,32 +739,32 @@ main( int argc, char** argv )
         }
     }
 
-    LOG << prog << " v2.0 rasdaman PPM image insert utility" << endl;
+    INFO << prog << " v2.0 rasdaman PPM image insert utility" << endl;
 
-    LOG << OPTION_COLLECTION << " = " << collName << ", ";
-    LOG << OPTION_TYPE << " = " << typeString << ", ";
-    LOG << "3d = " << mdd3d << ", ";
-    LOG << OPTION_RESCALE << " = " << rescale << ", ";
-    LOG << OPTION_TILE << " = " << tileSize << endl;
-    LOG << OPTION_SERVER << " = " << serverName << ", ";
-    LOG << OPTION_PORT << " = " << serverPort << ", ";
-    LOG << OPTION_DATABASE << " = " << dbName << ", ";
-    LOG << OPTION_USER << " = " << userName << ", ";
-    LOG << OPTION_PASSWD << " = " << passwd << endl;
-    LOG << OPTION_TRANSFERFORMAT << " = " << transferFormatString << ", ";
-    LOG << OPTION_TRANSFERFORMATPARAMS << " = " << transferFormatParams << ", ";
-    LOG << OPTION_STORAGEFORMAT << " = " << storageFormatString << ", ";
-    LOG << OPTION_STORAGEFORMATPARAMS << " = " << storageFormatParams << endl;
-    LOG << OPTION_VERBOSE << " = " << verbose << endl;
-    LOG << "file list = " ;
+    INFO << OPTION_COLLECTION << " = " << collName << ", ";
+    INFO << OPTION_TYPE << " = " << typeString << ", ";
+    INFO << "3d = " << mdd3d << ", ";
+    INFO << OPTION_RESCALE << " = " << rescale << ", ";
+    INFO << OPTION_TILE << " = " << tileSize << endl;
+    INFO << OPTION_SERVER << " = " << serverName << ", ";
+    INFO << OPTION_PORT << " = " << serverPort << ", ";
+    INFO << OPTION_DATABASE << " = " << dbName << ", ";
+    INFO << OPTION_USER << " = " << userName << ", ";
+    INFO << OPTION_PASSWD << " = " << passwd << endl;
+    INFO << OPTION_TRANSFERFORMAT << " = " << transferFormatString << ", ";
+    INFO << OPTION_TRANSFERFORMATPARAMS << " = " << transferFormatParams << ", ";
+    INFO << OPTION_STORAGEFORMAT << " = " << storageFormatString << ", ";
+    INFO << OPTION_STORAGEFORMATPARAMS << " = " << storageFormatParams << endl;
+    INFO << OPTION_VERBOSE << " = " << verbose << endl;
+    INFO << "file list = " ;
     for ( list<string>::iterator from = fileNameList.begin(); from != fileNameList.end(); ++from )
-        LOG << *from << " ";
-    LOG << endl;
+        INFO << *from << " ";
+    INFO << endl;
 
     // --- action --------------------------------------------------
     try
     {
-        LOG << "connecting to " << serverName << ":" << serverPort << "..." << flush;
+        INFO << "connecting to " << serverName << ":" << serverPort << "..." << flush;
         database.set_servername(serverName, static_cast<int>(serverPort));
         database.set_useridentification(userName, passwd);
         database.open( dbName );
@@ -800,7 +800,7 @@ main( int argc, char** argv )
             cerr << "Error: unknown pixel type code: " << static_cast<int>(pixType) << endl;
             throw r_Error( r_Error::r_Error_General );
         }
-        LOG << "mdd type = " << mddTypeName << ", set type = " << collTypeName << endl;
+        INFO << "mdd type = " << mddTypeName << ", set type = " << collTypeName << endl;
 
         // read header information for imgSize
         imgSize = readHeader(fileNameList.front().c_str(),mdd3d, fileNameList.size());  // we know we have at least 1 elem in list
@@ -837,7 +837,7 @@ main( int argc, char** argv )
             while ( k < fileNameList.size() )
             {
                 cout << (*currentFileName).c_str() << "..." << flush;
-                LOG << "#" << k << " " << cacheDom << "..." << flush;
+                INFO << "#" << k << " " << cacheDom << "..." << flush;
 
                 readImage(contents, (*currentFileName).c_str(), true, pixType, rescale, k, k%tileX);
 
@@ -884,7 +884,7 @@ main( int argc, char** argv )
                             << r_Sinterval(static_cast<r_Range>(0), imgCols - 1)
                             << r_Sinterval(k, k + min(tileRows-1, imgRows-k-1));
 
-                LOG << "#" << k << " " << cacheDom << "..." << flush;
+                INFO << "#" << k << " " << cacheDom << "..." << flush;
 
                 createMarray(cacheDom, mddPtr, pixType);
                 char *contents = new char[cacheDom.cell_count() * typeSize];
@@ -919,6 +919,6 @@ main( int argc, char** argv )
         cout << "Panic: unexpected exception." << endl;
     }
 
-    LOG << argv[0] << " done." << endl;
+    INFO << argv[0] << " done." << endl;
     return retval;
 }

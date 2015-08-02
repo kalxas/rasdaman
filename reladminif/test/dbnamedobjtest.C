@@ -21,7 +21,6 @@ rasdaman GmbH.
 * or contact Peter Baumann via <baumann@rasdaman.com>.
 */
 #include "mymalloc/mymalloc.h"
-#include "raslib/rmdebug.hh"
 #include <iostream.h>
 #include <stdio.h>
 #include <string.h>

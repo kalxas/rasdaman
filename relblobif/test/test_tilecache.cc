@@ -32,7 +32,6 @@ rasdaman GmbH.
 #include "raslib/template_inst.hh"
 
 #include "debug/debug-clt.hh"
-#include "raslib/rmdebug.hh"
 #include "relblobif/blobtile.hh"
 #include "relblobif/tilecache.hh"
 #include "reladminif/oidif.hh"

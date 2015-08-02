@@ -45,7 +45,6 @@ using namespace std;
 #include "rasmgr_srv.hh"
 #include "rasmgr_users.hh"
 #include "rasmgr_error.hh"
-#include "raslib/rminit.hh"
 #include <arpa/inet.h>
 #include "../common/src/logging/easylogging++.hh"
 

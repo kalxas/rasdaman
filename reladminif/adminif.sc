@@ -40,7 +40,6 @@ rasdaman GmbH.
 #include "sqlitewrapper.hh"
 
 #include "adminif.hh"
-#include "raslib/rmdebug.hh"
 #include "objectbroker.hh"
 #include "../common/src/logging/easylogging++.hh"
 

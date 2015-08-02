@@ -45,7 +45,6 @@ using namespace std;
 #include "globals.hh"   // RASMGR_AUTH_FILE
 
 #include "debug-srv.hh"
-#include "raslib/rminit.hh"
 #include "../common/src/logging/easylogging++.hh"
 
 extern bool hostCmp( const char *h1, const char *h2);

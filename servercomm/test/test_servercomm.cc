@@ -40,7 +40,6 @@ rasdaman GmbH.
 #include "debug.hh"
 #include "template_inst.hh"
 
-#include "raslib/rmdebug.hh"
 #include "qlparser/qtscalardata.hh"
 
 #include "servercomm/servercomm.hh"

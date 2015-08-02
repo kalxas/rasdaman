@@ -44,7 +44,6 @@ rasdaman GmbH.
 #include "adminif.hh"
 #include "dbobject.hh"
 
-#include "raslib/rmdebug.hh"
 #include "sqlerror.hh"
 #include "objectbroker.hh"
 #include <unistd.h>

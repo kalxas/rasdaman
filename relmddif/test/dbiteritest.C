@@ -36,7 +36,6 @@ rasdaman GmbH.
 #include "dbmddcolloidentry.hh"
 #include "dbmddobj.hh"
 
-#include "raslib/rmdebug.hh"
 
 RMINITGLOBALS('C')
 int RManDebug2 = 0;

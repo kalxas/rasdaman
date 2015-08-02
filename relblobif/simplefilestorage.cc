@@ -24,7 +24,6 @@ rasdaman GmbH.
 #include <string.h>
 #include <errno.h>
 #include <stdlib.h>
-#include "raslib/rminit.hh"
 #include "reladminif/oidif.hh"
 #include "simplefilestorage.hh"
 #include "debug/debug-srv.hh"

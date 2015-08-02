@@ -37,7 +37,8 @@ rasdaman GmbH.
 #include "dbmddobj.hh"
 
 #include "dbminterval.hh"
-#include "raslib/rmdebug.hh"
+
+
 int RManDebug2 = 8;
 int RManModule = 3;
 RMINITGLOBALS('C')
@@ -101,7 +102,7 @@ main(int argc, char* argv[])
 				cout << "Minterval deleted" << endl;
 				break;
 			default:
-				cout << "Don´t know what to do!" << endl;
+				cout << "Don't know what to do!" << endl;
 				break;
 			}
 		cout << endl << endl << endl;

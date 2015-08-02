@@ -24,7 +24,6 @@ rasdaman GmbH.
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
-#include "raslib/rmdebug.hh"
 #include "raslib/rminit.hh"
 #include "raslib/minterval.hh"
 #include "raslib/mitera.hh"

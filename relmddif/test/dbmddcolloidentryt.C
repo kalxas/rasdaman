@@ -22,7 +22,6 @@ rasdaman GmbH.
 */
 #include "relcatalogif/alltypes.hh"
 #include "relcatalogif/typefactory.hh"
-#include "raslib/rmdebug.hh"
 #include "raslib/minterval.hh"
 
 #include <string.h>

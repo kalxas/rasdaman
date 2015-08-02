@@ -25,7 +25,6 @@ rasdaman GmbH.
 #include "adminif.hh"
 #include "typefactory.hh"
 #include "blobtile.hh"
-#include "raslib/rmdebug.hh"
 #include <iostream.h>
 #include <stdio.h>
 #include <string.h>

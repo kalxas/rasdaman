@@ -47,7 +47,6 @@ rasdaman GmbH.
 
 #include "databaseif.hh"
 #include "adminif.hh"
-#include "raslib/rminit.hh"
 #include "externs.h"
 #include "sqlerror.hh"
 #include "raslib/error.hh"

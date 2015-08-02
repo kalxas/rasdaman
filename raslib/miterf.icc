@@ -30,7 +30,6 @@ rasdaman GmbH.
 
 #include "raslib/miterf.hh"
 #include "raslib/minterval.hh"
-#include "raslib/rmdebug.hh"
 
 #include <math.h>
 

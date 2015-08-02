@@ -39,7 +39,6 @@ rasdaman GmbH.
 
 #include "config.h"
 #include "debug-srv.hh"
-#include "raslib/rminit.hh"
 #include "rasmgr_rascontrol.hh"
 
 

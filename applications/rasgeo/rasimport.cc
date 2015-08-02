@@ -50,9 +50,7 @@
 #define DEBUG_MAIN
 #include "debug-clt.hh"
 
-#ifdef RMANRASNET
 #include "common/src/logging/easylogging++.hh"
-#endif
 
 
 using namespace std;
@@ -1462,21 +1460,21 @@ crash_handler ( __attribute__ ((unused)) int sig,  __attribute__ ((unused)) sigi
 
 // ----------------------------------------- MAIN ------------------------------------------------
 
-#ifdef RMANRASNET
-    _INITIALIZE_EASYLOGGINGPP
-#endif
+_INITIALIZE_EASYLOGGINGPP
 
 int
 main(int argc, char** argv)
 {
-    #ifdef RMANRASNET
-        easyloggingpp::Configurations defaultConf;
-        defaultConf.setToDefault();
-        defaultConf.set(easyloggingpp::Level::Error,
-                        easyloggingpp::ConfigurationType::Format,
-                        "%datetime %level %loc %log %func ");
-        easyloggingpp::Loggers::reconfigureAllLoggers(defaultConf);
-    #endif
+    easyloggingpp::Configurations defaultConf;
+    defaultConf.setToDefault();
+    defaultConf.set(easyloggingpp::Level::All,
+                    easyloggingpp::ConfigurationType::Format,
+                    "%datetime %level %log");
+    defaultConf.set(easyloggingpp::Level::Debug,
+                    easyloggingpp::ConfigurationType::Enabled, "false");
+    defaultConf.set(easyloggingpp::Level::Trace,
+                    easyloggingpp::ConfigurationType::Enabled, "false");
+    easyloggingpp::Loggers::reconfigureAllLoggers(defaultConf);
 
     installSigSegvHandler(crash_handler);
 
