@@ -113,7 +113,7 @@ DBTCIndex::storeTiles()
         LTRACE << "InlineTile " << (*itit).second->getOId() << " has size " << ((InlineTile*)(*itit).second)->getStorageSize();
         blobSize = ((InlineTile*)(*itit).second)->getStorageSize() + blobSize;
     }
-    LTRACE << "DBTCIndex", "blobSize " << blobSize << " hasBlob " << (int)hasBlob)
+    LTRACE << "DBTCIndex", "blobSize " << blobSize << " hasBlob " << (int)hasBlob;
     if (hasBlob && (blobSize == 0))
     {
         LTRACE << "dropping blob";
@@ -135,7 +135,7 @@ DBTCIndex::storeTiles()
             else
             {
                 LFATAL << "Tile container index: error in BLOB Space." << endl << "Please contact Customer support.";
-                LDEBUG << "Tile container index: store tiles, but can't find my blob!";
+                LTRACE << "Tile container index: store tiles, but can't find my blob!";
                 throw r_Error(TILE_CONTAINER_NOT_FOUND);
             }
         }
@@ -144,6 +144,7 @@ DBTCIndex::storeTiles()
     else
     {
         LTRACE << "not dropping blob";
+        if (blobSize == 0)
         {
             LTRACE << "nothing to insert";
         }

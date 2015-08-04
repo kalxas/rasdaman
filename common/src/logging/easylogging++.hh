@@ -4016,7 +4016,7 @@ private:
 } // easyloggingpp
 #endif // EASYLOGGINGPP_H
 
-#pragma GCC diagnostic ignored "-Wundef"
+#pragma GCC diagnostic warning "-Wundef"
 #pragma GCC diagnostic warning "-Wsign-conversion"
 #pragma GCC diagnostic warning "-Wshadow"
 #pragma GCC diagnostic warning "-Wswitch-default"

@@ -90,11 +90,16 @@ int main(int argc, char** argv)
     defaultConf.set(easyloggingpp::Level::All,
                     easyloggingpp::ConfigurationType::Format,
                     "%datetime %level %log");
+    defaultConf.set(easyloggingpp::Level::All,
+            easyloggingpp::ConfigurationType::ToFile, "false");
+    defaultConf.set(easyloggingpp::Level::All,
+            easyloggingpp::ConfigurationType::ToStandardOutput, "true");
     defaultConf.set(easyloggingpp::Level::Debug,
                     easyloggingpp::ConfigurationType::Enabled, "false");
     defaultConf.set(easyloggingpp::Level::Trace,
                     easyloggingpp::ConfigurationType::Enabled, "false");
     easyloggingpp::Loggers::reconfigureAllLoggers(defaultConf);
+    defaultConf.clear();
 
     //install SIGSEGV signal handler
     installSigSegvHandler(crash_handler);

@@ -212,27 +212,27 @@ int main ( int argc, char** argv )
 #endif
         else
         {
-            LDEBUG << "initializing ServerComm() (ie: RPC)..." ;
+            LDEBUG << "initializing ServerComm() (ie: RPC)...";
             server = new ServerComm( clientTimeOut, managementInterval, static_cast<unsigned int>(serverListenPort), const_cast<char*>(rasmgrHost), static_cast<unsigned int>(rasmgrPort), const_cast<char*>(serverName));
         }
 
         // in case of HTTP or RPC server: launch previously generated object
         if(server)
         {
-            LDEBUG << "server->startRpcServer()..." ;
+            LDEBUG << "server->startRpcServer()...";
             server->startRpcServer();
-            LDEBUG << "server->startRpcServer() done." ;
+            LDEBUG << "server->startRpcServer() done.";
         }
     }
     catch ( r_Error& errorObj )
     {
-        LDEBUG << "Error: encountered " << errorObj.get_errorno() << ": " << errorObj.what() ;
+        LDEBUG << "Error: encountered " << errorObj.get_errorno() << ": " << errorObj.what();
         LERROR << "Error: encountered " << errorObj.get_errorno() << ": " << errorObj.what();
         returnCode = RC_ERROR;
     }
     catch(...)
     {
-        LDEBUG << "rasserver: general exception" ;
+        LDEBUG << "rasserver: general exception";
         LERROR << "rasserver: general exception";
         returnCode = RC_ERROR;
     }

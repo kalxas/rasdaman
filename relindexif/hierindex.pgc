@@ -206,7 +206,7 @@ DBHierIndex::insertInDb() throw (r_Error)
     }
     else if (loResult != completesize)      // did not get all
     {
-        LDEBUG << "BLOB (" << myOId << ") insert: wrote " << loResult << " instead of " << completesize << " bytes";
+        LTRACE << "BLOB (" << myOId << ") insert: wrote " << loResult << " instead of " << completesize << " bytes";
         generateException();
     }
     LDEBUG << "lo_close()";
@@ -384,7 +384,7 @@ DBHierIndex::readFromDb() throw (r_Error)
     //number of bytes for the dynamic data 
     r_Bytes completesize = headersize + boundssize * 2 + fixessize * 2 + idssize + typessize;
 
-    LTRACE << "complete=" << completesize << " bounds=" << boundssize << " fixes=" << fixessize << " ids=" << idssize << " types=" << typessize << ", size=" << size1 << " dimension=" << dimension1
+    LTRACE << "complete=" << completesize << " bounds=" << boundssize << " fixes=" << fixessize << " ids=" << idssize << " types=" << typessize << ", size=" << size1 << " dimension=" << dimension1;
 
 	char* completebuffer = blobbuffer;
 
@@ -431,12 +431,12 @@ DBHierIndex::readFromDb() throw (r_Error)
 
     if (loResult != bytesToDo)             // did not get all
     {
-        LDEBUG << "BLOB (" << myOId << ") read: want to read (" << bytesToDo << " bytes, but got " << loResult << " bytes";
+        LTRACE << "BLOB (" << myOId << ") read: want to read (" << bytesToDo << " bytes, but got " << loResult << " bytes";
         throw r_Error( r_Error::r_Error_LimitsMismatch );
     }
     else if (completesize != bytesToDo)             // this because I don't trust computations
     {
-        LDEBUG << "BLOB (" << myOId << ") read: xcompletesize=" << completesize << ", but bytesToDo=" << bytesToDo;
+        LTRACE << "BLOB (" << myOId << ") read: xcompletesize=" << completesize << ", but bytesToDo=" << bytesToDo;
         throw r_Error( r_Error::r_Error_LimitsMismatch );
     }
     LDEBUG << "lo_close()";
@@ -655,7 +655,7 @@ DBHierIndex::updateInDb() throw (r_Error)
     }
     else if (loResult != completesize)      // did not get all
     {
-        LDEBUG << "BLOB (" << myOId << ") update: wrote " << loResult << " instead of " << completesize << " bytes";
+        LTRACE << "BLOB (" << myOId << ") update: wrote " << loResult << " instead of " << completesize << " bytes";
         generateException();
     }
     LDEBUG << "lo_close()";

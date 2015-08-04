@@ -349,7 +349,7 @@ DatabaseIf::isConsistent() throw (r_Error)
     if ((checkoid > nextoid) && (oidind == 0))
     {
         LERROR << "The administrative tables for Domain Data is inconsistent.	Please call support.";
-        LDEBUG << "Counter in RAS_DOMAINS : " << checkoid << "\n" << "Counter in RAS_COUNTERS : " << nextoid;
+        LTRACE << "Counter in RAS_DOMAINS : " << checkoid << "\n" << "Counter in RAS_COUNTERS : " << nextoid;
         retval=false;
     }
     checkoid = 0;
@@ -383,7 +383,7 @@ DatabaseIf::isConsistent() throw (r_Error)
         if ((checkoid > nextoid) && (oidind == 0))
         {
             LERROR << "The administrative tables for MDD Objects is inconsistent.	Please call support.";
-            LDEBUG << "Counter in RAS_MDDOBJECTS : " << checkoid << "\n" << "Counter in RAS_COUNTERS : " << nextoid;
+            LTRACE << "Counter in RAS_MDDOBJECTS : " << checkoid << "\n" << "Counter in RAS_COUNTERS : " << nextoid;
             retval=false;
         }
         checkoid = 0;
@@ -417,7 +417,7 @@ DatabaseIf::isConsistent() throw (r_Error)
         if ((checkoid > nextoid) && (oidind == 0))
         {
             LERROR << "The administrative tables for MDD Collections is inconsistent.	Please call support.";
-            LDEBUG << "Counter in RAS_MDDCOLLNAMES : " << checkoid << "\n" << "Counter in RAS_COUNTERS : " << nextoid;
+            LTRACE << "Counter in RAS_MDDCOLLNAMES : " << checkoid << "\n" << "Counter in RAS_COUNTERS : " << nextoid;
             retval=false;
         }
         checkoid = 0;
@@ -452,7 +452,7 @@ DatabaseIf::isConsistent() throw (r_Error)
         if (checkoid > nextoid)
         {
             LERROR << "The administrative tables for MDDTypes is inconsistent.	Please call support.";
-            LDEBUG << "Counter in RAS_MDDTYPES : " << checkoid << "\n" << "Counter in RAS_COUNTERS : " << nextoid << " real " << nextoid;
+            LTRACE << "Counter in RAS_MDDTYPES : " << checkoid << "\n" << "Counter in RAS_COUNTERS : " << nextoid << " real " << nextoid;
             retval=false;
         }
         checkoid = 0;
@@ -486,7 +486,7 @@ DatabaseIf::isConsistent() throw (r_Error)
         if (checkoid > nextoid)
         {
             LERROR << "The administrative tables for MDDBaseTypes is inconsistent.	Please call support.";
-            LDEBUG << "Counter in RAS_MDDBASETYPES : " << checkoid << "\n" << "Counter in RAS_COUNTERS : " << nextoid << " real " << nextoid;
+            LTRACE << "Counter in RAS_MDDBASETYPES : " << checkoid << "\n" << "Counter in RAS_COUNTERS : " << nextoid << " real " << nextoid;
             retval=false;
         }
         checkoid = 0;
@@ -520,7 +520,7 @@ DatabaseIf::isConsistent() throw (r_Error)
         if (checkoid > nextoid)
         {
             LERROR << "The administrative tables for MDDDimensionTypes is inconsistent.	Please call support.";
-            LDEBUG << "Counter in RAS_MDDDIMTYPES : " << checkoid << "\n" << "Counter in RAS_COUNTERS : " << nextoid << " real " << nextoid;
+            LTRACE << "Counter in RAS_MDDDIMTYPES : " << checkoid << "\n" << "Counter in RAS_COUNTERS : " << nextoid << " real " << nextoid;
             retval=false;
         }
         checkoid = 0;
@@ -554,7 +554,7 @@ DatabaseIf::isConsistent() throw (r_Error)
         if (checkoid > nextoid)
         {
             LERROR << "The administrative tables for MDDDomainTypes is inconsistent.	Please call support.";
-            LDEBUG << "Counter in RAS_MDDDOMTYPES : " << checkoid << "\n" << "Counter in RAS_COUNTERS : " << nextoid << " real " << nextoid;
+            LTRACE << "Counter in RAS_MDDDOMTYPES : " << checkoid << "\n" << "Counter in RAS_COUNTERS : " << nextoid << " real " << nextoid;
             retval=false;
         }
         checkoid = 0;
@@ -588,7 +588,7 @@ DatabaseIf::isConsistent() throw (r_Error)
         if ((checkoid > nextoid) && (oidind == 0))
         {
             LERROR << "The administrative tables for StructTypes is inconsistent.	Please call support.";
-            LDEBUG << "Counter in RAS_BASETYPENAMES : " << checkoid << "\n" << "Counter in RAS_COUNTERS : " << nextoid;
+            LTRACE << "Counter in RAS_BASETYPENAMES : " << checkoid << "\n" << "Counter in RAS_COUNTERS : " << nextoid;
             retval=false;
         }
         checkoid = 0;
@@ -622,7 +622,7 @@ DatabaseIf::isConsistent() throw (r_Error)
         if ((checkoid > nextoid) && (oidind == 0))
         {
             LERROR << "The administrative tables for MDDTypes is inconsistent.	Please call support.";
-            LDEBUG << "Counter in RAS_SETTYPES : " << checkoid << "\n" << "Counter in RAS_COUNTERS : " << nextoid;
+            LTRACE << "Counter in RAS_SETTYPES : " << checkoid << "\n" << "Counter in RAS_COUNTERS : " << nextoid;
             retval=false;
         }
         checkoid = 0;
@@ -656,7 +656,7 @@ DatabaseIf::isConsistent() throw (r_Error)
         if ((checkoid > nextoid) && (oidind == 0))
         {
             LERROR << "The administrative tables for BLOB Data is inconsistent.	Please call support.";
-            LDEBUG << "Counter in RAS_TILES : " << checkoid << "\n" << "Counter in RAS_COUNTERS : " << nextoid;
+            LTRACE << "Counter in RAS_TILES : " << checkoid << "\n" << "Counter in RAS_COUNTERS : " << nextoid;
             retval=false;
         }
         checkoid = 0;
@@ -690,7 +690,7 @@ DatabaseIf::isConsistent() throw (r_Error)
         if (checkoid > (nextoid * 512 + OId::MDDHIERIXOID))
         {
             LERROR << "The administrative tables for hierarchical MDD indexes is inconsistent.	Please call support.";
-            LDEBUG << "Counter in RAS_HIERIX : " << checkoid << "\n" << "Counter in RAS_COUNTERS : " << nextoid << " real " << (nextoid * 512 + OId::MDDHIERIXOID);
+            LTRACE << "Counter in RAS_HIERIX : " << checkoid << "\n" << "Counter in RAS_COUNTERS : " << nextoid << " real " << (nextoid * 512 + OId::MDDHIERIXOID);
             retval=false;
         }
         checkoid = 0;
@@ -724,7 +724,7 @@ DatabaseIf::isConsistent() throw (r_Error)
         if ((checkoid > nextoid) && (oidind == 0))
         {
             LERROR << "Fatal error: administrative tables for MDD storage structures are inconsistent.	Please call support.";
-            LDEBUG << "Counter in RAS_STORAGE : " << checkoid << "\n" << "Counter in RAS_COUNTERS : " << nextoid;
+            LTRACE << "Counter in RAS_STORAGE : " << checkoid << "\n" << "Counter in RAS_COUNTERS : " << nextoid;
             retval=false;
         }
         checkoid=0;

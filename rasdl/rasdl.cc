@@ -742,7 +742,9 @@ main( int argc, char* argv[] )
             easyloggingpp::ConfigurationType::Enabled, "false");
     defaultConf.set(easyloggingpp::Level::Trace,
             easyloggingpp::ConfigurationType::Enabled, "false");
-    easyloggingpp::Loggers::reconfigureAllLoggers ( defaultConf );
+    easyloggingpp::Loggers::reconfigureAllLoggers(defaultConf);
+    defaultConf.clear();
+
     SET_OUTPUT( false );        // ...unless we are otherwise instructed by --debug parameter
 
     int result = EXIT_FAILURE;  // program exit code

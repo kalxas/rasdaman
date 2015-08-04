@@ -213,16 +213,6 @@ void Configuration::printHelp()
 void
 Configuration::initLogFiles()
 {
-    //Default logging configuration
-    easyloggingpp::Configurations defaultConf;
-    defaultConf.setToDefault();
-    defaultConf.set(easyloggingpp::Level::All,
-            easyloggingpp::ConfigurationType::Format, "%datetime %level %log");
-    defaultConf.set(easyloggingpp::Level::Debug,
-            easyloggingpp::ConfigurationType::Enabled, "false");
-    defaultConf.set(easyloggingpp::Level::Trace,
-            easyloggingpp::ConfigurationType::Enabled, "false");
-    easyloggingpp::Loggers::reconfigureAllLoggers ( defaultConf );
 
     if( cmlLog->isPresent())
     {
@@ -244,8 +234,19 @@ Configuration::initLogFiles()
         logToStdOut = false;
     }
 
-    defaultConf.set(easyloggingpp::Level::All ,easyloggingpp::ConfigurationType::Filename, logFileName);
+    //Default logging configuration
+    easyloggingpp::Configurations defaultConf;
+    defaultConf.setToDefault();
+    defaultConf.set(easyloggingpp::Level::All,
+            easyloggingpp::ConfigurationType::Format, "%datetime %level %log");
+    defaultConf.set(easyloggingpp::Level::All ,
+            easyloggingpp::ConfigurationType::Filename, logFileName);
+    defaultConf.set(easyloggingpp::Level::Debug,
+            easyloggingpp::ConfigurationType::Enabled, "false");
+    defaultConf.set(easyloggingpp::Level::Trace,
+            easyloggingpp::ConfigurationType::Enabled, "false");
     easyloggingpp::Loggers::reconfigureAllLoggers(defaultConf);
+    defaultConf.clear();
 
     if( logToStdOut == true)
     {

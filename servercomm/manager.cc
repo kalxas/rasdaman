@@ -1724,7 +1724,7 @@ static void callback_garbage_collection(void *context)
 
     if( sc && !sc->clientTbl.empty() )
     {
-        LDEBUG << "Garbage Collection ... ";
+        LTRACE << "Garbage Collection ... ";
 
 #ifdef RMANDEBUG
         sc->printServerStatus( RMInit::dbgOut );
@@ -1764,7 +1764,7 @@ static void callback_garbage_collection(void *context)
                     iter++;
             }
         }
-        LDEBUG << "garbage collection done.";
+        LTRACE << "garbage collection done.";
     }
 }
 

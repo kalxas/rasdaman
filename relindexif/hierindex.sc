@@ -321,7 +321,7 @@ DBHierIndex::readFromDb() throw (r_Error)
 
     if (completesize != blobsize) // this because I don't trust computations
     {
-        LDEBUG << "BLOB (" << id1 << ") read: xcompletesize=" << completesize << ", but blobsize=" << blobsize;
+        LTRACE << "BLOB (" << id1 << ") read: xcompletesize=" << completesize << ", but blobsize=" << blobsize;
         throw r_Error(r_Error::r_Error_LimitsMismatch);
     }
 

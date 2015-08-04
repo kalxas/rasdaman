@@ -197,7 +197,7 @@ DBRCIndexDS::insertInDb() throw (r_Error)
     {
         free(completebuffer);
         completebuffer = NULL;
-        LDEBUG << "BLOB (" << myOId << ") insert: wrote " << loResult << " instead of " << completesize << " bytes";
+        LTRACE << "BLOB (" << myOId << ") insert: wrote " << loResult << " instead of " << completesize << " bytes";
         generateException();
     }
     LDEBUG << "lo_close(), " << completesize << " bytes written";
@@ -316,7 +316,7 @@ DBRCIndexDS::readFromDb() throw (r_Error)
     }
     else if (loResult != blobSize)              // did not get all
     {
-        LDEBUG << "BLOB (" << myOId << ") read: want to read (" << blobSize << " bytes, but got " << loResult << " bytes";
+        LTRACE << "BLOB (" << myOId << ") read: want to read (" << blobSize << " bytes, but got " << loResult << " bytes";
         throw r_Error( r_Error::r_Error_LimitsMismatch );
     }
     LDEBUG << "lo_close()";
