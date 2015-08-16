@@ -409,12 +409,16 @@ public class GMLParserUtil {
      * Rasdaman supports only integers or intervals formed of integers as nil values.
      */
     private static void validateNilValue(String nilValue) throws WCSTInvalidNilValueException {
-        //for intervals, split after :
-        String[] parts = nilValue.split(":");
-        //each part has to be an integer
-        for(String i : parts){
-            if(!StringUtils.isNumeric(i)){
-                throw new WCSTInvalidNilValueException(nilValue);
+       if (!"".equals(nilValue)) {
+            //for intervals, split after :
+            String[] parts = nilValue.split(":");
+            //each part has to be an integer
+            for(String i : parts){
+                try {
+                    Long.parseLong(i);
+                } catch (NumberFormatException ex) {
+                    throw new WCSTInvalidNilValueException(nilValue);
+                }
             }
         }
     }
