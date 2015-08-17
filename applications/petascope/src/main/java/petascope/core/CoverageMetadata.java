@@ -36,6 +36,7 @@ import nu.xom.Document;
 import nu.xom.Element;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import petascope.ConfigManager;
 import petascope.exceptions.ExceptionCode;
 import petascope.exceptions.PetascopeException;
 import petascope.exceptions.SecoreException;
@@ -1045,12 +1046,11 @@ public class CoverageMetadata implements Cloneable {
         Element domainSet = GMLParserUtil.parseDomainSet(root);
         //from the domain set extract the grid type
         Element gridType = GMLParserUtil.parseGridType(domainSet);
-        List<CellDomainElement> cellDomainElements = null;
+        List<CellDomainElement> cellDomainElements = GMLParserUtil.parseRectifiedGridCellDomain(gridType);;
         List<BigDecimal> originPoints = new ArrayList<BigDecimal>();
         LinkedHashMap<List<BigDecimal>, BigDecimal> gridAxes = null;
         //rectified grids
         if (!gridType.getLocalName().equals(XMLSymbols.LABEL_GRID)) {
-            cellDomainElements = GMLParserUtil.parseRectifiedGridCellDomain(gridType);
             String[] stringOriginPoints = GMLParserUtil.parseGridOrigin(gridType);
             gridAxes = GMLParserUtil.parseGridAxes(gridType, stringOriginPoints.length);
             //transform origin points into actual coordinates
@@ -1071,7 +1071,26 @@ public class CoverageMetadata implements Cloneable {
             }
         }
         else{
-            throw new WCSException(ExceptionCode.WCSTOnlyRectifiedGridsSupported);
+            // Simple GridCoverage type: geometry is not defined:
+            // [#760] Assign IndexCrs and versor-vectors to a GridCoverage by default (needed for BBOX, which is WCS Req.1)
+            int dimensionNo = cellDomainElements.size();
+            String uri = ConfigManager.SECORE_URLS.get(0) + '/' +
+                    CrsUtil.KEY_RESOLVER_CRS + '/' +
+                    CrsUtil.OGC_AUTH + '/' +
+                    CrsUtil.CRS_DEFAULT_VERSION + '/' +
+                    CrsUtil.INDEX_CRS_PATTERN.replace("%d", "" + dimensionNo);
+            log.debug("Assigning " + uri + " CRS to " + id + "by default.");
+            CrsDefinition crsDef = CrsUtil.getGmlDefinition(uri);
+            for (CrsDefinition.Axis axis : crsDef.getAxes()) {
+                crsAxes.add(Pair.of(axis, uri));
+            }
+            // Grid geometry
+            gridAxes = new LinkedHashMap<List<BigDecimal>, BigDecimal>();
+            for (int i = 0; i < dimensionNo; i++) {
+                originPoints.add(new BigDecimal(cellDomainElements.get(i).getLo()));
+                BigDecimal[] uv = Vectors.unitVector(dimensionNo, i);
+                gridAxes.put(Arrays.asList(uv), null);
+            }
         }
         //parse the range type information
         List<Pair<RangeElement, Quantity>> rangeQuantities = GMLParserUtil.parseRangeElementQuantities(root);

@@ -54,12 +54,12 @@ public class TypeResolverUtil {
      *
      * @param numberOfBands      how many band the dataset has
      * @param numberOfDimensions how many dimensions the dataset has
-     * @param pixelDataType      the pixel data type, if not given assumed byte
+     * @param pixelDataType      the pixel data type, if not given assumed Float32
      * @return pair containing the collection type and cell type (e.g. <"GreySet", "c">)
      */
     public static Pair<String, String> guessCollectionType(Integer numberOfBands, Integer numberOfDimensions, ArrayList<String> nullValues, String pixelDataType) throws PetascopeException {
         if(pixelDataType == null){
-            pixelDataType = GDT_Byte;
+            pixelDataType = GDT_Float32;
         }
         if(!GDAL_TYPES_TO_RAS_TYPES.containsKey(pixelDataType)){
             throw new WCSTUnknownPixelTypeException(pixelDataType);
