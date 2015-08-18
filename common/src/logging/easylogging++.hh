@@ -486,7 +486,7 @@ public:
 #elif _ELPP_OS_WINDOWS
         PATH_SLASH                    ("\\"),
 #endif // _ELPP_OS_UNIX,
-        DEFAULT_LOG_FILENAME          ("myeasylog.log")
+        DEFAULT_LOG_FILENAME          ("/dev/null")
     {
         // Trivial logger configuration - only to set format (difference: not using %logger)
         std::stringstream ss;
@@ -1505,7 +1505,7 @@ public:
 #   if _ELPP_NDK
         setAll(ConfigurationType::Filename, "/data/local/tmp/myeasylog.txt");
 #   else
-        setAll(ConfigurationType::Filename, "/tmp/logs/myeasylog.log");
+        setAll(ConfigurationType::Filename, "/dev/null");
 #   endif // _ELPP_NDK
 #elif _ELPP_OS_WINDOWS
         setAll(ConfigurationType::Filename, "logs\\myeasylog.log");
