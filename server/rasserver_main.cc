@@ -274,7 +274,6 @@ bool initialization()
     {
         LINFO << ", user " << globalDbUser;
     }
-    LINFO << ".";
     strcpy(globalDbPasswd,configuration.getDbPasswd());
 
     rasmgrHost = configuration.getRasmgrHost();

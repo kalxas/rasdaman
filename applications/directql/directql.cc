@@ -1120,8 +1120,11 @@ int main(int argc, char** argv)
     easyloggingpp::Configurations defaultConf;
     defaultConf.setToDefault();
     defaultConf.set(easyloggingpp::Level::All,
-                    easyloggingpp::ConfigurationType::Format,
-                    "%datetime %level %log");
+            easyloggingpp::ConfigurationType::Format, "%datetime [%level] %log");
+    defaultConf.set(easyloggingpp::Level::Info,
+            easyloggingpp::ConfigurationType::Format, "%datetime  [%level] %log");
+    defaultConf.set(easyloggingpp::Level::Warning,
+            easyloggingpp::ConfigurationType::Format, "%datetime  [%level] %log");
     defaultConf.set(easyloggingpp::Level::All,
             easyloggingpp::ConfigurationType::ToFile, "false");
     defaultConf.set(easyloggingpp::Level::All,
