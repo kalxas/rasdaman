@@ -82,7 +82,7 @@ echo $MYNAME: starting rasdaman server complex...
 cd @logdir@
 
 # check if we can actually write anything here
-if [ ! -w nohup.out ]
+if [ ! -w . ]
 then
   echo "$MYNAME: User $USER has no write permissions in @logdir@, rasdaman cannot be started." >&2
   exit $RC_ERROR
