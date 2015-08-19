@@ -108,7 +108,23 @@ fi
 
 # - rasdaman part
 
-echo -n "$PROG: rasdaman dictionnary initialization...\c"
+echo -n "$PROG: rasdaman dictionary initialization...\c"
+
+# - check if user has rights to create SQLite database
+if [ "$BASEDBMS" == "$BASEDBMS_SQLITE" ]; then
+  datadir=$(dirname "@dbconn@")
+  if [ ! -w "$datadir" ]
+  then
+    echo "$MYNAME: User $USER has no write permissions in $datadir, rasdaman database cannot be created." >&2
+    exit $RC_ERROR
+  fi
+  if [ ! -x "$datadir" ]
+  then
+    echo "$MYNAME: User $USER has no execute permissions in $datadir (and/or parent directories), rasdaman database cannot be created." >&2
+    exit $RC_ERROR
+  fi
+fi
+
 @bindir@rasdl -c --connect @dbconn@ && @bindir@rasdl -r $DEFINITION_FILE -i --connect @dbconn@
 if [[ $? != 0 ]]
 then

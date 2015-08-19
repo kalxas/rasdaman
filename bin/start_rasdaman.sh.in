@@ -81,6 +81,13 @@ echo $MYNAME: starting rasdaman server complex...
 # here we want to put all log files
 cd @logdir@
 
+# check if we can actually write anything here
+if [ ! -w nohup.out ]
+then
+  echo "$MYNAME: User $USER has no write permissions in @logdir@, rasdaman cannot be started." >&2
+  exit $RC_ERROR
+fi
+
 # clear previous log file
 rm -f nohup.out
 
