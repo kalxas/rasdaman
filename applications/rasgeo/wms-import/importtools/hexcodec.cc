@@ -28,6 +28,8 @@
 // debug facility; relies on -DDEBUG at compile time
 #include "debug/debug.hh"
 
+#include "common/src/logging/easylogging++.hh"
+
 using std::ostringstream;
 using std::ios;
 using std::endl;
@@ -75,14 +77,14 @@ HexCodec::convertTo(const string& figureStr) throw(ImportError)
 
     if(sizeFigStr <= sizeHexId)
     {
-        TALK( "HexCodec::ConvertTo(\"" + figStr + "\"), user input is not a hexadecimal string." );
+        LDEBUG << "HexCodec::ConvertTo(\"" + figStr + "\"), user input is not a hexadecimal string.";
         throw ImportError( INVALIDHEX );
     }
 
     if ((tolower(figStr[0]) != hexId[0]) ||
             (tolower(figStr[1]) != hexId[1]))
     {
-        TALK( "HexCodec::ConverTo(\"" + figStr + "\"), \"" + hexId +"\" is missing for user input." );
+        LDEBUG << "HexCodec::ConverTo(\"" + figStr + "\"), \"" + hexId +"\" is missing for user input.";
         throw ImportError( INVALIDHEX );
     }
 
@@ -101,7 +103,7 @@ HexCodec::convertTo(const string& figureStr) throw(ImportError)
         idxHexFig=hexFig.find(tolower(figStr[idxFig]));
         if(idxHexFig == string::npos)
         {
-            TALK( "HexCodec::ConvertTo(\"" + figStr + "\"), \"" + figStr[idxFig] + "\" from user input is not a hexadecimal figure.") ;
+            LDEBUG << "HexCodec::ConvertTo(\"" + figStr + "\"), \"" + figStr[idxFig] + "\" from user input is not a hexadecimal figure.";
             throw ImportError( INVALIDHEX );
         }
 

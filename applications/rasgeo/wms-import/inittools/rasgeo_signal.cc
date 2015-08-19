@@ -50,6 +50,8 @@ static const char rcsid[] = "@(#)rasodmg/test,ImportOrthoUtil: $Id: rasgeo_signa
 // tell debug that here is the place for the variables
 #include "debug/debug.hh"
 
+#include "common/src/logging/easylogging++.hh"
+
 //installSignalHandlers function should be called first in main function
 //in order to receive a signal in your program
 void
@@ -171,7 +173,7 @@ signalHandler(int sig)
         return;
     else
     {
-        TALK( "fatal signal, exiting." << flush );
+        LDEBUG << "fatal signal, exiting.";
         exit(sig);
     }
 }
@@ -179,8 +181,6 @@ signalHandler(int sig)
 void
 installSignalHandlers()
 {
-    ENTER( "installSignalHandlers" );
-
     signal(SIGINT, signalHandler);
     signal(SIGTERM, signalHandler);
     signal(SIGHUP, signalHandler);
@@ -228,6 +228,5 @@ installSignalHandlers()
     signal(SIGUNUSED, signalHandler);
 #endif
 #endif
-    LEAVE( "installSignalHandlers" );
 }
 

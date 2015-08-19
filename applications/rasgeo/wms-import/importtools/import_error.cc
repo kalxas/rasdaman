@@ -43,17 +43,19 @@ static const char rcsid[] = "@(#)raslib, ImportError: $Id: import_error.cc,v 1.3
 // debug facility; relies on -DDEBUG at compile time
 #include "debug.hh"
 
+#include "common/src/logging/easylogging++.hh"
+
 /// error object, carrying int error code
 ImportError::ImportError( int e )
 {
-    TALK( "Exception: " << e );
+    LDEBUG << "Exception: " << e;
     importErrno = e;
 }
 
 /// default destructor
 ImportError::~ImportError()
 {
-    TALK( "ImportError destructor for error " << importErrno );
+    LDEBUG << "ImportError destructor for error " << importErrno;
 }
 
 /// print error message (including error code)

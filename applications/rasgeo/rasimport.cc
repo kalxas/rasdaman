@@ -126,7 +126,6 @@ void
 readImageInformation(vector<string>& vnames, Header& header, vector<double>& bnd,
                      vector<string>& vvalidtiles, bool b3D, double cellsizez)
 {
-    ENTER(ctx << "readImageInformation()");
     Header tileHeader;
     vector<string>::const_iterator iter;
 
@@ -243,9 +242,7 @@ readImageInformation(vector<string>& vnames, Header& header, vector<double>& bnd
         }
     }
 
-    TALK("rasimport successfully analysed " << numfiles << " files." << endl << endl);
-    LEAVE(ctx << "readImageInformation()");
-
+    LDEBUG << "rasimport successfully analysed " << numfiles << " files.";
 }
 
 void
@@ -345,20 +342,18 @@ getRmanDataType(GDALDataType type)
 
 bool readTileInformation(string filename, Header& header)
 {
-    ENTER(ctx << "readTileInformation()");
     GDALDataset* pDs = static_cast<GDALDataset*>(GDALOpen(filename.c_str(), GA_ReadOnly));
 
     if (pDs == 0)
         return false;
 
-    TALK("analysing file '" << filename << "' ("
+    LDEBUG << "analysing file '" << filename << "' ("
         << pDs->GetDriver()->GetDescription() << "/" <<
-        pDs->GetDriver()->GetMetadataItem(GDAL_DMD_LONGNAME) << ")");
+        pDs->GetDriver()->GetMetadataItem(GDAL_DMD_LONGNAME) << ")";
 
     readTileInformation(pDs, header);
 
     GDALClose(pDs);
-    LEAVE(ctx << "readTileInformation()");
     return true;
 }
 
@@ -555,7 +550,6 @@ processImageFiles(vector<string>& filenames, const string& collname,
      */
 
 
-    ENTER(ctx << "processImageFiles()");
 
     bool b3D = (   !mode3D.empty()
                 || shiftPt.dimension() == 3
@@ -576,7 +570,6 @@ processImageFiles(vector<string>& filenames, const string& collname,
             cerr << ctx << "processImageFiles(): "
             << "failed opening data set '" << *iter << "'!"
             << endl;
-            LEAVE(ctx << "processImageFiles()");
             return 0;
         }
 
@@ -589,7 +582,7 @@ processImageFiles(vector<string>& filenames, const string& collname,
         // equal to the source region of the current image
         if (axisIndexed[0] || axisIndexed[1])
         {
-		    TALK("xy coordinate domain defined by index CRS!");
+		    LDEBUG << "xy coordinate domain defined by index CRS!";
 		    copyRegion2D(processRegion, srcGeoRegion);
 		    // need to reset the cellsize here manually,
 		    // to reinstall any possibly previously set different
@@ -660,8 +653,8 @@ processImageFiles(vector<string>& filenames, const string& collname,
 			}
 		}
 
-        TALK("src img size:     " << srcGeoRegion.ncols << " x " << srcGeoRegion.nrows);
-        TALK("readGDALImgDOM:   " << readGDALImgDOM.get_string_representation() << endl);
+        LDEBUG << "src img size:     " << srcGeoRegion.ncols << " x " << srcGeoRegion.nrows;
+        LDEBUG << "readGDALImgDOM:   " << readGDALImgDOM.get_string_representation();
 
         // shift the insertGeoRegion by the user specified shiftVector; account for (geo) spatial
         // image domains with negative values: positive shift (e.g. 150:200) shifts to the north east
@@ -722,7 +715,7 @@ processImageFiles(vector<string>& filenames, const string& collname,
 		        yshift = 0;
             }
 
-            TALK("current img sdom: " << aint.get_string_representation());
+            LDEBUG << "current img sdom: " << aint.get_string_representation();
 
             // ================================== 3D UPDATE ======================================
             if (b3D)
@@ -740,21 +733,19 @@ processImageFiles(vector<string>& filenames, const string& collname,
 							cerr << ctx << "processImageFiles(): "
 							<< "Couldn't find z-axis offset for irregularly spaced image cube! Abort."
 							<< endl;
-							LEAVE(ctx << "processImageFiles()");
 							return 0;
 						}
                         zCoeff = (zcoords[static_cast<size_t>(tilecounter)-1]-isdom[4]) / vcsz[2];
                         idx = helper.canAppendReferencedZCoeff(oids[0], zCoeff);
 
-                        TALK("z-coeff=(" << zcoords[tilecounter-1] << " - " << isdom[4] << ") / " << vcsz[2]
-                                 << " = "<< zCoeff << " -> vector_coefficients_idx=" << idx);
+                        LDEBUG << "z-coeff=(" << zcoords[tilecounter-1] << " - " << isdom[4] << ") / " << vcsz[2]
+                                 << " = "<< zCoeff << " -> vector_coefficients_idx=" << idx;
                     }
                     else
                     {
                         cerr << ctx << "processImageFiles(): "
                         << "number of input files and specified z-coordinates don't match!"
                         << endl;
-                        LEAVE(ctx << "processImageFiles()");
                         return 0;
                     }
 
@@ -768,7 +759,6 @@ processImageFiles(vector<string>& filenames, const string& collname,
                         cerr << ctx << "processImageFiles(): "
                         << "cannot append z-coordinate: " << zcoords[static_cast<size_t>(tilecounter)-1] << " !"
                         << endl;
-                        LEAVE(ctx << "processImageFiles()");
                         return 0;
                     }
                 }
@@ -863,7 +853,7 @@ processImageFiles(vector<string>& filenames, const string& collname,
 					// the relative distance to origin in pixel domain to calc the boundary
 					// for this image slice
 					int diffshift = zshift - aint[2].low();
-					TALK("pixel shift relative to origin for import slice: " << diffshift);
+					LDEBUG << "pixel shift relative to origin for import slice: " << diffshift;
 
 					minZ = isdom[4] + (diffshift * processRegion.cellsize.z); //(zshift * processRegion.cellsize.z);
 					maxZ = minZ + processRegion.cellsize.z;
@@ -893,7 +883,7 @@ processImageFiles(vector<string>& filenames, const string& collname,
 			}
         }
 
-        TALK("writeShift: " << writeShift.get_string_representation() << endl);
+        LDEBUG << "writeShift: " << writeShift.get_string_representation();
 
         // determine the new image region (valid after the src has been written into
         // the data base) by union the present image region with the region to
@@ -907,7 +897,7 @@ processImageFiles(vector<string>& filenames, const string& collname,
                 || maxZ < newGeoRegion.zmin || maxZ > newGeoRegion.zmax
                )
             {
-                TALK("import layer outside z boundary, abortion!");
+                LDEBUG << "import layer outside z boundary, abortion!";
                 continue;
             }
 
@@ -915,16 +905,16 @@ processImageFiles(vector<string>& filenames, const string& collname,
             {
                 newGeoRegion.zmin = minZ;
                 newGeoRegion.zmax = maxZ;
-                TALK("inserting 1st 3D slice at zcoord: " << minZ);
+                LDEBUG << "inserting 1st 3D slice at zcoord: " << minZ;
             }
             else
             {
-                TALK("inserting 2nd+ 3D slice | minZ: " << minZ);
+                LDEBUG << "inserting 2nd+ 3D slice | minZ: " << minZ;
                 newGeoRegion.zmin = (minZ < isdom[4]) ? minZ : isdom[4];
-                TALK("new zmin: " << newGeoRegion.zmin);
+                LDEBUG << "new zmin: " << newGeoRegion.zmin;
 
                 newGeoRegion.zmax = (maxZ > isdom[5]) ? maxZ : isdom[5];
-                TALK("new zmax: " << newGeoRegion.zmax);
+                LDEBUG << "new zmax: " << newGeoRegion.zmax;
             }
         }
 
@@ -978,7 +968,6 @@ processImageFiles(vector<string>& filenames, const string& collname,
         }
     }
 
-    LEAVE(ctx << "processImageFiles()");
     return 1;
 }
 
@@ -990,8 +979,6 @@ int importImage(RasdamanHelper2& helper, GDALDataset* pDs,
                 const string& coveragename, double irregularZ,
                 const vector<bool>& axisIndexed)
 {
-    ENTER(ctx << "importImage()");
-
     // get the pixel's data type length (in bytes)
     unsigned int pixelsize = helper.getTypeSize(newGeoRegion.rmantype);
 
@@ -1013,10 +1000,10 @@ int importImage(RasdamanHelper2& helper, GDALDataset* pDs,
     double imgsize_mib = (imgsize_bytes /  (1024.0 * 1024.0));
 
     // some debug output
-    TALK("...size of import region: " << readGDALImgDOM[0].get_extent() << "x" << readGDALImgDOM[1].get_extent()
-               << "x" << pixelsize << " = " << imgsize_mib << " MiB");
-    TALK("...processing scheme: " << niter << " x " << chunksize << " + " << rest
-               << " rows");
+    LDEBUG << "...size of import region: " << readGDALImgDOM[0].get_extent() << "x" << readGDALImgDOM[1].get_extent()
+               << "x" << pixelsize << " = " << imgsize_mib << " MiB";
+    LDEBUG << "...processing scheme: " << niter << " x " << chunksize << " + " << rest
+               << " rows";
 
     // process individual bands
     for (unsigned int b=1; b <= static_cast<unsigned int>(newGeoRegion.nbands); ++b)
@@ -1032,8 +1019,8 @@ int importImage(RasdamanHelper2& helper, GDALDataset* pDs,
 
         for (unsigned int iter=0; iter <= niter; iter++)
         {
-            TALK("importing chunk " << iter+1 << " of " << (rest > 0 ? niter+1 : niter)
-                 << ": row " << seqWriteShift[1] << " to " << seqWriteShift[1] + rowstoread-1 << endl);
+            LDEBUG << "importing chunk " << iter+1 << " of " << (rest > 0 ? niter+1 : niter)
+                 << ": row " << seqWriteShift[1] << " to " << seqWriteShift[1] + rowstoread-1;
 
             // create the interval object for writing the image buffer to rasdaman
             r_Minterval rint;
@@ -1056,7 +1043,6 @@ int importImage(RasdamanHelper2& helper, GDALDataset* pDs,
                 cerr << ctx << "importImage(): "
                 << "memory allocation failed!" << endl;
                 GDALClose(pDs);
-                LEAVE(ctx << "importImage()");
                 return 0;
             }
 
@@ -1163,7 +1149,6 @@ int importImage(RasdamanHelper2& helper, GDALDataset* pDs,
 
     } // end band processing
 
-    LEAVE(ctx << "importImage()");
     return 1;
 }
 
@@ -1179,9 +1164,7 @@ tileOverlaps(Header& header, vector<double>& bnd)
     // bnd[2] = ymin; bnd[3] = ymax;
     // bnd[4] = zmin; bnd[5] = zmax;
 
-    ENTER(ctx << "tileOverlaps()");
-
-    TALK("testing the following regions ... ");
+    LDEBUG << "testing the following regions ... ";
     printRegion(header, "input image:");
     printRegion(bnd, "user bnd:");
 
@@ -1200,9 +1183,8 @@ tileOverlaps(Header& header, vector<double>& bnd)
         yoverlap = true;
     }
 
-    TALK("do regions overlap? -> " << ((xoverlap && yoverlap) ? "yes" : "no") << endl);
+    LDEBUG << "do regions overlap? -> " << ((xoverlap && yoverlap) ? "yes" : "no");
 
-    LEAVE(ctx << "tileOverlaps()");
     return (xoverlap && yoverlap) ? true : false;
 }
 
@@ -1441,10 +1423,6 @@ void getMetaURIs(Header& header, RasdamanHelper2& helper, bool b3D)
 void
 crash_handler ( __attribute__ ((unused)) int sig,  __attribute__ ((unused)) siginfo_t* info, void * ucontext)
 {
-
-    ENTER( "crash_handler");
-
-
     print_stacktrace(ucontext);
 
     // clean up connection in case of segfault
@@ -1453,7 +1431,6 @@ crash_handler ( __attribute__ ((unused)) int sig,  __attribute__ ((unused)) sigi
         delete rasconn;
     }
 
-    LEAVE("crash_handler");
     exit(SEGFAULT_EXIT_CODE);
 }
 
@@ -1489,13 +1466,11 @@ main(int argc, char** argv)
     rasconn = NULL;
 
     SET_OUTPUT(1);
-    ENTER(ctx << "main()");
 
     // show help if no arguments are passed
     if (argc < 2)
     {
         showHelp();
-        LEAVE(ctx << "main()");
         return EXIT_SUCCESS;
     }
 
@@ -1554,7 +1529,6 @@ main(int argc, char** argv)
                 << "invalid parameter for -d: could not "
                 << "access directory '" << dirpath << "'!"
                 << endl;
-                LEAVE(ctx << "main()");
                 return EXIT_FAILURE;
             }
         }
@@ -1571,7 +1545,6 @@ main(int argc, char** argv)
                   << "missing parameter for --coverage-name: please "
                 << "specify a coverage name!"
                 << endl;
-                  LEAVE(ctx << "main()");
                 return EXIT_FAILURE;
             }
         }
@@ -1591,7 +1564,6 @@ main(int argc, char** argv)
                 << "specify a valid coordinate reference system identifier! "
                 << "E.g.: " << CRS_RESOLVER_PREFIX << "/crs/EPSG/0/4326"
                 << " or: http://www.opengis.net/def/crs/EPSG/0/27200" << endl;
-                  LEAVE(ctx << "main()");
                 return EXIT_FAILURE;
             }
         }
@@ -1604,7 +1576,6 @@ main(int argc, char** argv)
                 << "missing parameter for --coll: please "
                 << "specify a target collection!"
                 << endl;
-                LEAVE(ctx << "main()");
                 return EXIT_FAILURE;
             }
         }
@@ -1617,7 +1588,6 @@ main(int argc, char** argv)
                 << "invalid parameter for --conn: could "
                 << "not access connection file '"
                 << connfile << "'!" << endl;
-                LEAVE(ctx << "main()");
                 return EXIT_FAILURE;
             }
         }
@@ -1632,7 +1602,6 @@ main(int argc, char** argv)
                 << "invalid parameter for -3D: valid "
                 << "parameters are {top | bottom}!"
                 << endl;
-                LEAVE(ctx << "main()");
                 return EXIT_FAILURE;
             }
         }
@@ -1645,7 +1614,6 @@ main(int argc, char** argv)
                 << "invalid parameter for --bnd: "
                 << "failed reading spatial boundary!"
                 << endl;
-                LEAVE(ctx << "main()");
                 return EXIT_FAILURE;
             }
         }
@@ -1661,7 +1629,6 @@ main(int argc, char** argv)
                 << "invalid parameter for --crs-order: please "
                 << "specify an appropriate order, e.g. for yxz-order: --crs-order 1:0:2"
                 << endl;
-                LEAVE(ctx << "main()");
                 return EXIT_FAILURE;
             }
         }
@@ -1677,7 +1644,6 @@ main(int argc, char** argv)
                 << "specify one or more z-axis coordinates in "
                 << "strictly ascending order, e.g.: --z-coords 1000:1050:1080"
                 << endl;
-                LEAVE(ctx << "main()");
                 return EXIT_FAILURE;
             }
         }
@@ -1690,7 +1656,6 @@ main(int argc, char** argv)
                 << "invalid parameter for --geo-bbox: "
                 << "failed reading spatial boundary!"
                 << endl;
-                LEAVE(ctx << "main()");
                 return EXIT_FAILURE;
             }
         }
@@ -1705,7 +1670,6 @@ main(int argc, char** argv)
                 << "invalid parameter for -t "
                 << "(valid example: -t RGBImage:RGBSet)"
                 << endl;
-                LEAVE(ctx << "main()");
                 return EXIT_FAILURE;
             }
         }
@@ -1719,7 +1683,6 @@ main(int argc, char** argv)
                 << "invalid parameter for --oid: "
                 << "failed reading object identifier(s)!"
                 << endl;
-                LEAVE(ctx << "main()");
                 return EXIT_FAILURE;
             }
 
@@ -1740,7 +1703,6 @@ main(int argc, char** argv)
                 << "invalid parameter for --csz: "
                 << "z-axis cell size must be numeric and > 0!"
                 << endl;
-                LEAVE(ctx << "main()");
                 return EXIT_FAILURE;
             }
         }
@@ -1753,7 +1715,6 @@ main(int argc, char** argv)
                 << "invalid parameter for --shift: "
                 << "failed reading shift coordinates!"
                 << endl;
-                LEAVE(ctx << "main()");
                 return EXIT_FAILURE;
             }
         }
@@ -1773,14 +1734,12 @@ main(int argc, char** argv)
                 cerr << ctx << "main(): "
                 << "empty or invalid parameter for --metadata!"
                 << endl;
-                LEAVE(ctx << "main()");
                 return EXIT_FAILURE;
             }
         }
         else if (theArg == "--help")
         {
             showHelp();
-            LEAVE(ctx << "main()");
             return EXIT_SUCCESS;
         }
         arg++;
@@ -1790,71 +1749,70 @@ main(int argc, char** argv)
     if (lastarg == "--help")
     {
         showHelp();
-        LEAVE(ctx << "main()");
         return EXIT_SUCCESS;
     }
 
     // ---------------------------------------------------------------------
     // let's see what we've got so far
-    TALK("filepath: " << filepath);
-    TALK("dirpath: " << dirpath);
-    TALK("suffix: " << suffix);
-    TALK("collname: " << collname);
-    TALK("connfile: " << connfile);
-    TALK("mode3D: " << mode3D);
-    TALK("csz: " << cellsizez);
-    TALK("coverage name: " << usercovname);
+    LDEBUG << "filepath: " << filepath;
+    LDEBUG << "dirpath: " << dirpath;
+    LDEBUG << "suffix: " << suffix;
+    LDEBUG << "collname: " << collname;
+    LDEBUG << "connfile: " << connfile;
+    LDEBUG << "mode3D: " << mode3D;
+    LDEBUG << "csz: " << cellsizez;
+    LDEBUG << "coverage name: " << usercovname;
 
     stringstream debugstr;
     debugstr << "bnd: ";
     for (unsigned int i=0; i < bnd.size(); i++)
         debugstr<< bnd[i] << " ";
-    TALK(debugstr.str());
+    LDEBUG << debugstr.str();
     debugstr.str("");
 
     debugstr << "oid: ";
     for (unsigned int v=0; v < oids.size(); v++)
         debugstr<< oids[v] << " ";
-    TALK(debugstr.str());
+    LDEBUG << debugstr.str();
     debugstr.str("");
 
     debugstr << "shift: ";
     for (unsigned int s=0; s < shift.size(); s++)
         debugstr<< shift[s] << " ";
-    TALK(debugstr.str());
+    LDEBUG << debugstr.str();
     debugstr.str("");
 
     debugstr << "data types: ";
     for (unsigned int t=0; t < usertype.size(); t++)
         debugstr<< usertype.at(t) << " ";
-    TALK(debugstr.str());
+    LDEBUG << debugstr.str();
     debugstr.str("");
 
     debugstr << "geo-bbox: ";
     for (unsigned int i=0; i < geobbox.size(); i++)
         debugstr<< geobbox[i] << " ";
-    TALK(debugstr.str());
+    LDEBUG << debugstr.str();
     debugstr.str("");
 
     debugstr << "CRS order: ";
     for (unsigned int i=0; i < header.crs_order.size(); i++)
         debugstr<< header.crs_order[i] << " ";
-    TALK(debugstr.str());
+    LDEBUG << debugstr.str();
     debugstr.str("");
 
     debugstr << "CRS URIs: ";
     for (unsigned int i=0; i < crsuri.size(); i++)
         debugstr<< crsuri[i] << "\n          ";
-    TALK(debugstr.str());
+    LDEBUG << debugstr.str();
     debugstr.str("");
 
-    TALK("tiling scheme: " << tilingSpec);
-    TALK("metadata: " << metadata);
+    LDEBUG << "tiling scheme: " << tilingSpec;
+    LDEBUG << "metadata: " << metadata;
 
     debugstr << "z-axis coordinates: ";
     for (unsigned int i=0; i < zcoords.size(); i++)
         debugstr<< zcoords[i] << " ";
-    TALK(debugstr.str());
+    LDEBUG << debugstr.str();
     debugstr.str("");
 
     // -----------------------------------------------------------------------
@@ -1869,7 +1827,6 @@ main(int argc, char** argv)
             << "could not access connection file '"
             << connfile << "'!"
             << endl;
-            LEAVE(ctx << "main()");
             return EXIT_FAILURE;
         }
     }
@@ -1891,7 +1848,6 @@ main(int argc, char** argv)
         << "no input files specified!"
         << endl;
         showHelp();
-        LEAVE(ctx << "main()");
         return EXIT_FAILURE;
     }
     else
@@ -1927,7 +1883,6 @@ main(int argc, char** argv)
         << "invalid CRS axis order specified! Double check number of specified axes!"
         << endl;
         showHelp();
-        LEAVE(ctx << "main()");
         return EXIT_FAILURE;
     }
 
@@ -1947,7 +1902,7 @@ main(int argc, char** argv)
         double toid;
         if (!usercovname.empty())
         {
-		    TALK("checking, whether we've got a coverage '" << usercovname << "' ...");
+		    LDEBUG << "checking, whether we've got a coverage '" << usercovname << "' ...";
 			toid = helper.getOIDFromCoverageName(usercovname);
 			if (toid != -1)
 			{
@@ -1959,23 +1914,21 @@ main(int argc, char** argv)
 					if (it == imgids.end())
 					{
 						cout << "Specified coverage is not part of the specified collection! Abort." << endl;
-						LEAVE(ctx << "main()");
 						return EXIT_FAILURE;
 					}
 				}
 
 
 
-				TALK("found coverage '" << usercovname << "' with oid #" << toid);
+				LDEBUG << "found coverage '" << usercovname << "' with oid #" << toid;
 				if (oids.size() == 0 || toid == oids[0])
 				{
-					TALK("coverage '" << usercovname << "' is set to be the update coverage");
+					LDEBUG << "coverage '" << usercovname << "' is set to be the update coverage";
 					oids.push_back(toid);
 				}
 				else
 				{
 					cout << "Specified OID(s) and coverage name reference different images!" << endl;
-					LEAVE(ctx << "main()");
 					return EXIT_FAILURE;
 				}
 			}
@@ -1988,7 +1941,6 @@ main(int argc, char** argv)
         if (!header.isRegular && oids.size() == 0 && cellsizez <= 0)
         {
 			cout << "Please specify --csz upon creation of irregularly spaced image cubes!" << endl;
-			LEAVE(ctx << "main()");
 			return EXIT_FAILURE;
         }
 
@@ -2055,14 +2007,14 @@ main(int argc, char** argv)
 				axisIndexed[0] = true ;
 				axisIndexed[1] = true ;
 				axisIndexed[2] = false;
-				TALK("xy coords defined in index CRS!" << endl);
+				LDEBUG << "xy coords defined in index CRS!";
 			}
 			else if (u.rfind("Index3D") != std::string::npos)
 			{
 				axisIndexed[0] = true;
 				axisIndexed[1] = true;
 				axisIndexed[2] = header.isRegular ? true : false;
-				TALK("xyz coords defined in index CRS!" << endl);
+				LDEBUG << "xyz coords defined in index CRS!";
 			}
 		}
 
@@ -2074,7 +2026,7 @@ main(int argc, char** argv)
 			if (shift.size() > 0)
 				cout << "--shift x:y ignored for index CRS!" << endl;
 
-			//TALK( --bnd and --shift x:y ignored!")
+			//LDEBUG <<  --bnd and --shift x:y ignored!";
 			bnd.clear();
 			if (shift.size() >= 2)
 			{
@@ -2102,7 +2054,6 @@ main(int argc, char** argv)
 			cerr << ctx << "main(): "
 			<< "empty import region!"
 			<< endl;
-			LEAVE(ctx << "main()");
 			return EXIT_FAILURE;
 		}
 
@@ -2158,7 +2109,7 @@ main(int argc, char** argv)
             header.zmin = shift[2];
         }
 
-        TALK("user pixel shift: " << shiftPt.get_string_representation());
+        LDEBUG << "user pixel shift: " << shiftPt.get_string_representation();
 
 
 		///////////////////////////////////////////////////////////////////////////
@@ -2189,7 +2140,6 @@ main(int argc, char** argv)
             cerr << ctx << "main(): "
             << "failed processing image file(s)!"
             << endl;
-            LEAVE(ctx << "main()");
             return EXIT_FAILURE;
         }
 
@@ -2236,7 +2186,6 @@ main(int argc, char** argv)
                     cerr << ctx << "main(): "
                     << "ERROR: --metadata: Issue(s) writing extra metadata! See debug output for more info."
                     << endl;
-                    LEAVE(ctx << main);
                     return EXIT_FAILURE;
                 }
             }
@@ -2250,7 +2199,6 @@ main(int argc, char** argv)
         }
         cerr << ctx << "main(): "
         << re.what() << endl;
-        LEAVE(ctx << "main()");
         return EXIT_FAILURE;
     }
     if (rasconn)
@@ -2258,6 +2206,5 @@ main(int argc, char** argv)
         delete rasconn;
     }
 
-    LEAVE(ctx << "main()");
     return EXIT_SUCCESS;
 }

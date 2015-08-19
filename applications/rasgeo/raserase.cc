@@ -66,8 +66,6 @@ void showEraseHelp()
 void
 crash_handler (__attribute__ ((unused))int sig, __attribute__ ((unused))siginfo_t* info, void * ucontext)
 {
-    ENTER("crash_handler");
-
     print_stacktrace(ucontext);
 
     // clean up connection in case of segfault
@@ -75,8 +73,6 @@ crash_handler (__attribute__ ((unused))int sig, __attribute__ ((unused))siginfo_
     {
         delete rasconn;
     }
-
-    LEAVE("crash_handler");
     exit(SEGFAULT_EXIT_CODE);
 }
 
@@ -112,12 +108,9 @@ int main(int argc, char** argv)
     const string ctx = "raserase::main()";
     rasconn = NULL;
 
-    ENTER(ctx);
-
     if (argc < 2)
     {
         showEraseHelp();
-        LEAVE(ctx);
         return EXIT_SUCCESS;
     }
 
@@ -143,7 +136,6 @@ int main(int argc, char** argv)
                 cerr << ctx
                 << ": missing parameter for --coll: please "
                 << "specify a target collection!" << endl;
-                LEAVE(ctx);
                 return EXIT_FAILURE;
             }
         }
@@ -154,7 +146,6 @@ int main(int argc, char** argv)
             {
                 cerr << ctx << ": invalid OID specified!"
                 << endl;
-                LEAVE(ctx);
                 return EXIT_FAILURE;
             }
         }
@@ -167,7 +158,6 @@ int main(int argc, char** argv)
                 << ": invalid parameter for --conn: could "
                 << "not access connection file '" << connfile << "'!"
                 << endl;
-                LEAVE(ctx);
                 return EXIT_FAILURE;
             }
         }
@@ -182,7 +172,6 @@ int main(int argc, char** argv)
         else if (theArg == "--help")
         {
             showEraseHelp();
-            LEAVE(ctx);
             return EXIT_SUCCESS;
         }
         arg++;
@@ -192,7 +181,6 @@ int main(int argc, char** argv)
     if (lastarg == "--help")
     {
         showEraseHelp();
-        LEAVE(ctx);
         return EXIT_SUCCESS;
     }
     else if (lastarg == "--ps-metadata")
@@ -210,7 +198,6 @@ int main(int argc, char** argv)
             cerr << ctx
             << ": could not access connection file '"
             << connfile << "'!" << endl;
-            LEAVE(ctx);
             return EXIT_FAILURE;
         }
     }
@@ -218,11 +205,11 @@ int main(int argc, char** argv)
     // --------------------------------------------------------------------------
     // that's what we've got
 
-    TALK("SPECIFIED PARAMETERS: ...");
-    TALK("collname:  " << collname);
-    TALK("coverage:  " << coverage);
-    TALK("oid:       " << oid);
-    TALK("only meta: " << (bMetaOnly ? "true" : "false"));
+    LDEBUG << "SPECIFIED PARAMETERS: ...";
+    LDEBUG << "collname:  " << collname;
+    LDEBUG << "coverage:  " << coverage;
+    LDEBUG << "oid:       " << oid;
+    LDEBUG << "only meta: " << (bMetaOnly ? "true" : "false");
 
     // ---------------------------------------------------------------------------
     // evaluate user specifications
@@ -236,7 +223,6 @@ int main(int argc, char** argv)
         << ": please specify a collection or image (coverage) to delete!"
         << endl;
         showEraseHelp();
-        LEAVE(ctx);
         return EXIT_FAILURE;
     }
 
@@ -252,7 +238,6 @@ int main(int argc, char** argv)
                 << ": couldn't find an image referred to as '"
                 << coverage << "' in the data base!"
                 << endl;
-                LEAVE(ctx);
                 return EXIT_SUCCESS;
             }
 
@@ -265,7 +250,6 @@ int main(int argc, char** argv)
             << ": couldn't find collection '" << collname
             << "' in the data base!"
             << endl;
-            LEAVE(ctx);
             return EXIT_SUCCESS;
         }
 
@@ -274,7 +258,6 @@ int main(int argc, char** argv)
             cerr << ctx
             << ": couldn't delete petascope metadata!"
             << endl;
-            //LEAVE(ctx);
             //return EXIT_FAILURE;
         }
 
@@ -295,7 +278,6 @@ int main(int argc, char** argv)
         }
         cerr << ctx << ": "
         << re.what() << endl;
-        LEAVE(ctx);
         return EXIT_FAILURE;
     }
 
@@ -304,6 +286,5 @@ int main(int argc, char** argv)
         delete rasconn;
     }
 
-    LEAVE(ctx);
     return EXIT_SUCCESS;
 }

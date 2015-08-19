@@ -63,7 +63,6 @@ and -DCOMPDATE="\"$(COMPDATE)\"" when compiling
 #include "raslib/odmgtypes.hh"
 
 // includes needed for the rasdaman types
-#include "raslib/rminit.hh"
 #include "raslib/mitera.hh"
 #include "raslib/type.hh"
 #include "raslib/marraytype.hh"
@@ -102,9 +101,7 @@ and -DCOMPDATE="\"$(COMPDATE)\"" when compiling
 #define DEBUG_MAIN
 #include "debug/debug.hh"
 
-#ifdef RMANRASNET
 #include "common/src/logging/easylogging++.hh"
-#endif
 
 /*
  * parse cmd line, fill all program variables
@@ -113,8 +110,6 @@ and -DCOMPDATE="\"$(COMPDATE)\"" when compiling
 void
 parseParams(int argc, char** argv) throw (ImportError, r_Error)
 {
-    ENTER( "parseParams" );
-
     //program interface
     CommandLineParser    &cmlInter      = CommandLineParser::getInstance();
 
@@ -391,7 +386,7 @@ parseParams(int argc, char** argv) throw (ImportError, r_Error)
             if (RasgeoUtil::align <= 0)
                 throw ImportError( INVALIDALIGN );
 
-            TALK( "overlaydomain was: " << RasgeoUtil::overlayDomain );
+            LDEBUG << "overlaydomain was: " << RasgeoUtil::overlayDomain;
             RasgeoUtil::overlayDomainDef = true;
             for (r_Dimension dim = 0; dim < RasgeoUtil::overlayDomain.dimension(); dim++)
             {
@@ -413,7 +408,7 @@ parseParams(int argc, char** argv) throw (ImportError, r_Error)
 
                 RasgeoUtil::overlayDomain[dim].set_interval(low, high);
             }
-            TALK( "Alignment reconsidered overlay domain to " << RasgeoUtil::overlayDomain );
+            LDEBUG << "Alignment reconsidered overlay domain to " << RasgeoUtil::overlayDomain;
         }
 
         // evaluate optional parameter read/file; file wins --------------------------------
@@ -482,48 +477,54 @@ parseParams(int argc, char** argv) throw (ImportError, r_Error)
         throw ImportError( ERRORPARSINGCOMMANDLINE );
     }
 
-    TALK( "server=" << RasgeoUtil::serverName << ", port=" << RasgeoUtil::serverPort << ", db=" << RasgeoUtil::baseName << ", user=" << RasgeoUtil::userName << ", pwd=" << RasgeoUtil::passwd );
-    TALK( "fileName=" << RasgeoUtil::fileName << ", tiledImport=" << RasgeoUtil::tiledImport << ", taSplit=" << RasgeoUtil::taSplit );
-    TALK( "transparent=" << RasgeoUtil::transparent << ", collname=" << RasgeoUtil::collName << ", mddOid=" << RasgeoUtil::mddOId << ", mddTypeName=" << RasgeoUtil::mddTypeName );
-    TALK( "mddDomain=" << RasgeoUtil::mddDomain << ", align=" << RasgeoUtil::align << ", overlayDomain=" << RasgeoUtil::overlayDomain );
-    TALK( "polygonDefined=" << RasgeoUtil::polygonDefined << ", polygonShrinker=" << RasgeoUtil::polygonShrinker );
-    TALK( "polygon=(n.a.)" ); // this is missing, we don't have that: polygon.print_status();
-    TALK( "outsidePatternDef=" << RasgeoUtil::outsidePatternDef << ", outsidePattern=" << HexCodec::convertFrom(RasgeoUtil::outsidePattern) );
-    TALK( "insidePatternDef=" << RasgeoUtil::insidePatternDef << ", insidePattern=" << HexCodec::convertFrom(RasgeoUtil::insidePattern) );
-    TALK( "storageFormat=" << RasgeoUtil::storageFormat << ", storageFormatParams=" << RasgeoUtil::storageFormatParams );
-    TALK( "transferFormat=" << RasgeoUtil::transferFormat << ", transferFormatParams=" << RasgeoUtil::transferFormatParams );
-    TALK( "inputFormat=" << RasgeoUtil::inputFormat << ", inputFormatParams=" << RasgeoUtil::inputFormatParams );
-    TALK( "updateBufferSize=" << RasgeoUtil::updateBufferSize << ", scaleFunction=" << RasgeoUtil::scaleFunction );
-    TALK( "theTiling=" << RasgeoUtil::theTiling );
-    TALK( "verbose=" << RasgeoUtil::verbose );
+    LDEBUG << "server=" << RasgeoUtil::serverName << ", port=" << RasgeoUtil::serverPort << ", db=" << RasgeoUtil::baseName << ", user=" << RasgeoUtil::userName << ", pwd=" << RasgeoUtil::passwd;
+    LDEBUG << "fileName=" << RasgeoUtil::fileName << ", tiledImport=" << RasgeoUtil::tiledImport << ", taSplit=" << RasgeoUtil::taSplit;
+    LDEBUG << "transparent=" << RasgeoUtil::transparent << ", collname=" << RasgeoUtil::collName << ", mddOid=" << RasgeoUtil::mddOId << ", mddTypeName=" << RasgeoUtil::mddTypeName;
+    LDEBUG << "mddDomain=" << RasgeoUtil::mddDomain << ", align=" << RasgeoUtil::align << ", overlayDomain=" << RasgeoUtil::overlayDomain;
+    LDEBUG << "polygonDefined=" << RasgeoUtil::polygonDefined << ", polygonShrinker=" << RasgeoUtil::polygonShrinker;
+    LDEBUG << "polygon=(n.a.)"; // this is missing, we don't have that: polygon.print_status();
+    LDEBUG << "outsidePatternDef=" << RasgeoUtil::outsidePatternDef << ", outsidePattern=" << HexCodec::convertFrom(RasgeoUtil::outsidePattern);
+    LDEBUG << "insidePatternDef=" << RasgeoUtil::insidePatternDef << ", insidePattern=" << HexCodec::convertFrom(RasgeoUtil::insidePattern);
+    LDEBUG << "storageFormat=" << RasgeoUtil::storageFormat << ", storageFormatParams=" << RasgeoUtil::storageFormatParams;
+    LDEBUG << "transferFormat=" << RasgeoUtil::transferFormat << ", transferFormatParams=" << RasgeoUtil::transferFormatParams;
+    LDEBUG << "inputFormat=" << RasgeoUtil::inputFormat << ", inputFormatParams=" << RasgeoUtil::inputFormatParams;
+    LDEBUG << "updateBufferSize=" << RasgeoUtil::updateBufferSize << ", scaleFunction=" << RasgeoUtil::scaleFunction;
+    LDEBUG << "theTiling=" << RasgeoUtil::theTiling;
+    LDEBUG << "verbose=" << RasgeoUtil::verbose;
 #ifdef DEBUG
     if (RasgeoUtil::debug)
         RasgeoUtil::theTiling->print_status( cout );
 #endif
-    TALK( "" );
+    LDEBUG << "";
 
-    LEAVE( "parseParams" );
     return;
 }
 
-
-#ifdef RMANRASNET
-    _INITIALIZE_EASYLOGGINGPP
-#endif
+_INITIALIZE_EASYLOGGINGPP
 /*
  * returns 0 on success, -1 on error
  */
 int main(int argc, char** argv)
 {
-    //TODO-GM: find another way to do this
-    #ifdef RMANRASNET
-        easyloggingpp::Configurations defaultConf;
-        defaultConf.setToDefault();
-        defaultConf.set(easyloggingpp::Level::Error,
-                        easyloggingpp::ConfigurationType::Format,
-                        "%datetime %level %loc %log %func ");
-        easyloggingpp::Loggers::reconfigureAllLoggers(defaultConf);
-    #endif
+        //Logging configuration: to standard output, LDEBUG and LTRACE are not enabled
+    easyloggingpp::Configurations defaultConf;
+    defaultConf.setToDefault();
+    defaultConf.set(easyloggingpp::Level::All,
+            easyloggingpp::ConfigurationType::Format, "%datetime [%level] %log");
+    defaultConf.set(easyloggingpp::Level::Info,
+            easyloggingpp::ConfigurationType::Format, "%datetime  [%level] %log");
+    defaultConf.set(easyloggingpp::Level::Warning,
+            easyloggingpp::ConfigurationType::Format, "%datetime  [%level] %log");
+    defaultConf.set(easyloggingpp::Level::All,
+            easyloggingpp::ConfigurationType::ToFile, "false");
+    defaultConf.set(easyloggingpp::Level::All,
+            easyloggingpp::ConfigurationType::ToStandardOutput, "true");
+    defaultConf.set(easyloggingpp::Level::Debug,
+            easyloggingpp::ConfigurationType::Enabled, "false");
+    defaultConf.set(easyloggingpp::Level::Trace,
+            easyloggingpp::ConfigurationType::Enabled, "false");
+    easyloggingpp::Loggers::reconfigureAllLoggers(defaultConf);
+    defaultConf.clear();
 
     SET_OUTPUT( false );        // inhibit unconditional debug output, await cmd line evaluation
 

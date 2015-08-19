@@ -43,10 +43,12 @@ static const char rcsid[] = "@(#)rasgeo, InitError: $Id: rasgeo_error.cc,v 1.1 2
 // debug facility; relies on -DDEBUG at compile time
 #include "debug/debug.hh"
 
+#include "common/src/logging/easylogging++.hh"
+
 /// error object, carrying int error code
 InitError::InitError( int e )
 {
-    TALK( "Exception: " << e << " for this=" << this );
+    LDEBUG << "Exception: " << e << " for this=" << this;
     errorCode = e;
 }
 
@@ -60,7 +62,7 @@ const char*
 InitError::what()
 {
     const char *errorMsg;
-    TALK( "error code is: " << errorCode );
+    LDEBUG << "error code is: " << errorCode;
     switch (errorCode)
     {
     case NOCOLLNAME:

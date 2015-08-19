@@ -69,7 +69,6 @@ using std::ostringstream;
 #include "rasodmg/database.hh"
 #include "rasodmg/gmarray.hh"
 #include "raslib/primitive.hh"
-#include "raslib/rminit.hh"
 #include "raslib/storageman.hh"
 #include "rasodmg/storagelayout.hh"
 
@@ -87,9 +86,7 @@ using std::ostringstream;
 #undef DEBUG_HH
 #include "debug/debug.hh"
 
-#ifdef RMANRASNET
 #include "common/src/logging/easylogging++.hh"
-#endif
 
 /*
  * --- these values determine the pyramid, it must be consistent wih all other rasgeo modules -------
@@ -291,8 +288,6 @@ createPyramids( const char* mddTypeName, const char* setTypeName, size_t cellSiz
 
 void parseParams(int argc, char** argv) throw (InitError, r_Error)
 {
-    ENTER( "parseParams" );
-
     //program interface
     CommandLineParser    &cmlInter      = CommandLineParser::getInstance();
 
@@ -503,11 +498,10 @@ void parseParams(int argc, char** argv) throw (InitError, r_Error)
         throw InitError( INVALIDBBOX );
     }
 
-    TALK( "server=" << serverName << ", port=" << serverPort << ", database=" << dbName << ", user=" << user << ", passwd=" << passwd );
-    TALK( "mapname=" << mapName << ", levels=" << levels << ", tileEdge=" << tileEdge << ", useHindex=" << useHindex );
-    TALK( "xmin=" << pixXmin << ", xmax=" << pixXmax << ", ymin=" << pixYmin << ", ymax=" << pixYmax );
+    LDEBUG << "server=" << serverName << ", port=" << serverPort << ", database=" << dbName << ", user=" << user << ", passwd=" << passwd;
+    LDEBUG << "mapname=" << mapName << ", levels=" << levels << ", tileEdge=" << tileEdge << ", useHindex=" << useHindex;
+    LDEBUG << "xmin=" << pixXmin << ", xmax=" << pixXmax << ", ymin=" << pixYmin << ", ymax=" << pixYmax;
 
-    LEAVE( "parseParams");
     return;
 } // parseParams()
 
@@ -515,94 +509,78 @@ void parseParams(int argc, char** argv) throw (InitError, r_Error)
 void
 openDatabase() throw (r_Error)
 {
-    ENTER( "openDatabase" );
-
     if (! dbIsOpen)
     {
         cout << "opening database " <<  dbName  << " at " << serverName << ":" << serverPort << "..." << flush;
         db.set_servername(serverName, static_cast<int>(serverPort));
         db.set_useridentification( user, passwd);
-        TALK( "database was closed, opening database=" <<  dbName  << ", server=" << serverName << ", port=" << serverPort << ", user=" <<  user << ", passwd=" << passwd << "..." );
+        LDEBUG << "database was closed, opening database=" <<  dbName  << ", server=" << serverName << ", port=" << serverPort << ", user=" <<  user << ", passwd=" << passwd << "...";
         db.open( dbName );
-        TALK( "done" );
+        LDEBUG << "done";
         dbIsOpen = true;
         cout << "ok" << endl << flush;
     }
-
-    LEAVE( "openDatabase" );
 }
 
 void
 closeDatabase() throw (r_Error)
 {
-    ENTER( "closeDatabase" );
-
     if (dbIsOpen)
     {
-        TALK( "database was open, closing it" );
+        LDEBUG << "database was open, closing it";
         db.close();
         dbIsOpen = false;
     }
-
-    LEAVE( "closeDatabase" );
     return;
 }
 
 void
 openTransaction(bool readwrite) throw (r_Error)
 {
-    ENTER( "openTransaction, readwrite=" << (readwrite ? "rw" : "ro" ) );
-
     if (! taIsOpen)
     {
         if (readwrite)
         {
-            TALK( "transaction was closed, opening rw..." );
+            LDEBUG << "transaction was closed, opening rw...";
             ta.begin(r_Transaction::read_write);
-            TALK( "done" );
+            LDEBUG << "done";
         }
         else
         {
-            TALK( "transaction was closed, opening ro..." );
+            LDEBUG << "transaction was closed, opening ro...";
             ta.begin(r_Transaction::read_only);
-            TALK( "done" );
+            LDEBUG << "done";
         }
 
-        TALK( "setting transfer format to r_Array" );
+        LDEBUG << "setting transfer format to r_Array";
         db.set_transfer_format( r_Array, "" );
 
-        TALK( "setting storage format to r_ZLib" );
+        LDEBUG << "setting storage format to r_ZLib";
         db.set_storage_format( r_ZLib, "" );
 
         taIsOpen = true;
     }
-
-    LEAVE( "openTransaction" );
 }
 
 void
 closeTransaction( bool doCommit ) throw (r_Error)
 {
-    ENTER( "closeTransaction, doCommit=" << doCommit );
-
     if (taIsOpen)
     {
         if (doCommit)
         {
-            TALK( "transaction was open, committing it..." );
+            LDEBUG << "transaction was open, committing it...";
             ta.commit();
-            TALK( "done" );
+            LDEBUG << "done";
         }
         else
         {
-            TALK( "transaction was open, aborting it..." );
+            LDEBUG << "transaction was open, aborting it...";
             ta.abort();
-            TALK( "done" );
+            LDEBUG << "done";
         }
         taIsOpen = false;
     }
-
-    LEAVE( "closeTransaction" );
     return;
 }
 
@@ -611,8 +589,6 @@ closeTransaction( bool doCommit ) throw (r_Error)
 void
 getType( const char* mapType2, const char** mddTypeP, const char** setTypeP, size_t* cellSizeP ) throw (InitError)
 {
-    ENTER( "getTypeName, mapType=" << mapType2 );
-
     if (strcasecmp( mapType2, TYPE_DOP_GREY_1 ) == 0 || strcasecmp( mapType2, TYPE_DOP_GREY_2 ) == 0)
     {
         *mddTypeP = MDD_DOP_GREY;
@@ -645,8 +621,6 @@ getType( const char* mapType2, const char** mddTypeP, const char** setTypeP, siz
     }
     else
         throw InitError( ILLEGALMAPTYPE );
-
-    LEAVE( "getTypeName" );
 }
 
 // extends current dimension to be a multiple of tileEdge
@@ -670,7 +644,6 @@ void normalize ( __attribute__ ((unused)) long& pixXminP,  __attribute__ ((unuse
 
 void createPyramids( const char* mddTypeName, const char* setTypeName, size_t cellSize, long pixXmin2, long pixXmax2, long pixYmin2, long pixYmax2 ) throw (r_Error, InitError)
 {
-    ENTER( "createPyramids, mddTypeName=" << mddTypeName << ", setTypeName=" << setTypeName );
     long currentXmin;
     long currentYmin;
     long currentXmax;
@@ -722,7 +695,7 @@ void createPyramids( const char* mddTypeName, const char* setTypeName, size_t ce
             sprintf( numberString, "%d", currentLevel );
             currentMapName = string(mapName) + PYRAMID_SEPARATOR + numberString;
         }
-        TALK( "generating layer " << currentLevel << ", name is " << currentMapName );
+        LDEBUG << "generating layer " << currentLevel << ", name is " << currentMapName;
 
         // domain describing complete area of MDD
         r_Minterval definitionDomain  = r_Minterval( 2 )
@@ -745,7 +718,7 @@ void createPyramids( const char* mddTypeName, const char* setTypeName, size_t ce
         queryBuffer = string( "CREATE COLLECTION " ) + currentMapName + " " + setTypeName;
 
         r_OQL_Query createQuery( queryBuffer.c_str() );
-        TALK( "creating collection: " << createQuery.get_query() );
+        LDEBUG << "creating collection: " << createQuery.get_query();
         r_oql_execute( createQuery );
 
         // now use "unofficial" interface to create MDD tile
@@ -779,25 +752,32 @@ void createPyramids( const char* mddTypeName, const char* setTypeName, size_t ce
         // prepare next iteration: compute next smaller domain
     }
 
-    LEAVE( "createPyramids" );
     return;
 }
 
-#ifdef RMANRASNET
-    _INITIALIZE_EASYLOGGINGPP
-#endif
+_INITIALIZE_EASYLOGGINGPP
 
 int main(int argc, char** argv)
 {
-    //TODO-GM: find a better way to do this
-    #ifdef RMANRASNET
-        easyloggingpp::Configurations defaultConf;
-        defaultConf.setToDefault();
-        defaultConf.set(easyloggingpp::Level::Error,
-                        easyloggingpp::ConfigurationType::Format,
-                        "%datetime %level %loc %log %func ");
-        easyloggingpp::Loggers::reconfigureAllLoggers(defaultConf);
-    #endif
+    //Logging configuration: to standard output, LDEBUG and LTRACE are not enabled
+    easyloggingpp::Configurations defaultConf;
+    defaultConf.setToDefault();
+    defaultConf.set(easyloggingpp::Level::All,
+            easyloggingpp::ConfigurationType::Format, "%datetime [%level] %log");
+    defaultConf.set(easyloggingpp::Level::Info,
+            easyloggingpp::ConfigurationType::Format, "%datetime  [%level] %log");
+    defaultConf.set(easyloggingpp::Level::Warning,
+            easyloggingpp::ConfigurationType::Format, "%datetime  [%level] %log");
+    defaultConf.set(easyloggingpp::Level::All,
+            easyloggingpp::ConfigurationType::ToFile, "false");
+    defaultConf.set(easyloggingpp::Level::All,
+            easyloggingpp::ConfigurationType::ToStandardOutput, "true");
+    defaultConf.set(easyloggingpp::Level::Debug,
+            easyloggingpp::ConfigurationType::Enabled, "false");
+    defaultConf.set(easyloggingpp::Level::Trace,
+            easyloggingpp::ConfigurationType::Enabled, "false");
+    easyloggingpp::Loggers::reconfigureAllLoggers(defaultConf);
+    defaultConf.clear();
 
     SET_OUTPUT( false );            // inhibit unconditional debug output, await cmd line evaluation
 
@@ -822,7 +802,7 @@ int main(int argc, char** argv)
         const char *setTypeName = "GreySet"; // NULL;       // set name corresponding to map type indicated
         size_t cellSize = 0;        // MDD cell size in bytes
         getType( mapType, &mddTypeName, &setTypeName, &cellSize );
-        TALK( "mddTypeName=" << mddTypeName << ", setTypeName=" << setTypeName << ", cellSize=" << cellSize );
+        LDEBUG << "mddTypeName=" << mddTypeName << ", setTypeName=" << setTypeName << ", cellSize=" << cellSize;
 
         cout << "Creating map pyramid " << mapName << " of type " << mddTypeName;
         if (levels==AUTO_LEVEL)
