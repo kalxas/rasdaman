@@ -38,7 +38,6 @@ rasdaman GmbH.
 #include "conversion/netcdf.hh"
 #include "conversion/memfs.hh"
 #include "raslib/error.hh"
-#include "raslib/rminit.hh"
 #include "raslib/parseparams.hh"
 #include "raslib/primitivetype.hh"
 #include "raslib/attribute.hh"
@@ -48,6 +47,8 @@ rasdaman GmbH.
 #include "raslib/odmgtypes.hh"
 #include "relcatalogif/basetype.hh"
 #include "relcatalogif/structtype.hh"
+
+#include "../common/src/logging/easylogging++.hh"
 
 #include <cstring>
 #include <sstream>
@@ -128,7 +129,7 @@ r_Conv_NETCDF::r_Conv_NETCDF(const char *src, const r_Minterval &interv, const r
     /// ToDo: Can be hacked by dividing it to its basic component. Or by using CXX-4 which is in the development phase
     if (tp->isStructType())
     {
-        RMInit::logOut << "r_Conv_NETCD::r_Conv_NETCDF(): structured types not supported." << endl;
+        LFATAL << "r_Conv_NETCD::r_Conv_NETCDF(): structured types not supported.";
         throw r_Error(r_Error::r_Error_General);
     }
     */
@@ -186,9 +187,9 @@ r_convDesc &r_Conv_NETCDF::convertTo(const char *options) throw (r_Error)
     tempFD = mkstemp(tmpFile);
     if(tempFD == -1)
     {
-        RMInit::logOut << "r_Conv_netcdf::convertTo(" << (options?options:"NULL")
+        LFATAL << "r_Conv_netcdf::convertTo(" << (options?options:"NULL")
                         << ") desc.srcType (" << desc.srcType->type_id()
-                        << ") unable to generate a tempory file !" << endl;
+                        << ") unable to generate a tempory file !";
         throw r_Error();
     }
 
@@ -197,7 +198,7 @@ r_convDesc &r_Conv_NETCDF::convertTo(const char *options) throw (r_Error)
     NcFile dataFile(tmpFile, NcFile::Replace);
     if (!dataFile.is_valid())
     {
-        RMInit::logOut << "Error: unable to open output file." << endl;
+        LFATAL << "Error: unable to open output file.";
         throw r_Error(r_Error::r_Error_General);
     }
 
@@ -208,7 +209,7 @@ r_convDesc &r_Conv_NETCDF::convertTo(const char *options) throw (r_Error)
     dims = new const NcDim*[dimNo];
     if (dimSizes == NULL)
     {
-        RMInit::logOut << "Error: out of memory." << endl;
+        LFATAL << "Error: out of memory.";
         REMOVE_TMP_FILES;
         if(dims != NULL)
         {
@@ -241,7 +242,7 @@ r_convDesc &r_Conv_NETCDF::convertTo(const char *options) throw (r_Error)
     }
     if (desc.baseType != ctype_struct && varsSize > 1)
     {
-        RMInit::logOut << "Error: mismatch in #variables between query and MDD object type." << endl;
+        LFATAL << "Error: mismatch in #variables between query and MDD object type.";
         REMOVE_TMP_FILES;
         if(dims != NULL)
         {
@@ -273,7 +274,7 @@ r_convDesc &r_Conv_NETCDF::convertTo(const char *options) throw (r_Error)
         short *data = new short[dataSize];
         if (data == NULL)
         {
-            RMInit::logOut << "Error: out of memory." << endl;
+            LFATAL << "Error: out of memory.";
             REMOVE_TMP_FILES;
             if(dims != NULL)
             {
@@ -306,7 +307,7 @@ r_convDesc &r_Conv_NETCDF::convertTo(const char *options) throw (r_Error)
         int *data = new int[dataSize];
         if (data == NULL)
         {
-            RMInit::logOut << "Error: out of memory." << endl;
+            LFATAL << "Error: out of memory.";
             REMOVE_TMP_FILES;
             if(dims != NULL)
             {
@@ -340,7 +341,7 @@ r_convDesc &r_Conv_NETCDF::convertTo(const char *options) throw (r_Error)
         float *data = new float[dataSize];
         if (data == NULL)
         {
-            RMInit::logOut << "Error: out of memory." << endl;
+            LFATAL << "Error: out of memory.";
             REMOVE_TMP_FILES;
             if(dims != NULL)
             {
@@ -384,7 +385,7 @@ r_convDesc &r_Conv_NETCDF::convertTo(const char *options) throw (r_Error)
         r_Structure_Type *st = static_cast<r_Structure_Type*>(const_cast<r_Type*>(desc.srcType));
         if (st == NULL)
         {
-            RMInit::logOut << "Error: MDD object type could not be cast to struct." << endl;
+            LFATAL << "Error: MDD object type could not be cast to struct.";
             REMOVE_TMP_FILES;
             if(dims != NULL)
             {
@@ -395,7 +396,7 @@ r_convDesc &r_Conv_NETCDF::convertTo(const char *options) throw (r_Error)
         }
         if (varsSize > static_cast<int>(st->count_elements()))
         {
-            RMInit::logOut << "Error: mismatch in #variables between query and MDD object type." << endl;
+            LFATAL << "Error: mismatch in #variables between query and MDD object type.";
             REMOVE_TMP_FILES;
             if(dims != NULL)
             {
@@ -411,7 +412,7 @@ r_convDesc &r_Conv_NETCDF::convertTo(const char *options) throw (r_Error)
             vars = new char*[st->count_elements()];
             if (vars == NULL)
             {
-                RMInit::logOut << "Error: out of memory." << endl;
+                LFATAL << "Error: out of memory.";
                 REMOVE_TMP_FILES;
                 if(dims != NULL)
                 {
@@ -448,7 +449,7 @@ r_convDesc &r_Conv_NETCDF::convertTo(const char *options) throw (r_Error)
         }
         if (allMatch != varsSize)
         {
-            RMInit::logOut << "Error: not all specified variables are attributes of the MDD object type." << endl;
+            LFATAL << "Error: not all specified variables are attributes of the MDD object type.";
             REMOVE_TMP_FILES;
             if(dims != NULL)
             {
@@ -478,7 +479,7 @@ r_convDesc &r_Conv_NETCDF::convertTo(const char *options) throw (r_Error)
                         char * buff = new char[dataSize];
                         if (buff == NULL)
                         {
-                            RMInit::logOut << "Error: out of memory." << endl;
+                            LFATAL << "Error: out of memory.";
                             REMOVE_TMP_FILES;
                             if(dims != NULL)
                             {
@@ -502,7 +503,7 @@ r_convDesc &r_Conv_NETCDF::convertTo(const char *options) throw (r_Error)
                         char * buff = new char[dataSize];
                         if (buff == NULL)
                         {
-                            RMInit::logOut << "Error: out of memory." << endl;
+                            LFATAL << "Error: out of memory.";
                             REMOVE_TMP_FILES;
                             if(dims != NULL)
                             {
@@ -527,7 +528,7 @@ r_convDesc &r_Conv_NETCDF::convertTo(const char *options) throw (r_Error)
                         short * buff = new short[dataSize];
                         if (buff == NULL)
                         {
-                            RMInit::logOut << "Error: out of memory." << endl;
+                            LFATAL << "Error: out of memory.";
                             REMOVE_TMP_FILES;
                             if(dims != NULL)
                             {
@@ -552,7 +553,7 @@ r_convDesc &r_Conv_NETCDF::convertTo(const char *options) throw (r_Error)
                         int * buff = new int[dataSize];
                         if (buff == NULL)
                         {
-                            RMInit::logOut << "Error: out of memory." << endl;
+                            LFATAL << "Error: out of memory.";
                             REMOVE_TMP_FILES;
                             if(dims != NULL)
                             {
@@ -576,7 +577,7 @@ r_convDesc &r_Conv_NETCDF::convertTo(const char *options) throw (r_Error)
                         float * buff = new float[dataSize];
                         if (buff == NULL)
                         {
-                            RMInit::logOut << "Error: out of memory." << endl;
+                            LFATAL << "Error: out of memory.";
                             REMOVE_TMP_FILES;
                             if(dims != NULL)
                             {
@@ -600,7 +601,7 @@ r_convDesc &r_Conv_NETCDF::convertTo(const char *options) throw (r_Error)
                         double * buff = new double[dataSize];
                         if (buff == NULL)
                         {
-                            RMInit::logOut << "Error: out of memory." << endl;
+                            LFATAL << "Error: out of memory.";
                             REMOVE_TMP_FILES;
                             if(dims != NULL)
                             {
@@ -621,7 +622,7 @@ r_convDesc &r_Conv_NETCDF::convertTo(const char *options) throw (r_Error)
                     }
                     default:
                     {
-                        RMInit::logOut << "Error: this type is not supported " << desc.baseType << "." << endl;
+                        LFATAL << "Error: this type is not supported " << desc.baseType << ".";
                         REMOVE_TMP_FILES;
                         if(dims != NULL)
                         {
@@ -638,7 +639,7 @@ r_convDesc &r_Conv_NETCDF::convertTo(const char *options) throw (r_Error)
     }
     default:
     {
-        RMInit::logOut << "Error: this type is not supported " << desc.baseType << "." << endl;
+        LFATAL << "Error: this type is not supported " << desc.baseType << ".";
         REMOVE_TMP_FILES;
         if(dims != NULL)
         {
@@ -657,7 +658,7 @@ r_convDesc &r_Conv_NETCDF::convertTo(const char *options) throw (r_Error)
     // Pass the NetCDF file as a stream of char
     if ((fp = fopen(tmpFile, "rb")) == NULL)
     {
-        RMInit::logOut << "Error: unable to read back file." << endl;
+        LFATAL << "Error: unable to read back file.";
         throw r_Error(r_Error::r_Error_Conversion);
     }
     // Get the file size
@@ -666,7 +667,7 @@ r_convDesc &r_Conv_NETCDF::convertTo(const char *options) throw (r_Error)
 
     if ((desc.dest = (char*) mystore.storage_alloc(filesize)) == NULL)
     {
-        RMInit::logOut << "Error:  out of memory." << endl;
+        LFATAL << "Error:  out of memory.";
         remove(tmpFile);
         throw r_Error(r_Error::r_Error_MemoryAllocation);
     }
@@ -701,9 +702,9 @@ r_convDesc &r_Conv_NETCDF::convertFrom(const char *options) throw (r_Error)
     tmpFd = mkstemp(tmpFile);
     if(tmpFd == -1)
     {
-        RMInit::logOut << "r_Conv_NETCDF::convertFrom(" << (options?options:"NULL")
+        LFATAL << "r_Conv_NETCDF::convertFrom(" << (options?options:"NULL")
                         << ") desc.srcType (" << desc.srcType->type_id()
-                        << ") unable to generate a temporary file!" << endl;
+                        << ") unable to generate a temporary file!";
         throw r_Error(r_Error::r_Error_Conversion);
     }
 
@@ -728,7 +729,7 @@ r_convDesc &r_Conv_NETCDF::convertFrom(const char *options) throw (r_Error)
     NcFile dataFile(tmpFile, NcFile::ReadOnly);
     if (!dataFile.is_valid())
     {
-        RMInit::logOut << "Error: Can not open the file." << endl;
+        LFATAL << "Error: Can not open the file.";
         REMOVE_TMP_FILES;
         throw r_Error(r_Error::r_Error_Conversion);
     }
@@ -767,7 +768,7 @@ r_convDesc &r_Conv_NETCDF::convertFrom(const char *options) throw (r_Error)
     }
     if (varNames.empty())
     {
-        RMInit::logOut << "Error: no variable found to import." << endl;
+        LFATAL << "Error: no variable found to import.";
         REMOVE_TMP_FILES;
         throw r_Error(r_Error::r_Error_Conversion);
     }
@@ -780,7 +781,7 @@ r_convDesc &r_Conv_NETCDF::convertFrom(const char *options) throw (r_Error)
         dimSizes = new long[numDims];
         if (dimSizes == NULL)
         {
-            RMInit::logOut << "Error: out of memory." << endl;
+            LFATAL << "Error: out of memory.";
             REMOVE_TMP_FILES;
             throw r_Error(r_Error::r_Error_MemoryAllocation);
         }
@@ -797,7 +798,7 @@ r_convDesc &r_Conv_NETCDF::convertFrom(const char *options) throw (r_Error)
             ncbyte *data = new ncbyte[dataSize];
             if (data == NULL)
             {
-                RMInit::logOut << "Error: out of memory." << endl;
+                LFATAL << "Error: out of memory.";
                 REMOVE_TMP_FILES;
                 throw r_Error(r_Error::r_Error_MemoryAllocation);
             }
@@ -811,7 +812,7 @@ r_convDesc &r_Conv_NETCDF::convertFrom(const char *options) throw (r_Error)
 
             if ((desc.dest = (char*) mystore.storage_alloc(dataSize)) == NULL)
             {
-                RMInit::logOut << "Error: out of memory" << endl;
+                LFATAL << "Error: out of memory";
                 REMOVE_TMP_FILES;
                 throw r_Error(r_Error::r_Error_MemoryAllocation);
             }
@@ -825,7 +826,7 @@ r_convDesc &r_Conv_NETCDF::convertFrom(const char *options) throw (r_Error)
             char *data = new char[dataSize];
             if (data == NULL)
             {
-                RMInit::logOut << "Error: out of memory." << endl;
+                LFATAL << "Error: out of memory.";
                 REMOVE_TMP_FILES;
                 throw r_Error(r_Error::r_Error_MemoryAllocation);
             }
@@ -839,7 +840,7 @@ r_convDesc &r_Conv_NETCDF::convertFrom(const char *options) throw (r_Error)
 
             if ((desc.dest = (char*) mystore.storage_alloc(dataSize)) == NULL)
             {
-                RMInit::logOut << "Error: out of memory" << endl;
+                LFATAL << "Error: out of memory";
                 REMOVE_TMP_FILES;
                 throw r_Error(r_Error::r_Error_MemoryAllocation);
             }
@@ -853,7 +854,7 @@ r_convDesc &r_Conv_NETCDF::convertFrom(const char *options) throw (r_Error)
             short *data = new short[dataSize];
             if (data == NULL)
             {
-                RMInit::logOut << "Error: out of memory." << endl;
+                LFATAL << "Error: out of memory.";
                 REMOVE_TMP_FILES;
                 throw r_Error(r_Error::r_Error_MemoryAllocation);
             }
@@ -865,7 +866,7 @@ r_convDesc &r_Conv_NETCDF::convertFrom(const char *options) throw (r_Error)
 
             if ((desc.dest = (char*) mystore.storage_alloc(dataSize * sizeof (short))) == NULL)
             {
-                RMInit::logOut << "Error: out of memory." << endl;
+                LFATAL << "Error: out of memory.";
                 REMOVE_TMP_FILES;
                 throw r_Error(r_Error::r_Error_MemoryAllocation);
             }
@@ -879,7 +880,7 @@ r_convDesc &r_Conv_NETCDF::convertFrom(const char *options) throw (r_Error)
             int *data = new int[dataSize];
             if (data == NULL)
             {
-                RMInit::logOut << "Error: out of memory." << endl;
+                LFATAL << "Error: out of memory.";
                 REMOVE_TMP_FILES;
                 throw r_Error(r_Error::r_Error_MemoryAllocation);
             }
@@ -891,7 +892,7 @@ r_convDesc &r_Conv_NETCDF::convertFrom(const char *options) throw (r_Error)
 
             if ((desc.dest = (char*) mystore.storage_alloc(dataSize * sizeof (int))) == NULL)
             {
-                RMInit::logOut << "Error: out of memory." << endl;
+                LFATAL << "Error: out of memory.";
                 REMOVE_TMP_FILES;
                 throw r_Error(r_Error::r_Error_MemoryAllocation);
             }
@@ -905,7 +906,7 @@ r_convDesc &r_Conv_NETCDF::convertFrom(const char *options) throw (r_Error)
             float *data = new float[dataSize];
             if (data == NULL)
             {
-                RMInit::logOut << "Error: out of memory." << endl;
+                LFATAL << "Error: out of memory.";
                 REMOVE_TMP_FILES;
                 throw r_Error(r_Error::r_Error_MemoryAllocation);
             }
@@ -917,7 +918,7 @@ r_convDesc &r_Conv_NETCDF::convertFrom(const char *options) throw (r_Error)
 
             if ((desc.dest = (char*) mystore.storage_alloc(dataSize * sizeof (float))) == NULL)
             {
-                RMInit::logOut << "Error: out of memory." << endl;
+                LFATAL << "Error: out of memory.";
                 REMOVE_TMP_FILES;
                 throw r_Error(r_Error::r_Error_MemoryAllocation);
             }
@@ -931,7 +932,7 @@ r_convDesc &r_Conv_NETCDF::convertFrom(const char *options) throw (r_Error)
             double *data = new double[dataSize];
             if (data == NULL)
             {
-                RMInit::logOut << "Error: out of memory." << endl;
+                LFATAL << "Error: out of memory.";
                 REMOVE_TMP_FILES;
                 throw r_Error(r_Error::r_Error_MemoryAllocation);
             }
@@ -943,7 +944,7 @@ r_convDesc &r_Conv_NETCDF::convertFrom(const char *options) throw (r_Error)
 
             if ((desc.dest = (char*) mystore.storage_alloc(dataSize * sizeof (double))) == NULL)
             {
-                RMInit::logOut << "Error: out of memory" << endl;
+                LFATAL << "Error: out of memory";
                 REMOVE_TMP_FILES;
                 throw r_Error(r_Error::r_Error_MemoryAllocation);
             }
@@ -954,7 +955,7 @@ r_convDesc &r_Conv_NETCDF::convertFrom(const char *options) throw (r_Error)
         }
         default:
         {
-            RMInit::logOut << "Error: this type is not supported" << desc.baseType << "." << endl;
+            LFATAL << "Error: this type is not supported" << desc.baseType << ".";
             REMOVE_TMP_FILES;
             throw r_Error(r_Error::r_Error_Conversion);
         }
@@ -969,7 +970,7 @@ r_convDesc &r_Conv_NETCDF::convertFrom(const char *options) throw (r_Error)
             vars = new char*[varNames.size()];
             if (vars == NULL)
             {
-                RMInit::logOut << "Error: out of memory." << endl;
+                LFATAL << "Error: out of memory.";
                 REMOVE_TMP_FILES;
                 throw r_Error(r_Error::r_Error_MemoryAllocation);
             }
@@ -990,7 +991,7 @@ r_convDesc &r_Conv_NETCDF::convertFrom(const char *options) throw (r_Error)
         {
             if (find(varNames.begin(), varNames.end(), vars[i]) == varNames.end())
             {
-                RMInit::logOut << "Error: variable " << vars[i] << " not present in the file." << endl;
+                LFATAL << "Error: variable " << vars[i] << " not present in the file.";
                 REMOVE_TMP_FILES;
                 throw r_Error(r_Error::r_Error_Conversion);
             }
@@ -1022,7 +1023,7 @@ r_convDesc &r_Conv_NETCDF::convertFrom(const char *options) throw (r_Error)
                     break;
                 default:
                 {
-                    RMInit::logOut << "Error: this type is not supported." << static_cast<int>(var->type()) << endl;
+                    LFATAL << "Error: this type is not supported." << static_cast<int>(var->type());
                     REMOVE_TMP_FILES;
                     throw r_Error(r_Error::r_Error_Conversion);
                 }
@@ -1039,7 +1040,7 @@ r_convDesc &r_Conv_NETCDF::convertFrom(const char *options) throw (r_Error)
                 dimSizes = new long[numDims];
                 if (dimSizes == NULL)
                 {
-                    RMInit::logOut << "Error: out of memory." << endl;
+                    LFATAL << "Error: out of memory.";
                     REMOVE_TMP_FILES;
                     throw r_Error(r_Error::r_Error_MemoryAllocation);
                 }
@@ -1047,7 +1048,7 @@ r_convDesc &r_Conv_NETCDF::convertFrom(const char *options) throw (r_Error)
             else
             {
                 if (numDims != firstDim) {
-                    RMInit::logOut << "Error: variables have different dimesionalities." << endl;
+                    LFATAL << "Error: variables have different dimesionalities.";
                     REMOVE_TMP_FILES;
                     throw r_Error(r_Error::r_Error_Conversion);
                 }
@@ -1057,7 +1058,7 @@ r_convDesc &r_Conv_NETCDF::convertFrom(const char *options) throw (r_Error)
                 NcDim *dim = var->get_dim(j);
                 if (dim->is_unlimited())
                 {
-                    RMInit::logOut << "Error: unlimited dimensions can not be handled." << endl;
+                    LFATAL << "Error: unlimited dimensions can not be handled.";
                     REMOVE_TMP_FILES;
                     throw r_Error(r_Error::r_Error_Conversion);
                 }
@@ -1070,7 +1071,7 @@ r_convDesc &r_Conv_NETCDF::convertFrom(const char *options) throw (r_Error)
                     }
                     else if (dim->size() != dimSizes[j])
                     {
-                        RMInit::logOut << "Error: variables have different dimesionalities." << endl;
+                        LFATAL << "Error: variables have different dimesionalities.";
                         REMOVE_TMP_FILES;
                         throw r_Error(r_Error::r_Error_Conversion);
                     }
@@ -1086,7 +1087,7 @@ r_convDesc &r_Conv_NETCDF::convertFrom(const char *options) throw (r_Error)
         
         if ((desc.dest = (char*) mystore.storage_alloc(dataSize * structSize)) == NULL)
         {
-            RMInit::logOut << "Error: out of memory." << endl;
+            LFATAL << "Error: out of memory.";
             REMOVE_TMP_FILES;
             throw r_Error(r_Error::r_Error_MemoryAllocation);
         }
@@ -1102,7 +1103,7 @@ r_convDesc &r_Conv_NETCDF::convertFrom(const char *options) throw (r_Error)
                     short *data = new short[dataSize];
                     if (data == NULL)
                     {
-                        RMInit::logOut << "Error: out of memory." << endl;
+                        LFATAL << "Error: out of memory.";
                         REMOVE_TMP_FILES;
                         throw r_Error(r_Error::r_Error_MemoryAllocation);
                     }
@@ -1120,7 +1121,7 @@ r_convDesc &r_Conv_NETCDF::convertFrom(const char *options) throw (r_Error)
                     int *data = new int[dataSize];
                     if (data == NULL)
                     {
-                        RMInit::logOut << "Error: out of memory." << endl;
+                        LFATAL << "Error: out of memory.";
                         REMOVE_TMP_FILES;
                         throw r_Error(r_Error::r_Error_MemoryAllocation);
                     }
@@ -1138,7 +1139,7 @@ r_convDesc &r_Conv_NETCDF::convertFrom(const char *options) throw (r_Error)
                     double *data = new double[dataSize];
                     if (data == NULL)
                     {
-                        RMInit::logOut << "Error: out of memory." << endl;
+                        LFATAL << "Error: out of memory.";
                         REMOVE_TMP_FILES;
                         throw r_Error(r_Error::r_Error_MemoryAllocation);
                     }
@@ -1156,7 +1157,7 @@ r_convDesc &r_Conv_NETCDF::convertFrom(const char *options) throw (r_Error)
                     float *data = new float[dataSize];
                     if (data == NULL)
                     {
-                        RMInit::logOut << "Error: out of memory." << endl;
+                        LFATAL << "Error: out of memory.";
                         REMOVE_TMP_FILES;
                         throw r_Error(r_Error::r_Error_MemoryAllocation);
                     }
@@ -1174,7 +1175,7 @@ r_convDesc &r_Conv_NETCDF::convertFrom(const char *options) throw (r_Error)
                     ncbyte *data = new ncbyte[dataSize];
                     if (data == NULL)
                     {
-                        RMInit::logOut << "Error: out of memory." << endl;
+                        LFATAL << "Error: out of memory.";
                         REMOVE_TMP_FILES;
                         throw r_Error(r_Error::r_Error_MemoryAllocation);
                     }
@@ -1192,7 +1193,7 @@ r_convDesc &r_Conv_NETCDF::convertFrom(const char *options) throw (r_Error)
                     char *data = new char[dataSize];
                     if (data == NULL)
                     {
-                        RMInit::logOut << "Error: out of memory." << endl;
+                        LFATAL << "Error: out of memory.";
                         REMOVE_TMP_FILES;
                         throw r_Error(r_Error::r_Error_MemoryAllocation);
                     }
@@ -1207,7 +1208,7 @@ r_convDesc &r_Conv_NETCDF::convertFrom(const char *options) throw (r_Error)
                 }
                 default:
                 {
-                    RMInit::logOut << "Error: this type is not supported." << endl;
+                    LFATAL << "Error: this type is not supported.";
                     REMOVE_TMP_FILES;
                     throw r_Error(r_Error::r_Error_Conversion);
                 }
@@ -1254,7 +1255,7 @@ template <class baseType, class castType> void r_Conv_NETCDF::print(baseType* va
 {
 
     for (int i = 0; i < bufferZise; ++i, val++)
-        RMInit::logOut << (castType) val[0] << endl;
+        LINFO << (castType) val[0];
 }
 
 #endif

@@ -42,12 +42,12 @@ rasdaman GmbH.
 #include <iostream>
 #include <sstream>
 
-#include "raslib/rminit.hh"
 #include "raslib/endian.hh"
 #include "raslib/miterd.hh"
 #include "raslib/odmgtypes.hh"
 #include "raslib/parseparams.hh"
 #include "conversion/vff.hh"
+#include "../common/src/logging/easylogging++.hh"
 
 
 // file magic
@@ -269,8 +269,8 @@ int r_Conv_VFF::parse_data_order( r_Dimension dim, const char *dstr, unsigned in
 
     if (i < dim)
     {
-        RMInit::logOut << "r_Conv_VFF::parse_data_order(): descriptor " << dstr
-                       << " inconsistent, revert to defaults" << endl;
+        LERROR << "r_Conv_VFF::parse_data_order(): descriptor " << dstr
+                       << " inconsistent, revert to defaults";
 
         return parse_data_order(dim, get_default_order(dim), order);
     }
@@ -547,7 +547,7 @@ r_convDesc &r_Conv_VFF::convertFrom( const char *options ) throw(r_Error)
                     dim = strtol(header, const_cast<char**>(&rest), 10);
                     if ((rest == header) || (dim < 2) || (dim > 3))
                     {
-                        RMInit::logOut << method_convFrom << ": bad rank " << dim << endl;
+                        LWARNING << method_convFrom << ": bad rank " << dim;
                         rest = NULL;
                     }
                     break;
@@ -556,7 +556,7 @@ r_convDesc &r_Conv_VFF::convertFrom( const char *options ) throw(r_Error)
                         rest = header + strlen(kval_Raster);
                     else
                     {
-                        RMInit::logOut << method_convFrom << ": bad type" << endl;
+                        LWARNING << method_convFrom << ": bad type";
                         rest = NULL;
                     }
                     break;
@@ -565,7 +565,7 @@ r_convDesc &r_Conv_VFF::convertFrom( const char *options ) throw(r_Error)
                         rest = header + strlen(kval_Slice);
                     else
                     {
-                        RMInit::logOut << method_convFrom << ": bad format" << endl;
+                        LWARNING << method_convFrom << ": bad format";
                         rest = NULL;
                     }
                     break;
@@ -589,7 +589,7 @@ r_convDesc &r_Conv_VFF::convertFrom( const char *options ) throw(r_Error)
                     bands = strtol(header, const_cast<char**>(&rest), 10);
                     if ((rest == header) || (bands != 1))
                     {
-                        RMInit::logOut << method_convFrom << ": bad number of bands " << bands << endl;
+                        LWARNING << method_convFrom << ": bad number of bands " << bands;
                         rest = NULL;
                     }
                     break;
@@ -597,7 +597,7 @@ r_convDesc &r_Conv_VFF::convertFrom( const char *options ) throw(r_Error)
                     bits = strtol(header, const_cast<char**>(&rest), 10);
                     if ((rest == header) || ((bits != 8) && (bits != 16) && (bits != 32)))
                     {
-                        RMInit::logOut << method_convFrom << ": bad number of bits " << bits << endl;
+                        LWARNING << method_convFrom << ": bad number of bits " << bits;
                         rest = NULL;
                     }
                     break;
@@ -651,7 +651,7 @@ r_convDesc &r_Conv_VFF::convertFrom( const char *options ) throw(r_Error)
     if ((header == NULL) || (*header != endOfHeader))
     {
         // parse error
-        RMInit::logOut << method_convFrom << ": PARSE ERROR" << endl;
+        LERROR << method_convFrom << ": PARSE ERROR";
 
         delete [] keysRead;
 

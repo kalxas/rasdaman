@@ -33,8 +33,8 @@ rasdaman GmbH.
  */
 
 #include "config.h"
-#include "raslib/rminit.hh"
 #include "debug.hh"
+#include "../common/src/logging/easylogging++.hh"
 
 #include "conversion/convfactory.hh"
 
@@ -55,8 +55,6 @@ rasdaman GmbH.
 
 bool r_Convertor_Factory::is_supported( r_Data_Format fmt )
 {
-    ENTER( "r_Convertor_Factory::is_supported( " << fmt << " )" );
-
     bool retval=false;
     switch (fmt)
     {
@@ -80,13 +78,11 @@ bool r_Convertor_Factory::is_supported( r_Data_Format fmt )
         break;
     }
 
-    LEAVE( "r_Convertor_Factory::is_supported() -> " << retval );
     return retval;
 }
 
 r_Convertor *r_Convertor_Factory::create( r_Data_Format fmt, const char *src, const r_Minterval &interv, const r_Type *tp) throw(r_Error)
 {
-    ENTER( "r_Convertor_Factory::create( fmt=" << fmt << ", &src=" << ((r_Ptr) src) << ", interval=" << interv << ", &type=" << ((r_Ptr) tp) << " )" );
     r_Convertor *result = NULL;
 
     switch (fmt)
@@ -129,24 +125,21 @@ r_Convertor *r_Convertor_Factory::create( r_Data_Format fmt, const char *src, co
         break;
 #endif
         // case r_NTF:
-        //   TALK( "creating NTF converter..." );
+        //   LDEBUG << "creating NTF converter...";
         //   result = new r_Conv_NTF(src, interv, tp);
         //   break;
     default:
-        RMInit::logOut << "Error: in conversion factory during create: unsupported format: " << fmt << endl;
+        LFATAL << "Error: in conversion factory during create: unsupported format: " << fmt;
         r_Error err(CONVERSIONFORMATNOTSUPPORTED);
         throw(err);
     }
 
-    LEAVE( "r_Convertor_Factory::create() -> " << result );
     return result;
 }
 
 
 r_Convertor *r_Convertor_Factory::create( r_Data_Format fmt, const char *src, const r_Minterval &interv, int type ) throw(r_Error)
 {
-    ENTER( "r_Convertor_Factory::create( fmt=" << fmt << ", &src=" << ((r_Ptr) src) << ", interval=" << interv << ", type=" << type << " )" );
-
     r_Convertor *result = NULL;
 
     switch (fmt)
@@ -186,16 +179,15 @@ r_Convertor *r_Convertor_Factory::create( r_Data_Format fmt, const char *src, co
         break;
 #endif
         // case r_NTF:
-        //   TALK( "creating NTF converter..." );
+        //   LDEBUG << "creating NTF converter...";
         //   result = new r_Conv_NTF(src, interv, type);
         //   break;
     default:
-        RMInit::logOut << "Error: in conversion factory during create: unsupported format: " << fmt << endl;
+        LFATAL << "Error: in conversion factory during create: unsupported format: " << fmt;
         r_Error err(CONVERSIONFORMATNOTSUPPORTED);
         throw(err);
     }
 
-    LEAVE( "r_Convertor_Factory::create() -> " << result );
     return result;
 }
 

@@ -24,9 +24,9 @@ rasdaman GmbH.
 #include "config.h"
 #include "conversion/tor.hh"
 #include "raslib/endian.hh"
-#include "raslib/rminit.hh"
 #include "raslib/parseparams.hh"
 #include "raslib/primitivetype.hh"
+#include "../common/src/logging/easylogging++.hh"
 
 void r_Conv_TOR::initTOR()
 {
@@ -59,10 +59,10 @@ r_Conv_TOR::convertFrom(const char* options) throw (r_Error)
     params->add("domain", &domain, r_Parse_Params::param_type_string);
     params->process(options);
     r_Minterval t;
-    RMInit::logOut  << "r_Conv_TOR::convert swap " << swap << " rescale " << rescale << " domain " << (domain?domain:"NULL") << std::endl;
+    LINFO  << "r_Conv_TOR::convert swap " << swap << " rescale " << rescale << " domain " << (domain?domain:"NULL");
     if (domain == NULL)
     {
-        RMInit::logOut << "r_Conv_TOR::convertFrom no domain specified in options string" << std::endl;
+        LFATAL << "r_Conv_TOR::convertFrom no domain specified in options string";
         throw r_Error();
     }
     try
@@ -71,12 +71,12 @@ r_Conv_TOR::convertFrom(const char* options) throw (r_Error)
     }
     catch (r_Eno_interval& e)
     {
-        RMInit::logOut << "r_Conv_TOR::convertFrom no correct domain specified in options string" << std::endl;
+        LFATAL << "r_Conv_TOR::convertFrom no correct domain specified in options string";
         throw r_Error();
     }
     if (t.dimension() != 2)
     {
-        RMInit::logOut << "r_Conv_TOR::convertFrom domain in options string must have 2 dimensions" << std::endl;
+        LFATAL << "r_Conv_TOR::convertFrom domain in options string must have 2 dimensions";
         throw r_Error();
     }
     r_Range x = t[0].high() - t[0].low() + 1;
@@ -95,7 +95,7 @@ r_Conv_TOR::convertFrom(const char* options) throw (r_Error)
     case ctype_uint8:
         if (desc.srcInterv[0].high() - desc.srcInterv[0].low() + 1 != static_cast<int>(t.cell_count() * sizeof(r_Char)))
         {
-            RMInit::logOut << "r_Conv_TOR::convertFrom the supplied data is " << desc.srcInterv[0].high() - desc.srcInterv[0].low() + 1 << " bytes, but " << t.cell_count() << " bytes were expected" << std::endl;
+            LFATAL << "r_Conv_TOR::convertFrom the supplied data is " << desc.srcInterv[0].high() - desc.srcInterv[0].low() + 1 << " bytes, but " << t.cell_count() << " bytes were expected";
             throw r_Error();
         }
         get_limits_char(min, max);
@@ -114,7 +114,7 @@ r_Conv_TOR::convertFrom(const char* options) throw (r_Error)
     case ctype_uint16:
         if (desc.srcInterv[0].high() - desc.srcInterv[0].low() + 1 != static_cast<int>(t.cell_count() * sizeof(r_UShort)))
         {
-            RMInit::logOut << "r_Conv_TOR::convertFrom the supplied data is " << desc.srcInterv[0].high() - desc.srcInterv[0].low() + 1 << " bytes, but " << t.cell_count() << " bytes were expected" << std::endl;
+            LFATAL << "r_Conv_TOR::convertFrom the supplied data is " << desc.srcInterv[0].high() - desc.srcInterv[0].low() + 1 << " bytes, but " << t.cell_count() << " bytes were expected";
             throw r_Error();
         }
         for(int i=0; i < x; i++)
@@ -126,7 +126,7 @@ r_Conv_TOR::convertFrom(const char* options) throw (r_Error)
         }
         break;
     default:
-        RMInit::logOut << "r_Conv_TOR unknown base type!" << std::endl;
+        LFATAL << "r_Conv_TOR unknown base type!";
         throw r_Error();
     }
     if (swap)
@@ -153,7 +153,7 @@ r_Conv_TOR::convertTo(const char* options) throw (r_Error)
     params->process(options);
     if (desc.srcInterv.dimension() != 2)
     {
-        RMInit::logOut << "r_Conv_TOR::convertFrom domain in options string must have 2 dimensions" << std::endl;
+        LFATAL << "r_Conv_TOR::convertFrom domain in options string must have 2 dimensions";
         throw r_Error();
     }
     r_Range x = desc.srcInterv[0].high() - desc.srcInterv[0].low() + 1;
@@ -193,7 +193,7 @@ r_Conv_TOR::convertTo(const char* options) throw (r_Error)
         }
         break;
     default:
-        RMInit::logOut << "r_Conv_TOR unknown base type!" << std::endl;
+        LFATAL << "r_Conv_TOR unknown base type!";
         throw r_Error();
     }
     if (swap)

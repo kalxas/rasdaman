@@ -40,9 +40,9 @@ rasdaman GmbH.
 #include "conversion/memfs.hh"
 #include "raslib/error.hh"
 #include "raslib/parseparams.hh"
-#include "raslib/rminit.hh"
 #include "raslib/primitivetype.hh"
 #include "raslib/structuretype.hh"
+#include "../common/src/logging/easylogging++.hh"
 
 
 /*
@@ -80,7 +80,7 @@ r_Convertor::r_Convertor( const char *src, const r_Minterval &interv, const r_Ty
 
     if (tp == NULL)
     {
-        RMInit::logOut << "Error: in conversion: type is null." << endl;
+        LFATAL << "Error: in conversion: type is null.";
         throw r_Error();
     }
 
@@ -180,7 +180,7 @@ std::string r_Convertor::type_to_string( int ctype ) throw(r_Error)
     case ctype_complex2:
         return "complexd";
     default:
-        RMInit::logOut << "Error: in conversion: unsupported type " << ctype << endl;
+        LFATAL << "Error: in conversion: unsupported type " << ctype;
         r_Error err(r_Error::r_Error_General);
         throw(err);
     }
@@ -272,7 +272,7 @@ r_Convertor::get_internal_type(const r_Type* tp, bool fullTypes) throw(r_Error)
         case r_Type::COMPLEXTYPE2:
             return ctype_complex2;
         default:
-            RMInit::logOut << "Error: in conversion: unknown type " << tp->type_id() << ", setting to void." << endl;
+            LERROR << "Error: in conversion: unknown type " << tp->type_id() << ", setting to void.";
             return ctype_void;
         }
     }
@@ -303,7 +303,7 @@ r_Convertor::get_internal_type(const r_Type* tp, bool fullTypes) throw(r_Error)
                 break;
                 // set to defined value (FIXME: still not good) -- PB 2005-apr-27
             default:
-                RMInit::logOut << "Error: in conversion: unknown type " << tp->type_id() << ", setting to void." << endl;
+                LERROR << "Error: in conversion: unknown type " << tp->type_id() << ", setting to void.";
                 retval = ctype_rgb;
                 //retval = ctype_char;
 
@@ -349,7 +349,7 @@ r_Convertor::get_internal_type(const r_Type* tp, bool fullTypes) throw(r_Error)
         }//endif fullTypes
         if (retval == ctype_void)
         {
-            RMInit::logOut << "Warning: in conversion: this type overrides base type: " << tp->type_id() << "; using char." << endl;
+            LWARNING << "Warning: in conversion: this type overrides base type: " << tp->type_id() << "; using char.";
             retval = ctype_char;
         }
     }//endif structuretype
@@ -431,7 +431,7 @@ void r_Convert_Memory::initMemory( void ) throw(r_Error)
     }
     if (status < 0)
     {
-        RMInit::logOut << "Error: cannot allocate memory for conversion." << endl;
+        LFATAL << "Error: cannot allocate memory for conversion.";
         r_Error err(MEMMORYALLOCATIONERROR);
         throw(err);
     }

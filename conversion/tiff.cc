@@ -33,12 +33,12 @@ rasdaman GmbH.
 #include "conversion/tiff.hh"
 #include "conversion/memfs.hh"
 #include "raslib/error.hh"
-#include "raslib/rminit.hh"
 #include "raslib/parseparams.hh"
 #include "raslib/structuretype.hh"
 #include "raslib/primitivetype.hh"
 #include "debug/debug.hh"
 #include "mymalloc/mymalloc.h"
+#include "../common/src/logging/easylogging++.hh"
 
 using namespace std;
 
@@ -103,8 +103,6 @@ const struct r_Convertor::convert_string_s r_Conv_TIFF::resunitNames[] =
 /// Translate string compression type to libtiff compression type
 int r_Conv_TIFF::get_compression_from_name(const char* strComp)
 {
-    ENTER( "r_Conv_TIFF::get_compression_from_name( " << (strComp?strComp:"(null)") << " )" );
-
     unsigned short i=0;
     int tiffComp=COMPRESSION_NONE;
 
@@ -120,20 +118,17 @@ int r_Conv_TIFF::get_compression_from_name(const char* strComp)
         }
         if (compNames[i].key == NULL)
         {
-            TALK( "r_Conv_TIFF::get_compression_from_name(): error: unsupported compression type " << strComp << "." );
-            RMInit::logOut << "Error: unsupported compression type " << strComp << "." << endl;
+            LDEBUG << "r_Conv_TIFF::get_compression_from_name(): error: unsupported compression type " << strComp << ".";
+            LERROR << "Error: unsupported compression type " << strComp << ".";
         }
     }
 
-    LEAVE( "r_Conv_TIFF::get_compression_from_name() -> " << tiffComp );
     return tiffComp;
 }
 
 /// Translate string resolution unit type to libtiff resolution unit type
 int r_Conv_TIFF::get_resunit_from_name(const char* strResUnit)
 {
-    ENTER( "r_Conv_TIFF::get_resunit_from_name( " << (strResUnit?strResUnit:"(null)") << " )" );
-
     unsigned short i=0;
     int tiffResUnit=RESUNIT_NONE;
     if(strResUnit != NULL)
@@ -148,12 +143,11 @@ int r_Conv_TIFF::get_resunit_from_name(const char* strResUnit)
         }
         if (resunitNames[i].key == NULL)
         {
-            TALK( "r_Conv_TIFF::get_resunit_from_name(): error: unsupported resolution unit type " << strResUnit << "." );
-            RMInit::logOut << "Error: unsupported resolution unit type " << strResUnit << "." << endl;
+            LDEBUG << "r_Conv_TIFF::get_resunit_from_name(): error: unsupported resolution unit type " << strResUnit << ".";
+            LERROR << "Error: unsupported resolution unit type " << strResUnit << ".";
         }
     }
 
-    LEAVE( "r_Conv_TIFF::get_resunit_from_name() -> " << tiffResUnit );
     return tiffResUnit;
 }
 
@@ -162,7 +156,7 @@ void TIFFError(__attribute__ ((unused)) const char* module, const char* fmt, va_
 {
     char msg[10240];
     vsprintf (msg, fmt, argptr);
-    RMInit::logOut << "TIFF error: " << msg << endl;
+    LFATAL << "TIFF error: " << msg;
     throw r_Error(r_Error::r_Error_General);
 }
 
@@ -171,14 +165,12 @@ void TIFFWarning(__attribute__ ((unused)) const char* module, const char* fmt, v
 {
     char msg[10240];
     vsprintf (msg, fmt, argptr);
-    RMInit::logOut << "TIFF warning: " << msg << endl;
+    LWARNING << "TIFF warning: " << msg;
 }
 
 /// internal initialization, common to all constructors
 void r_Conv_TIFF::initTIFF( void )
 {
-    ENTER( "r_Conv_TIFF::initTIFF()" );
-
     compType = NULL;
     sampleType = NULL;
     quality = r_Conv_TIFF::TIFF_DEFAULT_QUALITY;
@@ -200,43 +192,30 @@ void r_Conv_TIFF::initTIFF( void )
     TIFFSetErrorHandler(TIFFError);
     TIFFSetWarningHandler(TIFFWarning);
 
-    LEAVE( "r_Conv_TIFF::initTIFF()" );
 }
 
 /// constructor using type structure
 r_Conv_TIFF::r_Conv_TIFF(const char *src, const r_Minterval &interv, const r_Type *tp) throw(r_Error)
     : r_Convert_Memory(src, interv, tp, true)
 {
-    ENTER( "r_Conv_TIFF::r_Conv_TIFF( " << (src?"(src)":"(null)") << ", (minterval), (type ptr) )" );
-
     initTIFF();
-
-    LEAVE( "r_Conv_TIFF::r_Conv_TIFF()" );
 }
 
 /// constructor using int type indicator
 r_Conv_TIFF::r_Conv_TIFF(const char *src, const r_Minterval &interv, int type) throw(r_Error)
     : r_Convert_Memory(src, interv, type)
 {
-    ENTER( "r_Conv_TIFF::r_Conv_TIFF( " << (src?src:"(null)") << ", (minterval), " << type << " )" );
-
     initTIFF();
-
-    LEAVE( "r_Conv_TIFF::r_Conv_TIFF()" );
 }
 
 /// destructor
 r_Conv_TIFF::~r_Conv_TIFF(void)
 {
-    ENTER( "r_Conv_TIFF::~r_Conv_TIFF()" );
-
     if (compType != NULL)
     {
         delete [] compType;
         compType = NULL;
     }
-
-    LEAVE( "r_Conv_TIFF::~r_Conv_TIFF()" );
 }
 
 /// convert array to TIFF stream
@@ -245,8 +224,6 @@ r_Conv_TIFF::~r_Conv_TIFF(void)
 // RGB:                 COMPRESSION_JPEG, COMPRESSION_SGILOG24
 r_convDesc &r_Conv_TIFF::convertTo( const char *options ) throw(r_Error)
 {
-    ENTER( "r_Conv_TIFF::convertTo( " << (options?options:"(null)") << " )" );
-
     TIFF *tif = NULL;
     char dummyFile[256];
     uint16 cmap[256];             // Colour map (for greyscale images)
@@ -356,14 +333,14 @@ r_convDesc &r_Conv_TIFF::convertTo( const char *options ) throw(r_Error)
                 // check if all bands are of the same type
                 if ((*iter).type_of().type_id() != bandType)
                 {
-                    RMInit::logOut << "r_Conv_TIFF::convertTo(): can't handle bands of different types" << endl;
+                    LFATAL << "r_Conv_TIFF::convertTo(): can't handle bands of different types";
                     throw r_Error(BASETYPENOTSUPPORTEDBYOPERATION);
                 }
             }
             else
             {
-                RMInit::logOut << "r_Conv_TIFF::convertTo(): can't handle band of non-primitive type "
-                               << (*iter).type_of().name() << endl;
+                LFATAL << "r_Conv_TIFF::convertTo(): can't handle band of non-primitive type "
+                               << (*iter).type_of().name();
                 throw r_Error(BASETYPENOTSUPPORTEDBYOPERATION);
             }
             iter++;
@@ -375,8 +352,8 @@ r_convDesc &r_Conv_TIFF::convertTo( const char *options ) throw(r_Error)
         break;
     }
     default:
-        TALK( "r_Conv_TIFF::convertTo(): error: unsupported base type " << desc.baseType << "." );
-        RMInit::logOut << "Error: encountered unsupported TIFF base type." << endl;
+        LDEBUG << "r_Conv_TIFF::convertTo(): error: unsupported base type " << desc.baseType << ".";
+        LFATAL << "Error: encountered unsupported TIFF base type.";
         throw r_Error(BASETYPENOTSUPPORTEDBYOPERATION);
     }
 
@@ -395,7 +372,7 @@ r_convDesc &r_Conv_TIFF::convertTo( const char *options ) throw(r_Error)
 
     if (tif == NULL)
     {
-        RMInit::logOut << "r_Conv_TIFF::convertTo(): couldn't open file " << dummyFile << endl;
+        LFATAL << "r_Conv_TIFF::convertTo(): couldn't open file " << dummyFile;
         throw r_Error(r_Error::r_Error_General);
     }
 
@@ -542,8 +519,8 @@ r_convDesc &r_Conv_TIFF::convertTo( const char *options ) throw(r_Error)
 
     if (row < height)  // error
     {
-        TALK( "r_Conv_TIFF::convertTo(): error writing data after " << row << " rows out of " << height << "." );
-        RMInit::logOut << "Error: cannot write all TIFF data." << endl;
+        LDEBUG << "r_Conv_TIFF::convertTo(): error writing data after " << row << " rows out of " << height << ".";
+        LFATAL << "Error: cannot write all TIFF data.";
         TIFFClose(tif);
         remove(dummyFile);
         throw r_Error(r_Error::r_Error_General);
@@ -558,8 +535,8 @@ r_convDesc &r_Conv_TIFF::convertTo( const char *options ) throw(r_Error)
     // Allocate an array of just the right size and "load" object there
     if ((desc.dest = static_cast<char*>(mystore.storage_alloc(sizeof(char) * static_cast<unsigned long>(tifSize)))) == NULL)
     {
-        TALK( "r_Conv_TIFF::convertTo(): out of memory." );
-        RMInit::logOut << "Error: out of memory." << endl;
+        LDEBUG << "r_Conv_TIFF::convertTo(): out of memory.";
+        LFATAL << "Error: out of memory.";
         throw r_Error(MEMMORYALLOCATIONERROR);
     }
     memfs_seek(handle, 0, SEEK_SET);
@@ -572,7 +549,6 @@ r_convDesc &r_Conv_TIFF::convertTo( const char *options ) throw(r_Error)
     // define the base type as char for now
     desc.destType = r_Type::get_any_type("char");
 
-    LEAVE( "r_Conv_TIFF::convertTo()" );
     return desc;
 }
 
@@ -580,8 +556,6 @@ r_convDesc &r_Conv_TIFF::convertTo( const char *options ) throw(r_Error)
 /// convert TIFF stream into array
 r_convDesc &r_Conv_TIFF::convertFrom(const char *options) throw(r_Error) // CONVERTION FROM TIFF TO DATA
 {
-    ENTER( "r_Conv_TIFF::convertFrom( " << (options?options:"(null") << " )" );
-
     params->process(options); //==> CHECK THIS "IMP"
     TIFF *tif=NULL;
     char dummyFile[256];
@@ -607,7 +581,7 @@ r_convDesc &r_Conv_TIFF::convertFrom(const char *options) throw(r_Error) // CONV
 
     if (tif == NULL)
     {
-        RMInit::logOut << "r_Conv_TIFF::convertFrom(): unable to open file!" << endl;
+        LFATAL << "r_Conv_TIFF::convertFrom(): unable to open file!";
         throw r_Error(r_Error::r_Error_General);
     }
 
@@ -636,11 +610,11 @@ r_convDesc &r_Conv_TIFF::convertFrom(const char *options) throw(r_Error) // CONV
     TIFFGetField(tif, TIFFTAG_SAMPLEFORMAT, &sampleFormat);
     pixelAdd = Bpp*height;
 
-    TALK("Image information:");
-    TALK("  Bytes per sample: " << Bps);
-    TALK("  Samples per pixel: " << spp);
-    TALK("  Bytes per pixel: " << Bpp);
-    TALK("  Size: " << width << "x" << height);
+    LDEBUG << "Image information:";
+    LDEBUG << "  Bytes per sample: " << Bps;
+    LDEBUG << "  Samples per pixel: " << spp;
+    LDEBUG << "  Bytes per pixel: " << Bpp;
+    LDEBUG << "  Size: " << width << "x" << height;
 
     if (planar == PLANARCONFIG_CONTIG) // must be contiguous for our case to handle, other cases not dealt yet
     {
@@ -661,7 +635,7 @@ r_convDesc &r_Conv_TIFF::convertFrom(const char *options) throw(r_Error) // CONV
                 break;
             default:
             {
-                RMInit::logOut << "r_Conv_TIFF::convertFrom(): can't handle band type of signed integer, of length: " << Bps << endl;
+                LFATAL << "r_Conv_TIFF::convertFrom(): can't handle band type of signed integer, of length: " << Bps;
                 throw r_Error(BASETYPENOTSUPPORTEDBYOPERATION);
             }
             }
@@ -682,7 +656,7 @@ r_convDesc &r_Conv_TIFF::convertFrom(const char *options) throw(r_Error) // CONV
                 break;
             default:
             {
-                RMInit::logOut << "r_Conv_TIFF::convertFrom(): can't handle band type of unsigned integer, of length: " << Bps << endl;
+                LFATAL << "r_Conv_TIFF::convertFrom(): can't handle band type of unsigned integer, of length: " << Bps;
                 throw r_Error(BASETYPENOTSUPPORTEDBYOPERATION);
             }
             }
@@ -700,7 +674,7 @@ r_convDesc &r_Conv_TIFF::convertFrom(const char *options) throw(r_Error) // CONV
                 break;
             default:
             {
-                RMInit::logOut << "r_Conv_TIFF::convertFrom(): can't handle band type of floating point, of length: " << Bps << endl;
+                LFATAL << "r_Conv_TIFF::convertFrom(): can't handle band type of floating point, of length: " << Bps;
                 throw r_Error(BASETYPENOTSUPPORTEDBYOPERATION);
             }
             }
@@ -796,7 +770,7 @@ r_convDesc &r_Conv_TIFF::convertFrom(const char *options) throw(r_Error) // CONV
 
         if ((desc.dest = static_cast<char*>(mystore.storage_alloc(width*height*typeSize*sizeof(char)))) == NULL)
         {
-            RMInit::logOut << "r_Conv_TIFF::convertFrom(): out of memory error!" << endl;
+            LFATAL << "r_Conv_TIFF::convertFrom(): out of memory error!";
             throw r_Error(MEMMORYALLOCATIONERROR);
         }
         else
@@ -910,8 +884,8 @@ r_convDesc &r_Conv_TIFF::convertFrom(const char *options) throw(r_Error) // CONV
 
             if (row < height)
             {
-                TALK( "r_Conv_TIFF::convertFrom(): error reading data: got only " << row << " rows out of " << height << "." );
-                RMInit::logOut << "Error: cannot read all data." << endl;
+                LDEBUG << "r_Conv_TIFF::convertFrom(): error reading data: got only " << row << " rows out of " << height << ".";
+                LFATAL << "Error: cannot read all data.";
                 TIFFClose(tif);
                 remove(dummyFile);
                 throw r_Error(r_Error::r_Error_General);
@@ -920,7 +894,7 @@ r_convDesc &r_Conv_TIFF::convertFrom(const char *options) throw(r_Error) // CONV
     }
     else
     {
-        RMInit::logOut << "r_Conv_TIFF::convertFrom(): can't handle bitplanes!" << endl;
+        LERROR << "r_Conv_TIFF::convertFrom(): can't handle bitplanes!";
     }
 
     TIFFClose(tif);
@@ -961,7 +935,6 @@ r_convDesc &r_Conv_TIFF::convertFrom(const char *options) throw(r_Error) // CONV
     else
         desc.destType = get_external_type(desc.baseType);
 
-    LEAVE( "r_Conv_TIFF::convertFrom()" );
     return desc;
 }
 

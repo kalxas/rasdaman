@@ -44,10 +44,10 @@ extern "C" {
 #include "jpeglib.h"
 }
 
-#include "raslib/rminit.hh"
 #include "raslib/parseparams.hh"
 #include "conversion/jpeg.hh"
 #include "conversion/memfs.hh"
+#include "../common/src/logging/easylogging++.hh"
 
 
 
@@ -103,7 +103,7 @@ extern "C" {
 
         if ((mptr->buffer = new JOCTET[JPEG_IO_BUFFER_SIZE]) == NULL)
         {
-            RMInit::logOut << "r_Conv_JPEG@dm_init_destination(): out of memory" << endl;
+            LFATAL << "r_Conv_JPEG@dm_init_destination(): out of memory";
             throw r_Error(MEMMORYALLOCATIONERROR);
         }
         mptr->bufferSize = JPEG_IO_BUFFER_SIZE;
@@ -148,7 +148,7 @@ extern "C" {
 
         if ((mptr->buffer = new JOCTET[JPEG_IO_BUFFER_SIZE]) == NULL)
         {
-            RMInit::logOut << "r_Conv_JPEG@sm_init_source(): out of memory" << endl;
+            LFATAL << "r_Conv_JPEG@sm_init_source(): out of memory";
             throw r_Error(MEMMORYALLOCATIONERROR);
         }
         mptr->bufferSize = JPEG_IO_BUFFER_SIZE;
@@ -310,7 +310,7 @@ r_convDesc &r_Conv_JPEG::convertTo( const char *options) throw(r_Error)
             delete [] cinfo.buffer;
             cinfo.buffer=NULL;
         }
-        RMInit::logOut << "r_Conv_JPEG::convertTo(" << options << "): unable to save the stack" << endl;
+        LFATAL << "r_Conv_JPEG::convertTo(" << options << "): unable to save the stack";
         throw r_Error(r_Error::r_Error_General);
     }
 
@@ -347,7 +347,7 @@ r_convDesc &r_Conv_JPEG::convertTo( const char *options) throw(r_Error)
         pixelAdd = 3*height;
         break;
     default:
-        RMInit::logOut << "r_Conv_JPEG::convertTo(" << options  << "): unsupported base type" << endl;
+        LFATAL << "r_Conv_JPEG::convertTo(" << options  << "): unsupported base type";
         throw r_Error(r_Error::r_Error_General);
     }
 
@@ -362,7 +362,7 @@ r_convDesc &r_Conv_JPEG::convertTo( const char *options) throw(r_Error)
 
     if ((row = new JSAMPLE[width * spp]) == NULL)
     {
-        RMInit::logOut << "r_Conv_JPEG::convertTo(" << options << "): out of memory" << endl;
+        LFATAL << "r_Conv_JPEG::convertTo(" << options << "): out of memory";
         throw r_Error(MEMMORYALLOCATIONERROR);
     }
 
@@ -415,7 +415,7 @@ r_convDesc &r_Conv_JPEG::convertTo( const char *options) throw(r_Error)
 
     if ((desc.dest = static_cast<char*>(mystore.storage_alloc(static_cast<size_t>(jpegSize)))) == NULL)
     {
-        RMInit::logOut << "r_Conv_JPEG::convertTo(" << options << "): out of memory" << endl;
+        LFATAL << "r_Conv_JPEG::convertTo(" << options << "): out of memory";
         throw r_Error(MEMMORYALLOCATIONERROR);
     }
     memfs_seek(handle, 0, SEEK_SET);
@@ -474,7 +474,7 @@ r_convDesc &r_Conv_JPEG::convertFrom(const char *options) throw(r_Error)
             delete [] cinfo.buffer;
             cinfo.buffer=NULL;
         }
-        RMInit::logOut << "r_Conv_JPEG::convertFrom(" << options << "): unable to save the stack" << endl;
+        LFATAL << "r_Conv_JPEG::convertFrom(" << options << "): unable to save the stack";
         throw r_Error(r_Error::r_Error_General);
     }
 
@@ -522,7 +522,7 @@ r_convDesc &r_Conv_JPEG::convertFrom(const char *options) throw(r_Error)
             delete [] row;
             row = NULL;
         }
-        RMInit::logOut << "r_Conv_JPEG::convertFrom(): out of memory" << endl;
+        LFATAL << "r_Conv_JPEG::convertFrom(): out of memory";
         throw r_Error(MEMMORYALLOCATIONERROR);
     }
 

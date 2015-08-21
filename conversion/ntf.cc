@@ -40,11 +40,11 @@ rasdaman GmbH.
 #include <string.h>
 #include <new>
 
-#include "raslib/rminit.hh"
-#include "raslib/rmdebug.hh"
 #include "raslib/parseparams.hh"
 #include "conversion/ntf.hh"
 #include "conversion/memfs.hh"
+
+#include "../common/src/logging/easylogging++.hh"
 
 // nitf reader library
 
@@ -99,7 +99,7 @@ r_convDesc& r_Conv_NTF::convertFrom( const char *options ) throw(r_Error)
 
     if ((desc.dest = (char*)mystore.storage_alloc(fileSize)) == NULL)
     {
-        RMInit::logOut << "r_Conv_NTF::convertTo(): out of memory!" << endl;
+        LFATAL << "r_Conv_NTF::convertTo(): out of memory!";
         throw r_Error(MEMMORYALLOCATIONERROR);
     }
 
@@ -131,7 +131,7 @@ r_convDesc& r_Conv_NTF::convertFrom( const char *options ) throw(r_Error)
     }
     else
     {
-        RMInit::logOut << "r_Conv_NTF::convertFrom:" << "unsupported NITF file pixel type" << endl;
+        LFATAL::logOut << "r_Conv_NTF::convertFrom:" << "unsupported NITF file pixel type";
         throw r_Error(r_Error::r_Error_General);
     }
 
@@ -148,7 +148,7 @@ r_convDesc& r_Conv_NTF::convertFrom( const char *options ) throw(r_Error)
             desc.baseType = ctype_rgb;
             break;
         default:
-            RMInit::logOut << "r_Conv_NTF::convertFrom:" << "unsupported NITF file pixel type" << endl;
+            LFATAL << "r_Conv_NTF::convertFrom:" << "unsupported NITF file pixel type";
         }
     */
     desc.destType = get_external_type(desc.baseType);
@@ -188,7 +188,7 @@ r_convDesc& r_Conv_NTF::convertTo( const char *options ) throw(r_Error)
     case ctype_rgb:
         fileSize = width * height * 3;
     default:
-        RMInit::logOut << "r_Conv_BMP::convertTo(): Unknown base type!" << endl;
+        LFATAL << "r_Conv_BMP::convertTo(): Unknown base type!";
         throw r_Error(r_Error::r_Error_General);
     }
 
@@ -196,7 +196,7 @@ r_convDesc& r_Conv_NTF::convertTo( const char *options ) throw(r_Error)
 
     if ((desc.dest = (char*)mystore.storage_alloc(fileSize)) == NULL)
     {
-        RMInit::logOut << "r_Conv_NTF::convertTo(): out of memory!" << endl;
+        LFATAL << "r_Conv_NTF::convertTo(): out of memory!";
         throw r_Error(MEMMORYALLOCATIONERROR);
     }
 

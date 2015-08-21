@@ -46,9 +46,9 @@ rasdaman GmbH.
 
 #include "conversion/hdf.hh"
 #include "raslib/error.hh"
-#include "raslib/rminit.hh"
 #include "raslib/parseparams.hh"
 #include "raslib/primitivetype.hh"
+#include "../common/src/logging/easylogging++.hh"
 
 #ifdef HAVE_HDF_H
 #include "hdf.h"
@@ -230,7 +230,7 @@ r_Conv_HDF::r_Conv_HDF(const char *src, const r_Minterval &interv, const r_Type 
 
     if (tp->isStructType())
     {
-        RMInit::logOut << "r_Conv_HDF::r_Conv_HDF(): structured types not supported." << endl;
+        LFATAL << "r_Conv_HDF::r_Conv_HDF(): structured types not supported.";
         throw r_Error(r_Error::r_Error_General);
     }
 }
@@ -271,15 +271,15 @@ r_convDesc &r_Conv_HDF::convertTo( const char *options ) throw(r_Error)
     tempFD = mkstemp(name);
     if(tempFD==-1)
     {
-        RMInit::logOut << "r_Conv_hdf::convertTo(" << (options?options:"NULL")
+        LFATAL::logOut << "r_Conv_hdf::convertTo(" << (options?options:"NULL")
                         << ") desc.srcType (" << desc.srcType->type_id()
-                        << ") unable to generate a tempory file !" << endl;
+                        << ") unable to generate a tempory file !";
         throw r_Error();
     }
 
     if ((handle = SDstart(name, DFACC_CREATE)) == FAIL)
     {
-        RMInit::logOut << "r_Conv_HDF::convertTo(): unable to open output file." << endl;
+        LFATAL << "r_Conv_HDF::convertTo(): unable to open output file.";
         throw r_Error(r_Error::r_Error_General);
     }
     rank = desc.srcInterv.dimension();
@@ -296,7 +296,7 @@ r_convDesc &r_Conv_HDF::convertTo( const char *options ) throw(r_Error)
 
     if ((sds_id = SDcreate(handle, "RasDaMan object", datatype, rank, dimsizes)) == FAIL)
     {
-        RMInit::logOut << "r_Conv_HDF::convertTo(): unable to create object." << endl;
+        LFATAL << "r_Conv_HDF::convertTo(): unable to create object.";
         SDend(handle);
         remove(name);
         throw r_Error(r_Error::r_Error_General);
@@ -318,7 +318,7 @@ r_convDesc &r_Conv_HDF::convertTo( const char *options ) throw(r_Error)
         }
         if (compNames[i].key == NULL)
         {
-            RMInit::logOut << "r_Conv_HDF::convertTo(): unsupported compression type " << compType << endl;
+            LERROR << "r_Conv_HDF::convertTo(): unsupported compression type " << compType;
         }
     }
     c_info.skphuff.skp_size = skiphuff;
@@ -339,7 +339,7 @@ r_convDesc &r_Conv_HDF::convertTo( const char *options ) throw(r_Error)
 
     if ((fp = fopen(name, "rb")) == NULL)
     {
-        RMInit::logOut << "r_Conv_HDF::convertTo(): unable to read back file." << endl;
+        LFATAL << "r_Conv_HDF::convertTo(): unable to read back file.";
         throw r_Error(r_Error::r_Error_General);
     }
     fseek(fp, 0, SEEK_END);
@@ -350,7 +350,7 @@ r_convDesc &r_Conv_HDF::convertTo( const char *options ) throw(r_Error)
 
     if ((desc.dest = (char*)mystore.storage_alloc(filesize)) == NULL)
     {
-        RMInit::logOut << "r_Conv_HDF::convertTo(): out of memory error" << endl;
+        LFATAL << "r_Conv_HDF::convertTo(): out of memory error";
         fclose(fp);
         throw r_Error(MEMMORYALLOCATIONERROR);
     }
@@ -383,42 +383,42 @@ r_convDesc &r_Conv_HDF::convertFrom(const char *options) throw(r_Error)
 
     if (desc.srcInterv.dimension() != 1)
     {
-        RMInit::logOut << "r_Conv_HDF::convertFrom(): source data must be a bytestream!" << endl;
+        LFATAL << "r_Conv_HDF::convertFrom(): source data must be a bytestream!";
         throw r_Error(r_Error::r_Error_General);
     }
 
     tempFD = mkstemp(name);
     if(tempFD==-1)
     {
-        RMInit::logOut << "r_Conv_hdf::convertTo(" << (options?options:"NULL")
+        LFATAL << "r_Conv_hdf::convertTo(" << (options?options:"NULL")
                         << ") desc.srcType (" << desc.srcType->type_id()
-                        << ") unable to generate a tempory file !" << endl;
+                        << ") unable to generate a tempory file !";
         throw r_Error();
     }
 
     if ((fp = fopen(name, "wb")) == NULL)
     {
-        RMInit::logOut << "r_Conv_HDF::convertFrom(): unable to write temporary file!" << endl;
+        LFATAL << "r_Conv_HDF::convertFrom(): unable to write temporary file!";
         throw r_Error(r_Error::r_Error_General);
     }
     filesize = desc.srcInterv[0].high() - desc.srcInterv[0].low() + 1;
     if ((i = fwrite(desc.src, 1, filesize, fp)) != filesize)
     {
-        RMInit::logOut << "r_Conv_HDF::convertFrom(): error writing to temporary file ("
-                       << i << " / " << filesize << ')' << endl;
+        LFATAL << "r_Conv_HDF::convertFrom(): error writing to temporary file ("
+                       << i << " / " << filesize << ')';
         throw r_Error(r_Error::r_Error_General);
     }
     fclose(fp);
 
     if ((handle = SDstart(name, DFACC_READ)) == FAIL)
     {
-        RMInit::logOut << "r_Conv_HDF::convertFrom(): can't read temporary file!" << endl;
+        LFATAL << "r_Conv_HDF::convertFrom(): can't read temporary file!";
         throw r_Error(r_Error::r_Error_General);
     }
     // Only read the first object in the file
     if ((sds_id = SDselect(handle, 0)) == FAIL)
     {
-        RMInit::logOut << "r_Conv_HDF::convertFrom(): unable to open first object" << endl;
+        LFATAL << "r_Conv_HDF::convertFrom(): unable to open first object";
         SDend(handle);
         remove(name);
         throw r_Error(r_Error::r_Error_General);
@@ -446,7 +446,7 @@ r_convDesc &r_Conv_HDF::convertFrom(const char *options) throw(r_Error)
 
     if ((desc.dest = (char*)mystore.storage_alloc(array_size)) == NULL)
     {
-        RMInit::logOut << "r_Conv_HDF::convertFrom(): out of memory error!" << endl;
+        LFATAL << "r_Conv_HDF::convertFrom(): out of memory error!";
         SDend(handle);
         remove(name);
         throw r_Error(MEMMORYALLOCATIONERROR);
@@ -454,7 +454,7 @@ r_convDesc &r_Conv_HDF::convertFrom(const char *options) throw(r_Error)
 
     if (SDreaddata(sds_id, start, NULL, dimsizes, (VOIDP)desc.dest) == FAIL)
     {
-        RMInit::logOut << "r_Conv_HDF::convertFrom(): error reading data" << endl;
+        LFATAL << "r_Conv_HDF::convertFrom(): error reading data";
         SDend(handle);
         remove(name);
         throw r_Error(r_Error::r_Error_General);
