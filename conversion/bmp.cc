@@ -39,11 +39,11 @@ rasdaman GmbH.
 #include <string.h>
 #include <new>
 
-#include "raslib/rminit.hh"
 #include "raslib/rmdebug.hh"
 #include "raslib/parseparams.hh"
 #include "conversion/bmp.hh"
 #include "conversion/memfs.hh"
+#include "../common/src/logging/easylogging++.hh"
 
 
 // Some Windows-structs, redefined for platform-independent use.
@@ -204,7 +204,7 @@ r_convDesc &r_Conv_BMP::convertTo( const char *options) throw(r_Error)
     handle = static_cast<void*>(memFS);
     if ((memFS == NULL) || (memfs_initfs(handle) < 0))
     {
-        RMInit::logOut << "r_Conv_BMP::convertTo(): couldn't initialize memfs!" << endl;
+        LFATAL << "r_Conv_BMP::convertTo(): couldn't initialize memfs!";
         throw r_Error(MEMMORYALLOCATIONERROR);
     }
     memfs_newfile(handle);
@@ -255,7 +255,7 @@ r_convDesc &r_Conv_BMP::convertTo( const char *options) throw(r_Error)
         paletteSize = 0;
         for (i=0; i<256; i++) if (mapColours[i] != 0) paletteSize++;
         // Create palette
-        RMDBGONCE(3, RMDebug::module_conversion, "r_Conv_BMP", "convertTo(): number of distinct colours: " << paletteSize )
+        LTRACE << "convertTo(): number of distinct colours: " << paletteSize;
         palette = new rgb_quad_t[paletteSize];
         paletteSize = 0;
         for (i=0; i<256; i++)
@@ -288,7 +288,7 @@ r_convDesc &r_Conv_BMP::convertTo( const char *options) throw(r_Error)
         ihead.clrImportant = 0;
         break;
     default:
-        RMInit::logOut << "r_Conv_BMP::convertTo(): Unknown base type!" << endl;
+        LFATAL << "r_Conv_BMP::convertTo(): Unknown base type!";
         throw r_Error(r_Error::r_Error_General);
     }
     lineAdd = pixelSize;
@@ -310,7 +310,7 @@ r_convDesc &r_Conv_BMP::convertTo( const char *options) throw(r_Error)
     {
         if ((dest = new unsigned char[destPitch]) == NULL)
         {
-            RMInit::logOut << "r_Conv_BMP::convertTo(): out of memory!" << endl;
+            LFATAL << "r_Conv_BMP::convertTo(): out of memory!";
             throw r_Error(MEMMORYALLOCATIONERROR);
         }
         for (j=0; j<height; j++, srcLine -= lineAdd)
@@ -367,7 +367,7 @@ r_convDesc &r_Conv_BMP::convertTo( const char *options) throw(r_Error)
     {
         if ((dest = new unsigned char[2*destPitch]) == NULL)
         {
-            RMInit::logOut << "r_Conv_BMP::convertTo(): out of memory!" << endl;
+            LFATAL << "r_Conv_BMP::convertTo(): out of memory!";
             throw r_Error(MEMMORYALLOCATIONERROR);
         }
 
@@ -444,7 +444,7 @@ r_convDesc &r_Conv_BMP::convertTo( const char *options) throw(r_Error)
     }
 
     fileSize = static_cast<r_ULong>(memfs_size(handle));
-    RMDBGONCE( 3, RMDebug::module_conversion, "r_Conv_BMP", "convertTo(): size: " << fileSize );
+    LTRACE << "convertTo(): size: " << fileSize;
     offset = BMPHEADERSIZE + paletteSize * static_cast<tsize_t>(sizeof(rgb_quad_t));
     dest = bmpHeaders;
     ihead.sizeImage = static_cast<r_Long>(fileSize - offset);
@@ -472,7 +472,7 @@ r_convDesc &r_Conv_BMP::convertTo( const char *options) throw(r_Error)
 
     if ((desc.dest = static_cast<char*>(mystore.storage_alloc(fileSize))) == NULL)
     {
-        RMInit::logOut << "r_Conv_BMP::convertTo(): out of memory!" << endl;
+        LFATAL << "r_Conv_BMP::convertTo(): out of memory!";
         throw r_Error(MEMMORYALLOCATIONERROR);
     }
     memfs_seek(handle, 0, SEEK_SET);
@@ -520,7 +520,7 @@ r_convDesc &r_Conv_BMP::convertFrom(__attribute__ ((unused)) const char *options
 
     if (fhead.type != BMP_IDENTIFIER)
     {
-        RMInit::logOut << "r_Conv_BMP::convertFrom(): not a BMP file" << endl;
+        LFATAL << "r_Conv_BMP::convertFrom(): not a BMP file";
         throw r_Error(r_Error::r_Error_General);
     }
 
@@ -541,12 +541,12 @@ r_convDesc &r_Conv_BMP::convertFrom(__attribute__ ((unused)) const char *options
     height = ihead.height;
 
     RMDBGIF(4, RMDebug::module_conversion, "r_Conv_BMP", \
-            RMInit::dbgOut << "File: type " << std::hex << fhead.type << ", size " << std::dec << fhead.size; \
-            RMInit::dbgOut << ", rsv0 " << fhead.res0 << ", rsv1 " << fhead.res1 << ", offs " << fhead.offset << endl; \
-            RMInit::dbgOut << "Info: size " << ihead.size << ", width " << ihead.width << ", height " << ihead.height; \
-            RMInit::dbgOut << ", planes " << ihead.planes << ", bits " << ihead.bitCount << ", comp " << ihead.compression; \
-            RMInit::dbgOut << ", sizeImg " << ihead.sizeImage << ", xpels " << ihead.xpels << ", ypels " << ihead.ypels; \
-            RMInit::dbgOut << ", clrUsed " << ihead.clrUsed << ", clrImp " << ihead.clrImportant << endl; )
+            LTRACE << "File: type " << std::hex << fhead.type << ", size " << std::dec << fhead.size; \
+            LTRACE << ", rsv0 " << fhead.res0 << ", rsv1 " << fhead.res1 << ", offs " << fhead.offset; \
+            LTRACE << "Info: size " << ihead.size << ", width " << ihead.width << ", height " << ihead.height; \
+            LTRACE << ", planes " << ihead.planes << ", bits " << ihead.bitCount << ", comp " << ihead.compression; \
+            LTRACE << ", sizeImg " << ihead.sizeImage << ", xpels " << ihead.xpels << ", ypels " << ihead.ypels; \
+            LTRACE << ", clrUsed " << ihead.clrUsed << ", clrImp " << ihead.clrImportant; )
 
     palette = (const rgb_quad_t*)(desc.src + BMPFILEHEADERSIZE + ihead.size);
     paletteIsGrey = 0;
@@ -629,12 +629,12 @@ r_convDesc &r_Conv_BMP::convertFrom(__attribute__ ((unused)) const char *options
         break;
     default:
     {
-        RMInit::logOut << "r_Conv_BMP::convertFrom(): Bad bitmap depth" << endl;
+        LFATAL << "r_Conv_BMP::convertFrom(): Bad bitmap depth";
         throw r_Error(r_Error::r_Error_General);
     }
     }
 
-    RMDBGONCE( 4, RMDebug::module_conversion, "r_Conv_BMP", "convertFrom(): type " << destType << ", srcPitch " << srcPitch << ", pixelSize " << pixelSize << ", palsize " << paletteSize );
+    LTRACE << "convertFrom(): type " << destType << ", srcPitch " << srcPitch << ", pixelSize " << pixelSize << ", palsize " << paletteSize;
 
     unsigned char *dest=NULL, *destPtr=NULL, *destLine=NULL;
     const unsigned char *imgPtr=NULL, *imgLine=NULL;
@@ -646,7 +646,7 @@ r_convDesc &r_Conv_BMP::convertFrom(__attribute__ ((unused)) const char *options
 
     if ((dest = static_cast<unsigned char*>(mystore.storage_alloc(static_cast<size_t>(width * height * pixelSize)))) == NULL)
     {
-        RMInit::logOut << "r_Conv_BMP::convertFrom(): out of memory" << endl;
+        LFATAL << "r_Conv_BMP::convertFrom(): out of memory";
         throw r_Error(MEMMORYALLOCATIONERROR);
     }
 
@@ -1060,7 +1060,7 @@ r_convDesc &r_Conv_BMP::convertFrom(__attribute__ ((unused)) const char *options
     break;
     default:
     {
-        RMInit::logOut << "r_Conv_BMP::convertFrom(): bad compression type" << endl;
+        LFATAL << "r_Conv_BMP::convertFrom(): bad compression type";
         mystore.storage_free(dest);
         throw r_Error(r_Error::r_Error_General);
     }

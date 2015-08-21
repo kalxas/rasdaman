@@ -49,7 +49,6 @@ rasdaman GmbH.
 #include "config.h"
 #include "conversion/csv.hh"
 #include "raslib/error.hh"
-#include "raslib/rminit.hh"
 #include "raslib/parseparams.hh"
 #include "raslib/primitivetype.hh"
 #include "raslib/structuretype.hh"
@@ -68,6 +67,7 @@ rasdaman GmbH.
 #include <stack>
 
 #include "debug/debug-srv.hh"
+#include "../common/src/logging/easylogging++.hh"
 
 #define DIM_BOUNDARY -1
 
@@ -83,8 +83,6 @@ const char *r_Conv_CSV::TRUE = "t";
 /// internal initialization, common to all constructors
 void r_Conv_CSV::initCSV( void )
 {
-    ENTER( "r_Conv_CSV::initCSV()" );
-
     basetype = NULL;
     domain = NULL;
 
@@ -93,8 +91,6 @@ void r_Conv_CSV::initCSV( void )
 
     params->add("domain", &domain, r_Parse_Params::param_type_string);
     params->add("basetype", &basetype, r_Parse_Params::param_type_string);
-
-    LEAVE( "r_Conv_CSV::initCSV()" );
 }
 
 
@@ -142,7 +138,7 @@ const char *r_Conv_CSV::printValue(std::stringstream &f, const r_Base_Type &type
     } else if (type.isPrimitiveType()) {
         return printPrimitiveValue(f, type, val);
     } else {
-        RMInit::logOut << "r_Conv_CSV::convertTo(): unsupported type " << type.type_id() << endl;
+        LFATAL << "r_Conv_CSV::convertTo(): unsupported type " << type.type_id();
         throw r_Error(r_Error::r_Error_TypeInvalid);
     }
 }
@@ -244,9 +240,9 @@ void r_Conv_CSV::processOptions(const char *options)
     } else if (order_option && strcmp(order_option, ORDER_INNER_OUTER) == 0) {
         order = r_Conv_CSV::INNER_OUTER;
     } else {
-        RMInit::logOut << "Error: illegal CSV option string: \"" << options << "\", "
+        LFATAL << "Error: illegal CSV option string: \"" << options << "\", "
                        << "only " ORDER_OPTION_KEY "=(" ORDER_OUTER_INNER "|" ORDER_INNER_OUTER ") "
-                       << "is supported" << std::endl;
+                       << "is supported";
         throw r_Error(r_Error::r_Error_General);
     }
     if (order_option) {
@@ -319,8 +315,7 @@ void r_Conv_CSV::addStructElem(char** dest, r_Structure_Type &st, std::istringst
                     addElem<r_UShort>(str, dest);
                     break;
                 case r_Type::BOOL:
-                    RMInit::logOut << "r_Conv_CSV::convertFrom: unsupported primitive type " << ((*iter).type_of()).type_id() << endl;
-                    LEAVE("r_Conv_CSV::convertFrom()");
+                    LFATAL << "r_Conv_CSV::convertFrom: unsupported primitive type " << ((*iter).type_of()).type_id();
                     throw r_Error(BASETYPENOTSUPPORTEDBYOPERATION);
                     break;
                 case r_Type::LONG:
@@ -342,15 +337,13 @@ void r_Conv_CSV::addStructElem(char** dest, r_Structure_Type &st, std::istringst
                     addCharElem(str, dest);
                     break;
                 default:
-                    RMInit::logOut << "r_Conv_CSV::convertFrom: unsupported primitive type for structure attribute " << ((*iter).type_of()).type_id() << endl;
-                    LEAVE("r_Conv_CSV::convertFrom()");
+                    LFATAL << "r_Conv_CSV::convertFrom: unsupported primitive type for structure attribute " << ((*iter).type_of()).type_id();
                     throw r_Error(BASETYPENOTSUPPORTEDBYOPERATION);
                 }
             }
             else
             {
-                RMInit::logOut << "r_Conv_CSV::convertFrom: unsupported attribute type " << ((*iter).type_of()).type_id() << endl;
-                LEAVE("r_Conv_CSV::convertFrom()");
+                LFATAL << "r_Conv_CSV::convertFrom: unsupported attribute type " << ((*iter).type_of()).type_id();
                 throw r_Error(BASETYPENOTSUPPORTEDBYOPERATION);
             }
         }
@@ -380,8 +373,7 @@ void r_Conv_CSV::constructStruct(unsigned int numElem)
     }
     if(countVal != numElem)
     {
-        RMInit::logOut << "r_Conv_CSV::convertFrom(): wrong number of values!" << endl;
-        LEAVE("r_Conv_CSV::convertFrom()");
+        LFATAL << "r_Conv_CSV::convertFrom(): wrong number of values!";
         throw r_Error(r_Error::r_Error_General);
     }
 }
@@ -413,8 +405,7 @@ void constructPrimitive(char* dest, const char* src, unsigned int numElem)
 
     if(countVal != numElem)
     {
-        RMInit::logOut << "r_Conv_CSV::convertFrom(): wrong number of values!" << endl;
-        LEAVE("r_Conv_CSV::convertFrom()");
+        LFATAL << "r_Conv_CSV::convertFrom(): wrong number of values!";
         throw r_Error(r_Error::r_Error_General);
     }
 }
@@ -432,8 +423,7 @@ void r_Conv_CSV::constructDest(const r_Base_Type& type, unsigned int numElem)
                     constructPrimitive<r_UShort>(desc.dest, desc.src, numElem);
                     break;
                 case r_Type::BOOL:
-                    RMInit::logOut << "r_Conv_CSV::convertFrom: unsupported primitive type " << type.type_id() << endl;
-                    LEAVE("r_Conv_CSV::convertFrom()");
+                    LFATAL << "r_Conv_CSV::convertFrom: unsupported primitive type " << type.type_id();
                     throw r_Error(BASETYPENOTSUPPORTEDBYOPERATION);
                     break;
                 case r_Type::LONG:
@@ -455,8 +445,7 @@ void r_Conv_CSV::constructDest(const r_Base_Type& type, unsigned int numElem)
                     constructPrimitive<r_Char>(desc.dest, desc.src, numElem);
                     break;
                 default:
-                    RMInit::logOut << "r_Conv_CSV::convertFrom: unsupported primitive type " << type.type_id() << endl;
-                    LEAVE("r_Conv_CSV::convertFrom()");
+                    LFATAL << "r_Conv_CSV::convertFrom: unsupported primitive type " << type.type_id();
                     throw r_Error(BASETYPENOTSUPPORTEDBYOPERATION);
         }
     }
@@ -467,15 +456,13 @@ void r_Conv_CSV::constructDest(const r_Base_Type& type, unsigned int numElem)
         }
         else
         {
-            RMInit::logOut << "r_Conv_CSV::convertFrom: unsupported type " << type.type_id() << endl;
-            LEAVE("r_Conv_CSV::convertFrom()");
+            LFATAL << "r_Conv_CSV::convertFrom: unsupported type " << type.type_id();
             throw r_Error(BASETYPENOTSUPPORTEDBYOPERATION);
         }
 }
 
 r_convDesc &r_Conv_CSV::convertTo( const char *options ) throw(r_Error)
 {
-    ENTER("r_Conv_CSV::convertTo()");
     processOptions(options);
     std::stringstream csvtemp;
 
@@ -509,7 +496,6 @@ r_convDesc &r_Conv_CSV::convertTo( const char *options ) throw(r_Error)
     }
     catch (r_Error &err)
     {
-        LEAVE("r_Conv_CSV::convertTo()");
         throw err;
     }
 
@@ -521,8 +507,7 @@ r_convDesc &r_Conv_CSV::convertTo( const char *options ) throw(r_Error)
 
     if ((desc.dest = static_cast<char*>(mystore.storage_alloc(static_cast<size_t>(stringsize)))) == NULL)
     {
-        RMInit::logOut << "r_Conv_CSV::convertTo(): out of memory error" << endl;
-        LEAVE("r_Conv_CSV::convertTo()");
+        LFATAL << "r_Conv_CSV::convertTo(): out of memory error";
         throw r_Error(MEMMORYALLOCATIONERROR);
     }
     memcpy(desc.dest, str.c_str(), static_cast<size_t>(stringsize));
@@ -530,20 +515,17 @@ r_convDesc &r_Conv_CSV::convertTo( const char *options ) throw(r_Error)
     // Result is just a bytestream
     desc.destType = r_Type::get_any_type("char");
 
-    LEAVE("r_Conv_CSV::convertTo()");
     return desc;
 }
 
 r_convDesc &r_Conv_CSV::convertFrom(const char *options) throw(r_Error)
 {
-    ENTER("r_Conv_CSV::convertFrom()");
 
     // process the arguments domain and basetype
     params->process(options, ';', true);
     if(domain == NULL || basetype == NULL)
     {
-        RMInit::logOut << "r_Conv_CSV::convertFrom(): NULL parameters error!" << endl;
-        LEAVE("r_Conv_CSV::convertFrom()");
+        LFATAL << "r_Conv_CSV::convertFrom(): NULL parameters error!";
         throw r_Error(r_Error::r_Error_General);
     }
 
@@ -560,14 +542,12 @@ r_convDesc &r_Conv_CSV::convertFrom(const char *options) throw(r_Error)
 
     if ((desc.dest = static_cast<char*>(mystore.storage_alloc(totalSize))) == NULL)
     {
-        RMInit::logOut << "r_Conv_CSV::convertFrom(): out of memory error!" << endl;
-        LEAVE("r_Conv_CSV::convertFrom()");
+        LFATAL << "r_Conv_CSV::convertFrom(): out of memory error!";
         throw r_Error(MEMMORYALLOCATIONERROR);
     }
 
     constructDest(*type, numElem);
 
-    LEAVE("r_Conv_CSV::convertFrom()");
     return desc;
 }
 

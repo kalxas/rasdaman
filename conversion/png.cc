@@ -48,9 +48,8 @@ rasdaman GmbH.
 
 #include "png.h"
 
-#include "raslib/rminit.hh"
-#include "raslib/rmdebug.hh"
 #include "debug.hh"
+#include "../common/src/logging/easylogging++.hh"
 
 #include "conversion/png.hh"
 #include "conversion/memfs.hh"
@@ -141,8 +140,6 @@ r_Conv_PNG::~r_Conv_PNG(void)
 
 r_convDesc &r_Conv_PNG::convertTo( const char *options ) throw(r_Error)
 {
-    ENTER( "r_Conv_PNG::convertTo( " << (options==NULL?"(null)":options) << " )" );
-
     png_struct *write_ptr=NULL;
     png_info *info_ptr = NULL;
     unsigned int i=0, j=0;
@@ -166,7 +163,7 @@ r_convDesc &r_Conv_PNG::convertTo( const char *options ) throw(r_Error)
     // check for good options, if any
     if (options != NULL && ! transpFound)
     {
-        RMInit::logOut << "Error: illegal PNG option string: " << options << endl;
+        LFATAL << "Error: illegal PNG option string: " << options;
         throw r_Error(r_Error::r_Error_General);
     }
 
@@ -179,13 +176,13 @@ r_convDesc &r_Conv_PNG::convertTo( const char *options ) throw(r_Error)
         info_ptr = png_create_info_struct(write_ptr);
         if (info_ptr == NULL)
         {
-            RMInit::logOut << "Error: unable to allocate PNG header." << endl;
+            LERROR << "Error: unable to allocate PNG header.";
             i=1;
         }
         else if (setjmp(write_ptr->jmpbuf))
         {
             png_destroy_write_struct(&write_ptr, &info_ptr);
-            RMInit::logOut << "Error: unable to save PNG stack" << endl;
+            LFATAL << "Error: unable to save PNG stack";
             throw r_Error(r_Error::r_Error_General);
         }
     }
@@ -235,7 +232,7 @@ r_convDesc &r_Conv_PNG::convertTo( const char *options ) throw(r_Error)
             }
             else
             {
-                RMInit::logOut << "Error: illegal syntax in transparency color specification - should be \"%i\", but is: " << trans_string << endl;
+                LFATAL << "Error: illegal syntax in transparency color specification - should be \"%i\", but is: " << trans_string;
                 throw r_Error(r_Error::r_Error_General);
             }
         }
@@ -257,14 +254,14 @@ r_convDesc &r_Conv_PNG::convertTo( const char *options ) throw(r_Error)
             }
             else
             {
-                RMInit::logOut << "Error: illegal syntax in transparency color specification - should be \"%i\", but is: " << trans_string << endl;
+                LFATAL << "Error: illegal syntax in transparency color specification - should be \"%i\", but is: " << trans_string;
                 throw r_Error(r_Error::r_Error_General);
             }
         }
         break;
 
     case ctype_rgb:
-        RMInit::logOut << "ctype_rgb" << endl;
+        LINFO << "ctype_rgb";
         spp = 3;
         bps = 8;
         pixelAdd = 3*height;
@@ -282,14 +279,14 @@ r_convDesc &r_Conv_PNG::convertTo( const char *options ) throw(r_Error)
             }
             else
             {
-                RMInit::logOut << "Error: illegal syntax in item #" << itemsScanned << " of transparency color specification - should be \"(%i;%i;%i)\", but is: " << trans_string << endl;
+                LFATAL << "Error: illegal syntax in item #" << itemsScanned << " of transparency color specification - should be \"(%i;%i;%i)\", but is: " << trans_string;
                 throw r_Error(r_Error::r_Error_General);
             }
         }
         break;
 
     case ctype_struct:
-        RMInit::logOut << "ctype_struct" << endl;
+        LINFO << "ctype_struct";
         // check first if it's 4 char bands
         {
             r_Structure_Type *st = static_cast<r_Structure_Type*>(const_cast<r_Type*>(desc.srcType));
@@ -300,14 +297,14 @@ r_convDesc &r_Conv_PNG::convertTo( const char *options ) throw(r_Error)
                 ++bands;
                 if (!(*iter).type_of().type_id() == r_Type::CHAR)
                 {
-                    RMInit::logOut << "Error: the PNG convertor expects bands of type char" << endl;
+                    LFATAL << "Error: the PNG convertor expects bands of type char";
                     throw r_Error(r_Error::r_Error_General);
                 }
                 iter++;
             }
             if (bands > 4)
             {
-                RMInit::logOut << "Error: the PNG convertor can not handle " << bands << " bands, only up 1, 3, and 4 bands are allowed." << endl;
+                LFATAL << "Error: the PNG convertor can not handle " << bands << " bands, only up 1, 3, and 4 bands are allowed.";
                 throw r_Error(r_Error::r_Error_General);
             }
         }
@@ -324,7 +321,7 @@ r_convDesc &r_Conv_PNG::convertTo( const char *options ) throw(r_Error)
         break;
 
     default:
-        RMInit::logOut << "Error: " << method_convertTo << ": Unknown base type." << endl;
+        LFATAL << "Error: " << method_convertTo << ": Unknown base type.";
         throw r_Error(r_Error::r_Error_General);
     } // switch
 
@@ -438,29 +435,28 @@ r_convDesc &r_Conv_PNG::convertTo( const char *options ) throw(r_Error)
 #ifdef RMANDEBUG
     // if (RManDebug >= 4)
     {
-        RMInit::dbgOut << "wrote PNG image: width=" << width << ", height=" << height << ", bps=" << bps << ", colour=";
+        LTRACE << "wrote PNG image: width=" << width << ", height=" << height << ", bps=" << bps << ", colour=";
         switch (desc.baseType)
         {
         case ctype_bool:
-            RMInit::dbgOut << "bw";
+            LTRACE << "bw";
             if (transpFound)
-                RMInit::dbgOut << ", transparent=" << info_ptr->trans_vals.gray;
+                LTRACE << ", transparent=" << info_ptr->trans_vals.gray;
             break;
         case ctype_char:
-            RMInit::dbgOut << "grey";
+            LTRACE << "grey";
             if (transpFound)
-                RMInit::dbgOut << ", transparent=" << info_ptr->trans_vals.gray;
+                LTRACE << ", transparent=" << info_ptr->trans_vals.gray;
             break;
         case ctype_rgb:
-            RMInit::dbgOut << "rgb";
+            LTRACE << "rgb";
             if (transpFound)
-                RMInit::dbgOut << ", transparent=(" << info_ptr->trans_vals.red << info_ptr->trans_vals.green << info_ptr->trans_vals.blue << ")";
+                LTRACE << ", transparent=(" << info_ptr->trans_vals.red << info_ptr->trans_vals.green << info_ptr->trans_vals.blue << ")";
             break;
         default:
-            RMInit::dbgOut << "(illegal)";
+            LTRACE << "(illegal)";
             break;
         }
-        RMInit::dbgOut << endl;
     }
 #endif
 
@@ -476,7 +472,7 @@ r_convDesc &r_Conv_PNG::convertTo( const char *options ) throw(r_Error)
 
     if ((desc.dest = static_cast<char*>(mystore.storage_alloc(static_cast<size_t>(pngSize)))) == NULL)
     {
-        RMInit::logOut << "Error: " << method_convertTo << ": out of memory." << endl;
+        LFATAL << "Error: " << method_convertTo << ": out of memory.";
         throw r_Error(MEMMORYALLOCATIONERROR);
     }
     memfs_seek(handle, 0, SEEK_SET);
@@ -488,7 +484,6 @@ r_convDesc &r_Conv_PNG::convertTo( const char *options ) throw(r_Error)
     // set result type to char string
     desc.destType = r_Type::get_any_type("char");
 
-    LEAVE( "r_Conv_PNG::convertTo()" );
     return desc;
 }
 
@@ -512,7 +507,7 @@ r_convDesc &r_Conv_PNG::convertFrom(const char *options) throw(r_Error)
         else if (setjmp(read_ptr->jmpbuf))
         {
             png_destroy_read_struct(&read_ptr, &info_ptr, NULL);
-            RMInit::logOut << "r_Conv_PNG::convertFrom(" << options << "): unable to save the stack" << endl;
+            LFATAL << "r_Conv_PNG::convertFrom(" << options << "): unable to save the stack";
             throw r_Error(r_Error::r_Error_General);
         }
     }
@@ -534,13 +529,13 @@ r_convDesc &r_Conv_PNG::convertFrom(const char *options) throw(r_Error)
 
     if (bps > 8)
     {
-        RMInit::logOut << method_convertFrom << " warning: 16 bit samples quantized to 8 bit" << endl;
+        LWARNING << method_convertFrom << " warning: 16 bit samples quantized to 8 bit";
         png_set_strip_16(read_ptr);
     }
 
     if ((colourType & PNG_COLOR_MASK_ALPHA) != 0)
     {
-        RMInit::logOut << method_convertFrom << " warning: image contains alpha channel which will be lost" << endl;
+        LWARNING << method_convertFrom << " warning: image contains alpha channel which will be lost";
         png_set_strip_alpha(read_ptr);
     }
 
@@ -569,7 +564,7 @@ r_convDesc &r_Conv_PNG::convertFrom(const char *options) throw(r_Error)
         desc.baseType = ctype_rgb;
         break;
     default:
-        RMInit::logOut << method_convertFrom << ": don't understand image format" << endl;
+        LFATAL << method_convertFrom << ": don't understand image format";
         throw r_Error(r_Error::r_Error_General);
     }
 
@@ -578,21 +573,21 @@ r_convDesc &r_Conv_PNG::convertFrom(const char *options) throw(r_Error)
 #ifdef RMANDEBUG
     if (RManDebug >= 4)
     {
-        RMInit::dbgOut << "PNG image: width " << width << ", height " << height << ", bps " << bps;
-        RMInit::dbgOut << ", colour ";
+        LTRACE << "PNG image: width " << width << ", height " << height << ", bps " << bps;
+        LTRACE << ", colour ";
         switch (desc.baseType)
         {
         case ctype_bool:
-            RMInit::dbgOut << "bw";
+            LTRACE << "bw";
             break;
         case ctype_char:
-            RMInit::dbgOut << "grey";
+            LTRACE << "grey";
             break;
         case ctype_rgb:
-            RMInit::dbgOut << "rgb";
+            LTRACE << "rgb";
             break;
         }
-        RMInit::dbgOut << ", interlace level " << numPasses << endl;
+        LTRACE << ", interlace level " << numPasses;
     }
 #endif
 
