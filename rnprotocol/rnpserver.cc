@@ -41,8 +41,9 @@ rasdaman GmbH.
 #include "rnpservercomm.hh"
 #include "relblobif/blobtile.hh"
 
-#include "raslib/rminit.hh"
 #include "debug-srv.hh"
+
+#include "../common/src/logging/easylogging++.hh"
 
 // only for access control
 #include "servercomm/servercomm.hh"
@@ -59,22 +60,20 @@ extern "C"
 
 void startRnpServer()
 {
-    ENTER( "startRnpServer" );
-
     signal (SIGTERM, rnpSignalHandler);
 
-    RMInit::logOut << "Initializing control connections..." << flush;
+    LINFO << "Initializing control connections...";
     rasmgrComm.init(static_cast<unsigned int>(configuration.getTimeout()), configuration.getServerName(), configuration.getRasmgrHost(), configuration.getRasmgrPort());
 
     accessControl.setServerName(configuration.getServerName());
 
-    RMInit::logOut << "informing rasmgr: server available..." << flush;
+    LINFO << "informing rasmgr: server available...";
     rasmgrComm.informRasmgrServerAvailable();
-    RMInit::logOut << "ok" << endl;
+    LINFO << "ok";
 
     //##################
 
-    RMInit::logOut << "Initializing job control..." << flush;
+    LINFO << "Initializing job control...";
     communicator.initJobs(1);
     communicator.setTimeout(RNP_TIMEOUT_LISTEN,0); // the select loop!
 
@@ -84,19 +83,19 @@ void startRnpServer()
     rnpServerComm.connectToCommunicator(communicator);
     rnpServerComm.setTransmitterBufferSize(configuration.getMaxTransferBufferSize());
 
-    RMInit::logOut<<"setting timeout to "<<configuration.getTimeout()<< " secs..." << flush;
+    LINFO << "setting timeout to " << configuration.getTimeout() << " secs...";
 
     rnpServerComm.setTimeoutInterval(configuration.getTimeout());
     NbJob::setTimeoutInterval(configuration.getTimeout());
 
-    RMInit::logOut << "connecting to base DBMS..." << flush;
+    LINFO << "connecting to base DBMS...";
     RasServerEntry &rasserver = RasServerEntry::getInstance();
     rasserver.compat_connectToDBMS();
 
-    RMInit::logOut<<"ok, waiting for clients."<<endl<<endl;
+    LINFO << "ok, waiting for clients.\n";
     communicator.runServer();
 
-    RMInit::logOut<<"RNP server shutdown in progress..."<<flush;
+    LINFO << "RNP server shutdown in progress...";
     if (TileCache::cacheLimit > 0)
     {
         TileCache::clear();
@@ -105,20 +104,15 @@ void startRnpServer()
 
     //##################
 
-    RMInit::logOut<<"informing rasmgr..."<<flush;
+    LINFO << "informing rasmgr...";
     rasmgrComm.informRasmgrServerDown();
 
-    RMInit::logOut<<"server stopped."<<endl;
-    LEAVE( "startRnpServer" );
+    LINFO << "server stopped.";
 }
 
 void stopRnpServer()
 {
-    ENTER( "stopRnpServer" );
-
     communicator.shouldExit();
-
-    LEAVE( "stopRnpServer" );
 }
 
 

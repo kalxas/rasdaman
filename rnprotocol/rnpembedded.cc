@@ -33,6 +33,7 @@ rasdaman GmbH.
 
 #include "debug.hh"
 
+#include "../common/src/logging/easylogging++.hh"
 
 using namespace rnp;
 
@@ -102,8 +103,6 @@ bool RnpReceiver::isDiscarding() const throw()
 
 bool RnpReceiver::validateMessage() throw()
 {
-    ENTER( "RnpReceiver::validateMessage()");
-
     if(status == waitingHeader)
     {
         rnpHeader = NULL;
@@ -121,7 +120,6 @@ bool RnpReceiver::validateMessage() throw()
                 else
                 {
                     status = discarding;
-                    LEAVE( "RnpReceiver::validateMessage() -> false - discarding message: not enough memory for message buffer.");
                     return false;
                 }
             }
@@ -129,14 +127,12 @@ bool RnpReceiver::validateMessage() throw()
             {
                 // status == readingHeader, but rnpHeader == NULL
                 // so we wait for some more message
-                LEAVE( "RnpReceiver::validateMessage - wait for more message(s)");
                 return false;
             }
         }
         else
         {
             status = discarding;
-            LEAVE( "RnpReceiver::validateMessage() -> false - discarding message: no valid carrier header.");
             return false;
         }
     }
@@ -145,18 +141,15 @@ bool RnpReceiver::validateMessage() throw()
     {
         if(rnpMessageBuffer.getNotFilledSize() != 0)
         {
-            LEAVE( "RnpReceiver::validateMessage() -> false");
             return false;
         }
     }
     if(status == discarding)
     {
-        TALK( "RnpReceiver::validateMessage - discarding(3)." );
+        LDEBUG << "RnpReceiver::validateMessage - discarding(3).";
         headerBuffer.clearToRead();
-        LEAVE( "RnpReceiver::validateMessage() -> false");
         return false;
     }
-    LEAVE( "RnpReceiver::validateMessage() -> true");
     return true;
 }
 
@@ -174,8 +167,6 @@ bool RnpReceiver::validateMessage() throw()
 
 bool RnpReceiver::isHttpCarrier() throw()
 {
-    ENTER( "RnpReceiver::isHttpCarrier()" );
-
     char *data = static_cast<char*>(headerBuffer.getData());
 
     rnpHeader = NULL;
@@ -186,7 +177,6 @@ bool RnpReceiver::isHttpCarrier() throw()
 
     if(isHttpReqHeader == false && isHttpAnsHeader == false)
     {
-        LEAVE( "RnpReceiver::isHttpCarrier() -> false" );
         return false;
     }
 
@@ -194,7 +184,6 @@ bool RnpReceiver::isHttpCarrier() throw()
 
     if(eoHttp == NULL)
     {
-        LEAVE( "RnpReceiver::isHttpCarrier() -> false" );
         return false;
     }
 
@@ -202,14 +191,12 @@ bool RnpReceiver::isHttpCarrier() throw()
 
     if( carrierHeaderLength == -1)
     {
-        LEAVE( "RnpReceiver::isHttpCarrier() -> false" );
         return false;
     }
 
     if(carrierHeaderLength + static_cast<int>(sizeof(RnpHeader)) > headerBuffer.getDataSize())
     {
         // is HTTP carrier, but we need more data to say if it's an embedded RnpMessage
-        LEAVE( "RnpReceiver::isHttpCarrier() -> true" );
         return true;
     }
 
@@ -220,17 +207,14 @@ bool RnpReceiver::isHttpCarrier() throw()
     if(isRnp)
     {
         carrier = RnpTransport::crp_Http;
-        TALK( "RnpReceiver::isHttpCarrier - valid HTTP carrier detected.");
+        LDEBUG << "RnpReceiver::isHttpCarrier - valid HTTP carrier detected.";
     }
 
-    LEAVE( "RnpReceiver::isHttpCarrier() -> " << isRnp);
     return isRnp;
 }
 
 bool RnpReceiver::isRnpCarrier() throw()
 {
-    ENTER( "RnpReceiver::isRnpCarrier()" );
-
     char *data = static_cast<char*>(headerBuffer.getData());
 
     rnpHeader = NULL;
@@ -239,7 +223,6 @@ bool RnpReceiver::isRnpCarrier() throw()
     if(static_cast<int>(sizeof(RnpHeader)) > headerBuffer.getDataSize())
     {
         // we need more data to say if it's an RnpMessage
-        LEAVE( "RnpReceiver::isRnpCarrier() -> true" );
         return true;
     }
 
@@ -251,10 +234,9 @@ bool RnpReceiver::isRnpCarrier() throw()
     if(isRnp)
     {
         carrier = RnpTransport::crp_Rnp;
-        TALK( "RnpReceiver::isRnpCarrier - valid RNP carrier detected!");
+        LDEBUG << "RnpReceiver::isRnpCarrier - valid RNP carrier detected!";
     }
 
-    LEAVE( "RnpReceiver::isRnpCarrier() -> " << isRnp );
     return isRnp;
 }
 
@@ -354,7 +336,7 @@ int  RnpTransmitter::getBufferSize() const throw()
 {
     if ( ! ( commBuffer != 0 ) )
     {
-        TALK( "RnpTransmitter::getBufferSize(): warning: assert will fire." );
+        LDEBUG << "RnpTransmitter::getBufferSize(): warning: assert will fire.";
     }
     assert(commBuffer != 0);
     return commBuffer->getBufferSize();
@@ -364,7 +346,7 @@ int  RnpTransmitter::getNotFilledSize() const throw()
 {
     if ( ! ( commBuffer != 0 ) )
     {
-        TALK( "RnpTransmitter::getNotFilledSize(): warning: assert will fire." );
+        LDEBUG << "RnpTransmitter::getNotFilledSize(): warning: assert will fire.";
     }
     assert(commBuffer != 0);
     return commBuffer->getNotFilledSize();
@@ -374,7 +356,7 @@ int  RnpTransmitter::getDataSize() const throw()
 {
     if ( ! ( commBuffer != 0 ) )
     {
-        TALK( "RnpTransmitter::getDataSize(): warning: assert will fire." );
+        LDEBUG << "RnpTransmitter::getDataSize(): warning: assert will fire.";
     }
     assert(commBuffer != 0);
     return commBuffer->getDataSize();

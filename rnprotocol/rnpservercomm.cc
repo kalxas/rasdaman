@@ -59,6 +59,7 @@ and -DCOMPDATE="\"$(COMPDATE)\"" when compiling
 
 #include "debug-srv.hh"
 
+#include "../common/src/logging/easylogging++.hh"
 
 
 // aux function to avoid a compiler warning (see 'man strftime')
@@ -86,16 +87,14 @@ const int RnpRasDaManComm::NoClient = -1;
 
 RnpRasDaManComm::RnpRasDaManComm() throw()
 {
-    ENTER( "RnpRasDaManComm::RnpRasDaManComm" );
     requestCounter  =  0;
     fragmentCounter =  0;
     clientID        =  NoClient;
-    LEAVE( "RnpRasDaManComm::RnpRasDaManComm" );
 }
 
 RnpRasDaManComm::~RnpRasDaManComm() throw()
 {
-    TALK( "RnpRasDaManComm::~RnpRasDaManComm" );
+    LDEBUG << "RnpRasDaManComm::~RnpRasDaManComm";
 }
 
 // we need our implementation because of r_Error, but we will go for the default when r_Error is AkgException
@@ -103,8 +102,7 @@ void RnpRasDaManComm::processRequest(CommBuffer *receiverBuffer, CommBuffer *tra
 {
     RMTimer requestTime("RnpRasDaManComm","request");
 
-    ENTER( "RnpRasDaManComm::processRequest, at " << now() << ", client=" << callingJob->getClientHostAddress().getStringAddress() );
-    TALK( endl << now() << " request from " << callingJob->getClientHostAddress().getStringAddress() );
+    LDEBUG << now() << " request from " << callingJob->getClientHostAddress().getStringAddress();
 
     decoder.decode(receiverBuffer);
     RnpQuark destServerType       = decoder.getDestinationServerType();
@@ -134,25 +132,25 @@ void RnpRasDaManComm::processRequest(CommBuffer *receiverBuffer, CommBuffer *tra
             // DBMS connection lost? then need to disconnect client to allow to resync
             catch(r_Ebase_dbms &edb)
             {
-                RMInit::logOut << "Error: base DBMS reports: " << edb.what() << endl;
+                LERROR << "Error: base DBMS reports: " << edb.what();
                 wasError = true;
                 answerr_Error(edb);
 #if 0 // seems too hard -- PB 2005-jul-25
                 try
                 {
-                    RMInit::logOut << "detaching client..." ;
+                    LINFO << "detaching client..." ;
                     executeDisconnect();
-                    RMInit::logOut << "ok" << endl;
+                    LINFO << "ok";
                 }
                 catch (...)     // ignore any further error, just log it
                 {
-                    RMInit::logOut << "failed" << endl;
+                    LERROR << "failed";
                 }
 #endif // 0
             }
             catch(r_Error &ex)
             {
-                TALK( "request terminated: " << ex.what() << " exception kind=" << ex.get_kind() << ", errorno=" << ex.get_errorno() );
+                LDEBUG << "request terminated: " << ex.what() << " exception kind=" << ex.get_kind() << ", errorno=" << ex.get_errorno();
                 wasError = true;
                 answerr_Error(ex);
 
@@ -164,26 +162,26 @@ void RnpRasDaManComm::processRequest(CommBuffer *receiverBuffer, CommBuffer *tra
                 {
                     try
                     {
-                        RMInit::logOut << "detaching client...";
+                        LINFO << "detaching client...";
                         executeDisconnect();
-                        RMInit::logOut << "ok" << endl;
+                        LINFO << "ok";
                     }
                     catch (...)     // ignore any further error, just log it
                     {
-                        RMInit::logOut << "failed" << endl;
+                        LERROR << "failed";
                     }
                 }
 #endif // 0
             }
             catch(exception &ex)
             {
-                RMInit::logOut << "Error: request terminated with general exception: " << ex.what() << endl;
+                LERROR << "Error: request terminated with general exception: " << ex.what();
                 wasError = true;
                 answerSTLException(ex);
             }
             catch(...)
             {
-                RMInit::logOut << "Error: request terminated with generic exception." << endl;
+                LERROR << "Error: request terminated with generic exception.";
                 wasError = true;
                 answerUnknownError();
             }
@@ -196,13 +194,12 @@ void RnpRasDaManComm::processRequest(CommBuffer *receiverBuffer, CommBuffer *tra
     }
     encoder.endMessage();
 
-    TALK( now() << " request completed in " << requestTime.getTime() << " usecs." );
-    LEAVE( "RnpRasDaManComm::processRequest" );
+    LDEBUG << now() << " request completed in " << requestTime.getTime() << " usecs.";
 }
 
 RnpServerJob* RnpRasDaManComm::createJobs(int howMany)
 {
-    TALK( "RNP: creating "<<howMany<<" RnpRasserverJob's" );
+    LDEBUG << "RNP: creating "<<howMany<<" RnpRasserverJob's";
     return new RnpRasserverJob[howMany];
 }
 
@@ -213,25 +210,22 @@ void RnpRasDaManComm::setTimeoutInterval(int seconds)
 
 void RnpRasDaManComm::checkForTimeout()
 {
-    ENTER( "RnpRasDaManComm::checkForTimeout" );
     if(clientID != NoClient)
     {
         if(clientTimer.checkForTimeout())
         {
-            TALK( "Client 0x" << hex << clientID << dec << " has timed out." );
-            RMInit::logOut << "Client has timed out, connection being freed." << endl;
+            LDEBUG << "Client 0x" << hex << clientID << dec << " has timed out.";
+            LERROR << "Client has timed out, connection being freed.";
             disconnectClient();
         }
     }
     else
         rasmgrComm.informRasmgrServerStillAvailable();
-    LEAVE( "RnpRasDaManComm::checkForTimeout" );
 }
 
 
 void RnpRasDaManComm::decodeFragment() throw( r_Error )
 {
-    ENTER( "RnpRasDaManComm::decodeFragment" );
 #ifdef RMANBENCHMARK
     RMTimer requestTime("RnpRasDaManComm","request");
 #endif
@@ -243,7 +237,7 @@ void RnpRasDaManComm::decodeFragment() throw( r_Error )
         RnpQuark command = decoder.getCommand();
 
         RnpRasserver *hook = new RnpRasserver;
-        TALK( "fragmentCounter=" << fragmentCounter << ", command is " << hook->getCommandName( command ) );
+        LDEBUG << "fragmentCounter=" << fragmentCounter << ", command is " << hook->getCommandName( command );
 
         // first parameter has to be the clientID
         verifyClientID( command );
@@ -363,51 +357,45 @@ void RnpRasDaManComm::decodeFragment() throw( r_Error )
             break;
 
         default:
-            RMInit::logOut << "Protocol error: Unknown command: " << command << endl;
-            LEAVE( "RnpRasDaManComm::decodeFragment: Unknown command: "<<command );
+            LFATAL << "Protocol error: Unknown command: " << command;
             throw r_Error(822);
             break;
         }
 
         clientTimer.markAction();
 #ifdef RMANBENCHMARK
-        RMInit::logOut << now() << " request " << hook->getCommandName(command) << " completed in "
-                    << requestTime.getTime() << " usecs." << endl;
+        LINFO << now() << " request " << hook->getCommandName(command) << " completed in "
+                    << requestTime.getTime() << " usecs.";
 #endif
 
     }
     catch (r_Error &e)          // any rasdaman error is passed through
     {
-        LEAVE( "RnpRasDaManComm::decodeFragment, rasdaman exception caught: " << e.what() );
         throw;              // pass on
     }
 
     catch (...)             // any other error is "unexpected", by def
     {
-        LEAVE( "RnpRasDaManComm::decodeFragment, general exception caught." );
         throw( r_Error( 10000 ) );  // unexpected internal error - FIXME: can we be more precise?
     }
 
-    LEAVE( "RnpRasDaManComm::decodeFragment" );
 }
 
 //######## here the executing functions ################
 void RnpRasDaManComm::executeConnect()
 {
-    ENTER( "RnpRasDaManComm::executeConnect" );
-
     RasServerEntry& rasserver = RasServerEntry::getInstance();
 
     decoder.getNextParameter();
     const char *capability = decoder.getDataAsString();
 
-    TALK("capability: "<<capability);
+    LDEBUG << "capability: "<<capability;
 
     // a new connect requires to drop any eventually preexisting connection first -- PB 2005-sep-02
     // if (clientID != NoClient)        // any previous un-disconnected activity?
     if (fragmentCounter > 1 || requestCounter > 1)      // any previous un-disconnected activity?
     {
-        RMInit::logOut << "Preparing request for new connect by resetting old connection; ";
+        LINFO << "Preparing request for new connect by resetting old connection; ";
         RnpRasDaManComm::disconnectInternally();
         // FIXME: the entry in CltTable still remains (see compat_*())
         // - although this doesn't harm in any way it should be removed
@@ -419,105 +407,83 @@ void RnpRasDaManComm::executeConnect()
     encoder.startFragment(Rnp::fgt_OkAnswer, decoder.getCommand());
     encoder.addInt32Parameter(RnpRasserver::pmt_clientid, clientID);
     encoder.endFragment();
-    TALK( "adding clientID 0x" << hex << clientID << dec );
-
-    LEAVE( "RnpRasDaManComm::executeConnect, assigned clientID=0x"<<hex<<clientID<<dec);
+    LDEBUG << "adding clientID 0x" << hex << clientID << dec;
 }
 
 void RnpRasDaManComm::executeDisconnect()
 {
-    ENTER("RnpRasDaManComm::executeDisconnect, clientID=0x"<<hex<<clientID<<dec);
     RasServerEntry& rasserver = RasServerEntry::getInstance();
 
     rasserver.compat_disconnectClient();
-    TALK( "rasserver.compat_disconnectClient() done, now disconnectClient()." );
+    LDEBUG << "rasserver.compat_disconnectClient() done, now disconnectClient().";
     disconnectClient();
 
     encoder.startFragment(Rnp::fgt_OkAnswer, decoder.getCommand());
     encoder.endFragment();
-
-    LEAVE("RnpRasDaManComm::executeDisconnect");
 }
 
 void RnpRasDaManComm::executeOpenDB()
 {
-    ENTER("RnpRasDaManComm::executeOpenDB");
-
     RasServerEntry& rasserver = RasServerEntry::getInstance();
 
     decoder.getNextParameter();
     const char* databaseName = decoder.getDataAsString();
 
-    TALK( "Execute open DB, database="<< databaseName );
+    LDEBUG << "Execute open DB, database="<< databaseName;
 
     rasserver.compat_openDB(databaseName);
 
     encoder.startFragment(Rnp::fgt_OkAnswer, decoder.getCommand());
     encoder.endFragment();
-
-    LEAVE("RnpRasDaManComm::executeOpenDB");
 }
 
 void RnpRasDaManComm::executeCloseDB()
 {
-    ENTER("RnpRasDaManComm::executeCloseDB");
-
     RasServerEntry& rasserver = RasServerEntry::getInstance();
 
     rasserver.compat_closeDB();
 
     encoder.startFragment(Rnp::fgt_OkAnswer, decoder.getCommand());
     encoder.endFragment();
-
-    LEAVE("RnpRasDaManComm::executeCloseDB");
 }
 
 void RnpRasDaManComm::executeBeginTA()
 {
-    ENTER( "RnpRasDaManComm::executeBeginTA" );
-
     RasServerEntry& rasserver = RasServerEntry::getInstance();
 
     decoder.getNextParameter();
     bool rw = decoder.getDataAsInteger() ? true:false;
 
-    TALK( "executeBeginTA  transaction: "<<(rw ? "rw":"ro") );
+    LDEBUG << "executeBeginTA  transaction: "<<(rw ? "rw":"ro");
 
     rasserver.compat_beginTA(rw);
 
     encoder.startFragment(Rnp::fgt_OkAnswer, decoder.getCommand());
     encoder.endFragment();
-
-    LEAVE( "RnpRasDaManComm::executeBeginTA" );
 }
 
 void RnpRasDaManComm::executeCommitTA()
 {
-    ENTER("executeCommitTA - in");
     RasServerEntry& rasserver = RasServerEntry::getInstance();
 
     rasserver.compat_commitTA();
 
     encoder.startFragment(Rnp::fgt_OkAnswer, decoder.getCommand());
     encoder.endFragment();
-    LEAVE("executeCommitTA - out");
 }
 
 void RnpRasDaManComm::executeAbortTA()
 {
-    ENTER("executeAbortTA - in");
     RasServerEntry& rasserver = RasServerEntry::getInstance();
 
     rasserver.compat_abortTA();
 
     encoder.startFragment(Rnp::fgt_OkAnswer, decoder.getCommand());
     encoder.endFragment();
-    LEAVE("executeAbortTA - out");
 }
 
 void RnpRasDaManComm::executeIsTAOpen()
 {
-    ENTER("executeIsTAOpen - in");
     RasServerEntry& rasserver = RasServerEntry::getInstance();
 
     bool isOpen = rasserver.compat_isOpenTA();
@@ -525,23 +491,20 @@ void RnpRasDaManComm::executeIsTAOpen()
     encoder.startFragment(Rnp::fgt_OkAnswer, decoder.getCommand());
     encoder.addInt32Parameter(RnpRasserver::pmt_transstatus, isOpen);
     encoder.endFragment();
-    LEAVE("executeIsTAOpen - out; isOpen=" << isOpen);
 }
 
 void RnpRasDaManComm::executeQueryHttp()
 {
-    ENTER("executeQueryHttp - in");
-
     RasServerEntry& rasserver = RasServerEntry::getInstance();
-    // TALK("have inst" );
+    // LDEBUG << "have inst";
     decoder.getNextParameter();
 
     const void* httpParams = decoder.getData();
     int      httpParamsLen = decoder.getDataLength();
-    // TALK( "httpParamsLen=" << httpParamsLen );
+    // LDEBUG << "httpParamsLen=" << httpParamsLen;
     char *resultBuffer = 0;
     int resultLen = rasserver.compat_executeQueryHttp(static_cast<const char*>(httpParams), httpParamsLen, resultBuffer);
-    // TALK( "resultLen=" << resultLen );
+    // LDEBUG << "resultLen=" << resultLen;
 
     encoder.startFragment(Rnp::fgt_OkAnswer, decoder.getCommand());
 
@@ -553,13 +516,10 @@ void RnpRasDaManComm::executeQueryHttp()
         resultBuffer = 0;
     }
     encoder.endFragment();
-
-    LEAVE("executeQueryHttp - out; resultLen=" << resultLen );
 }
 
 void RnpRasDaManComm::executeGetNewOId()
 {
-    ENTER("executeGetNewOId - in");
     RasServerEntry& rasserver = RasServerEntry::getInstance();
 
     decoder.getNextParameter();
@@ -569,13 +529,11 @@ void RnpRasDaManComm::executeGetNewOId()
     r_OId oid = rasserver.compat_getNewOId( static_cast<unsigned short>(objType) );
     const char* cOId = oid.get_string_representation();
 
-    TALK("executeGetNewOId objType = "<<objType<<"  oid="<<cOId);
+    LDEBUG << "executeGetNewOId objType = "<<objType<<"  oid="<<cOId;
 
     encoder.startFragment(Rnp::fgt_OkAnswer, decoder.getCommand());
     encoder.addStringParameter(RnpRasserver::pmt_oidstring, cOId);
     encoder.endFragment();
-
-    LEAVE("executeGetNewOId - out");
 }
 
 #define INITPTR(a) a = 0
@@ -584,14 +542,12 @@ void RnpRasDaManComm::executeGetNewOId()
 
 void RnpRasDaManComm::executeQueryRpc()
 {
-    ENTER(__FILE__": executeQueryRpc() - in");
-
     RasServerEntry& rasserver = RasServerEntry::getInstance();
 
     decoder.getNextParameter();
 
     const char *query = decoder.getDataAsString();
-    TALK("query="<<query);
+    LDEBUG << "query="<<query;
 
     ExecuteQueryRes queryResult;
     INITPTR(queryResult.token);
@@ -605,7 +561,7 @@ void RnpRasDaManComm::executeQueryRpc()
 
     encoder.startFragment(Rnp::fgt_OkAnswer, decoder.getCommand());
     encoder.addInt32Parameter( RnpRasserver::pmt_returnstatus,status);
-    TALK( "adding return status " << status );
+    LDEBUG << "adding return status " << status;
     encoder.addInt32Parameter( RnpRasserver::pmt_errorno,   queryResult.errorNo);
     encoder.addInt32Parameter( RnpRasserver::pmt_lineno,    queryResult.lineNo);
     encoder.addInt32Parameter( RnpRasserver::pmt_columnno,  queryResult.columnNo);
@@ -617,13 +573,10 @@ void RnpRasDaManComm::executeQueryRpc()
     FREEPTR(queryResult.token);
     FREEPTR(queryResult.typeName);
     FREEPTR(queryResult.typeStructure);
-
-    LEAVE("executeQueryRpc - out");
 }
 
 void RnpRasDaManComm::executeGetNextElement()
 {
-    ENTER("executeGetNextElement - in");
     RasServerEntry& rasserver = RasServerEntry::getInstance();
 
     char *buffer = NULL;
@@ -633,36 +586,30 @@ void RnpRasDaManComm::executeGetNextElement()
 
     encoder.startFragment(Rnp::fgt_OkAnswer, decoder.getCommand());
     encoder.addInt32Parameter(RnpRasserver::pmt_returnstatus,status);
-    TALK( "adding return status " << status );
+    LDEBUG << "adding return status " << status;
     if(buffer != NULL)
         encoder.addOpaqueParameter(RnpRasserver::pmt_skalarobject, buffer, static_cast<int>(bufferSize));
 
     encoder.endFragment();
 
     free(buffer);
-
-    LEAVE("executeGetNextElement - out");
 }
 
 void RnpRasDaManComm::executeEndTransfer()
 {
-    ENTER("executeEndTransfer - in");
     RasServerEntry& rasserver = RasServerEntry::getInstance();
 
     int status = rasserver.compat_endTransfer();
 
     encoder.startFragment(Rnp::fgt_OkAnswer, decoder.getCommand());
     encoder.addInt32Parameter(RnpRasserver::pmt_returnstatus,status);
-    TALK( "adding return status " << status );
+    LDEBUG << "adding return status " << status;
     encoder.endFragment();
-
-    LEAVE("executeEndTransfer - out");
 }
 
 
 void RnpRasDaManComm::executeGetNextMDD()
 {
-    ENTER("executeGetNextMDD - in");
     RasServerEntry& rasserver = RasServerEntry::getInstance();
 
 
@@ -677,7 +624,7 @@ void RnpRasDaManComm::executeGetNextMDD()
 
     encoder.startFragment(Rnp::fgt_OkAnswer, decoder.getCommand());
     encoder.addInt32Parameter(RnpRasserver::pmt_returnstatus,status);
-    TALK( "adding return status " << status );
+    LDEBUG << "adding return status " << status;
     encoder.addStringParameter(RnpRasserver::pmt_oidstring,     mddDomain.get_string_representation());
     encoder.addStringParameter(RnpRasserver::pmt_typename,      typeName);
     encoder.addStringParameter(RnpRasserver::pmt_typestructure, typeStructure);
@@ -687,13 +634,10 @@ void RnpRasDaManComm::executeGetNextMDD()
 
     free(typeName);
     free(typeStructure);
-
-    LEAVE("executeGetNextMDD - out");
 }
 
 void RnpRasDaManComm::executeGetNextTile()
 {
-    ENTER("executeGetNextTile - in");
     RasServerEntry& rasserver = RasServerEntry::getInstance();
 
     RPCMarray *tempRpcMarray;
@@ -702,7 +646,7 @@ void RnpRasDaManComm::executeGetNextTile()
 
     encoder.startFragment(Rnp::fgt_OkAnswer, decoder.getCommand());
     encoder.addInt32Parameter(RnpRasserver::pmt_returnstatus,status);
-    TALK( "adding return status " << status );
+    LDEBUG << "adding return status " << status;
 
     if(tempRpcMarray != 0)
     {
@@ -725,15 +669,12 @@ void RnpRasDaManComm::executeGetNextTile()
        un tiff mare creat cu select e o tila!
     */
 
-
-    LEAVE("executeGetNextTile - out");
 }
 
 //----------
 
 void RnpRasDaManComm::executeUpdateQuery()
 {
-    ENTER(__FILE__": executeUpdateQuery - in");
     RasServerEntry& rasserver = RasServerEntry::getInstance();
 
     decoder.getNextParameter();
@@ -748,7 +689,7 @@ void RnpRasDaManComm::executeUpdateQuery()
 
     encoder.startFragment(Rnp::fgt_OkAnswer, decoder.getCommand());
     encoder.addInt32Parameter( RnpRasserver::pmt_returnstatus, status);
-    TALK( "adding return status " << status );
+    LDEBUG << "adding return status " << status;
     encoder.addInt32Parameter( RnpRasserver::pmt_errorno,     returnStructure.errorNo);
     encoder.addInt32Parameter( RnpRasserver::pmt_lineno,      returnStructure.lineNo);
     encoder.addInt32Parameter( RnpRasserver::pmt_columnno,    returnStructure.columnNo);
@@ -760,13 +701,12 @@ void RnpRasDaManComm::executeUpdateQuery()
 
 void RnpRasDaManComm::executeInsertQuery()
 {
-    ENTER(__FILE__": executeInsertQuery - in");
     RasServerEntry& rasserver = RasServerEntry::getInstance();
 
     decoder.getNextParameter();
     const char* query   = decoder.getDataAsString();
 
-    TALK("query="<<query);
+    LDEBUG << "query="<<query;
 
     ExecuteQueryRes queryResult;
     INITPTR(queryResult.token);
@@ -780,7 +720,7 @@ void RnpRasDaManComm::executeInsertQuery()
 
     encoder.startFragment(Rnp::fgt_OkAnswer, decoder.getCommand());
     encoder.addInt32Parameter( RnpRasserver::pmt_returnstatus,status);
-    TALK( "adding return status " << status );
+    LDEBUG << "adding return status " << status;
     encoder.addInt32Parameter( RnpRasserver::pmt_errorno,   queryResult.errorNo);
     encoder.addInt32Parameter( RnpRasserver::pmt_lineno,    queryResult.lineNo);
     encoder.addInt32Parameter( RnpRasserver::pmt_columnno,  queryResult.columnNo);
@@ -792,30 +732,23 @@ void RnpRasDaManComm::executeInsertQuery()
     FREEPTR(queryResult.token);
     FREEPTR(queryResult.typeName);
     FREEPTR(queryResult.typeStructure);
-
-    LEAVE(__FILE__": executeInsertQuery - out");
 }
 
 
 void RnpRasDaManComm::executeInitUpdate()
 {
-    ENTER("executeInitUpdate - in");
-
     RasServerEntry& rasserver = RasServerEntry::getInstance();
 
     int status = rasserver.compat_InitUpdate();
 
     encoder.startFragment(Rnp::fgt_OkAnswer, decoder.getCommand());
     encoder.addInt32Parameter(RnpRasserver::pmt_returnstatus, status);
-    TALK( "adding return status " << status );
+    LDEBUG << "adding return status " << status;
     encoder.endFragment();
-    LEAVE("executeInitUpdate - out");
 }
 
 void RnpRasDaManComm::executeStartInsertTransMDD()
 {
-    ENTER("executeStartInsertTransMDD - in");
-
     RasServerEntry& rasserver = RasServerEntry::getInstance();
 
     decoder.getNextParameter();
@@ -829,16 +762,12 @@ void RnpRasDaManComm::executeStartInsertTransMDD()
 
     encoder.startFragment(Rnp::fgt_OkAnswer, decoder.getCommand());
     encoder.addInt32Parameter(RnpRasserver::pmt_returnstatus, status);
-    TALK( "adding return status " << status );
+    LDEBUG << "adding return status " << status;
     encoder.endFragment();
-
-    LEAVE("executeStartInsertTransMDD - out");
 }
 
 void RnpRasDaManComm::executeInsertTile()
 {
-    ENTER("executeInsertTile - in");
-
     RasServerEntry& rasserver = RasServerEntry::getInstance();
 
     RPCMarray *rpcMarray = new RPCMarray;
@@ -866,19 +795,15 @@ void RnpRasDaManComm::executeInsertTile()
 
     encoder.startFragment(Rnp::fgt_OkAnswer, decoder.getCommand());
     encoder.addInt32Parameter(RnpRasserver::pmt_returnstatus, status);
-    TALK( "adding return status " << status );
+    LDEBUG << "adding return status " << status;
     encoder.endFragment();
 
     // rpcMarray->data.confarray_val is freed by Tile::Tile(...), which is stupid, but...
     delete rpcMarray;
-
-    LEAVE("executeInsertTile - out");
 }
 
 void RnpRasDaManComm::executeEndInsertMDD()
 {
-    ENTER("executeEndInsertMDD - in");
-
     RasServerEntry& rasserver = RasServerEntry::getInstance();
 
     decoder.getNextParameter();
@@ -888,16 +813,12 @@ void RnpRasDaManComm::executeEndInsertMDD()
 
     encoder.startFragment(Rnp::fgt_OkAnswer, decoder.getCommand());
     encoder.addInt32Parameter(RnpRasserver::pmt_returnstatus, status);
-    TALK( "adding return status " << status );
+    LDEBUG << "adding return status " << status;
     encoder.endFragment();
-
-    LEAVE("executeEndInsertMDD - out");
 }
 
 void RnpRasDaManComm::executeGetTypeStructure()
 {
-    ENTER("executeGetTypeStructure - in");
-
     RasServerEntry& rasserver = RasServerEntry::getInstance();
 
     decoder.getNextParameter();
@@ -911,7 +832,7 @@ void RnpRasDaManComm::executeGetTypeStructure()
 
     encoder.startFragment(Rnp::fgt_OkAnswer, decoder.getCommand());
     encoder.addInt32Parameter(RnpRasserver::pmt_returnstatus, status);
-    TALK( "adding return status " << status );
+    LDEBUG << "adding return status " << status;
     encoder.addStringParameter(RnpRasserver::pmt_typestructure, typeStructure ? typeStructure : "");
     encoder.endFragment();
 
@@ -919,12 +840,10 @@ void RnpRasDaManComm::executeGetTypeStructure()
     {
         free(typeStructure);
     }
-    LEAVE("executeGetTypeStructure - out");
 }
 
 void RnpRasDaManComm::executeStartInsertPersMDD()
 {
-    ENTER("executeStartInsertPersMDD - in");
     RasServerEntry& rasserver = RasServerEntry::getInstance();
 
     decoder.getNextParameter();
@@ -942,15 +861,12 @@ void RnpRasDaManComm::executeStartInsertPersMDD()
 
     encoder.startFragment(Rnp::fgt_OkAnswer, decoder.getCommand());
     encoder.addInt32Parameter(RnpRasserver::pmt_returnstatus, status);
-    TALK( "adding return status " << status );
+    LDEBUG << "adding return status " << status;
     encoder.endFragment();
-    LEAVE("executeStartInsertPersMDD - out");
 }
 
 void RnpRasDaManComm::executeInsertMDD()
 {
-    ENTER("executeInsertMDD - in");
-
     RasServerEntry& rasserver = RasServerEntry::getInstance();
 
     decoder.getNextParameter();
@@ -983,15 +899,12 @@ void RnpRasDaManComm::executeInsertMDD()
 
     encoder.startFragment(Rnp::fgt_OkAnswer, decoder.getCommand());
     encoder.addInt32Parameter(RnpRasserver::pmt_returnstatus, status);
-    TALK( "adding return status " << status );
+    LDEBUG << "adding return status " << status;
     encoder.endFragment();
-
-    LEAVE("executeInsertMDD - out");
 }
 
 void RnpRasDaManComm::executeInsertCollection()
 {
-    ENTER("executeInsertCollection - in");
     RasServerEntry& rasserver = RasServerEntry::getInstance();
 
     decoder.getNextParameter();
@@ -1005,15 +918,12 @@ void RnpRasDaManComm::executeInsertCollection()
 
     encoder.startFragment(Rnp::fgt_OkAnswer, decoder.getCommand());
     encoder.addInt32Parameter(RnpRasserver::pmt_returnstatus, status);
-    TALK( "adding return status " << status );
+    LDEBUG << "adding return status " << status;
     encoder.endFragment();
-
-    LEAVE("executeInsertCollection - out");
 }
 
 void RnpRasDaManComm::executeDeleteCollByName()
 {
-    ENTER("executeDeleteCollByName - in");
     RasServerEntry& rasserver = RasServerEntry::getInstance();
 
     decoder.getNextParameter();
@@ -1023,15 +933,12 @@ void RnpRasDaManComm::executeDeleteCollByName()
 
     encoder.startFragment(Rnp::fgt_OkAnswer, decoder.getCommand());
     encoder.addInt32Parameter(RnpRasserver::pmt_returnstatus, status);
-    TALK( "adding return status " << status );
+    LDEBUG << "adding return status " << status;
     encoder.endFragment();
-
-    LEAVE("executeDeleteCollByName - out");
 }
 
 void RnpRasDaManComm::executeDeleteObjByOId()
 {
-    ENTER("executeDeleteObjByOId - in");
     RasServerEntry& rasserver = RasServerEntry::getInstance();
 
     decoder.getNextParameter();
@@ -1041,15 +948,12 @@ void RnpRasDaManComm::executeDeleteObjByOId()
 
     encoder.startFragment(Rnp::fgt_OkAnswer, decoder.getCommand());
     encoder.addInt32Parameter(RnpRasserver::pmt_returnstatus, status);
-    TALK( "adding return status " << status );
+    LDEBUG << "adding return status " << status;
     encoder.endFragment();
-
-    LEAVE("executeDeleteObjByOId - out");
 }
 
 void RnpRasDaManComm::executeRemoveObjFromColl()
 {
-    ENTER("executeRemoveObjFromColl - in");
     RasServerEntry& rasserver = RasServerEntry::getInstance();
 
     decoder.getNextParameter();
@@ -1061,15 +965,12 @@ void RnpRasDaManComm::executeRemoveObjFromColl()
 
     encoder.startFragment(Rnp::fgt_OkAnswer, decoder.getCommand());
     encoder.addInt32Parameter(RnpRasserver::pmt_returnstatus, status);
-    TALK( "adding return status " << status );
+    LDEBUG << "adding return status " << status;
     encoder.endFragment();
-
-    LEAVE("executeRemoveObjFromColl - out");
 }
 
 void RnpRasDaManComm::executeGetCollection()
 {
-    ENTER("executeGetCollection - in");
     RasServerEntry& rasserver = RasServerEntry::getInstance();
 
     char* typeName      = NULL;
@@ -1093,7 +994,7 @@ void RnpRasDaManComm::executeGetCollection()
 
     encoder.startFragment(Rnp::fgt_OkAnswer, decoder.getCommand());
     encoder.addInt32Parameter(RnpRasserver::pmt_returnstatus, status);
-    TALK( "adding return status " << status );
+    LDEBUG << "adding return status " << status;
     encoder.addStringParameter(RnpRasserver::pmt_typename, typeName);
     encoder.addStringParameter(RnpRasserver::pmt_typestructure, typeStructure);
     encoder.addStringParameter(RnpRasserver::pmt_oidstring, oid.get_string_representation());
@@ -1103,13 +1004,10 @@ void RnpRasDaManComm::executeGetCollection()
     free(static_cast<void*>(typeName));
     free(static_cast<void*>(typeStructure));
     free(static_cast<void*>(collName));
-
-    LEAVE("executeGetCollection - out");
 }
 
 void RnpRasDaManComm::executeGetCollectionOIds()
 {
-    ENTER("executeGetCollectionOIds - in");
     RasServerEntry& rasserver = RasServerEntry::getInstance();
 
     char* typeName      = NULL;
@@ -1133,7 +1031,7 @@ void RnpRasDaManComm::executeGetCollectionOIds()
     }
     encoder.startFragment(Rnp::fgt_OkAnswer, decoder.getCommand());
     encoder.addInt32Parameter(RnpRasserver::pmt_returnstatus, status);
-    TALK( "adding return status " << status );
+    LDEBUG << "adding return status " << status;
     encoder.addStringParameter(RnpRasserver::pmt_typename, typeName);
     encoder.addStringParameter(RnpRasserver::pmt_typestructure, typeStructure);
     encoder.addStringParameter(RnpRasserver::pmt_oidstring, oid.get_string_representation());
@@ -1153,12 +1051,10 @@ void RnpRasDaManComm::executeGetCollectionOIds()
     free(static_cast<void*>(collName));
     free(oidTable);
 
-    LEAVE("executeGetCollectionOIds - out");
 }
 
 void RnpRasDaManComm::executeGetObjectType()
 {
-    ENTER("executeGetObjectType - in");
     RasServerEntry& rasserver = RasServerEntry::getInstance();
 
     decoder.getNextParameter();
@@ -1171,17 +1067,13 @@ void RnpRasDaManComm::executeGetObjectType()
 
     encoder.startFragment(Rnp::fgt_OkAnswer, decoder.getCommand());
     encoder.addInt32Parameter(RnpRasserver::pmt_returnstatus, status);
-    TALK( "adding return status " << status );
+    LDEBUG << "adding return status " << status;
     encoder.addInt32Parameter(RnpRasserver::pmt_objecttype, objType);
     encoder.endFragment();
-
-
-    LEAVE("executeGetObjectType - out");
 }
 
 void RnpRasDaManComm::executeSetFormat()
 {
-    ENTER("executeSetFormat - in");
     RasServerEntry& rasserver = RasServerEntry::getInstance();
 
     decoder.getNextParameter();
@@ -1200,35 +1092,29 @@ void RnpRasDaManComm::executeSetFormat()
 
     encoder.startFragment(Rnp::fgt_OkAnswer, decoder.getCommand());
     encoder.addInt32Parameter(RnpRasserver::pmt_returnstatus, status);
-    TALK( "adding return status " << status );
+    LDEBUG << "adding return status " << status;
     encoder.endFragment();
-
-    LEAVE("executeSetFormat - out");
 }
 
 //########### until here the compatible ones ###############
 
 void RnpRasDaManComm::executeCreateCollection()
 {
-    ENTER("executeCreateCollection - in");
     RasServerEntry& rasserver = RasServerEntry::getInstance();
 
     const char* collName = getNextAsString(RnpRasserver::pmt_collname);
     const char* collTypeName = getNextAsString(RnpRasserver::pmt_typename);
 
-    TALK("rasserver.createCollection( " << collName << ", " << collTypeName << " )" );
+    LDEBUG << "rasserver.createCollection( " << collName << ", " << collTypeName << " )";
     r_OId roid = rasserver.createCollection(collName, collTypeName);
 
     encoder.startFragment(Rnp::fgt_OkAnswer, decoder.getCommand());
     encoder.addStringParameter(RnpRasserver::pmt_oidstring, roid.get_string_representation());
     encoder.endFragment();
-
-    LEAVE("executeCreateCollection - out");
 }
 
 void RnpRasDaManComm::executeCreateMDD()
 {
-    ENTER( "RnpRasDaManComm::executeCreateMDD" );
     RasServerEntry& rasserver = RasServerEntry::getInstance();
 
     const char *collName         = getNextAsString(RnpRasserver::pmt_collname);
@@ -1242,20 +1128,16 @@ void RnpRasDaManComm::executeCreateMDD()
         rcindex = decoder.getDataAsInteger() ? true : false;
         tileDomain = getNextAsString(RnpRasserver::pmt_domain);
     }
-    TALK( "collName=" << collName << ", mddTypeName=" << mddTypeName << ", definitionDomain=" << definitionDomain << ", tileDomain=" << tileDomain << ", rcindex=" << rcindex );
+    LDEBUG << "collName=" << collName << ", mddTypeName=" << mddTypeName << ", definitionDomain=" << definitionDomain << ", tileDomain=" << tileDomain << ", rcindex=" << rcindex;
     r_OId roid = rasserver.createMDD(collName, mddTypeName, definitionDomain, tileDomain, rcindex);
 
     encoder.startFragment(Rnp::fgt_OkAnswer, decoder.getCommand());
     encoder.addStringParameter(RnpRasserver::pmt_oidstring, roid.get_string_representation());
     encoder.endFragment();
-
-    LEAVE( "RnpRasDaManComm::executeCreateMDD, oid=" << roid.get_string_representation() );
 }
 
 void RnpRasDaManComm::executeExtendMDD()
 {
-    ENTER( "RnpRasDaManComm::executeExtendMDD" );
-
     RasServerEntry& rasserver = RasServerEntry::getInstance();
 
     const char *oidstring    = getNextAsString(RnpRasserver::pmt_oidstring);
@@ -1264,19 +1146,15 @@ void RnpRasDaManComm::executeExtendMDD()
 
     r_OId mddOId = r_OId(oidstring);
 
-    TALK( "mddOId=" << oidstring << ", stripeDomain=" << stripeDomain << ", tileDomain=" << tileDomain );
+    LDEBUG << "mddOId=" << oidstring << ", stripeDomain=" << stripeDomain << ", tileDomain=" << tileDomain;
     rasserver.extendMDD(mddOId, stripeDomain, tileDomain);
 
     encoder.startFragment(Rnp::fgt_OkAnswer, decoder.getCommand());
     encoder.endFragment();
-
-    LEAVE( "RnpRasDaManComm::executeExtendMDD" );
 }
 
 void RnpRasDaManComm::executeGetTileDomains()
 {
-    ENTER( "RnpRasDaManComm::executeGetTileDomains" );
-
     RasServerEntry& rasserver = RasServerEntry::getInstance();
 
     const char *oidstring    = getNextAsString(RnpRasserver::pmt_oidstring);
@@ -1297,8 +1175,6 @@ void RnpRasDaManComm::executeGetTileDomains()
     }
 
     encoder.endFragment();
-
-    LEAVE( "RnpRasDaManComm::executeGetTileDomains" );
 }
 
 //######### helper functions ###########################
@@ -1306,7 +1182,7 @@ void RnpRasDaManComm::executeGetTileDomains()
 void RnpRasDaManComm::connectClient()
 {
     clientID = makeNewClientID();
-    TALK( "RnpRasDaManComm::connectClient(): assigned new client id 0x" << hex << clientID << dec );
+    LDEBUG << "RnpRasDaManComm::connectClient(): assigned new client id 0x" << hex << clientID << dec;
 }
 
 void RnpRasDaManComm::disconnectInternally()
@@ -1327,50 +1203,42 @@ void RnpRasDaManComm::disconnectClient()
 
 void RnpRasDaManComm::verifyClientID( RnpQuark command ) throw (r_Error)
 {
-    ENTER( "RnpRasDaManComm::verifyClientID( command=" << command << " ), fragmentCounter=" << fragmentCounter << ", requestCounter=" << requestCounter );
-
     decoder.getFirstParameter();
 
     if(decoder.getParameterType() != RnpRasserver::pmt_clientid)
     {
-        RMInit::logOut << "Error: unidentified client." << endl;
-        LEAVE( "RnpRasDaManComm::verifyClientID() - exception, unknown client id." );
+        LFATAL << "Error: unidentified client.";
         throw r_Error(820); // sorry, I know, symbolic constants
     }
 
     int verClientID = decoder.getDataAsInteger();
-    TALK( "RnpRasDaManComm::verifyClientID: clientID 0x" << hex << clientID << dec << ", verClientID 0x" << hex << verClientID << dec );
+    LDEBUG << "RnpRasDaManComm::verifyClientID: clientID 0x" << hex << clientID << dec << ", verClientID 0x" << hex << verClientID << dec;
 
     // it's our client, it's OK
     if(clientID == verClientID)
     {
-        LEAVE( "RnpRasDaManComm::verifyClientID() - it's our client, it's OK" );
         return;
     }
 
     // connect cmd is OK too
     if(command == RnpRasserver::cmd_connect)
     {
-        LEAVE( "RnpRasDaManComm::verifyClientID() - connect requested, OK" );
         return;
     }
 
     // new client, first request, it's probably connect, so OK
     if(clientID == NoClient && fragmentCounter == 1)
     {
-        LEAVE( "RnpRasDaManComm::verifyClientID() - new client, first request, it's probably connect, so OK" );
         return;
     }
 
     // new client, same message, a new request, it's also OK (he is allowed to put more fragments in a request!)
     if(clientID != NoClient && fragmentCounter > 1 && requestCounter == 1 && verClientID == 0)
     {
-        LEAVE( "RnpRasDaManComm::verifyClientID() - new client, same message, a new request (multi-fragment), so OK" );
         return;
     }
 
-    RMInit::logOut << "Error: unregistered client." << endl;
-    LEAVE("RnpRasDaManComm::verifyClientID(): stored clientID is 0x" << hex << clientID << dec << ", but client identified as 0x" << hex << verClientID << dec << ", fragmentCounter=" << fragmentCounter << ", requestCounter=" << requestCounter);
+    LFATAL << "Error: unregistered client.";
     throw r_Error(821);     // invalid sequence number
 }
 
@@ -1387,7 +1255,7 @@ int  RnpRasDaManComm::makeNewClientID()
 
     counter = (counter+1) & 0x7F;
 
-    TALK( "RnpRasDaManComm::makeNewClientID() -> 0x" << hex << result << " (counter now: " << counter << ")" );
+    LDEBUG << "RnpRasDaManComm::makeNewClientID() -> 0x" << hex << result << " (counter now: " << counter << ")";
     return  result;
 }
 
@@ -1395,7 +1263,7 @@ void RnpRasDaManComm::answerr_Error(r_Error &err)
 {
     const char *errText = err.serialiseError();
 
-    TALK("Error in response: (" << errText << ") " << err.what());
+    LDEBUG << "Error in response: (" << errText << ") " << err.what();
 
     encoder.startFragment(Rnp::fgt_Error, decoder.getCommand());
     encoder.addInt32Parameter(Rnp::ert_Other, 0);
@@ -1412,42 +1280,42 @@ void RnpRasDaManComm::answerr_Error(r_Error &err)
 //######################################################
 RnpRasserverJob::RnpRasserverJob() throw()
 {
-    TALK( "RNP: RnpRasserverJob created" );
+    LDEBUG << "RNP: RnpRasserverJob created";
 }
 
 bool RnpRasserverJob::validateMessage() throw()
 {
-    TALK( "RNP: validateMessage()" );
+    LDEBUG << "RNP: validateMessage()";
     return RnpServerJob::validateMessage();
 }
 
 void RnpRasserverJob::executeOnAccept() throw()
 {
-    TALK( "RNP: executeOnAccept()" );
+    LDEBUG << "RNP: executeOnAccept()";
     RnpServerJob::executeOnAccept();
 }
 
 void RnpRasserverJob::executeOnWriteReady() throw()
 {
-    TALK( "RNP: executeOnWriteReady()" );
+    LDEBUG << "RNP: executeOnWriteReady()";
     RnpServerJob::executeOnWriteReady();
 }
 
 void RnpRasserverJob::specificCleanUpOnTimeout() throw()
 {
-    TALK( "RNP: specificCleanUpOnTimeout()" );
+    LDEBUG << "RNP: specificCleanUpOnTimeout()";
     RnpServerJob::specificCleanUpOnTimeout();
 }
 
 void RnpRasserverJob::executeOnReadError() throw()
 {
-    RMInit::logOut << "Error while executing read operation." << endl;
+    LERROR << "Error while executing read operation.";
     RnpServerJob::executeOnReadError();
 }
 
 void RnpRasserverJob::executeOnWriteError() throw()
 {
-    RMInit::logOut << "Error while executing write operation." << endl;
+    LERROR << "Error while executing write operation.";
     RnpServerJob::executeOnWriteError();
 }
 
@@ -1459,7 +1327,7 @@ RasserverCommunicator::RasserverCommunicator(RnpRasDaManComm* cmm) throw()
 
 bool RasserverCommunicator::executeOnTimeout() throw()
 {
-    TALK( "RasserverCommunicator::executeOnTimeout()" );
+    LDEBUG << "RasserverCommunicator::executeOnTimeout()";
 
     commPtr->checkForTimeout();
 

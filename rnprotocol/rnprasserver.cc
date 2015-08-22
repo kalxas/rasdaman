@@ -25,6 +25,8 @@ rasdaman GmbH.
 
 #include "rnprasserver.hh"
 
+#include "../common/src/logging/easylogging++.hh"
+
 // forever and ever
 const RnpQuark RnpRasserver::serverID = 3072002;
 
@@ -67,7 +69,7 @@ const char* RnpRasserver::getCommandName(RnpQuark cmd) const throw()
     else
         result = undefValue;
 
-    TALK( "RnpRasserver::getCommandName( " << cmd << " ) -> " << result );
+    LDEBUG << "RnpRasserver::getCommandName( " << cmd << " ) -> " << result;
     return result;
 }
 

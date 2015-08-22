@@ -39,6 +39,8 @@ rasdaman GmbH.
 #include "debug.hh"
 #include "raslib/rminit.hh" // for RNP_COMM_TIMEOUT
 
+#include "../common/src/logging/easylogging++.hh"
+
 using namespace rnp;
 
 RnpClientJob::RnpClientJob() throw()
@@ -47,16 +49,14 @@ RnpClientJob::RnpClientJob() throw()
 
 void RnpClientJob::init(CommBuffer* transmitterBuffer, RnpBaseClientComm* newClientComm) throw()
 {
-    ENTER( "RnpClientJob::init" );
-
     if ( ! ( transmitterBuffer != 0 ) )
     {
-        TALK( "RnpClientJob::init(): warning: assert will fire." );
+        LDEBUG << "RnpClientJob::init(): warning: assert will fire.";
     }
     assert(transmitterBuffer != 0);
     if ( ! ( newClientComm != 0 ) )
     {
-        TALK( "RnpClientJob::init(): warning: assert will fire." );
+        LDEBUG << "RnpClientJob::init(): warning: assert will fire.";
     }
     assert(newClientComm != 0);
 
@@ -67,8 +67,6 @@ void RnpClientJob::init(CommBuffer* transmitterBuffer, RnpBaseClientComm* newCli
     invalidFormat    = false;
 
     status=wks_notdefined;
-
-    LEAVE( "RnpClientJob::init" );
 }
 
 void RnpClientJob::clearAnswerBuffer() throw()
@@ -78,33 +76,23 @@ void RnpClientJob::clearAnswerBuffer() throw()
 
 void RnpClientJob::resetState() throw()
 {
-    ENTER( "RnpClientJob::resetState" );
-
     clearConnection();
 
     clientCommPtr->jobIsReady();
 
     status = wks_notdefined;
-
-    LEAVE( "RnpClientJob::resetState" );
 }
 void RnpClientJob::processRequest() throw()
 {
-    ENTER( "RnpClientJob::processRequest" );
-
     answerOk = true;
 
     invalidFormat = false;
 
     resetState();
-
-    LEAVE( "RnpClientJob::processRequest" );
 }
 
 bool RnpClientJob::validateMessage() throw()
 {
-    ENTER( "RnpClientJob::validateMessage()" );
-
     bool validated = rnpReceiver.validateMessage();
 
     currentBufferPtr = rnpReceiver.getCurrentBuffer();
@@ -112,27 +100,23 @@ bool RnpClientJob::validateMessage() throw()
     if( validated == true)
     {
         status=wks_processing;
-        LEAVE( "RnpClientJob::validateMessage() -> true" );
         return true;
     }
 
     if(rnpReceiver.isDiscarding())
     {
-        TALK( "RnpClientJob::validateMessage - discarding message" );
+        LDEBUG << "RnpClientJob::validateMessage - discarding message";
         resetState();
         answerOk = false;
         invalidFormat = true;
     }
     answerOk = false;
 
-    LEAVE( "RnpClientJob::validateMessage() -> false" );
     return false;
 }
 
 void RnpClientJob::executeOnWriteReady() throw()
 {
-    ENTER( "RnpClientJob::executeOnWriteReady()" );
-
     rnpReceiver.reset();
 
     currentBufferPtr->freeBuffer();
@@ -140,38 +124,24 @@ void RnpClientJob::executeOnWriteReady() throw()
     currentBufferPtr = rnpReceiver.getCurrentBuffer();
 
     readyToReadAnswer();
-
-    LEAVE( "RnpClientJob::executeOnWriteReady()" );
 }
 
 void RnpClientJob::specificCleanUpOnTimeout() throw()
 {
-    ENTER( "RnpClientJob::specificCleanUpOnTimeout()" );
-
     answerOk = false;
     resetState();
-
-    LEAVE( "RnpClientJob::specificCleanUpOnTimeout()" );
 }
 
 void RnpClientJob::executeOnReadError() throw()
 {
-    ENTER( "RnpClientJob::executeOnReadError()" );
-
     answerOk = false;
     resetState();
-
-    LEAVE( "RnpClientJob::executeOnReadError()" );
 }
 
 void RnpClientJob::executeOnWriteError() throw()
 {
-    ENTER( "RnpClientJob::executeOnWriteError()" );
-
     answerOk = false;
     resetState();
-
-    LEAVE( "RnpClientJob::executeOnWriteError()" );
 }
 
 CommBuffer* RnpClientJob::getAnswerBuffer() throw()
@@ -194,8 +164,6 @@ bool RnpClientJob::isInvalidFormat() throw()
 
 RnpBaseClientComm::RnpBaseClientComm(RnpQuark theServerType,  RnpTransport::CarrierProtocol theProtocol) throw()
 {
-    ENTER( "RnpBaseClientComm::RnpBaseClientComm( serverType="<<theServerType<<" protocol="<<theProtocol << " )" );
-
     serverHost = NULL;
     serverPort = 0;
     serverType = theServerType;
@@ -203,22 +171,18 @@ RnpBaseClientComm::RnpBaseClientComm(RnpQuark theServerType,  RnpTransport::Carr
 
     initDefaultCommunication();
     maxRetry = 0;   // # of RE-tries -- PB 2005-aug-31
-
-    LEAVE( "RnpBaseClientComm::RnpBaseClientComm()" );
 }
 
 RnpBaseClientComm::RnpBaseClientComm(const char* theServerHost, int theServerPort, RnpQuark theServerType,  RnpTransport::CarrierProtocol theProtocol) throw()
 {
-    ENTER( "RnpBaseClientComm::RnpBaseClientComm( server="<<theServerHost<<" port="<<theServerPort<<" serverType="<<theServerType<<" protocol="<<theProtocol << " )" );
-
     if ( ! ( theServerHost != 0 ) )
     {
-        TALK( "RnpBaseClientComm::RnpBaseClientComm(): warning: assert will fire." );
+        LDEBUG << "RnpBaseClientComm::RnpBaseClientComm(): warning: assert will fire.";
     }
     assert(theServerHost != 0);
     if ( ! ( theServerPort > 0 ) )
     {
-        TALK( "RnpBaseClientComm::RnpBaseClientComm(): warning: assert will fire." );
+        LDEBUG << "RnpBaseClientComm::RnpBaseClientComm(): warning: assert will fire.";
     }
     assert(theServerPort > 0);
 
@@ -230,8 +194,6 @@ RnpBaseClientComm::RnpBaseClientComm(const char* theServerHost, int theServerPor
     initDefaultCommunication();
 
     maxRetry = 0;   // # of RE-tries -- PB 2005-aug-31
-
-    LEAVE( "RnpBaseClientComm::RnpBaseClientComm()" );
 }
 RnpBaseClientComm::~RnpBaseClientComm() throw()
 {
@@ -239,23 +201,19 @@ RnpBaseClientComm::~RnpBaseClientComm() throw()
 
 void RnpBaseClientComm::setConnectionParameters(const char* theServerHost, int theServerPort) throw()
 {
-    ENTER( "RnpBaseClientComm::setConnectionParameters( server="<<theServerHost<<" port="<<theServerPort << " )" );
-
     if ( ! ( theServerHost != 0 ) )
     {
-        TALK( "RnpBaseClientComm::setConnectionParameters(): warning: assert will fire." );
+        LDEBUG << "RnpBaseClientComm::setConnectionParameters(): warning: assert will fire.";
     }
     assert(theServerHost != 0);
     if ( ! ( theServerPort > 0 ) )
     {
-        TALK( "RnpBaseClientComm::setConnectionParameters(): warning: assert will fire." );
+        LDEBUG << "RnpBaseClientComm::setConnectionParameters(): warning: assert will fire.";
     }
     assert(theServerPort > 0);
 
     serverHost = theServerHost;
     serverPort = static_cast<unsigned int>(theServerPort);
-
-    LEAVE( "RnpBaseClientComm::setConnectionParameters()" );
 }
 
 void RnpBaseClientComm::setCarrierProtocol(RnpTransport::CarrierProtocol theProtocol) throw()
@@ -270,8 +228,6 @@ RnpTransport::CarrierProtocol RnpBaseClientComm::getCarrierProtocol() throw()
 
 void RnpBaseClientComm::initDefaultCommunication() throw()
 {
-    ENTER( "RnpBaseClientComm::initDefaultCommunication()" );
-
     communicatorPtr = &internalCommunicator;
 
     communicatorPtr->initJobs(1);
@@ -280,24 +236,16 @@ void RnpBaseClientComm::initDefaultCommunication() throw()
     communicatorPtr->attachJob(clientJob);
 
     // not necessary? transmitterBuffer.allocate(RNP_DEFAULTBUFFERSIZE);
-
-    LEAVE( "RnpBaseClientComm::initDefaultCommunication()" );
 }
 
 
 void RnpBaseClientComm::jobIsReady() throw()
 {
-    ENTER( "RnpBaseClientComm::jobIsReady()" );
-
     communicatorPtr->shouldExit();
-
-    LEAVE( "RnpBaseClientComm::jobIsReady()" );
 }
 
 void RnpBaseClientComm::startRequest(RnpQuark command, int transmitterBufferSize)
 {
-    ENTER( "RnpBaseClientComm::startRequest( command="<<command<<" transmitterBufferSize="<<transmitterBufferSize << " )" );
-
     transmitterBuffer.allocate(transmitterBufferSize);
 
     clientJob.init(&transmitterBuffer,this);
@@ -306,22 +254,18 @@ void RnpBaseClientComm::startRequest(RnpQuark command, int transmitterBufferSize
 
     encoder.startRequest(serverType, carrierProtocol);
     encoder.startFragment(Rnp::fgt_Command, command);
-
-    LEAVE( "RnpBaseClientComm::startRequest()" );
 }
 
 bool RnpBaseClientComm::sendRequestGetAnswer()
 {
-    ENTER( "RnpBaseClientComm::sendMessageGetAnswer()" );
-
     if ( ! ( serverHost != NULL ) )
     {
-        TALK( "RnpBaseClientComm::sendRequestGetAnswer(): warning: assert will fire." );
+        LDEBUG << "RnpBaseClientComm::sendRequestGetAnswer(): warning: assert will fire.";
     }
     assert(serverHost != NULL);
     if ( ! ( serverPort > 0 ) )
     {
-        TALK( "RnpBaseClientComm::sendRequestGetAnswer(): warning: assert will fire." );
+        LDEBUG << "RnpBaseClientComm::sendRequestGetAnswer(): warning: assert will fire.";
     }
     assert(serverPort > 0);
 
@@ -337,10 +281,8 @@ bool RnpBaseClientComm::sendRequestGetAnswer()
     if(connected == false)
     {
 #ifdef AFTERV52
-        LEAVE( "RnpBaseClientComm::sendMessageGetAnswer(): exception - cannot connect to server "<<serverHost<<":"<<serverPort );
         throw RnpIOException(clientJob.getErrno());
 #endif
-        LEAVE( "RnpBaseClientComm::sendMessageGetAnswer(): -> false" );
         return false;
     }
 
@@ -349,11 +291,9 @@ bool RnpBaseClientComm::sendRequestGetAnswer()
     if(clientJob.isAnswerOk()== false)
     {
 #ifdef AFTERV52
-        LEAVE( "RnpBaseClientComm::sendMessageGetAnswer(): exception - answer not OK" );
         if(clientJob.isInvalidFormat()) throw RnpInvalidFormatException();
         else                            throw RnpIOException(clientJob.getErrno());
 #endif
-        LEAVE( "RnpBaseClientComm::sendMessageGetAnswer(): -> false" );
         return false;
     }
 
@@ -361,7 +301,6 @@ bool RnpBaseClientComm::sendRequestGetAnswer()
     decoder.decode(receiverBuffer);
     decoder.getFirstFragment();
 
-    LEAVE( "RnpBaseClientComm::sendMessageGetAnswer() -> true");
     return true;
 }
 
@@ -397,7 +336,7 @@ void RnpServerJob::init(RnpBaseServerComm* theServerComm) throw()
 {
     if ( ! ( theServerComm != 0 ) )
     {
-        TALK( "RnpServerJob::init(): warning: assert will fire." );
+        LDEBUG << "RnpServerJob::init(): warning: assert will fire.";
     }
     assert(theServerComm != 0);
 
@@ -524,7 +463,7 @@ void RnpBaseServerComm::connectToCommunicator(NbCommunicator &theCommunicator)
     // throws whatever 'new' throws
     if ( ! ( communicator == NULL ) )
     {
-        TALK( "RnpServerJob::init(): warning: assert will fire." );
+        LDEBUG << "RnpServerJob::init(): warning: assert will fire.";
     }
     assert(communicator == NULL);
 
@@ -695,7 +634,7 @@ void RnpBaseServerComm::communicatorShouldExit() throw()
 {
     if ( ! ( communicator != NULL ) )
     {
-        TALK( "RnpServerJob::init(): warning: assert will fire." );
+        LDEBUG << "RnpServerJob::init(): warning: assert will fire.";
     }
     assert(communicator != NULL);
 

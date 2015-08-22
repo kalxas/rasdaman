@@ -34,8 +34,9 @@ rasdaman GmbH.
 using namespace rnp;
 using namespace std;
 
-#include "raslib/rminit.hh"
 #include "debug.hh"
+
+#include "../common/src/logging/easylogging++.hh"
 
 
 const RnpQuark Rnp::rnpProtocolId = 25112001;
@@ -317,18 +318,16 @@ bool RnpProtocolEncoder::allocateBuffer(int maxMessageLength) throw()
 
 bool RnpProtocolEncoder::adjustBufferSize(int differenceSize) throw()
 {
-    ENTER( "RnpProtocolEncoder::adjustBufferSize( differenceSize=" << differenceSize << " )" );
-
     if (commBuffer == 0)
     {
-        TALK( "RnpProtocolEncoder::adjustBufferSize(): warning: null commBuffer, assert would fire." );
+        LDEBUG << "RnpProtocolEncoder::adjustBufferSize(): warning: null commBuffer, assert would fire.";
         return false;
     }
     assert(commBuffer != 0);
 
     if (differenceSize <= 0)
     {
-        TALK( "RnpProtocolEncoder::adjustBufferSize(): warning: nonpositive differenceSize, assert would fire." );
+        LDEBUG << "RnpProtocolEncoder::adjustBufferSize(): warning: nonpositive differenceSize, assert would fire.";
         return false;
     }
     assert(differenceSize > 0);
@@ -345,11 +344,9 @@ bool RnpProtocolEncoder::adjustBufferSize(int differenceSize) throw()
         rnpHeader    = (RnpHeader*)(final + (head - orig));
         currFragment = (RnpFragmentHeader*)(final + (frag - orig));
         currParameter= (RnpParameter*)(final + (para - orig));
-        LEAVE( "RnpProtocolEncoder::adjustBufferSize() -> true" );
         return true;
     }
 
-    LEAVE( "RnpProtocolEncoder::adjustBufferSize() -> false" );
     return false;
 }
 
@@ -357,7 +354,7 @@ int RnpProtocolEncoder::getBufferSize() throw()
 {
     if (commBuffer == 0)
     {
-        TALK( "RnpProtocolEncoder::getBufferSize(): warning: null commBuffer, assert will fire." );
+        LDEBUG << "RnpProtocolEncoder::getBufferSize(): warning: null commBuffer, assert will fire.";
     }
     assert(commBuffer != 0);
 
@@ -368,7 +365,7 @@ void RnpProtocolEncoder::startMessage(RnpQuark serverType, int nCarrierHeaderSiz
 {
     if (commBuffer == 0)
     {
-        TALK( "RnpProtocolEncoder::startMessage(): warning: null commBuffer, assert will fire." );
+        LDEBUG << "RnpProtocolEncoder::startMessage(): warning: null commBuffer, assert will fire.";
     }
     assert(commBuffer != NULL);
 
@@ -558,11 +555,10 @@ bool RnpProtocolDecoder::decode(akg::CommBuffer *buffer) throw()
 bool RnpProtocolDecoder::testIntegrity() const throw()
 {
     // could be done better...
-    ENTER( "RnpProtocolDecoder::testIntegrity()" );
 
     if(rnpHeader->isRnpMessage() == false)
     {
-        RMInit::logOut << "Communication error: received invalid RNP header." << endl;
+        LERROR << "Communication error: received invalid RNP header.";
         return false;
     }
 
@@ -580,14 +576,14 @@ bool RnpProtocolDecoder::testIntegrity() const throw()
         else
         {
             ok = false;
-            RMInit::logOut << "Communication error: RNP message corrupt: short header." << endl;
+            LERROR << "Communication error: RNP message corrupt: short header.";
             break;
         }
 
         if(lCurrFragment->totalLength > maxLength)
         {
             ok = false;
-            RMInit::logOut << "Communication error: RNP message corrupt: actual length (" << lCurrFragment->totalLength << ") larger than foreseen (" << maxLength << ")." << endl;
+            LERROR << "Communication error: RNP message corrupt: actual length (" << lCurrFragment->totalLength << ") larger than foreseen (" << maxLength << ").";
             break;
         }
 
@@ -602,14 +598,14 @@ bool RnpProtocolDecoder::testIntegrity() const throw()
             else
             {
                 ok = false;
-                RMInit::logOut << "Communication error: RNP message corrupt: current parameter location outside parameter area." << endl;
+                LERROR << "Communication error: RNP message corrupt: current parameter location outside parameter area.";
                 break;
             }
 
             if(lCurrParameter->totalLength > lCurrFragment->totalLength)
             {
                 ok = false;
-                RMInit::logOut << "Communication error: RNP message corrupt: current parameter length (" << lCurrParameter->totalLength << ") larger than total fragment size (" << lCurrFragment->totalLength << ")." << endl;
+                LERROR << "Communication error: RNP message corrupt: current parameter length (" << lCurrParameter->totalLength << ") larger than total fragment size (" << lCurrFragment->totalLength << ").";
                 break;
             }
 
@@ -622,7 +618,7 @@ bool RnpProtocolDecoder::testIntegrity() const throw()
 // the counting seems to differ from the protocol specs;
 // to avoid log flooding we disable it for the moment being -- PB 2005-aug-28
 #ifdef RMANDEBUG
-            RMInit::logOut << "Communication warning: puzzled by message: parameter count too small, found extra parameter(s). (this message can be ignored)" << endl;
+            LWARNING << "Communication warning: puzzled by message: parameter count too small, found extra parameter(s). (this message can be ignored)";
 #endif
         }
 
@@ -633,7 +629,6 @@ bool RnpProtocolDecoder::testIntegrity() const throw()
         lCurrFragment = const_cast<RnpFragmentHeader*>(getNextFragment());
     }
 
-    LEAVE( "RnpProtocolDecoder::testIntegrity() -> " << ok );
     return ok;
 }
 
@@ -762,7 +757,7 @@ const char* RnpProtocolDecoder::getDataAsString() const throw()
 {
     if ( !( currParameter->dataType == Rnp::dtt_Asciiz || currParameter->dataType == Rnp::dtt_NullPtr) )
     {
-        TALK( "RnpProtocolEncoder::getDataAsString(): warning: assert will fire." );
+        LDEBUG << "RnpProtocolEncoder::getDataAsString(): warning: assert will fire.";
     }
     assert(currParameter->dataType == Rnp::dtt_Asciiz || currParameter->dataType == Rnp::dtt_NullPtr);
 
@@ -773,7 +768,7 @@ int RnpProtocolDecoder::getDataAsInteger() const throw()
 {
     if ( !( currParameter->dataType == Rnp::dtt_Int32 ) )
     {
-        TALK( "RnpProtocolEncoder::getDataAsInteger(): warning: assert will fire." );
+        LDEBUG << "RnpProtocolEncoder::getDataAsInteger(): warning: assert will fire.";
     }
     assert(currParameter->dataType == Rnp::dtt_Int32);
 
@@ -784,7 +779,7 @@ float RnpProtocolDecoder::getDataAsFloat() const throw()
 {
     if ( !( currParameter->dataType == Rnp::dtt_Float32 ) )
     {
-        TALK( "RnpProtocolEncoder::getDataAsFloat(): warning: assert will fire." );
+        LDEBUG << "RnpProtocolEncoder::getDataAsFloat(): warning: assert will fire.";
     }
     assert(currParameter->dataType == Rnp::dtt_Float32);
 
@@ -795,7 +790,7 @@ double RnpProtocolDecoder::getDataAsDouble() const throw()
 {
     if ( !( currParameter->dataType == Rnp::dtt_Double64 ) )
     {
-        TALK( "RnpProtocolEncoder::getDataAsDouble(): warning: assert will fire." );
+        LDEBUG << "RnpProtocolEncoder::getDataAsDouble(): warning: assert will fire.";
     }
     assert(currParameter->dataType == Rnp::dtt_Double64);
 
@@ -806,7 +801,7 @@ const void* RnpProtocolDecoder::getDataAsOpaque() const throw()
 {
     if ( !( currParameter->dataType == Rnp::dtt_Opaque || currParameter->dataType == Rnp::dtt_NullPtr) )
     {
-        TALK( "RnpProtocolEncoder::getDataAsOpaque(): warning: assert will fire." );
+        LDEBUG << "RnpProtocolEncoder::getDataAsOpaque(): warning: assert will fire.";
     }
     assert(currParameter->dataType == Rnp::dtt_Opaque || currParameter->dataType == Rnp::dtt_NullPtr);
 

@@ -44,8 +44,8 @@ rasdaman GmbH.
 #include<netdb.h>
 #include<iostream>
 #include<string.h>
-#include "raslib/rminit.hh"
 
+#include "../common/src/logging/easylogging++.hh"
 
 #include "debug.hh"
 
@@ -100,7 +100,7 @@ void SrvRasmgrComm::informRasmgrServerDown()
 void SrvRasmgrComm::informRasmgrServerStillAvailable()
 {
     // too verbose, blows up log file
-    // RMInit::logOut << "informing rasmgr: server still available." << endl;
+    // LINFO << "informing rasmgr: server still available.";
     informRasMGR(SERVER_REGULARSIG);
 }
 
@@ -119,7 +119,7 @@ void SrvRasmgrComm::informRasMGR(int what)
     struct hostent *hostinfo = gethostbyname(rasmgrHost);
     if(hostinfo==NULL)
     {
-        RMInit::logOut << "Error: cannot locate rasmgr host '" << rasmgrHost << "': " << strerror(errno) << std::endl;
+        LERROR << "Error: cannot locate rasmgr host '" << rasmgrHost << "': " << strerror(errno);
         return;
     }
 
@@ -145,7 +145,7 @@ void SrvRasmgrComm::informRasMGR(int what)
             if( (retry%talkInterval) == 0)
             {
                 std::cerr<< "Error: server '" << serverName << " cannot open socket to rasmgr (" << retry << " attempts, still retrying): " << strerror(errno) << std::endl;
-                RMInit::logOut << "Error: server '" << serverName << " cannot open socket to rasmgr (" << retry << " attempts, still retrying): " << strerror(errno) << std::endl;
+                LERROR << "Error: server '" << serverName << " cannot open socket to rasmgr (" << retry << " attempts, still retrying): " << strerror(errno);
             }
             continue;
         }
@@ -155,7 +155,7 @@ void SrvRasmgrComm::informRasMGR(int what)
             if( (retry%talkInterval) == 0)
             {
                 std::cerr << "Error: server '" << serverName << " cannot connect to rasmgr (" << retry << " attempts, still retrying): " << strerror(errno) << std::endl;
-                RMInit::logOut << "Error: server '" << serverName << " cannot connect to rasmgr (" << retry << " attempts, still retrying): " << strerror(errno) << std::endl;
+                LERROR << "Error: server '" << serverName << " cannot connect to rasmgr (" << retry << " attempts, still retrying): " << strerror(errno);
             }
             close(sock); //yes, some SO requieres this, like DEC from BLVA
             continue;
@@ -167,7 +167,7 @@ void SrvRasmgrComm::informRasMGR(int what)
     if( !ok )
     {
         std::cerr << "Error: unable to contact rasmgr, server '" << serverName << "' herewith giving up." <<std::endl;
-        RMInit::logOut << "Error: unable to contact rasmgr, server '" << serverName << "' herewith giving up." <<std::endl;
+        LFATAL << "Error: unable to contact rasmgr, server '" << serverName << "' herewith giving up.";
         if(sock)
             close(sock);
         exit( EXIT_CODE );
@@ -181,7 +181,7 @@ void SrvRasmgrComm::informRasMGR(int what)
     if(writeWholeMessage(sock,message,strlen(message)+1)<0)
     {
         std::cerr << "Error: cannot send message to rasmgr: " << strerror(errno) << std::endl;
-        RMInit::logOut << "Error: cannot send message to rasmgr: " << strerror(errno) << std::endl;
+        LFATAL << "Error: cannot send message to rasmgr: " << strerror(errno);
         close(sock);
         exit( EXIT_CODE );
     }
