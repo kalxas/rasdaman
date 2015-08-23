@@ -36,6 +36,8 @@ static const char rcsid[] = "@(#)qlparser, QtOperation: $Id: qtoperation.cc,v 1.
 #include "config.h"
 #include "qlparser/qtoperation.hh"
 
+#include "../common/src/logging/easylogging++.hh"
+
 #include <iostream>
 
 const QtNode::QtNodeType QtOperation::nodeType = QtNode::QT_OPERATION;
@@ -64,7 +66,7 @@ QtOperation::getUniqueOrder( const QtNode::QtNodeType )
 QtData*
 QtOperation::evaluate( QtDataList* /*inputList*/ )
 {
-    RMInit::logOut << "Error: Method evaluate(...) is undefined for a node in the query tree." << std::endl;
+    LERROR << "Error: Method evaluate(...) is undefined for a node in the query tree.";
     return NULL;
 }
 
@@ -84,7 +86,7 @@ QtOperation::optimizeLoad( QtTrimList* trimList )
         trimList=NULL;
     }
 
-    RMInit::logOut << "Error: Method optimizeLoad(...) is undefined for a QtOperation node in the query tree." << std::endl;
+    LERROR << "Error: Method optimizeLoad(...) is undefined for a QtOperation node in the query tree.";
 }
 
 
@@ -92,7 +94,7 @@ QtOperation::optimizeLoad( QtTrimList* trimList )
 const QtTypeElement&
 QtOperation::checkType( __attribute__ ((unused)) QtTypeTuple* typeTuple )
 {
-    RMDBCLASS( "QtOperation", "checkType( QtTypeElement, QtTypeTuple* )", "qlparser", __FILE__, __LINE__ )
+	LTRACE << "qlparser";
 
     dataStreamType.setDataType( QT_TYPE_UNKNOWN );
 

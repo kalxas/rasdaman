@@ -36,6 +36,7 @@ rasdaman GmbH.
 
 #include "qlparser/qtjoiniterator.hh"
 #include "qlparser/qtmdd.hh"
+#include "../common/src/logging/easylogging++.hh"
 
 #include <iostream>
 #ifndef CPPSTDLIB
@@ -105,7 +106,7 @@ QtJoinIterator::printAlgebraicExpression( ostream& s )
 void
 QtJoinIterator::open()
 {
-    RMDBCLASS( "QtJoinIterator", "open()", "qlparser", __FILE__, __LINE__ )
+	LTRACE << "qlparser";
     startTimer("QtJoinIterator");
 
     QtIterator::open();
@@ -166,7 +167,7 @@ QtJoinIterator::open()
 QtNode::QtDataList*
 QtJoinIterator::next()
 {
-    RMDBCLASS( "QtJoinIterator", "next()", "qlparser", __FILE__, __LINE__ )
+	LTRACE << "qlparser";
     resumeTimer();
 
     QtDataList* returnValue = NULL;
@@ -259,7 +260,7 @@ QtJoinIterator::next()
                     delete returnValue;
                     returnValue = NULL;
 
-                    RMInit::logOut << "Internal Error in QtJoinIterator::next()" << endl;
+                    LERROR << "Internal Error in QtJoinIterator::next()";
                 }
         }
     }
@@ -274,8 +275,7 @@ QtJoinIterator::next()
 void
 QtJoinIterator::close()
 {
-    RMDBCLASS( "QtJoinIterator", "close()", "qlparser", __FILE__, __LINE__ )
-
+	LTRACE << "qlparser";
     if( actualTupel )
     {
         // first delete still existing data carriers
@@ -295,7 +295,7 @@ QtJoinIterator::close()
 void
 QtJoinIterator::reset()
 {
-    RMDBCLASS( "QtJoinIterator", "reset()", "qlparser", __FILE__, __LINE__ )
+	LTRACE << "qlparser";
 
     // reset the input streams
     QtIterator::reset();
@@ -338,7 +338,7 @@ QtJoinIterator::reset()
 const QtTypeTuple&
 QtJoinIterator::checkType()
 {
-    RMDBCLASS( "QtJoinIterator", "checkType()", "qlparser", __FILE__, __LINE__ )
+	LTRACE << "qlparser";
 
     getInputTypeTuple( dataStreamType );
 

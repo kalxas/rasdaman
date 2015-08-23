@@ -36,6 +36,8 @@ static const char rcsid[] = "@(#)qlparser, QtNaryOperation: $Header: /home/rasde
 #include "qlparser/qtnaryoperation.hh"
 #include "qlparser/qtconst.hh"
 
+#include "../common/src/logging/easylogging++.hh"
+
 #include <iostream>
 #ifndef CPPSTDLIB
 #include <ospace/string.h> // STL<ToolKit>
@@ -95,7 +97,7 @@ QtNaryOperation::~QtNaryOperation()
 void
 QtNaryOperation::simplify()
 {
-    RMDBCLASS( "QtNaryOperation", "simplify()", "qlparser", __FILE__, __LINE__ )
+	LTRACE << "qlparser";
 
     // In order to work bottom up, first inspect the descendants
     QtNode::simplify();
@@ -150,7 +152,7 @@ QtNaryOperation::simplify()
 bool
 QtNaryOperation::equalMeaning( QtNode* node )
 {
-    RMDBCLASS( "QtNaryOperation", "equalMeaning( QtNode* )", "qlparser", __FILE__, __LINE__ )
+	LTRACE << "qlparser";
 
     bool result;
     result=false;
@@ -188,7 +190,7 @@ QtNaryOperation::equalMeaning( QtNode* node )
 QtNode::QtNodeList*
 QtNaryOperation::getChilds( QtChildType flag )
 {
-    RMDBCLASS( "QtNaryOperation", "getChilds( QtChildType )", "qlparser", __FILE__, __LINE__ )
+	LTRACE << "qlparser";
 
     QtNodeList* resultList=NULL;
     QtNodeList* subList=NULL;
@@ -221,7 +223,7 @@ QtNaryOperation::getChilds( QtChildType flag )
 bool
 QtNaryOperation::getOperands( QtDataList* inputList, QtDataList* &operandList )
 {
-    RMDBCLASS( "QtNaryOperation", "getOperands( QtDataList*, QtDataList* )", "qlparser", __FILE__, __LINE__ )
+	LTRACE << "qlparser";
 
     bool success = (operationList != 0);
 
@@ -270,11 +272,11 @@ QtNaryOperation::getOperands( QtDataList* inputList, QtDataList* &operandList )
             delete operandList;
             operandList = NULL;
 
-            RMDBGONCE(2, RMDebug::module_qlparser, "QtNaryOperation", "Information: QtNaryOperation::getOperands() - at least one operand is not provided." )
+            LTRACE << "Information: QtNaryOperation::getOperands() - at least one operand is not provided.";
         }
     }
     else
-        RMInit::logOut << endl << "Error: QtNaryOperation::getOperands() - at least one operand branch is invalid." << endl;
+        LERROR << "Error: QtNaryOperation::getOperands() - at least one operand branch is invalid.";
 
     return success;
 }
@@ -304,7 +306,7 @@ QtNaryOperation::getSpelling()
 
     result.append( ")" );
 
-    RMDBGONCE(2, RMDebug::module_qlparser, "QtNaryOperation", "Result:" << result.c_str() )
+    LTRACE << "Result:" << result.c_str();
 
     return result;
 }
@@ -339,7 +341,7 @@ QtNaryOperation::getAreaType()
 void
 QtNaryOperation::optimizeLoad( QtTrimList* trimList )
 {
-    RMDBCLASS( "QtNaryOperation", "optimizeLoad( QtTrimList* )", "qlparser", __FILE__, __LINE__ )
+	LTRACE << "qlparser";
 
     // delete trimList
     // release( trimList->begin(), trimList->end() );

@@ -106,7 +106,7 @@ QtMDD::QtMDD( QtOperation* mintervalOp, list<QtScalarData*>* literalList )
 
         if( operand->getDataType() != QT_MINTERVAL )
         {
-            RMInit::logOut << "Error: QtMDD( QtOperation*, list<QtScalarData*>* ) - Can not evaluate domain expression to an minterval." << endl;
+            LFATAL << "Error: QtMDD( QtOperation*, list<QtScalarData*>* ) - Can not evaluate domain expression to an minterval." ;
             ParseInfo errorInfo = getParseInfo();
             errorInfo.setErrorNo(401);
             throw errorInfo;
@@ -147,7 +147,7 @@ QtMDD::QtMDD( QtOperation* mintervalOp, list<QtScalarData*>* literalList )
                     char *scalarElemTypeStructure = scalarElem->getTypeStructure();
                     if( strcmp( scalarElemTypeStructure, baseStructure ) != 0 )
                     {
-                        RMInit::logOut << "Error: QtMDD() - All cell values of an MDD must be of the same type." << std::endl;
+                        LFATAL << "Error: QtMDD() - All cell values of an MDD must be of the same type.";
                         free( cellBuffer );
                         free( scalarElemTypeStructure );
                         cellBuffer=NULL;
@@ -167,7 +167,7 @@ QtMDD::QtMDD( QtOperation* mintervalOp, list<QtScalarData*>* literalList )
 
             if( cellCount != domain.cell_count() )
             {
-                RMInit::logOut << "Error: QtMDD() - Number of cells specified does not match the number of cells of the given spatial domain." << std::endl;
+                LFATAL << "Error: QtMDD() - Number of cells specified does not match the number of cells of the given spatial domain.";
                 free( cellBuffer );
                 cellBuffer=NULL;
                 ParseInfo errorInfo = getParseInfo();
@@ -190,11 +190,11 @@ QtMDD::QtMDD( QtOperation* mintervalOp, list<QtScalarData*>* literalList )
             loadDomain = domain;
         }
         else
-            RMInit::logOut << "Internal Error: QtMDD( domain, literalList ) - list of literal lists is empty" << endl;
+            LERROR << "Internal Error: QtMDD( domain, literalList ) - list of literal lists is empty";
     }
     else
     {
-        RMInit::logOut << "Error: QtMDD( QtOperation*, list<QtScalarData*>* ) - Domain of MDD constructor has to be defined." << endl;
+        LFATAL << "Error: QtMDD( QtOperation*, list<QtScalarData*>* ) - Domain of MDD constructor has to be defined.";
         ParseInfo errorInfo = getParseInfo();
         errorInfo.setErrorNo(400);
         throw errorInfo;
@@ -209,7 +209,7 @@ QtMDD::QtMDD( __attribute__ ((unused)) int constantNo )
       mddObject( NULL ),
       fromConversion( false )
 {
-    RMDBGONCE(2, RMDebug::module_qlparser, "QtMDD", "QtMDD() - constant no " << constantNo )
+    LTRACE << "QtMDD() - constant no " << constantNo;
 
     if( mddConstants )
     {
@@ -232,7 +232,7 @@ QtMDD::QtMDD( __attribute__ ((unused)) int constantNo )
     }
     else
     {
-        RMInit::logOut << "Error: QtMDD() - Unsatisfied MDD constant parameter." << endl;
+        LFATAL << "Error: QtMDD() - Unsatisfied MDD constant parameter.";
         ParseInfo errorInfo = getParseInfo();
         errorInfo.setErrorNo(373);
         throw errorInfo;
@@ -255,7 +255,7 @@ QtMDD::~QtMDD()
     //this causes problems when passing more than one trans mddobj
     if( mddObject && getLifetime() == QtData::QT_TRANSIENT )
     {
-        RMDBGONCE( 2, RMDebug::module_qlparser, "QtMDD", "~QtMDD() - transient MDD object " << mddObject << " deleted" )
+        LTRACE << "~QtMDD() - transient MDD object " << mddObject << " deleted";
         delete mddObject;
         mddObject = NULL;
     }

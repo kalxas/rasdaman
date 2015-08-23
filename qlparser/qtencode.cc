@@ -25,6 +25,7 @@ rasdaman GmbH.
 #include "config.h"
 #include "raslib/rmdebug.hh"
 #include "debug.hh"
+#include "../common/src/logging/easylogging++.hh"
 #include <float.h>
 
 #include "catalogmgr/typefactory.hh"
@@ -106,8 +107,7 @@ QtEncode::~QtEncode()
 
 QtData* QtEncode::evaluate(QtDataList* inputList) throw (r_Error)
 {
-    RMDBCLASS("QtEncode", "evaluate( QtDataList* )", "qlparser", __FILE__, __LINE__)
-    ENTER("QtEncode::evaluate( QtDataList* )");
+	LTRACE << "qlparser";
     startTimer("QtEncode");
 
     QtData* returnValue = NULL;
@@ -126,8 +126,8 @@ QtData* QtEncode::evaluate(QtDataList* inputList) throw (r_Error)
 #ifdef QT_RUNTIME_TYPE_CHECK
             if (operand->getDataType() != QT_MDD)
             {
-                RMInit::logOut << "Internal error in QtEncode::evaluate() - "
-                        << "runtime type checking failed (MDD)." << std::endl;
+                LERROR << "Internal error in QtEncode::evaluate() - "
+                        << "runtime type checking failed (MDD).";
 
                 // delete old operand
                 if (operand) operand->deleteRef();
@@ -143,17 +143,16 @@ QtData* QtEncode::evaluate(QtDataList* inputList) throw (r_Error)
             if (operand) operand->deleteRef();
         }
         else
-            RMInit::logOut << "Error: QtEncode::evaluate() - operand is not provided." << std::endl;
+            LERROR << "Error: QtEncode::evaluate() - operand is not provided.";
     }
     stopTimer();
 
-    LEAVE("QtEncode::evaluate( QtDataList* )");
     return returnValue;
 }
 
 QtData* QtEncode::evaluateMDD(QtMDD* qtMDD) throw (r_Error)
 {
-    RMDBCLASS("QtEncode", "evaluateMDD( QtMDD* )", "qlparser", __FILE__, __LINE__)
+		LTRACE << "qlparser";
     QtData* returnValue    = NULL;
     MDDObj* currentMDDObj  = qtMDD->getMDDObject();
 
@@ -168,12 +167,12 @@ QtData* QtEncode::evaluateMDD(QtMDD* qtMDD) throw (r_Error)
     }
     else
     {
-        RMDBGMIDDLE(2, RMDebug::module_qlparser, "QtEncode", "evaluateMDD() - no tile available to encode.")
+        LTRACE << "evaluateMDD() - no tile available to encode.";
         return qtMDD;
     }
     if (!tiles->size())
     {
-        RMDBGMIDDLE(2, RMDebug::module_qlparser, "QtEncode", "evaluateMDD() - no tile available to encode.")
+        LTRACE << "evaluateMDD() - no tile available to encode.";
         return qtMDD;
     }
 
@@ -197,7 +196,7 @@ QtData* QtEncode::evaluateMDD(QtMDD* qtMDD) throw (r_Error)
     int numBands = 0;
     if (baseSchema->isPrimitiveType())   // = one band
     {
-        RMDBGMIDDLE(2, RMDebug::module_qlparser, "QtEncode", "evaluateMDD() - encoding 1-band MDD.")
+        LTRACE << "evaluateMDD() - encoding 1-band MDD.";
         numBands = 1;
         bandType = baseSchema;
     }
@@ -217,7 +216,7 @@ QtData* QtEncode::evaluateMDD(QtMDD* qtMDD) throw (r_Error)
                 {
                     if (bandType->type_id() != pt.type_id())
                     {
-                        RMInit::logOut << "QtEncode::evaluateMDD - Error: Can not handle bands of different types." << endl;
+                        LFATAL << "QtEncode::evaluateMDD - Error: Can not handle bands of different types.";
                         throw r_Error(r_Error::r_Error_General);
                     }
                 }
@@ -227,12 +226,12 @@ QtData* QtEncode::evaluateMDD(QtMDD* qtMDD) throw (r_Error)
             }
             else
             {
-                RMInit::logOut << "QtEncode::evaluateMDD - Error: Can not handle composite bands." << endl;
+                LFATAL << "QtEncode::evaluateMDD - Error: Can not handle composite bands.";
                 throw r_Error(r_Error::r_Error_General);
             }
             ++iter;
         }
-        RMDBGMIDDLE(2, RMDebug::module_qlparser, "QtEncode", "evaluateMDD() - encoding " << numBands << "-band MDD.")
+        LTRACE << "evaluateMDD() - encoding " << numBands << "-band MDD.";
     }
 
     // Convert rasdaman tile to GDAL format
@@ -246,17 +245,17 @@ QtData* QtEncode::evaluateMDD(QtMDD* qtMDD) throw (r_Error)
     
     if (gdalSource == NULL)
     {
-        RMInit::logOut << "QtEncode::evaluateMDD - Error: Could not convert tile to a GDAL dataset. " << endl;
+        LFATAL << "QtEncode::evaluateMDD - Error: Could not convert tile to a GDAL dataset. ";
         throw r_Error(r_Error::r_Error_General);
     }
 
     // get the right GDAL driver for the target format
-    RMDBGMIDDLE(2, RMDebug::module_qlparser, "QtEncode", "evaluateMDD() - encoding to format " << format)
+    LTRACE << "evaluateMDD() - encoding to format " << format;
     GDALAllRegister();
     GDALDriver *driver = GetGDALDriverManager()->GetDriverByName(format);
     if (driver == NULL)
     {
-        RMInit::logOut << "QtEncode::evaluateMDD - Error: Unsupported format: " << format << endl;
+        LFATAL << "QtEncode::evaluateMDD - Error: Unsupported format: " << format;
         throw r_Error(r_Error::r_Error_FeatureNotSupported);
     }
 
@@ -268,7 +267,7 @@ QtData* QtEncode::evaluateMDD(QtMDD* qtMDD) throw (r_Error)
     int fd = mkstemp(tmpFileName);
     if (fd < 1)
     {
-        RMInit::logOut << "QtEncode::evaluateMDD - Error: Creation of temp file failed with error:\n" << strerror(errno) << endl;
+        LFATAL << "QtEncode::evaluateMDD - Error: Creation of temp file failed with error:\n" << strerror(errno);
         throw r_Error(r_Error::r_Error_General);
     }
 
@@ -276,7 +275,7 @@ QtData* QtEncode::evaluateMDD(QtMDD* qtMDD) throw (r_Error)
     GDALDataset* gdalResult = driver->CreateCopy(tmpFileName, gdalSource, FALSE, fParams, NULL, NULL);
     if (!gdalResult)
     {
-        RMInit::logOut << "QtEncode::evaluateMDD - Error: Could not convert MDD to format " << format << endl;
+        LFATAL << "QtEncode::evaluateMDD - Error: Could not convert MDD to format " << format;
         throw r_Error(r_Error::r_Error_General);
     }
 
@@ -288,7 +287,7 @@ QtData* QtEncode::evaluateMDD(QtMDD* qtMDD) throw (r_Error)
     FILE* fileD = fopen(tmpFileName, "r");
     if (fileD == NULL)
     {
-        RMInit::logOut << "QtEncode::evaluateMDD - Error: failed opening temporary file:\n" << strerror(errno) << endl;
+        LFATAL << "QtEncode::evaluateMDD - Error: failed opening temporary file:\n" << strerror(errno);
         throw r_Error(r_Error::r_Error_General);
     }
 
@@ -297,7 +296,7 @@ QtData* QtEncode::evaluateMDD(QtMDD* qtMDD) throw (r_Error)
     r_Char* fileContents = static_cast<r_Char*>(mymalloc(static_cast<size_t>(size)));
     if (!fileContents)
     {
-        RMInit::logOut << "QtEncode::evaluateMDD - Error: Unable to claim memory: " << size << " Bytes" << endl;
+        LFATAL << "QtEncode::evaluateMDD - Error: Unable to claim memory: " << size << " Bytes";
         throw r_Error(r_Error::r_Error_MemoryAllocation);
     }
 
@@ -314,14 +313,14 @@ QtData* QtEncode::evaluateMDD(QtMDD* qtMDD) throw (r_Error)
     type = NULL;
     
     Tile *resultTile = new Tile(mddDomain, baseType, (char*) fileContents, size, getDataFormat(format));
-    RMDBGMIDDLE(2, RMDebug::module_qlparser, "QtEncode", "evaluateMDD() - Created result tile of size " << size)
+    LTRACE << "evaluateMDD() - Created result tile of size " << size;
 
     // create a transient MDD object for the query result
     MDDBaseType* mddBaseType = new MDDBaseType("tmp", baseType);
     TypeFactory::addTempType(mddBaseType);
     MDDObj* resultMDD = new MDDObj(mddBaseType, resultTile->getDomain());
     resultMDD->insertTile(resultTile);
-    RMDBGMIDDLE(2, RMDebug::module_qlparser, "QtEncode", "evaluateMDD() - Created transient MDD object")
+    LTRACE << "evaluateMDD() - Created transient MDD object";
 
     // create a new QtMDD object as carrier object for the transient MDD object
     returnValue = new QtMDD(resultMDD);
@@ -340,28 +339,27 @@ QtEncode::printTree(int tab, ostream& s, QtChildType mode)
 
 GDALDataset* QtEncode::convertTileToDataset(Tile* tile, int nBands, r_Type* bandType)
 {
-    RMDBCLASS("QtEncode", "convertTileToDataset( Tile*, int, r_Type*  )", "qlparser", __FILE__, __LINE__)
-
+	LTRACE << "qlparser";
     r_Bytes   typeSize = (static_cast<r_Primitive_Type*>(bandType))->size();
     bool  isNotBoolean = (static_cast<r_Primitive_Type*>(bandType))->type_id() != r_Type::BOOL;
     r_Minterval domain = tile->getDomain();
     if (domain.dimension() != 2)
     {
         // FIXME: some formats allow higher dimensionality, netCDF, HDF, etc.
-        RMInit::logOut << "QtEncode::convertTileToDataset - Error: only 2D data can be encoded with GDAL." << endl;
+        LERROR << "QtEncode::convertTileToDataset - Error: only 2D data can be encoded with GDAL.";
         return NULL;
     }
     int  width = domain[0].high() - domain[0].low() + 1;
     int height = domain[1].high() - domain[1].low() + 1;
     
-    RMDBGMIDDLE(2, RMDebug::module_qlparser, "QtEncode", "convertTileToDataset() - Converting tile of "
-            << width << " x " << height << " x " << typeSize)
+    LTRACE << "convertTileToDataset() - Converting tile of "
+            << width << " x " << height << " x " << typeSize;
 
     /* Create a in-memory dataset */
     GDALDriver *hMemDriver = static_cast<GDALDriver*>(GDALGetDriverByName("MEM"));
     if (hMemDriver == NULL)
     {
-        RMInit::logOut << "QtEncode::convertTileToDataset - Error: Could not init GDAL driver. " << endl;
+        LERROR << "QtEncode::convertTileToDataset - Error: Could not init GDAL driver. ";
         return NULL;
     }
 
@@ -369,7 +367,7 @@ GDALDataset* QtEncode::convertTileToDataset(Tile* tile, int nBands, r_Type* band
     GDALDataType gdalBandType = getGdalType(bandType);
     
     GDALDataset *hMemDS = hMemDriver->Create("in_memory_image", width, height, nBands, gdalBandType, NULL);
-    RMDBGMIDDLE(2, RMDebug::module_qlparser, "QtEncode", "convertTileToDataset() - Created in-memory GDAL dataset")
+    LTRACE << "convertTileToDataset() - Created in-memory GDAL dataset";
 
     char* tileCells = tile->getContents();
     char* datasetCells = static_cast<char*>(malloc(typeSize * static_cast<size_t>(height * width)));
@@ -378,10 +376,10 @@ GDALDataset* QtEncode::convertTileToDataset(Tile* tile, int nBands, r_Type* band
     int col_offset, band_offset;
     if (datasetCells == NULL)
     {
-        RMInit::logOut << "QtEncode::convertTileToDataset - Error: Could not allocate memory. " << endl;
+        LFATAL << "QtEncode::convertTileToDataset - Error: Could not allocate memory. ";
         throw r_Error(r_Error::r_Error_MemoryAllocation);
     }
-    RMDBGMIDDLE(2, RMDebug::module_qlparser, "QtEncode", "convertTileToDataset() - Allocated " << (typeSize * height * width) << " bytes for the dataset")
+    LTRACE << "convertTileToDataset() - Allocated " << (typeSize * height * width) << " bytes for the dataset";
 
     // for all bands, convert data from column-major form (from Rasdaman) to row-major form (GDAL)
     // and then write the data to GDAL datasets
@@ -414,7 +412,7 @@ GDALDataset* QtEncode::convertTileToDataset(Tile* tile, int nBands, r_Type* band
                                                      width, height, gdalBandType, 0, 0);
         if (error != CE_None)
         {
-            RMInit::logOut << "QtEncode::convertTileToDataset - Error: Could not write data to GDAL raster band " << band << endl;
+            LERROR << "QtEncode::convertTileToDataset - Error: Could not write data to GDAL raster band " << band;
             free(datasetCells);
             return NULL;
         }
@@ -464,8 +462,8 @@ QtEncode::getGdalType(r_Type* rasType)
         ret = GDT_CFloat64;
         break;
     default:
-        RMInit::logOut << "Error: Unable to convert rasdaman type " << 
-                rasType->name() << " to GDAL type." << endl;
+        LFATAL << "Error: Unable to convert rasdaman type " <<
+                rasType->name() << " to GDAL type.";
         throw r_Error(r_Error::r_Error_General);
     }
     return ret;
@@ -521,8 +519,7 @@ QtEncode::getAreaType()
 const QtTypeElement&
 QtEncode::checkType(QtTypeTuple* typeTuple)
 {
-    RMDBCLASS("QtEncode", "checkType( QtTypeTuple* )", "qlparser", __FILE__, __LINE__)
-
+	LTRACE << "qlparser";
     if (builtinConvertor)
         return builtinConvertor->checkType(typeTuple);
 
@@ -536,14 +533,13 @@ QtEncode::checkType(QtTypeTuple* typeTuple)
         const QtTypeElement& inputType = input->checkType(typeTuple);
 
         RMDBGIF(3, RMDebug::module_qlparser, "QtEncode", \
-                RMInit::dbgOut << "Class..: QtEncode" << endl; \
-                RMInit::dbgOut << "Operand: " << flush; \
-                inputType.printStatus(RMInit::dbgOut); \
-                RMInit::dbgOut << endl;)
+                LTRACE << "Class..: QtEncode"; \
+                LTRACE << "Operand: "; \
+                inputType.printStatus(RMInit::dbgOut); \)
 
         if (inputType.getDataType() != QT_MDD)
         {
-            RMInit::logOut << "Error: QtEncode::evaluate() - operand must be an MDD." << endl;
+            LFATAL << "Error: QtEncode::evaluate() - operand must be an MDD.";
             parseInfo.setErrorNo(353);
             throw parseInfo;
         }
@@ -551,7 +547,7 @@ QtEncode::checkType(QtTypeTuple* typeTuple)
         dataStreamType.setDataType(QT_MDD);
     }
     else
-        RMInit::logOut << "Error: QtEncode::checkType() - operand branch invalid." << endl;
+        LERROR << "Error: QtEncode::checkType() - operand branch invalid.";
 
     return dataStreamType;
 }
@@ -596,10 +592,10 @@ QtEncode::initParams(char* paramsIn)
     int ind;
     if ((ind = CSLFindName(fParams, PARAM_CONFIG)) != -1)
     {
-        RMInit::logOut << "Found GDAL configuration parameters." << endl;
+        LINFO << "Found GDAL configuration parameters.";
         // parse the KV-pairs and set them to GDAL environment
         const char* kvPairs = CSLFetchNameValue(fParams, PARAM_CONFIG);
-        RMInit::logOut << " KV-PAIRS = '" << kvPairs << "'" << endl;
+        LINFO << " KV-PAIRS = '" << kvPairs << "'";
         char** kvPairsList = CSLTokenizeString2(kvPairs, ",",
                                                 CSLT_STRIPLEADSPACES |
                                                 CSLT_STRIPENDSPACES);
@@ -614,7 +610,7 @@ QtEncode::initParams(char* paramsIn)
                CPLString* valueString = new CPLString(static_cast<const char*>(kvPairList[1]));
             const char* confKey = keyString->c_str();
             const char* confValue = valueString->c_str();
-            RMInit::logOut << " KEY = '" << confKey << "' VALUE ='" << confValue << "'" << endl;
+            LINFO << " KEY = '" << confKey << "' VALUE ='" << confValue << "'";
             CPLSetConfigOption(confKey, confValue); // this option is then read by the CreateCopy() method of the GDAL format
         }
     }
@@ -681,7 +677,7 @@ QtEncode::setGDALParameters(GDALDataset *gdalDataSet, int width, int height, int
 		OGRErr err = srs.SetFromUserInput(crs);
 		if (err != OGRERR_NONE)
 		{
-			RMInit::logOut << "QtEncode::convertTileToDataset - Warning: GDAL could not understand coordinate reference system: '" << crs << "'" << endl;
+			LWARNING << "QtEncode::convertTileToDataset - Warning: GDAL could not understand coordinate reference system: '" << crs << "'";
 		} else
 		{
 			srs.exportToWkt(&wkt);
@@ -712,8 +708,8 @@ QtEncode::setGDALParameters(GDALDataset *gdalDataSet, int width, int height, int
 			} else
 			{
 				// warning, nodata value no != band no -- DM 2012-dec-10
-				RMInit::logOut << "Warning: ignored setting NODATA value, number of NODATA values (" <<
-						gParams.nodata.size() << ") doesn't match the number of bands (" << nBands << ")." << endl;
+				LWARNING << "Warning: ignored setting NODATA value, number of NODATA values (" <<
+						gParams.nodata.size() << ") doesn't match the number of bands (" << nBands << ").";
 				break;
 			}
 		}

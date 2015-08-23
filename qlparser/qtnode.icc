@@ -29,6 +29,7 @@ rasdaman GmbH.
 
 #include <cstdlib>
 #include <cstring>
+#include "../common/src/logging/easylogging++.hh"
 
 inline QtNode*
 QtNode::getParent() const
@@ -55,7 +56,7 @@ QtNode::getNodeType() const
 inline void
 QtNode::setInput( QtOperation* , QtOperation* )
 {
-    RMInit::logOut << "Error: Method setInput(...) is undefined for node type " << static_cast<int>(getNodeType()) << " in the query tree." << endl;
+    LERROR << "Error: Method setInput(...) is undefined for node type " << static_cast<int>(getNodeType()) << " in the query tree.";
 }
 
 

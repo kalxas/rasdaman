@@ -49,6 +49,8 @@ using namespace std;
 #include "mddmgr/mddcoll.hh"
 #include "mddmgr/mddcolliter.hh"
 
+#include "../common/src/logging/easylogging++.hh"
+
 #include "servercomm/servercomm.hh"
 
 #include "lockmgr/lockmanager.hh"
@@ -86,7 +88,7 @@ QtMDDAccess::~QtMDDAccess()
 void
 QtMDDAccess::open()
 {
-    RMDBCLASS( "QtMDDAccess", "open()", "qlparser", __FILE__, __LINE__ )
+	LTRACE << "qlparser";
     startTimer("QtMDDAccess");
 
     // delete an existing iterator
@@ -110,7 +112,7 @@ QtMDDAccess::open()
 QtNode::QtDataList*
 QtMDDAccess::next()
 {
-	RMDBCLASS( "QtMDDAccess", "next()", "qlparser", __FILE__, __LINE__ )
+	LTRACE << "qlparser";
     resumeTimer();
 
     QtDataList* returnValue = NULL;
@@ -179,8 +181,7 @@ QtMDDAccess::next()
 void
 QtMDDAccess::close()
 {
-    RMDBCLASS( "QtMDDAccess", "close()", "qlparser", __FILE__, __LINE__ )
-
+	LTRACE << "qlparser";
     // delete the mdd iterator
     if( mddIter )
     {
@@ -224,8 +225,7 @@ QtMDDAccess::printAlgebraicExpression( ostream& s )
 const QtTypeTuple&
 QtMDDAccess::checkType()
 {
-    RMDBCLASS( "QtMDDAccess", "checkType()", "qlparser", __FILE__, __LINE__ )
-
+	LTRACE << "qlparser";
     dataStreamType = QtTypeTuple(0);
 
     //
@@ -252,12 +252,12 @@ QtMDDAccess::checkType()
         }
         else
         {
-            RMInit::logOut << "Internal Error in QtMDDAccess::open(): No client context available" << endl;
+            LERROR << "Internal Error in QtMDDAccess::open(): No client context available";
         }
     }
     catch(...)
     {
-        RMInit::logOut << "Error: QtMDDAccess::open() collection: " << collectionName.c_str() << " is unknown" << endl;
+        LFATAL << "Error: QtMDDAccess::open() collection: " << collectionName.c_str() << " is unknown";
         parseInfo.setErrorNo(355);
         throw parseInfo;
     }
@@ -265,7 +265,7 @@ QtMDDAccess::checkType()
     CollectionType* collType = const_cast<CollectionType*>(mddColl->getCollectionType());
 
     if( !collType )
-        RMInit::logOut << "Internal error in QtMDDAccess::checkType() - no collection type available" << endl;
+        LERROR << "Internal error in QtMDDAccess::checkType() - no collection type available";
 
     dataStreamType = QtTypeTuple( 1 );
 

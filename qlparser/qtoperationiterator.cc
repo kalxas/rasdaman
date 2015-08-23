@@ -40,6 +40,8 @@ static const char rcsid[] = "@(#)qlparser, QtOperationIterator: $Id: qtoperation
 #include "qlparser/qtmdd.hh"
 #include "qlparser/qtdata.hh"
 
+#include "../common/src/logging/easylogging++.hh"
+
 #include <iostream>
 #include <string>
 #include <vector>
@@ -79,7 +81,7 @@ QtOperationIterator::~QtOperationIterator()
 QtNode::QtNodeList*
 QtOperationIterator::getChilds( QtChildType flag )
 {
-    RMDBCLASS( "QtOperationIterator", "getChilds( QtChildType )", "qlparser", __FILE__, __LINE__ )
+	LTRACE << "qlparser";
 
     QtNodeList* resultList=NULL;
     QtNodeList* subList=NULL;
@@ -89,7 +91,7 @@ QtOperationIterator::getChilds( QtChildType flag )
     resultList = QtIterator::getChilds( flag );
 
     RMDBGIF(3, RMDebug::module_qlparser, "QtOperationIterator", \
-            RMInit::dbgOut << "1. childs from stream subtree " << endl; \
+            LTRACE << "1. childs from stream subtree "; \
             list<QtNode*>::iterator debugIter; \
             for( debugIter=resultList->begin(); debugIter!=resultList->end(); debugIter++ ) \
             (*debugIter)->printTree( 2, RMInit::dbgOut, QtNode::QT_DIRECT_CHILDS ); )
@@ -101,7 +103,7 @@ QtOperationIterator::getChilds( QtChildType flag )
                 subList = (*iter)->getChilds( flag ) ;
 
                 RMDBGIF(3, RMDebug::module_qlparser, "QtOperationIterator", \
-                        RMInit::dbgOut << "2. childs from operation subtree (without direct childs) " << endl; \
+                        LTRACE << "2. childs from operation subtree (without direct childs) "; \
                         list<QtNode*>::iterator debugIter; \
                         if (subList) for( debugIter=subList->begin(); debugIter!=subList->end(); debugIter++ ) \
                         (*debugIter)->printTree( 2, RMInit::dbgOut, QtNode::QT_DIRECT_CHILDS ); )
@@ -110,13 +112,13 @@ QtOperationIterator::getChilds( QtChildType flag )
                     if (subList) resultList->splice( resultList->begin(), *subList );
 
                 RMDBGIF(3, RMDebug::module_qlparser, "QtOperationIterator", \
-                        RMInit::dbgOut << "3. merge of the lists " << endl; \
+                        LTRACE << "3. merge of the lists "; \
                         list<QtNode*>::iterator debugIter; \
                         for( debugIter=resultList->begin(); debugIter!=resultList->end(); debugIter++ ) \
                         (*debugIter)->printTree( 2, RMInit::dbgOut, QtNode::QT_DIRECT_CHILDS ); )
 
                     RMDBGIF(3, RMDebug::module_qlparser, "QtOperationIterator", \
-                            RMInit::dbgOut << "4. old list (must be empty)" << endl; \
+                            LTRACE << << "4. old list (must be empty)"; \
                             list<QtNode*>::iterator debugIter; \
                             if (subList) for( debugIter=subList->begin(); debugIter!=subList->end(); debugIter++ ) \
                             (*debugIter)->printTree( 2, RMInit::dbgOut, QtNode::QT_DIRECT_CHILDS ); )
@@ -131,7 +133,7 @@ QtOperationIterator::getChilds( QtChildType flag )
                 resultList->push_back( *iter );
 
             RMDBGIF(3, RMDebug::module_qlparser, "QtOperationIterator", \
-                    RMInit::dbgOut << "4. current child list including direct childs " << endl; \
+                    LTRACE << << "4. current child list including direct childs "; \
                     list<QtNode*>::iterator debugIter; \
                     for( debugIter=resultList->begin(); debugIter!=resultList->end(); debugIter++ ) \
                     (*debugIter)->printTree( 2, RMInit::dbgOut, QtNode::QT_DIRECT_CHILDS ); )
@@ -197,7 +199,7 @@ QtOperationIterator::printAlgebraicExpression( ostream& s )
 QtNode::QtDataList*
 QtOperationIterator::next()
 {
-    RMDBCLASS( "QtOperationIterator", "next()", "qlparser", __FILE__, __LINE__ )
+	LTRACE << "qlparser";
     resumeTimer();
 
     QtDataList* returnValue = NULL;
@@ -275,7 +277,7 @@ QtOperationIterator::next()
 const QtTypeTuple&
 QtOperationIterator::checkType()
 {
-    RMDBCLASS( "QtOperationIterator", "checkType()", "qlparser", __FILE__, __LINE__ )
+	LTRACE << "qlparser";
 
     dataStreamType = QtTypeTuple();
 

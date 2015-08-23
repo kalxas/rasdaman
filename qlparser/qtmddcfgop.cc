@@ -44,6 +44,7 @@ using namespace std;
 #endif
 #include<fstream>
 
+#include "../common/src/logging/easylogging++.hh"
 
 
 QtMddCfgOp::QtMddCfgOp()
@@ -108,8 +109,7 @@ QtMddCfgOp::~QtMddCfgOp()
 void
 QtMddCfgOp::optimizeLoad( QtTrimList* trimList )
 {
-    RMDBCLASS( "QtMddCfgOp", "optimizeLoad( QtTrimList* )", "qlparser", __FILE__, __LINE__ )
-
+	LTRACE << "qlparser";
     // by default, pass load domain to the input
     if( input )
         input->optimizeLoad( trimList );

@@ -50,6 +50,8 @@ static const char rcsid[] = "@(#)qlparser, QtMarrayOp: $Header: /home/rasdev/CVS
 #include "catalogmgr/algebraops.hh"
 #include "relcatalogif/mdddimensiontype.hh"
 
+#include "../common/src/logging/easylogging++.hh"
+
 #include <iostream>
 #ifndef CPPSTDLIB
 #include <ospace/string.h> // STL<ToolKit>
@@ -71,7 +73,7 @@ QtMarrayOp::QtMarrayOp( const string &initIteratorName, QtOperation* mintervalEx
 void
 QtMarrayOp::optimizeLoad( QtTrimList* trimList )
 {
-    RMDBCLASS( "QtMarrayOp", "optimizeLoad( QtTrimList* )", "qlparser", __FILE__, __LINE__ )
+	LTRACE << "qlparser";
 
     // delete the trimList and optimize subtrees
 
@@ -100,7 +102,7 @@ QtMarrayOp::isCommutative() const
 QtData*
 QtMarrayOp::evaluate( QtDataList* inputList )
 {
-    RMDBCLASS( "QtMarrayOp", "evaluate( QtDataList* )", "qlparser", __FILE__, __LINE__ )
+	LTRACE << "qlparser";
     startTimer("QtMarrayOp");
 
     QtData* returnValue = NULL;
@@ -128,8 +130,8 @@ QtMarrayOp::evaluate( QtDataList* inputList )
 
 #ifdef QT_RUNTIME_TYPE_CHECK
         if( operand1->getDataType() != QT_MINTERVAL )
-            RMInit::logOut << "Internal error in QtMarrayOp::evaluate() - "
-                           << "runtime type checking failed (Minterval)." << endl;
+            LERROR << "Internal error in QtMarrayOp::evaluate() - "
+                           << "runtime type checking failed (Minterval).";
 
         // delete old operand
         if( operand1 ) operand1->deleteRef();
@@ -139,7 +141,7 @@ QtMarrayOp::evaluate( QtDataList* inputList )
 
         r_Minterval domain = (static_cast<QtMintervalData*>(operand1))->getMintervalData();
 
-        RMDBGONCE(4, RMDebug::module_qlparser, "QtMarrayOp", "Marray domain " << domain)
+        LTRACE << "Marray domain " << domain;
 
         //
         // add point data with its iterator name to the input list
@@ -268,7 +270,7 @@ QtMarrayOp::printAlgebraicExpression( ostream& s )
 const QtTypeElement&
 QtMarrayOp::checkType( QtTypeTuple* typeTuple )
 {
-    RMDBCLASS( "QtMarrayOp", "checkType( QtTypeTuple* )", "qlparser", __FILE__, __LINE__ )
+	LTRACE << "qlparser";
 
     dataStreamType.setDataType( QT_TYPE_UNKNOWN );
 
@@ -281,7 +283,7 @@ QtMarrayOp::checkType( QtTypeTuple* typeTuple )
 
         if( (domainExp.getDataType() != QT_MINTERVAL) && (domainExp.getDataType() != QT_INTERVAL) )
         {
-            RMInit::logOut << "Error: QtMarrayOp::checkType() - Can not evaluate domain expression to an minterval." << endl;
+            LFATAL << "Error: QtMarrayOp::checkType() - Can not evaluate domain expression to an minterval.";
             parseInfo.setErrorNo(401);
             throw parseInfo;
         }
@@ -318,7 +320,7 @@ QtMarrayOp::checkType( QtTypeTuple* typeTuple )
                 valueExp.getDataType() != QT_FLOAT  && valueExp.getDataType() != QT_DOUBLE  &&
                 valueExp.getDataType() != QT_COMPLEXTYPE1 && valueExp.getDataType() != QT_COMPLEXTYPE2 )
         {
-            RMInit::logOut << "Error: QtMarrayOp::checkType() - Value expression must be either of type atomic or complex." << endl;
+            LERROR << "Error: QtMarrayOp::checkType() - Value expression must be either of type atomic or complex.";
             parseInfo.setErrorNo(412);
             throw parseInfo;
         }
@@ -331,7 +333,7 @@ QtMarrayOp::checkType( QtTypeTuple* typeTuple )
         dataStreamType.setType( mddBaseType );
     }
     else
-        RMInit::logOut << "Error: QtMarrayOp::checkType() - operand branch invalid." << endl;
+        LERROR << "Error: QtMarrayOp::checkType() - operand branch invalid.";
 
     return dataStreamType;
 }

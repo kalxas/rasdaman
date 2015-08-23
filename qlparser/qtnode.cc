@@ -41,6 +41,7 @@ static const char rcsid[] = "@(#)qlparser, QtNode: $Id: qtnode.cc,v 1.27 2002/06
 #include <iostream>
 #include <algorithm>
 
+#include "../common/src/logging/easylogging++.hh"
 
 const QtNode::QtNodeType QtNode::nodeType = QT_UNDEFINED_NODE;
 
@@ -210,7 +211,7 @@ QtNode::subtype( enum QtNodeType a, enum QtNodeType b )
 QtNode::QtNodeList*
 QtNode::getChilds( QtChildType flag )
 {
-    RMDBCLASS( "QtNode", "getChilds( QtChildType )", "qlparser", __FILE__, __LINE__ )
+	LTRACE << "qlparser";
 
     // Default definition is used for all leaf nodes.
 
@@ -237,7 +238,7 @@ QtNode::getChilds( QtChildType flag )
 QtNode::QtNodeList*
 QtNode::getChild( const QtNodeType node, QtChildType flag )
 {
-    RMDBCLASS( "QtNode", "getChild( QtChildType )", "qlparser", __FILE__, __LINE__ )
+	LTRACE << "qlparser";
 
     QtNodeList* resultList=NULL;
     QtNodeList::iterator iter;
@@ -276,7 +277,7 @@ QtNode::getAreaType()
 void
 QtNode::simplify()
 {
-    RMDBCLASS( "QtNode", "simplify()", "qlparser", __FILE__, __LINE__ )
+	LTRACE << "qlparser";
 
     // Default method for all classes that have no implementation.
     // Method is used bottom up.
@@ -600,7 +601,7 @@ QtTypeElement::setDataType( const QtDataType newDataType )
     case QT_MDD:
     case QT_COMPLEX:
         RMDBGIF(4, RMDebug::module_qlparser, "QtNode",
-            RMInit::logOut << "QtTypeElement::setDataType() - MDD and complex types need to be specified further." << std::endl;)
+            LINFO << "QtTypeElement::setDataType() - MDD and complex types need to be specified further.";)
         break;
 
     case QT_STRING:

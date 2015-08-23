@@ -40,6 +40,7 @@ static const char rcsid[] = "@(#)qlparser, QtIntervalOp: $Header: /home/rasdev/C
 #include "qlparser/qtintervaldata.hh"
 #include "qlparser/qtstringdata.hh"
 #include "qlparser/qtatomicdata.hh"
+#include "../common/src/logging/easylogging++.hh"
 
 #include <iostream>
 #ifndef CPPSTDLIB
@@ -90,7 +91,7 @@ QtIntervalOp::evaluate( QtDataList* inputList )
             }
             catch(...)
             {
-                RMInit::logOut << "Error: QtIntervalOp::evaluate() - interval bound must be of type integer or '*'." << endl;
+                LFATAL << "Error: QtIntervalOp::evaluate() - interval bound must be of type integer or '*'.";
                 parseInfo.setErrorNo(389);
 
                 // delete the old operands
@@ -110,7 +111,7 @@ QtIntervalOp::evaluate( QtDataList* inputList )
             }
             catch(...)
             {
-                RMInit::logOut << "Error: QtIntervalOp::evaluate() - interval bound must be of type integer or '*'." << endl;
+                LFATAL << "Error: QtIntervalOp::evaluate() - interval bound must be of type integer or '*'.";
                 parseInfo.setErrorNo(389);
 
                 // delete the old operands
@@ -129,7 +130,7 @@ QtIntervalOp::evaluate( QtDataList* inputList )
                 sinterval.set_low('*');
             else
             {
-                RMInit::logOut << "Error: QtIntervalOp::evaluate() - interval bound must be '*'." << endl;
+                LFATAL << "Error: QtIntervalOp::evaluate() - interval bound must be '*'.";
                 parseInfo.setErrorNo(389);
 
                 // delete the old operands
@@ -141,7 +142,7 @@ QtIntervalOp::evaluate( QtDataList* inputList )
             break;
 
         default:
-            RMInit::logOut << "Error: QtIntervalOp::evaluate() - interval bound must be of type integer or '*'." << endl;
+            LFATAL << "Error: QtIntervalOp::evaluate() - interval bound must be of type integer or '*'.";
             parseInfo.setErrorNo(388);
 
             // delete the old operands
@@ -163,7 +164,7 @@ QtIntervalOp::evaluate( QtDataList* inputList )
             }
             catch(...)
             {
-                RMInit::logOut << "Error: QtIntervalOp::evaluate() - interval bound must be of type integer or '*'." << endl;
+                LFATAL << "Error: QtIntervalOp::evaluate() - interval bound must be of type integer or '*'.";
                 parseInfo.setErrorNo(389);
 
                 // delete the old operands
@@ -183,7 +184,7 @@ QtIntervalOp::evaluate( QtDataList* inputList )
             }
             catch(...)
             {
-                RMInit::logOut << "Error: QtIntervalOp::evaluate() - interval bound must be of type integer or '*'." << endl;
+                LFATAL << "Error: QtIntervalOp::evaluate() - interval bound must be of type integer or '*'.";
                 parseInfo.setErrorNo(389);
                 // delete the old operands
                 if( operand1 ) operand1->deleteRef();
@@ -201,7 +202,7 @@ QtIntervalOp::evaluate( QtDataList* inputList )
                 sinterval.set_high('*');
             else
             {
-                RMInit::logOut << "Error: QtIntervalOp::evaluate() - interval bound must be '*'." << endl;
+                LFATAL << "Error: QtIntervalOp::evaluate() - interval bound must be '*'.";
                 parseInfo.setErrorNo(389);
 
                 // delete the old operands
@@ -213,7 +214,7 @@ QtIntervalOp::evaluate( QtDataList* inputList )
             break;
 
         default:
-            RMInit::logOut << "Error: QtIntervalOp::evaluate() - interval bound must be of type integer or '*'." << endl;
+            LFATAL << "Error: QtIntervalOp::evaluate() - interval bound must be of type integer or '*'.";
             parseInfo.setErrorNo(388);
 
             // delete the old operands
@@ -272,7 +273,7 @@ QtIntervalOp::printAlgebraicExpression( ostream& s )
 const QtTypeElement&
 QtIntervalOp::checkType( QtTypeTuple* typeTuple )
 {
-    RMDBCLASS( "QtIintervalOp", "checkType( QtTypeTuple* )", "qlparser", __FILE__, __LINE__ )
+	LTRACE << "qlparser";
 
     dataStreamType.setDataType( QT_TYPE_UNKNOWN );
 
@@ -305,7 +306,7 @@ QtIntervalOp::checkType( QtTypeTuple* typeTuple )
 
         if( !opTypesValid )
         {
-            RMInit::logOut << "Error: QtIntervalOp::evaluate() - interval bound must be of type integer or '*'." << endl;
+            LFATAL << "Error: QtIntervalOp::evaluate() - interval bound must be of type integer or '*'.";
             parseInfo.setErrorNo(389);
             throw parseInfo;
         }
@@ -313,7 +314,7 @@ QtIntervalOp::checkType( QtTypeTuple* typeTuple )
         dataStreamType.setDataType( QT_INTERVAL );
     }
     else
-        RMInit::logOut << "Error: QtIntervalOp::checkType() - input branch invalid." << endl;
+        LERROR << "Error: QtIntervalOp::checkType() - input branch invalid.";
 
     return dataStreamType;
 }

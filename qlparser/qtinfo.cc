@@ -48,6 +48,7 @@ rasdaman GmbH.
 
 #include "raslib/oid.hh"
 #include "raslib/parseparams.hh"
+#include "../common/src/logging/easylogging++.hh"
 
 using namespace std;
 
@@ -58,14 +59,14 @@ QtInfo::QtInfo( QtVariable* newInput )
     : QtUnaryOperation( newInput ),
       printTiles( 0 )
 {
-    RMDBCLASS( "QtInfo", "QtInfo( QtVariable* )", "qlparser", __FILE__, __LINE__ )
+    LTRACE << "qlparser";
 }
 
 QtInfo::QtInfo( QtVariable* newInput, const char* paramsStr )
     : QtUnaryOperation( newInput ),
       printTiles( 0 )
 {
-    RMDBCLASS( "QtInfo", "QtInfo( QtVariable* )", "qlparser", __FILE__, __LINE__ )
+	LTRACE << "qlparser";
     r_Parse_Params* params = new r_Parse_Params();
     params->add("printtiles", &printTiles, r_Parse_Params::param_type_int);
     
@@ -82,7 +83,7 @@ QtInfo::QtInfo( QtVariable* newInput, const char* paramsStr )
 QtData*
 QtInfo::evaluate( QtDataList* inputList )
 {
-    RMDBCLASS( "QtInfo", "evaluate( QtDataList* )", "qlparser", __FILE__, __LINE__ )
+	LTRACE << "qlparser";
     startTimer("QtInfo");
 
     QtData* returnValue = NULL;
@@ -95,8 +96,8 @@ QtInfo::evaluate( QtDataList* inputList )
 #ifdef QT_RUNTIME_TYPE_CHECK
         if( operand->getDataType() == QT_MDD )
         {
-            RMInit::logOut << "Internal error in QtInfo::evaluate() - "
-                           << "runtime type checking failed (MDD)." << std::endl;
+            LERROR << "Internal error in QtInfo::evaluate() - "
+                           << "runtime type checking failed (MDD).";
 
             // delete old operand
             if( operand ) operand->deleteRef();
@@ -116,7 +117,7 @@ QtInfo::evaluate( QtDataList* inputList )
             OId localOId;
             if( persMDD->getOId( &localOId ) )
             {
-                RMInit::logOut << "Error: QtInfo::evaluate() - could not get oid." << std::endl;
+                LFATAL << "Error: QtInfo::evaluate() - could not get oid.";
 
                 // delete old operand
                 if( operand ) operand->deleteRef();
@@ -215,7 +216,7 @@ QtInfo::evaluate( QtDataList* inputList )
                 }
                 else
                 {
-                    RMInit::logOut << "Error: QtInfo::evaluate() - could not get storage layout object." << std::endl;
+                    LFATAL << "Error: QtInfo::evaluate() - could not get storage layout object.";
 
                     // delete old operand
                     if (operand) operand->deleteRef();
@@ -226,7 +227,7 @@ QtInfo::evaluate( QtDataList* inputList )
             }
             else
             {
-                RMInit::logOut << "Error: QtInfo::evaluate() - could not get database object." << std::endl;
+                LFATAL << "Error: QtInfo::evaluate() - could not get database object.";
 
                 // delete old operand
                 if( operand ) operand->deleteRef();
@@ -237,7 +238,7 @@ QtInfo::evaluate( QtDataList* inputList )
         }
         else
         {
-            RMInit::logOut << "Error: QtInfo::evaluate() - operand is not a persistent MDD." << std::endl;
+            LFATAL << "Error: QtInfo::evaluate() - operand is not a persistent MDD.";
 
             // delete old operand
             if( operand ) operand->deleteRef();
@@ -249,7 +250,7 @@ QtInfo::evaluate( QtDataList* inputList )
         if( operand ) operand->deleteRef();
     }
     else
-        RMInit::logOut << "Error: QtInfo::evaluate() - operand is not provided." << std::endl;
+        LERROR << "Error: QtInfo::evaluate() - operand is not provided.";
     
     stopTimer();
 
@@ -286,7 +287,7 @@ QtInfo::printAlgebraicExpression( std::ostream& s )
 const QtTypeElement&
 QtInfo::checkType( QtTypeTuple* typeTuple )
 {
-    RMDBCLASS( "QtInfo", "checkType( QtTypeTuple* )", "qlparser", __FILE__, __LINE__ )
+	LTRACE << "qlparser";
 
     dataStreamType.setDataType( QT_TYPE_UNKNOWN );
 
@@ -299,7 +300,7 @@ QtInfo::checkType( QtTypeTuple* typeTuple )
 
         if( inputType.getDataType() != QT_MDD )
         {
-            RMInit::logOut << "Error: QtInfo::checkType() - operand is not of type MDD." << std::endl;
+            LFATAL << "Error: QtInfo::checkType() - operand is not of type MDD.";
             parseInfo.setErrorNo(383);
             throw parseInfo;
         }
@@ -307,7 +308,7 @@ QtInfo::checkType( QtTypeTuple* typeTuple )
         dataStreamType.setDataType( QT_MDD );
     }
     else
-        RMInit::logOut << "Error: QtInfo::checkType() - operand branch invalid." << std::endl;
+        LERROR << "Error: QtInfo::checkType() - operand branch invalid.";
 
     return dataStreamType;
 }

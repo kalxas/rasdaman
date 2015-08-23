@@ -43,6 +43,8 @@ static const char rcsid[] = "@(#)qlparser, QtPointOp: $Id: qtpointop.cc,v 1.7 20
 #include "catalogmgr/ops.hh"
 #include "relcatalogif/type.hh"
 
+#include "../common/src/logging/easylogging++.hh"
+
 #include <iostream>
 #ifndef CPPSTDLIB
 #include <ospace/string.h> // STL<ToolKit>
@@ -64,7 +66,7 @@ QtPointOp::QtPointOp( QtOperationList* opList )
 QtData*
 QtPointOp::evaluate( QtDataList* inputList )
 {
-    RMDBCLASS( "QtPointOp", "evaluate( QtDataList* )", "qlparser", __FILE__, __LINE__ )
+	LTRACE << "qlparser";
     startTimer("QtPointOp");
 
     QtData*     returnValue = NULL;
@@ -89,7 +91,7 @@ QtPointOp::evaluate( QtDataList* inputList )
 
             if( !goOn )
             {
-                RMInit::logOut << "Error: QtPointOp::evaluate() - operands of point expression must be of type integer." << std::endl;
+                LFATAL << "Error: QtPointOp::evaluate() - operands of point expression must be of type integer.";
 
                 parseInfo.setErrorNo(410);
 
@@ -172,8 +174,7 @@ QtPointOp::printAlgebraicExpression( std::ostream& s )
 const QtTypeElement&
 QtPointOp::checkType( QtTypeTuple* typeTuple )
 {
-    RMDBCLASS( "QtPointOp", "checkType( QtTypeTuple* )", "qlparser", __FILE__, __LINE__ )
-
+	LTRACE << "qlparser";
     dataStreamType.setDataType( QT_TYPE_UNKNOWN );
 
     QtOperationList::iterator iter;
@@ -198,7 +199,7 @@ QtPointOp::checkType( QtTypeTuple* typeTuple )
 
     if( !opTypesValid )
     {
-        RMInit::logOut << "Error: QtPointOp::checkType() - operand of point expression must be of type integer." << std::endl;
+        LFATAL << "Error: QtPointOp::checkType() - operand of point expression must be of type integer.";
         parseInfo.setErrorNo(410);
         throw parseInfo;
     }

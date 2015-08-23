@@ -32,6 +32,8 @@ rasdaman GmbH.
 
 static const char rcsid[] = "@(#)qlparser, QtIterator: $Id: qtiterator.cc,v 1.20 2001/08/14 10:48:17 rastest Exp $";
 
+#include "../common/src/logging/easylogging++.hh"
+
 #include "config.h"
 #include "qlparser/qtiterator.hh"
 #include <iostream>
@@ -83,7 +85,7 @@ QtIterator::getChilds( QtChildType flag )
     list<QtNode*>::iterator it; //default
     QtNode::QtNodeList::iterator iter;
 
-    RMDBCLASS( "QtIterator", "getChilds( QtChildType )", "qlparser", __FILE__, __LINE__ )
+	LTRACE << "qlparser";
 
     // allocate resultList
     resultList = new QtNodeList();
@@ -114,7 +116,7 @@ QtIterator::getChilds( QtChildType flag )
 void
 QtIterator::open()
 {
-    RMDBCLASS( "QtIterator", "open()", "qlparser", __FILE__, __LINE__ )
+	LTRACE << "qlparser";
     startTimer("QtIterator");
 
     if( inputs )
@@ -130,8 +132,7 @@ QtIterator::open()
 void
 QtIterator::close()
 {
-    RMDBCLASS( "QtIterator", "close()", "qlparser", __FILE__, __LINE__ )
-
+	LTRACE << "qlparser";
     if( inputs )
     {
         QtONCStreamList::iterator i;
@@ -217,7 +218,7 @@ QtIterator::setStreamInput( QtONCStream* oldInput, QtONCStream* newInput )
         }
 
     if( notDone )
-        RMInit::logOut << "QtIterator::setStreamInput() - Error: Old input stream not found." << endl;
+        LERROR << "QtIterator::setStreamInput() - Error: Old input stream not found.";
 }
 
 QtIterator::QtONCStreamList*
@@ -241,10 +242,10 @@ QtIterator::getInputTypeTuple( QtTypeTuple& typeTuple )
             if( *inputIter )
                 typeTuple.concat( (*inputIter)->checkType() );
             else
-                RMInit::logOut << "Error: QtIterator::getInputTypeTuple() - input branch is invalid." << endl;
+                LERROR << "Error: QtIterator::getInputTypeTuple() - input branch is invalid.";
         }
     }
     else
-        RMInit::logOut << "Error: QtIterator::getInputTypeTuple() - inputs branch is invalid." << endl;
+        LERROR << "Error: QtIterator::getInputTypeTuple() - inputs branch is invalid.";
 }
 

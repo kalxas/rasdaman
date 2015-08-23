@@ -69,6 +69,7 @@ static const char rcsid[] = "@(#)qlparser, QtInsert: $Header: /home/rasdev/CVS-r
 #include "raslib/basetype.hh"
 #include "raslib/collectiontype.hh"
 
+#include "../common/src/logging/easylogging++.hh"
 
 
 extern ServerComm::ClientTblElt* currentClientTblElt;
@@ -111,7 +112,7 @@ QtInsert::~QtInsert()
 QtData*
 QtInsert::evaluate()
 {
-    RMDBCLASS("QtInsert", "evaluate()", "qlparser", __FILE__, __LINE__)
+	LTRACE << "qlparser";
     startTimer("QtInsert");
       
     // allocate a new oid within the current db
@@ -156,7 +157,7 @@ QtInsert::evaluate()
         catch (...)
         {
 
-            RMInit::logOut << "Error: QtInsert::evaluate() - collection name not found" << std::endl;
+            LFATAL << "Error: QtInsert::evaluate() - collection name not found";
 
             // delete the operand
             if (sourceData) sourceData->deleteRef();
@@ -166,7 +167,7 @@ QtInsert::evaluate()
         }
         if (!almost->isPersistent())
         {
-            RMInit::logOut << "QtInsert: User tries to insert into system table" << std::endl;
+            LFATAL << "QtInsert: User tries to insert into system table";
             if (sourceData) sourceData->deleteRef();
 
             parseInfo.setErrorNo(355);
@@ -187,9 +188,9 @@ QtInsert::evaluate()
         RMDBGIF(3, RMDebug::module_qlparser, "QtInsert",  \
                 char* collTypeStructure = persColl->getCollectionType()->getTypeStructure();  \
                 char* mddTypeStructure = sourceObj->getMDDBaseType()->getTypeStructure();  \
-                RMInit::dbgOut << std::endl << "Collection type structure.: " << collTypeStructure << std::endl \
-                << "MDD type structure........: " << mddTypeStructure << std::endl \
-                << "MDD domain................: " << sourceObj->getDefinitionDomain() << std::endl;  \
+                LTRACE << "Collection type structure.: " << collTypeStructure << "\n" \
+                << "MDD type structure........: " << mddTypeStructure << "\n" \
+                << "MDD domain................: " << sourceObj->getDefinitionDomain();  \
                 free(collTypeStructure); collTypeStructure = NULL;  \
                 free(mddTypeStructure); mddTypeStructure = NULL;)
         cellSize = static_cast<int>(sourceObj->getMDDBaseType()->getBaseType()->getSize());
@@ -228,7 +229,7 @@ QtInsert::evaluate()
             if (sourceData) sourceData->deleteRef(); // delete the operand
 
             // return error
-            RMInit::logOut << "Error: QtInsert::evaluate() - MDD and collection types are incompatible" << std::endl;
+            LFATAL << "Error: QtInsert::evaluate() - MDD and collection types are incompatible";
             parseInfo.setErrorNo(959);
             throw parseInfo;
         }
@@ -243,7 +244,7 @@ QtInsert::evaluate()
             if (sourceData) sourceData->deleteRef(); // delete the operand
 
             // return error
-            RMInit::logOut << "Error: QtInsert::evaluate() - MDD and collection domains are incompatible" << std::endl;
+            LFATAL << "Error: QtInsert::evaluate() - MDD and collection domains are incompatible";
             parseInfo.setErrorNo(959);
             throw parseInfo;
         }
@@ -261,7 +262,7 @@ QtInsert::evaluate()
         // cast to external format
         myoid = static_cast<long long>(oid);
         RMDBGIF(3, RMDebug::module_qlparser, "QtInsert",  \
-            RMInit::logOut << "QtInsert::evaluate() - allocated oid:" << myoid << " counter:" << oid.getCounter() << std::endl;)
+            LINFO << "QtInsert::evaluate() - allocated oid:" << myoid << " counter:" << oid.getCounter();)
             // get all tiles
             vector<boost::shared_ptr<Tile> >* sourceTiles = sourceObj->getTiles();
 
@@ -270,7 +271,7 @@ QtInsert::evaluate()
 
             if (!persMDDType)
             {
-                RMInit::logOut << "Error: QtInsert::evaluate() - type not persistent" << std::endl;
+                LFATAL << "Error: QtInsert::evaluate() - type not persistent";
 
                 // delete dynamic data
                 if (sourceData)
@@ -380,7 +381,7 @@ QtInsert::evaluate()
         }
         else
         {
-            RMInit::logOut << "Error: QtInsert::evaluate() - allocation of oid failed" << std::endl;
+            LFATAL << "Error: QtInsert::evaluate() - allocation of oid failed";
 
             // delete dynamic data
             if (sourceData) sourceData->deleteRef();
@@ -403,7 +404,7 @@ QtInsert::evaluate()
         persColl = NULL;
     }
     else
-        RMInit::logOut << "Error: QtInsert::evaluate() - insert data is invalid." << std::endl;
+        LERROR << "Error: QtInsert::evaluate() - insert data is invalid.";
 
     // delete source operand
     if (sourceData)
@@ -420,7 +421,7 @@ QtInsert::evaluate()
 
    // return the generated OID
    RMDBGIF(3, RMDebug::module_qlparser, "QtInsert",
-     RMInit::logOut << "QtInsert::evaluate() - returning oid:" << myoid << std::endl;)
+     LINFO << "QtInsert::evaluate() - returning oid:" << myoid;)
    returnValue = new QtAtomicData( static_cast<r_Long>(myoid), static_cast<unsigned short>(sizeof(r_Long)) );
    return returnValue;
 }
@@ -429,8 +430,6 @@ QtNode::QtNodeList*
 QtInsert::getChilds(QtChildType flag)
 {
     QtNodeList* resultList = NULL;
-
-    RMDBGENTER(0, RMDebug::module_qlparser, "QtInsert", "QtInsert::getChilds()")
 
     if (source)
     {
@@ -449,8 +448,6 @@ QtInsert::getChilds(QtChildType flag)
     else
         resultList = new QtNodeList();
 
-
-    RMDBGEXIT(0, RMDebug::module_qlparser, "QtInsert", "QtInsert::getChilds()")
     return resultList;
 }
 
@@ -500,7 +497,7 @@ QtInsert::getSource()
 void
 QtInsert::checkType()
 {
-    RMDBCLASS("QtInsert", "checkType()", "qlparser", __FILE__, __LINE__)
+	LTRACE << "qlparser";
 
     // check operand branches
     if (source)
@@ -511,7 +508,7 @@ QtInsert::checkType()
 
         if (inputType.getDataType() != QT_MDD)
         {
-            RMInit::logOut << "Error: QtInsert::checkType() - insert expression must be of type r_Marray<T>" << std::endl;
+            LFATAL << "Error: QtInsert::checkType() - insert expression must be of type r_Marray<T>";
             parseInfo.setErrorNo(960);
             throw parseInfo;
         }
@@ -521,13 +518,13 @@ QtInsert::checkType()
 
         // get input type
         if (dataToInsert->getDataType() != QT_MDD) {
-            RMInit::logOut << "Error: QtInsert::checkType() - inserted data must be of type r_Marray<T>" << std::endl;
+            LFATAL << "Error: QtInsert::checkType() - inserted data must be of type r_Marray<T>";
             parseInfo.setErrorNo(960);
             throw parseInfo;
         }
     }
     else
-        RMInit::logOut << "Error: QtInsert::checkType() - operand branch invalid." << std::endl;
+        LERROR << "Error: QtInsert::checkType() - operand branch invalid.";
 }
 
 r_Data_Format

@@ -42,13 +42,15 @@ static const char rcsid[] = "@(#)qlparser, QtOId: $Header: /home/rasdev/CVS-repo
 
 #include "raslib/oid.hh"
 
+#include "../common/src/logging/easylogging++.hh"
+
 const QtNode::QtNodeType QtOId::nodeType = QtNode::QT_OID;
 
 
 QtOId::QtOId( QtVariable* newInput )
     : QtUnaryOperation( newInput )
 {
-    RMDBCLASS( "QtOId", "QtOId( QtVariable* )", "qlparser", __FILE__, __LINE__ )
+	LTRACE << "qlparser";
 }
 
 
@@ -56,7 +58,7 @@ QtOId::QtOId( QtVariable* newInput )
 QtData*
 QtOId::evaluate( QtDataList* inputList )
 {
-    RMDBCLASS( "QtOId", "evaluate( QtDataList* )", "qlparser", __FILE__, __LINE__ )
+	LTRACE << "qlparser";
     startTimer("QtOid");
 
     QtData* returnValue = NULL;
@@ -69,8 +71,8 @@ QtOId::evaluate( QtDataList* inputList )
 #ifdef QT_RUNTIME_TYPE_CHECK
         if( operand->getDataType() == QT_MDD )
         {
-            RMInit::logOut << "Internal error in QtOId::evaluate() - "
-                           << "runtime type checking failed (MDD)." << std::endl;
+            LERROR << "Internal error in QtOId::evaluate() - "
+                           << "runtime type checking failed (MDD).";
 
             // delete old operand
             if( operand ) operand->deleteRef();
@@ -90,13 +92,13 @@ QtOId::evaluate( QtDataList* inputList )
             OId localOId;
             if( !persMDD->getOId( &localOId ) )
             {
-                RMDBGMIDDLE( 1, RMDebug::module_qlparser, "QtOid", "  oid = " << static_cast<double>(localOId)  )
+                LTRACE << "  oid = " << static_cast<double>(localOId);
 
                 returnValue = new QtAtomicData( static_cast<double>(localOId), static_cast<unsigned short>(8) );
             }
             else
             {
-                RMInit::logOut << "Error: QtOId::evaluate() - could not get oid." << std::endl;
+                LFATAL << "Error: QtOId::evaluate() - could not get oid.";
 
                 // delete old operand
                 if( operand ) operand->deleteRef();
@@ -107,7 +109,7 @@ QtOId::evaluate( QtDataList* inputList )
         }
         else
         {
-            RMInit::logOut << "Error: QtOId::evaluate() - operand is not a persistent MDD." << std::endl;
+            LFATAL << "Error: QtOId::evaluate() - operand is not a persistent MDD.";
 
             // delete old operand
             if( operand ) operand->deleteRef();
@@ -119,7 +121,7 @@ QtOId::evaluate( QtDataList* inputList )
         if( operand ) operand->deleteRef();
     }
     else
-        RMInit::logOut << "Error: QtOId::evaluate() - operand is not provided." << std::endl;
+        LERROR << "Error: QtOId::evaluate() - operand is not provided.";
     
     stopTimer();
 
@@ -156,7 +158,7 @@ QtOId::printAlgebraicExpression( std::ostream& s )
 const QtTypeElement&
 QtOId::checkType( QtTypeTuple* typeTuple )
 {
-    RMDBCLASS( "QtOId", "checkType( QtTypeTuple* )", "qlparser", __FILE__, __LINE__ )
+	LTRACE << "qlparser";
 
     dataStreamType.setDataType( QT_TYPE_UNKNOWN );
 
@@ -169,7 +171,7 @@ QtOId::checkType( QtTypeTuple* typeTuple )
 
         if( inputType.getDataType() != QT_MDD )
         {
-            RMInit::logOut << "Error: QtOId::checkType() - operand is not of type MDD." << std::endl;
+            LFATAL << "Error: QtOId::checkType() - operand is not of type MDD.";
             parseInfo.setErrorNo(383);
             throw parseInfo;
         }
@@ -177,7 +179,7 @@ QtOId::checkType( QtTypeTuple* typeTuple )
         dataStreamType.setDataType( QT_DOUBLE );
     }
     else
-        RMInit::logOut << "Error: QtOId::checkType() - operand branch invalid." << std::endl;
+        LFATAL << "Error: QtOId::checkType() - operand branch invalid.";
 
     return dataStreamType;
 }

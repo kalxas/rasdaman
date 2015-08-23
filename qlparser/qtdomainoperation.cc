@@ -61,6 +61,8 @@ using namespace std;
 #include <iostream>
 #include <string.h>
 
+#include "../common/src/logging/easylogging++.hh"
+
 
 const QtNode::QtNodeType QtDomainOperation::nodeType = QtNode::QT_DOMAIN_OPERATION;
 
@@ -69,8 +71,7 @@ QtDomainOperation::QtDomainOperation( QtOperation* mintOp )
     : mintervalOp( mintOp ),
       dynamicMintervalExpression( true )
 {
-    RMDBCLASS( "QtDomainOperation", "QtDomainOperation( QtOperation* )", "qlparser", __FILE__, __LINE__ )
-
+	LTRACE << "qlparser";
     if( mintervalOp ) mintervalOp->setParent( this );
 }
 
@@ -80,8 +81,7 @@ QtDomainOperation::QtDomainOperation( r_Minterval domainNew, const vector<bool>*
     : mintervalOp(0),
       dynamicMintervalExpression( false )
 {
-    RMDBCLASS( "QtDomainOperation", "QtDomainOperation( r_Minterval, const vector<bool>* )", "qlparser", __FILE__, __LINE__ )
-
+	LTRACE << "qlparser";
     // make a copy
     vector<bool>* trimFlags  = new vector<bool>( *newTrimFlags );
     mintervalOp = new QtConst( new QtMintervalData( domainNew, trimFlags ) );
@@ -92,8 +92,7 @@ QtDomainOperation::QtDomainOperation( r_Minterval domainNew, const vector<bool>*
 
 QtDomainOperation::~QtDomainOperation()
 {
-    RMDBCLASS( "QtDomainOperation", "~QtDomainOperation()", "qlparser", __FILE__, __LINE__ )
-
+	LTRACE << "qlparser";
     if( mintervalOp )
     {
         delete mintervalOp;
@@ -106,8 +105,7 @@ QtDomainOperation::~QtDomainOperation()
 QtNode::QtNodeList*
 QtDomainOperation::getChilds( QtChildType flag )
 {
-    RMDBCLASS( "QtDomainOperation", "getChilds( QtChildType )", "qlparser", __FILE__, __LINE__ )
-
+	LTRACE << "qlparser";
     QtNodeList* resultList=NULL;
 
     resultList = QtUnaryOperation::getChilds( flag );
@@ -141,8 +139,7 @@ QtDomainOperation::getChilds( QtChildType flag )
 bool
 QtDomainOperation::equalMeaning( QtNode* node )
 {
-    RMDBCLASS( "QtDomainOperation", "equalMeaning( QtNode* )", "qlparser", __FILE__, __LINE__ )
-
+	LTRACE << "qlparser";
     bool result = false;
 
     if( nodeType == node->getNodeType() )
@@ -192,8 +189,7 @@ QtDomainOperation::setInput( QtOperation* inputOld, QtOperation* inputNew )
 void
 QtDomainOperation::optimizeLoad( QtTrimList* trimList )
 {
-    RMDBCLASS( "QtDomainOperation", "optimizeLoad( QtTrimList* )", "qlparser", __FILE__, __LINE__ )
-
+	LTRACE << "qlparser";
     // test, if there is already a specification for that dimension
     bool trimming = false;
 
@@ -259,7 +255,7 @@ QtDomainOperation::optimizeLoad( QtTrimList* trimList )
     // Eliminate node QtDomainOperation if only trimming occurs.
     if( trimming )
     {
-        RMDBGMIDDLE(2, RMDebug::module_qlparser, "QtDomainOperation", "all trimming")
+        LTRACE << "all trimming";
 
         getParent()->setInput( this, input );
 
@@ -275,7 +271,7 @@ QtDomainOperation::optimizeLoad( QtTrimList* trimList )
 QtData*
 QtDomainOperation::evaluate( QtDataList* inputList )
 {
-    RMDBCLASS( "QtDomainOperation", "evaluate( QtDataList* )", "qlparser", __FILE__, __LINE__ )
+	LTRACE << "qlparser";
     startTimer("QtDomainOperation");
 
     QtData* returnValue = NULL;
@@ -300,8 +296,8 @@ QtDomainOperation::evaluate( QtDataList* inputList )
             if(  indexData->getDataType() != QT_POINT &&
                     !indexData->getDataType().isInteger()    )
             {
-                RMInit::logOut << "Internal error in QtDomainOperation::evaluate() - "
-                               << "runtime type checking failed (QT_POINT, INTEGER)." << endl;
+                LERROR << "Internal error in QtDomainOperation::evaluate() - "
+                               << "runtime type checking failed (QT_POINT, INTEGER).";
 
                 // delete index data
                 indexData->deleteRef();
@@ -371,7 +367,7 @@ QtDomainOperation::evaluate( QtDataList* inputList )
 #ifdef QT_RUNTIME_TYPE_CHECK
             if( operand->getDataType() != QT_MDD )
             {
-                RMInit::logOut << "Internal error in QtDomainOperation::evaluate() - runtime type checking failed (QT_MDD)." << endl;
+                LERROR << "Internal error in QtDomainOperation::evaluate() - runtime type checking failed (QT_MDD).";
 
                 // delete index and operand data
                 indexData->deleteRef();
@@ -387,8 +383,8 @@ QtDomainOperation::evaluate( QtDataList* inputList )
 
             if( currentMDDObj )
             {
-                RMDBGMIDDLE(2, RMDebug::module_qlparser, "QtDomainOperation", "  mdd domain: "              << currentMDDObj->getCurrentDomain() )
-                RMDBGMIDDLE(2, RMDebug::module_qlparser, "QtDomainOperation", "  mdd load domain: "         << qtMDD->getLoadDomain() )
+                LTRACE << "  mdd domain: "              << currentMDDObj->getCurrentDomain();
+                LTRACE << "  mdd load domain: "         << qtMDD->getLoadDomain();
 
                 // reset loadDomain to intersection of domain and loadDomain
                 // if( domain.intersection_with( qtMDD->getLoadDomain() ) != qtMDD->getLoadDomain() )
@@ -397,7 +393,7 @@ QtDomainOperation::evaluate( QtDataList* inputList )
                 // get type of cell
                 const BaseType* cellType = (const_cast<MDDBaseType*>(currentMDDObj->getMDDBaseType()))->getBaseType();
 
-                RMDBGMIDDLE(2, RMDebug::module_qlparser, "QtDomainOperation", "  point access: " << projPoint )
+                LTRACE << "  point access: " << projPoint;
                 char* resultCell = NULL;
                 if (projPoint.dimension() == currentMDDObj->getDimension())
                     resultCell = currentMDDObj->pointQuery( projPoint );
@@ -448,8 +444,8 @@ QtDomainOperation::evaluate( QtDataList* inputList )
 #ifdef QT_RUNTIME_TYPE_CHECK
             if( indexData->getDataType() != QT_MINTERVAL )
             {
-                RMInit::logOut << "Internal error in QtDomainOperation::evaluate() - "
-                               << "runtime type checking failed (QT_MINTERVAL)." << endl;
+                LERROR << "Internal error in QtDomainOperation::evaluate() - "
+                               << "runtime type checking failed (QT_MINTERVAL).";
 
                 // delete index data
                 indexData->deleteRef();
@@ -501,7 +497,7 @@ QtDomainOperation::evaluate( QtDataList* inputList )
 #ifdef QT_RUNTIME_TYPE_CHECK
             if( operand->getDataType() != QT_MDD )
             {
-                RMInit::logOut << "Internal error in QtDomainOperation::evaluate() - runtime type checking failed (QT_MDD)." << endl;
+                LERROR << "Internal error in QtDomainOperation::evaluate() - runtime type checking failed (QT_MDD).";
 
                 // delete index and operand data
                 indexData->deleteRef();
@@ -551,9 +547,9 @@ QtDomainOperation::evaluate( QtDataList* inputList )
                     trimFlags = NULL;
                 }
 
-                RMDBGMIDDLE(2, RMDebug::module_qlparser, "QtDomainOperation", "  operation domain..: " << domain << " with projection " << projectedDom )
-                RMDBGMIDDLE(2, RMDebug::module_qlparser, "QtDomainOperation", "  mdd load    domain: " << qtMDD->getLoadDomain() )
-                RMDBGMIDDLE(2, RMDebug::module_qlparser, "QtDomainOperation", "  mdd current domain: " << currentMDDObj->getCurrentDomain() )
+                LTRACE << "  operation domain..: " << domain << " with projection " << projectedDom;
+                LTRACE << "  mdd load    domain: " << qtMDD->getLoadDomain();
+                LTRACE << "  mdd current domain: " << currentMDDObj->getCurrentDomain();
 
                 if( trimming || projection )
                 {
@@ -577,7 +573,7 @@ QtDomainOperation::evaluate( QtDataList* inputList )
                             // domain of the relevant area of the actual tile
                             r_Minterval intersectDom = tileDom.create_intersection( domain );
 
-                            RMDBGMIDDLE(2, RMDebug::module_qlparser, "QtDomainOperation", "  trimming/projecting tile with domain " << tileDom << " to domain " << intersectDom )
+                            LTRACE << "  trimming/projecting tile with domain " << tileDom << " to domain " << intersectDom;
 
                             // create projected tile
                             Tile* resTile = new Tile( tileIt->get(), intersectDom, &projSet );
@@ -620,7 +616,7 @@ QtDomainOperation::evaluate( QtDataList* inputList )
                         resultMDD->insertTile( resTile );
                         returnValue = new QtMDD( static_cast<MDDObj*>(resultMDD) );
 
-//                RMInit::logOut << "Error: QtDomainOperation::evaluate() - the load domain does not intersect with tiles in the current MDD." << endl;
+//                LFATAL << "Error: QtDomainOperation::evaluate() - the load domain does not intersect with tiles in the current MDD.";
 //                parseInfo.setErrorNo(356);
 //
 //                // delete index and operand data
@@ -660,7 +656,7 @@ QtDomainOperation::evaluate( QtDataList* inputList )
 #ifdef QT_RUNTIME_TYPE_CHECK
             if( operandData->getDataType() != QT_MINTERVAL )
             {
-                RMInit::logOut << "Internal error in QtDomainOperation::evaluate() - runtime type checking failed (QT_MINTERVAL)." << endl;
+                LERROR << "Internal error in QtDomainOperation::evaluate() - runtime type checking failed (QT_MINTERVAL).";
                 return 0;
             }
 #endif
@@ -674,7 +670,7 @@ QtDomainOperation::evaluate( QtDataList* inputList )
             if( indexData->getDataType() != QT_POINT  && indexData->getDataType() != QT_CHAR &&
                     indexData->getDataType() != QT_USHORT && indexData->getDataType() != QT_ULONG   )
             {
-                RMInit::logOut << "Internal error in QtDomainOperation::evaluate() - runtime type checking failed." << endl;
+                LERROR << "Internal error in QtDomainOperation::evaluate() - runtime type checking failed.";
                 return 0;
             }
 #endif
@@ -689,7 +685,7 @@ QtDomainOperation::evaluate( QtDataList* inputList )
 
                 if( indexPoint.dimension() != 1 )
                 {
-                    RMInit::logOut << "Error: QtDomainOperation::evaluate() - Operand of minterval selection must be of type unsigned integer." << endl;
+                    LFATAL << "Error: QtDomainOperation::evaluate() - Operand of minterval selection must be of type unsigned integer.";
                     parseInfo.setErrorNo(397);
 
                     // delete ressources
@@ -715,12 +711,12 @@ QtDomainOperation::evaluate( QtDataList* inputList )
                 indexValue = static_cast<r_Dimension>((static_cast<QtAtomicData*>(indexData))->getSignedValue());
                 break;
             default:
-                RMDBGONCE(0, RMDebug::module_qlparser, "r_QtDomainOperation", "evaluate() bad type " << indexData->getDataType());
+                LTRACE << "evaluate() bad type " << indexData->getDataType();
                 break;
             }
             if( indexValue >= minterval.dimension() )
             {
-                RMInit::logOut << "Error: QtDomainOperation::evaluate() - index for minterval selection is out of range." << endl;
+                LFATAL << "Error: QtDomainOperation::evaluate() - index for minterval selection is out of range.";
                 parseInfo.setErrorNo(398);
 
                 // delete ressources
@@ -752,7 +748,7 @@ QtDomainOperation::evaluate( QtDataList* inputList )
 #ifdef QT_RUNTIME_TYPE_CHECK
             if( operandData->getDataType() != QT_POINT )
             {
-                RMInit::logOut << "Internal error in QtDomainOperation::evaluate() - runtime type checking failed (QT_POINT)." << endl;
+                LERROR << "Internal error in QtDomainOperation::evaluate() - runtime type checking failed (QT_POINT).";
                 return 0;
             }
 #endif
@@ -766,7 +762,7 @@ QtDomainOperation::evaluate( QtDataList* inputList )
             if( indexData->getDataType() != QT_POINT  && indexData->getDataType() != QT_CHAR &&
                     indexData->getDataType() != QT_USHORT && indexData->getDataType() != QT_ULONG   )
             {
-                RMInit::logOut << "Internal error in QtDomainOperation::evaluate() - runtime type checking failed." << endl;
+                LERROR << "Internal error in QtDomainOperation::evaluate() - runtime type checking failed.";
                 return 0;
             }
 #endif
@@ -785,7 +781,7 @@ QtDomainOperation::evaluate( QtDataList* inputList )
 
                 if( indexPoint.dimension() != 1 )
                 {
-                    RMInit::logOut << "Error: QtDomainOperation::evaluate() - Operand of point selection must be of type unsigned integer." << endl;
+                    LFATAL << "Error: QtDomainOperation::evaluate() - Operand of point selection must be of type unsigned integer.";
                     parseInfo.setErrorNo(399);
 
                     // delete ressources
@@ -817,13 +813,13 @@ QtDomainOperation::evaluate( QtDataList* inputList )
                 }
                 break;
             default:
-                RMDBGONCE(0, RMDebug::module_qlparser, "r_QtDomainOperation", "evaluate() 2 - bad type " << indexData->getDataType());
+                LTRACE << "evaluate() 2 - bad type " << indexData->getDataType();
                 break;
             }
 
             if( indexValue >= pt.dimension() )
             {
-                RMInit::logOut << "Error: QtDomainOperation::evaluate() - index for point selection is out of range." << endl;
+                LFATAL << "Error: QtDomainOperation::evaluate() - index for point selection is out of range.";
                 parseInfo.setErrorNo(411);
 
                 // delete ressources
@@ -845,7 +841,7 @@ QtDomainOperation::evaluate( QtDataList* inputList )
 
     default:
     {
-        RMInit::logOut << "Error: QtDomainOperation::evaluate() - selection operation is not supported on this data type." << endl;
+        LFATAL << "Error: QtDomainOperation::evaluate() - selection operation is not supported on this data type.";
         parseInfo.setErrorNo(396);
         throw parseInfo;
     }
@@ -903,8 +899,7 @@ QtDomainOperation::printAlgebraicExpression( ostream& s )
 const QtTypeElement&
 QtDomainOperation::checkType( QtTypeTuple* typeTuple )
 {
-    RMDBCLASS( "QtDomainOperation", "checkType( QtTypeTuple* )", "qlparser", __FILE__, __LINE__ )
-
+	LTRACE << "qlparser";
     dataStreamType.setDataType( QT_TYPE_UNKNOWN );
 
     //
@@ -940,7 +935,7 @@ QtDomainOperation::checkType( QtTypeTuple* typeTuple )
                     && !indexType.isInteger()
               )
             {
-                RMInit::logOut << "Error: QtDomainOperation::checkType() - spatial domain expressions must be either of type minterval, point, or integer." << endl;
+                LFATAL << "Error: QtDomainOperation::checkType() - spatial domain expressions must be either of type minterval, point, or integer.";
                 parseInfo.setErrorNo(391);
                 throw parseInfo;
             }
@@ -958,7 +953,7 @@ QtDomainOperation::checkType( QtTypeTuple* typeTuple )
             // check index type
             if( !indexType.isInteger() && indexType.getDataType() != QT_POINT )
             {
-                RMInit::logOut << "Error: QtDomainOperation::checkType() - Operand of minterval selection must be of type integer." << endl;
+                LFATAL << "Error: QtDomainOperation::checkType() - Operand of minterval selection must be of type integer.";
                 parseInfo.setErrorNo(397);
                 throw parseInfo;
             }
@@ -970,7 +965,7 @@ QtDomainOperation::checkType( QtTypeTuple* typeTuple )
             // check index type
             if( !indexType.isInteger() && indexType.getDataType() != QT_POINT )
             {
-                RMInit::logOut << "Error: QtDomainOperation::checkType() - Operand of point selection must be of type integer." << endl;
+                LFATAL << "Error: QtDomainOperation::checkType() - Operand of point selection must be of type integer.";
                 parseInfo.setErrorNo(399);
                 throw parseInfo;
             }
@@ -979,13 +974,13 @@ QtDomainOperation::checkType( QtTypeTuple* typeTuple )
         }
         else
         {
-            RMInit::logOut << "Error: QtDomainOperation::checkType() - selection operation is not supported on this data type." << endl;
+            LFATAL << "Error: QtDomainOperation::checkType() - selection operation is not supported on this data type.";
             parseInfo.setErrorNo(396);
             throw parseInfo;
         }
     }
     else
-        RMInit::logOut << "Error: QtDomainOperation::checkType() - input or index branch invalid." << endl;
+        LERROR << "Error: QtDomainOperation::checkType() - input or index branch invalid.";
 
     return dataStreamType;
 }

@@ -51,6 +51,8 @@ static const char rcsid[] = "@(#)qlparser, QtMarrayOp2: $Header: /home/rasdev/CV
 
 #include "catalogmgr/algebraops.hh"
 
+#include "../common/src/logging/easylogging++.hh"
+
 #include <iostream>
 #ifndef CPPSTDLIB
 #include <ospace/string.h> // STL<ToolKit>
@@ -73,7 +75,6 @@ QtMarrayOp2::~QtMarrayOp2()
 bool QtMarrayOp2::concatenateIntervals()
 {
     QtData* data=NULL;
-    RMDBGENTER( 2, RMDebug::module_qlparser, "QtMarrayOp2", "Validity Check: " )
 
     // check for validity
     bool eflag=true;
@@ -102,12 +103,12 @@ bool QtMarrayOp2::concatenateIntervals()
             }
         }
     }
-    RMDBGMIDDLE( 2, RMDebug::module_qlparser, "QtMarrayOp2", "Validity check completed." )
+    LTRACE << "Validity check completed.";
     if (eflag)
     {
-        RMDBGMIDDLE( 2, RMDebug::module_qlparser, "QtMarrayOp2", "eflag is true!" << endl )
+        LTRACE << "eflag is true!";
         // compute total dimension
-        RMDBGMIDDLE( 2, RMDebug::module_qlparser, "QtMarrayOp2", endl << "QtMarrayOp2: Dimensions: " )
+        LTRACE << "QtMarrayOp2: Dimensions: ";
         greatDimension=0;
         mddIntervalListType::const_iterator i;
         for (i = iterators.begin(); i != iterators.end() ; i++)
@@ -115,13 +116,13 @@ bool QtMarrayOp2::concatenateIntervals()
             // evaluate intervals
             data = (i->tree)->evaluate(0);
             r_Dimension dimension = (static_cast<QtMintervalData*>(data))->getMintervalData().dimension();
-            RMDBGMIDDLE( 2, RMDebug::module_qlparser, "QtMarrayOp2", dimension << " | " );
+            LTRACE << dimension << " | ";
             greatDimension += dimension;
         }
-        RMDBGMIDDLE( 2, RMDebug::module_qlparser, "QtMarrayOp2", " Total " << greatDimension << endl )
+        LTRACE << " Total " << greatDimension;
 
         // concatenate the data of the intervals into one big interval
-        RMDBGMIDDLE( 2, RMDebug::module_qlparser, "QtMarrayOp2", "QtMarray2: Domains: " )
+        LTRACE << "QtMarray2: Domains: ";
         greatDomain = r_Minterval( greatDimension );
         for (i = iterators.begin(); i != iterators.end() ; i++)
         {
@@ -135,12 +136,12 @@ bool QtMarrayOp2::concatenateIntervals()
                 r_Sinterval part = domain[jj];
                 greatDomain << part;
             }
-            RMDBGMIDDLE( 2, RMDebug::module_qlparser, "QtMarrayOp2", domain << " | " )
+            LTRACE << domain << " | ";
         }
-        RMDBGMIDDLE( 2, RMDebug::module_qlparser, "QtMarrayOp2", " Total: " << greatDomain << endl )
+        LTRACE << " Total: " << greatDomain;
 
         // concatenate the identifier names to one big identifier name
-        RMDBGMIDDLE( 2, RMDebug::module_qlparser, "QtMarrayOp2", "QtMarray2: Iterators: " )
+        LTRACE << "QtMarray2: Iterators: ";
         greatIterator = string("");
         string iname("");
         for (i = iterators.begin(); i != iterators.end() ; i++)
@@ -148,14 +149,10 @@ bool QtMarrayOp2::concatenateIntervals()
             // get iterator name
             iname = string(i->variable);
             greatIterator = greatIterator + string(" ") + string(i->variable);
-            RMDBGMIDDLE( 2, RMDebug::module_qlparser, "QtMarrayOp2", i->variable << " | " )
+            LTRACE << i->variable << " | ";
         }
-        RMDBGEXIT( 2, RMDebug::module_qlparser, "QtMarrayOp2", " Total: " << greatIterator << endl )
     }
-    else
-    {
-        RMDBGEXIT( 2, RMDebug::module_qlparser, "QtMarrayOp2", " eflag is false! " << greatIterator << endl )
-    }
+
     return eflag;
 }
 
@@ -165,10 +162,10 @@ void QtMarrayOp2::rewriteVars( )
 {
     if (!oldMarray)
     {
-        RMDBGMIDDLE( 2, RMDebug::module_qlparser, "QtMarrayOp2", "concatenateIteratorNames: " )
+        LTRACE << "concatenateIteratorNames: ";
         mddIntervalListType::const_iterator i;
         // concatenate the identifier names to one big identifier name
-        RMDBGMIDDLE( 2, RMDebug::module_qlparser, "QtMarrayOp2", "QtMarray2: Iterators: " )
+        LTRACE << "QtMarray2: Iterators: ";
         greatIterator = string("");
         string iname("");
         for (i = iterators.begin(); i != iterators.end() ; i++)
@@ -176,9 +173,9 @@ void QtMarrayOp2::rewriteVars( )
             // get iterator name
             iname = string(i->variable);
             greatIterator = greatIterator + string(" ") + string(i->variable);
-            RMDBGMIDDLE( 2, RMDebug::module_qlparser, "QtMarrayOp2", i->variable << " | " )
+            LTRACE << i->variable << " | ";
         }
-        RMDBGMIDDLE( 2, RMDebug::module_qlparser, "QtMarrayOp2", " Total: " << greatIterator << endl )
+        LTRACE << " Total: " << greatIterator;
     }
     traverse(qtOperation);
 }
@@ -235,7 +232,7 @@ void QtMarrayOp2::traverse(QtOperation *&node)
                 {
                     if (!oldMarray)
                     {
-                        RMDBGMIDDLE( 2, RMDebug::module_qlparser, "QtMarrayOp2", endl << "marray2 var identifier:" << ((QtVariable *)node)->getIteratorName() << " replacing with " << greatIterator << endl )
+                        LTRACE << "marray2 var identifier:" << ((QtVariable *)node)->getIteratorName() << " replacing with " << greatIterator;
                         (static_cast<QtVariable *>(node))->setIteratorName(greatIterator);
                     };
                     // replace with var[0]

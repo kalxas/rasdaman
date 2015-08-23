@@ -44,6 +44,8 @@ static const char rcsid[] = "@(#)qlparser, QtMintervalOp: $Header: /home/rasdev/
 #include "catalogmgr/ops.hh"
 #include "relcatalogif/type.hh"
 
+#include "../common/src/logging/easylogging++.hh"
+
 #include <iostream>
 #ifndef CPPSTDLIB
 #include <ospace/string.h> // STL<ToolKit>
@@ -65,7 +67,7 @@ QtMintervalOp::QtMintervalOp( QtOperationList* opList )
 QtData*
 QtMintervalOp::evaluate( QtDataList* inputList )
 {
-    RMDBCLASS( "QtMintervalOp", "evaluate( QtDataList* )", "qlparser", __FILE__, __LINE__ )
+	LTRACE << "qlparser";
     startTimer("QtMintervalOp");
 
     QtData*     returnValue = NULL;
@@ -100,7 +102,7 @@ QtMintervalOp::evaluate( QtDataList* inputList )
 
             if( !goOn )
             {
-                RMInit::logOut << "Error: QtMintervalOp::evaluate() - expressions for minterval dimensions must be either of type integer or interval." << endl;
+                LFATAL << "Error: QtMintervalOp::evaluate() - expressions for minterval dimensions must be either of type integer or interval.";
                 parseInfo.setErrorNo(390);
 
                 // delete the old operands
@@ -189,7 +191,7 @@ QtMintervalOp::printAlgebraicExpression( ostream& s )
 const QtTypeElement&
 QtMintervalOp::checkType( QtTypeTuple* typeTuple )
 {
-    RMDBCLASS( "QtMintervalOp", "checkType( QtTypeTuple* )", "qlparser", __FILE__, __LINE__ )
+	LTRACE << "qlparser";
 
     dataStreamType.setDataType( QT_TYPE_UNKNOWN );
 
@@ -216,7 +218,7 @@ QtMintervalOp::checkType( QtTypeTuple* typeTuple )
 
     if( !opTypesValid )
     {
-        RMInit::logOut << "Error: QtMintervalOp::checkType() - expressions for minterval dimensions must be either of type integer or interval." << endl;
+        LFATAL << "Error: QtMintervalOp::checkType() - expressions for minterval dimensions must be either of type integer or interval.";
         parseInfo.setErrorNo(390);
         throw parseInfo;
     }
