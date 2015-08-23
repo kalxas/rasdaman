@@ -44,6 +44,8 @@ static const char rcsid[] = "@(#)qlparser, QtCondense: $Header: /home/rasdev/CVS
 #include "qlparser/qtbinaryinduce.hh"
 #include "qlparser/qtbinaryinduce2.hh"
 
+#include "../common/src/logging/easylogging++.hh"
+
 #include "mddmgr/mddobj.hh"
 
 #include "catalogmgr/typefactory.hh"
@@ -106,7 +108,7 @@ QtCondense::optimizeLoad( QtTrimList* trimList )
 QtData*
 QtCondense::computeFullCondense( QtDataList* inputList, r_Minterval& areaOp )
 {
-    RMDBCLASS( "QtCondense", "computeFullCondense( QtDataList*, r_Minterval& )", "qlparser", __FILE__, __LINE__ )
+	LTRACE << "qlparser";
 
     QtScalarData* returnValue = NULL;
 
@@ -119,8 +121,8 @@ QtCondense::computeFullCondense( QtDataList* inputList, r_Minterval& areaOp )
 #ifdef QT_RUNTIME_TYPE_CHECK
         if( operand->getDataType() != QT_MDD )
         {
-            RMInit::logOut << "Internal error in QtCountCells::computeFullCondense() - "
-                           << "runtime type checking failed (MDD)." << endl;
+            LERROR << "Internal error in QtCountCells::computeFullCondense() - "
+                           << "runtime type checking failed (MDD).";
 
             // delete old operand
             if( operand ) operand->deleteRef();
@@ -136,8 +138,8 @@ QtCondense::computeFullCondense( QtDataList* inputList, r_Minterval& areaOp )
         {
             if( mdd->getCellType()->getType() != BOOLTYPE )
             {
-                RMInit::logOut << "Internal error in QtCondense::computeFullCondense() - "
-                               << "runtime type checking failed (BOOL)." << endl;
+                LERROR << "Internal error in QtCondense::computeFullCondense() - "
+                               << "runtime type checking failed (BOOL).";
 
                 // delete old operand
                 if( operand ) operand->deleteRef();
@@ -157,16 +159,16 @@ QtCondense::computeFullCondense( QtDataList* inputList, r_Minterval& areaOp )
         //  get the area, where the operation has to be applied
         areaOp = mdd->getLoadDomain();
 
-        TALK( "computeFullCondense-last-good\n" );
+        LDEBUG << "computeFullCondense-last-good\n";
         // get all tiles in relevant area
         vector< boost::shared_ptr<Tile> >* allTiles = op->intersect(areaOp);
 
-        TALK( "computeFullCondense-8\n" );
+        LDEBUG << "computeFullCondense-8\n";
         // get new operation object
         CondenseOp* condOp = Ops::getCondenseOp( opType, resultType, mdd->getCellType() );
         condOp->setNullValues(nullValues);
 
-        TALK( "computeFullCondense-9\n" );
+        LDEBUG << "computeFullCondense-9\n";
         // and iterate over them
         for( vector< boost::shared_ptr<Tile> >::iterator tileIt = allTiles->begin();
                 tileIt!=allTiles->end(); tileIt++ )
@@ -184,38 +186,37 @@ QtCondense::computeFullCondense( QtDataList* inputList, r_Minterval& areaOp )
         delete allTiles;
         allTiles=NULL;
 
-        TALK( "computeFullCondense-a\n" );
+        LDEBUG << "computeFullCondense-a\n";
         // create result object
         if( resultType->getType() == STRUCT )
             returnValue = new QtComplexData();
         else
             returnValue = new QtAtomicData();
-        TALK("Clone null values.");
+        LDEBUG <<"Clone null values.";
         returnValue->cloneNullValues(condOp);
 
-        TALK( "computeFullCondense-b\n" );
+        LDEBUG << "computeFullCondense-b\n";
         // allocate buffer for the result
         char* resultBuffer = new char[resultType->getSize()];
         memcpy( resultBuffer, condOp->getAccuVal(), resultType->getSize() );
 
-        TALK( "computeFullCondense-c\n" );
+        LDEBUG << "computeFullCondense-c\n";
         returnValue->setValueType  ( resultType );
         returnValue->setValueBuffer( resultBuffer );
 
-        TALK( "computeFullCondense-d\n" );
+        LDEBUG << "computeFullCondense-d\n";
         // delete operation object
         delete condOp;
         condOp=NULL;
 
-        TALK( "computeFullCondense-e\n" );
+        LDEBUG << "computeFullCondense-e\n";
         // delete old operand
         operand->deleteRef();
 
     RMDBGIF(3, RMDebug::module_qlparser, "QtCondense", \
-            RMInit::dbgOut << endl << "opType of QtCondense::computeFullCondense(): " << opType << endl; \
-            RMInit::dbgOut <<         "Result.....................................: " << flush; \
-            returnValue->printStatus( RMInit::dbgOut ); \
-            RMInit::dbgOut << endl; )
+            LTRACE << "opType of QtCondense::computeFullCondense(): " << opType; \
+            LTRACE <<         "Result.....................................: "; \
+            returnValue->printStatus( RMInit::dbgOut ); \ )
     }
 
     return returnValue;
@@ -226,8 +227,7 @@ QtCondense::computeFullCondense( QtDataList* inputList, r_Minterval& areaOp )
 const QtTypeElement&
 QtCondense::checkType( QtTypeTuple* typeTuple )
 {
-    RMDBCLASS( "QtCondense", "checkType( QtTypeTuple* )", "qlparser", __FILE__, __LINE__ )
-
+	LTRACE << "qlparser";
     dataStreamType.setDataType( QT_TYPE_UNKNOWN );
 
     // check operand branches
@@ -238,14 +238,13 @@ QtCondense::checkType( QtTypeTuple* typeTuple )
         const QtTypeElement& inputType = input->checkType( typeTuple );
 
         RMDBGIF(3, RMDebug::module_qlparser, "QtCondense", \
-                RMInit::dbgOut << "Class..: " << getClassName() << endl; \
-                RMInit::dbgOut << "Operand: " << flush; \
-                inputType.printStatus( RMInit::dbgOut ); \
-                RMInit::dbgOut << endl; )
+                LTRACE << "Class..: " << getClassName(); \
+                LTRACE << "Operand: "; \
+                inputType.printStatus( RMInit::dbgOut ); \ )
 
         if( inputType.getDataType() != QT_MDD )
         {
-            RMInit::logOut << "Error: QtCondense::evaluate() - operand must be multidimensional." << endl;
+            LFATAL << "Error: QtCondense::evaluate() - operand must be multidimensional.";
             parseInfo.setErrorNo(353);
             throw parseInfo;
         }
@@ -256,7 +255,7 @@ QtCondense::checkType( QtTypeTuple* typeTuple )
         {
             if( baseType->getType() != BOOLTYPE )
             {
-                RMInit::logOut << "Error: QtCondense::evaluate() - operand of quantifiers must be of type r_Marray<d_Boolean>." << endl;
+                LFATAL << "Error: QtCondense::evaluate() - operand of quantifiers must be of type r_Marray<d_Boolean>.";
                 parseInfo.setErrorNo(354);
                 throw parseInfo;
             }
@@ -266,7 +265,7 @@ QtCondense::checkType( QtTypeTuple* typeTuple )
         {
             if( baseType->getType() != BOOLTYPE )
             {
-                RMInit::logOut << "Error: QtCondense::evaluate() - operand of count_cells must be of type r_Marray<d_Boolean>." << endl;
+                LFATAL << "Error: QtCondense::evaluate() - operand of count_cells must be of type r_Marray<d_Boolean>.";
                 parseInfo.setErrorNo(415);
                 throw parseInfo;
             }
@@ -287,7 +286,7 @@ QtCondense::checkType( QtTypeTuple* typeTuple )
         dataStreamType.setType( resultType );
     }
     else
-        RMInit::logOut << "Error: QtCondense::checkType() - operand branch invalid." << endl;
+        LERROR << "Error: QtCondense::checkType() - operand branch invalid.";
 
     return dataStreamType;
 }
@@ -336,7 +335,7 @@ QtSome::QtSome( QtOperation* inputNew )
 QtData*
 QtSome::evaluate( QtDataList* inputList )
 {
-    RMDBCLASS( "QtSome", "evaluate( QtDataList* )", "qlparser", __FILE__, __LINE__ )
+	LTRACE << "qlparser";
     startTimer("Qt");
 
     QtData* returnValue = NULL;
@@ -350,8 +349,8 @@ QtSome::evaluate( QtDataList* inputList )
 #ifdef QT_RUNTIME_TYPE_CHECK
         if( operand->getDataType() != QT_MDD )
         {
-            RMInit::logOut << "Internal error in QtSome::evaluate() - "
-                           << "runtime type checking failed (MDD)." << endl;
+            LERROR << "Internal error in QtSome::evaluate() - "
+                           << "runtime type checking failed (MDD).";
 
             // delete old operand
             if( operand ) operand->deleteRef();
@@ -367,8 +366,8 @@ QtSome::evaluate( QtDataList* inputList )
 
 #ifdef QT_RUNTIME_TYPE_CHECK
         if( mdd->getCellType()->getType() != BOOLTYPE )
-            RMInit::logOut << "Internal error in QtSome::evaluate() - "
-                           << "runtime type checking failed (BOOL)." << endl;
+            LERROR << "Internal error in QtSome::evaluate() - "
+                           << "runtime type checking failed (BOOL).";
 
         // delete old operand
         if( operand ) operand->deleteRef();
@@ -454,7 +453,7 @@ QtAll::QtAll( QtOperation* inputNew )
 QtData*
 QtAll::evaluate( QtDataList* inputList )
 {
-    RMDBCLASS( "QtAll", "evaluate( QtDataList* )", "qlparser", __FILE__, __LINE__ )
+	LTRACE << "qlparser";
     startTimer("QtAll");
 
     QtData* returnValue = NULL;
@@ -469,8 +468,8 @@ QtAll::evaluate( QtDataList* inputList )
 #ifdef QT_RUNTIME_TYPE_CHECK
         if( operand->getDataType() != QT_MDD )
         {
-            RMInit::logOut << "Internal error in QtAll::evaluate() - "
-                           << "runtime type checking failed (MDD)." << endl;
+            LERROR << "Internal error in QtAll::evaluate() - "
+                           << "runtime type checking failed (MDD).";
 
             // delete old operand
             if( operand ) operand->deleteRef();
@@ -486,8 +485,8 @@ QtAll::evaluate( QtDataList* inputList )
 
 #ifdef QT_RUNTIME_TYPE_CHECK
         if( mdd->getCellType()->getType() != BOOLTYPE )
-            RMInit::logOut << "Internal error in QtAll::evaluate() - "
-                           << "runtime type checking failed (BOOL)." << endl;
+            LERROR << "Internal error in QtAll::evaluate() - "
+                           << "runtime type checking failed (BOOL).";
 
         // delete old operand
         if( operand ) operand->deleteRef();
@@ -569,7 +568,7 @@ QtCountCells::QtCountCells( QtOperation* inputNew )
 QtData*
 QtCountCells::evaluate( QtDataList* inputList )
 {
-    RMDBCLASS( "QtCountCells", "evaluate( QtDataList* )", "qlparser", __FILE__, __LINE__ )
+	LTRACE << "qlparser";
     startTimer("QtCountCells");
     r_Minterval dummyint;
     QtData* returnValue = QtCondense::computeFullCondense( inputList, dummyint );
@@ -598,7 +597,7 @@ QtAddCells::QtAddCells( QtOperation* inputNew )
 QtData*
 QtAddCells::evaluate( QtDataList* inputList )
 {
-    RMDBCLASS( "QtAddCells", "evaluate( QtDataList* )", "qlparser", __FILE__, __LINE__ )
+	LTRACE << "qlparser";
     startTimer("QtAddCells");
     r_Minterval dummyint;
 
@@ -628,7 +627,7 @@ QtAvgCells::QtAvgCells( QtOperation* inputNew )
 QtData*
 QtAvgCells::evaluate( QtDataList* inputList )
 {
-    RMDBCLASS( "QtAvgCells", "evaluate( QtDataList* )", "qlparser", __FILE__, __LINE__ )
+	LTRACE << "qlparser";
     startTimer("QtAvgCells");
 
     // domain for condensing operation
@@ -658,9 +657,8 @@ QtAvgCells::evaluate( QtDataList* inputList )
     constType->makeFromCULong( constBuffer, &constValue );
 
     RMDBGIF(3, RMDebug::module_qlparser, "QtCondense", \
-            RMInit::dbgOut <<         "Number of cells....: " << flush; \
-            constType->printCell( RMInit::dbgOut, constBuffer ); \
-            RMInit::dbgOut << endl; )
+            LTRACE <<         "Number of cells....: "; \
+            constType->printCell( RMInit::dbgOut, constBuffer ); \ )
 
     Ops::execBinaryConstOp( Ops::OP_DIV, resultType,
                             scalarDataCond->getValueType(),   constType,
@@ -681,9 +679,8 @@ QtAvgCells::evaluate( QtDataList* inputList )
     scalarDataResult->setValueBuffer( resultBuffer );
 
     RMDBGIF(3, RMDebug::module_qlparser, "QtCondense", \
-            RMInit::dbgOut << endl << "Result.............: " << flush; \
-            scalarDataResult->printStatus( RMInit::dbgOut ); \
-            RMInit::dbgOut << endl; )
+            LTRACE << "Result.............: "; \
+            scalarDataResult->printStatus( RMInit::dbgOut ); \ )
 
     stopTimer();
     return scalarDataResult;
@@ -708,7 +705,7 @@ QtMinCells::QtMinCells( QtOperation* inputNew )
 QtData*
 QtMinCells::evaluate( QtDataList* inputList )
 {
-    RMDBCLASS( "QtMinCells", "evaluate( QtDataList* )", "qlparser", __FILE__, __LINE__ )
+	LTRACE << "qlparser";
     startTimer("QtMinCells");
     r_Minterval dummyint;
 
@@ -739,7 +736,7 @@ QtMaxCells::QtMaxCells( QtOperation* inputNew )
 QtData*
 QtMaxCells::evaluate( QtDataList* inputList )
 {
-    RMDBCLASS( "QtMaxCells", "evaluate( QtDataList* )", "qlparser", __FILE__, __LINE__ )
+	LTRACE << "qlparser";
     startTimer("QtMaxCells");
     r_Minterval dummyint;
 

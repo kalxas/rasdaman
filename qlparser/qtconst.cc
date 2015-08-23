@@ -78,7 +78,7 @@ QtConst::~QtConst()
 bool
 QtConst::equalMeaning( QtNode* node )
 {
-    RMDBCLASS( "QtConst", "equalMeaning( QtNode* )", "qlparser", __FILE__, __LINE__ )
+	LTRACE << "qlparser";
 
     bool result = false;
 
@@ -118,7 +118,7 @@ QtConst::getAreaType()
 void
 QtConst::optimizeLoad( QtTrimList* trimList )
 {
-    RMDBCLASS( "QtConst", "optimizeLoad( QtTrimList* )", "qlparser", __FILE__, __LINE__ )
+	LTRACE << "qlparser";
 
     if( trimList )
     {
@@ -162,7 +162,7 @@ QtConst::optimizeLoad( QtTrimList* trimList )
 QtData*
 QtConst::evaluate( QtDataList* /*inputList*/ )
 {
-//    RMDBCLASS( "QtConst", "evaluate( QtDataList* )", "qlparser", __FILE__, __LINE__ )
+//    LTRACE << "qlparser";
     startTimer("QtConst");
 
     QtData* returnValue = NULL;
@@ -240,7 +240,7 @@ QtConst::printAlgebraicExpression( ostream& s )
 const QtTypeElement&
 QtConst::checkType( __attribute__ ((unused)) QtTypeTuple* typeTuple )
 {
-    RMDBCLASS( "QtConst", "checkType( QtTypeTuple* )", "qlparser", __FILE__, __LINE__ )
+	LTRACE << "qlparser";
 
     dataStreamType.setDataType( QT_TYPE_UNKNOWN );
 

@@ -36,6 +36,8 @@ static const char rcsid[] = "@(#)qlparser, QtBinaryOperation: $Id: qtbinaryopera
 #include "qlparser/qtbinaryoperation.hh"
 #include "qlparser/qtconst.hh"
 
+#include "../common/src/logging/easylogging++.hh"
+
 #include <iostream>
 #ifndef CPPSTDLIB
 #include <ospace/string.h> // STL<ToolKit>
@@ -96,7 +98,7 @@ QtBinaryOperation::~QtBinaryOperation()
 void
 QtBinaryOperation::simplify()
 {
-    RMDBCLASS( "QtBinaryOperation", "simplify()", "qlparser", __FILE__, __LINE__ )
+	LTRACE << "qlparser";
 
     // In order to work bottom up, first inspect the descendants
     QtNode::simplify();
@@ -135,7 +137,7 @@ QtBinaryOperation::simplify()
 bool
 QtBinaryOperation::equalMeaning( QtNode* node )
 {
-    RMDBCLASS( "QtBinaryOperation", "equalMeaning( QtNode* )", "qlparser", __FILE__, __LINE__ )
+	LTRACE << "qlparser";
 
     bool result = false;
 
@@ -168,7 +170,7 @@ QtBinaryOperation::equalMeaning( QtNode* node )
 QtNode::QtNodeList*
 QtBinaryOperation::getChilds( QtChildType flag )
 {
-    RMDBCLASS( "QtBinaryOperation", "getChilds( QtChildType )", "qlparser", __FILE__, __LINE__ )
+	LTRACE << "qlparser";
 
     QtNodeList* resultList = new QtNodeList();
 
@@ -210,7 +212,7 @@ QtBinaryOperation::getChilds( QtChildType flag )
 bool
 QtBinaryOperation::getOperands( QtDataList* inputList, QtData* &operand1, QtData* &operand2 )
 {
-    RMDBCLASS( "QtBinaryOperation", "getOperands( QtDataList*, QtData*, QtData* )", "qlparser", __FILE__, __LINE__ )
+	LTRACE << "qlparser";
 
     bool success = false;
 
@@ -256,7 +258,7 @@ QtBinaryOperation::getOperands( QtDataList* inputList, QtData* &operand1, QtData
             operand2 = NULL;
         }
 
-        RMDBGONCE( 1, RMDebug::module_qlparser, "QtBinaryOperation", "Error: QtBinaryOperation::getOperands() - at least one operand is not provided." )
+        LTRACE << "Error: QtBinaryOperation::getOperands() - at least one operand is not provided.";
 
     }
 
@@ -269,7 +271,7 @@ QtBinaryOperation::getOperands( QtDataList* inputList, QtData* &operand1, QtData
 bool
 QtBinaryOperation::getOperand( QtDataList* inputList, QtData* &operand, int number )
 {
-    RMDBCLASS( "QtBinaryOperation", "getOperand( QtDataList*, QtData*, int )", "qlparser", __FILE__, __LINE__ )
+	LTRACE << "qlparser";
 
     bool success = false;
 
@@ -297,7 +299,7 @@ QtBinaryOperation::getOperand( QtDataList* inputList, QtData* &operand, int numb
         success = true;
     else
     {
-        RMDBGONCE( 1, RMDebug::module_qlparser, "QtBinaryOperation", "Error: QtBinaryOperation::getOperand() - operand is not provided." )
+        LTRACE << "Error: QtBinaryOperation::getOperand() - operand is not provided.";
     }
 
     return success;
@@ -334,7 +336,7 @@ QtBinaryOperation::getSpelling()
     };
 
     result.append( ")" );
-    RMDBGONCE(2, RMDebug::module_qlparser, "QtBinaryOperation", "Result:" << result.c_str())
+    LTRACE << "Result:" << result.c_str();
     return result;
 }
 
@@ -360,7 +362,7 @@ QtBinaryOperation::getAreaType()
 void
 QtBinaryOperation::optimizeLoad( QtTrimList* trimList )
 {
-    RMDBCLASS( "QtBinaryOperation", "optimizeLoad( QtTrimList* )", "qlparser", __FILE__, __LINE__ )
+	LTRACE << "qlparser";
 
     QtNode::QtTrimList *list1=NULL;
     QtNode::QtTrimList *list2=NULL;

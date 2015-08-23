@@ -43,6 +43,8 @@ static const char rcsid[] = "@(#)qlparser, QtBinaryInduce: $Id: qtbinaryinduce2.
 
 #include "catalogmgr/typefactory.hh"
 
+#include "../common/src/logging/easylogging++.hh"
+
 #include <iostream>
 #include <string>
 #include <vector>
@@ -134,7 +136,7 @@ QtAnd::evaluate( QtDataList* inputList )
             else
             {
                 returnValue = operand1;
-                RMDBGONCE(1, RMDebug::module_qlparser, "QtAnd",  "   -> FALSE AND A evaluates FALSE")
+                LTRACE <<  "   -> FALSE AND A evaluates FALSE";
             }
         }
     }
@@ -226,7 +228,7 @@ QtOr::evaluate( QtDataList* inputList )
             else
             {
                 returnValue = operand1;
-                RMDBGONCE(1, RMDebug::module_qlparser, "QtOr",  "   -> TRUE OR A evaluates TRUE")
+                LTRACE <<  "   -> TRUE OR A evaluates TRUE";
             }
         }
     }
@@ -581,7 +583,7 @@ void QtBit::printAlgebraicExpression(ostream& s)
 
 const QtTypeElement& QtBit::checkType(QtTypeTuple* typeTuple)
 {
-    RMDBCLASS( "QtBit", "checkType( QtTypeTuple* )", "qlparser", __FILE__, __LINE__ )
+	LTRACE << "qlparser";
 
     dataStreamType.setDataType(QT_TYPE_UNKNOWN);
 
@@ -595,20 +597,18 @@ const QtTypeElement& QtBit::checkType(QtTypeTuple* typeTuple)
 
         if(RManDebug >= 4)
         {
-            RMInit::dbgOut << "Operand 1: " << flush;
+            LTRACE << "Operand 1: ";
             inputType1.printStatus( RMInit::dbgOut );
-            RMInit::dbgOut << endl;
 
-            RMInit::dbgOut << "Operand 2: " << flush;
+            LTRACE << "Operand 2: ";
             inputType2.printStatus( RMInit::dbgOut );
-            RMInit::dbgOut << endl;
 
-            RMDBGONCE( 4, RMDebug::module_qlparser, "QtBit", "Operation            " << opType )
+            LTRACE << "Operation            " << opType;
         }
 
         if(inputType2.getDataType() < QT_BOOL || inputType2.getDataType() > QT_LONG)
         {
-            RMInit::logOut << "Error: QtBit::checkType() - second operand must be of integral type." << endl;
+            LFATAL << "Error: QtBit::checkType() - second operand must be of integral type.";
             parseInfo.setErrorNo(418);
             throw parseInfo;
         }
@@ -622,7 +622,7 @@ const QtTypeElement& QtBit::checkType(QtTypeTuple* typeTuple)
 
             if(!resultBaseType)
             {
-                RMInit::logOut << "Error: QtBit::checkType() - unary induce: operand types are incompatible." << endl;
+                LFATAL << "Error: QtBit::checkType() - unary induce: operand types are incompatible.";
                 parseInfo.setErrorNo(364);
                 throw parseInfo;
             }
@@ -642,7 +642,7 @@ const QtTypeElement& QtBit::checkType(QtTypeTuple* typeTuple)
 
             if(!resultBaseType)
             {
-                RMInit::logOut << "Error: QtBit::computeOp() - operand types are incompatible." << endl;
+                LFATAL << "Error: QtBit::computeOp() - operand types are incompatible.";
                 parseInfo.setErrorNo(365);
                 throw parseInfo;
             }
@@ -651,13 +651,13 @@ const QtTypeElement& QtBit::checkType(QtTypeTuple* typeTuple)
         }
         else
         {
-            RMInit::logOut << "Error: QtBit::checkType() - operation is not supported on these data types." << endl;
+            LFATAL << "Error: QtBit::checkType() - operation is not supported on these data types.";
             parseInfo.setErrorNo(403);
             throw parseInfo;
         }
     }
     else
-        RMInit::logOut << "Error: QtBit::checkType() - operand branch invalid." << endl;
+        LERROR << "Error: QtBit::checkType() - operand branch invalid.";
 
     return dataStreamType;
 }

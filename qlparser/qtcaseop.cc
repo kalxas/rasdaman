@@ -52,6 +52,8 @@ rasdaman GmbH.
 #include "catalogmgr/typefactory.hh"
 #include "relcatalogif/mdddomaintype.hh"
 
+#include "../common/src/logging/easylogging++.hh"
+
 #include <iostream>
 #ifndef CPPSTDLIB
 #include <ospace/string.h> // STL<ToolKit>
@@ -143,7 +145,7 @@ QtCaseOp::getCaseOperands(QtDataList* inputList, std::vector< std::pair <QtOpera
                         if (definitionDomain != (static_cast<QtMDD*>(cond))->getMDDObject()->getDefinitionDomain()) {
                             ;
                             //operand and condition mdds should have the same domain
-                            RMInit::logOut << "Error: QtCaseOp::inducedEvaluate() - The condition and result mdds don't have the same definition domain." << endl;
+                            LFATAL << "Error: QtCaseOp::inducedEvaluate() - The condition and result mdds don't have the same definition domain.";
                             parseInfo.setErrorNo(426);
                             throw parseInfo;
                         }
@@ -208,7 +210,7 @@ QtCaseOp::evaluateInducedOp(QtDataList* inputList) {
                 for (QtDataList::iterator i = cachedData->begin(); i != cachedData->end(); i++) {
                     boost::shared_ptr<Tile> aTile = getCorrespondingTile((static_cast<QtMDD*>(*i))->getMDDObject()->getTiles(), condTile->getDomain());
                     if (aTile == NULL) {
-                        RMInit::logOut << "Error: QtCaseOp::inducedEvaluate() - The condition and result mdds don't have the same tiling." << endl;
+                        LFATAL << "Error: QtCaseOp::inducedEvaluate() - The condition and result mdds don't have the same tiling.";
                         parseInfo.setErrorNo(427);
                         throw parseInfo;
                     }
@@ -227,7 +229,7 @@ QtCaseOp::evaluateInducedOp(QtDataList* inputList) {
                         boost::shared_ptr<Tile> theTile = getCorrespondingTile((static_cast<QtMDD*>(*i))->getMDDObject()->getTiles(), condTile->getDomain());
                         Tile* aTile = new Tile(*theTile);
                         if (aTile == NULL) {
-                            RMInit::logOut << "Error: QtCaseOp::inducedEvaluate() - The condition and result mdds don't have the same tiling." << endl;
+                            LFATAL << "Error: QtCaseOp::inducedEvaluate() - The condition and result mdds don't have the same tiling.";
                             parseInfo.setErrorNo(427);
                             throw parseInfo;
                         }
@@ -242,7 +244,7 @@ QtCaseOp::evaluateInducedOp(QtDataList* inputList) {
                 for (std::vector<Tile*>::iterator i = cachedTiles->begin(); i != cachedTiles->end(); i++) {
                     cacheIterators->push_back(new r_Miter(&(condTile->getDomain()), &((*i)->getDomain()), (*i)->getType()->getSize(), (*i)->getContents()));
                     if (!(*i)->getDomain().covers(condTile->getDomain())) {
-                        RMInit::logOut << "Error: QtCaseOp::inducedEvaluate() - The condition and result mdds don't have the same definition domain." << endl;
+                        LFATAL << "Error: QtCaseOp::inducedEvaluate() - The condition and result mdds don't have the same definition domain.";
                         parseInfo.setErrorNo(426);
                         throw parseInfo;
                     }
@@ -391,7 +393,7 @@ QtCaseOp::evaluateInducedOp(QtDataList* inputList) {
  */
 QtData*
 QtCaseOp::evaluate(QtDataList* inputList) {
-    RMDBCLASS("QtCaseOp", "evaluate( QtDataList* )", "qlparser", __FILE__, __LINE__)
+	LTRACE << "qlparser";
     startTimer("QtCaseOp");
     if (this->inducedCase) {
         return this->evaluateInducedOp(inputList);
@@ -429,7 +431,7 @@ QtCaseOp::evaluate(QtDataList* inputList) {
 
     //check if everything evaluated correctly
     if (!success) {
-        RMInit::logOut << endl << "Error: QtCaseOp::evaluate() - at least one operand branch is invalid." << endl;
+        LERROR << "Error: QtCaseOp::evaluate() - at least one operand branch is invalid.";
     }
 
     stopTimer();
@@ -481,12 +483,12 @@ QtCaseOp::checkTypeInducedOp(QtTypeTuple* typeTuple) {
             //conditions should be boolean mdds
             QtTypeElement condType = (*iter)->checkType(typeTuple);
             if (condType.getDataType() != QT_MDD) {
-                RMInit::logOut << "Error: QtCaseOp::checkInducedType() - At least one condition is not a boolean mdd." << endl;
+                LFATAL << "Error: QtCaseOp::checkInducedType() - At least one condition is not a boolean mdd.";
                 parseInfo.setErrorNo(428);
                 throw parseInfo;
             }
             if ((static_cast<MDDBaseType*>(const_cast<Type*>(condType.getType())))->getBaseType()->getType() != BOOLTYPE) {
-                RMInit::logOut << "Error: QtCaseOp::checkInducedType() - At least one condition is not a boolean mdd." << endl;
+                LFATAL << "Error: QtCaseOp::checkInducedType() - At least one condition is not a boolean mdd.";
                 parseInfo.setErrorNo(428);
                 throw parseInfo;
             }
@@ -494,7 +496,7 @@ QtCaseOp::checkTypeInducedOp(QtTypeTuple* typeTuple) {
             QtTypeElement resType = (*iter)->checkType(typeTuple);
             //check if result types is base type
             if (!resType.isBaseType() && resType.getDataType() != QT_MDD) {
-                RMInit::logOut << "Error: QtCaseOp::checkInducedType() - At least one result type is not base type or mdd." << endl;
+                LFATAL << "Error: QtCaseOp::checkInducedType() - At least one result type is not base type or mdd.";
                 parseInfo.setErrorNo(429);
                 throw parseInfo;
             }
@@ -507,7 +509,7 @@ QtCaseOp::checkTypeInducedOp(QtTypeTuple* typeTuple) {
                     resultType = getResultType(resultType, (static_cast<MDDBaseType*>(const_cast<Type*>(resType.getType())))->getBaseType());
                 }
                 if (!resultType) {
-                    RMInit::logOut << "Error: QtCaseOp::checkInducedType() - The results have incompatible types." << endl;
+                    LFATAL << "Error: QtCaseOp::checkInducedType() - The results have incompatible types.";
                     parseInfo.setErrorNo(430);
                     throw parseInfo;
                 }
@@ -540,7 +542,7 @@ QtCaseOp::checkTypeInducedOp(QtTypeTuple* typeTuple) {
  */
 const QtTypeElement&
 QtCaseOp::checkType(QtTypeTuple* typeTuple) {
-    RMDBCLASS("QtCaseOp", "checkType( QtTypeTuple* )", "qlparser", __FILE__, __LINE__)
+	LTRACE << "qlparser";
     dataStreamType.setDataType(QT_TYPE_UNKNOWN);
     if ((*(operationList->begin()))->checkType(typeTuple).getDataType() == QT_MDD) {
         this->inducedCase = true;
@@ -588,14 +590,14 @@ QtCaseOp::checkType(QtTypeTuple* typeTuple) {
 
     //some when clause is not boolean
     if (!whenTypesValid) {
-        RMInit::logOut << "Error: QtCaseOp::checkType() - At least one condition is not a boolean." << endl;
+        LFATAL << "Error: QtCaseOp::checkType() - At least one condition is not a boolean.";
         parseInfo.setErrorNo(431);
         throw parseInfo;
     }
 
     //result types are different
     if (!resultTypesValid) {
-        RMInit::logOut << "Error: QtCaseOp::checkType() - The results have incompatible types." << endl;
+        LFATAL << "Error: QtCaseOp::checkType() - The results have incompatible types.";
         parseInfo.setErrorNo(430);
         throw parseInfo;
     }

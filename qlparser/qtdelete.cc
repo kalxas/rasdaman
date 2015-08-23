@@ -66,7 +66,7 @@ QtDelete::~QtDelete()
 QtData*
 QtDelete::evaluate()
 {
-    RMDBCLASS( "QtDelete", "evaluate()", "qlparser", __FILE__, __LINE__ )
+	LTRACE << "qlparser";
     startTimer("QtDelete");
 
     QtNode::QtDataList* nextTupel=NULL;
@@ -91,7 +91,7 @@ QtDelete::evaluate()
             // check delete target
             if( target->getDataType() != QT_MDD )
             {
-                RMInit::logOut << "Error: QtDelete::evaluate() - delete target must be an expression resulting in an r_Marray<>" << std::endl;
+                LERROR << "Error: QtDelete::evaluate() - delete target must be an expression resulting in an r_Marray<>";
 
                 // delete tupel vector received by next()
                 vector<QtData*>::iterator dataIter;
@@ -121,7 +121,7 @@ QtDelete::evaluate()
             if( inputLeaf )
             {
                 inputLeaf->getMDDColl()->remove( targetObj );
-                RMInit::logOut << "deleted..." << std::flush;
+                LINFO << "deleted...";
             }
 
             if(targetMDD && targetObj && !targetObj->isPersistent()){};
@@ -232,8 +232,7 @@ QtDelete::getStreamInput()
 void
 QtDelete::checkType()
 {
-    RMDBCLASS( "QtDelete", "checkType()", "qlparser", __FILE__, __LINE__ )
-
+	LTRACE << "qlparser";
     // check operand branches
     if( input )
     {
@@ -243,13 +242,13 @@ QtDelete::checkType()
 
         if( inputType.tuple[0].getDataType() != QT_MDD )
         {
-            RMInit::logOut << "Error: QtDelete::checkType() - delete target must be an expression resulting in an r_Marray<>" << std::endl;
+            LFATAL << "Error: QtDelete::checkType() - delete target must be an expression resulting in an r_Marray<>";
             parseInfo.setErrorNo(951);
             throw parseInfo;
         }
     }
     else
-        RMInit::logOut << "Error: QtDelete::checkType() - operand branch invalid." << std::endl;
+        LFATAL << "Error: QtDelete::checkType() - operand branch invalid.";
 
 }
 

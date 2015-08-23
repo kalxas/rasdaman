@@ -50,6 +50,8 @@ static const char rcsid[] = "@(#)qlparser, QtConversion: $Header: /home/rasdev/C
 #include "relcatalogif/structtype.hh"
 #include "relcatalogif/chartype.hh"
 
+#include "../common/src/logging/easylogging++.hh"
+
 #include <iostream>
 #ifndef CPPSTDLIB
 #include <ospace/string.h> // STL<ToolKit>
@@ -65,7 +67,7 @@ QtConversion::QtConversion( QtOperation* newInput, QtConversionType
                             newConversionType, const char* s )
     : QtUnaryOperation( newInput ), conversionType( newConversionType ), paramStr(s)
 {
-    RMDBGONCE(2, RMDebug::module_qlparser, "QtConversion", "QtConversion()" )
+    LTRACE << "QtConversion()";
 }
 
 void
@@ -158,8 +160,8 @@ constructBaseType( const r_Type *type )
         result = TypeFactory::mapType(type->name());
         if (!result)
         {
-            RMInit::logOut << "Error: no primitive type for name '"
-                           << type->name() << "' were found" << endl;
+            LFATAL << "Error: no primitive type for name '"
+                           << type->name() << "' were found";
             throw r_Error(BASETYPENOTSUPPORTED);
         }
     }
@@ -191,7 +193,7 @@ constructBaseType( const r_Type *type )
 QtData*
 QtConversion::evaluate( QtDataList* inputList )
 {
-    RMDBCLASS( "QtConversion", "evaluate( QtDataList* )", "qlparser", __FILE__, __LINE__ )
+	LTRACE << "qlparser";
     startTimer("QtConversion");
 
     QtData* returnValue = NULL;
@@ -200,7 +202,7 @@ QtConversion::evaluate( QtDataList* inputList )
 
     if( conversionType == QT_UNKNOWN )
     {
-        RMInit::logOut << "Error: QtConversion::evaluate() - unknown conversion format." << std::endl;
+        LFATAL << "Error: QtConversion::evaluate() - unknown conversion format.";
         parseInfo.setErrorNo(382);
         throw parseInfo;
     }
@@ -227,8 +229,8 @@ QtConversion::evaluate( QtDataList* inputList )
 #ifdef QT_RUNTIME_TYPE_CHECK
             if( operand->getDataType() != QT_MDD )
             {
-                RMInit::logOut << "Internal error in QtConversion::evaluate() - "
-                               << "runtime type checking failed (MDD)." << std::endl;
+                LERROR << "Internal error in QtConversion::evaluate() - "
+                               << "runtime type checking failed (MDD).";
 
                 // delete old operand
                 if( operand ) operand->deleteRef();
@@ -247,14 +249,14 @@ QtConversion::evaluate( QtDataList* inputList )
             }
             else
             {
-                RMDBGONCE(2, RMDebug::module_qlparser, "QtConversion", "evalutate() - no tile available to convert." )
+                LTRACE << "evalutate() - no tile available to convert.";
                 return operand;
             }
 
             // check the number of tiles
             if( !tiles->size() )
             {
-                RMDBGONCE(2, RMDebug::module_qlparser, "QtConversion", "evalutate() - no tile available to convert." )
+                LTRACE << "evalutate() - no tile available to convert.";
                 return operand;
             }
 
@@ -274,11 +276,10 @@ QtConversion::evaluate( QtDataList* inputList )
 
         free( typeStructure );
         typeStructure = NULL;
-        RMDBGONCE(2, RMDebug::module_qlparser, "QtConversion", "evalutate() - no tile available to convert." )
+        LTRACE << "evalutate() - no tile available to convert.";
         RMDBGIF(2, RMDebug::module_qlparser, "QtConversion", \
-                RMInit::dbgOut << "Cell base type for conversion: " << std::flush; \
-                baseSchema->print_status( RMInit::dbgOut ); \
-                RMInit::dbgOut << std::endl; )
+                LTRACE << "Cell base type for conversion: "; \
+                baseSchema->print_status( RMInit::dbgOut ); \ )
 
         //
         // real conversion
@@ -375,7 +376,7 @@ QtConversion::evaluate( QtDataList* inputList )
             convFormat = r_Array;
             break;
         default:
-            RMInit::logOut << "Error: QtConversion::evaluate(): unsupported format " << conversionType << std::endl;
+            LFATAL << "Error: QtConversion::evaluate(): unsupported format " << conversionType;
             throw r_Error(CONVERSIONFORMATNOTSUPPORTED);
             break;
         }
@@ -387,12 +388,12 @@ QtConversion::evaluate( QtDataList* inputList )
             convertor = r_Convertor_Factory::create(convType, sourceTile->getContents(), tileDomain, baseSchema);
             if(conversionType < QT_FROMTIFF)
             {
-                RMDBGONCE(2, RMDebug::module_qlparser, "QtConversion", "evalutate() - convertor " << convType << " converting to " << convFormat << "...");
+                LTRACE << "evalutate() - convertor " << convType << " converting to " << convFormat << "...";
                 convResult = convertor->convertTo(paramStr);
             }
             else
             {
-                RMDBGONCE(2, RMDebug::module_qlparser, "QtConversion", "evalutate() - convertor " << convType << " converting from " << convFormat << "...");
+                LTRACE << "evalutate() - convertor " << convType << " converting from " << convFormat << "...";
                 convResult = convertor->convertFrom(paramStr);
             }
         }
@@ -419,7 +420,7 @@ QtConversion::evaluate( QtDataList* inputList )
             convertor=NULL;
         }
 
-        RMDBGMIDDLE(2, RMDebug::module_qlparser, "QtConversion", "evaluate() - ok")
+        LTRACE << "evaluate() - ok";
 
 
         //
@@ -444,9 +445,8 @@ QtConversion::evaluate( QtDataList* inputList )
 
             dataStreamType.setType( mddBaseType );
             RMDBGIF(4, RMDebug::module_qlparser, "QtConversion",
-                RMInit::logOut << " QtConversion::evaluate() for conversion " << conversionType << " real result is " << std::flush; \
-                dataStreamType.printStatus(RMInit::logOut); \
-                RMInit::logOut << std::endl;)
+                LDEBUG << " QtConversion::evaluate() for conversion " << conversionType << " real result is "; \
+                dataStreamType.printStatus(RMInit::logOut); \)
         }
 
         long convResultSize = static_cast<long>(convResult.destInterv.cell_count()) * static_cast<long>(myType->getSize());
@@ -481,7 +481,7 @@ QtConversion::evaluate( QtDataList* inputList )
         if( operand ) operand->deleteRef();
     }
     else
-        RMInit::logOut << "Error: QtConversion::evaluate() - operand is not provided." << std::endl;
+        LERROR << "Error: QtConversion::evaluate() - operand is not provided.";
     
     stopTimer();
 
@@ -587,7 +587,7 @@ QtConversion::printAlgebraicExpression( ostream& s )
 const QtTypeElement&
 QtConversion::checkType( QtTypeTuple* typeTuple )
 {
-    RMDBCLASS( "QtConversion", "checkType( QtTypeTuple* )", "qlparser", __FILE__, __LINE__ )
+	LTRACE << "qlparser";
 
     dataStreamType.setDataType( QT_TYPE_UNKNOWN );
 
@@ -600,7 +600,7 @@ QtConversion::checkType( QtTypeTuple* typeTuple )
 
         if( conversionType != QT_TOCSV && inputType.getDataType() != QT_MDD )
         {
-            RMInit::logOut << "Error: QtConversion::checkType() - operand is not of type MDD." << std::endl;
+            LFATAL << "Error: QtConversion::checkType() - operand is not of type MDD.";
             parseInfo.setErrorNo(380);
             throw parseInfo;
         }
@@ -615,14 +615,13 @@ QtConversion::checkType( QtTypeTuple* typeTuple )
         if(conversionType>QT_TODEM)
         {
             RMDBGIF(4, RMDebug::module_qlparser, "QtConversion",
-                RMInit::logOut << std::endl << "QtConversion::checkType() for conversion " \
-                               << conversionType << " assume the result " << std::flush; \
-                dataStreamType.printStatus(RMInit::logOut); \
-                RMInit::logOut << std::endl;)
+                LINFO << "QtConversion::checkType() for conversion " \
+                               << conversionType << " assume the result "; \
+                dataStreamType.printStatus(RMInit::logOut); \)
         }
     }
     else
-        RMInit::logOut << "Error: QtConversion::checkType() - operand branch invalid." << std::endl;
+        LERROR << "Error: QtConversion::checkType() - operand branch invalid.";
 
     return dataStreamType;
 }

@@ -44,6 +44,8 @@ static const char rcsid[] = "@(#)qlparser, QtBinaryInduce: $Id: qtbinaryinduce.c
 
 #include "mddmgr/mddobj.hh"
 
+#include "../common/src/logging/easylogging++.hh"
+
 #include "catalogmgr/typefactory.hh"
 #include "relcatalogif/mdddomaintype.hh"
 
@@ -68,7 +70,7 @@ QtBinaryInduce::QtBinaryInduce( QtOperation* initInput1, QtOperation* initInput2
 QtData*
 QtBinaryInduce::computeOp( QtData* operand1, QtData* operand2 )
 {
-    RMDBCLASS( "QtBinaryInduce", "computeOp( QtData*, QtData* )", "qlparser", __FILE__, __LINE__ )
+	LTRACE << "qlparser";
 
     QtData* returnValue = NULL;
 
@@ -139,7 +141,7 @@ QtBinaryInduce::computeOp( QtData* operand1, QtData* operand2 )
 QtData*
 QtBinaryInduce::computeUnaryMDDOp( QtMDD* operand1, QtScalarData* operand2, const BaseType* resultBaseType, int scalarPos )
 {
-    RMDBCLASS( "QtBinaryInduce", "computeUnaryMDDOp( QtMDD*, QtScalarData*, BaseType*, int )", "qlparser", __FILE__, __LINE__ )
+	LTRACE << "qlparser";
 
     QtData* returnValue = NULL;
 
@@ -198,38 +200,37 @@ QtBinaryInduce::computeUnaryMDDOp( QtMDD* operand1, QtScalarData* operand2, cons
 
         RMDBGIF( 4, RMDebug::module_qlparser, "QtScale", \
                  char* typeStructure = resTile->getType()->getTypeStructure(); \
-                 RMDBGMIDDLE( 4, RMDebug::module_qlparser, "QtBinaryInduce", "  result tile, area " << intersectDom << \
+                 LTRACE << "  result tile, area " << intersectDom << \
                               ", type " << resTile->getType()->getTypeName() << \
-                              ", structure " << typeStructure << endl )  \
+                              ", structure " << typeStructure;  \
                  free( typeStructure ); typeStructure=NULL; \
                  \
                  typeStructure = (*tileIt)->getType()->getTypeStructure(); \
-                 RMDBGMIDDLE( 4, RMDebug::module_qlparser, "QtBinaryInduce", "  operand1 tile, area " << intersectDom << \
+                 LTRACE << "  operand1 tile, area " << intersectDom << \
                               ", type " << (*tileIt)->getType()->getTypeName() << \
-                              ", structure " << typeStructure << endl ) \
+                              ", structure " << typeStructure; \
                  free( typeStructure ); typeStructure=NULL; \
 
                  typeStructure = constBaseType->getTypeStructure(); \
-                 RMDBGMIDDLE( 4, RMDebug::module_qlparser, "QtBinaryInduce", "  constant type " << constBaseType->getTypeName() << \
+                 LTRACE << "  constant type " << constBaseType->getTypeName() << \
                               ", structure " << typeStructure << \
-                              ", value " ) \
+                              ", value "; \
                  free( typeStructure ); typeStructure=NULL; \
                  \
                  for( int x=0; x<constBaseType->getSize(); x++ ) \
-                 RMInit::dbgOut << hex << (int)(constValue[x]); \
-                 RMInit::dbgOut << dec << endl; \
+                 LTRACE << hex << (int)(constValue[x]); \
                )
 
         try
         {
-            RMDBGMIDDLE( 4, RMDebug::module_qlparser, "QtBinaryInduce", "  before execConstOp" << endl )
+            LTRACE << "  before execConstOp";
 
             resTile->execConstOp( myOp, intersectDom, tileIt->get(), intersectDom, constValue, scalarPos );
-            RMDBGMIDDLE( 4, RMDebug::module_qlparser, "QtBinaryInduce", "  after execConstOp" << endl )
+            LTRACE << "  after execConstOp";
         }
         catch (int errcode)
         {
-            RMInit::logOut << "Error: QtBinaryInduce::computeUnaryMDDOp() caught errno " << errcode << std::endl;
+            LFATAL << "Error: QtBinaryInduce::computeUnaryMDDOp() caught errno " << errcode;
             delete resTile;
             delete myOp;
             delete mddres;
@@ -258,7 +259,7 @@ QtBinaryInduce::computeUnaryMDDOp( QtMDD* operand1, QtScalarData* operand2, cons
 QtData*
 QtBinaryInduce::computeBinaryMDDOp( QtMDD* operand1, QtMDD* operand2, const BaseType* resultBaseType, BinaryOp* myOp )
 {
-    RMDBCLASS( "QtBinaryInduce", "computeBinaryMDDOp( QtMDD*, QtMDD*, BaseType* )", "qlparser", __FILE__, __LINE__ )
+	LTRACE << "qlparser";
 
     QtData* returnValue = NULL;
     // get the MDD objects
@@ -305,8 +306,8 @@ QtBinaryInduce::computeBinaryMDDOp( QtMDD* operand1, QtMDD* operand2, const Base
             offset21[i] = originOp1[i] - originOp2[i];
         }
 
-        RMDBGMIDDLE( 4, RMDebug::module_qlparser, "QtBinaryInduce", "  Domain op1 " << areaOp1 << " op2 " << areaOp2 )
-        RMDBGMIDDLE( 4, RMDebug::module_qlparser, "QtBinaryInduce", "  Translation vector " << offset12 )
+        LTRACE << "  Domain op1 " << areaOp1 << " op2 " << areaOp2;
+        LTRACE << "  Translation vector " << offset12;
 
         // create MDDObj for result
         MDDDomainType* mddBaseType = new MDDDomainType( "tmp", resultBaseType, areaOp1 );
@@ -358,18 +359,18 @@ QtBinaryInduce::computeBinaryMDDOp( QtMDD* operand1, QtMDD* operand2, const Base
                 //
                 try
                 {
-                    RMDBGMIDDLE( 4, RMDebug::module_qlparser, "QtBinaryInduce", "  before execBinaryOp" << endl )
-                    RMDBGMIDDLE( 4, RMDebug::module_qlparser, "QtBinaryInduce", "  result tile, area " << intersectDom <<
-                                 ", type " << resTile->getType()->getTypeName() << endl )
-                    RMDBGMIDDLE( 4, RMDebug::module_qlparser, "QtBinaryInduce", "  operand1 tile, area " << intersectDom <<
-                                 ", type " << (*tileOp1It)->getType()->getTypeName() << endl )
-                    RMDBGMIDDLE( 4, RMDebug::module_qlparser, "QtBinaryInduce", "  operand2 tile, type " << (*tileOp1It)->getType()->getTypeName() << endl )
+                    LTRACE << "  before execBinaryOp";
+                    LTRACE << "  result tile, area " << intersectDom <<
+                              ", type " << resTile->getType()->getTypeName();
+                    LTRACE << "  operand1 tile, area " << intersectDom <<
+                              ", type " << (*tileOp1It)->getType()->getTypeName();
+                    LTRACE << "  operand2 tile, type " << (*tileOp1It)->getType()->getTypeName();
                     resTile->execBinaryOp(&(*myOp), intersectDom, tileOp1It->get(), intersectDom, intersectTileOp2It->get(), intersectDom.create_translation(offset12));
-                    RMDBGMIDDLE( 4, RMDebug::module_qlparser, "QtBinaryInduce", "  after execBinaryOp" << endl )
+                    LTRACE << "  after execBinaryOp";
                 }
                 catch (int errcode)
                 {
-                    RMInit::logOut << "Error: QtBinaryInduce::computeBinaryMDDOp() caught errno " << errcode << std::endl;
+                    LFATAL << "Error: QtBinaryInduce::computeBinaryMDDOp() caught errno " << errcode;
                     delete myOp;
                     delete resTile;
                     delete mddres;
@@ -393,9 +394,9 @@ QtBinaryInduce::computeBinaryMDDOp( QtMDD* operand1, QtMDD* operand2, const Base
     }
     else
     {
-        RMInit::logOut << "Error: QtBinaryInduce::computeBinaryMDDOp() - domains of the operands are incompatible." << endl;
-        RMInit::logOut << "areaOp1 " << areaOp1 << " with extent " << areaOp1.get_extent() << endl;
-        RMInit::logOut << "areaOp2 " << areaOp2 << " with extent " << areaOp2.get_extent() << endl;
+        LERROR << "Error: QtBinaryInduce::computeBinaryMDDOp() - domains of the operands are incompatible.";
+        LERROR << "areaOp1 " << areaOp1 << " with extent " << areaOp1.get_extent();
+        LERROR << "areaOp2 " << areaOp2 << " with extent " << areaOp2.get_extent();
 
         throw 351;
     }
@@ -413,7 +414,7 @@ QtBinaryInduce::computeBinaryMDDOp( QtMDD* operand1, QtMDD* operand2, const Base
 QtData*
 QtBinaryInduce::computeBinaryOp( QtScalarData* operand1, QtScalarData* operand2, const BaseType* resultBaseType )
 {
-    RMDBCLASS( "QtBinaryInduce", "computeBinaryOp( QtScalarData*, QtScalarData*, BaseType*, Ops::OpType )", "qlparser", __FILE__, __LINE__ )
+	LTRACE << "qlparser";
 
     QtScalarData* scalarDataObj = NULL;
     r_Minterval* nullValues = operand1->getNullValues();  // FIXME use also operand2
@@ -430,7 +431,7 @@ QtBinaryInduce::computeBinaryOp( QtScalarData* operand1, QtScalarData* operand2,
     }
     catch (int errcode)
     {
-        RMInit::logOut << "Error: QtBinaryInduce::computeBinaryOp() caught errno " << errcode << std::endl;
+        LFATAL << "Error: QtBinaryInduce::computeBinaryOp() caught errno " << errcode;
         delete myOp;
         delete[] resultBuffer;
         parseInfo.setErrorNo(static_cast<unsigned long>(errcode));
@@ -478,8 +479,7 @@ QtBinaryInduce::evaluate( QtDataList* inputList )
 const QtTypeElement&
 QtBinaryInduce::checkType( QtTypeTuple* typeTuple )
 {
-    RMDBCLASS( "QtBinaryInduce", "checkType( QtTypeTuple* )", "qlparser", __FILE__, __LINE__ )
-
+	LTRACE << "qlparser";
     dataStreamType.setDataType( QT_TYPE_UNKNOWN );
 
     // check operand branches
@@ -491,15 +491,13 @@ QtBinaryInduce::checkType( QtTypeTuple* typeTuple )
         const QtTypeElement& inputType2 = input2->checkType( typeTuple );
 
         RMDBGIF( 1, RMDebug::module_qlparser, "QtBinaryInduce", \
-                 RMInit::dbgOut << "Operand 1: " << flush; \
+                 LTRACE << "Operand 1: "; \
                  inputType1.printStatus( RMInit::dbgOut ); \
-                 RMInit::dbgOut << endl; \
                  \
-                 RMInit::dbgOut << "Operand 2: " << flush; \
+                 LTRACE << "Operand 2: "; \
                  inputType2.printStatus( RMInit::dbgOut ); \
-                 RMInit::dbgOut << endl; \
                  \
-                 RMDBGMIDDLE( 4, RMDebug::module_qlparser, "QtBinaryInduce", "Operation            " << opType ) \
+                 LTRACE << "Operation            " << opType; \
                )
 
         if( inputType1.getDataType() == QT_MDD &&
@@ -512,7 +510,7 @@ QtBinaryInduce::checkType( QtTypeTuple* typeTuple )
 
             if( !resultBaseType )
             {
-                RMInit::logOut << "Error: QtBinaryInduce::checkType() - binary induce (MDD + MDD): operand types are incompatible." << endl;
+                LFATAL << "Error: QtBinaryInduce::checkType() - binary induce (MDD + MDD): operand types are incompatible.";
                 parseInfo.setErrorNo(363);
                 throw parseInfo;
             }
@@ -532,7 +530,7 @@ QtBinaryInduce::checkType( QtTypeTuple* typeTuple )
 
             if( !resultBaseType )
             {
-                RMInit::logOut << "Error: QtBinaryInduce::checkType() - unary induce (MDD + BaseType): operand types are incompatible." << endl;
+                LFATAL << "Error: QtBinaryInduce::checkType() - unary induce (MDD + BaseType): operand types are incompatible.";
                 parseInfo.setErrorNo(364);
                 throw parseInfo;
             }
@@ -552,7 +550,7 @@ QtBinaryInduce::checkType( QtTypeTuple* typeTuple )
 
             if( !resultBaseType )
             {
-                RMInit::logOut << "Error: QtBinaryInduce::checkType() - unary induce (BaseType + MDD): operand types are incompatible." << endl;
+                LFATAL << "Error: QtBinaryInduce::checkType() - unary induce (BaseType + MDD): operand types are incompatible.";
                 parseInfo.setErrorNo(364);
                 throw parseInfo;
             }
@@ -572,7 +570,7 @@ QtBinaryInduce::checkType( QtTypeTuple* typeTuple )
 
             if( !resultBaseType )
             {
-                RMInit::logOut << "Error: QtBinaryInduce::checkType() - BaseType + BaseType : operand types are incompatible." << endl;
+                LFATAL << "Error: QtBinaryInduce::checkType() - BaseType + BaseType : operand types are incompatible.";
 
                 parseInfo.setErrorNo(365);
                 throw parseInfo;
@@ -585,7 +583,7 @@ QtBinaryInduce::checkType( QtTypeTuple* typeTuple )
         {
             if( opType != Ops::OP_EQUAL )
             {
-                RMInit::logOut << "Error: QtBinaryInduce::checkType() - String + String : operation is not supported on strings." << endl;
+                LFATAL << "Error: QtBinaryInduce::checkType() - String + String : operation is not supported on strings.";
                 parseInfo.setErrorNo(385);
                 throw parseInfo;
             }
@@ -594,13 +592,13 @@ QtBinaryInduce::checkType( QtTypeTuple* typeTuple )
         }
         else
         {
-            RMInit::logOut << "Error: QtBinaryInduce::checkType() - operation is not supported on these data types." << endl;
+            LFATAL << "Error: QtBinaryInduce::checkType() - operation is not supported on these data types.";
             parseInfo.setErrorNo(403);
             throw parseInfo;
         }
     }
     else
-        RMInit::logOut << "Error: QtBinaryInduce::checkType() - operand branch invalid." << endl;
+        LERROR << "Error: QtBinaryInduce::checkType() - operand branch invalid.";
 
     return dataStreamType;
 }
@@ -619,7 +617,7 @@ QtPlus::QtPlus( QtOperation* initInput1, QtOperation* initInput2 )
 QtOperation*
 QtPlus::getUniqueOrder( const QtNode::QtNodeType ID )
 {
-    RMDBCLASS( "QtPlus", "getUniqueOrder( const QtNode::QtNodeType )", "qlparser", __FILE__, __LINE__ )
+	LTRACE << "qlparser";
 
     QtOperation* returnValue = NULL;
 
@@ -635,7 +633,7 @@ QtPlus::getUniqueOrder( const QtNode::QtNodeType ID )
                 returnValue = input2;
         }
         else
-            RMInit::logOut << "Error: QtMult::getUniqueOrder(): Query tree invalid" << endl;
+            LERROR << "Error: QtMult::getUniqueOrder(): Query tree invalid";
     }
     else
         returnValue = this;
@@ -820,7 +818,7 @@ QtMult::QtMult( QtOperation* initInput1, QtOperation* initInput2 )
 QtOperation*
 QtMult::getUniqueOrder( const QtNode::QtNodeType ID )
 {
-    RMDBCLASS( "QtMult", "getUniqueOrder( const string )", "qlparser", __FILE__, __LINE__ )
+	LTRACE << "qlparser";
 
     QtOperation* returnValue = NULL;
 
@@ -836,7 +834,7 @@ QtMult::getUniqueOrder( const QtNode::QtNodeType ID )
                 returnValue = input2;
         }
         else
-            RMInit::logOut << "Error: QtMult::getUniqueOrder(): Query tree invalid" << endl;
+            LERROR << "Error: QtMult::getUniqueOrder(): Query tree invalid";
     }
     else
         returnValue = this;

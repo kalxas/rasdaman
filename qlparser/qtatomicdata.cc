@@ -33,6 +33,7 @@ static const char rcsid[] = "@(#)qlparser, QtAtomicData: $Header: /home/rasdev/C
 #include "qlparser/qtatomicdata.hh"
 #include "relcatalogif/basetype.hh"
 #include "relcatalogif/alltypes.hh"
+#include "../common/src/logging/easylogging++.hh"
 
 #include <iostream>
 #ifndef CPPSTDLIB
@@ -43,8 +44,6 @@ using namespace std;
 #endif
 
 #include <iostream>
-
-#include "raslib/rmdebug.hh"
 
 
 QtAtomicData::QtAtomicData()
@@ -70,8 +69,8 @@ QtAtomicData::QtAtomicData( r_Long value, unsigned short byteLength )
         break;
 
     default:
-        RMInit::logOut << "Error: QtAtomicData::QtAtomicData() - signed integer value with length "
-                       << byteLength << " is not supported." << endl;
+        LERROR << "Error: QtAtomicData::QtAtomicData() - signed integer value with length "
+                       << byteLength << " is not supported.";
     }
 
     if( valueType )
@@ -99,8 +98,8 @@ QtAtomicData::QtAtomicData( r_ULong value, unsigned short byteLength )
         break;
 
     default:
-        RMInit::logOut << "Error: QtAtomicData::QtAtomicData() - unsigned integer value with length "
-                       << byteLength << " is not supported." << endl;
+        LERROR << "Error: QtAtomicData::QtAtomicData() - unsigned integer value with length "
+                       << byteLength << " is not supported.";
     }
 
 
@@ -139,8 +138,8 @@ QtAtomicData::QtAtomicData( double value, unsigned short byteLength )
         break;
 
     default:
-        RMInit::logOut << "Error: QtAtomicData::QtAtomicData() - float value with length "
-                       << byteLength << " is not supported." << endl;
+        LERROR << "Error: QtAtomicData::QtAtomicData() - float value with length "
+                       << byteLength << " is not supported.";
     }
 
 

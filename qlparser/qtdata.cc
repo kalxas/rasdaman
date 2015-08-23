@@ -30,8 +30,8 @@ rasdaman GmbH.
 static const char rcsid[] = "@(#)qlparser, QtData: $Id: qtdata.cc,v 1.17 2002/06/05 18:18:17 coman Exp $";
 
 #include "config.h"
-#include "raslib/rmdebug.hh"
 #include "qlparser/qtdata.hh"
+#include "../common/src/logging/easylogging++.hh"
 
 
 QtData::QtData()
@@ -40,7 +40,7 @@ QtData::QtData()
       persistent( QT_TRANSIENT ),
       referenceCounter(1)
 {
-    RMDBGONCE( 10, RMDebug::module_qlparser, "QtData", "QtData::QtData() Obj: " << this )
+    LTRACE << "QtData::QtData() Obj: " << this;
 }
 
 
@@ -52,7 +52,7 @@ QtData::QtData( const std::string name )
       persistent( QT_TRANSIENT ),
       referenceCounter(1)
 {
-    RMDBGONCE( 10, RMDebug::module_qlparser, "QtData", "QtData::QtData( const std::string ) Obj: " << this )
+    LTRACE << "QtData::QtData( const std::string ) Obj: " << this;
 }
 
 
@@ -64,7 +64,7 @@ QtData::QtData( const QtData &obj )
       persistent( obj.persistent ),
       referenceCounter(1)
 {
-    RMDBGONCE( 10, RMDebug::module_qlparser, "QtData", "QtData::QtData( QtData& ) Obj: " << this )
+    LTRACE << "QtData::QtData( QtData& ) Obj: " << this;
 
     if( obj.parseInfo )
         parseInfo = new ParseInfo( *(obj.parseInfo) );
@@ -74,7 +74,7 @@ QtData::QtData( const QtData &obj )
 
 QtData::~QtData()
 {
-    RMDBGONCE( 10, RMDebug::module_qlparser, "QtData", "QtData::~QtData() Obj: " << this )
+    LTRACE << "QtData::~QtData() Obj: " << this;
 
     if( parseInfo )
     {
@@ -97,7 +97,7 @@ QtData::isScalarData() const
 const QtData&
 QtData::operator=( const QtData& obj )
 {
-    RMDBGONCE( 10, RMDebug::module_qlparser, "QtData", "QtData::operator=" )
+    LTRACE << "QtData::operator=";
 
     if( this != &obj )
     {

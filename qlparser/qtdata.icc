@@ -26,6 +26,7 @@ rasdaman GmbH.
  * COMMENTS:
  *
  ************************************************************/
+#include "../common/src/logging/easylogging++.hh"
 
 inline void
 QtData::setIteratorName( const std::string &iteratorNameNew )
@@ -94,7 +95,7 @@ QtData::deleteRef()
 #if 0
   if (parseInfo==NULL)
   {
-    // RMInit::logOut << "QtData::deleteRef() - error: null parseinfo, resetting before doing delete." << endl;
+    // LERROR << "QtData::deleteRef() - error: null parseinfo, resetting before doing delete.";
     parseInfo = new ParseInfo();
   }
 #endif
@@ -117,7 +118,7 @@ QtData::decRef()
   if( referenceCounter > 0 )
     referenceCounter--;
   else
-    RMInit::logOut << "Internal Error: QtData::decRef() - decrease of a zero reference counter" << endl;
+    LERROR << "Internal Error: QtData::decRef() - decrease of a zero reference counter";
 
   return referenceCounter;
 }

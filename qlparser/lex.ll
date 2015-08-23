@@ -258,7 +258,7 @@ int string_yyinput( char* buf, int max_size )
 "abs"                                    { SETTOKEN( ABS, commandToken, ABS ) }
 "exp"                                    { SETTOKEN( EXP, commandToken, EXP ) }
 "pow"                                    { SETTOKEN( POW, commandToken, POW ) }
-"log"                                    { SETTOKEN( LOG, commandToken, LOG ) }
+"log"                                    { SETTOKEN( LOGFN, commandToken, LOGFN ) }
 "ln"                                     { SETTOKEN( LN, commandToken, LN ) }
 "sin"                                    { SETTOKEN( SIN, commandToken, SIN ) }
 "cos"                                    { SETTOKEN( COS, commandToken, COS ) }

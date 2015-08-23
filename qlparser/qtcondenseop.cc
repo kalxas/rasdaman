@@ -45,6 +45,8 @@ static const char rcsid[] = "@(#)qlparser, QtCondenseOp: $Header: /home/rasdev/C
 #include "catalogmgr/algebraops.hh"
 #include "mddmgr/mddobj.hh"
 
+#include "../common/src/logging/easylogging++.hh"
+
 #include "catalogmgr/typefactory.hh"
 
 #include <iostream>
@@ -86,7 +88,7 @@ QtCondenseOp::~QtCondenseOp()
 QtNode::QtNodeList*
 QtCondenseOp::getChilds( QtChildType flag )
 {
-    RMDBCLASS( "QtCondenseOp", "getChilds( QtChildType )", "qlparser", __FILE__, __LINE__ )
+	LTRACE << "qlparser";
     QtNodeList* resultList;
     resultList = QtBinaryOperation::getChilds( flag );
     if( condOp )
@@ -115,8 +117,7 @@ QtCondenseOp::getChilds( QtChildType flag )
 bool
 QtCondenseOp::equalMeaning( QtNode* node )
 {
-    RMDBCLASS( "QtCondenseOp", "equalMeaning( QtNode* )", "qlparser", __FILE__, __LINE__ )
-
+	LTRACE << "qlparser";
     bool result = false;
 
     if( nodeType == node->getNodeType() )
@@ -177,8 +178,7 @@ QtCondenseOp::setInput( QtOperation* inputOld, QtOperation* inputNew )
 void
 QtCondenseOp::optimizeLoad( QtTrimList* trimList )
 {
-    RMDBCLASS( "QtCondenseOp", "optimizeLoad( QtTrimList* )", "qlparser", __FILE__, __LINE__ )
-
+	LTRACE << "qlparser";
     // delete the trimList and optimize subtrees
 
     // release( trimList->begin(), trimList->end() );
@@ -200,9 +200,7 @@ QtCondenseOp::optimizeLoad( QtTrimList* trimList )
 void
 QtCondenseOp::simplify()
 {
-    RMDBCLASS( "QtCondenseOp", "simplify()", "qlparser", __FILE__, __LINE__ )
-
-    RMDBGMIDDLE(1, RMDebug::module_qlparser, "QtCondenseOp", "simplify() warning: QtCondenseOp itself is not simplified yet")
+    LTRACE << "simplify() warning: QtCondenseOp itself is not simplified yet";
 
     // Default method for all classes that have no implementation.
     // Method is used bottom up.
@@ -230,7 +228,7 @@ QtCondenseOp::isCommutative() const
 QtData*
 QtCondenseOp::evaluate( QtDataList* inputList )
 {
-    RMDBCLASS( "QtCondenseOp", "evaluate( QtDataList* )", "qlparser", __FILE__, __LINE__ )
+	LTRACE << "qlparser";
     startTimer("QtCondenseOp");
 
     QtData* returnValue = NULL;
@@ -241,8 +239,8 @@ QtCondenseOp::evaluate( QtDataList* inputList )
 
 #ifdef QT_RUNTIME_TYPE_CHECK
         if( operand1->getDataType() != QT_MINTERVAL )
-            RMInit::logOut << "Internal error in QtMarrayOp::evaluate() - "
-                           << "runtime type checking failed (Minterval)." << endl;
+            LERROR << "Internal error in QtMarrayOp::evaluate() - "
+                           << "runtime type checking failed (Minterval).";
 
         // delete old operand
         if( operand1 ) operand1->deleteRef();
@@ -253,7 +251,7 @@ QtCondenseOp::evaluate( QtDataList* inputList )
 
     r_Minterval domain = (static_cast<QtMintervalData*>(operand1))->getMintervalData();
 
-    RMDBGMIDDLE(1, RMDebug::module_qlparser, "QtCondenseOp", "Marray domain " << domain)
+    LTRACE << "Marray domain " << domain;
 
     // determine aggregation type
     const BaseType* cellBaseType;
@@ -393,8 +391,7 @@ QtCondenseOp::printAlgebraicExpression( ostream& s )
 const QtTypeElement&
 QtCondenseOp::checkType( QtTypeTuple* typeTuple )
 {
-    RMDBCLASS( "QtCondenseOp", "checkType( QtTypeTuple* )", "qlparser", __FILE__, __LINE__ )
-
+	LTRACE << "qlparser";
     dataStreamType.setDataType( QT_TYPE_UNKNOWN );
 
     // check operand branches
@@ -406,7 +403,7 @@ QtCondenseOp::checkType( QtTypeTuple* typeTuple )
 
         if( domainExp.getDataType() != QT_MINTERVAL )
         {
-            RMInit::logOut << "Error: QtCondenseOp::checkType() - Can not evaluate domain expression to an minterval" << endl;
+            LFATAL << "Error: QtCondenseOp::checkType() - Can not evaluate domain expression to an minterval";
             parseInfo.setErrorNo(401);
             throw parseInfo;
         }
@@ -436,7 +433,7 @@ QtCondenseOp::checkType( QtTypeTuple* typeTuple )
                 valueExp.getDataType() != QT_COMPLEXTYPE1 && valueExp.getDataType() != QT_COMPLEXTYPE2 &&
                 valueExp.getDataType() != QT_MDD)
         {
-            RMInit::logOut << "Error: QtCondenseOp::checkType() - Value expression must be either of type atomic, complex or MDD." << endl;
+            LFATAL << "Error: QtCondenseOp::checkType() - Value expression must be either of type atomic, complex or MDD.";
             parseInfo.setErrorNo(412);
             throw parseInfo;
         }
@@ -455,7 +452,7 @@ QtCondenseOp::checkType( QtTypeTuple* typeTuple )
             // check type
             if( condExp.getDataType() != QT_BOOL )
             {
-                RMInit::logOut << "Error: QtCondenseOp::checkType() - Condition expression must be of type boolean" << endl;
+                LFATAL << "Error: QtCondenseOp::checkType() - Condition expression must be of type boolean";
                 parseInfo.setErrorNo(413);
                 throw parseInfo;
             }
@@ -470,7 +467,7 @@ QtCondenseOp::checkType( QtTypeTuple* typeTuple )
         }
     }
     else
-        RMInit::logOut << "Error: QtCondenseOp::checkType() - operand branch invalid." << endl;
+        LERROR << "Error: QtCondenseOp::checkType() - operand branch invalid.";
 
     return dataStreamType;
 }

@@ -22,6 +22,7 @@ rasdaman GmbH.
 */
 
 #include "qtatomicdata.hh"
+#include "../common/src/logging/easylogging++.hh"
 
 /*************************************************************
  *
@@ -67,22 +68,21 @@ void QtAbs::printAlgebraicExpression(ostream& s) {
 }
 
 const QtTypeElement& QtAbs::checkType(QtTypeTuple* typeTuple) {
-	RMDBCLASS( "QtAbs", "checkType( QtTypeTuple* )", "qlparser", __FILE__, __LINE__ )
+	LTRACE << "qlparser";
 	dataStreamType.setDataType( QT_TYPE_UNKNOWN );
 	// check operand branches
 	if(input) {
 	// get input types
 	const QtTypeElement& inputType = input->checkType( typeTuple );
 	RMDBGIF( 4, RMDebug::module_qlparser, "AutoGen", \
-		RMInit::dbgOut << "Operand: " << flush; \
+		LTRACE << "Operand: "; \
 		inputType.printStatus( RMInit::dbgOut ); \
-		RMInit::dbgOut << endl; \
 	)
 	if(inputType.getDataType() == QT_MDD) {
 	const BaseType* baseType = (static_cast<MDDBaseType*>(const_cast<Type*>(inputType.getType())))->getBaseType();
 	BaseType* resultBaseType = const_cast<BaseType*>(Ops::getResultType( Ops::OP_ABS, baseType ));
 	if(!resultBaseType) {
-		RMInit::logOut << "Error: QtAbs::checkType() - induce operand type is not support" << endl;
+		LFATAL << "Error: QtAbs::checkType() - induce operand type is not support";
 		parseInfo.setErrorNo(366);
 		throw parseInfo;
 	}
@@ -94,20 +94,20 @@ const QtTypeElement& QtAbs::checkType(QtTypeTuple* typeTuple) {
 		BaseType* baseType = static_cast<BaseType*>(const_cast<Type*>(inputType.getType()));
 		BaseType* resultBaseType = const_cast<BaseType*>(Ops::getResultType( Ops::OP_ABS, baseType ));
 		if(!resultBaseType) {
-			RMInit::logOut << "Error: QtAbs::checkType() - operand type is not supported." << endl;
+			LFATAL << "Error: QtAbs::checkType() - operand type is not supported.";
 			parseInfo.setErrorNo(367);
 			throw parseInfo;
 	}
 		dataStreamType.setType( resultBaseType );
 	}
 	else {
-		RMInit::logOut << "Error: QtAbs::checkType() - operation is not supported for strings." << endl;
+		LFATAL << "Error: QtAbs::checkType() - operation is not supported for strings.";
 		parseInfo.setErrorNo(385);
 		throw parseInfo;
 	}
         }
         else
-		RMInit::logOut << "Error: QtAbs::checkType() - operand branch invalid." << endl;
+		LERROR << "Error: QtAbs::checkType() - operand branch invalid.";
 
 	return dataStreamType;
 }
@@ -147,22 +147,21 @@ void QtSqrt::printAlgebraicExpression(ostream& s) {
 }
 
 const QtTypeElement& QtSqrt::checkType(QtTypeTuple* typeTuple) {
-	RMDBCLASS( "QtSqrt", "checkType( QtTypeTuple* )", "qlparser", __FILE__, __LINE__ )
+	LTRACE << "qlparser";
 	dataStreamType.setDataType( QT_TYPE_UNKNOWN );
 	// check operand branches
 	if(input) {
 	// get input types
 	const QtTypeElement& inputType = input->checkType( typeTuple );
 	RMDBGIF( 4, RMDebug::module_qlparser, "AutoGen", \
-		RMInit::dbgOut << "Operand: " << flush; \
+		LTRACE << "Operand: "; \
 		inputType.printStatus( RMInit::dbgOut ); \
-		RMInit::dbgOut << endl; \
 	)
 	if(inputType.getDataType() == QT_MDD) {
 	const BaseType* baseType = (static_cast<MDDBaseType*>(const_cast<Type*>(inputType.getType())))->getBaseType();
 	BaseType* resultBaseType = const_cast<BaseType*>(Ops::getResultType( Ops::OP_SQRT, baseType ));
 	if(!resultBaseType) {
-		RMInit::logOut << "Error: QtSqrt::checkType() - induce operand type is not support" << endl;
+		LFATAL << "Error: QtSqrt::checkType() - induce operand type is not support";
 		parseInfo.setErrorNo(366);
 		throw parseInfo;
 	}
@@ -174,20 +173,20 @@ const QtTypeElement& QtSqrt::checkType(QtTypeTuple* typeTuple) {
 		BaseType* baseType = static_cast<BaseType*>(const_cast<Type*>(inputType.getType()));
 		BaseType* resultBaseType = const_cast<BaseType*>(Ops::getResultType( Ops::OP_SQRT, baseType ));
 		if(!resultBaseType) {
-			RMInit::logOut << "Error: QtSqrt::checkType() - operand type is not supported." << endl;
+			LFATAL << "Error: QtSqrt::checkType() - operand type is not supported.";
 			parseInfo.setErrorNo(367);
 			throw parseInfo;
 	}
 		dataStreamType.setType( resultBaseType );
 	}
 	else {
-		RMInit::logOut << "Error: QtSqrt::checkType() - operation is not supported for strings." << endl;
+		LFATAL << "Error: QtSqrt::checkType() - operation is not supported for strings.";
 		parseInfo.setErrorNo(385);
 		throw parseInfo;
 	}
         }
         else
-		RMInit::logOut << "Error: QtSqrt::checkType() - operand branch invalid." << endl;
+		LERROR << "Error: QtSqrt::checkType() - operand branch invalid.";
 
 	return dataStreamType;
 }
@@ -227,22 +226,21 @@ void QtExp::printAlgebraicExpression(ostream& s) {
 }
 
 const QtTypeElement& QtExp::checkType(QtTypeTuple* typeTuple) {
-	RMDBCLASS( "QtExp", "checkType( QtTypeTuple* )", "qlparser", __FILE__, __LINE__ )
+	LTRACE << "qlparser";
 	dataStreamType.setDataType( QT_TYPE_UNKNOWN );
 	// check operand branches
 	if(input) {
 	// get input types
 	const QtTypeElement& inputType = input->checkType( typeTuple );
 	RMDBGIF( 4, RMDebug::module_qlparser, "AutoGen", \
-		RMInit::dbgOut << "Operand: " << flush; \
+		LTRACE << "Operand: "; \
 		inputType.printStatus( RMInit::dbgOut ); \
-		RMInit::dbgOut << endl; \
 	)
 	if(inputType.getDataType() == QT_MDD) {
 	const BaseType* baseType = (static_cast<MDDBaseType*>(const_cast<Type*>(inputType.getType())))->getBaseType();
 	BaseType* resultBaseType = const_cast<BaseType*>(Ops::getResultType( Ops::OP_EXP, baseType ));
 	if(!resultBaseType) {
-		RMInit::logOut << "Error: QtExp::checkType() - induce operand type is not support" << endl;
+		LFATAL << "Error: QtExp::checkType() - induce operand type is not support";
 		parseInfo.setErrorNo(366);
 		throw parseInfo;
 	}
@@ -254,20 +252,20 @@ const QtTypeElement& QtExp::checkType(QtTypeTuple* typeTuple) {
 		BaseType* baseType = static_cast<BaseType*>(const_cast<Type*>(inputType.getType()));
 		BaseType* resultBaseType = const_cast<BaseType*>(Ops::getResultType( Ops::OP_EXP, baseType ));
 		if(!resultBaseType) {
-			RMInit::logOut << "Error: QtExp::checkType() - operand type is not supported." << endl;
+			LFATAL << "Error: QtExp::checkType() - operand type is not supported.";
 			parseInfo.setErrorNo(367);
 			throw parseInfo;
 	}
 		dataStreamType.setType( resultBaseType );
 	}
 	else {
-		RMInit::logOut << "Error: QtExp::checkType() - operation is not supported for strings." << endl;
+		LFATAL << "Error: QtExp::checkType() - operation is not supported for strings.";
 		parseInfo.setErrorNo(385);
 		throw parseInfo;
 	}
         }
         else
-		RMInit::logOut << "Error: QtExp::checkType() - operand branch invalid." << endl;
+		LERROR << "Error: QtExp::checkType() - operand branch invalid.";
 
 	return dataStreamType;
 }
@@ -314,7 +312,7 @@ void QtPow::printAlgebraicExpression(ostream& s)
 
 const QtTypeElement& QtPow::checkType(QtTypeTuple* typeTuple)
 {
-    RMDBCLASS("QtPow", "checkType( QtTypeTuple* )", "qlparser", __FILE__, __LINE__)
+	LTRACE << "qlparser";
     dataStreamType.setDataType(QT_TYPE_UNKNOWN);
     // check operand branches
     if (input)
@@ -322,9 +320,8 @@ const QtTypeElement& QtPow::checkType(QtTypeTuple* typeTuple)
         // get input types
         const QtTypeElement& inputType = input->checkType(typeTuple);
         RMDBGIF(4, RMDebug::module_qlparser, "AutoGen", \
-		RMInit::dbgOut << "Operand: " << flush; \
+		LTRACE << "Operand: "; \
 		inputType.printStatus(RMInit::dbgOut); \
-		RMInit::dbgOut << endl; \
         );
         if (inputType.getDataType() == QT_MDD)
         {
@@ -332,7 +329,7 @@ const QtTypeElement& QtPow::checkType(QtTypeTuple* typeTuple)
             BaseType* resultBaseType = const_cast<BaseType*>(Ops::getResultType(Ops::OP_POW, baseType));
             if (!resultBaseType)
             {
-                RMInit::logOut << "Error: QtPow::checkType() - induce operand type is not support" << endl;
+                LFATAL << "Error: QtPow::checkType() - induce operand type is not support";
                 parseInfo.setErrorNo(366);
                 throw parseInfo;
             }
@@ -346,7 +343,7 @@ const QtTypeElement& QtPow::checkType(QtTypeTuple* typeTuple)
             BaseType* resultBaseType = const_cast<BaseType*>(Ops::getResultType(Ops::OP_POW, baseType));
             if (!resultBaseType)
             {
-                RMInit::logOut << "Error: QtPow::checkType() - operand type is not supported." << endl;
+                LFATAL << "Error: QtPow::checkType() - operand type is not supported.";
                 parseInfo.setErrorNo(367);
                 throw parseInfo;
             }
@@ -354,13 +351,13 @@ const QtTypeElement& QtPow::checkType(QtTypeTuple* typeTuple)
         }
         else
         {
-            RMInit::logOut << "Error: QtPow::checkType() - operation is not supported for strings." << endl;
+            LFATAL << "Error: QtPow::checkType() - operation is not supported for strings.";
             parseInfo.setErrorNo(385);
             throw parseInfo;
         }
     }
     else
-        RMInit::logOut << "Error: QtPow::checkType() - operand branch invalid." << endl;
+        LERROR << "Error: QtPow::checkType() - operand branch invalid.";
 
     return dataStreamType;
 }
@@ -400,22 +397,21 @@ void QtLog::printAlgebraicExpression(ostream& s) {
 }
 
 const QtTypeElement& QtLog::checkType(QtTypeTuple* typeTuple) {
-	RMDBCLASS( "QtLog", "checkType( QtTypeTuple* )", "qlparser", __FILE__, __LINE__ )
+	LTRACE << "qlparser";
 	dataStreamType.setDataType( QT_TYPE_UNKNOWN );
 	// check operand branches
 	if(input) {
 	// get input types
 	const QtTypeElement& inputType = input->checkType( typeTuple );
 	RMDBGIF( 4, RMDebug::module_qlparser, "AutoGen", \
-		RMInit::dbgOut << "Operand: " << flush; \
+		LTRACE << "Operand: "; \
 		inputType.printStatus( RMInit::dbgOut ); \
-		RMInit::dbgOut << endl; \
 	)
 	if(inputType.getDataType() == QT_MDD) {
 	const BaseType* baseType = (static_cast<MDDBaseType*>(const_cast<Type*>(inputType.getType())))->getBaseType();
 	BaseType* resultBaseType = const_cast<BaseType*>(Ops::getResultType( Ops::OP_LOG, baseType ));
 	if(!resultBaseType) {
-		RMInit::logOut << "Error: QtLog::checkType() - induce operand type is not support" << endl;
+		LFATAL << "Error: QtLog::checkType() - induce operand type is not support";
 		parseInfo.setErrorNo(366);
 		throw parseInfo;
 	}
@@ -427,20 +423,20 @@ const QtTypeElement& QtLog::checkType(QtTypeTuple* typeTuple) {
 		BaseType* baseType = static_cast<BaseType*>(const_cast<Type*>(inputType.getType()));
 		BaseType* resultBaseType = const_cast<BaseType*>(Ops::getResultType( Ops::OP_LOG, baseType ));
 		if(!resultBaseType) {
-			RMInit::logOut << "Error: QtLog::checkType() - operand type is not supported." << endl;
+			LFATAL << "Error: QtLog::checkType() - operand type is not supported.";
 			parseInfo.setErrorNo(367);
 			throw parseInfo;
 	}
 		dataStreamType.setType( resultBaseType );
 	}
 	else {
-		RMInit::logOut << "Error: QtLog::checkType() - operation is not supported for strings." << endl;
+		LFATAL << "Error: QtLog::checkType() - operation is not supported for strings.";
 		parseInfo.setErrorNo(385);
 		throw parseInfo;
 	}
         }
         else
-		RMInit::logOut << "Error: QtLog::checkType() - operand branch invalid." << endl;
+		LERROR << "Error: QtLog::checkType() - operand branch invalid.";
 
 	return dataStreamType;
 }
@@ -480,22 +476,21 @@ void QtLn::printAlgebraicExpression(ostream& s) {
 }
 
 const QtTypeElement& QtLn::checkType(QtTypeTuple* typeTuple) {
-	RMDBCLASS( "QtLn", "checkType( QtTypeTuple* )", "qlparser", __FILE__, __LINE__ )
+	LTRACE << "qlparser";
 	dataStreamType.setDataType( QT_TYPE_UNKNOWN );
 	// check operand branches
 	if(input) {
 	// get input types
 	const QtTypeElement& inputType = input->checkType( typeTuple );
 	RMDBGIF( 4, RMDebug::module_qlparser, "AutoGen", \
-		RMInit::dbgOut << "Operand: " << flush; \
+		LTRACE << "Operand: "; \
 		inputType.printStatus( RMInit::dbgOut ); \
-		RMInit::dbgOut << endl; \
 	)
 	if(inputType.getDataType() == QT_MDD) {
 	const BaseType* baseType = (static_cast<MDDBaseType*>(const_cast<Type*>(inputType.getType())))->getBaseType();
 	BaseType* resultBaseType = const_cast<BaseType*>(Ops::getResultType( Ops::OP_LN, baseType ));
 	if(!resultBaseType) {
-		RMInit::logOut << "Error: QtLn::checkType() - induce operand type is not support" << endl;
+		LFATAL << "Error: QtLn::checkType() - induce operand type is not support";
 		parseInfo.setErrorNo(366);
 		throw parseInfo;
 	}
@@ -507,20 +502,20 @@ const QtTypeElement& QtLn::checkType(QtTypeTuple* typeTuple) {
 		BaseType* baseType = static_cast<BaseType*>(const_cast<Type*>(inputType.getType()));
 		BaseType* resultBaseType = const_cast<BaseType*>(Ops::getResultType( Ops::OP_LN, baseType ));
 		if(!resultBaseType) {
-			RMInit::logOut << "Error: QtLn::checkType() - operand type is not supported." << endl;
+			LFATAL << "Error: QtLn::checkType() - operand type is not supported.";
 			parseInfo.setErrorNo(367);
 			throw parseInfo;
 	}
 		dataStreamType.setType( resultBaseType );
 	}
 	else {
-		RMInit::logOut << "Error: QtLn::checkType() - operation is not supported for strings." << endl;
+		LFATAL << "Error: QtLn::checkType() - operation is not supported for strings.";
 		parseInfo.setErrorNo(385);
 		throw parseInfo;
 	}
         }
         else
-		RMInit::logOut << "Error: QtLn::checkType() - operand branch invalid." << endl;
+		LERROR << "Error: QtLn::checkType() - operand branch invalid.";
 
 	return dataStreamType;
 }
@@ -560,22 +555,21 @@ void QtSin::printAlgebraicExpression(ostream& s) {
 }
 
 const QtTypeElement& QtSin::checkType(QtTypeTuple* typeTuple) {
-	RMDBCLASS( "QtSin", "checkType( QtTypeTuple* )", "qlparser", __FILE__, __LINE__ )
+	LTRACE << "qlparser";
 	dataStreamType.setDataType( QT_TYPE_UNKNOWN );
 	// check operand branches
 	if(input) {
 	// get input types
 	const QtTypeElement& inputType = input->checkType( typeTuple );
 	RMDBGIF( 4, RMDebug::module_qlparser, "AutoGen", \
-		RMInit::dbgOut << "Operand: " << flush; \
+		LTRACE << "Operand: "; \
 		inputType.printStatus( RMInit::dbgOut ); \
-		RMInit::dbgOut << endl; \
 	)
 	if(inputType.getDataType() == QT_MDD) {
 	const BaseType* baseType = (static_cast<MDDBaseType*>(const_cast<Type*>(inputType.getType())))->getBaseType();
 	BaseType* resultBaseType = const_cast<BaseType*>(Ops::getResultType( Ops::OP_SIN, baseType ));
 	if(!resultBaseType) {
-		RMInit::logOut << "Error: QtSin::checkType() - induce operand type is not support" << endl;
+		LFATAL << "Error: QtSin::checkType() - induce operand type is not support";
 		parseInfo.setErrorNo(366);
 		throw parseInfo;
 	}
@@ -587,20 +581,20 @@ const QtTypeElement& QtSin::checkType(QtTypeTuple* typeTuple) {
 		BaseType* baseType = static_cast<BaseType*>(const_cast<Type*>(inputType.getType()));
 		BaseType* resultBaseType = const_cast<BaseType*>(Ops::getResultType( Ops::OP_SIN, baseType ));
 		if(!resultBaseType) {
-			RMInit::logOut << "Error: QtSin::checkType() - operand type is not supported." << endl;
+			LFATAL << "Error: QtSin::checkType() - operand type is not supported.";
 			parseInfo.setErrorNo(367);
 			throw parseInfo;
 	}
 		dataStreamType.setType( resultBaseType );
 	}
 	else {
-		RMInit::logOut << "Error: QtSin::checkType() - operation is not supported for strings." << endl;
+		LFATAL << "Error: QtSin::checkType() - operation is not supported for strings.";
 		parseInfo.setErrorNo(385);
 		throw parseInfo;
 	}
         }
         else
-		RMInit::logOut << "Error: QtSin::checkType() - operand branch invalid." << endl;
+		LERROR << "Error: QtSin::checkType() - operand branch invalid.";
 
 	return dataStreamType;
 }
@@ -640,22 +634,21 @@ void QtCos::printAlgebraicExpression(ostream& s) {
 }
 
 const QtTypeElement& QtCos::checkType(QtTypeTuple* typeTuple) {
-	RMDBCLASS( "QtCos", "checkType( QtTypeTuple* )", "qlparser", __FILE__, __LINE__ )
+	LTRACE << "qlparser";
 	dataStreamType.setDataType( QT_TYPE_UNKNOWN );
 	// check operand branches
 	if(input) {
 	// get input types
 	const QtTypeElement& inputType = input->checkType( typeTuple );
 	RMDBGIF( 4, RMDebug::module_qlparser, "AutoGen", \
-		RMInit::dbgOut << "Operand: " << flush; \
+		LTRACE << "Operand: "; \
 		inputType.printStatus( RMInit::dbgOut ); \
-		RMInit::dbgOut << endl; \
 	)
 	if(inputType.getDataType() == QT_MDD) {
 	const BaseType* baseType = (static_cast<MDDBaseType*>(const_cast<Type*>(inputType.getType())))->getBaseType();
 	BaseType* resultBaseType = const_cast<BaseType*>(Ops::getResultType( Ops::OP_COS, baseType ));
 	if(!resultBaseType) {
-		RMInit::logOut << "Error: QtCos::checkType() - induce operand type is not support" << endl;
+		LFATAL << "Error: QtCos::checkType() - induce operand type is not support";
 		parseInfo.setErrorNo(366);
 		throw parseInfo;
 	}
@@ -667,20 +660,20 @@ const QtTypeElement& QtCos::checkType(QtTypeTuple* typeTuple) {
 		BaseType* baseType = static_cast<BaseType*>(const_cast<Type*>(inputType.getType()));
 		BaseType* resultBaseType = const_cast<BaseType*>(Ops::getResultType( Ops::OP_COS, baseType ));
 		if(!resultBaseType) {
-			RMInit::logOut << "Error: QtCos::checkType() - operand type is not supported." << endl;
+			LFATAL << "Error: QtCos::checkType() - operand type is not supported.";
 			parseInfo.setErrorNo(367);
 			throw parseInfo;
 	}
 		dataStreamType.setType( resultBaseType );
 	}
 	else {
-		RMInit::logOut << "Error: QtCos::checkType() - operation is not supported for strings." << endl;
+		LFATAL << "Error: QtCos::checkType() - operation is not supported for strings.";
 		parseInfo.setErrorNo(385);
 		throw parseInfo;
 	}
         }
         else
-		RMInit::logOut << "Error: QtCos::checkType() - operand branch invalid." << endl;
+		LERROR << "Error: QtCos::checkType() - operand branch invalid.";
 
 	return dataStreamType;
 }
@@ -720,22 +713,21 @@ void QtTan::printAlgebraicExpression(ostream& s) {
 }
 
 const QtTypeElement& QtTan::checkType(QtTypeTuple* typeTuple) {
-	RMDBCLASS( "QtTan", "checkType( QtTypeTuple* )", "qlparser", __FILE__, __LINE__ )
+	LTRACE << "qlparser";
 	dataStreamType.setDataType( QT_TYPE_UNKNOWN );
 	// check operand branches
 	if(input) {
 	// get input types
 	const QtTypeElement& inputType = input->checkType( typeTuple );
 	RMDBGIF( 4, RMDebug::module_qlparser, "AutoGen", \
-		RMInit::dbgOut << "Operand: " << flush; \
+		LTRACE << "Operand: "; \
 		inputType.printStatus( RMInit::dbgOut ); \
-		RMInit::dbgOut << endl; \
 	)
 	if(inputType.getDataType() == QT_MDD) {
 	const BaseType* baseType = (static_cast<MDDBaseType*>(const_cast<Type*>(inputType.getType())))->getBaseType();
 	BaseType* resultBaseType = const_cast<BaseType*>(Ops::getResultType( Ops::OP_TAN, baseType ));
 	if(!resultBaseType) {
-		RMInit::logOut << "Error: QtTan::checkType() - induce operand type is not support" << endl;
+		LFATAL << "Error: QtTan::checkType() - induce operand type is not support";
 		parseInfo.setErrorNo(366);
 		throw parseInfo;
 	}
@@ -747,20 +739,20 @@ const QtTypeElement& QtTan::checkType(QtTypeTuple* typeTuple) {
 		BaseType* baseType = static_cast<BaseType*>(const_cast<Type*>(inputType.getType()));
 		BaseType* resultBaseType = const_cast<BaseType*>(Ops::getResultType( Ops::OP_TAN, baseType ));
 		if(!resultBaseType) {
-			RMInit::logOut << "Error: QtTan::checkType() - operand type is not supported." << endl;
+			LFATAL << "Error: QtTan::checkType() - operand type is not supported.";
 			parseInfo.setErrorNo(367);
 			throw parseInfo;
 	}
 		dataStreamType.setType( resultBaseType );
 	}
 	else {
-		RMInit::logOut << "Error: QtTan::checkType() - operation is not supported for strings." << endl;
+		LFATAL << "Error: QtTan::checkType() - operation is not supported for strings.";
 		parseInfo.setErrorNo(385);
 		throw parseInfo;
 	}
         }
         else
-		RMInit::logOut << "Error: QtTan::checkType() - operand branch invalid." << endl;
+		LERROR << "Error: QtTan::checkType() - operand branch invalid.";
 
 	return dataStreamType;
 }
@@ -800,22 +792,21 @@ void QtSinh::printAlgebraicExpression(ostream& s) {
 }
 
 const QtTypeElement& QtSinh::checkType(QtTypeTuple* typeTuple) {
-	RMDBCLASS( "QtSinh", "checkType( QtTypeTuple* )", "qlparser", __FILE__, __LINE__ )
+	LTRACE << "qlparser";
 	dataStreamType.setDataType( QT_TYPE_UNKNOWN );
 	// check operand branches
 	if(input) {
 	// get input types
 	const QtTypeElement& inputType = input->checkType( typeTuple );
 	RMDBGIF( 4, RMDebug::module_qlparser, "AutoGen", \
-		RMInit::dbgOut << "Operand: " << flush; \
+		LTRACE << "Operand: "; \
 		inputType.printStatus( RMInit::dbgOut ); \
-		RMInit::dbgOut << endl; \
 	)
 	if(inputType.getDataType() == QT_MDD) {
 	const BaseType* baseType = (static_cast<MDDBaseType*>(const_cast<Type*>(inputType.getType())))->getBaseType();
 	BaseType* resultBaseType = const_cast<BaseType*>(Ops::getResultType( Ops::OP_SINH, baseType ));
 	if(!resultBaseType) {
-		RMInit::logOut << "Error: QtSinh::checkType() - induce operand type is not support" << endl;
+		LFATAL << "Error: QtSinh::checkType() - induce operand type is not support";
 		parseInfo.setErrorNo(366);
 		throw parseInfo;
 	}
@@ -827,20 +818,20 @@ const QtTypeElement& QtSinh::checkType(QtTypeTuple* typeTuple) {
 		BaseType* baseType = static_cast<BaseType*>(const_cast<Type*>(inputType.getType()));
 		BaseType* resultBaseType = const_cast<BaseType*>(Ops::getResultType( Ops::OP_SINH, baseType ));
 		if(!resultBaseType) {
-			RMInit::logOut << "Error: QtSinh::checkType() - operand type is not supported." << endl;
+			LFATAL << "Error: QtSinh::checkType() - operand type is not supported.";
 			parseInfo.setErrorNo(367);
 			throw parseInfo;
 	}
 		dataStreamType.setType( resultBaseType );
 	}
 	else {
-		RMInit::logOut << "Error: QtSinh::checkType() - operation is not supported for strings." << endl;
+		LFATAL << "Error: QtSinh::checkType() - operation is not supported for strings.";
 		parseInfo.setErrorNo(385);
 		throw parseInfo;
 	}
         }
         else
-		RMInit::logOut << "Error: QtSinh::checkType() - operand branch invalid." << endl;
+		LERROR << "Error: QtSinh::checkType() - operand branch invalid.";
 
 	return dataStreamType;
 }
@@ -880,22 +871,21 @@ void QtCosh::printAlgebraicExpression(ostream& s) {
 }
 
 const QtTypeElement& QtCosh::checkType(QtTypeTuple* typeTuple) {
-	RMDBCLASS( "QtCosh", "checkType( QtTypeTuple* )", "qlparser", __FILE__, __LINE__ )
+	LTRACE << "qlparser";
 	dataStreamType.setDataType( QT_TYPE_UNKNOWN );
 	// check operand branches
 	if(input) {
 	// get input types
 	const QtTypeElement& inputType = input->checkType( typeTuple );
 	RMDBGIF( 4, RMDebug::module_qlparser, "AutoGen", \
-		RMInit::dbgOut << "Operand: " << flush; \
+		LTRACE << "Operand: "; \
 		inputType.printStatus( RMInit::dbgOut ); \
-		RMInit::dbgOut << endl; \
 	)
 	if(inputType.getDataType() == QT_MDD) {
 	const BaseType* baseType = (static_cast<MDDBaseType*>(const_cast<Type*>(inputType.getType())))->getBaseType();
 	BaseType* resultBaseType = const_cast<BaseType*>(Ops::getResultType( Ops::OP_COSH, baseType ));
 	if(!resultBaseType) {
-		RMInit::logOut << "Error: QtCosh::checkType() - induce operand type is not support" << endl;
+		LFATAL << "Error: QtCosh::checkType() - induce operand type is not support";
 		parseInfo.setErrorNo(366);
 		throw parseInfo;
 	}
@@ -907,20 +897,20 @@ const QtTypeElement& QtCosh::checkType(QtTypeTuple* typeTuple) {
 		BaseType* baseType = static_cast<BaseType*>(const_cast<Type*>(inputType.getType()));
 		BaseType* resultBaseType = const_cast<BaseType*>(Ops::getResultType( Ops::OP_COSH, baseType ));
 		if(!resultBaseType) {
-			RMInit::logOut << "Error: QtCosh::checkType() - operand type is not supported." << endl;
+			LFATAL << "Error: QtCosh::checkType() - operand type is not supported.";
 			parseInfo.setErrorNo(367);
 			throw parseInfo;
 	}
 		dataStreamType.setType( resultBaseType );
 	}
 	else {
-		RMInit::logOut << "Error: QtCosh::checkType() - operation is not supported for strings." << endl;
+		LFATAL << "Error: QtCosh::checkType() - operation is not supported for strings.";
 		parseInfo.setErrorNo(385);
 		throw parseInfo;
 	}
         }
         else
-		RMInit::logOut << "Error: QtCosh::checkType() - operand branch invalid." << endl;
+		LERROR << "Error: QtCosh::checkType() - operand branch invalid.";
 
 	return dataStreamType;
 }
@@ -960,22 +950,21 @@ void QtTanh::printAlgebraicExpression(ostream& s) {
 }
 
 const QtTypeElement& QtTanh::checkType(QtTypeTuple* typeTuple) {
-	RMDBCLASS( "QtTanh", "checkType( QtTypeTuple* )", "qlparser", __FILE__, __LINE__ )
+	LTRACE << "qlparser";
 	dataStreamType.setDataType( QT_TYPE_UNKNOWN );
 	// check operand branches
 	if(input) {
 	// get input types
 	const QtTypeElement& inputType = input->checkType( typeTuple );
 	RMDBGIF( 4, RMDebug::module_qlparser, "AutoGen", \
-		RMInit::dbgOut << "Operand: " << flush; \
+		LTRACE << "Operand: "; \
 		inputType.printStatus( RMInit::dbgOut ); \
-		RMInit::dbgOut << endl; \
 	)
 	if(inputType.getDataType() == QT_MDD) {
 	const BaseType* baseType = (static_cast<MDDBaseType*>(const_cast<Type*>(inputType.getType())))->getBaseType();
 	BaseType* resultBaseType = const_cast<BaseType*>(Ops::getResultType( Ops::OP_TANH, baseType ));
 	if(!resultBaseType) {
-		RMInit::logOut << "Error: QtTanh::checkType() - induce operand type is not support" << endl;
+		LFATAL << "Error: QtTanh::checkType() - induce operand type is not support";
 		parseInfo.setErrorNo(366);
 		throw parseInfo;
 	}
@@ -987,20 +976,20 @@ const QtTypeElement& QtTanh::checkType(QtTypeTuple* typeTuple) {
 		BaseType* baseType = static_cast<BaseType*>(const_cast<Type*>(inputType.getType()));
 		BaseType* resultBaseType = const_cast<BaseType*>(Ops::getResultType( Ops::OP_TANH, baseType ));
 		if(!resultBaseType) {
-			RMInit::logOut << "Error: QtTanh::checkType() - operand type is not supported." << endl;
+			LFATAL << "Error: QtTanh::checkType() - operand type is not supported.";
 			parseInfo.setErrorNo(367);
 			throw parseInfo;
 	}
 		dataStreamType.setType( resultBaseType );
 	}
 	else {
-		RMInit::logOut << "Error: QtTanh::checkType() - operation is not supported for strings." << endl;
+		LFATAL << "Error: QtTanh::checkType() - operation is not supported for strings.";
 		parseInfo.setErrorNo(385);
 		throw parseInfo;
 	}
         }
         else
-		RMInit::logOut << "Error: QtTanh::checkType() - operand branch invalid." << endl;
+		LERROR << "Error: QtTanh::checkType() - operand branch invalid.";
 
 	return dataStreamType;
 }
@@ -1040,22 +1029,21 @@ void QtArcsin::printAlgebraicExpression(ostream& s) {
 }
 
 const QtTypeElement& QtArcsin::checkType(QtTypeTuple* typeTuple) {
-	RMDBCLASS( "QtArcsin", "checkType( QtTypeTuple* )", "qlparser", __FILE__, __LINE__ )
+	LTRACE << "qlparser";
 	dataStreamType.setDataType( QT_TYPE_UNKNOWN );
 	// check operand branches
 	if(input) {
 	// get input types
 	const QtTypeElement& inputType = input->checkType( typeTuple );
 	RMDBGIF( 4, RMDebug::module_qlparser, "AutoGen", \
-		RMInit::dbgOut << "Operand: " << flush; \
+		LTRACE << "Operand: "; \
 		inputType.printStatus( RMInit::dbgOut ); \
-		RMInit::dbgOut << endl; \
 	)
 	if(inputType.getDataType() == QT_MDD) {
 	const BaseType* baseType = (static_cast<MDDBaseType*>(const_cast<Type*>(inputType.getType())))->getBaseType();
 	BaseType* resultBaseType = const_cast<BaseType*>(Ops::getResultType( Ops::OP_ARCSIN, baseType ));
 	if(!resultBaseType) {
-		RMInit::logOut << "Error: QtArcsin::checkType() - induce operand type is not support" << endl;
+		LFATAL << "Error: QtArcsin::checkType() - induce operand type is not support";
 		parseInfo.setErrorNo(366);
 		throw parseInfo;
 	}
@@ -1067,20 +1055,20 @@ const QtTypeElement& QtArcsin::checkType(QtTypeTuple* typeTuple) {
 		BaseType* baseType = static_cast<BaseType*>(const_cast<Type*>(inputType.getType()));
 		BaseType* resultBaseType = const_cast<BaseType*>(Ops::getResultType( Ops::OP_ARCSIN, baseType ));
 		if(!resultBaseType) {
-			RMInit::logOut << "Error: QtArcsin::checkType() - operand type is not supported." << endl;
+			LFATAL << "Error: QtArcsin::checkType() - operand type is not supported.";
 			parseInfo.setErrorNo(367);
 			throw parseInfo;
 	}
 		dataStreamType.setType( resultBaseType );
 	}
 	else {
-		RMInit::logOut << "Error: QtArcsin::checkType() - operation is not supported for strings." << endl;
+		LFATAL << "Error: QtArcsin::checkType() - operation is not supported for strings.";
 		parseInfo.setErrorNo(385);
 		throw parseInfo;
 	}
         } 
         else
-		RMInit::logOut << "Error: QtArcsin::checkType() - operand branch invalid." << endl;
+		LERROR << "Error: QtArcsin::checkType() - operand branch invalid.";
 	return dataStreamType;
 }
 
@@ -1119,22 +1107,21 @@ void QtArccos::printAlgebraicExpression(ostream& s) {
 }
 
 const QtTypeElement& QtArccos::checkType(QtTypeTuple* typeTuple) {
-	RMDBCLASS( "QtArccos", "checkType( QtTypeTuple* )", "qlparser", __FILE__, __LINE__ )
+	LTRACE << "qlparser";
 	dataStreamType.setDataType( QT_TYPE_UNKNOWN );
 	// check operand branches
 	if(input) {
 	// get input types
 	const QtTypeElement& inputType = input->checkType( typeTuple );
 	RMDBGIF( 4, RMDebug::module_qlparser, "AutoGen", \
-		RMInit::dbgOut << "Operand: " << flush; \
+		LTRACE << "Operand: "; \
 		inputType.printStatus( RMInit::dbgOut ); \
-		RMInit::dbgOut << endl; \
 	)
 	if(inputType.getDataType() == QT_MDD) {
 	const BaseType* baseType = (static_cast<MDDBaseType*>(const_cast<Type*>(inputType.getType())))->getBaseType();
 	BaseType* resultBaseType = const_cast<BaseType*>(Ops::getResultType( Ops::OP_ARCCOS, baseType ));
 	if(!resultBaseType) {
-		RMInit::logOut << "Error: QtArccos::checkType() - induce operand type is not support" << endl;
+		LFATAL << "Error: QtArccos::checkType() - induce operand type is not support";
 		parseInfo.setErrorNo(366);
 		throw parseInfo;
 	}
@@ -1146,20 +1133,20 @@ const QtTypeElement& QtArccos::checkType(QtTypeTuple* typeTuple) {
 		BaseType* baseType = static_cast<BaseType*>(const_cast<Type*>(inputType.getType()));
 		BaseType* resultBaseType = const_cast<BaseType*>(Ops::getResultType( Ops::OP_ARCCOS, baseType ));
 		if(!resultBaseType) {
-			RMInit::logOut << "Error: QtArccos::checkType() - operand type is not supported." << endl;
+			LFATAL << "Error: QtArccos::checkType() - operand type is not supported.";
 			parseInfo.setErrorNo(367);
 			throw parseInfo;
 	}
 		dataStreamType.setType( resultBaseType );
 	}
 	else {
-		RMInit::logOut << "Error: QtArccos::checkType() - operation is not supported for strings." << endl;
+		LFATAL << "Error: QtArccos::checkType() - operation is not supported for strings.";
 		parseInfo.setErrorNo(385);
 		throw parseInfo;
 	}
         }
         else
-		RMInit::logOut << "Error: QtArccos::checkType() - operand branch invalid." << endl;
+		LERROR << "Error: QtArccos::checkType() - operand branch invalid.";
 	return dataStreamType;
 }
 
@@ -1199,7 +1186,7 @@ void QtArctan::printAlgebraicExpression(ostream& s) {
 }
 
 const QtTypeElement& QtArctan::checkType(QtTypeTuple* typeTuple) {
-	RMDBCLASS( "QtArctan", "checkType( QtTypeTuple* )", "qlparser", __FILE__, __LINE__ )
+	LTRACE << "qlparser";
 	dataStreamType.setDataType( QT_TYPE_UNKNOWN );
 	// check operand branches
 	if(input) 
@@ -1207,15 +1194,14 @@ const QtTypeElement& QtArctan::checkType(QtTypeTuple* typeTuple) {
 	// get input types
 	const QtTypeElement& inputType = input->checkType( typeTuple );
 	RMDBGIF( 4, RMDebug::module_qlparser, "AutoGen", \
-		RMInit::dbgOut << "Operand: " << flush; \
+		LTRACE << "Operand: "; \
 		inputType.printStatus( RMInit::dbgOut ); \
-		RMInit::dbgOut << endl; \
 	)
 	if(inputType.getDataType() == QT_MDD) {
 	const BaseType* baseType = (static_cast<MDDBaseType*>(const_cast<Type*>(inputType.getType())))->getBaseType();
 	BaseType* resultBaseType = const_cast<BaseType*>(Ops::getResultType( Ops::OP_ARCTAN, baseType ));
 	if(!resultBaseType) {
-		RMInit::logOut << "Error: QtArctan::checkType() - induce operand type is not support" << endl;
+		LFATAL << "Error: QtArctan::checkType() - induce operand type is not support";
 		parseInfo.setErrorNo(366);
 		throw parseInfo;
 	}
@@ -1227,20 +1213,20 @@ const QtTypeElement& QtArctan::checkType(QtTypeTuple* typeTuple) {
 		BaseType* baseType = static_cast<BaseType*>(const_cast<Type*>(inputType.getType()));
 		BaseType* resultBaseType = const_cast<BaseType*>(Ops::getResultType( Ops::OP_ARCTAN, baseType ));
 		if(!resultBaseType) {
-			RMInit::logOut << "Error: QtArctan::checkType() - operand type is not supported." << endl;
+			LFATAL << "Error: QtArctan::checkType() - operand type is not supported.";
 			parseInfo.setErrorNo(367);
 			throw parseInfo;
 	}
 		dataStreamType.setType( resultBaseType );
 	}
 	else {
-		RMInit::logOut << "Error: QtArctan::checkType() - operation is not supported for strings." << endl;
+		LFATAL << "Error: QtArctan::checkType() - operation is not supported for strings.";
 		parseInfo.setErrorNo(385);
 		throw parseInfo;
 	}
         }
         else 
-		RMInit::logOut << "Error: QtArctan::checkType() - operand branch invalid." << endl;
+		LERROR << "Error: QtArctan::checkType() - operand branch invalid.";
 
 	return dataStreamType;
 }

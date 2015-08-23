@@ -38,6 +38,7 @@ rasdaman GmbH.
 #include "qlparser/qtmdd.hh"
 #include "tilemgr/tile.hh"
 #include "catalogmgr/typefactory.hh"
+#include "../common/src/logging/easylogging++.hh"
 
 #include "mddmgr/mddobj.hh"
 
@@ -61,7 +62,7 @@ QtConcat::QtConcat( QtOperationList* opList, unsigned int dim )
 bool
 QtConcat::equalMeaning( QtNode* node )
 {
-    RMDBCLASS( "QtConcat", "equalMeaning( QtNode* )", "qlparser", __FILE__, __LINE__ )
+	LTRACE << "qlparser";
 
     bool result = false;
 
@@ -104,9 +105,7 @@ QtConcat::getSpelling()
 void
 QtConcat::simplify()
 {
-    RMDBCLASS( "QtConcat", "simplify()", "qlparser", __FILE__, __LINE__ )
-
-    RMDBGMIDDLE(1, RMDebug::module_qlparser, "QtConcat", "simplify() warning: QtConcat itself is not simplified yet")
+    LTRACE << "simplify() warning: QtConcat itself is not simplified yet";
 
     // Default method for all classes that have no implementation.
     // Method is used bottom up.
@@ -126,8 +125,7 @@ QtConcat::simplify()
 QtData*
 QtConcat::evaluate( QtDataList* inputList )
 {
-
-    RMDBCLASS( "QtConcat", "evaluate( QtDataList* )", "qlparser", __FILE__, __LINE__ )
+	LTRACE << "qlparser";
 
     QtData* returnValue = NULL;
     QtDataList* operandList = NULL;
@@ -142,8 +140,8 @@ QtConcat::evaluate( QtDataList* inputList )
     for( iter=operandList->begin(); iter!=operandList->end(); iter++ )
         if( (*iter)->getDataType() != QT_MDD)
         {
-            RMInit::logOut << "Internal error in QtConcat::evaluate() - "
-                         << "runtime type checking failed (MDD)." << endl;
+            LERROR << "Internal error in QtConcat::evaluate() - "
+                         << "runtime type checking failed (MDD).";
 
             // delete old operand list
             if( operandList ) operandList->deleteRef();
@@ -172,7 +170,7 @@ QtConcat::evaluate( QtDataList* inputList )
                 baseType = getResultType( baseType, baseType2 );           
                 if(!baseType)
                 {
-                    RMInit::logOut << "Error: QtConcat::evaluate( QtDataList* ) - operand types are incompatible" << endl;
+                    LFATAL << "Error: QtConcat::evaluate( QtDataList* ) - operand types are incompatible";
                     parseInfo.setErrorNo(352);
                     throw parseInfo;
 
@@ -207,7 +205,7 @@ QtConcat::evaluate( QtDataList* inputList )
                         operandList = NULL;
                     }
 
-                    RMInit::logOut << "Error: QtConcat::evaluate( QtDataList* ) - the operands have less dimensions than the one specified" << endl;
+                    LFATAL << "Error: QtConcat::evaluate( QtDataList* ) - the operands have less dimensions than the one specified";
                     parseInfo.setErrorNo(424);
                     throw parseInfo;                    
                 }
@@ -234,7 +232,7 @@ QtConcat::evaluate( QtDataList* inputList )
                         operandList = NULL;
                     }
 
-                    RMInit::logOut << "Error: QtConcat::evaluate( QtDataList* ) - r_Mintervals of operands not mergeable" << endl;
+                    LFATAL << "Error: QtConcat::evaluate( QtDataList* ) - r_Mintervals of operands not mergeable";
                     parseInfo.setErrorNo(425);
                     throw parseInfo;
                 }
@@ -370,7 +368,7 @@ QtConcat::printAlgebraicExpression( ostream& s )
 const QtTypeElement&
 QtConcat::checkType(QtTypeTuple* typeTuple)
 {
-    RMDBCLASS("QtConcat", "checkType( QtTypeTuple* )", "qlparser", __FILE__, __LINE__)
+	LTRACE << "qlparser";
 
     dataStreamType.setDataType(QT_TYPE_UNKNOWN);
 
@@ -387,11 +385,11 @@ QtConcat::checkType(QtTypeTuple* typeTuple)
             if (*iter)
                 inputType = (*iter)->checkType(typeTuple);
             else
-                RMInit::logOut << "Error: QtConcat::checkType() - operand branch invalid." << endl;
+                LERROR << "Error: QtConcat::checkType() - operand branch invalid.";
 
             if (inputType.getDataType() != QT_MDD)
             {
-                RMInit::logOut << "Error: QtConcat::checkType() - every operand must be of type MDD." << endl;
+                LFATAL << "Error: QtConcat::checkType() - every operand must be of type MDD.";
                 parseInfo.setErrorNo(423);
                 throw parseInfo;
             }
@@ -405,7 +403,7 @@ QtConcat::checkType(QtTypeTuple* typeTuple)
                 baseType = getResultType(baseType, (static_cast<const MDDBaseType*>(inputType.getType()))->getBaseType());
                 if (!baseType)
                 {
-                    RMInit::logOut << "Error: QtConcat::evaluate( QtDataList* ) - operand types are incompatible" << endl;
+                    LFATAL << "Error: QtConcat::evaluate( QtDataList* ) - operand types are incompatible";
                     parseInfo.setErrorNo(352);
                     throw parseInfo;
                 }
@@ -418,7 +416,7 @@ QtConcat::checkType(QtTypeTuple* typeTuple)
         dataStreamType.setType(resultMDDType);
     }
     else
-        RMInit::logOut << "Error: QtConcat::checkType() - operand branch invalid." << endl;
+        LERROR << "Error: QtConcat::checkType() - operand branch invalid.";
 
     return dataStreamType;
 }

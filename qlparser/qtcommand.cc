@@ -43,6 +43,7 @@ static const char rcsid[] = "@(#)qlparser, QtCommand: $Header: /home/rasdev/CVS-
 #include "qlparser/querytree.hh"
 #include "qlparser/qtinsert.hh"
 #include "relblobif/tilecache.hh"
+#include "../common/src/logging/easylogging++.hh"
 
 #include <iostream>
 
@@ -92,7 +93,7 @@ void QtCommand::dropCollection(string collectionName2)
         // drop the actual collection
         if (!MDDColl::dropMDDCollection(collectionName2.c_str()))
         {
-            RMInit::logOut << "Error during query evaluation: collection name not found: " << collectionName.c_str() << std::endl;
+            LFATAL << "Error during query evaluation: collection name not found: " << collectionName.c_str();
             parseInfo.setErrorNo(957);
             throw parseInfo;
         }
@@ -138,7 +139,7 @@ OId QtCommand::createCollection(string collectionName2, string typeName2)
             }
             else
             {
-                RMInit::logOut << "Error: QtCommand::evaluate() - oid allocation failed" << std::endl;
+                LFATAL << "Error: QtCommand::evaluate() - oid allocation failed";
                 parseInfo.setErrorNo(958);
                 throw parseInfo;
             }
@@ -146,7 +147,7 @@ OId QtCommand::createCollection(string collectionName2, string typeName2)
         }
         else
         {
-            RMInit::logOut << "Error during query evaluation: collection type not found: " << typeName2.c_str() << std::endl;
+            LFATAL << "Error during query evaluation: collection type not found: " << typeName2.c_str();
             parseInfo.setErrorNo(956);
             throw parseInfo;
         }
@@ -156,7 +157,6 @@ OId QtCommand::createCollection(string collectionName2, string typeName2)
 
 string QtCommand::getSelectedDataType(vector<QtData*>* data)
 {
-    RMDBGENTER(3, RMDebug::module_qlparser, "QtCommand", "getSelectedDataType()")
     char* typestr       = NULL;
     QtData *firstResult = NULL;
     vector<QtData*>::iterator dataIter = data->begin();
@@ -170,12 +170,11 @@ string QtCommand::getSelectedDataType(vector<QtData*>* data)
     else
     {
         // empty results from SELECT
-        RMInit::logOut << "Error: no results from the SELECT sub-query." << std::endl;
+        LFATAL << "Error: no results from the SELECT sub-query.";
         throw r_Error(r_Error::r_Error_QueryExecutionFailed, 243);
     }
 
-    RMDBGMIDDLE(3, RMDebug::module_qlparser, "QtCommand",
-                "getSelectedDataType() - type structure of the SELECT sub-query results: " << typestr);
+    LTRACE << "getSelectedDataType() - type structure of the SELECT sub-query results: " << typestr;
 
     MDDType *mddType = NULL;
     SetType *setType = NULL;
@@ -197,20 +196,18 @@ string QtCommand::getSelectedDataType(vector<QtData*>* data)
             newDomain << interval;
 
         mddType = new MDDDomainType(mddTypeName.c_str(), baseType, newDomain);
-        RMDBGMIDDLE(4, RMDebug::module_qlparser, "QtCommand",
-                    "getSelectedDataType() - new mdd type: " << mddType->getTypeStructure());
+        LTRACE << "getSelectedDataType() - new mdd type: " << mddType->getTypeStructure();
         setType = new SetType(setTypeName.c_str(), mddType);
     }
     else
     {
-        RMInit::logOut << "Error: the result from the SELECT sub-query is not an MDD, and can not be stored in a collection." << endl;
+        LFATAL << "Error: the result from the SELECT sub-query is not an MDD, and can not be stored in a collection.";
         throw r_Error(r_Error::r_Error_QueryExecutionFailed, 243);
     }
 
     // this also creates the underlying mddType
     TypeFactory::addSetType(setType);
 
-    RMDBGEXIT(3, RMDebug::module_qlparser, "QtCommand", "getSelectedDataType() - returning: " << setTypeName)
     return string(setTypeName);
 }
 
@@ -225,24 +222,24 @@ void QtCommand::insertIntoCollection(vector<QtData*>* data, string collectionNam
         QueryTree *query = new QueryTree(insertNode);
         try
         {
-            RMInit::logOut << endl << "inserting into new collection...";
-            RMInit::logOut << "checking semantics...";
+            LINFO << "inserting into new collection...";
+            LINFO << "checking semantics...";
             query->checkSemantics();
-            RMInit::logOut << "evaluating update...";
+            LINFO << "evaluating update...";
             query->evaluateUpdate();
-            RMInit::logOut << "done." << std::endl;
+            LINFO << "done.";
             delete query;
         }
         catch (r_Error& myErr)
         {
             delete query;
-            RMInit::logOut << endl << "Error: bad exception while evaluating insert sub-query: " << myErr.what() << std::endl;
+            LFATAL << "Error: bad exception while evaluating insert sub-query: " << myErr.what();
             throw;
         }
         catch (...)
         {
             delete query;
-            RMInit::logOut << "Error: unknown exception while evaluating insert sub-query, re-throwing." << std::endl;
+            LFATAL << "Error: unknown exception while evaluating insert sub-query, re-throwing.";
             throw;
         }
     }
@@ -273,7 +270,6 @@ bool QtCommand::collectionExists(string collectionName2)
 QtData*
 QtCommand::evaluate()
 {
-    RMDBGENTER(2, RMDebug::module_qlparser, "QtCommand", "evaluate()")
     startTimer("QtCommand");
 
     switch (command)
@@ -299,41 +295,41 @@ QtCommand::evaluate()
             vector<QtData*>* data = NULL;
             try
             {
-                RMInit::logOut << endl << "evaluating select sub-query...";
-                RMInit::logOut << "checking semantics...";
+                LINFO << "evaluating select sub-query...";
+                LINFO << "checking semantics...";
                 selectTree->checkSemantics();
-                RMInit::logOut << "evaluating retrieval...";
+                LINFO << "evaluating retrieval...";
                 data = selectTree->evaluateRetrieval();
-                RMInit::logOut << "done." << std::endl;
+                LINFO << "done.";
                 delete selectTree;
             }
             catch (r_Error& myErr)
             {
                 delete selectTree;
-                RMInit::logOut << endl << "Error: bad exception while evaluating insert sub-query: " << myErr.what() << std::endl;
+                LFATAL << "Error: bad exception while evaluating insert sub-query: " << myErr.what();
                 throw;
             }
             catch (...)
             {
                 delete selectTree;
-                RMInit::logOut << "Error: unknown exception while evaluating insert sub-query, re-throwing." << std::endl;
+                LFATAL << "Error: unknown exception while evaluating insert sub-query, re-throwing.";
                 throw;
             }
             
 
             if (data == NULL)
             {
-                RMInit::logOut << "Error: evaluating the SELECT sub-query failed." << endl;
+                LFATAL << "Error: evaluating the SELECT sub-query failed.";
                 throw r_Error(r_Error::r_Error_QueryExecutionFailed, 242);
             }
             else
             {
-                RMDBGMIDDLE(3, RMDebug::module_qlparser, "QtCommand", "evaluate() - selected result size: " << data->size());
+                LTRACE << "evaluate() - selected result size: " << data->size();
             }
 
             if (collectionExists(collectionName))
             {
-                RMInit::logOut << "Warning: inserting into an existing collection " << collectionName << endl;
+                LWARNING << "Warning: inserting into an existing collection " << collectionName;
             }
             else
             {
@@ -346,49 +342,45 @@ QtCommand::evaluate()
                  * 3/4: Create a new collection.
                  */
                 createCollection(collectionName, collectionType);
-                RMDBGMIDDLE(3, RMDebug::module_qlparser, "QtCommand", "evaluate() - created collection " <<
-                        collectionName << " with type " << collectionType);
+                LTRACE << "evaluate() - created collection " << collectionName << " with type " << collectionType;
             }
 
             /* 
              * 4/4: Insert the data into the new collection
              */
             insertIntoCollection(data, collectionName);
-            RMDBGMIDDLE(3, RMDebug::module_qlparser, "QtCommand", "evaluate() - data successfully inserted into collection " << collectionName);
+            LTRACE << "evaluate() - data successfully inserted into collection " << collectionName;
         }
         catch (r_Ebase_dbms& myErr)
         {
-            RMInit::logOut << "Error: base DBMS exception: " << myErr.what() << std::endl;
+            LFATAL << "Error: base DBMS exception: " << myErr.what();
             throw;
         }
         catch (r_Error& myErr)
         {
-            RMInit::logOut << "Error: " << myErr.get_errorno() << " " << myErr.what() << std::endl;
+            LFATAL << "Error: " << myErr.get_errorno() << " " << myErr.what();
             throw;
         }
         catch (bad_alloc)
         {
-            RMInit::logOut << "Error: cannot allocate memory." << std::endl;
+            LFATAL << "Error: cannot allocate memory.";
             throw;
         }
         catch (ParseInfo &e)
         {
-            RMInit::logOut << "Error: ";
+            LFATAL << "Error: ";
             e.printStatus(RMInit::logOut);
-            RMInit::logOut << std::endl;
             throw;
         }
         catch (...)
         {
-            RMInit::logOut << "Error: caught unknown exception while evaluation SELECT INTO query, re-throwing." << std::endl;
+            LFATAL << "Error: caught unknown exception while evaluation SELECT INTO query, re-throwing.";
             throw;
         }
     default: break;
     }
 
     stopTimer();
-
-    RMDBGEXIT(2, RMDebug::module_qlparser, "QtCommand", "evaluate()")
 
     return 0;
 }

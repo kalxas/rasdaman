@@ -44,6 +44,8 @@ rasdaman GmbH.
 #include "qlparser/qtoncstream.hh"
 #include "qlparser/qtexecute.hh"
 
+#include "../common/src/logging/easylogging++.hh"
+
 #include <iostream>
 #ifndef CPPSTDLIB
 #include <ospace/string.h>
@@ -75,8 +77,7 @@ QtUnaryOperation(newInput), format(formatArg)
 
 QtData* QtDecode::evaluate(QtDataList* inputList) throw (r_Error)
 {
-	RMDBCLASS("QtDecode", "evaluate( QtDataList* )", "qlparser", __FILE__, __LINE__);
-	ENTER("QtDecode::evaluate( QtDataList* )");
+	LTRACE << "qlparser";
 	startTimer("QtDecode");
 
 	QtData* operand = NULL;
@@ -97,14 +98,14 @@ QtData* QtDecode::evaluate(QtDataList* inputList) throw (r_Error)
 			tiles = currentMDDObj->intersect(qtMDD->getLoadDomain());
 		} else
 		{
-			RMDBGONCE(2, RMDebug::module_qlparser, "QtDecode", "evaluate() - no tile available to convert.")
+			LTRACE << "evaluate() - no tile available to convert.";
 			return operand;
 		}
 
 		// check the number of tiles
 		if (!tiles->size())
 		{
-			RMDBGONCE(2, RMDebug::module_qlparser, "QtDecode", "evaluate() - no tile available to convert.")
+			LTRACE << "evaluate() - no tile available to convert.";
 			return operand;
 		}
 
@@ -125,9 +126,9 @@ QtData* QtDecode::evaluate(QtDataList* inputList) throw (r_Error)
 
 		if (poDataset == NULL)
 		{
-            RMInit::logOut << "QtDecode::evaluate() - failed opening file with GDAL, eror: " << CPLGetLastErrorMsg() << endl;
-			unlink(tmpFileName);
-			throw r_Error(r_Error::r_Error_FeatureNotSupported);
+                    LFATAL << "QtDecode::evaluate() - failed opening file with GDAL, eror: " << CPLGetLastErrorMsg();
+                    unlink(tmpFileName);
+                    throw r_Error(r_Error::r_Error_FeatureNotSupported);
 		}
 
 		/*if the format is specified as the second parameter of decode()
@@ -137,8 +138,8 @@ QtData* QtDecode::evaluate(QtDataList* inputList) throw (r_Error)
 			GDALDriver *driver = GetGDALDriverManager()->GetDriverByName(format);
 			if (driver == NULL)
 			{
-				RMInit::logOut << "QtDecode::evaluateMDD - Error: Unsupported format: " << format << endl;
-				throw r_Error(r_Error::r_Error_FeatureNotSupported);
+                            LFATAL << "QtDecode::evaluateMDD - Error: Unsupported format: " << format;
+                            throw r_Error(r_Error::r_Error_FeatureNotSupported);
 			}
 			poDataset = driver->CreateCopy(tmpFileName, poDataset, FALSE, gdalParams, NULL, NULL);
 		}
@@ -176,11 +177,10 @@ QtData* QtDecode::evaluate(QtDataList* inputList) throw (r_Error)
 		return returnValue;
 	} else
 	{
-		RMInit::logOut << "Error: QtDecode::evaluate() - operand is not provided." << std::endl;
+		LERROR << "Error: QtDecode::evaluate() - operand is not provided.";
 	}
 
 	stopTimer();
-	LEAVE("QtDecode::evaluate( QtDataList* )");
 	return NULL;
 }
 
@@ -189,7 +189,7 @@ void QtDecode::createTemporaryImageFile(char* tmpFileName, Tile* sourceTile)
 	int fd = mkstemp(tmpFileName);
 	if (fd < 1)
 	{
-		RMInit::logOut << "QtDecode::evaluateMDD - Error: Creation of temp file failed with error:\n" << strerror(errno) << endl;
+		LFATAL << "QtDecode::evaluateMDD - Error: Creation of temp file failed with error:\n" << strerror(errno);
 		throw r_Error(r_Error::r_Error_General);
 	}
 
@@ -216,8 +216,7 @@ void QtDecode::initGdalParamas(char* params)
 
 const QtTypeElement& QtDecode::checkType(QtTypeTuple* typeTuple)
 {
-
-	RMDBCLASS("QtDecode", "checkType( QtTypeTuple* )", "qlparser", __FILE__, __LINE__)
+	LTRACE << "qlparser";
     dataStreamType.setDataType(QT_TYPE_UNKNOWN);
 
 	// check operand branches
@@ -227,14 +226,13 @@ const QtTypeElement& QtDecode::checkType(QtTypeTuple* typeTuple)
 		const QtTypeElement& inputType = input->checkType(typeTuple);
 
 		RMDBGIF(3, RMDebug::module_qlparser, "QtDecode", \
-                RMInit::dbgOut << "Class..: QtDecode" << endl; \
-                RMInit::dbgOut << "Operand: " << flush; \
-                inputType.printStatus(RMInit::dbgOut); \
-                RMInit::dbgOut << endl;)
+                LTRACE << "Class..: QtDecode"; \
+                LTRACE << "Operand: "; \
+                inputType.printStatus(RMInit::dbgOut); \)
 
 		if (inputType.getDataType() != QT_MDD)
 		{
-			RMInit::logOut << "Error: QtDecode::evaluate() - operand must be an MDD." << endl;
+			LFATAL << "Error: QtDecode::evaluate() - operand must be an MDD.";
 			parseInfo.setErrorNo(353);
 			throw parseInfo;
 		}
@@ -248,7 +246,7 @@ const QtTypeElement& QtDecode::checkType(QtTypeTuple* typeTuple)
         dataStreamType.setType( mddBaseType );
 
     } else
-		RMInit::logOut << "Error: QtDecode::checkType() - operand branch invalid." << endl;
+		LERROR << "Error: QtDecode::checkType() - operand branch invalid.";
 
 	return dataStreamType;
 }
