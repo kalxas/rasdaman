@@ -316,7 +316,7 @@ void FastMDDCreator::addStripe(r_OId _mddOId, const char *stripeDomain, const ch
 }
 
 
-void FastMDDCreator::createCompressedTileData(r_Minterval& tileInterval, const BaseType* baseType)
+void FastMDDCreator::createCompressedTileData(r_Minterval& tileInterval, __attribute__ ((unused)) const BaseType* baseType)
 {
     static unsigned int lastSize = 0;
     unsigned int uncompressedSize = tileInterval.cell_count() * static_cast<unsigned int>(cellSize);

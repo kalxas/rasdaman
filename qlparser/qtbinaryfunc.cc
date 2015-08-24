@@ -106,7 +106,21 @@ QtShift::evaluate( QtDataList* inputList )
         //
 
         QtMDD*         qtMDDObj          = static_cast<QtMDD*>(operand1);
-        const r_Point& transPoint        = (static_cast<QtPointData*>(operand2))->getPointData();
+        r_Point transPoint(1);
+
+        // get transPoint
+        if ( operand2->getDataType() == QT_POINT )
+        {
+            transPoint = (static_cast<QtPointData*>(operand2))->getPointData();
+        }
+        else
+        {
+            const BaseType* baseType = ((QtScalarData*) operand2)->getValueType();
+            const char* data = ((QtScalarData*) operand2)->getValueBuffer();
+            r_Long dataScalar = 0;
+            transPoint << *baseType->convertToCLong(data, &dataScalar);
+        }
+
         MDDObj*        currentMDDObj     = qtMDDObj->getMDDObject();
 
         if( transPoint.dimension() != qtMDDObj->getLoadDomain().dimension() )
@@ -250,7 +264,7 @@ QtShift::optimizeLoad( QtTrimList* trimList )
             throw parseInfo;
         }
 
-        if( operand->getDataType() != QT_POINT )
+        if( operand->getDataType() != QT_POINT && operand->getDataType() != QT_LONG )
         {
             // release( trimList->begin(), trimList->end() );
             for( QtNode::QtTrimList::iterator iter2=trimList->begin(); iter2!=trimList->end(); iter2++ )
@@ -269,15 +283,30 @@ QtShift::optimizeLoad( QtTrimList* trimList )
         }
 
         // get transPoint
-        const r_Point& transPoint = (static_cast<QtPointData*>(operand))->getPointData();
-
-        // shift trim elements by -transPoint
-        for( iter=trimList->begin(); iter!=trimList->end(); iter++ )
+        if ( operand->getDataType() == QT_POINT )
         {
-            QtTrimElement* elem = *iter;
+            const r_Point& transPoint = (static_cast<QtPointData*>(operand))->getPointData();
 
-            if( elem->dimension <= transPoint.dimension() )
-                elem->interval.set_interval( elem->interval.low()  - transPoint[elem->dimension], elem->interval.high() - transPoint[elem->dimension] );
+            // shift trim elements by -transPoint
+            for( iter=trimList->begin(); iter!=trimList->end(); iter++ )
+            {
+                QtTrimElement* elem = *iter;
+
+                if( elem->dimension <= transPoint.dimension() )
+                    elem->interval.set_interval( elem->interval.low()  - transPoint[elem->dimension], elem->interval.high() - transPoint[elem->dimension] );
+            }
+        }
+        else
+        {
+            QtDataType dt = operand->getDataType();
+            const r_Long transPoint = 0;
+
+            // shift trim elements by -transPoint
+            for( iter=trimList->begin(); iter!=trimList->end(); iter++ )
+            {
+                QtTrimElement* elem = *iter;
+                elem->interval.set_interval( elem->interval.low()  - transPoint, elem->interval.high() - transPoint );
+            }
         }
 
         // point is not needed anymore
@@ -321,7 +350,10 @@ QtShift::checkType( QtTypeTuple* typeTuple )
             throw parseInfo;
         }
 
-        if( inputType2.getDataType() != QT_POINT )
+        // operand two can be a single long number, the parser does [a] -> number a,
+        // rather than [a] -> point (which is then used in marray/condense..),
+        // so we need to take care manually here of this edge case -- DM 2015-aug-24
+        if( inputType2.getDataType() != QT_POINT && inputType2.getDataType() != QT_LONG )
         {
             LFATAL << "Error: QtShift::checkType() - second operand must be of type Point.";
             parseInfo.setErrorNo(406);
