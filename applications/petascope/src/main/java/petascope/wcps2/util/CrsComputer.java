@@ -1,11 +1,11 @@
 package petascope.wcps2.util;
 
 import org.apache.commons.lang3.math.NumberUtils;
-import petascope.core.CrsDefinition;
 import petascope.exceptions.PetascopeException;
 import petascope.util.BigDecimalUtil;
 import petascope.util.CrsUtil;
 import petascope.util.TimeUtil;
+import petascope.util.XMLSymbols;
 import petascope.wcps.metadata.CellDomainElement;
 import petascope.wcps.metadata.DomainElement;
 import petascope.wcps2.error.managed.processing.*;
@@ -15,6 +15,7 @@ import petascope.wcps2.metadata.Interval;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.util.Arrays;
 
 /**
  * Translates a CRS subset interval to array indices
@@ -42,7 +43,7 @@ public class CrsComputer {
         this.registry = registry;
     }
 
-    public Interval<Long> getPixelIndices(){
+    public Interval<Long> getPixelIndices() {
         return getPixelIndices(false);
     }
 
@@ -63,7 +64,7 @@ public class CrsComputer {
             subset = replaceStarsWithRealValues(dom);
             lowerNumericLimit = Double.parseDouble(subset.getLowerLimit());
             upperNumericLimit = Double.parseDouble(subset.getUpperLimit());
-            if (crsName != null && crsName.equals(CrsUtil.GRID_CRS)) {
+            if (coverage.getCoverageMetadata().getCoverageType().equals(XMLSymbols.LABEL_GRID_COVERAGE)) {
                 return returnGridPixelIndices(new Interval<Double>(lowerNumericLimit, upperNumericLimit));
             } else {
                 return getNumericPixelIndices(new Interval<Double>(lowerNumericLimit, upperNumericLimit), ignoreOutOfBoundsCheck);
@@ -145,7 +146,7 @@ public class CrsComputer {
         return result;
     }
 
-    private void checkNumericSubsetValidity(Interval<Double> numericSubset){
+    private void checkNumericSubsetValidity(Interval<Double> numericSubset) {
         checkNumericSubsetValidity(numericSubset, false);
     }
 
@@ -163,7 +164,7 @@ public class CrsComputer {
             throw new UnorderedSubsetException(axisName, subset);
         }
 
-        if(!ignoreOutOfBoundsValidityCheck) {
+        if (!ignoreOutOfBoundsValidityCheck) {
             // Check intersection with extents
             if (numericSubset.getLowerLimit() > domMax.doubleValue() || numericSubset.getUpperLimit() < domMin.doubleValue()) {
                 throw new OutOfBoundsSubsettingException(axisName, subset);
@@ -188,11 +189,11 @@ public class CrsComputer {
             // Retrieve correspondent cell indexes (unique method for numerical/timestamp values)
             // TODO: I need to extract all the values, not just the extremes
             long[] indexes = registry.getMetadataSource().getIndexesFromIrregularRectilinearAxis(
-                coverage.getCoverageInfo().getCoverageName(),
-                coverage.getCoverageInfo().getDomainIndexByName(axisName), // i-order of axis
-                (new BigDecimal(numericSubset.getLowerLimit())).subtract(domMin),  // coefficients are relative to the origin, but subsets are not.
-                (new BigDecimal(numericSubset.getUpperLimit())).subtract(domMin),  //
-                pxMin, pxMax);
+                    coverage.getCoverageInfo().getCoverageName(),
+                    coverage.getCoverageInfo().getDomainIndexByName(axisName), // i-order of axis
+                    (new BigDecimal(numericSubset.getLowerLimit())).subtract(domMin),  // coefficients are relative to the origin, but subsets are not.
+                    (new BigDecimal(numericSubset.getUpperLimit())).subtract(domMin),  //
+                    pxMin, pxMax);
 
             // Add sdom lower bound
             return new Interval<Long>(indexes[0] + pxMin, indexes[1]);
@@ -224,8 +225,37 @@ public class CrsComputer {
         if (crsName == CrsUtil.GRID_CRS) {
             return new Interval<Long>((long) numericSubset.getLowerLimit().doubleValue(), (long) numericSubset.getUpperLimit().doubleValue());
         }
+
+        // This part is copied over from CRSUtil.java verbatim TODO: refactor the whole CRS computer ASAP
+        // Indexed CRSs (integer "GridSpacing" UoM): no need for math proportion, coords are just int offsets.
+        // This is not the same as CRS:1 which access direct grid coordinates.
+        // Index CRSs have indexed coordinates, but still offset vectors can determine a different reference (eg origin is UL corner).
+        if (axisUoM.equals(CrsUtil.INDEX_UOM)) {
+            int count = 0;
+            long indexMin = cdom.getLoInt();
+            long indexMax = cdom.getHiInt();
+            // S = subset value, px_s = subset grid index
+            // m = min(grid index), M = max(grid index)
+            // {isPositiveForwards / isNegativeForwards}
+            // Formula : px_s = grid_origin + [{S/M} - {m/S}]
+            long[] subsetGridIndexes = new long[2];
+            for (String subset : (Arrays.asList(new String[]{numericSubset.getLowerLimit().toString(), numericSubset.getUpperLimit().toString()}))) {
+                // NOTE: on subsets.lo the /next/ integer needs to be taken : trunc(stringLo) + 1 (if it is not exact integer)
+                boolean roundUp = subset.equals(numericSubset.getLowerLimit().toString()) && ((double) Double.parseDouble(subset) != (long) Double.parseDouble(subset));
+                long hiBound = dom.isPositiveForwards() ? (long) Double.parseDouble(subset) + (roundUp ? 1 : 0) : indexMax;
+                long loBound = dom.isPositiveForwards() ? indexMin : (long) Double.parseDouble(subset) + (roundUp ? 1 : 0);
+                subsetGridIndexes[count] = domMin.longValue() + (hiBound - loBound);
+                count += 1;
+            }
+            // if offset is negative, the limits are inverted
+            if(subsetGridIndexes[0] > subsetGridIndexes[1]){
+                return new Interval<Long>(subsetGridIndexes[1], subsetGridIndexes[0]);
+            }
+            return new Interval<Long>(subsetGridIndexes[0], subsetGridIndexes[1]);
+        }
+
         BigDecimal cellWidth = (domMax.subtract(domMin))
-            .divide((BigDecimal.valueOf(pxMax + 1)).subtract(BigDecimal.valueOf(pxMin)), RoundingMode.UP);
+                .divide((BigDecimal.valueOf(pxMax + 1)).subtract(BigDecimal.valueOf(pxMin)), RoundingMode.UP);
 
         // Open interval on the right: take away epsilon from upper bound:
 
@@ -233,11 +263,10 @@ public class CrsComputer {
         if (zeroIsMin) {
             // Normal linear numerical axis
             returnLowerLimit = (long) Math.floor(BigDecimalUtil.divide(BigDecimal.valueOf(numericSubset.getLowerLimit()).subtract(domMin), cellWidth).doubleValue()) + pxMin;
-            if(numericSubset.getUpperLimit().equals(numericSubset.getLowerLimit())){
+            if (numericSubset.getUpperLimit().equals(numericSubset.getLowerLimit())) {
                 returnUpperLimit = returnLowerLimit;
-            }
-            else {
-                returnUpperLimit = (long) Math.ceil(BigDecimalUtil.divide(BigDecimal.valueOf(numericSubset.getUpperLimit()).subtract(domMin),cellWidth).doubleValue()) - 1 + pxMin;
+            } else {
+                returnUpperLimit = (long) Math.ceil(BigDecimalUtil.divide(BigDecimal.valueOf(numericSubset.getUpperLimit()).subtract(domMin), cellWidth).doubleValue()) - 1 + pxMin;
             }
             // NOTE: the if a slice equals the upper bound of a coverage, out[0]=pxHi+1 but still it is a valid subset.
             if (numericSubset.getLowerLimit() == numericSubset.getUpperLimit() && numericSubset.getUpperLimit() == domMax.doubleValue()) {
@@ -247,10 +276,9 @@ public class CrsComputer {
             // Linear negative axis (eg northing of georeferenced images)
             // First coordHi, so that left-hand index is the lower one
             returnLowerLimit = (long) Math.ceil(BigDecimalUtil.divide(domMax.subtract(BigDecimal.valueOf(numericSubset.getUpperLimit())), cellWidth).doubleValue()) + pxMin;
-            if(numericSubset.getUpperLimit() == numericSubset.getLowerLimit()){
+            if (numericSubset.getUpperLimit() == numericSubset.getLowerLimit()) {
                 returnUpperLimit = returnLowerLimit;
-            }
-            else {
+            } else {
                 returnUpperLimit = (long) Math.floor(BigDecimalUtil.divide(domMax.subtract(BigDecimal.valueOf(numericSubset.getLowerLimit())), cellWidth).doubleValue()) - 1 + pxMin;
             }
             // NOTE: the if a slice equals the lower bound of a coverage, out[0]=pxHi+1 but still it is a valid subset.
