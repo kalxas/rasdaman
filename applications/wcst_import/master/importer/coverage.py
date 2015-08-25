@@ -1,8 +1,9 @@
-from master.importer.axis_subset import AxisMetadata
+from collections import OrderedDict
+
+from master.generator.model.range_type_field import RangeTypeField
 from master.importer.slice import Slice
 from master.provider.metadata.axis import Axis
 from master.provider.metadata.grid_axis import GridAxis
-from collections import OrderedDict
 
 
 class Coverage:
@@ -31,7 +32,7 @@ class Coverage:
         """
         axes = OrderedDict()
         for axis_subset in self.slices[0].axis_subsets:
-            axes[axis_subset.axis] = axis_subset.grid_axis
+            axes[axis_subset.coverage_axis.axis] = axis_subset.coverage_axis.grid_axis
         return axes
 
     def get_update_axes(self):
@@ -41,6 +42,13 @@ class Coverage:
         """
         axes = OrderedDict()
         for axis_subset in self.slices[0].axis_subsets:
-            if axis_subset.data_bound:
-                axes[axis_subset.axis] = axis_subset.grid_axis
+            if axis_subset.coverage_axis.data_bound:
+                axes[axis_subset.coverage_axis.axis] = axis_subset.coverage_axis.grid_axis
         return axes
+
+    def __str__(self):
+        ret = "{Coverage Id: " + self.coverage_id + "\n Pixel Type: " + str(self.pixel_data_type) + "\nSlices: {"
+        for slice in self.slices:
+            ret += str(slice) + "\n"
+        ret += "}\n"
+        return ret

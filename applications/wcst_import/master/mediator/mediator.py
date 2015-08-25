@@ -8,6 +8,7 @@ from master.generator.model.rectified_grid_coverage import RectifiedGridCoverage
 from master.generator.model.referenceable_grid_coverage import ReferenceableGridCoverage
 from master.provider.data.file_data_provider import FileDataProvider
 from master.provider.data.tuple_list_data_provider import TupleListDataProvider
+from master.provider.data.url_data_provider import UrlDataProvider
 from master.provider.metadata.metadata_provider import MetadataProvider
 from util.file_obj import File
 from util.file_util import FileUtil
@@ -64,7 +65,9 @@ class Mediator:
     def _get_range_set(self):
         dp = self.data_provider
         if isinstance(dp, FileDataProvider):
-            return RangeSetFile(dp.get_file_path(), dp.get_mimetype())
+            return RangeSetFile(dp.get_file_url(), dp.get_mimetype())
+        if isinstance(dp, UrlDataProvider):
+            return RangeSetFile(dp.get_url(), dp.get_mimetype())
         elif isinstance(dp, TupleListDataProvider):
             return RangeSetTupleList(dp.get_tuple_list())
 

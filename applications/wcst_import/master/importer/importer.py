@@ -70,9 +70,10 @@ class Importer:
             low = axis_subset.interval.low
             high = axis_subset.interval.high
             if ConfigManager.subset_correction and high is not None and low != high:
-                low += axis_subset.grid_axis.resolution / 2
-                high -= axis_subset.grid_axis.resolution / 2
-            subsets.append(WCSTSubset(axis_subset.axis.label, low, high))
+                low += float(axis_subset.coverage_axis.grid_axis.resolution) / 2
+                if high is not None:
+                    high -= float(axis_subset.coverage_axis.grid_axis.resolution) / 2
+            subsets.append(WCSTSubset(axis_subset.coverage_axis.axis.label, low, high))
         return subsets
 
     def _generate_slice(self, slice):

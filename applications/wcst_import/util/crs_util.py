@@ -125,6 +125,14 @@ class CRSUtil:
             for xml_axis in xml_axes:
                 label = xml_axis.xpath(".//*[contains(local-name(), 'axisAbbrev')]")[0].text
                 direction = xml_axis.xpath(".//*[contains(local-name(), 'axisDirection')]")[0].text
+
+                # IndexND crses do not define the direction properly so try to detect them here based
+                # on their labels and direction
+                if direction.find("indexedAxisPositive") != - 1 and label == "i":
+                    direction = "east"
+                if direction.find("indexedAxisPositive") != - 1 and label == "j":
+                    direction = "north"
+
                 # TODO: While not mandatory it would be nice if we could parse the uom as well
                 self.axes.append(CRSAxis(label, direction, ""))
         except:

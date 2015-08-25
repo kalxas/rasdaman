@@ -69,9 +69,11 @@ class BaseRecipe:
         """
         self.ingest()
 
-    def validate_base(self):
+    def validate_base(self, ignore_no_files=False):
         """
         Validates the configuration and the input files
+        :param bool ignore_no_files: if the extending recipe does not work with files, set this to true to skip
+        the validation check for no files
         """
         if self.session.get_wcs_service() is None or self.session.get_wcs_service() == "":
             raise RecipeValidationException("No valid wcs endpoint provided")
@@ -81,7 +83,7 @@ class BaseRecipe:
             raise RecipeValidationException("No valid coverage id provided")
         if ConfigManager.tmp_directory is None or (not os.access(ConfigManager.tmp_directory, os.W_OK)):
             raise RecipeValidationException("No valid tmp directory provided")
-        if len(self.session.get_files()) == 0:
+        if len(self.session.get_files()) == 0 and not ignore_no_files:
             raise RecipeValidationException("No files provided. Check that the paths you provided are correct.")
         for file in self.session.get_files():
             if not os.access(file.get_filepath(), os.R_OK):

@@ -120,8 +120,9 @@ class MetadataProvider:
             offset_vector = [0] * len(self.grid_axes)
             offset_vector[self._get_axis_position_by_grid(grid_axis)] = grid_axis.resolution
             if self.is_coverage_irregular():
+                coefficient = None if axis.coefficient is None else " ".join(map(lambda x: str(x), axis.coefficient))
                 offsets.append(OffsetVectorIrregular(self.get_crs(), self.get_axis_labels(), self.get_axis_uom_labels(),
-                    self.get_no_of_dimensions(), offset_vector, axis.coefficient))
+                    self.get_no_of_dimensions(), offset_vector, coefficient))
             else:
                 offsets.append(OffsetVectorRegular(self.get_crs(), self.get_axis_labels(), self.get_axis_uom_labels(),
                     self.get_no_of_dimensions(), offset_vector))

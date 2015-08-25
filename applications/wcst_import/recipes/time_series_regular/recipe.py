@@ -1,9 +1,10 @@
 import re
+
 from master.error.runtime_exception import RuntimeException
 from master.helper.gdal_axis_filler import GdalAxisFiller
 from master.helper.gdal_range_fields_generator import GdalRangeFieldsGenerator
+from master.importer.axis_subset import AxisSubset
 from master.importer.coverage import Coverage
-
 from master.importer.importer import Importer
 from master.importer.slice import Slice
 from master.provider.data.file_data_provider import FileDataProvider
@@ -145,15 +146,18 @@ class Recipe(BaseRecipe):
         """
         Fills the time axis parameters
         :param TimeFileTuple tpair: the input pair
-        :param list[AxisMetadata] subsets: the axis subsets for the tpair
+        :param list[AxisSubset] subsets: the axis subsets for the tpair
         """
         days, hours, minutes, seconds = self._get_real_step()
         number_of_days = days + hours / float(24) + minutes / float(60 * 24) + seconds / float(60 * 60 * 24)
         for i in range(0, len(subsets)):
-            if subsets[i].axis.crs_axis is not None and subsets[i].axis.crs_axis.is_future():
-                subsets[i].axis = RegularAxis(subsets[i].axis.label, subsets[i].axis.uomLabel, subsets[i].axis.low,
-                                              subsets[i].axis.high, tpair.time.to_string(), subsets[i].axis.crs_axis)
-                subsets[i].grid_axis.resolution = number_of_days
+            if subsets[i].coverage_axis.axis.crs_axis is not None and subsets[i].coverage_axis.axis.crs_axis.is_future():
+                subsets[i].coverage_axis.axis = RegularAxis(subsets[i].coverage_axis.axis.label,
+                                                            subsets[i].coverage_axis.axis.uomLabel,
+                                                            subsets[i].coverage_axis.axis.low,
+                                                            subsets[i].coverage_axis.axis.high, tpair.time.to_string(),
+                                                            subsets[i].coverage_axis.axis.crs_axis)
+                subsets[i].coverage_axis.grid_axis.resolution = number_of_days
                 subsets[i].interval.low = tpair.time.to_string()
         return subsets
 

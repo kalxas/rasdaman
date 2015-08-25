@@ -2,7 +2,7 @@ import re
 
 from master.helper.gdal_axis_filler import GdalAxisFiller
 from master.helper.gdal_range_fields_generator import GdalRangeFieldsGenerator
-from master.importer.axis_subset import AxisMetadata
+from master.importer.axis_subset import AxisSubset
 from master.importer.coverage import Coverage
 from master.importer.importer import Importer
 from master.importer.slice import Slice
@@ -138,14 +138,17 @@ class Recipe(BaseRecipe):
         """
         Fills the time axis parameters
         :param TimeFileTuple tpair: the input pair
-        :param list[AxisMetadata] subsets: the axis subsets for the tpair
+        :param list[AxisSubset] subsets: the axis subsets for the tpair
         """
         for i in range(0, len(subsets)):
-            if subsets[i].axis.crs_axis is not None and subsets[i].axis.crs_axis.is_future():
-                subsets[i].axis = IrregularAxis(subsets[i].axis.label, subsets[i].axis.uomLabel, subsets[i].axis.low,
-                                                subsets[i].axis.high, tpair.time.to_string(), 0,
-                                                subsets[i].axis.crs_axis)
-                subsets[i].grid_axis.resolution = 1
+            if subsets[i].coverage_axis.axis.crs_axis is not None and subsets[i].coverage_axis.axis.crs_axis.is_future():
+                subsets[i].coverage_axis.axis = IrregularAxis(subsets[i].coverage_axis.axis.label,
+                                                              subsets[i].coverage_axis.axis.uomLabel,
+                                                              subsets[i].coverage_axis.axis.low,
+                                                              subsets[i].coverage_axis.axis.high,
+                                                              tpair.time.to_string(), [0],
+                                                              subsets[i].coverage_axis.axis.crs_axis)
+                subsets[i].coverage_axis.grid_axis.resolution = 1
                 subsets[i].interval.low = tpair.time.to_string()
         return subsets
 

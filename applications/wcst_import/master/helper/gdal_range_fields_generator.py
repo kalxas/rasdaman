@@ -8,6 +8,7 @@ class GdalRangeFieldsGenerator:
         """
         Class to generate the range fields from a gdal dataset
         :param GDALGmlUtil gdal_dataset: the gdal dataset
+        :param list[str] field_names: the default names of the fields if the user provided them
         """
         self.gdal_dataset = gdal_dataset
         self.field_names = field_names
@@ -24,7 +25,7 @@ class GdalRangeFieldsGenerator:
             for nill_value in range_field.nill_values:
                 nill_values.append(RangeTypeNilValue("", nill_value))
             field_name = range_field.field_name
-            if self.field_names is not None:
+            if self.field_names is not None and len(self.field_names) > field_id:
                 field_name = self.field_names[field_id]
             field_id += 1
             fields.append(RangeTypeField(field_name, "", "", nill_values, range_field.uom_code))

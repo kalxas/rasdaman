@@ -10,7 +10,7 @@ class OffsetVectorIrregular(OffsetVector):
         :param list[str] uomLabels: the labels of the uoms
         :param int noOfDimensions: the number of dimensions
         :param list[float] offset: the offset value
-        :param float coefficient: the coefficient for the axis
+        :param str coefficient: the coefficient(s) for the axis
         """
         super(OffsetVectorIrregular, self).__init__(crs, axisLabels, uomLabels, noOfDimensions, offset)
         self.coefficient = coefficient

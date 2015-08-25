@@ -3,7 +3,7 @@ from master.generator.model.range_type_nill_value import RangeTypeNilValue
 
 
 class RangeTypeField(Model):
-    def __init__(self, name, definition, description, nilValues, uom):
+    def __init__(self, name, definition="", description="", nilValues=None, uom=None):
         """
         Class to represent the range type field element of range type
         :param str name: the name of the field
