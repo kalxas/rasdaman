@@ -38,6 +38,7 @@ static const char rcsid[] = "@(#)qlparser, QtScalarData: $Header: /home/rasdev/C
 #include "relcatalogif/basetype.hh"
 
 #include "raslib/rmdebug.hh"
+#include "../common/src/logging/easylogging++.hh"
 
 #include <iostream>
 #ifndef CPPSTDLIB
@@ -133,7 +134,7 @@ QtScalarData::getDataType() const
             returnValue = QT_COMPLEX;
             break;
         default:
-            RMDBGONCE(0, RMDebug::module_qlparser, "r_QtScalarData", "getDataType() bad type " <<  valueType->getType());
+            LTRACE << "getDataType() bad type " <<  valueType->getType();
             break;
         }
 

@@ -40,6 +40,8 @@ static const char rcsid[] = "@(#)qlparser, QtSelectionIterator: $Id: qtselection
 
 #include "relcatalogif/type.hh"
 
+#include "../common/src/logging/easylogging++.hh"
+
 #include <iostream>
 #include <string>
 #include <vector>
@@ -78,12 +80,10 @@ QtSelectionIterator::getChilds( QtChildType flag )
     QtNodeList* resultList=NULL;
     QtNodeList* subList=NULL;
 
-    RMDBGENTER( 1, RMDebug::module_qlparser, "QtSelectionIterator", " QtSelectionIterator::getChilds() ")
-
     resultList = QtIterator::getChilds( flag );
 
     RMDBGIF( 4, RMDebug::module_qlparser, "QtSelectionIterator", \
-             RMInit::dbgOut << "1. childs from stream subtree " << endl; \
+             LTRACE << "1. childs from stream subtree "; \
              list<QtNode*>::iterator debugIter; \
              for( debugIter=resultList->begin(); debugIter!=resultList->end(); debugIter++ ) \
              (*debugIter)->printTree( 2, RMInit::dbgOut, QtNode::QT_DIRECT_CHILDS ); \
@@ -96,7 +96,7 @@ QtSelectionIterator::getChilds( QtChildType flag )
                 subList = conditionTree->getChilds( flag );
 
                 RMDBGIF( 4, RMDebug::module_qlparser, "QtSelectionIterator", \
-                         RMInit::dbgOut << "2. childs from operation subtree (without direct childs) " << endl; \
+                         LTRACE << "2. childs from operation subtree (without direct childs) "; \
                          list<QtNode*>::iterator debugIter; \
                          for( debugIter=subList->begin(); debugIter!=subList->end(); debugIter++ ) \
                          (*debugIter)->printTree( 2, RMInit::dbgOut, QtNode::QT_DIRECT_CHILDS ); \
@@ -106,7 +106,7 @@ QtSelectionIterator::getChilds( QtChildType flag )
                     resultList->splice( resultList->begin(), *subList );
 
                 RMDBGIF( 4, RMDebug::module_qlparser, "QtSelectionIterator", \
-                         RMInit::dbgOut << "3. merge of the lists " << endl;  \
+                         LTRACE << "3. merge of the lists ";  \
                          list<QtNode*>::iterator debugIter; \
                          for( debugIter=resultList->begin(); debugIter!=resultList->end(); debugIter++ ) \
                          (*debugIter)->printTree( 2, RMInit::dbgOut, QtNode::QT_DIRECT_CHILDS ); \
@@ -114,7 +114,7 @@ QtSelectionIterator::getChilds( QtChildType flag )
 
 
                     RMDBGIF( 4, RMDebug::module_qlparser, "QtSelectionIterator", \
-                             RMInit::dbgOut << "4. old list (must be empty)" << endl; \
+                             LTRACE << "4. old list (must be empty)"; \
                              list<QtNode*>::iterator debugIter; \
                              for( debugIter=subList->begin(); debugIter!=subList->end(); debugIter++ ) \
                              (*debugIter)->printTree( 2, RMInit::dbgOut, QtNode::QT_DIRECT_CHILDS ); \
@@ -130,7 +130,7 @@ QtSelectionIterator::getChilds( QtChildType flag )
                 resultList->push_back( conditionTree );
 
             RMDBGIF( 4, RMDebug::module_qlparser, "QtSelectionIterator",
-                     RMInit::dbgOut << "4. current child list including direct childs " << endl; \
+                     LTRACE << "4. current child list including direct childs "; \
                      list<QtNode*>::iterator debugIter; \
                      for( debugIter=resultList->begin(); debugIter!=resultList->end(); debugIter++ ) \
                      (*debugIter)->printTree( 2, RMInit::dbgOut, QtNode::QT_DIRECT_CHILDS ); \
@@ -183,7 +183,6 @@ QtSelectionIterator::printAlgebraicExpression( ostream& s )
 QtNode::QtDataList*
 QtSelectionIterator::next()
 {
-    RMDBGENTER( 1, RMDebug::module_qlparser, "QtSelectionIterator", "QtSelectionIterator::next()" )
     resumeTimer();
 
     QtDataList* returnValue = NULL;
@@ -210,7 +209,7 @@ QtSelectionIterator::next()
                             nextTupelValid = static_cast<bool>((static_cast<QtAtomicData*>(resultData))->getUnsignedValue());
                         else
                         {
-                            RMInit::logOut << "Error: QtSelectionIterator::next() - result of the WHERE part must be of type Bool." << endl;
+                            LFATAL << "Error: QtSelectionIterator::next() - result of the WHERE part must be of type Bool.";
                             parseInfo.setErrorNo(359);
                             throw parseInfo;
                         }
@@ -242,7 +241,6 @@ QtSelectionIterator::next()
     }
 
     pauseTimer();
-    RMDBGEXIT( 1, RMDebug::module_qlparser, "QtSelectionIterator", "QtSelectionIterator::next()" )
 
     return returnValue;
 }
@@ -251,8 +249,7 @@ QtSelectionIterator::next()
 const QtTypeTuple&
 QtSelectionIterator::checkType()
 {
-    RMDBCLASS( "QtSelectionIterator", "checkType()", "qlparser", __FILE__, __LINE__ )
-
+	LTRACE << "qlparser";
     // concatenate types of inputs
     getInputTypeTuple( dataStreamType );
 
@@ -263,7 +260,7 @@ QtSelectionIterator::checkType()
 
         if( type.getDataType() != QT_BOOL )
         {
-            RMInit::logOut << "Error: QtSelectionIterator::next() - result of the WHERE part must be of type Bool." << endl;
+            LFATAL << "Error: QtSelectionIterator::next() - result of the WHERE part must be of type Bool.";
             parseInfo.setErrorNo(359);
             throw parseInfo;
         }

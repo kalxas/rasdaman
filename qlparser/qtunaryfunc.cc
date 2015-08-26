@@ -40,6 +40,8 @@ static const char rcsid[] = "@(#)qlparser, QtIntervalLoOp, QtIntervalHiOp, QtSDo
 #include "qlparser/qtmdd.hh"
 #include "mddmgr/mddobj.hh"
 
+#include "../common/src/logging/easylogging++.hh"
+
 const QtNode::QtNodeType QtIntervalLoOp::nodeType = QtNode::QT_LO;
 
 
@@ -53,7 +55,7 @@ QtIntervalLoOp::QtIntervalLoOp( QtOperation* newInput )
 QtData*
 QtIntervalLoOp::evaluate( QtDataList* inputList )
 {
-    RMDBCLASS( "QtIntervalLoOp", "evaluate( QtDataList* )", "qlparser", __FILE__, __LINE__ )
+	LTRACE << "qlparser";
     startTimer("QtIntervalLoOp");
 
     QtData* returnValue = NULL;
@@ -66,8 +68,8 @@ QtIntervalLoOp::evaluate( QtDataList* inputList )
 #ifdef QT_RUNTIME_TYPE_CHECK
         if( operand->getDataType() != QT_INTERVAL )
         {
-            RMInit::logOut << "Internal error in QtIntervalLoOp::evaluate() - "
-                           << "runtime type checking failed (INTERVAL)." << std::endl;
+            LERROR << "Internal error in QtIntervalLoOp::evaluate() - "
+                           << "runtime type checking failed (INTERVAL).";
 
             // delete old operand
             if( operand ) operand->deleteRef();
@@ -85,7 +87,7 @@ QtIntervalLoOp::evaluate( QtDataList* inputList )
         }
         else
         {
-            RMInit::logOut << "Error: QtIntervalLoOp::evaluate() - operation lo() can not be used for an open bound." << std::endl;
+            LFATAL << "Error: QtIntervalLoOp::evaluate() - operation lo() can not be used for an open bound.";
 
             // delete old operand
             if( operand ) operand->deleteRef();
@@ -100,7 +102,7 @@ QtIntervalLoOp::evaluate( QtDataList* inputList )
     }
     else
     {
-        RMDBGMIDDLE( 1, RMDebug::module_qlparser, "QtIntervalLoOp", "Information: QtIntervalLoOp::evaluate() - operand is not provided." )
+        LTRACE << "Information: QtIntervalLoOp::evaluate() - operand is not provided.";
     }
     
     stopTimer();
@@ -138,8 +140,7 @@ QtIntervalLoOp::printAlgebraicExpression( std::ostream& s )
 const QtTypeElement&
 QtIntervalLoOp::checkType( QtTypeTuple* typeTuple )
 {
-    RMDBCLASS( "QtIntervalLoOp", "checkType( QtTypeTuple* )", "qlparser", __FILE__, __LINE__ )
-
+	LTRACE << "qlparser";
     dataStreamType.setDataType( QT_TYPE_UNKNOWN );
 
     // check operand branches
@@ -151,7 +152,7 @@ QtIntervalLoOp::checkType( QtTypeTuple* typeTuple )
 
         if( inputType.getDataType() != QT_INTERVAL )
         {
-            RMInit::logOut << "Error: QtIntervalLoOp::checkType() - operation lo() must be of type interval." << std::endl;
+            LFATAL << "Error: QtIntervalLoOp::checkType() - operation lo() must be of type interval.";
             parseInfo.setErrorNo(393);
             throw parseInfo;
         }
@@ -159,7 +160,7 @@ QtIntervalLoOp::checkType( QtTypeTuple* typeTuple )
         dataStreamType.setDataType( QT_LONG );
     }
     else
-        RMInit::logOut << "Error: QtIntervalLoOp::checkType() - operand branch invalid." << std::endl;
+        LERROR << "Error: QtIntervalLoOp::checkType() - operand branch invalid.";
 
     return dataStreamType;
 }
@@ -179,7 +180,7 @@ QtIntervalHiOp::QtIntervalHiOp( QtOperation* newInput )
 QtData*
 QtIntervalHiOp::evaluate( QtDataList* inputList )
 {
-    RMDBCLASS( "QtIntervalHiOp", "evaluate( QtDataList* )", "qlparser", __FILE__, __LINE__ )
+	LTRACE << "qlparser";
     startTimer("QtIntervalHiOp");
 
     QtData* returnValue = NULL;
@@ -192,8 +193,8 @@ QtIntervalHiOp::evaluate( QtDataList* inputList )
 #ifdef QT_RUNTIME_TYPE_CHECK
         if( operand->getDataType() != QT_INTERVAL )
         {
-            RMInit::logOut << "Internal error in QtIntervalHiOp::evaluate() - "
-                           << "runtime type checking failed (INTERVAL)." << std::endl;
+            LERROR << "Internal error in QtIntervalHiOp::evaluate() - "
+                           << "runtime type checking failed (INTERVAL).";
 
             // delete old operand
             if( operand ) operand->deleteRef();
@@ -211,7 +212,7 @@ QtIntervalHiOp::evaluate( QtDataList* inputList )
         }
         else
         {
-            RMInit::logOut << "Error: QtIntervalHiOp::evaluate() - operation lo() can not be used for an open bound." << std::endl;
+            LFATAL << "Error: QtIntervalHiOp::evaluate() - operation lo() can not be used for an open bound.";
 
             // delete old operand
             if( operand ) operand->deleteRef();
@@ -225,7 +226,7 @@ QtIntervalHiOp::evaluate( QtDataList* inputList )
     }
     else
     {
-        RMDBGMIDDLE( 1, RMDebug::module_qlparser, "QtIntervalHiOp", "Information: QtIntervalHiOp::evaluate() - operand is not provided." )
+        LTRACE << "Information: QtIntervalHiOp::evaluate() - operand is not provided.";
     }
     
     stopTimer();
@@ -263,8 +264,7 @@ QtIntervalHiOp::printAlgebraicExpression( std::ostream& s )
 const QtTypeElement&
 QtIntervalHiOp::checkType( QtTypeTuple* typeTuple )
 {
-    RMDBCLASS( "QtIntervalHiOp", "checkType( QtTypeTuple* )", "qlparser", __FILE__, __LINE__ )
-
+	LTRACE << "qlparser";
     dataStreamType.setDataType( QT_TYPE_UNKNOWN );
 
     // check operand branches
@@ -276,7 +276,7 @@ QtIntervalHiOp::checkType( QtTypeTuple* typeTuple )
 
         if( inputType.getDataType() != QT_INTERVAL )
         {
-            RMInit::logOut << "Error: QtIntervalHiOp::checkType() - operation lo() must be of type interval." << std::endl;
+            LFATAL << "Error: QtIntervalHiOp::checkType() - operation lo() must be of type interval.";
             parseInfo.setErrorNo(393);
             throw parseInfo;
         }
@@ -284,7 +284,7 @@ QtIntervalHiOp::checkType( QtTypeTuple* typeTuple )
         dataStreamType.setDataType( QT_LONG );
     }
     else
-        RMInit::logOut << "Error: QtIntervalHiOp::checkType() - operand branch invalid." << std::endl;
+        LERROR << "Error: QtIntervalHiOp::checkType() - operand branch invalid.";
     return dataStreamType;
 }
 
@@ -304,7 +304,7 @@ QtSDom::QtSDom( QtOperation* newInput )
 QtData*
 QtSDom::evaluate( QtDataList* inputList )
 {
-    RMDBCLASS( "QtSDom", "evaluate( QtDataList* )", "qlparser", __FILE__, __LINE__ )
+	LTRACE << "qlparser";
     startTimer("QtSDom");
 
     QtData* returnValue = NULL;
@@ -317,8 +317,8 @@ QtSDom::evaluate( QtDataList* inputList )
 #ifdef QT_RUNTIME_TYPE_CHECK
         if( operand->getDataType() != QT_MDD )
         {
-            RMInit::logOut << "Internal error in QtSDom::evaluate() - "
-                           << "runtime type checking failed (MDD)." << std::endl;
+            LERROR << "Internal error in QtSDom::evaluate() - "
+                           << "runtime type checking failed (MDD).";
 
             // delete old operand
             if( operand ) operand->deleteRef();
@@ -338,7 +338,7 @@ QtSDom::evaluate( QtDataList* inputList )
     }
     else
     {
-        RMDBGMIDDLE( 1, RMDebug::module_qlparser, "QtSDom", "Information: QtSDom::evaluate() - operand is not provided." )
+        LTRACE << "Information: QtSDom::evaluate() - operand is not provided.";
     }
     
     stopTimer();
@@ -351,8 +351,7 @@ QtSDom::evaluate( QtDataList* inputList )
 void
 QtSDom::optimizeLoad( QtTrimList* trimList )
 {
-    RMDBCLASS( "QtSDom", "optimizeLoad( QtTrimList* )", "qlparser", __FILE__, __LINE__ )
-
+	LTRACE << "qlparser";
     // reset trimList because optimization enters a new MDD area
 
     // delete list
@@ -399,8 +398,7 @@ QtSDom::printAlgebraicExpression( std::ostream& s )
 const QtTypeElement&
 QtSDom::checkType( QtTypeTuple* typeTuple )
 {
-    RMDBCLASS( "QtSDom", "checkType( QtTypeTuple* )", "qlparser", __FILE__, __LINE__ )
-
+	LTRACE << "qlparser";
     dataStreamType.setDataType( QT_TYPE_UNKNOWN );
 
     // check operand branches
@@ -412,7 +410,7 @@ QtSDom::checkType( QtTypeTuple* typeTuple )
 
         if( inputType.getDataType() != QT_MDD )
         {
-            RMInit::logOut << "Error: QtSDom::checkType() - operand must be of type MDD." << std::endl;
+            LFATAL << "Error: QtSDom::checkType() - operand must be of type MDD.";
             parseInfo.setErrorNo(395);
             throw parseInfo;
         }
@@ -420,7 +418,7 @@ QtSDom::checkType( QtTypeTuple* typeTuple )
         dataStreamType.setDataType( QT_MINTERVAL );
     }
     else
-        RMInit::logOut << "Error: QtSDom::checkType() - operand branch invalid." << std::endl;
+        LERROR << "Error: QtSDom::checkType() - operand branch invalid.";
 
     return dataStreamType;
 }

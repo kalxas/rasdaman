@@ -49,6 +49,8 @@ static const char rcsid[] = "@(#)qlparser, QtUnaryInduce: $Id: qtunaryinduce.cc,
 #include "relcatalogif/mdddimensiontype.hh"
 #include "relcatalogif/syntaxtypes.hh"
 
+#include "../common/src/logging/easylogging++.hh"
+
 #include <sstream>
 #ifndef CPPSTDLIB
 #include <ospace/string.h> // STL<ToolKit>
@@ -79,7 +81,7 @@ QtUnaryInduce::getOperand( QtDataList* inputList, QtData* &operand )
         success = true;
     else
     {
-        RMDBGMIDDLE( 1, RMDebug::module_qlparser, "QtUnaryInduce", "Information: QtUnaryInduce::getOperand() - operand is not provided." )
+        LTRACE << "Information: QtUnaryInduce::getOperand() - operand is not provided.";
     }
 
     return success;
@@ -120,8 +122,7 @@ QtData*
 QtUnaryInduce::computeUnaryMDDOp( QtMDD* operand, const BaseType* resultBaseType,
                                   Ops::OpType operation, unsigned int operandOffset, double param )
 {
-    RMDBCLASS( "QtUnaryInduce", "computeUnaryMDDOp( QtMDD*, BaseType*, Ops::OpType, unsigned int ) ", "qlparser", __FILE__, __LINE__ )
-
+	LTRACE << "qlparser";
     QtData* returnValue = NULL;
 
     // get the MDD object
@@ -164,7 +165,7 @@ QtUnaryInduce::computeUnaryMDDOp( QtMDD* operand, const BaseType* resultBaseType
     }
     if (myOp == NULL)
     {
-            RMInit::logOut << "QtUnaryInduce::computeUnaryMDDOp(...) could not get operation for result type " << resultBaseType->getName() << " argument type " << (*tileIt)->getType() << " operation " << static_cast<int>(operation) << endl;
+        LFATAL << "QtUnaryInduce::computeUnaryMDDOp(...) could not get operation for result type " << resultBaseType->getName() << " argument type " << (*tileIt)->getType() << " operation " << static_cast<int>(operation);
         delete allTiles;
         allTiles = NULL;
         //contents of allTiles are deleted when index is deleted
@@ -208,7 +209,7 @@ QtUnaryInduce::computeUnaryMDDOp( QtMDD* operand, const BaseType* resultBaseType
         }
         catch(r_Error& err)
         {
-            RMInit::logOut << "QtUnaryInduce::computeUnaryMDDOp caught " << err.get_errorno() << " " << err.what() << endl;
+            LFATAL << "QtUnaryInduce::computeUnaryMDDOp caught " << err.get_errorno() << " " << err.what();
             delete allTiles;
             allTiles = NULL;
             //contents of allTiles are deleted when index is deleted
@@ -223,7 +224,7 @@ QtUnaryInduce::computeUnaryMDDOp( QtMDD* operand, const BaseType* resultBaseType
         }
         catch (int err)
         {
-            RMInit::logOut << "QtUnaryInduce::computeUnaryMDDOp caught errno error (" << err << ") in unaryinduce" << endl;
+            LFATAL << "QtUnaryInduce::computeUnaryMDDOp caught errno error (" << err << ") in unaryinduce";
             delete allTiles;
             allTiles = NULL;
             //contents of allTiles are deleted when index is deleted
@@ -263,8 +264,7 @@ QtData*
 QtUnaryInduce::computeUnaryOp( QtScalarData* operand, const BaseType* resultBaseType,
                                Ops::OpType operation, unsigned int operandOffset, double param )
 {
-    RMDBCLASS( "QtUnaryInduce", "computeUnaryOp( QtScalarData*, BaseType*, Ops::OpType, unsigned int ) ", "qlparser", __FILE__, __LINE__ )
-
+	LTRACE << "qlparser";
     QtScalarData* scalarDataObj = NULL;
     r_Minterval* nullValues = operand->getNullValues();
 
@@ -272,9 +272,8 @@ QtUnaryInduce::computeUnaryOp( QtScalarData* operand, const BaseType* resultBase
     char* resultBuffer = new char[ resultBaseType->getSize() ];
 
     RMDBGIF( 4, RMDebug::module_qlparser, "QtUnaryInduce", \
-             RMInit::dbgOut << "Operand value "; \
+             LTRACE << "Operand value "; \
              operand->getValueType()->printCell( RMInit::dbgOut, operand->getValueBuffer() ); \
-             RMInit::dbgOut << endl; \
            )
 
     UnaryOp* myOp = NULL;
@@ -323,9 +322,8 @@ QtUnaryInduce::computeUnaryOp( QtScalarData* operand, const BaseType* resultBase
 
 
     RMDBGIF( 4, RMDebug::module_qlparser, "QtUnaryInduce", \
-             RMInit::dbgOut << "Result value "; \
+             LTRCE << "Result value "; \
              resultBaseType->printCell( RMInit::dbgOut, resultBuffer ); \
-             RMInit::dbgOut << endl; \
            )
 
     if( resultBaseType->getType() == STRUCT )
@@ -404,8 +402,7 @@ QtNot::printAlgebraicExpression( ostream& s )
 const QtTypeElement&
 QtNot::checkType( QtTypeTuple* typeTuple )
 {
-    RMDBCLASS( "QtNot", "checkType( QtTypeTuple* )", "qlparser", __FILE__, __LINE__ )
-
+	LTRACE << "qlparser";
     dataStreamType.setDataType( QT_TYPE_UNKNOWN );
 
     // check operand branches
@@ -416,9 +413,8 @@ QtNot::checkType( QtTypeTuple* typeTuple )
         const QtTypeElement& inputType = input->checkType( typeTuple );
 
         RMDBGIF( 4, RMDebug::module_qlparser, "QtNot", \
-                 RMInit::dbgOut << "Operand: " << flush; \
+                 LTRACE << "Operand: "; \
                  inputType.printStatus( RMInit::dbgOut ); \
-                 RMInit::dbgOut << endl; \
                )
 
         if( inputType.getDataType() == QT_MDD )
@@ -429,7 +425,7 @@ QtNot::checkType( QtTypeTuple* typeTuple )
 
             if( !resultBaseType )
             {
-                RMInit::logOut << "Error: QtNot::checkType() - induce operand type is not supported." << endl;
+                LFATAL << "Error: QtNot::checkType() - induce operand type is not supported.";
                 parseInfo.setErrorNo(366);
                 throw parseInfo;
             }
@@ -447,7 +443,7 @@ QtNot::checkType( QtTypeTuple* typeTuple )
 
             if( !resultBaseType )
             {
-                RMInit::logOut << "Error: QtNot::checkType() - operand type is not supported." << endl;
+                LFATAL << "Error: QtNot::checkType() - operand type is not supported.";
                 parseInfo.setErrorNo(367);
                 throw parseInfo;
             }
@@ -460,13 +456,13 @@ QtNot::checkType( QtTypeTuple* typeTuple )
         }
         else
         {
-            RMInit::logOut << "Error: QtNot::checkType() - operation is not supported for strings." << endl;
+            LFATAL << "Error: QtNot::checkType() - operation is not supported for strings.";
             parseInfo.setErrorNo(385);
             throw parseInfo;
         }
     }
     else
-        RMInit::logOut << "Error: QtNot::checkType() - operand branch invalid." << endl;
+        LERROR << "Error: QtNot::checkType() - operand branch invalid.";
 
     return dataStreamType;
 }
@@ -543,7 +539,7 @@ QtDot::getSpelling()
 QtData*
 QtDot::evaluate( QtDataList* inputList )
 {
-    RMDBCLASS( "QtDot", "evaluate( QtDataList* )", "qlparser", __FILE__, __LINE__ )
+	LTRACE << "qlparser";
     startTimer("QtDot");
 
     QtData* returnValue = NULL;
@@ -559,8 +555,8 @@ QtDot::evaluate( QtDataList* inputList )
             // test, if operand has complex base type
             if( mdd->getCellType()->getType() != STRUCT )
             {
-                RMInit::logOut << "Internal error in QtDot::evaluate() - "
-                               << "runtime type checking failed." << endl;
+                LERROR << "Internal error in QtDot::evaluate() - "
+                               << "runtime type checking failed.";
 
                 // delete old operand
                 if( operand ) operand->deleteRef();
@@ -580,7 +576,7 @@ QtDot::evaluate( QtDataList* inputList )
 
             if( !resultCellType )
             {
-                RMInit::logOut << "Error: QtDot::evaluate() - struct selector is not valid." << endl;
+                LFATAL << "Error: QtDot::evaluate() - struct selector is not valid.";
                 parseInfo.setErrorNo(370);
                 throw parseInfo;
             }
@@ -592,11 +588,11 @@ QtDot::evaluate( QtDataList* inputList )
 
             RMDBGIF( 1, RMDebug::module_qlparser, "QtUnaryInduce", \
                      char* typeStructure = operandType->getTypeStructure();  \
-                     RMDBGMIDDLE( 4, RMDebug::module_qlparser, "QtUnaryInduce", "Operand base type   " << operandType->getTypeName() << ", structure " << typeStructure ) \
+                     LTRACE << "Operand base type   " << operandType->getTypeName() << ", structure " << typeStructure; \
                      free( typeStructure ); typeStructure=NULL; \
-                     RMDBGMIDDLE( 4, RMDebug::module_qlparser, "QtUnaryInduce", "Operand base offset " << operandOffset ) \
+                     LTRACE << "Operand base offset " << operandOffset; \
                      typeStructure = resultCellType->getTypeStructure();   \
-                     RMDBGMIDDLE( 4, RMDebug::module_qlparser, "QtUnaryInduce", "Result base type    " << resultCellType->getTypeName() << ", structure " << typeStructure ) \
+                     LTRACE << "Result base type    " << resultCellType->getTypeName() << ", structure " << typeStructure; \
                      free( typeStructure ); typeStructure=NULL; \
                    )
 
@@ -610,8 +606,8 @@ QtDot::evaluate( QtDataList* inputList )
             // test, if operand has complex base type
             if( scalar->getValueType()->getType() != STRUCT )
             {
-                RMInit::logOut << "Internal error in QtDot::evaluate() - "
-                               << "runtime type checking failed." << endl;
+                LERROR << "Internal error in QtDot::evaluate() - "
+                               << "runtime type checking failed.";
 
                 // delete old operand
                 if( operand ) operand->deleteRef();
@@ -631,7 +627,7 @@ QtDot::evaluate( QtDataList* inputList )
 
             if( !resultCellType )
             {
-                RMInit::logOut << "Error: QtDot::evaluate() - struct selector is not valid." << endl;
+                LFATAL << "Error: QtDot::evaluate() - struct selector is not valid.";
                 parseInfo.setErrorNo(370);
                 throw parseInfo;
             }
@@ -643,11 +639,11 @@ QtDot::evaluate( QtDataList* inputList )
 
             RMDBGIF( 1, RMDebug::module_qlparser, "QtUnaryInduce", \
                      char* typeStructure = operandType->getTypeStructure();  \
-                     RMDBGMIDDLE( 4, RMDebug::module_qlparser, "QtUnaryInduce", "Operand scalar type   " << operandType->getTypeName() << ", structure " << typeStructure ) \
+                     LTRACE << "Operand scalar type   " << operandType->getTypeName() << ", structure " << typeStructure; \
                      free( typeStructure ); typeStructure=NULL; \
-                     RMDBGMIDDLE( 4, RMDebug::module_qlparser, "QtUnaryInduce", "Operand scalar offset " << operandOffset ) \
+                     LTRACE << "Operand scalar offset " << operandOffset; \
                      typeStructure = resultCellType->getTypeStructure();  \
-                     RMDBGMIDDLE( 4, RMDebug::module_qlparser, "QtUnaryInduce", "Result scalar type    " << resultCellType->getTypeName() << ", structure " << typeStructure )  \
+                     LTRACE << "Result scalar type    " << resultCellType->getTypeName() << ", structure " << typeStructure;  \
                      free( typeStructure ); typeStructure=NULL; \
                    )
 
@@ -655,7 +651,7 @@ QtDot::evaluate( QtDataList* inputList )
         }
         else
         {
-            RMInit::logOut << "Error: QtDot::evaluate() - operation is not supported for strings." << endl;
+            LFATAL << "Error: QtDot::evaluate() - operation is not supported for strings.";
             parseInfo.setErrorNo(385);
             throw parseInfo;
         }
@@ -705,8 +701,7 @@ QtDot::printAlgebraicExpression( ostream& s )
 const QtTypeElement&
 QtDot::checkType( QtTypeTuple* typeTuple )
 {
-    RMDBCLASS( "QtDot", "checkType( QtTypeTuple* )", "qlparser", __FILE__, __LINE__ )
-
+	LTRACE << "qlparser";
     dataStreamType.setDataType( QT_TYPE_UNKNOWN );
 
     // check operand branches
@@ -717,9 +712,8 @@ QtDot::checkType( QtTypeTuple* typeTuple )
         const QtTypeElement& inputType = input->checkType( typeTuple );
 
         RMDBGIF( 4, RMDebug::module_qlparser, "QtDot", \
-                 RMInit::dbgOut << "Operand: " << flush; \
+                 LTRACE << "Operand: "; \
                  inputType.printStatus( RMInit::dbgOut ); \
-                 RMInit::dbgOut << endl; \
                )
 
         if( inputType.getDataType() == QT_MDD )
@@ -729,7 +723,7 @@ QtDot::checkType( QtTypeTuple* typeTuple )
             // test, if operand has complex base type
             if( baseType->getType() != STRUCT )
             {
-                RMInit::logOut << "Error: QtDot::evaluate() - operand of induce dot operation must be complex." << endl;
+                LFATAL << "Error: QtDot::evaluate() - operand of induce dot operation must be complex.";
                 parseInfo.setErrorNo(368);
                 throw parseInfo;
             }
@@ -744,7 +738,7 @@ QtDot::checkType( QtTypeTuple* typeTuple )
 
             if( !resultBaseType )
             {
-                RMInit::logOut << "Error: QtDot::evaluate() - struct selector is not valid." << endl;
+                LFATAL << "Error: QtDot::evaluate() - struct selector is not valid.";
                 parseInfo.setErrorNo(370);
                 throw parseInfo;
             }
@@ -761,7 +755,7 @@ QtDot::checkType( QtTypeTuple* typeTuple )
             // test, if operand has complex base type
             if( baseType->getType() != STRUCT )
             {
-                RMInit::logOut << "Error: QtDot::evaluate() - operand of dot operation must be complex." << endl;
+                LFATAL << "Error: QtDot::evaluate() - operand of dot operation must be complex.";
                 parseInfo.setErrorNo(369);
                 throw parseInfo;
             }
@@ -776,7 +770,7 @@ QtDot::checkType( QtTypeTuple* typeTuple )
 
             if( !resultBaseType )
             {
-                RMInit::logOut << "Error: QtDot::evaluate() - struct selector is not valid." << endl;
+                LFATAL << "Error: QtDot::evaluate() - struct selector is not valid.";
                 parseInfo.setErrorNo(370);
                 throw parseInfo;
             }
@@ -785,13 +779,13 @@ QtDot::checkType( QtTypeTuple* typeTuple )
         }
         else
         {
-            RMInit::logOut << "Error: QtDot::checkType() - operation is not supported for strings." << endl;
+            LFATAL << "Error: QtDot::checkType() - operation is not supported for strings.";
             parseInfo.setErrorNo(385);
             throw parseInfo;
         }
     }
     else
-        RMInit::logOut << "Error: QtDot::checkType() - operand branch invalid." << endl;
+        LERROR << "Error: QtDot::checkType() - operand branch invalid.";
     return dataStreamType;
 }
 
@@ -903,9 +897,7 @@ void QtCast::printAlgebraicExpression(ostream& s)
 
 const QtTypeElement& QtCast::checkType(QtTypeTuple* typeTuple)
 {
-
-    RMDBCLASS( "QtCast", "checkType( QtTypeTuple* )", "qlparser", __FILE__, __LINE__ )
-
+	LTRACE << "qlparser";
     dataStreamType.setDataType( QT_TYPE_UNKNOWN );
 
     // check operand branches
@@ -915,9 +907,8 @@ const QtTypeElement& QtCast::checkType(QtTypeTuple* typeTuple)
         // get input types
         const QtTypeElement& inputType = input->checkType( typeTuple );
         RMDBGIF( 4, RMDebug::module_qlparser, "QtCast", \
-                 RMInit::dbgOut << "Operand: " << flush; \
+                 LTRACE << "Operand: "; \
                  inputType.printStatus( RMInit::dbgOut ); \
-                 RMInit::dbgOut << endl; \
                )
 
         if(inputType.getDataType() == QT_MDD)
@@ -935,7 +926,7 @@ const QtTypeElement& QtCast::checkType(QtTypeTuple* typeTuple)
 
             if(!resultBaseType)
             {
-                RMInit::logOut << "Error: QtCast::checkType() - induce operand type is not support" << endl;
+                LFATAL << "Error: QtCast::checkType() - induce operand type is not support";
                 parseInfo.setErrorNo(366);
                 throw parseInfo;
             }
@@ -960,7 +951,7 @@ const QtTypeElement& QtCast::checkType(QtTypeTuple* typeTuple)
 
             if(!resultBaseType)
             {
-                RMInit::logOut << "Error: QtCast::checkType() - operand type is not supported." << endl;
+                LFATAL << "Error: QtCast::checkType() - operand type is not supported.";
                 parseInfo.setErrorNo(367);
                 throw parseInfo;
             }
@@ -969,13 +960,13 @@ const QtTypeElement& QtCast::checkType(QtTypeTuple* typeTuple)
         }
         else
         {
-            RMInit::logOut << "Error: QtCast::checkType() - operation is not supported for strings." << endl;
+            LFATAL << "Error: QtCast::checkType() - operation is not supported for strings.";
             parseInfo.setErrorNo(385);
             throw parseInfo;
         }
     }
     else
-        RMInit::logOut << "Error: QtCast::checkType() - operand branch invalid." << endl;
+        LERROR << "Error: QtCast::checkType() - operand branch invalid.";
 
     return dataStreamType;
 }
@@ -1024,8 +1015,7 @@ void QtRealPartOp::printAlgebraicExpression(ostream& s)
 
 const QtTypeElement& QtRealPartOp::checkType(QtTypeTuple* typeTuple)
 {
-    RMDBCLASS( "QtRealPartOp", "checkType( QtTypeTuple* )", "qlparser", __FILE__, __LINE__ )
-
+	LTRACE << "qlparser";
     dataStreamType.setDataType( QT_TYPE_UNKNOWN );
 
     // check operand branches
@@ -1035,9 +1025,8 @@ const QtTypeElement& QtRealPartOp::checkType(QtTypeTuple* typeTuple)
         // get input types
         const QtTypeElement& inputType = input->checkType( typeTuple );
         RMDBGIF( 1, RMDebug::module_qlparser, "QtRealPartOp", \
-                 RMInit::dbgOut << "Operand: " << flush; \
+                 LTRACE << "Operand: "; \
                  inputType.printStatus( RMInit::dbgOut ); \
-                 RMInit::dbgOut << endl;
                )
 
         if(inputType.getDataType() == QT_MDD)
@@ -1046,7 +1035,7 @@ const QtTypeElement& QtRealPartOp::checkType(QtTypeTuple* typeTuple)
             BaseType* resultBaseType = const_cast<BaseType*>(Ops::getResultType( Ops::OP_REALPART, baseType ));
             if(!resultBaseType)
             {
-                RMInit::logOut << "Error: QtRealPartOp::checkType() - induce operand type is not support" << endl;
+                LFATAL << "Error: QtRealPartOp::checkType() - induce operand type is not support";
                 parseInfo.setErrorNo(366);
                 throw parseInfo;
             }
@@ -1060,7 +1049,7 @@ const QtTypeElement& QtRealPartOp::checkType(QtTypeTuple* typeTuple)
             BaseType* resultBaseType = const_cast<BaseType*>(Ops::getResultType( Ops::OP_REALPART, baseType ));
             if(!resultBaseType)
             {
-                RMInit::logOut << "Error: QtRealPartOp::checkType() - operand type is not supported." << endl;
+                LFATAL << "Error: QtRealPartOp::checkType() - operand type is not supported.";
                 parseInfo.setErrorNo(367);
                 throw parseInfo;
             }
@@ -1068,13 +1057,13 @@ const QtTypeElement& QtRealPartOp::checkType(QtTypeTuple* typeTuple)
         }
         else
         {
-            RMInit::logOut << "Error: QtRealPartOp::checkType() - operation is not supported for strings." << endl;
+            LFATAL << "Error: QtRealPartOp::checkType() - operation is not supported for strings.";
             parseInfo.setErrorNo(385);
             throw parseInfo;
         }
     }
     else
-        RMInit::logOut << "Error: QtRealPartOp::checkType() - operand branch invalid." << endl;
+        LERROR << "Error: QtRealPartOp::checkType() - operand branch invalid.";
 
     return dataStreamType;
 }
@@ -1122,8 +1111,6 @@ void QtImaginarPartOp::printAlgebraicExpression(ostream& s)
 
 const QtTypeElement& QtImaginarPartOp::checkType(QtTypeTuple* typeTuple)
 {
-    RMDBCLASS( "QtImaginarPart", "checkType( QtTypeTuple* )", "qlparser", __FILE__, __LINE__ )
-
     dataStreamType.setDataType( QT_TYPE_UNKNOWN );
 
     // check operand branches
@@ -1134,9 +1121,8 @@ const QtTypeElement& QtImaginarPartOp::checkType(QtTypeTuple* typeTuple)
         const QtTypeElement& inputType = input->checkType( typeTuple );
 
         RMDBGIF( 4, RMDebug::module_qlparser, "QtImaginarPartOp", \
-                 RMInit::dbgOut << "Operand: " << flush; \
+                 LTRACE << "Operand: "; \
                  inputType.printStatus( RMInit::dbgOut ); \
-                 RMInit::dbgOut << endl; \
                )
 
         if(inputType.getDataType() == QT_MDD)
@@ -1145,7 +1131,7 @@ const QtTypeElement& QtImaginarPartOp::checkType(QtTypeTuple* typeTuple)
             BaseType* resultBaseType = const_cast<BaseType*>(Ops::getResultType( Ops::OP_IMAGINARPART, baseType ));
             if(!resultBaseType)
             {
-                RMInit::logOut << "Error: QtImaginarPart::checkType() - induce operand type is not support" << endl;
+                LFATAL << "Error: QtImaginarPart::checkType() - induce operand type is not support";
                 parseInfo.setErrorNo(366);
                 throw parseInfo;
             }
@@ -1159,7 +1145,7 @@ const QtTypeElement& QtImaginarPartOp::checkType(QtTypeTuple* typeTuple)
             BaseType* resultBaseType = const_cast<BaseType*>(Ops::getResultType(Ops::OP_IMAGINARPART, baseType));
             if(!resultBaseType)
             {
-                RMInit::logOut << "Error: QtImaginarPart::checkType() - operand type is not supported." << endl;
+                LFATAL << "Error: QtImaginarPart::checkType() - operand type is not supported.";
                 parseInfo.setErrorNo(367);
                 throw parseInfo;
             }
@@ -1167,13 +1153,13 @@ const QtTypeElement& QtImaginarPartOp::checkType(QtTypeTuple* typeTuple)
         }
         else
         {
-            RMInit::logOut << "Error: QtImaginarPart::checkType() - operation is not supported for strings." << endl;
+            LFATAL << "Error: QtImaginarPart::checkType() - operation is not supported for strings.";
             parseInfo.setErrorNo(385);
             throw parseInfo;
         }
     }
     else
-        RMInit::logOut << "Error: QtImaginarPart::checkType() - operand branch invalid." << endl;
+        LERROR << "Error: QtImaginarPart::checkType() - operand branch invalid.";
     return dataStreamType;
 }
 

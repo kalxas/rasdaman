@@ -45,6 +45,7 @@ using namespace std;
 #include "mymalloc/mymalloc.h"
 #include "mddmgr/mddobj.hh"
 
+#include "../common/src/logging/easylogging++.hh"
 
 const QtNode::QtNodeType QtVariable::nodeType = QT_MDD_VAR;
 
@@ -80,8 +81,7 @@ QtVariable::~QtVariable()
 bool
 QtVariable::equalMeaning( QtNode* node )
 {
-    RMDBCLASS( "QtVariable", "equalMeaning( QtNode* )", "qlparser", __FILE__, __LINE__ )
-
+	LTRACE << "qlparser";
     bool result = false;
 
     if( nodeType == node->getNodeType() )
@@ -139,8 +139,7 @@ QtVariable::getAreaType()
 void
 QtVariable::optimizeLoad( QtTrimList* trimList )
 {
-    RMDBCLASS( "QtVariable", "optimizeLoad( QtTrimList* )", "qlparser", __FILE__, __LINE__ )
-
+	LTRACE << "qlparser";
     if( !trimList->empty() )
     {
         // get the highest specified dimension
@@ -179,7 +178,7 @@ QtVariable::optimizeLoad( QtTrimList* trimList )
         }
 
         // changed from RMInit:logOut -- PB 2003-nov-20
-        RMDBGMIDDLE( 1, RMDebug::module_qlparser, "QtVariable", "optimizeLoad: geometric load optimization: " << iteratorName << loadDomain );
+        LTRACE << "optimizeLoad: geometric load optimization: " << iteratorName << loadDomain;
     }
 
     // delete list
@@ -192,10 +191,8 @@ QtVariable::optimizeLoad( QtTrimList* trimList )
 QtData*
 QtVariable::evaluate( QtDataList* inputList ) throw (ParseInfo)
 {
-    RMDBCLASS( "QtVariable", "evaluate( QtDataList* )", "qlparser", __FILE__, __LINE__ )
+	LTRACE << "qlparser";
     startTimer("QtVariable");
-
-    RMDBGENTER( 2, RMDebug::module_qlparser, "QtVariable", "QtVariable::evaluate() - " << iteratorName.c_str() << endl )
 
     vector<QtData*>::iterator i; //default
 
@@ -226,8 +223,8 @@ QtVariable::evaluate( QtDataList* inputList ) throw (ParseInfo)
 
         if( !dataObject )
         {
-            RMInit::logOut << "Error: QtVariable::evaluate() - collection iterator " <<
-                           iteratorName.c_str() << " is unknown." << endl;
+            LFATAL << "Error: QtVariable::evaluate() - collection iterator " <<
+                           iteratorName.c_str() << " is unknown.";
             parseInfo.setErrorNo(357);
             throw parseInfo;
         }
@@ -248,8 +245,8 @@ QtVariable::evaluate( QtDataList* inputList ) throw (ParseInfo)
                 QtMDD*  qtMDD         = static_cast<QtMDD*>(dataObject);
                 MDDObj* currentMDDObj = qtMDD->getMDDObject();
 
-                RMDBGMIDDLE( 1, RMDebug::module_qlparser, "QtVariable", "  definitionDomain: " << currentMDDObj->getDefinitionDomain() )
-                RMDBGMIDDLE( 1, RMDebug::module_qlparser, "QtVariable", "  currentDomain...: " << currentMDDObj->getCurrentDomain() )
+                LTRACE << "  definitionDomain: " << currentMDDObj->getDefinitionDomain();
+                LTRACE << "  currentDomain...: " << currentMDDObj->getCurrentDomain();
 
                 // load domain for the actual MDDObj
                 r_Minterval actLoadDomain;
@@ -270,8 +267,8 @@ QtVariable::evaluate( QtDataList* inputList ) throw (ParseInfo)
                     // Instead of throwing an exception, return an MDD initialized
                     // with null values when selecting an area that doesn't intersect
                     // with any existing tiles in the database -- DM 2013-nov-15
-                    RMInit::logOut << "Warning: specified domain " << loadDomain
-                            << " does not intersect with spatial domain of MDD, returning empty result." << endl;
+                    LWARNING << "Warning: specified domain " << loadDomain
+                            << " does not intersect with spatial domain of MDD, returning empty result.";
 
                     const MDDBaseType* mddType = currentMDDObj->getMDDBaseType();
                     const unsigned int mddTypeSize = mddType->getBaseType()->getSize();
@@ -296,18 +293,18 @@ QtVariable::evaluate( QtDataList* inputList ) throw (ParseInfo)
                     stopTimer();
                     return returnValue;
 
-//                    RMInit::logOut << "Error: QtVariable::evaluate() - Specified domain does not intersect with spatial domain of MDD." << endl;
+//                    LFATAL << "Error: QtVariable::evaluate() - Specified domain does not intersect with spatial domain of MDD.";
 //                    parseInfo.setErrorNo(356);
 //                    throw parseInfo;
                 }
                 catch( r_Error& err )
                 {
-                    RMInit::logOut << "Error: QtVariable::evaluate() - general error." << endl;
+                    LFATAL << "Error: QtVariable::evaluate() - general error.";
                     parseInfo.setErrorNo(350);
                     throw parseInfo;
                 }
 
-                RMDBGMIDDLE( 1, RMDebug::module_qlparser, "QtVariable", "  loadDomain......: " << actLoadDomain )
+                LTRACE << "  loadDomain......: " << actLoadDomain;
 
                 if( qtMDD->getLifetime() == QtData::QT_PERSISTENT )
                 {
@@ -348,7 +345,7 @@ QtVariable::evaluate( QtDataList* inputList ) throw (ParseInfo)
     }
     else
     {
-        RMDBGMIDDLE( 1, RMDebug::module_qlparser, "QtVariable", "Error: QtVariable::evaluate() - the input list is empty." )
+        LTRACE << "Error: QtVariable::evaluate() - the input list is empty.";
     }
     
     stopTimer();
@@ -396,8 +393,7 @@ QtVariable::printAlgebraicExpression( ostream& s )
 const QtTypeElement&
 QtVariable::checkType( QtTypeTuple* typeTuple ) throw (ParseInfo)
 {
-    RMDBCLASS( "QtVariable", "checkType( QtTypeTuple* )", "qlparser", __FILE__, __LINE__ )
-
+	LTRACE << "qlparser";
     dataStreamType.setDataType( QT_TYPE_UNKNOWN );
 
     if( typeTuple )
@@ -416,7 +412,7 @@ QtVariable::checkType( QtTypeTuple* typeTuple ) throw (ParseInfo)
 
     if( (dataStreamType.getDataType() == QT_TYPE_UNKNOWN) )
     {
-        RMInit::logOut << "Error: QtVariable::checkType() - variable " << iteratorName.c_str() << " is unknwon." << endl;
+        LFATAL << "Error: QtVariable::checkType() - variable " << iteratorName.c_str() << " is unknwon.";
         parseInfo.setErrorNo(357);
         throw parseInfo;
     }

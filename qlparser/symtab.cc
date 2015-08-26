@@ -43,6 +43,8 @@ rasdaman GmbH.
 #include "config.h"
 #include "symtab.hh"
 
+#include "../common/src/logging/easylogging++.hh"
+
 // constructor
 template <class T>
 SymbolTable<T>::SymbolTable()
@@ -137,7 +139,7 @@ bool SymbolTable<T>::lookupSymbol( const std::string& symbol )
 template <class T>
 void SymbolTable<T>::outScope()
 {
-    RMInit::logOut << "Scope: " << STScopes.size() << endl;
+    LINFO << "Scope: " << STScopes.size();
 }
 
 // init scope by clearing inner symbols

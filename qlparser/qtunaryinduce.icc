@@ -27,6 +27,7 @@ rasdaman GmbH.
  *
  ************************************************************/
 
+#include "../common/src/logging/easylogging++.hh"
 
 inline QtNode::QtNodeType
 QtNot::getNodeType() const
@@ -61,7 +62,7 @@ inline Ops::OpType QtCast::getOp(QtCast::cast_types t) {
          case QtCast::t_ulong: c=Ops::OP_CAST_ULONG; break;
          case QtCast::t_float: c=Ops::OP_CAST_FLOAT; break;
          case QtCast::t_double: c=Ops::OP_CAST_DOUBLE; break;
-         default: RMInit::logOut << "Error: QtCast::getOp - undefined cast type." << endl; break;
+         default: LERROR << "Error: QtCast::getOp - undefined cast type."; break;
      }
      return c;
 }

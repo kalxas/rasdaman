@@ -43,6 +43,8 @@ rasdaman GmbH.
 #include "catalogmgr/typefactory.hh"
 #include "relcatalogif/structtype.hh"
 
+#include "../common/src/logging/easylogging++.hh"
+
 #include "mddmgr/mddobj.hh"
 #include "mymalloc/mymalloc.h"
 #include "tilemgr/tiler.hh"
@@ -67,8 +69,7 @@ QtRangeConstructor::QtRangeConstructor(QtOperationList *opList)
 bool
 QtRangeConstructor::equalMeaning(QtNode *node)
 {
-    RMDBCLASS("QtRangeConstructor", "equalMeaning( QtNode* )", "qlparser", __FILE__, __LINE__)
-
+	LTRACE << "qlparser";
     bool result = false;
 
     if (nodeType == node->getNodeType())
@@ -103,9 +104,7 @@ QtRangeConstructor::getSpelling()
 void
 QtRangeConstructor::simplify()
 {
-    RMDBCLASS("QtRangeConstructor", "simplify()", "qlparser", __FILE__, __LINE__)
-
-    RMDBGMIDDLE(1, RMDebug::module_qlparser, "QtRangeConstructor", "simplify() warning: QtRangeConstructor itself is not simplified yet")
+    LTRACE << "simplify() warning: QtRangeConstructor itself is not simplified yet";
 
     // Default method for all classes that have no implementation.
     // Method is used bottom up.
@@ -124,8 +123,7 @@ QtRangeConstructor::simplify()
 QtData *
 QtRangeConstructor::evaluate(QtDataList *inputList)
 {
-    RMDBCLASS("QtRangeConstructor", "evaluate( QtDataList* )", "qlparser", __FILE__, __LINE__)
-
+	LTRACE << "qlparser";
     QtData *returnValue = NULL;
     QtDataList *operandList = NULL;
 
@@ -145,7 +143,7 @@ QtRangeConstructor::evaluate(QtDataList *inputList)
                 }
                 else
                 {
-                    RMInit::logOut << "Error: QtRangeConstructor::evaluate() - invalid scalar type." << endl;
+                    LFATAL << "Error: QtRangeConstructor::evaluate() - invalid scalar type.";
                     parseInfo.setErrorNo(404);
                     throw parseInfo;
                 }
@@ -301,7 +299,7 @@ QtRangeConstructor::getResultMDD(QtDataList *operandList)
                 operandList = NULL;
             }
 
-            RMInit::logOut << "Error: QtRangeConstructor::evaluate( QtDataList* ) - the operands have different domains." << endl;
+            LFATAL << "Error: QtRangeConstructor::evaluate( QtDataList* ) - the operands have different domains.";
             parseInfo.setErrorNo(351);
             throw parseInfo;
         }
@@ -314,7 +312,7 @@ QtRangeConstructor::getResultMDD(QtDataList *operandList)
 
             if (strcmp(((static_cast<QtScalarData *>(*iter))->getValueType())->getTypeStructure(), cellType->getTypeStructure()) != 0)
             {
-                RMInit::logOut << "Error: QtRangeConstructor::evaluate( QtDataList* ) - the operands should have the same type." << endl;
+                LFATAL << "Error: QtRangeConstructor::evaluate( QtDataList* ) - the operands should have the same type.";
                 parseInfo.setErrorNo(301);
                 throw parseInfo;
             }
@@ -377,8 +375,7 @@ QtRangeConstructor::printAlgebraicExpression(ostream &s)
 const QtTypeElement &
 QtRangeConstructor::checkType(QtTypeTuple *typeTuple)
 {
-    RMDBCLASS("QtRangeConstructor", "checkType( QtTypeTuple* )", "qlparser", __FILE__, __LINE__)
-
+	LTRACE << "qlparser";
     dataStreamType.setDataType(QT_TYPE_UNKNOWN);
 
     complexLit = true;
@@ -397,7 +394,7 @@ QtRangeConstructor::checkType(QtTypeTuple *typeTuple)
             if (*iter)
                 inputType = (*iter)->checkType(typeTuple);
             else
-                RMInit::logOut << "Error: QtRangeConstructor::checkType() - operand branch invalid." << endl;
+                LERROR << "Error: QtRangeConstructor::checkType() - operand branch invalid.";
 
             if (inputType.getDataType() == QT_MDD)
             {
@@ -440,7 +437,7 @@ QtRangeConstructor::checkType(QtTypeTuple *typeTuple)
 
     }
     else
-        RMInit::logOut << "Error: QtRangeConstructor::checkType() - operand branch invalid." << endl;
+        LERROR << "Error: QtRangeConstructor::checkType() - operand branch invalid.";
 
     return dataStreamType;
 }

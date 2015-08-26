@@ -65,6 +65,8 @@ using namespace std;
 #include "relcatalogif/mdddomaintype.hh"
 #include "relcatalogif/settype.hh"
 
+#include "../common/src/logging/easylogging++.hh"
+
 unsigned int QueryTree::nextCSENo = 0;
 
 SymbolTable<int> QueryTree::symtab;
@@ -94,7 +96,7 @@ QueryTree::~QueryTree()
 void
 QueryTree::checkSemantics()
 {
-    RMDBCLASS( "QueryTree", "checkSemantics()", "qlparser", __FILE__, __LINE__ )
+	LTRACE << "qlparser";
     if (!rootNode)
         return;
 
@@ -142,7 +144,7 @@ QueryTree::evaluateRetrieval() throw (r_Error, ParseInfo)
                 rootNode->getNodeType() != QtNode::QT_JOIN_ITERATOR &&
                 rootNode->getNodeType() != QtNode::QT_SELECTION_ITERATOR    )
         {
-            RMInit::logOut << "QueryTree::evaluateRetrieval() - Retrieval query must start with an ONC node." << endl;
+            LFATAL << "QueryTree::evaluateRetrieval() - Retrieval query must start with an ONC node.";
             ParseInfo errorInfo = rootNode->getParseInfo();
             errorInfo.setErrorNo(371);
             throw errorInfo;
@@ -159,7 +161,7 @@ QueryTree::evaluateRetrieval() throw (r_Error, ParseInfo)
         catch( ... )
         {
             oncRootNode->close();
-            RMInit::logOut << "QueryTree::evaluateRetrieval() - rethrow exception from oncRootNode->open()." << endl;
+            LFATAL << "QueryTree::evaluateRetrieval() - rethrow exception from oncRootNode->open().";
             throw;
         }
 
@@ -188,7 +190,7 @@ QueryTree::evaluateRetrieval() throw (r_Error, ParseInfo)
                         resultData = NULL;
                     }
 
-                    RMInit::logOut << "QueryTree::evaluateTree() - multiple query targets are not supported." << endl;
+                    LFATAL << "QueryTree::evaluateTree() - multiple query targets are not supported.";
                     ParseInfo errorInfo = oncRootNode->getParseInfo();
                     errorInfo.setErrorNo(361);
                     throw errorInfo;
@@ -200,7 +202,7 @@ QueryTree::evaluateRetrieval() throw (r_Error, ParseInfo)
                 resultData->push_back( resultElement );
                 (*dataList)[0] = NULL;
 
-                RMDBGMIDDLE( 2, RMDebug::module_qlparser, "QueryTree", endl << endl << "NEXT RESULT ITEM OF THE QUERY INSERTED" << endl << endl )
+                LTRACE << "NEXT RESULT ITEM OF THE QUERY INSERTED";
 
                 // Delete the tupel vector received by next(). Just tupel elements which are not
                 // set to zero and which are not further referenced are deleted.
@@ -246,7 +248,7 @@ QueryTree::evaluateRetrieval() throw (r_Error, ParseInfo)
         returnValue = resultData;
 
 #ifdef RMANBENCHMARK
-        RMInit::logOut << "Evaluated query tree:" << endl;
+        LINFO << "Evaluated query tree:";
         rootNode->printTree(2, RMInit::logOut);
 #endif
     } else if (infoType == QT_INFO_VERSION) {
@@ -313,7 +315,7 @@ QueryTree::evaluateUpdate() throw (r_Error,ParseInfo)
                 rootNode->getNodeType() != QtNode::QT_DROP_TYPE
           )
         {
-            RMInit::logOut << "QueryTree::evaluateUpdate() - update query must start with an INSERT, UPDATE, DELETE, DROP or CREATE statement." << endl;
+            LFATAL << "QueryTree::evaluateUpdate() - update query must start with an INSERT, UPDATE, DELETE, DROP or CREATE statement.";
             ParseInfo errorInfo = rootNode->getParseInfo();
             errorInfo.setErrorNo(372);
             delete resultData;
@@ -334,7 +336,7 @@ QueryTree::evaluateUpdate() throw (r_Error,ParseInfo)
         }
 
 #ifdef RMANBENCHMARK
-        RMInit::logOut << "Evaluated query tree:" << endl;
+        LINFO << "Evaluated query tree:";
         rootNode->printTree(2, RMInit::logOut);
 #endif
     }
@@ -476,7 +478,6 @@ void QueryTree::releaseDomainObjects()
 void QueryTree::rewriteDomainObjects(__attribute__ ((unused)) r_Minterval *greatDomain, string *greatIterator, QtMarrayOp2::mddIntervalListType *greatList)
 {
 
-    RMDBGENTER( 2, RMDebug::module_qlparser, "QueryTree", endl << "QueryTree: Iterator: <" << *greatIterator << "> Domain: " << *greatDomain << endl )
     list<QtDomainOperation*>::iterator iter;
 
     for( iter = dopList.begin(); iter != dopList.end(); iter++ )
@@ -538,7 +539,7 @@ void QueryTree::rewriteDomainObjects(__attribute__ ((unused)) r_Minterval *great
         else
         {
             // TODO: insert some error notify code here!
-            RMDBGMIDDLE( 1, RMDebug::module_qlparser, "QueryTree", " variable name not found in list " )
+            LTRACE << " variable name not found in list ";
         }
     }
 }
