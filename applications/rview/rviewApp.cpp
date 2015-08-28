@@ -70,9 +70,6 @@ rasdaman GmbH.
 #endif
 
 
-#include "raslib/rminit.hh"
-#include "raslib/rmdebug.hh"
-
 #include "rviewApp.hh"
 #include "rviewDb.hh"
 #include "rviewPrefs.hh"
@@ -81,6 +78,7 @@ rasdaman GmbH.
 #include "rviewDModes.hh"
 #include "rviewOSection.hh"
 
+#include "common/src/logging/easylogging++.hh"
 
 
 
@@ -412,7 +410,7 @@ int rmanClientApp::OpenServer(const char *srvname, int srvport, const char *dbna
     if (database.isOpen())
         return -1;
 
-    RMDBGONCE(3, RMDebug::module_applications, "rviewApp", "OpenServer( " << srvname << ", " << dbname << "," << usrname << "," << usrpassword << " )" );
+    LTRACE << "OpenServer( " << srvname << ", " << dbname << "," << usrname << "," << usrpassword << " )";
 
     if (database.open(srvname, srvport, dbname, usrname, usrpassword) != 0)
     {
@@ -441,7 +439,7 @@ int rmanClientApp::CloseServer(void)
     if (frameManager != NULL)
         frameManager->broadcastUserEvent(ue);
 
-    RMDBGONCE(3, RMDebug::module_applications, "rviewApp", "CloseServer() Database closed." );
+    LTRACE << "CloseServer() Database closed.";
 
     return 0;
 }
@@ -460,7 +458,7 @@ rviewFrame *rmanClientApp::OpenFile(unsigned int flags, r_Ref<r_GMarray> *newMdd
         int status;
         r_Ref<r_GMarray> mddPtr;
 
-        RMDBGONCE(3, RMDebug::module_applications, "rviewApp", "OpenFile(...) " << s );
+        LTRACE << "OpenFile(...) " << s;
 
         prefs->filePath = ::wxPathOnly(s);
         prefs->markModified();
@@ -564,8 +562,6 @@ int rmanClientApp::LookupCollection(void)
     prefs->lastColl = name;
     prefs->markModified();
 
-    RMDBGENTER(3, RMDebug::module_applications, "rviewApp", "LookupCollection() " << desc->collName );
-
 #ifdef DUMMY_MDD_OBJECT
     desc->number = 1;
     r_Minterval iv(3);
@@ -589,8 +585,6 @@ int rmanClientApp::LookupCollection(void)
 #endif
     {
 
-        RMDBGEXIT(3, RMDebug::module_applications, "rviewApp", "LookupCollection() OK." );
-
         /*for (int i=0; i<desc->number; i++)
         {
           cout << "Object #" << i << ": " << desc->mddArrays[i]->spatial_domain() << endl;
@@ -605,7 +599,6 @@ int rmanClientApp::LookupCollection(void)
         rviewDeleteCollection(desc);
     }
 
-    RMDBGEXIT(3, RMDebug::module_applications, "rviewApp", "LookupCollection() FAILED." );
     return 0;
 }
 
@@ -623,7 +616,6 @@ int rmanClientApp::LookupScaledCollection(const char *name, double scale)
     {
         collection_desc *desc;
 
-        RMDBGENTER(3, RMDebug::module_applications, "rviewApp", "LookupScaledCollection( " << name << " at scale " << scale << " )");
 
         prefs->imgScale = scale;
 
@@ -653,10 +645,8 @@ int rmanClientApp::LookupScaledCollection(const char *name, double scale)
             if (image->openViewer() != 0)
             {
                 image->Close(TRUE);
-                RMDBGEXIT(3, RMDebug::module_applications, "rviewApp", "LookupScalledCollection() FAILED" );
                 return 0;
             }
-            RMDBGEXIT(3, RMDebug::module_applications, "rviewApp", "LookupScalledCollection()  OK" );
             return 1;
         }
         else
@@ -665,7 +655,6 @@ int rmanClientApp::LookupScaledCollection(const char *name, double scale)
         }
     }
 
-    RMDBGEXIT(3, RMDebug::module_applications, "rviewApp", "LookupScalledCollection() FAILED" );
     return 0;
 }
 

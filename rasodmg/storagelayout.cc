@@ -42,10 +42,10 @@ rasdaman GmbH.
 #include "rasodmg/iterator.hh"
 #include "rasodmg/tiling.hh"
 #include "rasodmg/alignedtiling.hh"
-#include "raslib/rmdebug.hh"
-#include "raslib/rminit.hh"
 #include "raslib/minterval.hh"
 #include "rasodmg/gmarray.hh"
+
+#include "../common/src/logging/easylogging++.hh"
 
 r_Storage_Layout::r_Storage_Layout(r_Data_Format init_format, const char* formatParams)
     :   til(0),
@@ -141,10 +141,10 @@ r_Storage_Layout::decomposeMDD(const r_Minterval& domain, const r_Bytes cell_siz
 
     if (!til->is_compatible(domain, cell_size))
     {
-        RMInit::logOut << "r_Storage_Layout::decomposeMDD() gmarray is not compatible with tiling" << endl;
-        RMInit::logOut << "\tgmarray domain   : " << domain << endl;
-        RMInit::logOut << "\tgmarray type size: " << cell_size << endl;
-        RMInit::logOut << "\tstorage layout   : " << *this << endl;
+        LFATAL << "r_Storage_Layout::decomposeMDD() gmarray is not compatible with tiling";
+        LFATAL << "\tgmarray domain   : " << domain;
+        LFATAL << "\tgmarray type size: " << cell_size;
+        LFATAL << "\tstorage layout   : " << *this;
         throw r_Error(STORAGERLAYOUTINCOMPATIBLEWITHGMARRAY);
     }
 

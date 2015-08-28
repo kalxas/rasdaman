@@ -64,7 +64,6 @@ rasdaman GmbH.
 #endif
 
 
-#include "raslib/rmdebug.hh"
 #include "raslib/primitivetype.hh"
 #include "raslib/structuretype.hh"
 
@@ -77,6 +76,7 @@ rasdaman GmbH.
 #include "rviewDModes.hh"
 #include "rviewPrefs.hh"
 
+#include "common/src/logging/easylogging++.hh"
 
 const int textCanvas::txcanv_cospace = 8;
 const int textCanvas::txcanv_colspace = 16;
@@ -415,7 +415,7 @@ rviewTable::rviewTable(mdd_frame *mf, unsigned int flags) : rviewDisplay(mf, tab
     int w, h, i;
     char *b;
 
-    RMDBGONCE(3, RMDebug::module_applications, "rviewTable", "rviewTable()");
+    LTRACE << "rviewTable()";
 
     // Mode defaults, move to prefs later on
     stepx = prefs->tableStepx;
@@ -466,7 +466,7 @@ rviewTable::rviewTable(mdd_frame *mf, unsigned int flags) : rviewDisplay(mf, tab
 
 int rviewTable::openViewer(void)
 {
-    RMDBGONCE(3, RMDebug::module_applications, "rviewTable", "openViewer()");
+    LTRACE << "openViewer()";
 
     if (rviewDisplay::openViewer() == 0)
     {
@@ -566,7 +566,7 @@ void rviewTable::EstimateCellSize(int &width, int &height)
 
 rviewTable::~rviewTable(void)
 {
-    RMDBGONCE(3, RMDebug::module_applications, "rviewTable", "~rviewTable()");
+    LTRACE << "~rviewTable()";
     closeViewer();
 }
 

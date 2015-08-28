@@ -68,12 +68,12 @@ rasdaman GmbH.
 #endif
 
 
-#include "raslib/rmdebug.hh"
 #include "compression/tilecompression.hh"
 
 #include "rviewPrefs.hh"
 #include "labelManager.hh"
 
+#include "common/src/logging/easylogging++.hh"
 
 
 
@@ -1027,7 +1027,7 @@ void rviewPrefs::updatePrefs(rviewPrefs *newPrefs)
 
 void rviewPrefs::closeEditor(rviewPrefs *newPrefs)
 {
-    RMDBGONCE(3, RMDebug::module_applications, "rviewPrefs", "closeEditor( " << newPrefs << " )");
+    LTRACE << "closeEditor( " << newPrefs << " )";
 
     // Did the user specify OK or Cancel? OK ==> set newPrefs
     if (newPrefs != NULL)

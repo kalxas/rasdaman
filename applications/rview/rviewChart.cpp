@@ -68,7 +68,6 @@ rasdaman GmbH.
 #define __EXECUTABLE__
 #endif
 
-#include "raslib/rmdebug.hh"
 
 #include "rviewTypes.hh"
 
@@ -79,6 +78,7 @@ rasdaman GmbH.
 #include "rviewPrefs.hh"
 #include "rviewMDD.hh"
 
+#include "common/src/logging/easylogging++.hh"
 
 
 const int chartCanvas::chcanv_cospace = 16;
@@ -162,7 +162,7 @@ int chartCanvas::setProjection(r_Point &p1, r_Point &p2)
         return 0;
     }
 
-    RMDBGONCE(3, RMDebug::module_applications, "chartCanvas", "setProjection(...) min = " << min << ", max = " << max );
+    LTRACE << "setProjection(...) min = " << min << ", max = " << max;
 
     // Determine format to use for numbering the vertical axis
     taux = fabs(min);
@@ -416,7 +416,7 @@ void chartCanvas::redrawLine(wxDC *cdc, int dim, int startOff, int endOff, float
   { \
     vertices[i].x = posx; \
     vertices[i].y = chcanv_cospace + orgy - scale * (((*mddPtr)[prun])pm); \
-    RMDBGONCE(4, RMDebug::module_applications, "chartCanvas", "_REDCHARTSPLINELOOP(pm) V: " << vertices[i].x << ',' << vertices[i].y ); \
+    LTRACE << "_REDCHARTSPLINELOOP(pm) V: " << vertices[i].x << ',' << vertices[i].y; \
     vlist.Append(vertices + i); \
   }
 
@@ -530,7 +530,7 @@ void chartCanvas::redrawSpline(wxDC *cdc, int dim, int startOff, int endOff, flo
     default:
         break;
     }
-    RMDBGONCE(3, RMDebug::module_applications, "chartCanvas", "redrawSpline() vertices " << (void*)vertices );
+    LTRACE << "redrawSpline() vertices " << (void*)vertices;
 
     cdc->DrawSpline(&vlist);
 
@@ -689,7 +689,7 @@ rviewChart::rviewChart(mdd_frame *mf, unsigned int flags) : rviewDisplay(mf, cha
     int w, h, i;
     char *b;
 
-    RMDBGONCE(3, RMDebug::module_applications, "rviewChart", "rviewChart()");
+    LTRACE << "rviewChart()";
 
     // Chart mode defaults, put into prefs later
     cmode = prefs->chartMode;
@@ -733,7 +733,7 @@ rviewChart::rviewChart(mdd_frame *mf, unsigned int flags) : rviewDisplay(mf, cha
 
 int rviewChart::openViewer(void)
 {
-    RMDBGONCE(3, RMDebug::module_applications, "rviewChart", "openViewer()");
+    LTRACE << "openViewer()";
 
     if (baseType == rbt_none)
     {
@@ -794,7 +794,7 @@ int rviewChart::getViewerType(void) const
 // We don't own the mdd object. rviewResult does, so don't delete it!!!
 rviewChart::~rviewChart(void)
 {
-    RMDBGONCE(3, RMDebug::module_applications, "rviewChart", "~rviewChart()");
+    LTRACE << "~rviewChart()";
     closeViewer();
 }
 
@@ -845,7 +845,7 @@ void rviewChart::OnSize(int w, int h)
 {
     int x, y, i, j;
 
-    RMDBGONCE(3, RMDebug::module_applications, "rviewChart", "OnSize(" << w << ", " << h << " )");
+    LTRACE << "OnSize(" << w << ", " << h << " )";
 
     GetClientSize(&x, &y);
     i = 2*display_border + chart_totaly + 2*chartCanvas::chcanv_cospace;
@@ -873,7 +873,7 @@ void rviewChart::OnMenuCommand(int id)
 {
     rviewChartMode cm;
 
-    RMDBGONCE(3, RMDebug::module_applications, "rviewChart", "OnMenuCommand()");
+    LTRACE << "OnMenuCommand()";
 
     switch (id)
     {
@@ -911,7 +911,7 @@ int rviewChart::process(wxObject &obj, wxEvent &evt)
     int h;
     double hd;
 
-    RMDBGONCE(3, RMDebug::module_applications, "rviewChart", "process()");
+    LTRACE << "process()";
 
     if (type == wxEVENT_TYPE_TEXT_ENTER_COMMAND)
     {
@@ -965,7 +965,7 @@ int rviewChart::newProjection(void)
 {
     int dim, i;
 
-    RMDBGONCE(3, RMDebug::module_applications, "rviewChart", "newProjection()");
+    LTRACE << "newProjection()";
 
     if (rviewParseProjection(getVirtualDomain(), pt1, pt2, projString) != dimMDD)
     {

@@ -70,6 +70,7 @@ rasdaman GmbH.
 
 #include "cube_render.h"
 
+#include "common/src/logging/easylogging++.hh"
 
 
 const int rviewOSectionImage::osection_ctrly = 140;
@@ -560,7 +561,7 @@ int rviewOSectionImage::makeMinterval(unsigned int num, r_Minterval &dom)
 
 int rviewOSectionImage::performPartition(void)
 {
-    RMDBGONCE(3, RMDebug::module_applications, "rviewOSectionImage", "performPartition()");
+    LTRACE << "performPartition()";
     unsigned int i, j;
     section_part_t *part = partition;
     r_Point midpoint(dimMDD);

@@ -37,8 +37,9 @@ rasdaman GmbH.
 #include <cstdlib>
 
 #include "rasodmg/alignedtiling.hh"
-#include "raslib/rmdebug.hh"
 #include "raslib/rminit.hh"
+
+#include "../common/src/logging/easylogging++.hh"
 
 #include <sstream>
 
@@ -51,7 +52,7 @@ r_Aligned_Tiling::r_Aligned_Tiling(const char* encoded) throw (r_Error)
 
     if(!encoded)
     {
-        RMInit::logOut << "r_Aligned_Tiling::r_Aligned_Tiling(" << (encoded?encoded: "NULL") << ")" << std::endl;
+        LFATAL << "r_Aligned_Tiling::r_Aligned_Tiling(" << (encoded?encoded: "NULL") << ")";
         throw r_Error(TILINGPARAMETERNOTCORRECT);
     }
 
@@ -66,7 +67,7 @@ r_Aligned_Tiling::r_Aligned_Tiling(const char* encoded) throw (r_Error)
     pRes=strstr(pStart, TCOLON);
     if(!pRes)
     {
-        RMInit::logOut << "r_Aligned_Tiling::r_Aligned_Tiling(" << encoded << "): Error decoding tile configuration from tilingparams." << std::endl;
+        LFATAL << "r_Aligned_Tiling::r_Aligned_Tiling(" << encoded << "): Error decoding tile configuration from tilingparams.";
         throw r_Error(TILINGPARAMETERNOTCORRECT);
     }
 
@@ -84,8 +85,8 @@ r_Aligned_Tiling::r_Aligned_Tiling(const char* encoded) throw (r_Error)
         }
         catch(r_Error& err)
         {
-            RMInit::logOut << "r_Aligned_Tiling::r_Aligned_Tiling(" << encoded << "): Error decoding tile configuration \"" << pToConvert << "\" from tileparams." << std::endl;
-            RMInit::logOut << "Error " << err.get_errorno() << " : " << err.what() << std::endl;
+            LFATAL << "r_Aligned_Tiling::r_Aligned_Tiling(" << encoded << "): Error decoding tile configuration \"" << pToConvert << "\" from tileparams.";
+            LFATAL << "Error " << err.get_errorno() << " : " << err.what();
             delete [] pToConvert;
             throw r_Error(TILINGPARAMETERNOTCORRECT);
         }
@@ -95,7 +96,7 @@ r_Aligned_Tiling::r_Aligned_Tiling(const char* encoded) throw (r_Error)
         tileD=strtol(pToConvert, (char**)NULL, DefaultBase);
         if (!tileD)
         {
-            RMInit::logOut << "r_Aligned_Tiling::r_Aligned_Tiling(" << encoded << "): Error decoding tile dimension \"" << pToConvert << "\" from tileparams." << std::endl;
+            LFATAL << "r_Aligned_Tiling::r_Aligned_Tiling(" << encoded << "): Error decoding tile dimension \"" << pToConvert << "\" from tileparams.";
             delete[] pToConvert;
             throw r_Error(TILINGPARAMETERNOTCORRECT);
         }
@@ -107,7 +108,7 @@ r_Aligned_Tiling::r_Aligned_Tiling(const char* encoded) throw (r_Error)
         pRes++;
     else
     {
-        RMInit::logOut << "r_Aligned_Tiling::r_Aligned_Tiling(" << encoded << "): Error decoding tiling, end of stream." << std::endl;
+        LFATAL << "r_Aligned_Tiling::r_Aligned_Tiling(" << encoded << "): Error decoding tiling, end of stream.";
         throw r_Error(TILINGPARAMETERNOTCORRECT);
     }
 
@@ -115,7 +116,7 @@ r_Aligned_Tiling::r_Aligned_Tiling(const char* encoded) throw (r_Error)
     tileS=strtol(pRes,(char**) NULL, DefaultBase);
     if (!tileS)
     {
-        RMInit::logOut << "r_Aligned_Tiling::r_Aligned_Tiling(" << encoded << "): Error decoding tile size \"" << pRes << "\"." << std::endl;
+        LFATAL << "r_Aligned_Tiling::r_Aligned_Tiling(" << encoded << "): Error decoding tile size \"" << pRes << "\".";
 
         if(tileConf)
             delete tileConf;
@@ -176,7 +177,6 @@ r_Aligned_Tiling::get_tile_config() const
 r_Minterval
 r_Aligned_Tiling::compute_tile_domain(const r_Minterval& dom, r_Bytes cell_size) const
 {
-    RMDBGENTER(3, RMDebug::module_rasodmg, "r_Aligned_Tiling", "compute_tile_domain(" << dom << ", " << cell_size << ")")
     // Minimum optimal tile size. Below this value, the waste will be too big.
     r_Bytes optMinTileSize = get_min_opt_tile_size();
 
@@ -255,7 +255,6 @@ r_Aligned_Tiling::compute_tile_domain(const r_Minterval& dom, r_Bytes cell_size)
             }
         }
 
-        RMDBGEXIT(2, RMDebug::module_rasodmg, "r_Aligned_Tiling", "calculateTileDomain result : " << tileDomain <<std::endl)
         return tileDomain;
     }
     else    // tile_config has only fixed limits
@@ -265,7 +264,6 @@ r_Aligned_Tiling::compute_tile_domain(const r_Minterval& dom, r_Bytes cell_size)
 
         if (sizeTileConfig > get_min_opt_tile_size() && sizeTileConfig < tile_size)
         {
-            RMDBGEXIT(2, RMDebug::module_rasodmg, "r_Aligned_Tiling", "calculateTileDomain result : " << tile_config)
             return tile_config;
         }
         else
@@ -274,7 +272,7 @@ r_Aligned_Tiling::compute_tile_domain(const r_Minterval& dom, r_Bytes cell_size)
 
             float f = float (1/ float(dimension));
             float dimFactor = (float)pow(sizeFactor, f);
-            RMDBGMIDDLE(2, RMDebug::module_rasodmg, "r_Aligned_Tiling", "dim factor == " << dimFactor)
+            LTRACE << "dim factor == " << dimFactor;
 
             unsigned long l, h;
             unsigned long newWidth;
@@ -301,13 +299,13 @@ r_Aligned_Tiling::compute_tile_domain(const r_Minterval& dom, r_Bytes cell_size)
             /*
                   unsigned long sz = tileDomain.cell_count() * cell_size;
 
-                  RMDBGOUT(2,"cell_size " << cell_size << " tileDomain "<< tileDomain << std::endl)
-                  RMDBGOUT(2,"cell_count == " << tileDomain.cell_count() << " sz == " << sz << std::endl)
+                  LTRACE << "cell_size " << cell_size << " tileDomain "<< tileDomain;
+                  LTRACE << "cell_count == " << tileDomain.cell_count() << " sz == " << sz;
 
                   unsigned long newSz = sz;
                   for(i = dimension-1; i >= 0 && newSz < tile_size ; i--)
                   {
-                RMDBGOUT(2, "inside the cycle " << std::endl)
+                LTRACE << "inside the cycle ";
                 unsigned long deltaSz = cell_size;
                 for (int j = 0 ; j < dimension ; j++)
                  if (j != i)
@@ -324,14 +322,13 @@ r_Aligned_Tiling::compute_tile_domain(const r_Minterval& dom, r_Bytes cell_size)
 
             if (tileDomain.cell_count() * cell_size > tile_size)
             {
-                RMDBGMIDDLE(2, RMDebug::module_rasodmg, "Error in r_Aligned_Tiling", "calculateTileDomain() " << std::endl);
+                LTRACE << "calculateTileDomain() ";
             }
             if (tileDomain.cell_count() * cell_size < optMinTileSize)
             {
-                RMDBGMIDDLE(2, RMDebug::module_rasodmg, "r_Aligned_Tiling", "calculateTileDomain() result non optimal " << std::endl);
+                LTRACE << "calculateTileDomain() result non optimal ";
             }
 
-            RMDBGEXIT(2, RMDebug::module_rasodmg, "r_Aligned_Tiling", "calculateTileDomain result : " << tileDomain << std::endl)
             // cout << "return 3"<<std::endl;
             return tileDomain;
         }
@@ -530,9 +527,6 @@ r_Default_Tiling::compute_tiles(const r_Minterval& obj_domain, long cell_size)
 {
   std::vector<r_Minterval>* result = new std::vector<r_Minterval>;
 
-  RMDBGENTER(4, RMDebug::module_rasodmg, "r_Default_Tiling", "compute_tiles")
-
-
   r_Minterval bigDom = obj_domain;
 
   r_Minterval tileDom(bigDom.dimension());
@@ -545,7 +539,7 @@ r_Default_Tiling::compute_tiles(const r_Minterval& obj_domain, long cell_size)
   //long edgeLength = (long)floor(exp((1/(double)tileDom.dimension())*
     //          log(get_tile_size()/cell_size)));
 
-  RMDBGMIDDLE(4, RMDebug::module_rasodmg, "r_Default_Tiling", "tile size == " << get_tile_size())
+  LTRACE << "tile size == " << get_tile_size();
   long edgeLength = (long) floor(pow(get_tile_size()/cell_size,
                           1/(double)tileDom.dimension()));
   r_Dimension dim;
@@ -610,7 +604,6 @@ r_Default_Tiling::compute_tiles(const r_Minterval& obj_domain, long cell_size)
       currDom = tileDom.create_translation(cursor);
     }
   }
-  RMDBGEXIT(4, RMDebug::module_rasodmg, "r_Default_Tiling", "compute_tiles")
   return result;
 }
 */

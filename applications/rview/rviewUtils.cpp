@@ -85,7 +85,6 @@ rasdaman GmbH.
 #endif
 
 
-#include "raslib/rmdebug.hh"
 #include "raslib/primitivetype.hh"
 #include "raslib/structuretype.hh"
 
@@ -100,6 +99,8 @@ rasdaman GmbH.
 #include "rviewSound.hh"
 #include "rviewTypeMan.hh"
 #include "labelManager.hh"
+
+#include "common/src/logging/easylogging++.hh"
 
 
 #ifdef __VISUALC__
@@ -1045,7 +1046,7 @@ void rviewEventHandler(wxObject &obj, wxEvent &evt)
 
 rviewFrame::rviewFrame(wxFrame *parent, char *title, int x, int y, int w, int h) : wxFrame(parent, title, x, y, w, h)
 {
-    RMDBGONCE( 3, RMDebug::module_applications, "rviewFrame", "rviewFrame( " << this << ", ...)" );
+    LTRACE << "rviewFrame( " << this << ", ...)";
 
     if (frameManager != NULL)
         frameManager->registerFrame(this);
@@ -1061,7 +1062,7 @@ rviewFrame::rviewFrame(wxFrame *parent, char *title, int x, int y, int w, int h)
 
 rviewFrame::~rviewFrame(void)
 {
-    RMDBGONCE( 3, RMDebug::module_applications, "rviewFrame", "~rviewFrame()  " << this );
+    LTRACE << "~rviewFrame()  " << this;
 
     delete frames;
 
@@ -2142,7 +2143,7 @@ void rviewDialog::OnSize(int w, int h)
 {
     int x, y, empty, pos, i;
 
-    RMDBGONCE( 3, RMDebug::module_applications, "rviewDialog", "OnSize( " << x << ", " << h << " )" );
+    LTRACE << "OnSize( " << x << ", " << h << " )";
 
     GetClientSize(&x, &y);
     if ((frameWidth == x) && (frameHeight == y)) return;
@@ -2403,7 +2404,7 @@ rviewProgress::rviewProgress(const char *message): rviewDialog("\\messageFrom", 
 {
     int x, y;
 
-    RMDBGONCE( 3, RMDebug::module_applications, "rviewProgress", "rviewProgress( " << lman->lookup("messageFrom") << message << " )" );
+    LTRACE << "rviewProgress( " << lman->lookup("messageFrom") << message << " )";
 
     GetSize(&x, &y);
     y = 2*dialog_border + msg->getMessageHeight() + dialog_bheight;
@@ -2470,7 +2471,7 @@ const int rviewResult::result_bheight = 30;
 
 rviewResult::rviewResult(void): rviewFrame(NULL, "", result_x, result_y, result_width, result_height)
 {
-    RMDBGONCE( 3, RMDebug::module_applications, "rviewResult", "rviewResult() " << this);
+    LTRACE << "rviewResult() " << this;
 
     setupVariables();
     configureGrey();
@@ -2486,7 +2487,7 @@ rviewResult::rviewResult(collection_desc *collection): rviewFrame(NULL, "", resu
 
 rviewResult::~rviewResult(void)
 {
-    RMDBGONCE( 3, RMDebug::module_applications, "rviewResult", "rviewResult() " << this );
+    LTRACE << "rviewResult() " << this;
 
     int i;
     collection_desc *ptr = coll;
@@ -2666,7 +2667,7 @@ void rviewResult::OnSize(int w, int h)
     {
         int x, y;
 
-        RMDBGONCE( 3, RMDebug::module_applications, "rviewResult", "OnSize( " << w << ", " << h << " )");
+        LTRACE << "OnSize( " << w << ", " << h << " )";
 
         GetClientSize(&x, &y);
         if ((frameWidth == x) && (frameHeight == y)) return;
@@ -2733,7 +2734,7 @@ void rviewResult::OnSize(int w, int h)
 void rviewResult::openViewer(int itemNo)
 {
 
-    RMDBGONCE( 3, RMDebug::module_applications, "rviewResult", "openViewer( " << itemNo << " )" );
+    LTRACE << "openViewer( " << itemNo << " )";
 
     if ((itemNo < 0) || (itemNo >= coll->number)) return;
 

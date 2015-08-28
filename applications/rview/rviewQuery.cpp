@@ -63,13 +63,14 @@ rasdaman GmbH.
 #define __EXECUTABLE__
 #endif
 
-#include "raslib/rmdebug.hh"
 
 #include "rviewApp.hh"
 #include "rviewUtils.hh"
 //#include "rviewDb.hh"
 #include "rviewQuery.hh"
 #include "rviewPrefs.hh"
+
+#include "common/src/logging/easylogging++.hh"
 
 
 
@@ -129,8 +130,6 @@ rviewQuery::rviewQuery(rviewDatabase *db, char *query) : rviewFrame(NULL, NULL, 
     const int fontNameSize = sizeof(fontNameTab) / sizeof(keyword_to_ident);
     const int fontStyleSize = sizeof(fontStyleTab) / sizeof(keyword_to_ident);
     const int fontWeightSize = sizeof(fontWeightTab) / sizeof(keyword_to_ident);
-
-    RMDBGENTER(3, RMDebug::module_applications, "rviewQuery", "rviewQuery()");
 
     queryDb = db;
     updateDisplay = NULL;
@@ -302,12 +301,12 @@ void rviewQuery::OnMenuCommand(int id)
             {
                 if (id == MENU_QUERY_FILE_OPEN)
                 {
-                    RMDBGONCE(3, RMDebug::module_applications, "rviewQuery", "loadQuery()");
+                    LTRACE << "loadQuery()";
                     loadQuery(name);
                 }
                 else
                 {
-                    RMDBGONCE(3, RMDebug::module_applications, "rviewQuery", "saveQuery()");
+                    LTRACE << "saveQuery()";
                     saveQuery(name);
                 }
                 hotPath = ::wxPathOnly(name);

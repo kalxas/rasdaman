@@ -39,10 +39,11 @@ rasdaman GmbH.
 #include <math.h>
 #include <iostream>
 #include "rasodmg/tiling.hh"
-#include "raslib/rmdebug.hh"
 #include "raslib/minterval.hh"
 #include "rasodmg/gmarray.hh"
 #include "raslib/dlist.hh"
+
+#include "../common/src/logging/easylogging++.hh"
 
 const char*
 r_Tiling::ASTERIX   = "*";
@@ -93,10 +94,8 @@ r_No_Tiling::is_compatible(__attribute__ ((unused)) const r_Minterval& obj_domai
 std::vector<r_Minterval>*
 r_No_Tiling::compute_tiles(const r_Minterval& obj_domain, __attribute__ ((unused)) r_Bytes cellTypeSize) const throw (r_Error)
 {
-    RMDBGENTER(4, RMDebug::module_rasodmg, "r_No_Tiling", "compute_tiles(" << obj_domain << ", " << cellTypeSize << ")")
     std::vector<r_Minterval>* result = new std::vector<r_Minterval>;
     result->push_back(obj_domain);
-    RMDBGEXIT(4, RMDebug::module_rasodmg, "r_No_Tiling", "compute_tiles() " << *result)
     return result;
 }
 
@@ -128,14 +127,14 @@ r_Size_Tiling::r_Size_Tiling(const char* encoded) throw (r_Error)
 {
     if(!encoded)
     {
-        RMInit::logOut << "r_Size_Tiling::r_Size_Tiling(" << (encoded?encoded:"NULL") << ")" << endl;
+        LFATAL << "r_Size_Tiling::r_Size_Tiling(" << (encoded?encoded:"NULL") << ")";
         throw r_Error(TILINGPARAMETERNOTCORRECT);
     }
 
     r_Bytes tileS=strtol(encoded, (char**)NULL, DefaultBase);
     if(tileS<=0)
     {
-        RMInit::logOut << "r_Size_Tiling::r_Size_Tiling(" << encoded << "): Error decoding tile size." << endl;
+        LFATAL << "r_Size_Tiling::r_Size_Tiling(" << encoded << "): Error decoding tile size.";
         throw r_Error(TILINGPARAMETERNOTCORRECT);
     }
     tile_size = tileS;
@@ -171,10 +170,9 @@ r_Size_Tiling::is_compatible(const r_Minterval& obj_domain, r_Bytes cellTypeSize
 std::vector<r_Minterval>*
 r_Size_Tiling::compute_tiles(const r_Minterval& obj_domain, r_Bytes cellTypeSize) const throw (r_Error)
 {
-    RMDBGENTER(4, RMDebug::module_rasodmg, "r_Size_Tiling", "compute_tiles(" << obj_domain << ", " << cellTypeSize << ")")
     if (cellTypeSize > tile_size)
     {
-        RMInit::logOut << "r_Size_Tiling::compute_tiles(" << obj_domain << ", " << cellTypeSize << ") tile size (" << tile_size << ") is smaller than type length (" << cellTypeSize << ")" << endl;
+        LFATAL << "r_Size_Tiling::compute_tiles(" << obj_domain << ", " << cellTypeSize << ") tile size (" << tile_size << ") is smaller than type length (" << cellTypeSize << ")";
         throw r_Error(TILESIZETOOSMALL);
     }
     std::vector<r_Minterval>* result = new std::vector<r_Minterval>;
@@ -183,7 +181,7 @@ r_Size_Tiling::compute_tiles(const r_Minterval& obj_domain, r_Bytes cellTypeSize
     r_Minterval tileDom(dim);
     // compute the domain of the small tiles
     // tiles are n-dimensional cubes with edge length n-th root of max tile size
-    RMDBGMIDDLE(4, RMDebug::module_rasodmg, "r_Size_Tiling", "tile size " << get_tile_size())
+    LTRACE << "tile size " << get_tile_size();
     r_Range edgeLength = static_cast<r_Range>(std::max(static_cast<r_Range>(floor(pow(get_tile_size()/cellTypeSize, 1/static_cast<double>(dim)))), static_cast<r_Range>(1)));
     r_Dimension dimcnt = 0;
     for (dimcnt = 0; dimcnt < dim; dimcnt++)
@@ -244,7 +242,6 @@ r_Size_Tiling::compute_tiles(const r_Minterval& obj_domain, r_Bytes cellTypeSize
             currDom = tileDom.create_translation(cursor);
         }
     }
-    RMDBGEXIT(4, RMDebug::module_rasodmg, "r_Size_Tiling", "compute_tiles() " << *result)
     return result;
 }
 

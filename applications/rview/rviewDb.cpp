@@ -68,7 +68,6 @@ rasdaman GmbH.
 #endif
 
 #include "raslib/scalar.hh"
-#include "raslib/rmdebug.hh"
 #include "rasodmg/fastscale.hh"
 
 
@@ -79,6 +78,8 @@ rasdaman GmbH.
 #include "rviewDb.hh"
 #include "rviewMDD.hh"
 #include "rviewPrefs.hh"
+
+#include "common/src/logging/easylogging++.hh"
 
 
 
@@ -206,7 +207,7 @@ int rviewDatabase::collectionToDesc(r_Set<r_Ref<r_GMarray> > &mddColl, collectio
 
     for (i=0; i<collMembers; i++, iterator++)
     {
-        RMDBGONCE(3, RMDebug::module_applications, "rviewDb", "collectionToDesc() MDD number " << i << ":\tDomain = " << (*iterator)->spatial_domain() );
+        LTRACE << "collectionToDesc() MDD number " << i << ":\tDomain = " << (*iterator)->spatial_domain();
 
         // Copy each MDD object
         desc->mddObjs[i].mdd = new r_GMarray((const r_GMarray &)(*(*iterator)));
@@ -485,7 +486,7 @@ int rviewDatabase::createCollection(const char *collName, rviewBaseType bt)
     }
     catch (...)
     {
-        RMDBGONCE(3, RMDebug::module_applications, "rviewDb", "createCollection( " << collName << " )");
+        LTRACE << "createCollection( " << collName << " )";
 
         ta.begin();
 
@@ -567,8 +568,6 @@ int rviewDatabase::insertObject(const char *collName, r_Ref<r_GMarray> mddObj, r
     r_Object *mo;
     int dim, status;
 
-    RMDBGENTER(3, RMDebug::module_applications, "rviewDb", "insertObject( " << collName << ", ... )");
-
     dim = (mddObj->spatial_domain()).dimension();
     if ((dim < 1) || (dim > MAXIMUM_DIMENSIONS))
     {
@@ -596,7 +595,7 @@ int rviewDatabase::insertObject(const char *collName, r_Ref<r_GMarray> mddObj, r
     try
     {
         mddCollPtr = dbase.lookup_object(collName);
-        RMDBGMIDDLE(3, RMDebug::module_applications, "rviewDb", "insertObject() collection cardinality: " << mddCollPtr->cardinality() );
+        LTRACE << "insertObject() collection cardinality: " << mddCollPtr->cardinality();
     }
     catch (r_Error &obj)
     {
@@ -656,7 +655,7 @@ int rviewDatabase::insertObject(const char *collName, r_Ref<r_GMarray> mddObj, r
             prog->Close(TRUE);
             return 0;
         }
-        RMDBGMIDDLE(3, RMDebug::module_applications, "rviewDb", "insertObject()  Object type name " << rviewTypeNames[bt][dim-1] );
+        LTRACE << "insertObject()  Object type name " << rviewTypeNames[bt][dim-1];
         mddPtr->set_type_by_name(rviewTypeNames[bt][dim-1]);
         mddCollPtr->insert_element(mddPtr);
 
@@ -674,8 +673,6 @@ int rviewDatabase::insertObject(const char *collName, r_Ref<r_GMarray> mddObj, r
     }
 
     prog->Close(TRUE);
-
-    RMDBGEXIT(3, RMDebug::module_applications, "rviewDb", "insertObject()");
 
     return status;
 }
@@ -763,7 +760,7 @@ int rviewDatabase::executeQuery(collection_desc *desc, const char *qry, r_Ref<r_
 #endif
             if (mddArg != NULL)
             {
-                RMDBGONCE(3, RMDebug::module_applications, "rviewDb", "executeQuery() Update MDD domain " << (*updateMdd)->spatial_domain() );
+                LTRACE << "executeQuery() Update MDD domain " << (*updateMdd)->spatial_domain();
                 query << *(*updateMdd);
             }
             r_oql_execute(query);
@@ -789,7 +786,7 @@ int rviewDatabase::executeQuery(collection_desc *desc, const char *qry, r_Ref<r_
                 r_Iterator<r_Ref_Any> iterator = mddColl.create_iterator();
                 int i;
 
-                RMDBGONCE(3, RMDebug::module_applications, "rviewDb", "executeQuery() array-collection, build new set..." );
+                LTRACE << "executeQuery() array-collection, build new set...";
 
                 for (i=0; i<collMembers; i++, iterator++)
                 {
@@ -803,7 +800,7 @@ int rviewDatabase::executeQuery(collection_desc *desc, const char *qry, r_Ref<r_
                 ostrstream memstr(buffer, STRINGSIZE);
                 int i;
 
-                RMDBGONCE(3, RMDebug::module_applications, "rviewDb", "executeQuery() non-marray collection, build table..." );
+                LTRACE << "executeQuery() non-marray collection, build table...";
 
                 desc->mddObjs = NULL;
                 desc->strObjs = new char*[collMembers];

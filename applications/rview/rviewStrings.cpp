@@ -64,7 +64,6 @@ rasdaman GmbH.
 #endif
 
 
-#include "raslib/rmdebug.hh"
 #include "raslib/primitivetype.hh"
 #include "raslib/structuretype.hh"
 
@@ -76,6 +75,7 @@ rasdaman GmbH.
 #include "rviewUtils.hh"
 #include "rviewDModes.hh"
 #include "rviewPrefs.hh"
+#include "common/src/logging/easylogging++.hh"
 
 
 const int rviewStringViewer::strview_msgheight = 30;
@@ -89,7 +89,7 @@ const int rviewStringViewer::strview_totaly = rviewStringViewer::strview_ctrly +
 rviewStringViewer::rviewStringViewer(mdd_frame *mf, unsigned int flags) :
     rviewDisplay(mf, strview_ctrly, flags)
 {
-    RMDBGONCE( 3, RMDebug::module_applications, "rviewStringViewer", "rviewStringViewer()" );
+    LTRACE << "rviewStringViewer()";
 
     msgString = new wxMessage(ctrlPanel, "");
 
@@ -105,7 +105,7 @@ rviewStringViewer::rviewStringViewer(mdd_frame *mf, unsigned int flags) :
 
 int rviewStringViewer::openViewer(void)
 {
-    RMDBGONCE( 3, RMDebug::module_applications, "rviewStringViewer", "openViewer()" );
+    LTRACE <<"openViewer()";
 
     if (dimMDD == 1)
     {
@@ -162,7 +162,7 @@ int rviewStringViewer::getViewerType(void) const
 
 rviewStringViewer::~rviewStringViewer(void)
 {
-    RMDBGONCE( 3, RMDebug::module_applications, "rviewStringViewer", "~rviewStringViewer()" );
+    LTRACE << "~rviewStringViewer()";
     closeViewer();
 }
 

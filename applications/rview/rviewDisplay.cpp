@@ -66,8 +66,6 @@ rasdaman GmbH.
 #define __EXECUTABLE__
 #endif
 
-#include "raslib/rmdebug.hh"
-
 #include "rviewTypes.hh"
 
 #include "labelManager.hh"
@@ -77,7 +75,7 @@ rasdaman GmbH.
 #include "rviewPrefs.hh"
 #include "rviewApp.hh"
 
-
+#include "common/src/logging/easylogging++.hh"
 
 
 /*
@@ -161,11 +159,11 @@ rviewDisplay::rviewDisplay(mdd_frame *mf, int es, unsigned int flags) : rviewFra
     char buffer[STRINGSIZE];
 
     if ((flags & display_flag_standalone & display_flag_update) != 0)
-        RMDBGENTER(3, RMDebug::module_applications, "rviewDisplay", "rviewDisplay() [UA]")
+        LTRACE << "rviewDisplay() [UA]";
         else if ((flags & display_flag_standalone) != 0)
-            RMDBGENTER(3, RMDebug::module_applications, "rviewDisplay", "rviewDisplay() [A]")
+            LTRACE << "rviewDisplay() [A]";
             else if ((flags & display_flag_update) != 0)
-                RMDBGENTER(3, RMDebug::module_applications, "rviewDisplay", "rviewDisplay() [U]")
+                LTRACE << "rviewDisplay() [U]";
 
                 // Override by derived classes if an error occurs.
                 // Can't use virtual functions in constructors!
@@ -222,29 +220,20 @@ rviewDisplay::rviewDisplay(mdd_frame *mf, int es, unsigned int flags) : rviewFra
 
     frameWidth=-1;
     frameWidth=-1;
-
-    RMDBGEXIT(3, RMDebug::module_applications, "rviewDisplay", "rviewDisplay()");
 }
 
 
 rviewDisplay::~rviewDisplay(void)
 {
-    if((displayFlags & display_flag_standalone & display_flag_update) != 0)
-        RMDBGEXIT(3, RMDebug::module_applications, "rviewDisplay", "~rviewDisplay() [UA]")
-        else if ((displayFlags & display_flag_standalone) != 0)
-            RMDBGEXIT(3, RMDebug::module_applications, "rviewDisplay", "~rviewDisplay() [A]")
-            else if ((displayFlags & display_flag_update) != 0)
-                RMDBGEXIT(3, RMDebug::module_applications, "rviewDisplay", "~rviewDisplay() [U]")
-
-                // Update display dying, notify other frames (-> query windows)
-                if ((displayFlags & display_flag_update) != 0)
-                {
-                    user_event ue;
-                    ue.type = usr_update_closed;
-                    ue.data = (void*)(&mddObj);
-                    if (frameManager != NULL)
-                        frameManager->broadcastUserEvent(ue);
-                }
+    // Update display dying, notify other frames (-> query windows)
+    if ((displayFlags & display_flag_update) != 0)
+    {
+        user_event ue;
+        ue.type = usr_update_closed;
+        ue.data = (void*)(&mddObj);
+        if (frameManager != NULL)
+            frameManager->broadcastUserEvent(ue);
+    }
     // If standalone free all memory.
     if ((displayFlags & display_flag_standalone) != 0)
     {
@@ -257,7 +246,7 @@ rviewDisplay::~rviewDisplay(void)
 // called from viewer destructor.
 void rviewDisplay::closeViewer(void)
 {
-    RMDBGONCE(3, RMDebug::module_applications, "rviewDisplay", "closeViewer()");
+    LTRACE << "closeViewer()";
 
     if (!closeViewerCalled)
     {
@@ -300,7 +289,7 @@ int rviewDisplay::openViewer(void)
     int w, h, x, y;
     char buffer[STRINGSIZE];
 
-    RMDBGONCE(3, RMDebug::module_applications, "rviewDisplay", "openViewer()");
+    LTRACE << "openViewer()";
 
     mBar = new wxMenuBar;
 
@@ -408,7 +397,7 @@ void rviewDisplay::OnSize(int w, int h)
     int x, y, pw, pos, minw, minh;
     float tw, th;
 
-    RMDBGONCE(3, RMDebug::module_applications, "rviewDisplay", "OnSize(" << w << ", " << h << " )");
+    LTRACE << "OnSize(" << w << ", " << h << " )";
 
     if (!displayOperation)
     {

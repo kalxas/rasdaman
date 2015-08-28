@@ -78,7 +78,7 @@ rasdaman GmbH.
 #include "rviewUtils.hh"
 #include "rviewThumb.hh"
 
-#include "raslib/rmdebug.hh"
+#include "common/src/logging/easylogging++.hh"
 
 #include "rasodmg/ref.hh"
 #include "rasodmg/marray.hh"
@@ -445,7 +445,7 @@ int rviewThumb::addMDD(r_Ref<r_GMarray> &newMdd)
     r_Object *mo;
     bool oldCstate;
 
-    RMDBGONCE(3, RMDebug::module_applications, "rviewThumb", "addMDD(...)");
+    LTRACE << "addMDD(...)";
 
     if ((newItem = new rviewThumbList) == NULL) return 0;
 
@@ -512,7 +512,7 @@ int rviewThumb::deleteMDD(r_Ref<r_GMarray> &obsMdd)
     rviewThumbList *last, *tlst;
     int i;
 
-    RMDBGONCE(3, RMDebug::module_applications, "rviewThumb", "deleteMDD(...)");
+    LTRACE << "deleteMDD(...)";
 
     last = NULL;
     tlst = listHead;
@@ -886,7 +886,7 @@ void rviewThumb::updateCanvasSize(void)
     int stepx, stepy;
     int scrollx, scrolly;
 
-    RMDBGONCE(3, RMDebug::module_applications, "rviewThumb", "updateCanvasSize()");
+    LTRACE << "updateCanvasSize()";
 
     gridX = imgWidth + thumb_space;
     gridY = maxHeight + thumb_space;
@@ -1047,8 +1047,6 @@ wxPixmap *rviewThumb::buildThumbnail(r_Ref<r_GMarray> &mddObj, rviewBaseType bas
     int srcWidth;
     r_Point ptlow, pthigh;
 
-    RMDBGENTER(3, RMDebug::module_applications, "rviewThumb", "buildThumbnail(...)");
-
     //cout << "thumbnail " << dimproject << ", " << projval << endl;
 
     thisInterv = mddObj->spatial_domain();
@@ -1144,8 +1142,6 @@ wxPixmap *rviewThumb::buildThumbnail(r_Ref<r_GMarray> &mddObj, rviewBaseType bas
     }
 
     pixmap = new wxPixmap((wxWindow*)canvas, penv.width, penv.height, penv.depth, penv.pad, data, rviewImage::getPixmapFlags(), (rviewImageTypes[baseType] == RVIEW_IMGTYPE_MONO) ? palette : NULL);
-
-    RMDBGEXIT(3, RMDebug::module_applications, "rviewThumb", "buildThumbnail(...) Pixmap " << (void*)pixmap );
 
     return pixmap;
 }

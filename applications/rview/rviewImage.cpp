@@ -74,7 +74,6 @@ rasdaman GmbH.
 #endif
 
 
-#include "raslib/rmdebug.hh"
 #include "rasodmg/fastscale.hh"
 
 
@@ -96,6 +95,7 @@ rasdaman GmbH.
 #include "rviewIO.hh"
 #include "rviewDb.hh"
 
+#include "common/src/logging/easylogging++.hh"
 
 
 
@@ -1423,7 +1423,7 @@ const char *rviewImage::view_ScaleValue = "scaleValue";
 
 rviewImage::rviewImage(mdd_frame *mf, int es, unsigned int flags) : rviewDisplay(mf, es+image_ctrly, flags)
 {
-    RMDBGONCE(3, RMDebug::module_applications, "rviewImage", "rviewImage()");
+    LTRACE << "rviewImage()";
 
     // make destructor safe first.
     csmap = NULL; // signifies no data for value->colourspace mapping initialised yet
@@ -1463,7 +1463,7 @@ rviewImage::rviewImage(mdd_frame *mf, int es, unsigned int flags) : rviewDisplay
 
 rviewImage::~rviewImage(void)
 {
-    RMDBGONCE(3, RMDebug::module_applications, "rviewImage", "~rviewImage()");
+    LTRACE << "~rviewImage()";
 
     if (cspar != NULL) delete cspar;
     if (csmap != NULL) delete csmap;
@@ -1476,7 +1476,7 @@ rviewImage::~rviewImage(void)
 // because we can't use virtual functions (correctly) in the constructor.
 int rviewImage::openViewer(void)
 {
-    RMDBGONCE(3, RMDebug::module_applications, "rviewImage", "openViewer()");
+    LTRACE << "openViewer()";
 
     if (!objectInitializedOK)
         return -1;
@@ -1624,7 +1624,7 @@ void rviewImage::openViewerEpilogue(rviewFrameType ft)
 
         initPhaseFinished = TRUE;
 
-        RMDBGONCE(3, RMDebug::module_applications, "rviewImage", "openViewerEpilogue() from top level " << getFrameName() );
+        LTRACE << "openViewerEpilogue() from top level " << getFrameName();
 
         label();
 
@@ -1788,8 +1788,6 @@ char *rviewImage::movieNewFrame(void)
 
 int rviewImage::process(wxObject &obj, wxEvent &evt)
 {
-    RMDBGENTER(3, RMDebug::module_applications, "rviewImage", "process()");
-
     int type = evt.GetEventType();
 
     if (rviewDisplay::process(obj, evt) != 0)
@@ -1805,7 +1803,7 @@ int rviewImage::process(wxObject &obj, wxEvent &evt)
 
             if (&obj == (wxObject*)playStop)
             {
-                RMDBGMIDDLE(3, RMDebug::module_applications, "rviewImage", "process() Playback stop" );
+                LTRACE << "process() Playback stop";
                 playDirection = 0;
                 return 1;
             }
@@ -1819,7 +1817,7 @@ int rviewImage::process(wxObject &obj, wxEvent &evt)
             {
                 char *data, *lastData;
 
-                RMDBGONCE(3, RMDebug::module_applications, "rviewImage", "process() Playback start " << playDirection );
+                LTRACE << "process() Playback start " << playDirection;
                 do
                 {
                     while (advanceProjection(playDirection) != 0)
@@ -1884,7 +1882,7 @@ void rviewImage::rotateObject(wxMouseEvent &mevt)
 
 void rviewImage::processMouseEvent(wxMouseEvent &mevt)
 {
-    RMDBGONCE(3, RMDebug::module_applications, "rviewImage", "processMouseEvent()" );
+    LTRACE << "processMouseEvent()";
 
     int newbut=0;
 
@@ -1938,7 +1936,7 @@ void rviewImage::processMouseEvent(wxMouseEvent &mevt)
 
 void rviewImage::updatePixmap(char *oldData, char *newData)
 {
-    RMDBGONCE(3, RMDebug::module_applications, "rviewImage", "updatePixmap()" );
+    LTRACE << "updatePixmap()";
 
     if (pixmap == NULL) return;
 
@@ -1972,7 +1970,7 @@ void rviewImage::OnSize(int w, int h)
     int x, y, pos;
     bool resize=false;
 
-    RMDBGONCE(3, RMDebug::module_applications, "rviewImage", "OnSize " << w << ", " << h );
+    LTRACE << "OnSize " << w << ", " << h;
 
     // fully initialized yet?
     if (initPhaseFinished)
@@ -2009,7 +2007,7 @@ void rviewImage::OnSize(int w, int h)
 
 void rviewImage::OnMenuCommand(int id)
 {
-    RMDBGONCE(3, RMDebug::module_applications, "rviewImage", "OnMenuCommand()" );
+    LTRACE << "OnMenuCommand()";
 
     switch (id)
     {
@@ -2098,7 +2096,7 @@ bool rviewImage::OnClose(void)
 
 int rviewImage::userEvent(const user_event &ue)
 {
-    RMDBGONCE(3, RMDebug::module_applications, "rviewImage", "userEvent()" );
+    LTRACE << "userEvent()";
 
     if ((ue.type == usr_cspace_changed) && (ue.data == (void*)csmap) && (doValToCspace))
     {
@@ -2319,13 +2317,13 @@ void rviewImage::loadViewFinished(void)
  */
 rviewFlatBaseImage::rviewFlatBaseImage(mdd_frame *mf, int es, unsigned int flags) : rviewImage(mf, es, flags)
 {
-    RMDBGONCE(3, RMDebug::module_applications, "rviewFlatBaseImage", "rviewFlatImage()" );
+    LTRACE << "rviewFlatImage()";
 }
 
 
 rviewFlatBaseImage::~rviewFlatBaseImage(void)
 {
-    RMDBGONCE(3, RMDebug::module_applications, "rviewFlatBaseImage", "~rviewFlatBaseImage()" );
+    LTRACE << "~rviewFlatBaseImage()";
 }
 
 
@@ -2354,7 +2352,7 @@ rviewFrameType rviewFlatBaseImage::getFrameType(void) const
 
 int rviewFlatBaseImage::newProjection(void)
 {
-    RMDBGONCE(3, RMDebug::module_applications, "rviewFlatBaseImage", "newProjection()" );
+    LTRACE << "newProjection()";
 
     char *data, *lastData = imgData;
 
@@ -2371,7 +2369,7 @@ char *rviewFlatBaseImage::initMode(void)
     int i=0, j=0, w=0, h=0;
     char *data=0;
 
-    RMDBGONCE(3, RMDebug::module_applications, "rviewFlatBaseImage", "initMode()" );
+    LTRACE << "initMode()";
 
     // Initialise the projection string. Use a static default for now, later on use the
     // last value used.
@@ -2412,7 +2410,7 @@ char *rviewFlatBaseImage::projectImage(void)
 {
     int dim1, dim2;
 
-    RMDBGONCE(3, RMDebug::module_applications, "rviewFlatBaseImage", "projectImage()" );
+    LTRACE << "projectImage()";
 
     mapIndex = r_Point(dimMDD);
     if (freeDimsFromProjection(dim1, dim2, &mapIndex) != 0) return NULL;
@@ -2487,18 +2485,18 @@ char *rviewFlatBaseImage::projectImage(void)
 
 rviewFlatImage::rviewFlatImage(mdd_frame *mf, unsigned int flags) : rviewFlatBaseImage(mf, 0, flags)
 {
-    RMDBGONCE(3, RMDebug::module_applications, "rviewFlatImage", "rviewFlatImage()" );
+    LTRACE << "rviewFlatImage()";
 }
 
 rviewFlatImage::~rviewFlatImage(void)
 {
-    RMDBGONCE(3, RMDebug::module_applications, "rviewFlatImage", "~rviewFlatImage()" );
+    LTRACE << "~rviewFlatImage()";
     closeViewer();
 }
 
 void rviewFlatImage::OnSize(int w, int h)
 {
-    RMDBGONCE(3, RMDebug::module_applications, "rviewFlatImage", "OnSize()");
+    LTRACE << "OnSize()";
 
     if (initPhaseFinished)
     {
@@ -2519,7 +2517,7 @@ void rviewFlatImage::OnSize(int w, int h)
 }
 int rviewFlatImage::openViewer(void)
 {
-    RMDBGONCE(3, RMDebug::module_applications, "rviewFlatImage", "openViewer()" );
+    LTRACE << "openViewer()";
 
     if (rviewFlatBaseImage::openViewer() == 0)
     {
@@ -2566,7 +2564,7 @@ void rviewFlatImage::label(void)
 
 int rviewFlatImage::process(wxObject &obj, wxEvent &evt)
 {
-    RMDBGONCE(3, RMDebug::module_applications, "rviewFlatImage", "process()" );
+    LTRACE << "process()";
 
     int type = evt.GetEventType();
 
@@ -2627,7 +2625,7 @@ const char *rviewRenderImage::view_ZOffset = "zOffset";
 
 rviewRenderImage::rviewRenderImage(mdd_frame *mf, int es, unsigned int flags) : rviewImage(mf, es, flags)
 {
-    RMDBGONCE(3, RMDebug::module_applications, "rviewRenderImage", "rviewRenderImage()" );
+    LTRACE << "rviewRenderImage()";
 
     // make destructor-safe first
     setupWindow = NULL;
@@ -2679,7 +2677,7 @@ rviewRenderImage::rviewRenderImage(mdd_frame *mf, int es, unsigned int flags) : 
 
 rviewRenderImage::~rviewRenderImage(void)
 {
-    RMDBGONCE(3, RMDebug::module_applications, "rviewRenderImage", "~rviewRenderImage()" );
+    LTRACE << "~rviewRenderImage()";
 
     if (setupWindow != NULL)
     {
@@ -2760,7 +2758,7 @@ void rviewRenderImage::label(void)
 
 int rviewRenderImage::newProjection(void)
 {
-    RMDBGONCE(3, RMDebug::module_applications, "rviewRenderImage", "newProjection()" );
+    LTRACE << "newProjection()";
 
     char *data, *lastData = imgData;
 
@@ -2786,7 +2784,7 @@ void rviewRenderImage::updateCurrentView(void)
 
 int rviewRenderImage::process(wxObject &obj, wxEvent &evt)
 {
-    RMDBGONCE(3, RMDebug::module_applications, "rviewRenderImage", "process()" );
+    LTRACE << "process()";
 
     int type = evt.GetEventType();
 
@@ -2852,7 +2850,7 @@ void rviewRenderImage::rotateObject(wxMouseEvent &mevt)
 
 void rviewRenderImage::OnSize(int w, int h)
 {
-    RMDBGONCE(3, RMDebug::module_applications, "rviewRenderImage", "OnSize()" );
+    LTRACE << "OnSize()";
 
     int oldwidth = frameWidth;
     int oldheight = frameHeight;
@@ -2875,7 +2873,7 @@ void rviewRenderImage::OnSize(int w, int h)
 
 void rviewRenderImage::OnMenuCommand(int id)
 {
-    RMDBGONCE(3, RMDebug::module_applications, "rviewRenderImage", "OnMenuCommand()" );
+    LTRACE << "OnMenuCommand()";
 
     switch (id)
     {
@@ -2908,7 +2906,7 @@ void rviewRenderImage::OnMenuCommand(int id)
 
 void rviewRenderImage::closeEditor(bool newSetup)
 {
-    RMDBGONCE(3, RMDebug::module_applications, "rviewRenderImage", "closeEditor()" );
+    LTRACE << "closeEditor()";
 
     if (newSetup)
     {
@@ -2951,7 +2949,7 @@ bool rviewRenderImage::OnClose(void)
 
 int rviewRenderImage::userEvent(const user_event &ue)
 {
-    RMDBGONCE(3, RMDebug::module_applications, "rviewRenderImage", "userEvent()" );
+    LTRACE << "userEvent()";
 
     if (ue.type == usr_child_closed)
     {
@@ -3045,7 +3043,7 @@ char *rviewRenderImage::initMode(void)
     int i;
     char *data;
 
-    RMDBGONCE(3, RMDebug::module_applications, "rviewRenderImage", "initMode()" );
+    LTRACE << "initMode()";
 
     // Scaling factor for the data cube.
     cubeScale = scaleValue / 100.0;
@@ -3080,7 +3078,7 @@ char *rviewRenderImage::setupGraphEnv(void)
 {
     int w, h;
 
-    RMDBGONCE(3, RMDebug::module_applications, "rviewRenderImage", "setupGraphEnv()" );
+    LTRACE << "setupGraphEnv()";
 
     if (rviewParseProjection(getVirtualDomain(), pt1, pt2, projString, &freeDims) != dimMDD)
     {
@@ -3484,7 +3482,7 @@ void rviewRenderImage::loadViewFinished(void)
 
 void rviewRenderImage::fillBackgroundCore(rviewBaseType bt, double minVal)
 {
-    RMDBGONCE(3, RMDebug::module_applications, "rviewRenderImage", "fillBackgroundCore()" );
+    LTRACE << "fillBackgroundCore()";
 
     switch (bt)
     {
@@ -3535,7 +3533,7 @@ void rviewRenderImage::fillBackgroundCore(rviewBaseType bt, double minVal)
 
 void rviewRenderImage::fillBufferBackground(bool doCspace, bool &cspaceOK, r_Ref<r_GMarray> &obj, colourspaceMapper **csm, r_Minterval *csdom, rviewBaseType bt, bool fullRange, double *useMinVal)
 {
-    RMDBGONCE(3, RMDebug::module_applications, "rviewRenderImage", "fillBufferBackground()" );
+    LTRACE << "fillBufferBackground()";
 
     // In case of colourspace mapping and rendering don't fill the background with 0 but
     // rather with the currently configured minimum value!
@@ -3614,7 +3612,7 @@ void rviewRenderImage::translateBufferToCspace(rviewBaseType bt, double *useMinV
     long minValL, maxValL;
     int i, j;
 
-    RMDBGONCE(3, RMDebug::module_applications, "rviewRenderImage", "translateBufferToCspace()" );
+    LTRACE << "translateBufferToCspace()";
 
     // If bounding boxes are drawn there might be pixels out of range here, so trap those!
     minVal = (useMinVal == NULL) ? csmap->getMinVal() : *useMinVal;
@@ -3739,7 +3737,7 @@ const char *rviewVolumeImage::view_UseBBox = "useBBox";
 
 rviewVolumeImage::rviewVolumeImage(mdd_frame *mf, unsigned int flags) : rviewRenderImage(mf, 0, flags)
 {
-    RMDBGONCE(3, RMDebug::module_applications, "rviewVolumeImage", "rviewVolumeImage()" );
+    LTRACE << "rviewVolumeImage()";
 
     // make destructor safe
     texDesc = NULL;
@@ -3804,7 +3802,7 @@ rviewVolumeImage::rviewVolumeImage(mdd_frame *mf, unsigned int flags) : rviewRen
 
 int rviewVolumeImage::openViewer(void)
 {
-    RMDBGONCE(3, RMDebug::module_applications, "rviewVolumeImage", "openViewer()" );
+    LTRACE << "openViewer()";
 
     if (dimMDD != 3)
     {
@@ -3850,7 +3848,7 @@ int rviewVolumeImage::openViewer(void)
 
 rviewVolumeImage::~rviewVolumeImage(void)
 {
-    RMDBGONCE(3, RMDebug::module_applications, "rviewVolumeImage" ,"~rviewVolumeImage()" );
+    LTRACE << ,"~rviewVolumeImage()";
 
     closeViewer();
     delete texDesc;
@@ -3890,7 +3888,7 @@ void rviewVolumeImage::label(void)
 
 int rviewVolumeImage::process(wxObject &obj, wxEvent &evt)
 {
-    RMDBGONCE(3, RMDebug::module_applications, "rviewVolumeImage", "process()" );
+    LTRACE << "process()";
 
     int type = evt.GetEventType();
 
@@ -3911,7 +3909,7 @@ int rviewVolumeImage::process(wxObject &obj, wxEvent &evt)
 
 void rviewVolumeImage::OnMenuCommand(int id)
 {
-    RMDBGONCE(3, RMDebug::module_applications, "rviewVolumeImage", "OnMenuCommand()" );
+    LTRACE << "OnMenuCommand()";
 
     rviewImageMode newMode = rim_none;
 
@@ -3948,7 +3946,7 @@ void rviewVolumeImage::OnMenuCommand(int id)
 
 void rviewVolumeImage::OnSize(int w, int h)
 {
-    RMDBGONCE(3, RMDebug::module_applications, "rviewVolumeImage", "OnSize()" );
+    LTRACE << "OnSize()";
 
     rviewRenderImage::OnSize(w, h);
 
@@ -3967,8 +3965,6 @@ bool rviewVolumeImage::doUpdate(int flags)
 
 char *rviewVolumeImage::initMode(void)
 {
-    RMDBGENTER(3, RMDebug::module_applications, "rviewVolumeImage", "initMode()" );
-
     // Initialise the projection string. Use a static default for now, later on use the
     // last value used.
     sprintf(projString, "*:*, *:*, *:*");
@@ -3984,16 +3980,12 @@ char *rviewVolumeImage::initMode(void)
     texDesc->dimz = interv[2].high() - interv[2].low() + 1;
     texDesc->baseSize = baseSize;
 
-    RMDBGEXIT(3, RMDebug::module_applications, "rviewVolumeImage", "initMode() tx=" << texDesc->dimx << ", ty=" << texDesc->dimy << ", tz=" << texDesc->dimz << ", tbase=" << texDesc->baseSize );
-
     return rviewRenderImage::initMode();
 }
 
 
 char *rviewVolumeImage::setupEnvironment(int w, int h)
 {
-    RMDBGENTER(3, RMDebug::module_applications, "rviewVolumeImage", "setupEnvironment()" );
-
     int i, offset;
 
     if (setupEnvBase(w, h, mddObj, &csmap, csInterv) != 0)
@@ -4025,11 +4017,10 @@ char *rviewVolumeImage::setupEnvironment(int w, int h)
     geomData[2].y = (real_t)(pt2[1] - pt1[1] + 1);
     geomData[3].z = (real_t)(pt2[2] - pt1[2] + 1);
 
-    RMDBGMIDDLE(3, RMDebug::module_applications, "rviewVolumeImage", "w=" << pixWidth << ", h=" << pixHeight << ", p=" << pixPitch << ", cl=" << graphEnv->clipl << ", cr=" << graphEnv->clipr << ", cd=" << graphEnv->clipd << ", cu=" << graphEnv->clipu << ", mx=" << graphEnv->midx << ", my=" << graphEnv->midy << ", img=" << graphEnv->dest );
+    LTRACE << "w=" << pixWidth << ", h=" << pixHeight << ", p=" << pixPitch << ", cl=" << graphEnv->clipl << ", cr=" << graphEnv->clipr << ", cd=" << graphEnv->clipd << ", cu=" << graphEnv->clipu << ", mx=" << graphEnv->midx << ", my=" << graphEnv->midy << ", img=" << graphEnv->dest;
 
-    RMDBGMIDDLE(3, RMDebug::module_applications, "rviewVolumeImage", "twx=" << texDesc->widthx << ", twy=" << texDesc->widthy << ", twz=" << texDesc->widthz << ", offset=" << (int)((char*)(texDesc->data) - mddObj->get_array()) << ", base size " << texDesc->baseSize << ", dest=" << (void*)imgData );
+    LTRACE << "twx=" << texDesc->widthx << ", twy=" << texDesc->widthy << ", twz=" << texDesc->widthz << ", offset=" << (int)((char*)(texDesc->data) - mddObj->get_array()) << ", base size " << texDesc->baseSize << ", dest=" << (void*)imgData;
 
-    RMDBGEXIT(3, RMDebug::module_applications, "rviewVolumeImage", "setupEnvironment()");
     return imgData;
 }
 
@@ -4040,7 +4031,7 @@ void rviewVolumeImage::fillBuffer(void)
     vertex_fp v;
     bool cspaceOK;
 
-    RMDBGONCE(3, RMDebug::module_applications, "rviewVolumeImage", "fillBuffer()" );
+    LTRACE << "fillBuffer()";
 
     // Plot bounding box or not?
     graphEnv->bbox_colour = (doBoundingBox) ? 0xffffff : 0xffffffff;
@@ -4196,7 +4187,7 @@ void rviewVolumeImage::loadViewFinished(void)
  */
 rviewHeightImage::rviewHeightImage(mdd_frame *mf, unsigned int flags) : rviewRenderImage(mf, 0, flags)
 {
-    RMDBGONCE(3, RMDebug::module_applications, "rviewHeightImage", "rviewHeightImage()" );
+    LTRACE << "rviewHeightImage()";
 
     // make destructor safe
     mddDesc = NULL;
@@ -4220,7 +4211,7 @@ rviewHeightImage::rviewHeightImage(mdd_frame *mf, unsigned int flags) : rviewRen
 
 rviewHeightImage::~rviewHeightImage(void)
 {
-    RMDBGONCE(3, RMDebug::module_applications, "rviewHeightImage", "~rviewHeightImage()" );
+    LTRACE << "~rviewHeightImage()";
 
     closeViewer();
     dummyMDD.destroy();
@@ -4292,7 +4283,7 @@ bool rviewHeightImage::modeNeedsCspace(rviewBaseType bt) const
 
 int rviewHeightImage::newProjection(void)
 {
-    RMDBGONCE(3, RMDebug::module_applications, "rviewHeightImage", "newProjection()" );
+    LTRACE << "newProjection()";
 
     char *data, *lastData = imgData;
 
@@ -4353,7 +4344,7 @@ void rviewHeightImage::label(void)
 
 int rviewHeightImage::process(wxObject &obj, wxEvent &evt)
 {
-    RMDBGONCE(3, RMDebug::module_applications, "rviewHeightImage", "process()" );
+    LTRACE << "process()";
 
     int type = evt.GetEventType();
 
@@ -4389,7 +4380,7 @@ char *rviewHeightImage::initMode(void)
     int i;
     char *b;
 
-    RMDBGONCE(3, RMDebug::module_applications, "rviewHeightImage", "initMode()" );
+    LTRACE << "initMode()";
 
     b = projString;
     b += sprintf(b, "*:*, *:*");
@@ -4422,7 +4413,7 @@ char *rviewHeightImage::setupEnvironment(int w, int h)
 {
     int i, needDepth, newPitch, newPad, offset, newVirtPitch;
 
-    RMDBGONCE(3, RMDebug::module_applications, "rviewHeightImage", "setupEnvironment()" );
+    LTRACE << "setupEnvironment()";
 
     needDepth = depthForHeightfield();
     newPad = 32;
@@ -4478,7 +4469,7 @@ char *rviewHeightImage::setupEnvironment(int w, int h)
 
 void rviewHeightImage::fillBackgroundCore(rviewBaseType bt, double minVal)
 {
-    RMDBGONCE(3, RMDebug::module_applications, "rviewHeightImage", "fillBackgroundCore()" );
+    LTRACE << "fillBackgroundCore()";
 
     memset(graphEnv->dest, 0, pixPitch * pixHeight);
 }
@@ -4490,7 +4481,7 @@ void rviewHeightImage::fillBuffer(void)
     light_desc light;
     bool useCspace, cspaceOK;
 
-    RMDBGONCE(3, RMDebug::module_applications, "rviewHeightImage", "fillBuffer()" );
+    LTRACE << "fillBuffer()";
 
     gridScale = cubeScale * setup.gridSize;
     scaleHeight = cubeScale * setup.scaleHeight;
@@ -4557,7 +4548,7 @@ const char *rviewScaledImage::view_BoxScale = "boxScale";
 
 rviewScaledImage::rviewScaledImage(collection_desc *cd, r_Fast_Base_Scale *scaler, unsigned int flags) : rviewFlatBaseImage(cd->mddObjs, 0, flags)
 {
-    RMDBGONCE(3, RMDebug::module_applications, "rviewScaledImage", "rviewScaledImage()" );
+    LTRACE << "rviewScaledImage()";
 
     int i;
 
@@ -4585,7 +4576,7 @@ rviewScaledImage::rviewScaledImage(collection_desc *cd, r_Fast_Base_Scale *scale
 
 rviewScaledImage::~rviewScaledImage(void)
 {
-    RMDBGONCE(3, RMDebug::module_applications, "rviewScaledImage", "~rviewScaledImage()" );
+    LTRACE << "~rviewScaledImage()";
     closeViewer();
     rviewDeleteCollection(collDesc);
     // I own the scaler object!
@@ -4597,7 +4588,7 @@ rviewScaledImage::~rviewScaledImage(void)
 
 int rviewScaledImage::openViewer(void)
 {
-    RMDBGONCE(3, RMDebug::module_applications, "rviewScaledImage", "openViewer()" );
+    LTRACE << "openViewer()";
 
     if (rviewFlatBaseImage::openViewer() == 0)
     {
@@ -4641,7 +4632,7 @@ void rviewScaledImage::label(void)
 
 void rviewScaledImage::OnSize(int w, int h)
 {
-    RMDBGONCE(3, RMDebug::module_applications, "rviewScaledImage", "OnSize()");
+    LTRACE << "OnSize()";
 
     if (initPhaseFinished)
     {
@@ -4699,7 +4690,7 @@ void rviewScaledImage::OnSize(int w, int h)
 
 double rviewScaledImage::getLastScale(void) const
 {
-    RMDBGONCE(3, RMDebug::module_applications, "rviewScaledImage", "getLastScale()");
+    LTRACE << "getLastScale()";
     view_desc_t lastView;
 
     if (viewHistory.peek(lastView) == 0)
@@ -4711,7 +4702,7 @@ double rviewScaledImage::getLastScale(void) const
 
 void rviewScaledImage::scaleViewBy(double scale)
 {
-    RMDBGONCE(3, RMDebug::module_applications, "rviewScaledImage", "scaleViewBy()");
+    LTRACE << "scaleViewBy()";
 
     thisView.high[thisView.dim1] = thisView.low[thisView.dim1]
                                    + (r_Range)((thisView.high[thisView.dim1] - thisView.low[thisView.dim1]) / scale);
@@ -4739,7 +4730,7 @@ void rviewScaledImage::scaleViewBy(double scale)
 
 int rviewScaledImage::process(wxObject &obj, wxEvent &evt)
 {
-    RMDBGONCE(3, RMDebug::module_applications, "rviewScaledImage", "process()");
+    LTRACE << "process()";
 
     int type = evt.GetEventType();
 
@@ -4816,7 +4807,7 @@ int rviewScaledImage::process(wxObject &obj, wxEvent &evt)
 // Intercept the mouse event.
 void rviewScaledImage::processMouseEvent(wxMouseEvent &mevt)
 {
-    RMDBGONCE(3, RMDebug::module_applications, "rviewScaledImage", "processMouseEvent()");
+    LTRACE << "processMouseEvent()";
 
     int newbut = 0;
     bool newBoxState;
@@ -4887,7 +4878,7 @@ bool rviewScaledImage::showScaleSlider(void) const
 
 void rviewScaledImage::projectionStringForView(void)
 {
-    RMDBGONCE(3, RMDebug::module_applications, "rviewScaledImage", "projectionStringView()");
+    LTRACE << "projectionStringView()";
 
     int i;
     char *b = projString;
@@ -4928,7 +4919,7 @@ const r_Minterval &rviewScaledImage::getVirtualDomain(void) const
 
 void rviewScaledImage::projectObjectHook(void)
 {
-    RMDBGONCE(3, RMDebug::module_applications, "rviewScaledImage", "projectObjectHook()");
+    LTRACE << "projectObjectHook()";
     int i, j;
 
     for (i=0; i<(int)dimMDD; i++)
@@ -4990,7 +4981,7 @@ char *rviewScaledImage::projectImage(void)
 
 bool rviewScaledImage::compareViews(const view_desc_t &v1, const view_desc_t &v2)
 {
-    RMDBGONCE(3, RMDebug::module_applications, "rviewScaledImage", "compareViews()");
+    LTRACE << "compareViews()";
     if ((v1.scale == v2.scale) && (v1.dim1 == v2.dim1) && (v1.dim2 == v2.dim2)
             && (v1.low == v2.low) && (v1.high == v2.high))
         return TRUE;
@@ -5001,7 +4992,7 @@ bool rviewScaledImage::compareViews(const view_desc_t &v1, const view_desc_t &v2
 
 int rviewScaledImage::newProjection(void)
 {
-    RMDBGONCE(3, RMDebug::module_applications, "rviewScaledImage", "newProjection()");
+    LTRACE << "newProjection()";
     int status;
     view_desc_t lastView = thisView;
 
@@ -5019,7 +5010,7 @@ int rviewScaledImage::newProjection(void)
 
 void rviewScaledImage::newView(bool loadImage)
 {
-    RMDBGONCE(3, RMDebug::module_applications, "rviewScaledImage", "newView()");
+    LTRACE << "newView()";
     int i;
 
     // Remove drag boxes

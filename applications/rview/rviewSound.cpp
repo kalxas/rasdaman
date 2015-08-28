@@ -93,7 +93,6 @@ rasdaman GmbH.
 #define __EXECUTABLE__
 #endif
 
-#include "raslib/rmdebug.hh"
 #include "raslib/primitivetype.hh"
 #include "raslib/minterval.hh"
 //#include "rasodmg/odmgtypes.hh"
@@ -109,6 +108,7 @@ rasdaman GmbH.
 #include "labelManager.hh"
 #endif // HAL
 
+#include "common/src/logging/easylogging++.hh"
 
 
 
@@ -1150,8 +1150,6 @@ rviewSoundPlayer::rviewSoundPlayer(mdd_frame *mf, unsigned int flags) : rviewDis
     char *b;
     int i;
 
-    RMDBGENTER(3, RMDebug::module_applications, "rviewSoundPlayer", "rviewSoundPlayer()");
-
 #if 0
     {
         dimMDD = 1;
@@ -1286,15 +1284,13 @@ rviewSoundPlayer::rviewSoundPlayer(mdd_frame *mf, unsigned int flags) : rviewDis
     break;
     }
     if (currentFormat >= 0) fmtWidget->SetSelection(currentFormat);
-
-    RMDBGEXIT(3, RMDebug::module_applications, "rviewSoundPlayer", "rviewSoundPlayer()");
 }
 
 
 int rviewSoundPlayer::openViewer(void)
 {
 
-    RMDBGONCE(3, RMDebug::module_applications, "rviewSoundPlayer", "openViewer()");
+    LTRACE << "openViewer()";
 
     if (currentFormat < 0)
     {
@@ -1327,7 +1323,7 @@ int rviewSoundPlayer::openViewer(void)
 
 rviewSoundPlayer::~rviewSoundPlayer(void)
 {
-    RMDBGONCE(3, RMDebug::module_applications, "rviewSoundPlayer", "~rviewSoundPlayer()");
+    LTRACE << "~rviewSoundPlayer()";
     closeViewer();
     if (latencies)
     {
@@ -1396,7 +1392,7 @@ int rviewSoundPlayer::process(wxObject &obj, wxEvent &evt)
 {
     int type = evt.GetEventType();
 
-    RMDBGONCE(3, RMDebug::module_applications, "rviewSoundPlayer", "process(...)");
+    LTRACE << "process(...)";
 
     if (rviewDisplay::process(obj, evt) != 0)
     {
@@ -1493,7 +1489,7 @@ void rviewSoundPlayer::OnSize(int w, int h)
 {
     int x, y, posx, posy, d;
 
-    RMDBGONCE(3, RMDebug::module_applications, "rviewSoundPlayer", "OnSize( " << w << ", " << h << " )");
+    LTRACE << "OnSize( " << w << ", " << h << " )";
 
     rviewDisplay::OnSize(w, h);
 
@@ -1539,7 +1535,7 @@ void rviewSoundPlayer::OnSize(int w, int h)
 
 int rviewSoundPlayer::newProjection(void)
 {
-    RMDBGONCE(3, RMDebug::module_applications, "rviewSoundPlayer", "newProjection()");
+    LTRACE << "newProjection()";
 
     if (playbackOn)
     {
@@ -1568,7 +1564,7 @@ int rviewSoundPlayer::newSample(void)
     int fmt;
     int status=0;
 
-    RMDBGONCE(3, RMDebug::module_applications, "rviewSoundPlayer", "newSample()");
+    LTRACE << "newSample()";
 
     frequency = atoi(frqWidget->GetValue());
     latency = latencies[latWidget->GetSelection()];
@@ -1620,7 +1616,7 @@ int rviewSoundPlayer::buildSample(void)
     char *base;
     int i;
 
-    RMDBGONCE(3, RMDebug::module_applications, "rviewSoundPlayer", "buildSample()");
+    LTRACE << "buildSample()";
 
     strcpy(projString, project->GetValue());
     if (rviewParseProjection(getVirtualDomain(), pt1, pt2, projString, &freeDims) != dimMDD)
@@ -1726,8 +1722,6 @@ int rviewSoundPlayer::buildSample(void)
 int rviewSoundPlayer::startPlayback(void)
 {
     int offset;
-
-    RMDBGENTER(3, RMDebug::module_applications, "rviewSoundPlayer", "startPlayback()");
 
     // no reentrancy
     if (playbackOn) return -1;

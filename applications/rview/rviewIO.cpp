@@ -70,13 +70,13 @@ rasdaman GmbH.
 #define __EXECUTABLE__
 #endif
 
-#include "raslib/rmdebug.hh"
 #include "raslib/basetype.hh"
 #include "raslib/parseparams.hh"
 
 #include "rviewIO.hh"
 #include "rviewTypes.hh"
 
+#include "common/src/logging/easylogging++.hh"
 
 #include "tiffio.h"
 
@@ -206,7 +206,7 @@ int rviewIO::isTIFF(const char *filename)
 
 int rviewIO::loadTIFF(const char *filename, r_Ref<r_GMarray> &mddObj, const char *params)
 {
-    RMDBGONCE(3, RMDebug::module_applications, "rviewIO", "loadTIFF()");
+    LTRACE << "loadTIFF()";
 
     TIFF* tif;
     uint32 width, height, x, y;
@@ -230,7 +230,7 @@ int rviewIO::loadTIFF(const char *filename, r_Ref<r_GMarray> &mddObj, const char
 
     if ((width < 1) || (height < 1)) return 0;
 
-    RMDBGMIDDLE(3, RMDebug::module_applications, "rviewIO", "loadTIFF() Width " << width << ", height " << height << ", bps " << bps << ", spp " << spp << ", planarconfig " << planarc);
+    LTRACE << "loadTIFF() Width " << width << ", height " << height << ", bps " << bps << ", spp " << spp << ", planarconfig " << planarc;
 
     depth = bps * spp;
 
@@ -432,8 +432,6 @@ int rviewIO::loadTIFF(const char *filename, r_Ref<r_GMarray> &mddObj, const char
     _TIFFfree(buffer);
 
     TIFFClose(tif);
-
-    RMDBGEXIT(3, RMDebug::module_applications, "rviewImage", "~rviewImage() Created MDD object of domain " << mddObj->spatial_domain());
 
     return RVIEW_IO_OK;
 }
