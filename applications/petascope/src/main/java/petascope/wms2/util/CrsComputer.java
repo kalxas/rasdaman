@@ -25,19 +25,12 @@ package petascope.wms2.util;
 
 import org.geotools.referencing.CRS;
 import org.opengis.referencing.FactoryException;
-import org.opengis.referencing.NoSuchAuthorityCodeException;
 import org.opengis.referencing.crs.CRSAuthorityFactory;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import org.opengis.referencing.operation.MathTransform;
 import org.opengis.referencing.operation.TransformException;
-import petascope.wms2.metadata.BoundingBox;
 import petascope.wms2.metadata.EXGeographicBoundingBox;
 import petascope.wms2.service.exception.error.WMSInvalidCrsUriException;
-import petascope.wms2.service.getmap.access.RasdamanSubset;
-
-import java.math.BigDecimal;
-import java.util.Arrays;
-import java.util.List;
 
 /**
  * This class represents a crs computer that translates from geographic coordinates to pixel indices. It does this by translating
@@ -48,28 +41,6 @@ import java.util.List;
  * @author <a href="mailto:dumitru@rasdaman.com">Alex Dumitru</a>
  */
 public class CrsComputer {
-
-    /**
-     * Translates from geographical coordinates to pixel indices.
-     *
-     * @param subsetBoundingBox the bounding box to be translated
-     * @param mapBoundingBox    the bounding box of the whole map
-     * @param mapWidth          the width of the map on which the bounding box exists
-     * @param mapHeight         the height of the map on which the bounding box exists
-     * @param xOrder            the order of the x axis in rasdaman
-     * @param yOrder            the order of the y axis in rasdaman
-     * @return the pixel coordinates
-     */
-    public static List<RasdamanSubset> convertToPixelIndices(BoundingBox subsetBoundingBox, BoundingBox mapBoundingBox,
-                                                             long mapWidth, long mapHeight, int xOrder, int yOrder){
-        long[] xAxis = crsSubsetToPixelIndices(subsetBoundingBox.getMinx(), subsetBoundingBox.getMaxx(), mapBoundingBox.getMinx(), mapBoundingBox.getMaxx(),
-                0, mapWidth, false);
-        long[] yAxis = crsSubsetToPixelIndices(subsetBoundingBox.getMiny(), subsetBoundingBox.getMaxy(), mapBoundingBox.getMiny(), mapBoundingBox.getMaxy(),
-                0, mapHeight, true);
-        RasdamanSubset subsetX = new RasdamanSubset(xOrder, xAxis[0], xAxis[1]);
-        RasdamanSubset subsetY = new RasdamanSubset(yOrder, yAxis[0], yAxis[1]);
-        return Arrays.asList(subsetX, subsetY);
-    }
 
     /**
      * Converts a bounding box into an ExGeographinBoundingBox (WGS84 crs).
@@ -92,7 +63,7 @@ public class CrsComputer {
         double[] minCrsPoint = getDefaultCrsCoord(minX, minY, originalCrs);
         double[] maxCrsPoint = getDefaultCrsCoord(maxX, maxY, originalCrs);
         return new EXGeographicBoundingBox(String.valueOf(minCrsPoint[0]), String.valueOf(maxCrsPoint[0]),
-                String.valueOf(minCrsPoint[1]), String.valueOf(maxCrsPoint[1]));
+            String.valueOf(minCrsPoint[1]), String.valueOf(maxCrsPoint[1]));
     }
 
     /**
@@ -140,49 +111,7 @@ public class CrsComputer {
     }
 
     /**
-     * Converts a crs geographic coordinates on one axis into pixel indices
-     *
-     * @param minCoord    the minimum coordinate
-     * @param maxCoord    the maximum coordinate
-     * @param minCoordMap the min coord of the whole map
-     * @param maxCoordMap the max coord of the whole map
-     * @param pxMin       the minimum pixel subset value on the axis
-     * @param pxMax       the maximum pixel subset value on the axis
-     * @param reversed    if the axis is reversed set this to true
-     * @return the pixel indices
-     */
-    private static long[] crsSubsetToPixelIndices(double minCoord, double maxCoord,
-                                                  double minCoordMap, double maxCoordMap,
-                                                  long pxMin, long pxMax, boolean reversed) {
-        BigDecimal domMin = new BigDecimal(minCoordMap);
-        BigDecimal domMax = new BigDecimal(maxCoordMap);
-
-        double cellWidth = (maxCoordMap - minCoordMap) / (pxMax - pxMin);
-        long returnLowerLimit, returnUpperLimit;
-        if (!reversed) {
-            // Normal linear numerical axis
-            returnLowerLimit = (long) Math.floor((minCoord - domMin.doubleValue()) / cellWidth) + pxMin;
-            returnUpperLimit = (long) Math.floor((maxCoord - domMin.doubleValue()) / cellWidth) + pxMin;
-            // NOTE: the if a slice equals the upper bound of a coverage, out[0]=pxHi+1 but still it is a valid subset.
-            if (minCoord == maxCoord && maxCoord == domMax.doubleValue()) {
-                returnLowerLimit = returnLowerLimit - 1;
-            }
-        } else {
-            // Linear negative axis (eg northing of georeferenced images)
-            // First coordHi, so that left-hand index is the lower one
-            returnLowerLimit = (long) Math.ceil((domMax.doubleValue() - maxCoord) / cellWidth) + pxMin;
-            returnUpperLimit = (long) Math.ceil((domMax.doubleValue() - minCoord) / cellWidth) + pxMin;
-            // NOTE: the if a slice equals the lower bound of a coverage, out[0]=pxHi+1 but still it is a valid subset.
-            if (minCoord == maxCoord && maxCoord == domMin.doubleValue()) {
-                returnLowerLimit -= 1;
-            }
-        }
-        return new long[]{returnLowerLimit, returnUpperLimit};
-    }
-
-
-    /**
-     * We know how to compute pixel coords from this one so use it as a base
+     * Needed for the WGS84 coordinates
      */
     private static final String DEFAULT_CRS = "EPSG:4326";
 }

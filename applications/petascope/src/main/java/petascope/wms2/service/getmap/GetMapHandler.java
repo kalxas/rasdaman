@@ -77,11 +77,12 @@ public class GetMapHandler implements Handler<GetMapRequest, GetMapResponse> {
         List<RasdamanLayer> rasdamanLayers = getRasdamanLayers(request.getLayers());
         List<Dimension> dimensions = getOrThrow(request.getDimensions(), "dimensions");
         List<Style> styles = getOrThrow(request.getStyles(), "style");
+        List<Layer> layers = getOrThrow(request.getLayers(), "layers");
         int width = request.getWidth();
         int height = request.getHeight();
         BoundingBox mapBbox = getOrThrow(request.getLayers().get(0).getBoundingBoxes(), "bbox").iterator().next();
         GetMapFormat format = getOrThrow(request.getFormat(), "format");
-        return new MergedLayer(bbox, mapBbox, rasdamanLayers, dimensions, styles, width, height, format);
+        return new MergedLayer(layers, bbox, mapBbox, rasdamanLayers, dimensions, styles, width, height, format);
     }
 
     /**

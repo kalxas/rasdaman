@@ -22,11 +22,15 @@
 
 package petascope.wms2.service.getmap;
 
+import petascope.ConfigManager;
+import petascope.core.CoverageMetadata;
+import petascope.core.DbMetadataSource;
+import petascope.util.CrsUtil;
+import petascope.wcps.metadata.DomainElement;
 import petascope.wms2.metadata.*;
 import petascope.wms2.service.exception.error.WMSInvalidBbox;
 import petascope.wms2.service.exception.error.WMSInvalidDimensionValue;
 import petascope.wms2.service.getmap.access.RasdamanSubset;
-import petascope.wms2.util.CrsComputer;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -54,8 +58,9 @@ public class MergedLayer {
      * @param width          the width of the response
      * @param format         the format of the response
      */
-    public MergedLayer(BoundingBox boundingBox, BoundingBox mapBoundingBox, List<RasdamanLayer> rasdamanLayers,
+    public MergedLayer(List<Layer> layers, BoundingBox boundingBox, BoundingBox mapBoundingBox, List<RasdamanLayer> rasdamanLayers,
                        List<Dimension> dimensions, List<Style> styles, int width, int height, GetMapFormat format) {
+        this.layers = layers;
         this.boundingBox = boundingBox;
         this.rasdamanLayers = rasdamanLayers;
         this.mapBoundingBox = mapBoundingBox;
@@ -87,12 +92,28 @@ public class MergedLayer {
      * @throws WMSInvalidBbox
      */
     private List<RasdamanSubset> boundingBoxToSubset() throws WMSInvalidBbox {
-        final int xOrder = rasdamanLayers.get(0).getXOrder();
-        final int yOrder = rasdamanLayers.get(0).getYOrder();
-        final long mapWidth = rasdamanLayers.get(0).getWidth();
-        final long mapHeight = rasdamanLayers.get(0).getHeight();
         try {
-            return CrsComputer.convertToPixelIndices(boundingBox, mapBoundingBox, mapWidth, mapHeight, xOrder, yOrder);
+            List<RasdamanSubset> rasdamanSubsets = new ArrayList<RasdamanSubset>(2);
+            DbMetadataSource dbMetadataSource = new DbMetadataSource(ConfigManager.METADATA_DRIVER,
+                ConfigManager.METADATA_URL,
+                ConfigManager.METADATA_USER,
+                ConfigManager.METADATA_PASS, false);
+            CoverageMetadata coverageMetadata = dbMetadataSource.read(layers.get(0).getName());
+
+            DomainElement firstAxis = coverageMetadata.getDomainList().get(0);
+            long[] firstAxisIndices = CrsUtil.convertToInternalGridIndices(coverageMetadata,
+                dbMetadataSource, firstAxis.getLabel(),
+                String.valueOf(this.boundingBox.getMinx()), true,
+                String.valueOf(this.boundingBox.getMaxx()), true);
+            rasdamanSubsets.add(new RasdamanSubset(firstAxis.getOrder(), firstAxisIndices[0], firstAxisIndices[1]));
+
+            DomainElement secondAxis = coverageMetadata.getDomainList().get(1);
+            long[] secondAxisIndices = CrsUtil.convertToInternalGridIndices(coverageMetadata,
+                dbMetadataSource, secondAxis.getLabel(),
+                String.valueOf(this.boundingBox.getMiny()), true,
+                String.valueOf(this.boundingBox.getMaxy()), true);
+            rasdamanSubsets.add(new RasdamanSubset(secondAxis.getOrder(), secondAxisIndices[0], secondAxisIndices[1]));
+            return rasdamanSubsets;
         } catch (Exception e) {
             throw new WMSInvalidBbox(boundingBox.toString());
         }
@@ -165,4 +186,5 @@ public class MergedLayer {
     private final int width;
     private final GetMapFormat format;
     private final BoundingBox mapBoundingBox;
+    private final List<Layer> layers;
 }
