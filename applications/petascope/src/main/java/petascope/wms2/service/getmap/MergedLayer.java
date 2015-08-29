@@ -25,15 +25,25 @@ package petascope.wms2.service.getmap;
 import petascope.ConfigManager;
 import petascope.core.CoverageMetadata;
 import petascope.core.DbMetadataSource;
+import petascope.exceptions.PetascopeException;
+import petascope.exceptions.SecoreException;
+import petascope.util.AxisTypes;
 import petascope.util.CrsUtil;
 import petascope.wcps.metadata.DomainElement;
+import petascope.wcps2.metadata.Coverage;
+import petascope.wcps2.metadata.CoverageRegistry;
+import petascope.wcps2.metadata.Interval;
+import petascope.wcps2.util.CrsComputer;
 import petascope.wms2.metadata.*;
 import petascope.wms2.service.exception.error.WMSInvalidBbox;
+import petascope.wms2.service.exception.error.WMSInvalidCrsUriException;
 import petascope.wms2.service.exception.error.WMSInvalidDimensionValue;
 import petascope.wms2.service.getmap.access.RasdamanSubset;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import static petascope.util.CrsUtil.getAxesLabels;
 
 /**
  * A merged layer is a layer composed of other layers that were requested in the get map request. What we do is
@@ -98,21 +108,35 @@ public class MergedLayer {
                 ConfigManager.METADATA_URL,
                 ConfigManager.METADATA_USER,
                 ConfigManager.METADATA_PASS, false);
-            CoverageMetadata coverageMetadata = dbMetadataSource.read(layers.get(0).getName());
 
-            DomainElement firstAxis = coverageMetadata.getDomainList().get(0);
-            long[] firstAxisIndices = CrsUtil.convertToInternalGridIndices(coverageMetadata,
-                dbMetadataSource, firstAxis.getLabel(),
-                String.valueOf(this.boundingBox.getMinx()), true,
-                String.valueOf(this.boundingBox.getMaxx()), true);
-            rasdamanSubsets.add(new RasdamanSubset(firstAxis.getOrder(), firstAxisIndices[0], firstAxisIndices[1]));
+            CoverageRegistry coverageRegistry = new CoverageRegistry(dbMetadataSource);
+            Coverage coverage = coverageRegistry.lookupCoverage(layers.get(0).getName());
+            CoverageMetadata coverageMetadata = coverage.getCoverageMetadata();
+            String crs = CrsUtil.CrsUri.createCompound(coverageMetadata.getCrsUris());
+            try {
+                int index = 0;
+                for (String axisLabel : getAxesLabels(coverageMetadata.getCrsUris())) {
+                    DomainElement dom = coverageMetadata.getDomainByName(axisLabel);
+                    if (dom.getType().equals(AxisTypes.X_AXIS) || dom.getType().equals(AxisTypes.Y_AXIS)) {
+                        String min = String.valueOf(this.boundingBox.getMinx());
+                        String max = String.valueOf(this.boundingBox.getMaxx());
+                        if (index != 0) {
+                            min = String.valueOf(this.boundingBox.getMiny());
+                            max = String.valueOf(this.boundingBox.getMaxy());
+                        }
+                        CrsComputer crsComputer = new CrsComputer(dom.getLabel(), crs,
+                            new Interval<String>(min, max), coverage, coverageRegistry);
+                        Interval<Long> indices = crsComputer.getPixelIndices(true);
+                        rasdamanSubsets.add(new RasdamanSubset(dom.getOrder(), indices.getLowerLimit(), indices.getUpperLimit()));
+                        index += 1;
+                    }
+                }
+            } catch (PetascopeException e) {
+                throw new WMSInvalidCrsUriException(crs);
+            } catch (SecoreException e) {
+                throw new WMSInvalidCrsUriException(crs);
+            }
 
-            DomainElement secondAxis = coverageMetadata.getDomainList().get(1);
-            long[] secondAxisIndices = CrsUtil.convertToInternalGridIndices(coverageMetadata,
-                dbMetadataSource, secondAxis.getLabel(),
-                String.valueOf(this.boundingBox.getMiny()), true,
-                String.valueOf(this.boundingBox.getMaxy()), true);
-            rasdamanSubsets.add(new RasdamanSubset(secondAxis.getOrder(), secondAxisIndices[0], secondAxisIndices[1]));
             return rasdamanSubsets;
         } catch (Exception e) {
             throw new WMSInvalidBbox(boundingBox.toString());

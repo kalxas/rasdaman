@@ -25,14 +25,12 @@ package petascope.wms2.service.getmap;
 import petascope.wms2.metadata.BoundingBox;
 import petascope.wms2.metadata.Layer;
 import petascope.wms2.service.base.Validator;
-
-
-import java.util.List;
-
 import petascope.wms2.service.exception.error.WMSException;
 import petascope.wms2.service.exception.error.WMSInternalException;
 import petascope.wms2.service.exception.error.WMSInvalidBbox;
 import petascope.wms2.service.exception.error.WMSInvalidLayerException;
+
+import java.util.List;
 
 
 /**
@@ -71,7 +69,7 @@ public class GetMapValidator implements Validator<GetMapRequest> {
             }
             for (BoundingBox boundingBox : bboxes) {
                 if (boundingBox.getCrs().getCrsName().equalsIgnoreCase(bbox.getCrs().getCrsName())) {
-                    if (!boundingBox.canContain(bbox)) {
+                    if (!boundingBox.forceCanContain(bbox)) {
                         throw new WMSInvalidBbox(bbox.toString());
                     }
                 }

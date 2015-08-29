@@ -137,6 +137,31 @@ public class BoundingBox implements ISerializableMetadataObject, IPersistentMeta
     }
 
     /**
+     * Always returns true and modifies the bbox in order to fit in the existing one.
+     * This function was created to accommodate clients like OpenLayers (the majority of WMS clients) which ignore the standard and
+     * request bboxes larger than the layer bbox. Once these clients start respecting the standard we can
+     * switch back to the canContain standard abiding method.
+     *
+     * @param bbox the given bounding box
+     * @return true
+     */
+    public boolean forceCanContain(BoundingBox bbox) {
+        if (minx > bbox.getMinx()) {
+            bbox.setMinx(minx);
+        }
+        if (miny > bbox.getMiny()) {
+            bbox.setMiny(miny);
+        }
+        if (maxx < bbox.getMaxx()) {
+            bbox.setMaxx(maxx);
+        }
+        if (maxy < bbox.getMaxy()) {
+            bbox.setMaxy(maxy);
+        }
+        return true;
+    }
+
+    /**
      * Returns the min value on x axis
      *
      * @return the min value on x axis
@@ -181,6 +206,42 @@ public class BoundingBox implements ISerializableMetadataObject, IPersistentMeta
     @NotNull
     public Crs getCrs() {
         return crs;
+    }
+
+    /**
+     * Setter for the minx property
+     *
+     * @param minx the minimum on this axis of the bbox
+     */
+    public void setMinx(double minx) {
+        this.minx = minx;
+    }
+
+    /**
+     * Setter for the miny property
+     *
+     * @param miny the minimum on this axis of the bbox
+     */
+    public void setMiny(double miny) {
+        this.miny = miny;
+    }
+
+    /**
+     * Setter for the maxx property
+     *
+     * @param maxx the minimum on this axis of the bbox
+     */
+    public void setMaxx(double maxx) {
+        this.maxx = maxx;
+    }
+
+    /**
+     * Setter for the maxy property
+     *
+     * @param maxy the minimum on this axis of the bbox
+     */
+    public void setMaxy(double maxy) {
+        this.maxy = maxy;
     }
 
     @Override

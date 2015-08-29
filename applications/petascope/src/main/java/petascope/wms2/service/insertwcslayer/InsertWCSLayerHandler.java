@@ -27,6 +27,8 @@ import petascope.core.CoverageMetadata;
 import petascope.core.DbMetadataSource;
 import petascope.exceptions.PetascopeException;
 import petascope.exceptions.SecoreException;
+import petascope.util.AxisTypes;
+import petascope.util.CrsUtil;
 import petascope.wcps.metadata.Bbox;
 import petascope.wcps.metadata.CellDomainElement;
 import petascope.wcps.metadata.DomainElement;
@@ -38,6 +40,8 @@ import petascope.wms2.util.CrsComputer;
 
 import java.sql.SQLException;
 import java.util.List;
+
+import static petascope.util.CrsUtil.getAxesLabels;
 
 /**
  * Handler for the InsertWCSLayer requests. It will use an existing WCS coverage and it will make it available to WMS.
@@ -69,9 +73,30 @@ public class InsertWCSLayerHandler implements Handler<InsertWCSLayerRequest, Ins
      * @return the wms bbox.
      * @throws WMSInvalidBbox
      */
-    private static BoundingBox create2DBboxFromWcs(Crs persistentCrs, Layer persistentWmsLayer, CoverageMetadata wcsCoverage) throws WMSInvalidBbox {
-        Bbox bbox = wcsCoverage.getBbox();
-        return new BoundingBox(persistentCrs, bbox.getMinX(), bbox.getMinY(), bbox.getMaxX(), bbox.getMaxY(), persistentWmsLayer);
+    private static BoundingBox create2DBboxFromWcs(Crs persistentCrs, Layer persistentWmsLayer, CoverageMetadata wcsCoverage) throws WMSInvalidBbox, WMSInvalidCrsUriException {
+        String crs = CrsUtil.CrsUri.createCompound(wcsCoverage.getCrsUris());
+        double minX = 0, minY = 0, maxX = 0, maxY = 0;
+        try {
+            int index = 0;
+            for (String axisLabel : getAxesLabels(wcsCoverage.getCrsUris())) {
+                DomainElement dom = wcsCoverage.getDomainByName(axisLabel);
+                if (dom.getType().equals(AxisTypes.X_AXIS) || dom.getType().equals(AxisTypes.Y_AXIS)) {
+                    if (index == 0) {
+                        minX = dom.getMinValue().doubleValue();
+                        maxX = dom.getMaxValue().doubleValue();
+                    } else {
+                        minY = dom.getMinValue().doubleValue();
+                        maxY = dom.getMaxValue().doubleValue();
+                    }
+                    index += 1;
+                }
+            }
+        } catch (PetascopeException e) {
+            throw new WMSInvalidCrsUriException(crs);
+        } catch (SecoreException e) {
+            throw new WMSInvalidCrsUriException(crs);
+        }
+        return new BoundingBox(persistentCrs, minX, minY, maxX, maxY, persistentWmsLayer);
     }
 
     /**
