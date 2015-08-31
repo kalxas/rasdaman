@@ -36,17 +36,18 @@ class Importer:
         """
         Ingests the given coverage
         """
-        if self._is_insert():
-            self._initialize_coverage()
-        else:
-            # If this is an update do not insert into wms
-            self.insert_into_wms = False
+        if len(self.coverage.slices) > 0:
+            if self._is_insert():
+                self._initialize_coverage()
+            else:
+                # If this is an update do not insert into wms
+                self.insert_into_wms = False
 
-        # Insert the remaining slices
-        self._insert_slices()
+            # Insert the remaining slices
+            self._insert_slices()
 
-        if self.insert_into_wms:
-            self._insert_into_wms()
+            if self.insert_into_wms:
+                self._insert_into_wms()
 
     def get_progress(self):
         """

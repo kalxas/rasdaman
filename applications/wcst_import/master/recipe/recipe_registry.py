@@ -82,8 +82,10 @@ def run_status(recipe):
     :param BaseRecipe recipe: the recipe to get the status from
     """
     processed_items, total = 0, 1
-    while processed_items < total or total == 0 or processed_items != -1:
+    while processed_items < total or total == 0:
         processed_items, total = recipe.status()
         if total != 0 and total != -1:
             update_progress(processed_items, total)
+        if total == -1:
+            return
         sleep(1)
