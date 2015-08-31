@@ -27,3 +27,6 @@ class UrlDataProvider(DataProvider):
 
     def __str__(self):
         return self.url
+
+    def to_eq_hash(self):
+        return self.url

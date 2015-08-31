@@ -19,4 +19,10 @@ class ConfigManager:
     executor = WCSTExecutor(wcs_service)
     default_field_name_prefix = "field_"
     default_unit_of_measure = "10^0"
-    subset_correction = False
+    subset_correction = False,
+    skip = False,
+    retry = False,
+    retries = 5,
+    retry_sleep = 1,
+    slice_restriction = None,
+    resumer_dir_path = None

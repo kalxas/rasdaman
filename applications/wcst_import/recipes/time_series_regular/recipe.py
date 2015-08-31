@@ -52,28 +52,25 @@ class Recipe(BaseRecipe):
         Implementation of the base recipe describe method
         """
         super(Recipe, self).describe()
-        timeseries = self._generate_timeseries_tuples(5)  # look at the first 5 records only and show them to the user
-        log.info(
-            "\n" + str(len(timeseries)) + " files have been analyzed. Check that the timestamps are correct for each.")
-        for slice in timeseries:
-            log.info("File: " + slice.file.get_filepath() + " | " + "Timestamp: " + slice.time.to_string())
+        importer = self._get_importer()
+        log.info("A couple of files have been analyzed. Check that the timestamps are correct for each.")
+        index = 1
+        for slice in importer.get_slices_for_description():
+            log.info("Slice " + str(index) + ": " + str(slice))
+            index += 1
 
     def ingest(self):
         """
         Ingests the input files
         """
-        self.importer = Importer(self._get_coverage())
-        self.importer.ingest()
+        self._get_importer().ingest()
 
     def status(self):
         """
         Implementation of the status method
         :rtype (int, int)
         """
-        if self.importer is None:
-            return 0, 0
-        else:
-            return self.importer.get_progress()
+        return self._get_importer().get_progress()
 
     def _generate_timeseries_tuples(self, limit=None):
         """
@@ -172,6 +169,11 @@ class Recipe(BaseRecipe):
         coverage = Coverage(self.session.get_coverage_id(), slices, fields, crs,
             gdal_dataset.get_band_gdal_type(), self.options['tiling'])
         return coverage
+
+    def _get_importer(self):
+        if self.importer is None:
+            self.importer = Importer(self._get_coverage())
+        return self.importer
 
     @staticmethod
     def get_name():

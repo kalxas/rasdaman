@@ -57,10 +57,11 @@ class RecipeRegistry:
             log.success("Recipe executed successfully")
 
 
-def update_progress(progress):
+def update_progress(processed_items, total):
     """
     Updates the progress using a progressbar
     """
+    progress = float(processed_items) / float(total)
     bar_length = 30
     status = ""
     if isinstance(progress, int):
@@ -69,7 +70,8 @@ def update_progress(progress):
         progress = 1
         status = "Done.\r\n"
     block = int(round(bar_length * progress))
-    text = "\rProgress: [{0}] {1:.2f}% {2}".format("#" * block + "-" * (bar_length - block), progress * 100, status)
+    text = "\rProgress: [{0}] {3}/{4} {1:.2f}% {2}".format("#" * block + "-" * (bar_length - block), progress * 100,
+                                                           status, processed_items, total)
     sys.stdout.write(text)
     sys.stdout.flush()
 
@@ -80,8 +82,8 @@ def run_status(recipe):
     :param BaseRecipe recipe: the recipe to get the status from
     """
     processed_items, total = 0, 1
-    while processed_items < total or total == 0:
+    while processed_items < total or total == 0 or processed_items != -1:
         processed_items, total = recipe.status()
-        if total != 0:
-            update_progress(float(processed_items) / float(total))
+        if total != 0 and total != -1:
+            update_progress(processed_items, total)
         sleep(1)

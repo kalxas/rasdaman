@@ -41,9 +41,12 @@ class BaseRecipe:
         log.info("The recipe has been validated and is ready to run.")
         log.info("\033[1mRecipe:\x1b[0m " + self.session.get_recipe()['name'])
         log.info("\033[1mCoverage:\x1b[0m " + self.session.get_coverage_id())
+        log.info("\033[1mWCS Service:\x1b[0m " + ConfigManager.wcs_service)
         log.info("\033[1mOperation:\x1b[0m " + operation_type)
         log.info("\033[1mSubset Correction:\x1b[0m " + str(ConfigManager.subset_correction))
         log.info("\033[1mMocked:\x1b[0m " + str(ConfigManager.mock))
+        if ConfigManager.slice_restriction is not None:
+            log.info("\033[1mSlice Restriction:\x1b[0m " + str(ConfigManager.slice_restriction))
         pass
 
     @abstractmethod

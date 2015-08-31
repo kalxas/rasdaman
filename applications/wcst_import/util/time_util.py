@@ -1,11 +1,12 @@
+import functools
 from lib.arrow import api as arrow
 from lib.arrow.parser import ParserError
 from util.crs_util import CRSUtil
 from master.error.runtime_exception import RuntimeException
 
 
+@functools.total_ordering
 class DateTimeUtil:
-
     CRS_CODE_ANSI_DATE = "AnsiDate"
     CRS_CODE_UNIX_TIME = "UnixTime"
 
@@ -40,6 +41,9 @@ class DateTimeUtil:
         else:
             return self.to_unknown()
 
+    def __str__(self):
+        return self.to_string()
+
     def to_ansi(self):
         """
         Returns the datetime in iso format
@@ -60,3 +64,19 @@ class DateTimeUtil:
         :return: throw RuntimeException
         """
         raise RuntimeException("Unsupported time CRS " + self.time_crs_code)
+
+    def __eq__(self, other):
+        """
+        Compares two tuples ==
+        :param DateTimeUtil other: the tuple to compare with
+        :rtype bool
+        """
+        return self.datetime == other.datetime
+
+    def __lt__(self, other):
+        """
+        Compares two tuples <
+        :param DateTimeUtil other: the tuple to compare with
+        :rtype bool
+        """
+        return self.datetime < other.datetime

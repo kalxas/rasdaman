@@ -29,7 +29,33 @@
     "__comment__": "[OPTIONAL] In case the files are exposed via a web-server and not locally, you can add the root url here, otherwise the default is listed below",
     "url_root": "file://",
     "__comment__": "[OPTIONAL] In some cases the resolution is small enough to affect the precision of the transformation from domain coordinates to grid coordinates. To allow for corrections that will make the import possible, set this parameter to true.",
-    "subset_correction": false
+    "subset_correction": false,
+    "__comment__": "[OPTIONAL] If set to true, it will skip files that were not imported and move to the next ones.",
+    "skip": false,
+    "__comment__": "[OPTIONAL] If a WCST request fails it will be retried a number of times before an error is thrown",
+    "retry": true,
+    "__comment__": "[OPTIONAL] Number of retries to be attempted.",
+    "retries": 5,
+    "__comment__": "[OPTIONAL] The number of seconds to wait before retrying after an error. You can also specify a floating number to represent subdivisions of seconds.",
+    "retry_sleep": 1,
+    "__comment__": "[OPTIONAL] Limit the slices that are imported to the ones that fit in the bounding box below. Each subset in the bounding box should be of form {low:0,high:100} in the format of the axis.",
+    "slice_restriction": [
+      {
+        "low": 0,
+        "high": 36000
+      },
+      {
+        "low": 0,
+        "high": 18000
+      },
+      {
+        "low": "2012-02-09",
+        "high": "2012-12-09T14:20",
+        "type": "date"
+      }
+    ],
+    "__comment__" : "[OPTIONAL] The directory in which to store the resumer file. By default, it will be stored in the same folder as the ingredients file."
+    "resumer_dir_path" : "/var/geodata/resumer/"
   },
   "input": {
     "__comment__": "The id of the coverage. If it already exists, we will consider this operation an update",
@@ -49,8 +75,12 @@
       "tiling": "ALIGNED [0:500, 0:500]",
       "__comment__": "[OPTIONAL] If you want to import in wms as well set this variable to true",
       "wms_import": true,
-      "__comment__" : "[OPTIONAL] Specify the names of the bands, in cases the automatic inference (default: field_1, ...) is not good enough"
-      "band_names" : ["red", "green", "blue"]
+      "__comment__": "[OPTIONAL] Specify the names of the bands, in cases the automatic inference (default: field_1, ...) is not good enough",
+      "band_names": [
+        "red",
+        "green",
+        "blue"
+      ]
     }
   },
   "recipe": {
@@ -88,8 +118,12 @@
       "time_step": "2 days 10 minutes 3 seconds",
       "__comment__": "[OPTIONAL]The tiling of the coverage in rasql format",
       "tiling": "ALIGNED [0:1000, 0:1000, 0:2]",
-      "__comment__" : "[OPTIONAL] Specify the names of the bands, in cases the automatic inference (default: field_1, ...) is not good enough"
-      "band_names" : ["red", "green", "blue"]
+      "__comment__": "[OPTIONAL] Specify the names of the bands, in cases the automatic inference (default: field_1, ...) is not good enough",
+      "band_names": [
+        "red",
+        "green",
+        "blue"
+      ]
     }
   },
   "recipe": {
@@ -115,8 +149,12 @@
       "time_crs": "http://kahlua.eecs.jacobs-university.de:8080/def/crs/OGC/0/AnsiDate",
       "__comment__": "[OPTIONAL]The tiling of the coverage in rasql format",
       "tiling": "ALIGNED [0:10, 0:1000, 0:500]",
-      "__comment__" : "[OPTIONAL] Specify the names of the bands, in cases the automatic inference (default: field_1, ...) is not good enough"
-      "band_names" : ["red", "green", "blue"]
+      "__comment__": "[OPTIONAL] Specify the names of the bands, in cases the automatic inference (default: field_1, ...) is not good enough",
+      "band_names": [
+        "red",
+        "green",
+        "blue"
+      ]
     }
   }
 }

@@ -94,10 +94,13 @@ class CRSUtil:
         return compound
 
     def _parse(self):
-        if self.crs_url.find("crs-compound") != -1:
-            self._parse_compound_crs()
-        else:
-            self._parse_single_crs(self.crs_url)
+        self.axes = self.get_from_cache(self.crs_url)
+        if len(self.axes) == 0:
+            if self.crs_url.find("crs-compound") != -1:
+                self._parse_compound_crs()
+            else:
+                self._parse_single_crs(self.crs_url)
+            self.save_to_cache(self.crs_url, self.axes)
 
     def _parse_compound_crs(self):
         # http://kahlua.eecs.jacobs-university.de:8080/def/crs-compound?1=http://www.opengis.net/def/crs/EPSG/0/28992&2=http://www.opengis.net/def/crs/EPSG/0/5709
@@ -139,4 +142,13 @@ class CRSUtil:
             raise RuntimeException(
                 "We could not parse the crs at " + crs + ". Please check that the url is correct.")
 
+    def save_to_cache(self, crs, axes):
+        self.__CACHE__[crs] = axes
+
+    def get_from_cache(self, crs):
+        if crs in self.__CACHE__:
+            return self.__CACHE__[crs]
+        return []
+
+    __CACHE__ = {}
 

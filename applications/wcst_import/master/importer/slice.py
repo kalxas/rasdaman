@@ -16,6 +16,6 @@ class Slice:
     def __str__(self):
         ret = "{Axis Subset: "
         for subset in self.axis_subsets:
-            ret += str(subset)
+            ret += str(subset) + " "
         ret += "\nData Provider: " + str(self.data_provider) + "}\n"
         return ret

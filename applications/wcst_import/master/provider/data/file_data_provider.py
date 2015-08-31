@@ -35,3 +35,12 @@ class FileDataProvider(DataProvider):
 
     def __str__(self):
         return self.get_file_url()
+
+    def to_eq_hash(self):
+        """
+        Returns a hash of the object that can be used to compare with other providers that might be instantiated
+        in a different run of the program. Two data providers must be hash equal if by importing them you
+        obtain the same end result
+        :rtype: str
+        """
+        return self.get_file_url()
