@@ -48,48 +48,48 @@ static const char rcsid[] = "@(#)blobif,BLOBTile: $Id: inlinetile.cc,v 1.5 2002/
 #include "relindexif/dbtcindex.hh"
 #include "reladminif/dbref.hh"
 #include "storagemgr/sstoragelayout.hh"
+#include "../common/src/logging/easylogging++.hh"
 
 #include <cstring>
 
 InlineTile::InlineTile(r_Data_Format dataformat)
     :   BLOBTile(dataformat)
 {
-    RMDBGONCE(3, RMDebug::module_blobif, "InlineTile", "InlineTile()");
+    LTRACE << "InlineTile()";
     objecttype = OId::INLINETILEOID;
 }
 
 InlineTile::InlineTile(r_Bytes newSize, char c, r_Data_Format dataformat)
     :   BLOBTile(newSize, c, dataformat)
 {
-    RMDBGONCE(3, RMDebug::module_blobif, "InlineTile", "InlineTile(" << newSize << ", data)");
+    LTRACE << "InlineTile(" << newSize << ", data)";
     objecttype = OId::INLINETILEOID;
 }
 
 InlineTile::InlineTile(r_Bytes newSize, r_Bytes patSize, const char* pat, r_Data_Format dataformat)
     :   BLOBTile(newSize, patSize, pat, dataformat)
 {
-    RMDBGONCE(3, RMDebug::module_blobif, "InlineTile", "InlineTile(" << newSize << ", " << patSize << ", pattern)");
+    LTRACE << "InlineTile(" << newSize << ", " << patSize << ", pattern)";
     objecttype = OId::INLINETILEOID;
 }
 
 InlineTile::InlineTile(r_Bytes newSize, const char* newCells, r_Data_Format dataformat)
     :   BLOBTile(newSize, newCells, dataformat)
 {
-    RMDBGONCE(3, RMDebug::module_blobif, "InlineTile", "InlineTile(" << size << ", data)");
+    LTRACE << "InlineTile(" << size << ", data)";
     objecttype = OId::INLINETILEOID;
 }
 
 InlineTile::InlineTile(const OId& id) throw (r_Error)
     :   BLOBTile(id)
 {
-    RMDBGONCE(5, RMDebug::module_blobif, "InlineTile", "InlineTile(" << id <<")");
+    LTRACE << "InlineTile(" << id <<")";
     objecttype = OId::INLINETILEOID;
 }
 
 InlineTile::InlineTile(const OId& id, char*& thecells)
     :   BLOBTile(r_Array)
 {
-    RMDBGENTER(5, RMDebug::module_blobif, "InlineTile", "InlineTile(" << id << ", cells " << (r_Ptr)thecells << ")");
     objecttype = OId::INLINETILEOID;
     myIndexOId = id;
 
@@ -109,12 +109,11 @@ InlineTile::InlineTile(const OId& id, char*& thecells)
     cells = static_cast<char*>(mymalloc(size * sizeof(char)));
     memcpy(cells, thecells, size);
     thecells = thecells + size;
-    RMDBGMIDDLE(5, RMDebug::module_blobif, "InlineTile", "OId " << myOId << " size " << size << " DataFormat " << dataFormat);
+    LTRACE << "OId " << myOId << " size " << size << " DataFormat " << dataFormat;
 
     DBObject::readFromDb();
     _isInDatabase = false;
     ObjectBroker::registerDBObject(this);
-    RMDBGEXIT(5, RMDebug::module_blobif, "InlineTile", "InlineTile(" << id << ", cells " << (r_Ptr)thecells << ") " << myOId);
 }
 
 void
@@ -168,19 +167,17 @@ InlineTile::isCached() const
 void
 InlineTile::setModified() throw(r_Error)
 {
-    RMDBGENTER(4, RMDebug::module_blobif, "InlineTile", "setModified() " << myOId);
     DBObject::setModified();
     if (isInlined())
     {
-        RMDBGMIDDLE(4, RMDebug::module_blobif, "InlineTile", " index will be modified");
+        LTRACE << " index will be modified";
         DBTCIndexId t(myIndexOId);
         t->setInlineTileHasChanged();
     }
     else
     {
-        RMDBGMIDDLE(4, RMDebug::module_blobif, "InlineTile", "index will not be modified");
+        LTRACE << "index will not be modified";
     }
-    RMDBGEXIT(4, RMDebug::module_blobif, "InlineTile", "setModified() " << myOId);
 }
 
 const OId&
@@ -236,7 +233,6 @@ InlineTile::isInlined() const
 char*
 InlineTile::insertInMemBlock(char* thecontents)
 {
-    RMDBGENTER(5, RMDebug::module_blobif, "InlineTile", "insertInMemBlock(" << (void*)thecontents << ")");
     //store size of blob
     memcpy(thecontents, &size, sizeof(r_Bytes));
     thecontents = thecontents + sizeof(r_Bytes);
@@ -252,10 +248,9 @@ InlineTile::insertInMemBlock(char* thecontents)
     //store the blob
     memcpy(thecontents, cells, size * sizeof(char));
     thecontents = thecontents + size * sizeof(char);
-    RMDBGMIDDLE(5, RMDebug::module_blobif, "InlineTile", "OId " << myOId << " size " << size << " DataFormat " << dataFormat);
-    RMDBGIF(20, RMDebug::module_blobif, "InlineTile", for (int i = 0; i < size; i++) RMInit::dbgOut << (unsigned int)(cells[i]) << " "; RMInit::dbgOut << endl;)
+    LTRACE << "OId " << myOId << " size " << size << " DataFormat " << dataFormat;
+    RMDBGIF(20, RMDebug::module_blobif, "InlineTile", for (int i = 0; i < size; i++) LTRACE << (unsigned int)(cells[i]) << " ";)
         DBObject::updateInDb();
-    RMDBGEXIT(5, RMDebug::module_blobif, "InlineTile", "insertInMemBlock(" << (void*)thecontents << ")");
     return thecontents;
 }
 

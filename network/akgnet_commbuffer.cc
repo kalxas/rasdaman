@@ -34,7 +34,7 @@ rasdaman GmbH.
 #include <akgnet_commbuffer.hh>
 #include <string>
 #include <assert.h>
-
+#include "../common/src/logging/easylogging++.hh"
 
 akg::CommBuffer::CommBuffer() throw()
 {
@@ -211,7 +211,7 @@ int akg::CommBuffer::reserve(int size) throw()
 
 int akg::CommBuffer::write(FileDescriptor &socket) throw()
 {
-    DBTALK("CommBuffer write fillSize="<<fillSize<<" sendSize="<<sendSize);
+    LDEBUG << "CommBuffer write fillSize=" << fillSize << " sendSize=" << sendSize;
     int rasp = socket.write(data+sendSize,fillSize-sendSize);
 
     if(rasp>=0) sendSize+=rasp;
@@ -234,13 +234,13 @@ int akg::CommBuffer::write(void *externalBuffer,int size) throw()
 
 void akg::CommBuffer::clearToRead() throw()
 {
-    DBTALK("CommBuffer clearToRead");
+    LDEBUG << "CommBuffer clearToRead";
     fillSize=0;
     sendSize=0;
 }
 void akg::CommBuffer::clearToWrite() throw()
 {
-    DBTALK("CommBuffer clearToWrite");
+    LDEBUG << "CommBuffer clearToWrite";
     sendSize=0;
 }
 

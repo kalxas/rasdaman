@@ -25,7 +25,6 @@ rasdaman GmbH.
 
 #include "raslib/mddtypes.hh"
 #include "reladminif/oidif.hh"
-#include "raslib/rmdebug.hh"
 #include "debug/debug-srv.hh"
 
 #include <set>
@@ -34,24 +33,6 @@ rasdaman GmbH.
 //#define DEBUG_CACHE
 
 #define OID_KEY(key) (key.getCounter())
-
-#ifdef DEBUG_CACHE
-    #define TENTER(msg) RMInit::logOut << "ENTER " << msg << endl;
-#else
-    #define TENTER(msg) ENTER(msg);
-#endif
-
-#ifdef DEBUG_CACHE
-    #define TLEAVE(msg) RMInit::logOut << "LEAVE " << msg << endl;
-#else
-    #define TLEAVE(msg) LEAVE(msg);
-#endif
-
-#ifdef DEBUG_CACHE
-    #define TTALK(msg) RMInit::logOut << "  " << msg << endl;
-#else
-    #define TTALK(msg) TALK(msg);
-#endif
 
 class CacheValue
 {

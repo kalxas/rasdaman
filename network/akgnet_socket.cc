@@ -34,6 +34,8 @@ rasdaman GmbH.
 #include <assert.h>
 #include <akgnet_socket.hh>
 
+#include "../common/src/logging/easylogging++.hh"
+
 akg::Socket::Socket() throw()
 {
 }
@@ -96,7 +98,7 @@ bool akg::ListenSocket::open(int port) throw()
     unsigned int len = sizeof( val );
     if(setsockopt( fileDescriptor, SOL_SOCKET, SO_REUSEADDR, (char*)&val, len ))
     {
-        DBTALK("Can't set address reusable: "<<strerror(errno));
+        LDEBUG << "Can't set address reusable: " << strerror(errno);
     }
 #endif
 

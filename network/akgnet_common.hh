@@ -91,8 +91,6 @@ typedef in_addr_t  uint32_t;
 #endif
 //##### Debugging stuff ########################
 
-#define DBTALK(a)
-//#define DBTALK(a) cout<<a<<endl
 
 using namespace std;
 //##############################################

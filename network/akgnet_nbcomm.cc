@@ -33,6 +33,7 @@ rasdaman GmbH.
 #include "config.h"
 #include <akgnet_nbcomm.hh>
 #include <assert.h>
+#include "../common/src/logging/easylogging++.hh"
 
 //### NBJob - static members #########################
 time_t akg::NbJob::timeOutInterv = 30;
@@ -105,7 +106,7 @@ bool akg::NbJob::readPartialMessage() throw()
 
     if(nbytes>0)
     {
-        DBTALK("..read socket("<<fdRef()<<") "<<nbytes);
+        LDEBUG << "..read socket(" << fdRef() << ") " << nbytes;
         return validateMessage();
     }
 
@@ -114,18 +115,18 @@ bool akg::NbJob::readPartialMessage() throw()
         int saveerrno = fdRef.getErrno();
         switch(saveerrno)
         {
-        case EINTR:  //DBTALK("EINTR, retry please");
+        case EINTR:  //LDEBUG << "EINTR, retry please";
             break;
 
-        case EAGAIN: //DBTALK("EAGAIN, retry please");
+        case EAGAIN: //LDEBUG << "EAGAIN, retry please";
             break;
 
-            //case 0:      DBTALK("Premature End-of-file");
+            //case 0:      LDEBUG << "Premature End-of-file";
             // executeOnReadError() ???
             //       break;
 
         default:
-            DBTALK("Read error "<<saveerrno);
+            LDEBUG << "Read error " << saveerrno;
             executeOnReadError();
             break;
         }
@@ -142,11 +143,11 @@ bool akg::NbJob::writePartialMessage() throw()
 
     if(nbytes>0)
     {
-        DBTALK("..write socket("<<fdRef()<<") "<<nbytes);
+        LDEBUG << "..write socket(" << fdRef() << ") " << nbytes;
 
         if(currentBufferPtr->getNotSendedSize()==0)
         {
-            DBTALK("Write ready");
+            LDEBUG << "Write ready";
             executeOnWriteReady();
             return true;
         }
@@ -156,17 +157,17 @@ bool akg::NbJob::writePartialMessage() throw()
         int saveerrno = fdRef.getErrno();
         switch(saveerrno)
         {
-        case EINTR:  //DBTALK("EINTR, retry please");
+        case EINTR:  //LDEBUG << "EINTR, retry please";
             break;
 
-        case EAGAIN: //DBTALK("EAGAIN, retry please");
+        case EAGAIN: //LDEBUG << "EAGAIN, retry please";
             break;
 
-            //case 0:      DBTALK("Premature partner hang up"); //?? valabil la write
+            //case 0:      LDEBUG << "Premature partner hang up"; //?? valabil la write
             //       break;
 
         default:
-            DBTALK("Write error "<<saveerrno);
+            LDEBUG << "Write error " << saveerrno;
             executeOnWriteError();
             break;
         }
@@ -179,7 +180,7 @@ bool akg::NbJob::cleanUpIfTimeout() throw()
     if(fdRef.isOpen() == false ) return false;
     if(lastActionTime + timeOutInterv > currentTime) return false;
 
-    DBTALK("Client socket "<<fdRef()<<" timeout");
+    LDEBUG << "Client socket " << fdRef() << " timeout";
     clearConnection();
 
     //********************
@@ -246,7 +247,7 @@ void akg::NbServerJob::initOnAttach(Selector *pSelector) throw()
 
 akg::NbJob::acceptStatus akg::NbServerJob::acceptConnection(ListenSocket& listenSocket) throw()
 {
-    DBTALK("Am intrat in accepting");
+    LDEBUG << "Am intrat in accepting";
     assert(currentBufferPtr != NULL);
 
     if(status != wks_accepting) return acs_Iambusy;
@@ -257,11 +258,11 @@ akg::NbJob::acceptStatus akg::NbServerJob::acceptConnection(ListenSocket& listen
         int saveerrno = serverSocket.getErrno();
         if(saveerrno==EAGAIN)
         {
-            DBTALK("No pending connections");
+            LDEBUG << "No pending connections";
         }
         else
         {
-            DBTALK("Accept error "<<saveerrno);
+            LDEBUG << "Accept error " << saveerrno;
         }
         return acs_nopending;
     }
@@ -271,7 +272,7 @@ akg::NbJob::acceptStatus akg::NbServerJob::acceptConnection(ListenSocket& listen
     setReading();
 
     executeOnAccept();
-    DBTALK("Accept: Socket="<<fdRef());
+    LDEBUG << "Accept: Socket=" << fdRef();
     return acs_accepted;
 }
 
@@ -438,7 +439,7 @@ bool akg::NbCommunicator::mainLoop() throw()
 
     while( mayExit() == false)
     {
-        DBTALK("Waiting for calls");
+        LDEBUG << "Waiting for calls";
 
         if(executeBeforeSelect() == false) return false;
 
@@ -450,7 +451,7 @@ bool akg::NbCommunicator::mainLoop() throw()
 
         if(rasp > 0)
         {
-            DBTALK("Ringing");
+            LDEBUG << "Ringing";
             // first this, to increase the chance to free a client
             dispatchWriteRequest();
             connectNewClients();
@@ -460,13 +461,13 @@ bool akg::NbCommunicator::mainLoop() throw()
         }
         if(rasp == 0)
         {
-            DBTALK("Timeout");
+            LDEBUG << "Timeout";
             lookForTimeout();
             if(executeOnTimeout() == false) return false;
         }
         if(rasp < 0)
         {
-            DBTALK("select error: "<<strerror(errno));
+            LDEBUG << "select error: " << strerror(errno);
         }
     }
     return true;
@@ -474,7 +475,7 @@ bool akg::NbCommunicator::mainLoop() throw()
 
 void akg::NbCommunicator::processJobs() throw()
 {
-    DBTALK("process Jobs - entering");
+    LDEBUG << "process Jobs - entering";
 
     for(int i=0; i<maxJobs; i++)
     {
@@ -484,7 +485,7 @@ void akg::NbCommunicator::processJobs() throw()
 
         if(currentJob->isProcessing())
         {
-            DBTALK("job "<<i<<" is processing");
+            LDEBUG << "job " << i << " is processing";
 
             currentJob->processRequest();
         }
@@ -493,7 +494,7 @@ void akg::NbCommunicator::processJobs() throw()
 
 void akg::NbCommunicator::lookForTimeout() throw()
 {
-    DBTALK("Looking for timeout");
+    LDEBUG << "Looking for timeout";
 
     for(int i=0; i<maxJobs; i++)
     {
@@ -505,7 +506,7 @@ void akg::NbCommunicator::lookForTimeout() throw()
 
 void akg::NbCommunicator::dispatchWriteRequest() throw()
 {
-    DBTALK("Dispatch writing");
+    LDEBUG << "Dispatch writing";
     int i;
     for(i=0; i<maxJobs; i++)
     {
@@ -515,10 +516,10 @@ void akg::NbCommunicator::dispatchWriteRequest() throw()
 
         if(currentJob->isWriting())
         {
-            DBTALK("job "<<i<<' '<<currentJob->getSocket()<<" is active");
+            LDEBUG << "job " << i << ' ' << currentJob->getSocket() << " is active";
             if(selector.isWrite(currentJob->getSocket()))
             {
-                DBTALK("...and may write ");
+                LDEBUG << "...and may write ";
                 currentJob->writePartialMessage();
             }
         }
@@ -527,7 +528,7 @@ void akg::NbCommunicator::dispatchWriteRequest() throw()
 
 void akg::NbCommunicator::dispatchReadRequest() throw()
 {
-    DBTALK("Dispatch reading");
+    LDEBUG << "Dispatch reading";
     int i;
     for(i=0; i<maxJobs; i++)
     {
@@ -537,10 +538,10 @@ void akg::NbCommunicator::dispatchReadRequest() throw()
 
         if(currentJob->isReading())
         {
-            DBTALK("job "<<i<<' '<<currentJob->getSocket()<<" is active");
+            LDEBUG << "job " << i << ' ' << currentJob->getSocket() << " is active";
             if(selector.isRead(currentJob->getSocket()))
             {
-                DBTALK("... and has message");
+                LDEBUG << "... and has message";
                 currentJob->readPartialMessage();
             }
         }
@@ -549,11 +550,11 @@ void akg::NbCommunicator::dispatchReadRequest() throw()
 
 void akg::NbCommunicator::connectNewClients() throw()
 {
-    DBTALK("connect listenSocket="<<listenSocket());
+    LDEBUG << "connect listenSocket=" << listenSocket();
 
     if(selector.isRead(listenSocket()) == false) return;
 
-    DBTALK("Client is calling");
+    LDEBUG << "Client is calling";
 
     akg::NbJob::acceptStatus status;
 
@@ -570,7 +571,7 @@ void akg::NbCommunicator::connectNewClients() throw()
 
             if(status == akg::NbJob::acs_nopending  ) break;
             // there is no pending request,
-            DBTALK("Connected client "<<i<<" on socket "<<currentJob->getSocket());
+            LDEBUG << "Connected client " << i << " on socket " << currentJob->getSocket();
         }
     }
 }

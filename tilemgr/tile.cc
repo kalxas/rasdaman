@@ -45,11 +45,12 @@ static const char rcsid[] = "@(#)cachetamgr,Tile: $Id: tile.cc,v 1.79 2005/09/03
 #include "relblobif/blobtile.hh"
 #include "reladminif/adminif.hh"
 #include "relblobif/inlinetile.hh"
-#include "raslib/rmdebug.hh"
 #include "raslib/miter.hh"
 #include "raslib/miterf.hh"
 #include "raslib/miterd.hh"
 #include "raslib/basetype.hh"
+
+#include "../common/src/logging/easylogging++.hh"
 
 #include <cstring>
 
@@ -142,7 +143,7 @@ Tile::Tile(const Tile* projTile, const r_Minterval& projDom, const std::set<r_Di
         }
     }
 
-    RMDBGONCE(3, RMDebug::module_tilemgr, "Tile", "domain result: " << domain << " domain original: " << projTile->getDomain());
+    LTRACE << "domain result: " << domain << " domain original: " << projTile->getDomain();
 
     // init contents
     if (RMInit::useTileContainer)
@@ -160,7 +161,7 @@ Tile::Tile(const Tile* projTile, const r_Minterval& projDom, const std::set<r_Di
     {
         cellTile = newTileIter.nextCell();
         cellProj = projTileIter.nextCell();
-        RMDBGONCE(3, RMDebug::module_tilemgr, "TransTile", "offset in original: " << (int)(cellProj-((Tile*)projTile)->getContents()) << " {" << (int)*cellProj << "} offset in result: " << (int)((int)(cellTile-getContents())) << " {" << (int)*cellTile << "}");
+        LTRACE << "offset in original: " << (int)(cellProj-(projTile)->getContents()) << " {" << (int)*cellProj << "} offset in result: " << (int)((int)(cellTile-getContents())) << " {" << (int)*cellTile << "}";
         // execute operation on cell
         (*op)(cellTile, cellProj);
     }
@@ -173,7 +174,7 @@ Tile::Tile(const r_Minterval& newDom, const BaseType* newType, DBTileId newBLOBT
         type(newType),
         blobTile(newBLOBTile)
 {
-    RMDBGONCE(3, RMDebug::module_rasodmg, "Tile","Tile(" << newDom << ", " << newType->getName() << ", blob)");
+    LTRACE << "Tile(" << newDom << ", " << newType->getName() << ", blob)";
 }
 
 Tile::Tile(const r_Minterval& newDom, const BaseType* newType, r_Data_Format newFormat)
@@ -181,7 +182,7 @@ Tile::Tile(const r_Minterval& newDom, const BaseType* newType, r_Data_Format new
         type(newType),
         blobTile((DBTile*)NULL)
 {
-    RMDBGONCE(3, RMDebug::module_rasodmg, "Tile","Tile(new), size " << getSize());
+    LTRACE << "Tile(new), size " << getSize();
     // note that the size is not correct (usually too big) for compressed
     // tiles. Doesn't matter, because resize is called anyway.
     if (RMInit::useTileContainer)
@@ -195,7 +196,7 @@ Tile::Tile(const r_Minterval& newDom, const BaseType* newType, char* newCells, r
         type(newType),
         blobTile((DBTile*)NULL)
 {
-    RMDBGONCE(3, RMDebug::module_rasodmg, "Tile","Tile(), fmt " << newFormat << ", size " << newSize);
+    LTRACE << "Tile(), fmt " << newFormat << ", size " << newSize;
     r_Data_Format current = r_Array;
     if (!newSize)
     {
@@ -220,7 +221,7 @@ Tile::Tile(const r_Minterval& newDom, const BaseType* newType, const char* newCe
         type(newType),
         blobTile((DBTile*)NULL)
 {
-    RMDBGONCE(3, RMDebug::module_rasodmg, "Tile","Tile(), fmt " << newFormat << ", size " << newSize);
+    LTRACE <<"Tile(), fmt " << newFormat << ", size " << newSize;
     r_Data_Format current = r_Array;
     if (!newSize)
     {
@@ -248,7 +249,7 @@ Tile::setPersistent(bool state)
 r_Bytes
 Tile::getCompressedSize() const
 {
-    RMDBGONCE(3, RMDebug::module_rasodmg, "Tile","getCompressedSize()");
+    LTRACE << "getCompressedSize()";
     return blobTile->getSize();
 }
 
@@ -261,7 +262,7 @@ Tile::isPersistent() const
 
 Tile::~Tile()
 {
-    RMDBGONCE(3, RMDebug::module_rasodmg, "Tile", "~Tile() " << (r_Ptr) this);
+    LTRACE << "~Tile() " << (r_Ptr) this;
     // this function has to check now if a tile has to be compressed.
     // The old scheme of compression in AdminIf::compCompTiles does
     // not work, because tiles may be destroyed before with releaseAll.
@@ -276,7 +277,6 @@ Tile::getDBTile()
 char*
 Tile::execCondenseOp(CondenseOp* myOp, const r_Minterval& areaOp)
 {
-    RMDBGENTER(3, RMDebug::module_tilemgr, "Tile", "execCondenseOp()");
     char* cellOp = NULL;
     char* dummy = getContents();
     r_Miter opTileIter(&areaOp, &getDomain(), getType()->getSize(), dummy);
@@ -294,7 +294,6 @@ Tile::execCondenseOp(CondenseOp* myOp, const r_Minterval& areaOp)
 #ifdef RMANBENCHMARK
     opTimer.pause();
 #endif
-    RMDBGEXIT(3, RMDebug::module_tilemgr, "Tile", "execCondenseOp()");
 
     return myOp->getAccuVal();
 }
@@ -303,7 +302,6 @@ Tile::execCondenseOp(CondenseOp* myOp, const r_Minterval& areaOp)
 void
 Tile::execUnaryOp(UnaryOp* myOp, const r_Minterval& areaRes, const Tile* opTile, const r_Minterval& areaOp)
 {
-    RMDBGENTER(3, RMDebug::module_tilemgr, "Tile", "execUnaryOp()");
     char* cellRes = NULL;
     const char* cellOp = NULL;
 
@@ -327,7 +325,6 @@ Tile::execUnaryOp(UnaryOp* myOp, const r_Minterval& areaRes, const Tile* opTile,
 #ifdef RMANBENCHMARK
     opTimer.pause();
 #endif
-    RMDBGEXIT(3, RMDebug::module_tilemgr, "Tile", "execUnaryOp()");
 }
 
 void
@@ -338,7 +335,6 @@ Tile::execBinaryOp(BinaryOp* myOp, const r_Minterval& areaRes, const Tile* op1Ti
     {
         throw r_Error (OPERANDSRESULTTYPESNOMATCH);
     }
-    RMDBGENTER(3, RMDebug::module_tilemgr, "Tile", "execBinaryOp()");
     char* cellRes = NULL;
     const char* cellOp1 = NULL;
     const char* cellOp2 = NULL;
@@ -367,13 +363,11 @@ Tile::execBinaryOp(BinaryOp* myOp, const r_Minterval& areaRes, const Tile* op1Ti
 #ifdef RMANBENCHMARK
     opTimer.pause();
 #endif
-    RMDBGEXIT(3, RMDebug::module_tilemgr, "Tile", "execBinaryOp()");
 }
 
 void
 Tile::execConstOp(BinaryOp* myOp, const r_Minterval& areaRes, const Tile* opTile, const r_Minterval& areaOp, const char* cell, int constPos)
 {
-    RMDBGENTER(3, RMDebug::module_tilemgr, "Tile", "execConstOp()");
     char* cellRes = NULL;
     const char* cellOp = NULL;
     char* dummy1 = getContents();
@@ -408,7 +402,6 @@ Tile::execConstOp(BinaryOp* myOp, const r_Minterval& areaRes, const Tile* opTile
 #ifdef RMANBENCHMARK
     opTimer.pause();
 #endif
-    RMDBGEXIT(3, RMDebug::module_tilemgr, "Tile", "execConstOp()");
 }
 
 void
@@ -506,7 +499,7 @@ Tile::execGenCondenseOp(GenCondenseOp* myOp, const r_Minterval& areaOp)
 
 #ifdef RMANDEBUG
 #define CHECK_ITER_SYNC(a,b) \
-    if (a.isDone() != b.isDone()) {RMDBGONCE(3, RMDebug::module_tilemgr, "Tile", "iterators out of sync!");}
+    if (a.isDone() != b.isDone()) {LTRACE << "iterators out of sync!";}
 #else
 #define CHECK_ITER_SYNC(a,b)
 #endif
@@ -587,8 +580,6 @@ void
 Tile::execScaleOp(const Tile* opTile, const r_Minterval& sourceDomain, __attribute__ ((unused)) const r_Point& origin, __attribute__ ((unused)) const std::vector<double>& scaleFactors)
 {
     // origin is not used in this version
-    RMDBGENTER(3, RMDebug::module_tilemgr, "Tile", "execScaleOp()")
-
 #ifdef BLVAHELP
     fast_scale_resample_array((char*)getContents(),((Tile*)opTile)->getContents(), domain, opTile->getDomain(), sourceDomain, 1, 2);
 #else
@@ -639,15 +630,12 @@ Tile::execScaleOp(const Tile* opTile, const r_Minterval& sourceDomain, __attribu
     }
 
 #endif
-    RMDBGEXIT(3, RMDebug::module_tilemgr, "Tile", "leaving Tile::execScaleOp()")
 }
 
 // the used version
 int
 Tile::scaleGetDomain(const r_Minterval& areaOp, const std::vector<double>& scaleFactors, r_Minterval &areaScaled)
 {
-    RMDBGENTER(2, RMDebug::module_tilemgr, "Tile", "scaleGetDomain() - second version")
-
     try
     {
         areaScaled= areaOp.create_scale(scaleFactors);
@@ -655,11 +643,8 @@ Tile::scaleGetDomain(const r_Minterval& areaOp, const std::vector<double>& scale
     catch(r_Error& err)
     {
         //error on scalling
-        RMDBGEXIT(2, RMDebug::module_tilemgr, "Tile", "scaleGetDomain(): areaOp = " << areaOp << " error performing scale")
         return 0;
     }
-
-    RMDBGEXIT(2, RMDebug::module_tilemgr, "Tile", "scaleGetDomain(): areaOp = " << areaOp << ", scaled = " << areaScaled)
 
     return 1;
 }
@@ -668,8 +653,6 @@ Tile::scaleGetDomain(const r_Minterval& areaOp, const std::vector<double>& scale
 void
 Tile::copyTile(const r_Minterval &areaRes, const Tile *opTile, const r_Minterval &areaOp)
 {
-    RMDBGENTER(3, RMDebug::module_tilemgr, "Tile", "copyTile(" << areaRes << ", " << (r_Ptr)opTile << "," << areaOp << ")");
-
     const char *cellOp = NULL;
     char *cellRes = NULL;
 
@@ -684,7 +667,7 @@ Tile::copyTile(const r_Minterval &areaRes, const Tile *opTile, const r_Minterval
     if (width > areaOp[dimOp-1].get_extent())
     {
         width = areaOp[dimOp-1].get_extent();
-        RMInit::logOut << "RMDebug::module_tilemgr::copyTile() WARNING: had to adjust high dim width to " << width << endl;
+        LWARNING << "RMDebug::module_tilemgr::copyTile() WARNING: had to adjust high dim width to " << width;
     }
 
     unsigned int tsize = getType()->getSize();
@@ -692,9 +675,9 @@ Tile::copyTile(const r_Minterval &areaRes, const Tile *opTile, const r_Minterval
 
     if (tsize != tsizeOp)
     {
-        RMDBGONCE(0, RMDebug::module_tilemgr, "Tile", "copyTile() ERROR: type sizes incompatible!"
-                  << endl << "this type: " << getType()->getName() << "(" << tsize << "), opTile type: "
-                  << opTile->getType()->getName() << "(" << tsizeOp << ")" );
+        LTRACE << "copyTile() ERROR: type sizes incompatible!\n"
+               << "this type: " << getType()->getName() << "(" << tsize << "), opTile type: "
+               << opTile->getType()->getName() << "(" << tsizeOp << ")";
         // FIXME here we have to check if is appropiate to continue
     }
 
@@ -722,8 +705,6 @@ Tile::copyTile(const r_Minterval &areaRes, const Tile *opTile, const r_Minterval
 #ifdef RMANBENCHMARK
     opTimer.pause();
 #endif
-
-    RMDBGEXIT(3, RMDebug::module_tilemgr, "Tile", "copyTile(" << areaRes << ", " << (r_Ptr)opTile << "," << areaOp << ")");
 }
 
 std::vector<Tile*>*

@@ -62,6 +62,8 @@ using namespace std;
 #include "inlinetile.hh"
 #include "tilecache.hh"
 
+#include "../common/src/logging/easylogging++.hh"
+
 // -- enterprise start
 #define DB_STORAGE 0
 #define FILE_STORAGE 1
@@ -73,8 +75,6 @@ using namespace std;
 void
 BLOBTile::updateInDb() throw (r_Error)
 {
-    RMDBGENTER(3, RMDebug::module_blobif, "BLOBTile", "updateInDb() " << myOId);
-    ENTER( "BLOBTile::updateInDb" );
     if (!fileStorageInitialized)
         fileStorage = initFileStorage();
 
@@ -92,15 +92,13 @@ BLOBTile::updateInDb() throw (r_Error)
         tile = query.nextColumnLong();
         if (query.nextRow())
         {
-            LEAVE( "BLOBTile::updateInDb() more than one tile with id " << indbmyoid << " found." );
-            RMInit::logOut << "BLOBTile::updateInDb() more than one tile with id " << indbmyoid << " found." << endl;
+            LFATAL << "BLOBTile::updateInDb() more than one tile with id " << indbmyoid << " found.";
             throw r_Ebase_dbms( SQLITE_ERROR, "more than one tile with same id found in database" );
         }
     }
     else
     {
-        LEAVE( "BLOBTile::updateInDb() no tile with id " << indbmyoid << " found." );
-        RMInit::logOut << "BLOBTile::updateInDb() no tile with id " << indbmyoid << " found." << endl;
+        LFATAL << "BLOBTile::updateInDb() no tile with id " << indbmyoid << " found.";
         throw r_Ebase_dbms( SQLITE_NOTFOUND, "tile not found in database" );
     }
 
@@ -120,8 +118,6 @@ BLOBTile::updateInDb() throw (r_Error)
     // (4) --- update map ref
     DBObject::updateInDb();
 
-    LEAVE( "BLOBTile::updateInDb, myOId=" << myOId );
-    RMDBGEXIT(3, RMDebug::module_blobif, "BLOBTile", "updateInDb() " << myOId);
 } // updateInDb()
 
 // insert new blob into ras_tiles table, update map ref
@@ -130,15 +126,13 @@ BLOBTile::updateInDb() throw (r_Error)
 void
 BLOBTile::insertInDb() throw (r_Error)
 {
-    RMDBGENTER(3, RMDebug::module_blobif, "BLOBTile", "insertInDb() " << myOId);
-    ENTER( "BLOBTile::insertInDb" );
     if (!fileStorageInitialized)
         fileStorage = initFileStorage();
 
     long long blobOid = myOId.getCounter();
     short   dataformat2  = dataFormat;
 
-    TALK( "myOId.getCounter = " << blobOid );
+    LDEBUG << "myOId.getCounter = " << blobOid;
 
     fileStorage.insert(cells, size, blobOid);
 
@@ -155,8 +149,6 @@ BLOBTile::insertInDb() throw (r_Error)
         TileCache::insert( myOId, value );
     }
 
-    LEAVE( "BLOBTile::insertInDb(), myOId=" << myOId );
-    RMDBGEXIT(3, RMDebug::module_blobif, "BLOBTile", "insertInDb() " << myOId);
 } // insertInDb()
 
 // delete one tuple from ras_tiles table, update map ref
@@ -164,9 +156,6 @@ BLOBTile::insertInDb() throw (r_Error)
 void
 BLOBTile::deleteFromDb() throw (r_Error)
 {
-    RMDBGENTER(3, RMDebug::module_blobif, "BLOBTile", "deleteFromDb() " << myOId);
-    ENTER( "BLOBTile::deleteFromDb" );
-
     if (!fileStorageInitialized)
         fileStorage = initFileStorage();
 
@@ -182,15 +171,13 @@ BLOBTile::deleteFromDb() throw (r_Error)
         blobOid = query.nextColumnLong();
         if (query.nextRow())
         {
-            LEAVE( "BLOBTile::deleteFromDb() more than one tile with id " << blobId << " found." );
-            RMInit::logOut << "BLOBTile::deleteFromDb() more than one tile with id " << blobId << " found." << endl;
+            LFATAL << "BLOBTile::deleteFromDb() more than one tile with id " << blobId << " found.";
             throw r_Ebase_dbms( SQLITE_ERROR, "more than one tile with same id found in database" );
         }
     }
     else
     {
-        LEAVE( "BLOBTile::deleteFromDb() no tile with id " << blobId << " found." );
-        RMInit::logOut << "BLOBTile::deleteFromDb() no tile with id " << blobId << " found." << endl;
+        LFATAL << "BLOBTile::deleteFromDb() no tile with id " << blobId << " found.";
         throw r_Ebase_dbms( SQLITE_NOTFOUND, "tile not found in database" );
     }
 
@@ -208,8 +195,6 @@ BLOBTile::deleteFromDb() throw (r_Error)
     // update map ref
     DBObject::deleteFromDb();
 
-    LEAVE( "BLOBTile::deleteFromDb, myOId=" << myOId );
-    RMDBGEXIT(3, RMDebug::module_blobif, "BLOBTile", "deleteFromDb() " << myOId);
 }
 
 // delete a range of tuple(s) from ras_tiles table, update map ref
@@ -217,9 +202,6 @@ BLOBTile::deleteFromDb() throw (r_Error)
 void
 BLOBTile::kill(const OId& target, unsigned int range)
 {
-    RMDBGENTER(0, RMDebug::module_blobif, "BLOBTile", "kill(" << target << ", " << range <<")");
-    ENTER( "BLOBTile::kill, target=" << target << ", range=" << range );
-
     if (!fileStorageInitialized)
         fileStorage = initFileStorage();
 
@@ -245,8 +227,7 @@ BLOBTile::kill(const OId& target, unsigned int range)
             blobOid = query.nextColumnLong();
             if (query.nextRow())
             {
-                LEAVE( "BLOBTile::kill() more than one tile with id " << indbmyOId5 << " found." );
-                RMInit::logOut << "BLOBTile::kill() more than one tile with id " << indbmyOId5 << " found." << endl;
+                LFATAL << "BLOBTile::kill() more than one tile with id " << indbmyOId5 << " found.";
                 throw r_Ebase_dbms( SQLITE_ERROR, "more than one tile with same id found in the database." );
             }
         }
@@ -306,8 +287,6 @@ BLOBTile::kill(const OId& target, unsigned int range)
         SQLiteQuery::executeWithParams("DELETE FROM RAS_TILES WHERE %lld <= BlobId AND BlobId <= %lld", indbmyOId5, indbmyOId6);
     }
 
-    LEAVE( "BLOBTile::kill" );
-    RMDBGEXIT(0, RMDebug::module_blobif, "BLOBTile", "kill(" << target << " " << target.getType() << ")");
 }
 
 // read tuple from ras_tiles, identified by blobtile.cc var myOId
@@ -316,9 +295,6 @@ BLOBTile::kill(const OId& target, unsigned int range)
 void
 BLOBTile::readFromDb() throw (r_Error)
 {
-    RMDBGENTER(3, RMDebug::module_blobif, "BLOBTile", "readFromDb() " << myOId);
-    ENTER( "BLOBTile::readFromDb" );
-
     if (!fileStorageInitialized)
         fileStorage = initFileStorage();
 
@@ -338,22 +314,20 @@ BLOBTile::readFromDb() throw (r_Error)
         dataformat3 = query.nextColumnInt();
         if (query.nextRow())
         {
-            LEAVE( "BLOBTile::readFromDb() more than one tile with id " << indbmyOId3 << " found." );
-            RMInit::logOut << "BLOBTile::readFromDb() more than one tile with id " << indbmyOId3 << " found." << endl;
+            LFATAL << "BLOBTile::readFromDb() more than one tile with id " << indbmyOId3 << " found.";
             throw r_Ebase_dbms( SQLITE_ERROR, "more than one tile with same id found in database" );
         }
     }
     else
     {
-        LEAVE( "BLOBTile::readFromDb() no tile with id " << indbmyOId3 << " found." );
-        RMInit::logOut << "BLOBTile::readFromDb() no tile with id " << indbmyOId3 << " found." << endl;
+        LFATAL << "BLOBTile::readFromDb() no tile with id " << indbmyOId3 << " found.";
         throw r_Error(r_Error::r_Error_ObjectUnknown);
     }
 
     // we have a tuple, extract data format
     dataFormat = (r_Data_Format)dataformat3;
     currentFormat = (r_Data_Format)dataformat3;
-    TALK( "got dataFormat " << dataFormat );
+    LDEBUG << "got dataFormat " << dataFormat;
 
     if (TileCache::cacheLimit > 0 && TileCache::contains( blobOid ))
     {
@@ -365,7 +339,7 @@ BLOBTile::readFromDb() throw (r_Error)
         cells = cached->getData();
         cached->addReferencingTile(this);
 
-        TALK("BLOBTile::readFromDb() - data cached, copying cells: " << (void*)cached->getData() << ", to new cells: " << (void*)cells);
+        LDEBUG << "BLOBTile::readFromDb() - data cached, copying cells: " << (void*)cached->getData() << ", to new cells: " << (void*)cells;
     }
     else
     {
@@ -380,23 +354,18 @@ BLOBTile::readFromDb() throw (r_Error)
         }
     }
     RMDBGIF(20, RMDebug::module_blobif, "BLOBTileOutput", for (int a = 0; a < size; a++)\
-            RMInit::dbgOut << " " << hex << (int)(cells[a]); RMInit::dbgOut << dec << endl;)
+            LTRACE << " " << hex << (int)(cells[a]); LTRACE << dec;)
 
     DBObject::readFromDb();
 
 #ifdef RMANBENCHMARK
     DBObject::readTimer.pause();
 #endif
-
-    LEAVE( "BLOBTile::readFromDb" );
-    RMDBGEXIT(3, RMDebug::module_blobif, "BLOBTile", "readFromDb() " << myOId);
 }
 
 
 void BLOBTile::writeCachedToDb(CacheValue* value)
 {
-    ENTER( "BLOBTile::write()");
-
     if (value && value->isUpdate())
     {
         long blobOid = -1;
@@ -409,7 +378,6 @@ void BLOBTile::writeCachedToDb(CacheValue* value)
     }
 
     delete value;
-    LEAVE("BLOBTile::write()");
 }
 
 bool BLOBTile::checkMixedStorageSupport()

@@ -45,7 +45,7 @@ static const char rcsid[] = "@(#)blobif,DBTile: $Id: dbtile.cc,v 1.12 2005/09/03
 #include "blobtile.hh"
 #include "inlinetile.hh"
 #include "reladminif/dbref.hh"
-#include "debug.hh" // for ENTER/LEAVE/TALK macros
+#include "../common/src/logging/easylogging++.hh"
 
 #include "unistd.h"
 #include <iostream>
@@ -57,7 +57,7 @@ static const char rcsid[] = "@(#)blobif,DBTile: $Id: dbtile.cc,v 1.12 2005/09/03
 r_Data_Format
 DBTile::getDataFormat() const
 {
-    RMDBGONCE(3, RMDebug::module_blobif, "DBTile", "getDataFormat() const " << myOId << " " << dataFormat);
+    LTRACE << "getDataFormat() const " << myOId << " " << dataFormat;
     return dataFormat;
 }
 
@@ -93,7 +93,7 @@ DBTile::setCells(char* newCells)
     {
         if(cells != NULL)
         {
-            TALK( "DBTile::setCells() freeing blob cells" );
+            LDEBUG << "DBTile::setCells() freeing blob cells";
             free(cells);
             // cells = NULL;    // added PB 2005-jan-10
         }
@@ -109,7 +109,7 @@ DBTile::setNoModificationData(char* newCells) const
     {
         if(cells != NULL)
         {
-            TALK( "DBTile::setNoModificationData() freeing blob cells" );
+            LDEBUG << "DBTile::setNoModificationData() freeing blob cells";
             free(cells);
             // cells = NULL;    // added PB 2005-jan-10
         }
@@ -126,7 +126,7 @@ DBTile::setNoModificationSize(r_Bytes newSize) const
 char*
 DBTile::getCells()
 {
-    RMDBGONCE(3, RMDebug::module_blobif, "DBTile", "getCells() " << myOId);
+    LTRACE << "getCells() " << myOId;
     setModified();
     return cells;
 }
@@ -134,28 +134,28 @@ DBTile::getCells()
 const char*
 DBTile::getCells() const
 {
-    RMDBGONCE(3, RMDebug::module_blobif, "DBTile", "getCells() const " << myOId);
+    LTRACE << "getCells() const " << myOId;
     return cells;
 }
 
 char
 DBTile::getCell(r_Bytes index) const
 {
-    RMDBGONCE(3, RMDebug::module_blobif, "DBTile", "getCell(" << index << ") const " << myOId);
+    LTRACE << "getCell(" << index << ") const " << myOId;
     return getCells()[index];
 }
 
 r_Bytes
 DBTile::getSize() const
 {
-    RMDBGONCE(3, RMDebug::module_blobif, "DBTile", "getSize() const " << myOId << " " << size);
+    LTRACE << "getSize() const " << myOId << " " << size;
     return size;
 }
 
 void
 DBTile::setCell(r_Bytes index, char newCell)
 {
-    RMDBGONCE(3, RMDebug::module_blobif, "DBTile", "setCell(" << index << ", " << (int)newCell << ") " << myOId);
+    LTRACE << "setCell(" << index << ", " << (int)newCell << ") " << myOId;
     setModified();
     getCells()[index] = newCell;
 }
@@ -167,7 +167,7 @@ DBTile::DBTile(r_Data_Format dataformat)
         dataFormat(dataformat),
         currentFormat(r_Array)
 {
-    RMDBGONCE(3, RMDebug::module_blobif, "DBTile", "DBTile(" << dataFormat << ")");
+    LTRACE << "DBTile(" << dataFormat << ")";
     objecttype = OId::INVALID;
 }
 
@@ -178,14 +178,10 @@ DBTile::DBTile(r_Bytes newSize, char c, r_Data_Format dataformat)
         dataFormat(dataformat),
         currentFormat(r_Array)
 {
-    RMDBGENTER(3, RMDebug::module_blobif, "DBTile", "DBTile(" << newSize << ", '(int)" << (int) c << "', " << dataFormat << ")");
-
-    TALK( "DBTile::DBTile() allocating " << newSize << " bytes for blob cells, previous ptr was " << (long) cells );
+    LDEBUG << "DBTile::DBTile() allocating " << newSize << " bytes for blob cells, previous ptr was " << (long) cells;
     cells = static_cast<char*>(mymalloc(newSize * sizeof(char)));
     objecttype = OId::INVALID;
     memset(cells, c, size);
-
-    RMDBGEXIT(3, RMDebug::module_blobif, "DBTile", "DBTile(" << newSize << ", '(int)" << (int) c << "', " << dataFormat << ") " << myOId);
 }
 
 DBTile::DBTile(r_Bytes newSize, r_Bytes patSize, const char* pat, r_Data_Format dataformat)
@@ -195,10 +191,9 @@ DBTile::DBTile(r_Bytes newSize, r_Bytes patSize, const char* pat, r_Data_Format 
         dataFormat(dataformat),
         currentFormat(r_Array)
 {
-    RMDBGENTER(3, RMDebug::module_blobif, "DBTile", "DBTile(" << newSize << ", " << patSize << ", pattern, " << dataFormat << ")");
     objecttype = OId::INVALID;
 
-    TALK( "DBTile::DBTile() allocating " << newSize << " bytes for blob cells, previous ptr was " << (long) cells );
+    LDEBUG << "DBTile::DBTile() allocating " << newSize << " bytes for blob cells, previous ptr was " << (long) cells;
     cells = static_cast<char*>(mymalloc(newSize * sizeof(char)));
 
     r_Bytes i = 0;
@@ -241,8 +236,6 @@ DBTile::DBTile(r_Bytes newSize, r_Bytes patSize, const char* pat, r_Data_Format 
             }
         }
     }
-
-    RMDBGEXIT(3, RMDebug::module_blobif, "DBTile", "DBTile(" << newSize << ", " << patSize << ", pattern, " << dataFormat << ") " << myOId);
 }
 
 DBTile::DBTile(r_Bytes newSize, const char* newCells, r_Data_Format dataformat)
@@ -252,15 +245,11 @@ DBTile::DBTile(r_Bytes newSize, const char* newCells, r_Data_Format dataformat)
         dataFormat(dataformat),
         currentFormat(r_Array)
 {
-    RMDBGENTER(3, RMDebug::module_blobif, "DBTile", "DBTile(" << size << ", data, " << dataFormat << ")");
-
-    TALK( "DBTile::DBTile() allocating " << newSize << " bytes for blob cells, previous ptr was " << (long) cells );
+    LDEBUG << "DBTile::DBTile() allocating " << newSize << " bytes for blob cells, previous ptr was " << (long) cells;
 
     cells = static_cast<char*>(mymalloc(size * sizeof(char)));
     objecttype = OId::INVALID;
     memcpy(cells, newCells, newSize);
-
-    RMDBGEXIT(3, RMDebug::module_blobif, "DBTile", "DBTile(" << size << ", data, " << dataFormat << ") " << myOId);
 }
 
 DBTile::DBTile(const OId& id) throw (r_Error)
@@ -269,19 +258,18 @@ DBTile::DBTile(const OId& id) throw (r_Error)
         cells(NULL),
         currentFormat(r_Array)
 {
-    RMDBGONCE(3, RMDebug::module_blobif, "DBTile", "DBTile(" << id <<")");
+    LTRACE << "DBTile(" << id <<")";
 }
 
 DBTile::~DBTile()
 {
-    RMDBGENTER(3, RMDebug::module_blobif, "DBTile", "~DBTile() " << myOId);
     if (cells)
     {
         if (TileCache::cacheLimit > 0)
         {
             if (!TileCache::contains(myOId))
             {
-                TALK( "DBTile::~DBTile() freeing blob cells" );
+                LDEBUG << "DBTile::~DBTile() freeing blob cells";
                 free(cells);
                 cells = NULL;
             }
@@ -293,28 +281,27 @@ DBTile::~DBTile()
         }
         else
         {
-            TALK( "DBTile::~DBTile() freeing blob cells" );
+            LDEBUG << "DBTile::~DBTile() freeing blob cells";
             free(cells);
             cells = NULL;
         }
     }
-    RMDBGEXIT(3, RMDebug::module_blobif, "DBTile", "~DBTile() " << myOId);
 }
 
 void
 DBTile::resize(r_Bytes newSize)
 {
-    RMDBGONCE(3, RMDebug::module_blobif, "DBTile", "resize(" << newSize << ") " << myOId);
+    LTRACE << "resize(" << newSize << ") " << myOId;
     if (size != newSize)
     {
         setModified();
         if (cells)
         {
-            TALK( "DBTile::resize() freeing blob cells" );
+            LDEBUG << "DBTile::resize() freeing blob cells";
             free(cells);
             // cells = NULL;    // added PB 2005-jan-10
         }
-        TALK( "DBTile::resize() allocating " << newSize << " bytes for blob cells, previous ptr was " << (long) cells );
+        LDEBUG << "DBTile::resize() allocating " << newSize << " bytes for blob cells, previous ptr was " << (long) cells;
         cells = static_cast<char*>(mymalloc(newSize * sizeof(char)));
         size = newSize;
     }

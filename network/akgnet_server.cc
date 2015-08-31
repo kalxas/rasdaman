@@ -35,6 +35,8 @@ rasdaman GmbH.
 
 #include <akgnet_server.hh>
 
+#include "../common/src/logging/easylogging++.hh"
+
 //#include<iostream>
 
 
@@ -79,7 +81,7 @@ bool akg::GenericServer::initListenSocket(int port, bool nonblocking) throw()
 
     selector.setRead(listenSocket());
 
-    DBTALK("Listen socket="<<listenSocket());
+    LDEBUG << "Listen socket=" << listenSocket();
     return true;
 }
 
@@ -113,64 +115,59 @@ akg::BlockingServer::~BlockingServer() throw()
 
 bool akg::BlockingServer::runServer() throw()
 {
-    ENTER( "akg::BlockingServer::runServer" );
-
     if(listenPort == 0)
     {
-        LEAVE( "akg::BlockingServer::runServer, listenPort=0, result=false" );
         return false;
     }
 
     if(initListenSocket(listenPort,false)==false)
     {
-        LEAVE( "akg::BlockingServer::runServer, Error: init socket failed for port " << listenPort << ", result=false" );
         return false;
     }
 
     while(exitRequest == false)
     {
         int rasp = selector();
-        TALK( "rasp=" << rasp );
+        LDEBUG << "rasp=" << rasp;
         if(rasp>0)
         {
             if(serverSocket.isOpen())
             {
-                TALK( "socket is open." );
+                LDEBUG << "socket is open.";
                 if(selector.isRead(serverSocket()))
                 {
-                    TALK( "socket is readable, executing request." );
+                    LDEBUG << "socket is readable, executing request.";
                     executeRequest(serverSocket);
-                    TALK( "closing socket." );
+                    LDEBUG << "closing socket.";
                     closeSocket(serverSocket);
-                    TALK( "socket closed." );
+                    LDEBUG << "socket closed.";
                 }
             }
             else if(selector.isRead(listenSocket()))
             {
-                TALK( "socket not open, but readable (??\?). connecting new client." );
+                LDEBUG << "socket not open, but readable (??\?). connecting new client.";
                 connectNewClient(serverSocket);
-                TALK( "after client connect." );
+                LDEBUG << "after client connect.";
                 // we don't care why it could fail
             }
             else
             {
-                TALK( "no read socket - should never have reached this point." );
+                LDEBUG << "no read socket - should never have reached this point.";
             }
         }
 
         if(rasp == 0)
         {
-            TALK( "exec timeout" );
+            LDEBUG << "exec timeout";
             executeTimeout();
         }
 
         if(rasp<0)
         {
-            TALK( "Internal connect error: bad selector." );
+            LDEBUG << "Internal connect error: bad selector.";
         }
     }
 
-    LEAVE( "akg::BlockingServer::runServer, result=true" );
     return true;
 }
 
