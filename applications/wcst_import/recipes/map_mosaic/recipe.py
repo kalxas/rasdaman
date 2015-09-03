@@ -8,6 +8,7 @@ from master.recipe.base_recipe import BaseRecipe
 from session import Session
 from util.crs_util import CRSUtil
 from util.gdal_util import GDALGmlUtil
+from util.log import log
 
 
 class Recipe(BaseRecipe):
@@ -42,23 +43,27 @@ class Recipe(BaseRecipe):
         Implementation of the base recipe describe method
         """
         super(Recipe, self).describe()
+        log.info("\033[1mWMS Import:\x1b[0m " + str(self.options['wms_import']))
+        importer = self._get_importer()
+        log.info("A couple of files have been analyzed. Check that the axis subsets are correct.")
+        index = 1
+        for slice in importer.get_slices_for_description():
+            log.info("Slice " + str(index) + ": " + str(slice))
+            index += 1
 
     def ingest(self):
         """
         Starts the ingesting process
         """
-        self.importer = Importer(self._get_coverage(), self.options['wms_import'])
-        self.importer.ingest()
+        importer = self._get_importer()
+        importer.ingest()
 
     def status(self):
         """
         Implementation of the status method
         :rtype (int, int)
         """
-        if self.importer is None:
-            return 0, 0
-        else:
-            return self.importer.get_progress()
+        return self._get_importer().get_progress()
 
     def _get_slices(self, gdal_dataset):
         """
@@ -83,6 +88,12 @@ class Recipe(BaseRecipe):
         coverage = Coverage(self.session.get_coverage_id(), slices, fields, gdal_dataset.get_crs(),
             gdal_dataset.get_band_gdal_type(), self.options['tiling'])
         return coverage
+
+    def _get_importer(self):
+        if self.importer is None:
+            self.importer = Importer(self._get_coverage(), self.options['wms_import'])
+        return self.importer
+
 
     @staticmethod
     def get_name():

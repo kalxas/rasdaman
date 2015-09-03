@@ -89,14 +89,13 @@ class Importer:
             log.warn("\nFailed to insert slice. Attempted " + str(ConfigManager.retries) + " times.")
             raise current_exception
 
-    def get_slices_for_description(self, limit=5):
+    def get_slices_for_description(self):
         """
         Returns a list with the first slices to be used in the import description
-        :param limit: the max number of slices to be returned
         :rtype: list[Slice]
         """
         slices = []
-        max = limit if limit < len(self.coverage.slices) else len(self.coverage.slices)
+        max = ConfigManager.description_max_no_slices if ConfigManager.description_max_no_slices < len(self.coverage.slices) else len(self.coverage.slices)
         for i in range(0, max):
             slices.append(self.coverage.slices[i])
         return slices

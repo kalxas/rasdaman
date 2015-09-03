@@ -276,9 +276,7 @@ class WCSTExecutor(WCSTBaseExecutor):
         self.__check_request_for_errors(response, namespaces, service_call)
         try:
             if str(response) != "" and str(response) != "None":
-                xml = XMLProcessor.fromstring(response)
-                result = xml.text
-                return result
+                return response
             return ""
         except Exception as ex:
             raise WCSTException(0, "General exception while executing the request: " + str(ex), service_call)

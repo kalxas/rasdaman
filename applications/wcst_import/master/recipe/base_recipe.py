@@ -45,6 +45,12 @@ class BaseRecipe:
         log.info("\033[1mOperation:\x1b[0m " + operation_type)
         log.info("\033[1mSubset Correction:\x1b[0m " + str(ConfigManager.subset_correction))
         log.info("\033[1mMocked:\x1b[0m " + str(ConfigManager.mock))
+        if ConfigManager.track_files:
+            log.info("\033[1mTrack files:\x1b[0m " + str(ConfigManager.track_files))
+        if ConfigManager.skip:
+            log.info("\033[1mSkip:\x1b[0m " + str(ConfigManager.skip))
+        if ConfigManager.retry:
+            log.info("\033[1mRetries:\x1b[0m " + str(ConfigManager.retries))
         if ConfigManager.slice_restriction is not None:
             log.info("\033[1mSlice Restriction:\x1b[0m " + str(ConfigManager.slice_restriction))
         pass

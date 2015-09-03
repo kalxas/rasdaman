@@ -38,6 +38,9 @@ class Session:
         self.retries = int(self.config['retries']) if "retries" in self.config else 5
         self.retry_sleep = float(self.config['retry_sleep']) if "retry_sleep" in self.config else 1
         self.resumer_dir_path = self.resumer_dir_path if "resumer_dir_path" in self.config else self.ingredients_dir_path
+        self.description_max_no_slices = int(
+            self.config['description_max_no_slices']) if "description_max_no_slices" in self.config else 5
+        self.track_files = bool(self.config['track_files']) if "track_files" in self.config else True
         self.setup_config_manager()
 
     def setup_config_manager(self):
@@ -61,6 +64,8 @@ class Session:
         ConfigManager.retry_sleep = self.retry_sleep
         ConfigManager.slice_restriction = self.slice_restriction
         ConfigManager.resumer_dir_path = self.resumer_dir_path if self.resumer_dir_path[-1] == "/" else self.resumer_dir_path + "/"
+        ConfigManager.description_max_no_slices = self.description_max_no_slices
+        ConfigManager.track_files = self.track_files
 
     def parse_input(self, paths):
         """

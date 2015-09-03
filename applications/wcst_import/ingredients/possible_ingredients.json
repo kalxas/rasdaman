@@ -55,7 +55,11 @@
       }
     ],
     "__comment__" : "[OPTIONAL] The directory in which to store the resumer file. By default, it will be stored in the same folder as the ingredients file."
-    "resumer_dir_path" : "/var/geodata/resumer/"
+    "resumer_dir_path" : "/var/geodata/resumer/",
+    "__comment__" : "[OPTIONAL] The number of slices to show in the description.",
+    "description_max_no_slices" : 42,
+    "__comment__" : "[OPTIONAL] Allow files to be tracked in order to not reimport files that were already ingested",
+    "track_files" : true
   },
   "input": {
     "__comment__": "The id of the coverage. If it already exists, we will consider this operation an update",
