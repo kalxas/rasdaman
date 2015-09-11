@@ -102,6 +102,21 @@ fi
 
 # --- END ACTION ----------------------------------------------------
 
+
+# then kill the Jetty with Petascope is running in background
+# ------------------ BangPH (16:37 24/08/2015)
+pid=`ps -ef | grep '[r]asdaman/war/jetty.jar' | awk '{print $2; exit}'` # get the pid ID of lasted Jetty with Petascope to kill (make sure only 1 process is run background), the [] is trick to avoid grep process id is chosen.
+
+if [[ -z "$pid" ]]; then # pid is empty then an exception when not start_rasdaman first
+   echo 'NOTE:Jetty with Petascope has not been started, so dont need to stop it! ';
+else # pid is exist, now kill it.
+   echo 'Jetty with Petascope is closing.........';
+   kill $pid;
+   echo 'NOTE: Jetty with Petascope has been closed successfully! Done'
+fi
+# --- END ACTION ----------------------------------------------------
+
+
 echo $MYNAME: done.
 exit $RC_OK
 

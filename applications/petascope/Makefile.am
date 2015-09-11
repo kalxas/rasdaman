@@ -56,6 +56,10 @@ CLASSES   = $(WEB)/WEB-INF/classes
 NAME      = rasdaman
 WAR_NAME  = $(NAME).war
 WAR       = $(DIST)/$(WAR_NAME)
+
+#BangPH
+JETTY	  = jetty
+
 APIDOCS   = $(BUILD)/apidocs
 WCS_CLIENT = ../wcs-client/
 STATIC_WEB_FOLDER = static
@@ -171,10 +175,15 @@ javadoc: $(all_javas)
 	$(JAVADOC) $(JDFLAGS) @$<
 
 # copy WAR to TOMCAT
+# BANGPH, COPY ALL THESE SUPPORTING FILES WITH JETTY.JAR TO $wardir folder
 .PHONY: install
 install: war service
 	$(MKDIR) $(DESTDIR)$(wardir)
 	$(CP) $(WAR) $(DESTDIR)$(wardir)
+	javac -cp $(JETTY)/jetty.jar $(JETTY)/start_petascope.java 	# Now build start_petascope.java and copy all files in Jetty folder to wardir
+	echo  'COPY FILE JETTY TO WAR FOLDER:' . $(CP) $(JETTY)/* $(DESTDIR)$(wardir)		# Now copy Jetty folder to wardir
+	$(CP) $(JETTY)/* $(DESTDIR)$(wardir)
+
 if GENERATE_DOCS
 	$(MKDIR) -p $(DESTDIR)$(pkgdatadir)/$(APIFOLDER)
 	$(CP) $(APIDOCS)/* $(DESTDIR)$(pkgdatadir)/$(APIFOLDER)

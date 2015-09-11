@@ -41,6 +41,7 @@ dist_pkgdata_DATA=errtxts_en errtxts_de errtxts_fr errtxts
 script_edit = $(SED) \
      -e 's|@logdir[@]|$(logdir)/|g' \
      -e 's|@bindir[@]|$(bindir)/|g' \
+     -e 's|@wardir[@]|$(wardir)/|g' \
      -e 's|@basedbms[@]|$(BASEDBSTRING)|g' \
      -e 's|@dbconn[@]|$(DBCONN)|g' \
      -e 's|@pkgdatadir[@]|$(pkgdatadir)/|g' \
