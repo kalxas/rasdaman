@@ -45,6 +45,8 @@ static const char rcsid[] = "@(#)qlparser, QLMarrayOp, QLCondenseOp: $Header: /h
 
 #include "relcatalogif/basetype.hh"
 
+#include "../common/src/logging/easylogging++.hh"
+
 QLMarrayOp::QLMarrayOp( QtOperation*     newCellExpression,
                         std::vector<QtData*>* newDataList,
                         std::string           &newIteratorName,
@@ -86,7 +88,7 @@ QLMarrayOp::operator() ( char *result, const r_Point &p )
                         scalarResultData->getValueType()->getSize() );
             }
             else
-                RMInit::logOut << "Internal Error: QLMarrayOp::operator() - cell type invalid." << endl;
+                LERROR << "Internal Error: QLMarrayOp::operator() - cell type invalid.";
             resultData->deleteRef();
         }
     }
@@ -150,8 +152,8 @@ QLCondenseOp::operator() ( const r_Point& p )
 #ifdef QT_RUNTIME_TYPE_CHECK
         if( condData->getDataType() != QT_BOOL )
         {
-            RMInit::logOut << "Internal error in QLCondenseOp::operator() - "
-                           << "runtime type checking failed (BOOL)." << endl;
+            LERROR << "Internal error in QLCondenseOp::operator() - "
+                           << "runtime type checking failed (BOOL).";
         }
         else
 #endif
@@ -167,7 +169,7 @@ QLCondenseOp::operator() ( const r_Point& p )
 #ifdef QT_RUNTIME_TYPE_CHECK
             if ( !(resultData->isScalarData()) )
             {
-                RMInit::logOut << "Internal Error: QLCondenseOp::operator() - cell type invalid." << endl;
+                LERROR << "Internal Error: QLCondenseOp::operator() - cell type invalid.";
             }
             else
 #endif
@@ -220,8 +222,8 @@ QLInducedCondenseOp::operator ()(const r_Point& p){
 #ifdef QT_RUNTIME_TYPE_CHECK
         if( condData->getDataType() != QT_BOOL )
         {
-            RMInit::logOut << "Internal error in QLCondenseOp::operator() - "
-                           << "runtime type checking failed (BOOL)." << endl;
+            LERROR << "Internal error in QLCondenseOp::operator() - "
+                           << "runtime type checking failed (BOOL).";
         }
         else
 #endif

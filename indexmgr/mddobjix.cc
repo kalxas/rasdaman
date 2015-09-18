@@ -49,6 +49,7 @@ static const char rcsid[] = "@(#)mddobjix, MDDObjIx: $Id: mddobjix.cc,v 1.30 200
 #include "keyobject.hh"
 #include "reladminif/lists.h"
 #include "relblobif/tileid.hh"
+#include "../common/src/logging/easylogging++.hh"
 
 void
 MDDObjIx::setNewLastAccess(const r_Minterval& newLastAccess, const std::vector< shared_ptr<Tile> >* newLastTiles)
@@ -102,7 +103,7 @@ MDDObjIx::lastAccessIntersect(const r_Minterval& searchInter) const
     std::vector< shared_ptr<Tile> >* interResult = 0;
     if ((lastAccess.dimension() != 0) && (lastAccess.covers(searchInter)))
     {
-        RMDBGONCE(6, RMDebug::module_indexmgr, "MDDObjIx", "lastAccessIntersect Search in the cache ")
+        LTRACE << "lastAccessIntersect Search in the cache ";
         interResult = new std::vector< shared_ptr<Tile> >();
         interResult->reserve(10);
         for (unsigned int i = 0; i < lastAccessTiles.size(); i++)
@@ -140,12 +141,10 @@ MDDObjIx::lastAccessPointQuery(const r_Point& searchPoint) const
 void
 MDDObjIx::releasePersTiles()
 {
-    RMDBGENTER(6, RMDebug::module_indexmgr, "MDDObjIx", "releasePersTiles()")
     if (isPersistent())
     {
         lastAccessTiles.clear();
     }
-    RMDBGEXIT(6, RMDebug::module_indexmgr, "MDDObjIx", "releasePersTiles()")
 }
 
 void
@@ -199,7 +198,6 @@ MDDObjIx::MDDObjIx(const StorageLayout& sl, const r_Minterval& dim, const BaseTy
         _isPersistent(persistent),
         myStorageLayout(sl)
 {
-    RMDBGENTER(10, RMDebug::module_indexmgr, "MDDObjIx", "MDDObjIx(storage, " << dim << ", type)")
     lastAccessTiles.reserve(10);
     initializeLogicStructure();
     if (isPersistent())
@@ -222,7 +220,7 @@ MDDObjIx::MDDObjIx(const StorageLayout& sl, const r_Minterval& dim, const BaseTy
         case r_Auto_Index:
         default:
             // should never get here. If Auto_Index, a specific index was
-            RMDBGONCE(0, RMDebug::module_indexmgr, "MDDObjIx", "initializeLogicStructure() Auto_Index or unknown index chosen");
+            LTRACE << "initializeLogicStructure() Auto_Index or unknown index chosen";
             throw r_Error(UNKNOWN_INDEX_TYPE);
             break;
         }
@@ -235,7 +233,6 @@ MDDObjIx::MDDObjIx(const StorageLayout& sl, const r_Minterval& dim, const BaseTy
 #ifdef RMANBENCHMARK
     initializeTimerPointers();
 #endif
-    RMDBGEXIT(10, RMDebug::module_indexmgr, "MDDObjIx", "MDDObjIx(storage, " << dim << ", type)")
 }
 
 MDDObjIx::MDDObjIx(DBObjectId newDBIx, const StorageLayout& sl, const BaseType* bt)
@@ -282,7 +279,7 @@ MDDObjIx::initializeLogicStructure()
     default:
     case r_Auto_Index:
         // should never get here. If Auto_Index, a specific index was
-        RMInit::logOut << "MDDObjIx::initializeLogicStructure() illegal index (" << myStorageLayout.getIndexType() << ") chosen!" << endl;
+        LFATAL << "MDDObjIx::initializeLogicStructure() illegal index (" << myStorageLayout.getIndexType() << ") chosen!";
         throw r_Error(ILLEGAL_INDEX_TYPE);
         break;
     }
@@ -304,7 +301,6 @@ MDDObjIx::insertTile(shared_ptr<Tile> newTile)
 bool
 MDDObjIx::removeTile(shared_ptr<Tile> tileToRemove)
 {
-    RMDBGENTER(4, RMDebug::module_indexmgr, "MDDObjIx", "removeTile(Tile)")
     bool found = false;
     // removes from cache, if it's there
     removeTileFromLastAccesses(tileToRemove);
@@ -312,14 +308,12 @@ MDDObjIx::removeTile(shared_ptr<Tile> tileToRemove)
     // removes from the index itself
     KeyObject t(tileToRemove);
     found = do_removeObj(actualIx, t, myStorageLayout);
-    RMDBGEXIT(4, RMDebug::module_indexmgr, "MDDObjIx", "removeTile(Tile)")
     return found;
 }
 
 vector< shared_ptr<Tile> >*
 MDDObjIx::intersect(const r_Minterval& searchInter) const
 {
-    RMDBGENTER(4, RMDebug::module_indexmgr, "MDDObjIx", "intersect(" << searchInter << ")")
 #ifdef RMANBENCHMARK
     if(RManBenchmark >= 3)  intersectTimer->start();
 #endif
@@ -349,14 +343,13 @@ MDDObjIx::intersect(const r_Minterval& searchInter) const
                     if ((it = t.find(p.first)) != t.end()) \
                     {
                         \
-                        RMDBGMIDDLE(0, RMDebug::module_indexmgr, "MDDObjIx", \
-                        "intersect(" << searchInter << \
+                        LTRACE << "intersect(" << searchInter << \
                         ") received double tile: " << \
-                        resultKeys[i]) \
+                        resultKeys[i]; \
                         for (unsigned int i = 0; i < resultKeys.size(); i++) \
                         {
                             \
-                            RMInit::dbgOut << resultKeys[i] << endl; \
+                            LTRACE << resultKeys[i]; \
                         } \
                         throw r_Error(TILE_MULTIPLE_TIMES_RETRIEVED); \
                     } \
@@ -365,7 +358,7 @@ MDDObjIx::intersect(const r_Minterval& searchInter) const
                        );
                 for (i = 0; i < resSize; i++)
                 {
-                    RMDBGMIDDLE(4, RMDebug::module_indexmgr, "MDDObjIx", "received entry " << resultKeys[i])
+                    LTRACE << "received entry " << resultKeys[i];
                     result->push_back(shared_ptr<Tile>(
                         new Tile(resultKeys[i].getDomain(), cellBaseType,
                                  DBTileId(resultKeys[i].getObject()))));
@@ -389,7 +382,6 @@ MDDObjIx::intersect(const r_Minterval& searchInter) const
 #ifdef RMANBENCHMARK
     if(RManBenchmark >= 3) intersectTimer->stop();
 #endif
-    RMDBGEXIT(4, RMDebug::module_indexmgr, "MDDObjIx", "intersect(" << searchInter << ") " << (void*)result)
     return result;
 }
 
@@ -485,13 +477,11 @@ MDDObjIx::getTiles() const
                 if ((it = tmap.find(p.first)) != tmap.end()) \
                 {
                     \
-                    RMDBGMIDDLE(0, RMDebug::module_indexmgr, "MDDObjIx", \
-                    "getTiles() received double tile: " << \
-                    resultKeys[cnt]) \
+                    LTRACE << "getTiles() received double tile: " << resultKeys[cnt]; \
                     for (int cnt = 0; cnt < resultKeys.size(); cnt++) \
                     {
                         \
-                        RMInit::dbgOut << resultKeys[cnt] << endl; \
+                        LTRACE << resultKeys[cnt]; \
                     } \
                     throw r_Error(TILE_MULTIPLE_TIMES_RETRIEVED ); \
                 } \

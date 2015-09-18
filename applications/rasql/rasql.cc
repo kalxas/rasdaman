@@ -440,95 +440,77 @@ parseParams(int argc, char** argv) throw (RasqlError, r_Error)
 void
 openDatabase() throw (r_Error)
 {
-    ENTER( "openDatabase" );
-
     if (! dbIsOpen)
     {
         INFO( "opening database " << baseName << " at " << serverName << ":" << serverPort << "..." << flush );
         db.set_servername(serverName, static_cast<int>(serverPort));
         db.set_useridentification(user, passwd);
-        TALK( "database was closed, opening database=" << baseName << ", server=" << serverName << ", port=" << serverPort << ", user=" << user << ", passwd=" << passwd << "..." );
+        LDEBUG << "database was closed, opening database=" << baseName << ", server=" << serverName << ", port=" << serverPort << ", user=" << user << ", passwd=" << passwd << "...";
         db.open(baseName);
-        TALK( "ok" );
+        LDEBUG << "ok";
         dbIsOpen = true;
         INFO( "ok" << endl << flush );
     }
-
-    LEAVE( "openDatabase" );
 } // openDatabase()
 
 void
 closeDatabase() throw (r_Error)
 {
-    ENTER( "closeDatabase" );
-
     if (dbIsOpen)
     {
-        TALK( "database was open, closing it" );
+        LDEBUG << "database was open, closing it";
         db.close();
         dbIsOpen = false;
     }
-
-    LEAVE( "closeDatabase" );
     return;
 } // closeDatabase()
 
 void
 openTransaction(bool readwrite) throw (r_Error)
 {
-    ENTER( "openTransaction, readwrite=" << (readwrite ? "rw" : "ro" ) );
-
     if (! taIsOpen)
     {
         if (readwrite)
         {
-            TALK( "transaction was closed, opening rw..." );
+            LDEBUG << "transaction was closed, opening rw...";
             ta.begin(r_Transaction::read_write);
-            TALK( "ok" );
+            LDEBUG << "ok";
         }
         else
         {
-            TALK( "transaction was closed, opening ro..." );
+            LDEBUG << "transaction was closed, opening ro...";
             ta.begin(r_Transaction::read_only);
-            TALK( "ok" );
+            LDEBUG << "ok";
         }
 
         taIsOpen = true;
     }
-
-    LEAVE( "openTransaction" );
 } // openTransaction()
 
 void
 closeTransaction( bool doCommit ) throw (r_Error)
 {
-    ENTER( "closeTransaction, doCommit=" << doCommit );
-
     if (taIsOpen)
     {
         if (doCommit)
         {
-            TALK( "transaction was open, committing it..." );
+            LDEBUG << "transaction was open, committing it...";
             ta.commit();
-            TALK( "ok" );
+            LDEBUG << "ok";
         }
         else
         {
-            TALK( "transaction was open, aborting it..." );
+            LDEBUG << "transaction was open, aborting it...";
             ta.abort();
-            TALK( "ok" );
+            LDEBUG << "ok";
         }
         taIsOpen = false;
     }
-
-    LEAVE( "closeTransaction" );
     return;
 } // closeTransaction()
 
 void printScalar( const r_Scalar& scalar )
 {
-    ENTER( "printScalar" );
-
     switch( scalar.get_type()->type_id() )
     {
     case r_Type::BOOL:
@@ -589,15 +571,12 @@ void printScalar( const r_Scalar& scalar )
         INFO( "scalar type " << scalar.get_type()->type_id() <<  "  not supported!" << endl );
         break;
     }
-    LEAVE( "printScalar" );
 } // printScalar()
 
 
 // result_set should be parameter, but is global -- see def for reason
 void printResult( /* r_Set< r_Ref_Any > result_set */ ) throw(RasqlError)
 {
-    ENTER( "printResult" );
-
     INFO( "Query result collection has " << result_set.cardinality() << " element(s):" << endl );
 
     if (displayType)
@@ -670,7 +649,7 @@ void printResult( /* r_Set< r_Ref_Any > result_set */ ) throw(RasqlError)
             {
                 char defFileName[FILENAME_MAX];
                 (void) snprintf( defFileName, sizeof(defFileName)-1, outFileMask, i );
-                TALK( "filename for #" << i << " is " << defFileName );
+                LDEBUG << "filename for #" << i << " is " << defFileName;
 
                 // special treatment only for DEFs
                 r_Data_Format mafmt = r_Ref<r_GMarray>(*iter)->get_current_format();
@@ -761,8 +740,6 @@ void printResult( /* r_Set< r_Ref_Any > result_set */ ) throw(RasqlError)
             // r_Ref<r_Scalar>(*iter)->print_status( cout );
         } // switch
     }  // for(...)
-
-    LEAVE( "printResult" );
 } // printResult()
 
 
@@ -774,7 +751,6 @@ void printResult( /* r_Set< r_Ref_Any > result_set */ ) throw(RasqlError)
  */
 r_Marray_Type * getTypeFromDatabase( const char *mddTypeName2 ) throw(RasqlError, r_Error)
 {
-    ENTER( "getTypeFromDatabase, mddTypeName=" << mddTypeName2 );
     r_Marray_Type *retval = NULL;
     char* typeStructure = NULL;
 
@@ -782,22 +758,22 @@ r_Marray_Type * getTypeFromDatabase( const char *mddTypeName2 ) throw(RasqlError
     try
     {
         typeStructure = db.getComm()->getTypeStructure(mddTypeName2, ClientComm::r_MDDType_Type);
-        TALK( "type structure is " << typeStructure );
+        LDEBUG << "type structure is " << typeStructure;
     }
     catch (r_Error& err)
     {
         if (err.get_kind() == r_Error::r_Error_DatabaseClassUndefined)
         {
-            TALK( "Type is not a well known type: " << typeStructure );
+            LDEBUG << "Type is not a well known type: " << typeStructure;
             typeStructure = new char[strlen(mddTypeName2) + 1];
             // earlier code tried this one below, but I feel we better are strict -- PB 2003-jul-06
             // strcpy(typeStructure, mddTypeName2);
-            // TALK( "using instead: " << typeStructure );
+            // LDEBUG << "using instead: " << typeStructure;
             throw RasqlError( MDDTYPEINVALID );
         }
         else    // unanticipated error
         {
-            TALK( "Error during type retrieval from database: " << err.get_errorno() << " " << err.what() );
+            LDEBUG << "Error during type retrieval from database: " << err.get_errorno() << " " << err.what();
             throw;
         }
     }
@@ -806,16 +782,16 @@ r_Marray_Type * getTypeFromDatabase( const char *mddTypeName2 ) throw(RasqlError
     try
     {
         r_Type* tempType = r_Type::get_any_type(typeStructure);
-        TALK( "get_any_type() for this type returns: " << tempType );
+        LDEBUG << "get_any_type() for this type returns: " << tempType;
         if (tempType->isMarrayType())
         {
             retval = static_cast<r_Marray_Type*>(tempType);
             tempType = NULL;
-            TALK( "found MDD type: " << retval );
+            LDEBUG << "found MDD type: " << retval;
         }
         else
         {
-            TALK( "type is not an marray type: " << typeStructure );
+            LDEBUG << "type is not an marray type: " << typeStructure;
             delete tempType;
             tempType = NULL;
             retval = NULL;
@@ -824,14 +800,13 @@ r_Marray_Type * getTypeFromDatabase( const char *mddTypeName2 ) throw(RasqlError
     }
     catch (r_Error& err)
     {
-        TALK( "Error during retrieval of MDD type structure (" << typeStructure << "): " << err.get_errorno() << " " << err.what() );
+        LDEBUG << "Error during retrieval of MDD type structure (" << typeStructure << "): " << err.get_errorno() << " " << err.what();
         throw;
     }
 
     delete [] typeStructure;
     typeStructure = NULL;
 
-    LEAVE( "getTypeFromDatabase, retval=" << retval );
     return retval;
 } // getTypeFromDatabase()
 
@@ -842,10 +817,8 @@ void doStuff( __attribute__ ((unused)) int argc, __attribute__ ((unused)) char**
     r_Ref<r_GMarray> fileMDD = NULL;    // MDD to satisfy a "$1" parameter
     r_Marray_Type *mddType = NULL;      // this MDD's type
 
-    ENTER( "doStuff" );
-
     r_OQL_Query query( queryString );
-    TALK( "query is: " << query.get_query() );
+    LDEBUG << "query is: " << query.get_query();
 
     if ( fileName != NULL )
     {
@@ -867,7 +840,7 @@ void doStuff( __attribute__ ((unused)) int argc, __attribute__ ((unused)) char**
 
         fseek( fileD, 0, SEEK_END );
         long size = ftell( fileD );
-        TALK( "file size is " << size << " bytes" );
+        LDEBUG << "file size is " << size << " bytes";
 
         if(size==0)
         {
@@ -878,7 +851,7 @@ void doStuff( __attribute__ ((unused)) int argc, __attribute__ ((unused)) char**
         if ( ! mddDomainDef )
         {
             mddDomain = r_Minterval( 1 ) << r_Sinterval (static_cast<r_Range>(0), static_cast<r_Range>(size)-1 );
-            TALK( "domain set to " << mddDomain );
+            LDEBUG << "domain set to " << mddDomain;
 
             // compute tiles
             r_Storage_Layout *storage_layout = new r_Storage_Layout(new r_Aligned_Tiling(1));
@@ -927,7 +900,7 @@ void doStuff( __attribute__ ((unused)) int argc, __attribute__ ((unused)) char**
             }
             catch(std::bad_alloc)
             {
-                TALK( "Unable to claim memory: " << size << " Bytes" );
+                LDEBUG << "Unable to claim memory: " << size << " Bytes";
                 throw RasqlError( UNABLETOCLAIMRESOURCEFORFILE );
             }
         }
@@ -936,7 +909,7 @@ void doStuff( __attribute__ ((unused)) int argc, __attribute__ ((unused)) char**
 
         INFO( "ok" << endl );
 
-        TALK( "setting up MDD with domain " << mddDomain << " and base type " << mddTypeName );
+        LDEBUG << "setting up MDD with domain " << mddDomain << " and base type " << mddTypeName;
         fileMDD = new (mddTypeName) r_GMarray( mddDomain, mddType->base_type().size(), 0, false );
         fileMDD->set_type_schema( mddType );
         fileMDD->set_array_size( mddDomain.cell_count() * mddType->base_type().size() );
@@ -951,7 +924,7 @@ void doStuff( __attribute__ ((unused)) int argc, __attribute__ ((unused)) char**
 
         query << *fileMDD;
 
-        TALK( "constants are:" );
+        LDEBUG << "constants are:";
         r_Set<r_GMarray *> * myConstSet = const_cast<r_Set<r_GMarray *> *>(query.get_constants());
         r_Iterator< r_GMarray *> iter = myConstSet->create_iterator();
         int i;
@@ -1026,19 +999,14 @@ void doStuff( __attribute__ ((unused)) int argc, __attribute__ ((unused)) char**
 
     if (fileContents != NULL)
         delete [] fileContents;
-
-    LEAVE( "doStuff" );
 }
 
 void
 crash_handler (__attribute__ ((unused)) int sig, __attribute__ ((unused)) siginfo_t* info, void * ucontext)
 {
-    ENTER( "crash_handler");
-
     print_stacktrace(ucontext);
     // clean up connection in case of segfault
     closeTransaction(false);
-    LEAVE( "crash_handler");
     exit(SEGFAULT_EXIT_CODE);
 }
 
@@ -1049,8 +1017,7 @@ _INITIALIZE_EASYLOGGINGPP
  */
 int main(int argc, char** argv)
 {
-    //TODO-GM: find a better way to do thiss
-
+    //Logging configuration: to standard output, LDEBUG and LTRACE are not enabled
     easyloggingpp::Configurations defaultConf;
     defaultConf.setToDefault();
     defaultConf.set(easyloggingpp::Level::All,

@@ -47,6 +47,8 @@ static const char rcsid[] = "@(#)rasodmg/test,ImportOrthoUtil: $Id: rasql_signal
 #include <strings.h>
 #endif
 
+#include "common/src/logging/easylogging++.hh"
+
 using namespace std;
 
 #include "rasql_error.hh"
@@ -182,7 +184,7 @@ signalHandler(int sig)
         return;
     else
     {
-        TALK( "fatal signal, exiting." << flush );
+        LDEBUG << "fatal signal, exiting.";
         exit(sig);
     }
 }
@@ -190,8 +192,6 @@ signalHandler(int sig)
 void
 installSignalHandlers()
 {
-    ENTER( "installSignalHandlers" );
-
     signal(SIGINT, signalHandler);
     signal(SIGTERM, signalHandler);
     signal(SIGHUP, signalHandler);
@@ -245,6 +245,5 @@ installSignalHandlers()
 #endif
 #endif
 #endif
-    LEAVE( "installSignalHandlers" );
 }
 

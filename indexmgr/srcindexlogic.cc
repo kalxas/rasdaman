@@ -44,6 +44,8 @@ static const char rcsiddirix[] = "@(#)dirix, SRCIndexLogic: $Id: srcindexlogic.c
 #include "relblobif/blobtile.hh"
 #include "raslib/mitera.hh"
 
+#include "../common/src/logging/easylogging++.hh"
+
 unsigned int
 SRCIndexLogic::computeNumberOfTiles(const StorageLayout& sl, const r_Minterval& mddDomain)
 {
@@ -76,12 +78,12 @@ SRCIndexLogic::computeNormalizedDomain(const r_Point& mddDomainExtent, const r_P
         if ((normalized + 1)* tileConfigExtent[dim] != mddDomainExtent[dim])
         {
             //cout << "got you" << endl;
-            RMInit::logOut << "SRCIndexLogic::computeNormalizedDomain() the mdd domain does not fit the tile configuration" << endl;
+            LFATAL << "SRCIndexLogic::computeNormalizedDomain() the mdd domain does not fit the tile configuration";
             throw r_Error(TILECONFIGMARRAYINCOMPATIBLE);
         }
         normalizedDomain[dim] = r_Sinterval(0LL, normalized);
     }
-    RMDBGONCE(4, RMDebug::module_indexmgr, "SRCIndexLogic", "computeNormalizedDomain(" << mddDomainExtent << ", " << tileConfigExtent << ") " << normalizedDomain);
+    LTRACE << "computeNormalizedDomain(" << mddDomainExtent << ", " << tileConfigExtent << ") " << normalizedDomain;
     return normalizedDomain;
 }
 
@@ -95,7 +97,7 @@ SRCIndexLogic::computeNormalizedPoint(const r_Point& toNormalize, const r_Point&
     {
         normalizedPoint[dim] = static_cast<r_Range>((toNormalize[dim] - mddDomainOrigin[dim])/tileConfigExtent[dim]);
     }
-    RMDBGONCE(4, RMDebug::module_indexmgr, "SRCIndexLogic", "computeNormalizedPoint(" << toNormalize << ", " << tileConfigExtent << ", " << mddDomainOrigin << ") " << normalizedPoint);
+    LTRACE << "computeNormalizedPoint(" << toNormalize << ", " << tileConfigExtent << ", " << mddDomainOrigin << ") " << normalizedPoint;
     return normalizedPoint;
 }
 
@@ -118,7 +120,7 @@ SRCIndexLogic::computeDomain(const r_Point& toConvert, const r_Point& tileConfig
         high = toConvTemp - offset + tileConfigExtent[dim];
         result[dim] = r_Sinterval(low, high);
     }
-    RMDBGONCE(4, RMDebug::module_indexmgr, "SRCIndexLogic", "computeDomain(" << toConvert << ", " << tileConfigExtent << ", " << mddDomainOrigin << ") " << result);
+    LTRACE << "computeDomain(" << toConvert << ", " << tileConfigExtent << ", " << mddDomainOrigin << ") " << result;
     return result;
 }
 
@@ -127,7 +129,7 @@ SRCIndexLogic::computeOId(const r_Minterval& mddDomain, const r_Point& tileConfi
 {
     OId::OIdCounter counter;
     counter = static_cast<OId::OIdCounter>(computeNormalizedDomain(mddDomain.get_extent(), tileConfigExtent).cell_offset(computeNormalizedPoint(tileOrigin, tileConfigExtent, mddDomain.get_origin()))) + baseCounter;
-    RMDBGONCE(4, RMDebug::module_indexmgr, "SRCIndexLogic", "computeOId(" << mddDomain << ", " << tileConfigExtent << ", " << baseCounter << ", " << tileOrigin << ") " << OId(counter, type));
+    LTRACE << "computeOId(" << mddDomain << ", " << tileConfigExtent << ", " << baseCounter << ", " << tileOrigin << ") " << OId(counter, type);
     return OId(counter, type);
 }
 
@@ -135,9 +137,8 @@ bool
 SRCIndexLogic::insertObject(IndexDS* ixDS, const KeyObject& newKeyObject, const StorageLayout& sl)
 {
     //this method should check if the tile is actually in the tiling
-    RMDBGENTER(4, RMDebug::module_indexmgr, "SRCIndexLogic", "insertObject(" << newKeyObject << ")");
 
-    /* RMInit::logOut << "SRCIndexLogic::insertObject(" << ixDS->getIdentifier() << ", " << newKeyObject << ", sl) insert operation not allowed" << endl;
+    /* LFATAL << "SRCIndexLogic::insertObject(" << ixDS->getIdentifier() << ", " << newKeyObject << ", sl) insert operation not allowed";
     throw r_Error(INSERTINTORCINDEX); // thrown without a check and therefore commented out in order to make rc_index work MR 29.05.2012 */
     //if src is able to extend:
     r_Minterval newKeyObjectDomain = newKeyObject.getDomain();
@@ -150,7 +151,6 @@ SRCIndexLogic::insertObject(IndexDS* ixDS, const KeyObject& newKeyObject, const 
     //t->setPersistent(true);
     tile->setPersistent(false);
 
-    RMDBGEXIT(4, RMDebug::module_indexmgr, "SRCIndexLogic", "insertObject(" << newKeyObject << ")");
     //should check if insertion was succesfull
     return true;
 }
@@ -181,7 +181,6 @@ SRCIndexLogic::computeDomain(const r_Point& toConvert, const r_Point& tileConfig
 r_Minterval
 SRCIndexLogic::computeTiledDomain(const r_Minterval& completeDomain, const r_Point& tileConfigExtent, const r_Minterval& widenMe)
 {
-    RMDBGENTER(4, RMDebug::module_indexmgr, "SRCIndexLogic", "computeTiledDomain(" << completeDomain << ", " << tileConfigExtent << ", " << widenMe << ")");
     r_Minterval searchDomain(completeDomain.create_intersection(widenMe));
     r_Dimension theDim = searchDomain.dimension();
     r_Minterval retval(theDim);
@@ -193,7 +192,7 @@ SRCIndexLogic::computeTiledDomain(const r_Minterval& completeDomain, const r_Poi
     r_Range tileExtent = 0;
     r_Sinterval currSi;
     r_Point mddDomainOrigin = completeDomain.get_origin();
-    RMDBGMIDDLE(5, RMDebug::module_indexmgr, "SRCIndexLogic", "search domain " << searchDomain << " mdd origin " << mddDomainOrigin)
+    LTRACE << "search domain " << searchDomain << " mdd origin " << mddDomainOrigin;
 
     for (r_Dimension dim = 0; dim < theDim; dim++)
     {
@@ -207,16 +206,14 @@ SRCIndexLogic::computeTiledDomain(const r_Minterval& completeDomain, const r_Poi
         offsethigh = (high - mddOrigin)%tileExtent;
         //this has to be revised if we support border tiles
         retval[dim] = r_Sinterval(low - offsetlow, high - offsethigh + tileExtent - 1);
-        RMDBGMIDDLE(6, RMDebug::module_indexmgr, "SRCIndexLogic", "mdd interval " << currSi << " offset low " << offsetlow << " offset high " << offsethigh << " tile extent " << tileExtent)
+        LTRACE << "mdd interval " << currSi << " offset low " << offsetlow << " offset high " << offsethigh << " tile extent " << tileExtent;
     }
-    RMDBGEXIT(4, RMDebug::module_indexmgr, "SRCIndexLogic", "computeTiledDomain(" << completeDomain << ", " << tileConfigExtent << ", " << widenMe << ") " << retval);
     return retval;
 }
 
 void
 SRCIndexLogic::intersect(const IndexDS* ixDS, const r_Minterval& searchInter, KeyObjectVector& intersectedObjs, const StorageLayout& sl)
 {
-    RMDBGENTER(4, RMDebug::module_indexmgr, "SRCIndexLogic", "intersect(" << searchInter << ")");
     r_Minterval mddDomain = ixDS->getCoveredDomain();
     if (searchInter.intersects_with(mddDomain))
     {
@@ -255,7 +252,6 @@ SRCIndexLogic::intersect(const IndexDS* ixDS, const r_Minterval& searchInter, Ke
 void
 SRCIndexLogic::containPointQuery(const IndexDS* ixDS, const r_Point& searchPoint, KeyObject& result, const StorageLayout& sl)
 {
-    RMDBGENTER(4, RMDebug::module_indexmgr, "SRCIndexLogic", "containPointQuery(" << searchPoint << ")");
     r_Minterval mddDomain = ixDS->getCoveredDomain();
     if (mddDomain.covers(searchPoint))
     {
@@ -274,20 +270,19 @@ SRCIndexLogic::containPointQuery(const IndexDS* ixDS, const r_Point& searchPoint
         result.setDomain(computeDomain(searchPoint, tileConfigExtent, mddDomain.get_origin()));
         result.setObject(theObject.getOId());
     }
-    RMDBGEXIT(4, RMDebug::module_indexmgr, "SRCIndexLogic", "containPointQuery(" << searchPoint << ") " << result);
 }
 
 void
 SRCIndexLogic::getObjects(const IndexDS* ixDS, KeyObjectVector& objs, const StorageLayout& sl)
 {
-    RMDBGONCE(4, RMDebug::module_indexmgr, "SRCIndexLogic", "getObjects()");
+    LTRACE << "getObjects()";
     intersect(ixDS, ixDS->getCoveredDomain(), objs, sl);
 }
 
 bool
 SRCIndexLogic::removeObject(__attribute__ ((unused)) IndexDS* ixDS, __attribute__ ((unused)) const KeyObject& objToRemove,__attribute__ ((unused)) const StorageLayout& sl)
 {
-    RMDBGONCE(4, RMDebug::module_indexmgr, "SRCIndexLogic", "removeObject(" << objToRemove << ")");
+    LTRACE << "removeObject(" << objToRemove << ")";
     return true;
 }
 

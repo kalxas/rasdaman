@@ -35,7 +35,6 @@ rasdaman GmbH.
 #include <string.h>
 
 
-#include "raslib/rmdebug.hh"
 #include "raslib/minterval.hh"
 #include "raslib/type.hh"
 #include "raslib/type.hh"
@@ -47,6 +46,7 @@ rasdaman GmbH.
 #include "compression/tilecompression.hh"
 #include "compression/tilecompnone.hh"
 
+#include "../common/src/logging/easylogging++.hh"
 
 /*
  *  r_Tile_Compression class
@@ -190,7 +190,7 @@ unsigned int r_Tile_Compression::get_atom_info( const r_Base_Type* baseType, uns
     unsigned int sum;
     unsigned int idx;
 
-    RMDBGONCE( 3, RMDebug::module_compression, "r_Tile_Compression", "get_atom_info()" );
+    LTRACE << "get_atom_info()";
 
     if (idxptr == NULL)
         idx = 0;
@@ -287,7 +287,7 @@ r_Tile_Compression *r_Tile_Compression::create( r_Data_Format fmt, const r_Minte
         result = new r_Tile_Comp_Other(fmt, dom, type);
         break;
     default:
-        RMInit::logOut << "Error: r_Tile_Compression::create(): Unknown or unsupported tile compression " << fmt << endl;
+        LFATAL << "Error: r_Tile_Compression::create(): Unknown or unsupported tile compression " << fmt;
         r_Error err(r_Error::r_Error_General, COMPRESSIONFAILED );
         throw(err);
         break;
@@ -315,7 +315,7 @@ r_Data_Format r_Tile_Compression::get_format_from_name( const char *name ) throw
     }
     if (i >= numFormats)
     {
-        RMInit::logOut << "Error: r_Tile_Compression::create(): Unknown compression algorithm: " << name << endl;
+        LFATAL << "Error: r_Tile_Compression::create(): Unknown compression algorithm: " << name;
         r_Error err(r_Error::r_Error_General, COMPRESSIONFAILED );
         throw(err);
     }

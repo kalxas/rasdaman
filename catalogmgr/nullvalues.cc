@@ -32,6 +32,7 @@ rasdaman GmbH.
 
 #include "nullvalues.hh"
 #include "debug/debug-srv.hh"
+#include "../common/src/logging/easylogging++.hh"
 
 NullValuesHandler::NullValuesHandler()
     : nullValues(NULL), nullValuesCount(0)
@@ -50,24 +51,20 @@ NullValuesHandler::~NullValuesHandler()
 r_Minterval*
 NullValuesHandler::getNullValues() const
 {
-    ENTER("NullValuesHandler::getNullValues()");
     if (nullValues != NULL)
     {
-        TALK("returning null values " << nullValues->get_string_representation());
+        LDEBUG << "returning null values " << nullValues->get_string_representation();
     }
-    LEAVE("NullValuesHandler::getNullValues()");
     return nullValues;
 }
 
 void
 NullValuesHandler::setNullValues(r_Minterval* newNullValues)
 {
-    ENTER("NullValuesHandler::setNullValues()");
     if (newNullValues != NULL)
     {
-        TALK("setting to " << newNullValues->get_string_representation());
+        LDEBUG << "setting to " << newNullValues->get_string_representation();
     }
-    LEAVE("NullValuesHandler::setNullValues()");
     nullValues = newNullValues;
 }
 
@@ -88,11 +85,9 @@ NullValuesHandler::setNullValuesCount(unsigned long count)
 void
 NullValuesHandler::cloneNullValues( const NullValuesHandler* obj )
 {
-    ENTER("NullValuesHandler::clone()");
     if( this != obj )
     {
         nullValues = obj->nullValues;
         nullValuesCount = obj->nullValuesCount;
     }
-    LEAVE("NullValuesHandler::clone()");
 }

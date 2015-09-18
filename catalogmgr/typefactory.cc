@@ -42,7 +42,6 @@ static const char rcsid[] = "@(#)catalogif,TypeFactory: $Header: /home/rasdev/CV
 #include <set>
 
 #include "raslib/rminit.hh"
-#include "raslib/rmdebug.hh"
 #include "relcatalogif/alltypes.hh"
 #include "typefactory.hh"
 #include "reladminif/objectbroker.hh"
@@ -56,6 +55,7 @@ static const char rcsid[] = "@(#)catalogif,TypeFactory: $Header: /home/rasdev/CV
 #include "relmddif/dbmddobj.hh"
 #include "relmddif/dbmddset.hh"
 #include "relcatalogif/syntaxtypes.hh"
+#include "../common/src/logging/easylogging++.hh"
 
 TypeFactory* TypeFactory::myInstance = 0;
 
@@ -155,7 +155,6 @@ TypeFactory::instance()
 const BaseType*
 TypeFactory::mapType(const char* typeName)
 {
-    RMDBGENTER(4, RMDebug::module_catalogmgr, "TypeFactory", "mapType(" << typeName << ")");
     BaseType* resultType = 0;
     resultType = static_cast<BaseType*>(ObjectBroker::getObjectByName(OId::ATOMICTYPEOID, typeName));
     if (resultType == 0)
@@ -169,19 +168,17 @@ TypeFactory::mapType(const char* typeName)
             resultType = 0;
         }
     }
-    RMDBGEXIT(4, RMDebug::module_catalogmgr, "TypeFactory", "mapType(" << typeName << ") END " << resultType);
     return resultType;
 }
 
 const StructType*
 TypeFactory::addStructType(const StructType* type)
 {
-    RMDBGENTER(4, RMDebug::module_catalogmgr, "TypeFactory", "addStructType(" << type->getTypeName() << ")");
     StructType* persistentType = 0;
     const StructType* retval = 0;
     if (type->isPersistent())
     {
-        RMDBGMIDDLE(5, RMDebug::module_catalogmgr, "TypeFactory", "type is persistent " << type->getName() << " " << type->getOId());
+        LTRACE << "type is persistent " << type->getName() << " " << type->getOId();
         retval = type;
     }
     else
@@ -193,7 +190,7 @@ TypeFactory::addStructType(const StructType* type)
             switch (type->getElemType(i)->getType())
             {
             case STRUCT:
-                RMDBGMIDDLE(6, RMDebug::module_catalogmgr, "TypeFactory", "element is struct type " << (char*)type->getElemName(i) << " of type " << type->getElemType(i)->getName());
+                LTRACE << "element is struct type " << type->getElemName(i) << " of type " << type->getElemType(i)->getName();
                 persistentType->addElement(type->getElemName(i), addStructType(static_cast<const StructType*>(type->getElemType(i))));
                 break;
             case ULONG:
@@ -207,29 +204,27 @@ TypeFactory::addStructType(const StructType* type)
             case FLOAT:
             case COMPLEXTYPE1:
             case COMPLEXTYPE2:
-                RMDBGMIDDLE(6, RMDebug::module_catalogmgr, "TypeFactory", "element is atomic type " << (char*)type->getElemName(i) << " of type " << type->getElemType(i)->getName());
+                LTRACE << "element is atomic type " << type->getElemName(i) << " of type " << type->getElemType(i)->getName();
                 persistentType->addElement(type->getElemName(i), static_cast<BaseType*>(ObjectBroker::getObjectByOId(type->getElemType(i)->getOId())));
                 break;
             default:
                 persistentType = 0;
-                RMDBGMIDDLE(0, RMDebug::module_catalogmgr, "TypeFactory", "addStructType(" << type->getTypeName() << ") unknown type " << type->getOId() << type->getOId().getType());
+                LTRACE << "addStructType(" << type->getTypeName() << ") unknown type " << type->getOId() << type->getOId().getType();
                 break;
             }
         }
-        RMDBGMIDDLE(5, RMDebug::module_catalogmgr, "TypeFactory", "type is now persistent " << persistentType->getName() << " " << persistentType->getOId());
+        LTRACE << "type is now persistent " << persistentType->getName() << " " << persistentType->getOId();
         persistentType->setCached(true);
         persistentType->setPersistent(true);
         ObjectBroker::registerDBObject(persistentType);
         retval = persistentType;
     }
-    RMDBGEXIT(4, RMDebug::module_catalogmgr, "TypeFactory", "addStructType(" << retval->getTypeName() << ") END");
     return retval;
 }
 
 const SetType*
 TypeFactory::mapSetType(const char* typeName)
 {
-    RMDBGENTER(4, RMDebug::module_catalogmgr, "TypeFactory", "mapSetType(" << typeName << ")");
     // it is a user defined type
     SetType* resultType = 0;
     try
@@ -240,19 +235,17 @@ TypeFactory::mapSetType(const char* typeName)
     {
         resultType = 0;
     }
-    RMDBGEXIT(4, RMDebug::module_catalogmgr, "TypeFactory", "mapSetType(" << typeName << ") END " << resultType);
     return resultType;
 }
 
 const SetType*
 TypeFactory::addSetType(const SetType* type)
 {
-    RMDBGENTER(4, RMDebug::module_catalogmgr, "TypeFactory", "addSetType(" << type->getTypeName() << ")");
     SetType* persistentType = 0;
     const SetType* retval = 0;
     if (type->isPersistent())
     {
-        RMDBGMIDDLE(5, RMDebug::module_catalogmgr, "TypeFactory", "type is persistent " << type->getName() << " " << type->getOId());
+        LTRACE << "type is persistent " << type->getName() << " " << type->getOId();
         retval = type;
     }
     else
@@ -266,19 +259,17 @@ TypeFactory::addSetType(const SetType* type)
         }
 
         persistentType->setPersistent(true);
-        RMDBGMIDDLE(5, RMDebug::module_catalogmgr, "TypeFactory", "type is now persistent " << type->getName() << " " << persistentType->getOId());
+        LTRACE << "type is now persistent " << type->getName() << " " << persistentType->getOId();
         ObjectBroker::registerDBObject(persistentType);
         persistentType->setCached(true);
         retval = persistentType;
     }
-    RMDBGEXIT(4, RMDebug::module_catalogmgr, "TypeFactory", "addSetType(" << retval->getTypeName() << ") END");
     return retval;
 }
 
 const MDDType*
 TypeFactory::mapMDDType(const char* typeName)
 {
-    RMDBGENTER(4, RMDebug::module_catalogmgr, "TypeFactory", "mapMDDType(" << typeName << ")");
     MDDType* resultType = 0;
     try
     {
@@ -288,52 +279,50 @@ TypeFactory::mapMDDType(const char* typeName)
     {
         resultType = 0;
     }
-    RMDBGEXIT(4, RMDebug::module_catalogmgr, "TypeFactory", "mapMDDType(" << typeName << ") END " << resultType);
     return resultType;
 }
 
 const MDDType*
 TypeFactory::addMDDType(const MDDType* type)
 {
-    RMDBGENTER(4, RMDebug::module_catalogmgr, "TypeFactory", "addMDDType(" << type->getTypeName() << ")");
     MDDType* persistentType = 0;
     const MDDType* retval = 0;
     BaseType* t = 0;
 
     if (type->isPersistent())
     {
-        RMDBGMIDDLE(5, RMDebug::module_catalogmgr, "TypeFactory", "type is persistent " << type->getOId());
+        LTRACE << "type is persistent " << type->getOId();
         retval = type;
     }
     else
     {
-        RMDBGMIDDLE(5, RMDebug::module_catalogmgr, "TypeFactory", "type is not persistent " << type->getOId());
+        LTRACE << "type is not persistent " << type->getOId();
         switch (type->getSubtype())
         {
         case MDDType::MDDONLYTYPE:
-            RMDBGMIDDLE(7, RMDebug::module_catalogmgr, "TypeFactory", "is MDDONLYTYPE");
+            LTRACE << "is MDDONLYTYPE";
             persistentType = new MDDType(type->getTypeName());
             break;
         case MDDType::MDDBASETYPE:
-            RMDBGMIDDLE(7, RMDebug::module_catalogmgr, "TypeFactory", "is MDDBASETYPE");
+            LTRACE << "is MDDBASETYPE";
             persistentType = new MDDBaseType(type->getTypeName(), addStructType(static_cast<StructType*>(const_cast<BaseType*>((static_cast<MDDBaseType*>(const_cast<MDDType*>(type)))->getBaseType()))));
             break;
         case MDDType::MDDDOMAINTYPE:
-            RMDBGMIDDLE(7, RMDebug::module_catalogmgr, "TypeFactory", "is MDDDOMAINTYPE");
+            LTRACE << "is MDDDOMAINTYPE";
             persistentType = new MDDDomainType(type->getTypeName(), addStructType(static_cast<StructType*>(const_cast<BaseType*>((static_cast<MDDBaseType*>(const_cast<MDDType*>(type)))->getBaseType()))), *(static_cast<MDDDomainType*>(const_cast<MDDType*>(type)))->getDomain());
             break;
         case MDDType::MDDDIMENSIONTYPE:
-            RMDBGMIDDLE(7, RMDebug::module_catalogmgr, "TypeFactory", "is MDDDIMENSIONTYPE");
+            LTRACE << "is MDDDIMENSIONTYPE";
             persistentType = new MDDDimensionType(type->getTypeName(), addStructType(static_cast<StructType*>(const_cast<BaseType*>((static_cast<MDDBaseType*>(const_cast<MDDType*>(type)))->getBaseType()))), (static_cast<MDDDimensionType*>(const_cast<MDDType*>(type)))->getDimension());
             break;
         default:
-            RMDBGMIDDLE(0, RMDebug::module_catalogmgr, "TypeFactory", "addMDDType(" << type->getName() << ") mddsubtype unknown");
+            LTRACE << "addMDDType(" << type->getName() << ") mddsubtype unknown";
             break;
         }
         if (persistentType != 0)
         {
             persistentType->setPersistent(true);
-            RMDBGMIDDLE(6, RMDebug::module_catalogmgr, "TypeFactory", "adding " << persistentType->getName() << " " << persistentType->getOId());
+            LTRACE << "adding " << persistentType->getName() << " " << persistentType->getOId();
             persistentType->setCached(true);
             ObjectBroker::registerDBObject(persistentType);
             retval = persistentType;
@@ -343,7 +332,6 @@ TypeFactory::addMDDType(const MDDType* type)
             //error message was already given in switch default
         }
     }
-    RMDBGEXIT(4, RMDebug::module_catalogmgr, "TypeFactory", "addMDDType(" << type->getTypeName() << ") END");
     return retval;
 }
 
@@ -360,18 +348,13 @@ void
 TypeFactory::initialize()
 {
     // to initailize the typefactory
-    RMDBGENTER(4, RMDebug::module_catalogmgr, "TypeFactory", "initialize()");
     if (!theTempTypes)
         theTempTypes = new std::vector<Type*>;
-
-    RMDBGEXIT(4, RMDebug::module_catalogmgr, "TypeFactory", "initialize() END");
 }
 
 void
 TypeFactory::freeTempTypes()
 {
-    RMDBGENTER(4, RMDebug::module_catalogmgr, "TypeFactory", "freeTempTypes()");
-
     // delete all temporary types
     if (theTempTypes)
     {
@@ -383,7 +366,6 @@ TypeFactory::freeTempTypes()
         delete theTempTypes;
         theTempTypes = 0;
     }
-    RMDBGEXIT(4, RMDebug::module_catalogmgr, "TypeFactory", "freeTempTypes()");
 }
 
 TypeFactory::TypeFactory()
@@ -393,7 +375,6 @@ TypeFactory::TypeFactory()
 void
 TypeFactory::deleteStructType(const char* typeName)
 {
-    RMDBGENTER(4, RMDebug::module_catalogmgr, "TypeFactory", "deleteStructType(" << typeName << ")");
     const DBObject* resultType = mapType(typeName);
     if (resultType)
     {
@@ -404,7 +385,7 @@ TypeFactory::deleteStructType(const char* typeName)
             {
                 if ((static_cast<MDDBaseType*>(miter.get_element().ptr()))->getBaseType() == resultType)
                 {
-                    RMDBGMIDDLE(5, RMDebug::module_catalogmgr, "TypeFactory", "mdd type " << miter.get_element()->getName() << " contains " << typeName);
+                    LTRACE << "mdd type " << miter.get_element()->getName() << " contains " << typeName;
                     canDelete = false;
                     break;
                 }
@@ -415,24 +396,22 @@ TypeFactory::deleteStructType(const char* typeName)
             DBObjectId toKill(resultType->getOId());
             toKill->setPersistent(false);
             toKill->setCached(false);
-            RMDBGMIDDLE(5, RMDebug::module_catalogmgr, "TypeFactory", "will be deleted from db");
+            LTRACE << "will be deleted from db";
         }
         else
         {
-            RMDBGMIDDLE(5, RMDebug::module_catalogmgr, "TypeFactory", "will not be deleted from db");
+            LTRACE << "will not be deleted from db";
         }
     }
     else
     {
-        RMDBGMIDDLE(5, RMDebug::module_catalogmgr, "TypeFactory", "is not in map");
+        LTRACE << "is not in map";
     }
-    RMDBGEXIT(4, RMDebug::module_catalogmgr, "TypeFactory", "deleteStructType(" << typeName << ")");
 }
 
 void
 TypeFactory::deleteMDDType(const char* typeName)
 {
-    RMDBGENTER(4, RMDebug::module_catalogmgr, "TypeFactory", "deleteMDDType(" << typeName << ")");
     const MDDType* resultType = mapMDDType(typeName);  //is ok because only short for find
     if (resultType)
     {
@@ -441,7 +420,7 @@ TypeFactory::deleteMDDType(const char* typeName)
         {
             if (miter.get_element()->getMDDType() == resultType)
             {
-                RMDBGMIDDLE(5, RMDebug::module_catalogmgr, "TypeFactory", "set type " << miter.get_element()->getName() << " contains " << typeName);
+                LTRACE << "set type " << miter.get_element()->getName() << " contains " << typeName;
                 canDelete = false;
                 break;
             }
@@ -456,7 +435,7 @@ TypeFactory::deleteMDDType(const char* typeName)
                 {
                     if (DBMDDObjId(*miter)->getMDDBaseType() == resultType)
                     {
-                        RMDBGMIDDLE(5, RMDebug::module_catalogmgr, "TypeFactory", "mdd object " << *miter << " contains " << typeName);
+                        LTRACE << "mdd object " << *miter << " contains " << typeName;
                         canDelete = false;
                         break;
                     }
@@ -469,29 +448,27 @@ TypeFactory::deleteMDDType(const char* typeName)
                 DBObjectId toKill(resultType->getOId());
                 toKill->setPersistent(false);
                 toKill->setCached(false);
-                RMDBGMIDDLE(5, RMDebug::module_catalogmgr, "TypeFactory", "will be deleted from db");
+                LTRACE << "will be deleted from db";
             }
             else
             {
-                RMDBGMIDDLE(5, RMDebug::module_catalogmgr, "TypeFactory", "will not be deleted from db");
+                LTRACE << "will not be deleted from db";
             }
         }
         else
         {
-            RMDBGMIDDLE(5, RMDebug::module_catalogmgr, "TypeFactory", "will not be deleted from db");
+            LTRACE << "will not be deleted from db";
         }
     }
     else
     {
-        RMDBGMIDDLE(5, RMDebug::module_catalogmgr, "TypeFactory", "is not in map");
+        LTRACE <<  "TypeFactory", "is not in map";
     }
-    RMDBGEXIT(4, RMDebug::module_catalogmgr, "TypeFactory", "deleteMDDType(" << typeName << ") END");
 }
 
 void
 TypeFactory::deleteSetType(const char* typeName)
 {
-    RMDBGENTER(4, RMDebug::module_catalogmgr, "TypeFactory", "deleteSetType(" << typeName << ")");
     const DBObject* resultType = const_cast<SetType*>(mapSetType(typeName));//is ok because only short for find
     if (resultType)
     {
@@ -501,7 +478,7 @@ TypeFactory::deleteSetType(const char* typeName)
         {
             if (DBMDDSetId(*miter)->getCollType() == resultType)
             {
-                RMDBGMIDDLE(5, RMDebug::module_catalogmgr, "TypeFactory", "set object " << *miter << " contains " << typeName);
+                LTRACE << "set object " << *miter << " contains " << typeName;
                 canDelete = false;
                 break;
             }
@@ -513,56 +490,51 @@ TypeFactory::deleteSetType(const char* typeName)
             DBObjectId toKill(resultType->getOId());
             toKill->setPersistent(false);
             toKill->setCached(false);
-            RMDBGMIDDLE(5, RMDebug::module_catalogmgr, "TypeFactory", "will be deleted from db");
+            LTRACE << "will be deleted from db";
         }
         else
         {
-            RMDBGMIDDLE(5, RMDebug::module_catalogmgr, "TypeFactory", "will not be deleted from db");
+            LTRACE << "will not be deleted from db";
         }
     }
     else
     {
-        RMDBGMIDDLE(5, RMDebug::module_catalogmgr, "TypeFactory", "is not in map");
+        LTRACE << "is not in map";
     }
-    RMDBGEXIT(4, RMDebug::module_catalogmgr, "TypeFactory", "deleteSetType(" << typeName << ") END");
 }
 
 void
 TypeFactory::deleteTmpMDDType(const char* typeName)
 {
-    RMDBGENTER(4, RMDebug::module_catalogmgr, "TypeFactory", "deleteTmpMDDType(" << typeName << ")");
     const MDDType* resultType = mapMDDType(typeName);  //is ok because only short for find
     if (resultType)
     {
         DBObjectId toKill(resultType->getOId());
         toKill->setPersistent(false);
         toKill->setCached(false);
-        RMDBGMIDDLE(5, RMDebug::module_catalogmgr, "TypeFactory", "will be deleted from db");
+        LTRACE << "will be deleted from db";
     }
     else
     {
-        RMDBGMIDDLE(5, RMDebug::module_catalogmgr, "TypeFactory", "is not in map");
+        LTRACE << "is not in map";
     }
-    RMDBGEXIT(4, RMDebug::module_catalogmgr, "TypeFactory", "deleteTmpMDDType(" << typeName << ") END");
 }
 
 void
 TypeFactory::deleteTmpSetType(const char* typeName)
 {
-    RMDBGENTER(4, RMDebug::module_catalogmgr, "TypeFactory", "deleteTmpSetType(" << typeName << ")");
     const DBObject* resultType = const_cast<SetType*>(mapSetType(typeName));//is ok because only short for find
     if (resultType)
     {
         DBObjectId toKill(resultType->getOId());
         toKill->setPersistent(false);
         toKill->setCached(false);
-        RMDBGMIDDLE(5, RMDebug::module_catalogmgr, "TypeFactory", "will be deleted from db");
+        LTRACE << "will be deleted from db";
     }
     else
     {
-        RMDBGMIDDLE(5, RMDebug::module_catalogmgr, "TypeFactory", "is not in map");
+        LTRACE << "is not in map";
     }
-    RMDBGEXIT(4, RMDebug::module_catalogmgr, "TypeFactory", "deleteTmpSetType(" << typeName << ") END");
 }
 
 const Type*
@@ -671,7 +643,7 @@ TypeFactory::ensurePersistence(Type* type)
         retval = static_cast<Type*>(ObjectBroker::getObjectByOId(OId(COMPLEXTYPE2, OId::ATOMICTYPEOID)));
         break;
     default:
-        RMDBGONCE(0, RMDebug::module_catalogmgr, "TypeFactory", "ensurePersitence() is not a STRUCT/MDDTYPE/SETTYPE/ATOMIC " << type->getName());
+        LTRACE << "ensurePersitence() is not a STRUCT/MDDTYPE/SETTYPE/ATOMIC " << type->getName();
         break;
     }
     if (!type->isPersistent())
@@ -682,7 +654,7 @@ TypeFactory::ensurePersistence(Type* type)
 TypeIterator<SetType>
 TypeFactory::createSetIter()
 {
-    RMDBGONCE(1, RMDebug::module_catalogmgr, "TypeFactory", "createSetIter()");
+    LTRACE << "createSetIter()";
     OIdSet* t = ObjectBroker::getAllObjects(OId::SETTYPEOID);
     TypeIterator<SetType> ti(*t);
     delete t;
@@ -693,7 +665,7 @@ TypeFactory::createSetIter()
 TypeIterator<StructType>
 TypeFactory::createStructIter()
 {
-    RMDBGONCE(1, RMDebug::module_catalogmgr, "TypeFactory", "createStructIter()");
+    LTRACE << "createStructIter()";
     OIdSet* t = ObjectBroker::getAllObjects(OId::STRUCTTYPEOID);
     TypeIterator<StructType> ti(*t);
     delete t;
@@ -704,7 +676,6 @@ TypeFactory::createStructIter()
 TypeIterator<MDDType>
 TypeFactory::createMDDIter()
 {
-    RMDBGENTER(1, RMDebug::module_catalogmgr, "TypeFactory", "createMDDIter()");
     OIdSet theMDDTypes;
     OIdSet* tempList = 0;
     OIdSet::iterator i;
@@ -737,7 +708,6 @@ TypeFactory::createMDDIter()
     }
     delete tempList;
 
-    RMDBGEXIT(1, RMDebug::module_catalogmgr, "TypeFactory", "createMDDIter()");
     return TypeIterator<MDDType>(theMDDTypes);
 }
 

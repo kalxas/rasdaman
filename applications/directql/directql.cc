@@ -1116,7 +1116,7 @@ _INITIALIZE_EASYLOGGINGPP
  */
 int main(int argc, char** argv)
 {
-    //TODO-GM: find a better way to do this
+    //Logging configuration: to standard output, LDEBUG and LTRACE are not enabled
     easyloggingpp::Configurations defaultConf;
     defaultConf.setToDefault();
     defaultConf.set(easyloggingpp::Level::All,

@@ -37,6 +37,7 @@ static const char rcsid[] = "@(#)catalogif,ops.cc: $Header: /home/rasdev/CVS-rep
 #include "relcatalogif/alltypes.hh"
 #include "typefactory.hh"
 #include "raslib/point.hh"
+#include "../common/src/logging/easylogging++.hh"
 
 //-----------------------------------------------
 //  getUnaryOp
@@ -1289,9 +1290,9 @@ Ops::execUnaryConstOp( Ops::OpType op, const BaseType* resType,
 
     if (!myOp)
     {
-        RMInit::logOut << "Ops::execUnaryConstOp: no operation for result type "
+        LFATAL << "Ops::execUnaryConstOp: no operation for result type "
                        << resType->getName() << ", argument type "
-                       << opType->getName() << ", operation " << (int)op << endl;
+                       << opType->getName() << ", operation " << (int)op;
         throw r_Error(367);
     }
     
@@ -3591,7 +3592,7 @@ OpSUMCULong::operator()( const char* op, char* init )
     {
         if (isNullOnly(longOp))
         {
-            RMInit::logOut << "longOp is null: " << longOp << endl;
+            LWARNING << "longOp is null: " << longOp;
             resType->makeFromCULong(accu, &longOp);
             nullAccu = true;
         }
@@ -3890,7 +3891,7 @@ OpBinaryStruct::operator()( char* res, const char* op1,
 
     if( _operation == Ops::OP_OVERLAY )
     {
-        RMInit::logOut << "OpBinaryStruct operation" << endl;
+        LINFO << "OpBinaryStruct operation";
         for(i = 0; i < numElems; ++i)
             if(*(op2 + op2Off) && !isNull(*(op2 + op2Off)))
             {
@@ -5499,7 +5500,7 @@ OpOVERLAY::OpOVERLAY( const BaseType* newResType, const BaseType* newOp1Type, co
 {
     if ((pattern == nullPattern) && (length > 16))
     {
-        RMInit::logOut << "OpOVERLAY overlay with types larger than 16 bytes not supported yet" << endl;
+        LFATAL << "OpOVERLAY overlay with types larger than 16 bytes not supported yet";
         throw r_Error(OVERLAYPATTERNTOOSMALL);
     }
 }

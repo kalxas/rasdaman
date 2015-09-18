@@ -32,26 +32,25 @@ rasdaman GmbH.
 
 #include <string.h>
 
-#include "raslib/rminit.hh"
-#include "raslib/rmdebug.hh"
 #include "compression/tilecompnone.hh"
+#include "../common/src/logging/easylogging++.hh"
 
 
 r_Tile_Comp_None::r_Tile_Comp_None( const r_Minterval &dom, const r_Base_Type *type ) : r_Tile_Compression(dom, type)
 {
-    RMDBGONCE( 2, RMDebug::module_compression, "r_Tile_Comp_None", "r_Tile_Comp_None(dom,type)" );
+    LTRACE << "r_Tile_Comp_None(dom,type)";
 }
 
 
 r_Tile_Comp_None::r_Tile_Comp_None( const r_Tile_Comp_None &src) : r_Tile_Compression(src)
 {
-    RMDBGONCE( 2, RMDebug::module_compression, "r_Tile_Comp_None", "r_Tile_Comp_None(src)" );
+    LTRACE << "r_Tile_Comp_None(src)";
 }
 
 
 r_Tile_Comp_None::~r_Tile_Comp_None( void )
 {
-    RMDBGONCE( 2, RMDebug::module_compression, "r_Tile_Comp_None", "~r_Tile_Comp_None()" );
+    LTRACE << "~r_Tile_Comp_None()";
 }
 
 
@@ -59,13 +58,13 @@ void *r_Tile_Comp_None::compress( const void *src, r_ULong &size, const char *op
 {
     void *result;
 
-    RMDBGONCE( 2, RMDebug::module_compression, "r_Tile_Comp_None", "compress()" );
+    LTRACE << "compress()";
 
     size = get_tile_size();
     if ((result = mystore.storage_alloc(size)) != NULL)
         memcpy(result, src, get_tile_size());
     else
-        RMInit::logOut << "r_Tile_Comp_None::compress(): unable to allocate memory" << endl;
+        LERROR << "r_Tile_Comp_None::compress(): unable to allocate memory";
 
     return result;
 }
@@ -75,12 +74,12 @@ void *r_Tile_Comp_None::decompress( const void *src, r_ULong size, const char *o
 {
     void *result;
 
-    RMDBGONCE( 2, RMDebug::module_compression, "r_Tile_Comp_None", "decompress()" );
+    LTRACE << "decompress()";
 
     if ((result = mystore.storage_alloc(get_tile_size())) != NULL)
         memcpy(result, src, get_tile_size());
     else
-        RMInit::logOut << "r_Tile_Comp_None::decompress(): unable to allocate memory" << endl;
+        LERROR << "r_Tile_Comp_None::decompress(): unable to allocate memory";
 
     return result;
 }

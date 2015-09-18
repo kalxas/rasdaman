@@ -40,6 +40,8 @@ static const char rcsid[] = "@(#)transdirix, TransDirIx: $Id: transdirix.cc,v 1.
 #include "raslib/rmdebug.hh"
 #include "reladminif/oidif.hh"
 #include "tilemgr/tile.hh"
+#include "../common/src/logging/easylogging++.hh"
+
 
 IndexDS*
 TransDirIx::getNewInstance() const
@@ -74,7 +76,7 @@ TransDirIx::TransDirIx(r_Dimension dim)
     :       currDomain(dim),
             tiles()
 {
-    RMDBGONCE(2, RMDebug::module_indexif, "TransDirIx", "TransDirIx() " << (r_Ptr)this);
+    LTRACE << "TransDirIx() " << (r_Ptr)this;
 }
 
 void
@@ -97,7 +99,7 @@ TransDirIx::insertObject(const KeyObject& newKeyObject, unsigned int pos)
 {
     if (pos > getSize())
     {
-        RMInit::logOut << "TransDirIx::insertObject(" << newKeyObject << ", " << pos << ") pos out of range" << endl;
+        LFATAL << "TransDirIx::insertObject(" << newKeyObject << ", " << pos << ") pos out of range";
         throw r_Error(TRANSIENT_INDEX_OUT_OF_BOUNDS);
     }
     else
@@ -188,9 +190,7 @@ TransDirIx::getTotalStorageSize() const
 
 TransDirIx::~TransDirIx()
 {
-    RMDBGENTER(2, RMDebug::module_indexif, "TransDirIx", "~TransDirIx() " << (r_Ptr)this);
     tiles.clear();
-    RMDBGEXIT(2, RMDebug::module_indexif, "TransDirIx", "~TransDirIx() " << (r_Ptr)this);
 }
 
 std::vector< r_Minterval* >*
