@@ -27,9 +27,9 @@ rasdaman GmbH.
 #include "config.h"
 #include "mymalloc/mymalloc.h"
 #include "reladminif/objectbroker.hh"
-#include "raslib/rmdebug.hh"
 #include <stdlib.h>
 #include <new>
+#include "../common/src/logging/easylogging++.hh"
 
 using namespace std;
 
@@ -48,7 +48,7 @@ void* mymalloc(size_t size) // throw(bad_alloc) // FIXME: gcc3 doesn't like it, 
     if(!p)
         if(!ObjectBroker::freeMemory() || !(p = mymalloc(size)))
         {
-            RMInit::logOut << "mymalloc: memory allocation failed." << endl;
+            LFATAL << "mymalloc: memory allocation failed.";
             throw bad_alloc();
         }
 #else   // improved structure, same logic:
@@ -60,7 +60,7 @@ void* mymalloc(size_t size) // throw(bad_alloc) // FIXME: gcc3 doesn't like it, 
             p = mymalloc(size);
             if (p == (void*) NULL)
             {
-                RMInit::logOut << "Error: mymalloc(): memory allocation failed." << endl;
+                LFATAL << "Error: mymalloc(): memory allocation failed.";
                 throw bad_alloc();
             }
             else
@@ -70,7 +70,7 @@ void* mymalloc(size_t size) // throw(bad_alloc) // FIXME: gcc3 doesn't like it, 
         }
         else    // mem full, according to ObjectBroker, so throw alloc exception
         {
-            RMInit::logOut << "Error: mymalloc(): ObjectBroker::freeMemory() failed." << endl;
+            LFATAL << "Error: mymalloc(): ObjectBroker::freeMemory() failed.";
             throw bad_alloc();
         }
     }

@@ -40,13 +40,13 @@ rasdaman GmbH.
 #include "relmddif/dbmddobj.hh"
 #include "relmddif/dbmddset.hh"
 #include "reladminif/dbobjectiditerator.hh"
-#include "raslib/rmdebug.hh"
+#include "../common/src/logging/easylogging++.hh"
 
 MDDCollIter::MDDCollIter(MDDColl* targetColl)
     :   dbIter(0),
         persColl(targetColl)
 {
-    RMDBGONCE(2, RMDebug::module_mddmgr, "MDDCollIter", "MDDCollIter(" << targetColl->getName() << ")");
+    LTRACE << "MDDCollIter(" << targetColl->getName() << ")";
     dbColl = targetColl->getDBMDDSet();
     dbIter = dbColl->newIterator();
 }
@@ -60,7 +60,6 @@ MDDCollIter::printStatus(__attribute__ ((unused)) unsigned int level, ostream& s
 MDDObj*
 MDDCollIter::getElement() const
 {
-    RMDBGENTER(2, RMDebug::module_mddmgr, "MDDCollIter", "getElement()");
     // Initialization to null: make sure null pointer is returned if the
     // collection is empty or if the iterator has come to the end already
 
@@ -77,34 +76,33 @@ MDDCollIter::getElement() const
     }
 
     // persEl is null if there is nothing to return
-    RMDBGEXIT(2, RMDebug::module_mddmgr, "MDDCollIter", "getElement() " << (r_Ptr)persEl);
     return persEl;
 }
 
 void
 MDDCollIter::reset()
 {
-    RMDBGONCE(2, RMDebug::module_mddmgr, "MDDCollIter", "reset()");
+    LTRACE << "reset()";
     dbIter->reset();
 }
 
 bool
 MDDCollIter::notDone() const
 {
-    RMDBGONCE(2, RMDebug::module_mddmgr, "MDDCollIter", "notDone()");
+    LTRACE << "notDone()";
     return dbIter->not_done();
 }
 
 void
 MDDCollIter::advance()
 {
-    RMDBGONCE(2, RMDebug::module_mddmgr, "MDDCollIter", "advance()");
+    LTRACE << "advance()";
     dbIter->advance();
 }
 
 MDDCollIter::~MDDCollIter()
 {
-    RMDBGONCE(2, RMDebug::module_mddmgr, "MDDCollIter", "~MDDCollIter()");
+    LTRACE << "~MDDCollIter()";
     delete dbIter;
     dbIter = NULL;
 }

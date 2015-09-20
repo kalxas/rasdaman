@@ -50,6 +50,7 @@ static const char rcsid[] = "@(#)persmddobj, PersMDDObj: $Id: mddobj.cc,v 1.26 2
 #include "raslib/mddtypes.hh"
 #include "raslib/rmdebug.hh"
 #include "indexmgr/mddobjix.hh"
+#include "../common/src/logging/easylogging++.hh"
 
 using boost::shared_ptr;
 
@@ -61,7 +62,7 @@ MDDObj::checkStorage(const r_Minterval& domain2) throw (r_Error)
     {
         if (myStorageLayout->getTilingScheme() != r_RegularTiling)
         {
-            RMInit::logOut << "MDDObj::checkStorage(" << domain2 << ") the rc index needs a regular tiling defined" << endl;
+            LFATAL << "MDDObj::checkStorage(" << domain2 << ") the rc index needs a regular tiling defined";
             throw r_Error(RCINDEXWITHOUTREGULARTILING);
         }
         r_Dimension dim = domain2.dimension();
@@ -74,12 +75,12 @@ MDDObj::checkStorage(const r_Minterval& domain2) throw (r_Error)
         {
             if (!domain2[i].is_high_fixed() || !domain2[i].is_low_fixed() || !tileConfig[i].is_high_fixed() || !tileConfig[i].is_low_fixed())
             {
-                RMInit::logOut << "MDDObj::checkStorage(" << domain2 << ") the rc index needs a domain and tile configuration with fixed domains in all dimensions.  Dimension " << i << " seems not to be fixed." << endl;
+                LFATAL << "MDDObj::checkStorage(" << domain2 << ") the rc index needs a domain and tile configuration with fixed domains in all dimensions.  Dimension " << i << " seems not to be fixed.";
                 throw r_Error(RCINDEXWITHINCOMPATIBLEMARRAYTYPE);
             }
             if (mddDomainExtent[i]%tileConfigExtent[i] != 0)
             {
-                RMInit::logOut << "MDDObj::checkStorage(" << domain2 << ") the tile configuration (" << tileConfig << ") does not fit the domain of the marray (" << domain << ")." << endl;
+                LFATAL << "MDDObj::checkStorage(" << domain2 << ") the tile configuration (" << tileConfig << ") does not fit the domain of the marray (" << domain << ").";
                 throw r_Error(TILECONFIGMARRAYINCOMPATIBLE);
             }
         }
@@ -95,11 +96,11 @@ MDDObj::MDDObj(const MDDBaseType* mddType, const r_Minterval& domain)
 {
     if (!mddType)
     {
-        RMInit::logOut << "MDD type is NULL.  Please report query or raslib program to Customer Support." << endl;
+        LFATAL << "MDD type is NULL.  Please report query or raslib program to Customer Support.";
         throw r_Error(MDDTYPE_NULL);
     }
 
-    RMDBGONCE(2, RMDebug::module_mddmgr, "MDDObj", "MDDObj(" << mddType->getName() << ", " << domain << ") " << (r_Ptr)this);
+    LTRACE << "MDDObj(" << mddType->getName() << ", " << domain << ") " << (r_Ptr)this;
     myStorageLayout = new StorageLayout(r_Directory_Index);
     myStorageLayout->setCellSize(static_cast<int>(mddType->getBaseType()->getSize()));
     myMDDIndex = new MDDObjIx(*myStorageLayout, domain, mddType->getBaseType(), false);
@@ -114,11 +115,11 @@ MDDObj::MDDObj(const MDDBaseType* mddType, const r_Minterval& domain, r_Minterva
 {
     if (!mddType)
     {
-        RMInit::logOut << "MDD type is NULL.  Please report query or raslib program to Customer Support." << endl;
+        LFATAL << "MDD type is NULL.  Please report query or raslib program to Customer Support.";
         throw r_Error(MDDTYPE_NULL);
     }
 
-    RMDBGONCE(2, RMDebug::module_mddmgr, "MDDObj", "MDDObj(" << mddType->getName() << ", " << domain << ") " << (r_Ptr)this);
+    LTRACE << "MDDObj(" << mddType->getName() << ", " << domain << ") " << (r_Ptr)this;
     setNullValues(newNullValues);
     myStorageLayout = new StorageLayout(r_Directory_Index);
     myStorageLayout->setCellSize(static_cast<int>(mddType->getBaseType()->getSize()));
@@ -134,11 +135,11 @@ MDDObj::MDDObj(const MDDBaseType* mddType, const r_Minterval& domain, const OId&
 {
     if (!mddType)
     {
-        RMInit::logOut << "MDD type is NULL.  Please report query or raslib program to Customer Support." << endl;
+        LFATAL << "MDD type is NULL.  Please report query or raslib program to Customer Support.";
         throw r_Error(MDDTYPE_NULL);
     }
 
-    RMDBGONCE(2, RMDebug::module_mddmgr, "MDDObj", "MDDObj(" << mddType->getName() << ", " << domain << ", " << newOId << ", " << ms.getDBStorageLayout().getOId() << ") " << (r_Ptr)this);
+    LTRACE << "MDDObj(" << mddType->getName() << ", " << domain << ", " << newOId << ", " << ms.getDBStorageLayout().getOId() << ") " << (r_Ptr)this;
     myStorageLayout = new StorageLayout(ms);
     myStorageLayout->setCellSize(static_cast<int>(mddType->getBaseType()->getSize()));
     myMDDIndex = new MDDObjIx(*myStorageLayout, checkStorage(domain), mddType->getBaseType());
@@ -151,12 +152,12 @@ MDDObj::MDDObj(const MDDBaseType* mddType, const r_Minterval& domain, const OId&
         myStorageLayout(NULL)
 {
     if (!mddType) {
-        RMInit::logOut << "MDD type is NULL.  Please report query or raslib program to Customer Support." << endl;
+        LFATAL << "MDD type is NULL.  Please report query or raslib program to Customer Support.";
         throw r_Error(MDDTYPE_NULL);
     }
     myStorageLayout = new StorageLayout();
     myMDDIndex = new MDDObjIx(*myStorageLayout, checkStorage(domain), mddType->getBaseType());
-    RMDBGONCE(2, RMDebug::module_mddmgr, "MDDObj", "MDDObj(" << mddType->getName() << ", " << domain << ", " << newOId);
+    LTRACE << "MDDObj(" << mddType->getName() << ", " << domain << ", " << newOId;
     myDBMDDObj = new DBMDDObj(mddType, domain, myMDDIndex->getDBMDDObjIxId(), myStorageLayout->getDBStorageLayout(), newOId);
 }
 
@@ -168,7 +169,7 @@ MDDObj::MDDObj(const DBMDDObjId& dbmddobj) throw(r_Error)
         myMDDIndex(NULL),
         myStorageLayout(NULL)
 {
-    RMDBGONCE(2, RMDebug::module_mddmgr, "MDDObj", "MDDObj(DBRef " << dbmddobj.getOId() << ") " << (r_Ptr)this);
+    LTRACE << "MDDObj(DBRef " << dbmddobj.getOId() << ") " << (r_Ptr)this;
     myStorageLayout = new StorageLayout(myDBMDDObj->getDBStorageLayout());
     myStorageLayout->setCellSize(static_cast<int>(myDBMDDObj->getCellType()->getSize()));
     myMDDIndex = new MDDObjIx(myDBMDDObj->getDBIndexDS(), *myStorageLayout, myDBMDDObj->getMDDBaseType()->getBaseType());
@@ -180,7 +181,7 @@ MDDObj::MDDObj(const OId& givenOId) throw(r_Error)
         myMDDIndex(NULL),
         myStorageLayout(NULL)
 {
-    RMDBGONCE(2, RMDebug::module_mddmgr, "MDDObj", "MDDObj(" << givenOId << ") " << (r_Ptr)this);
+    LTRACE << "MDDObj(" << givenOId << ") " << (r_Ptr)this;
     myDBMDDObj = DBMDDObjId(givenOId);
     myStorageLayout = new StorageLayout(myDBMDDObj->getDBStorageLayout());
     myStorageLayout->setCellSize(static_cast<int>(myDBMDDObj->getCellType()->getSize()));
@@ -193,10 +194,10 @@ MDDObj::MDDObj(const MDDBaseType* mddType, const r_Minterval& domain, const Stor
         myMDDIndex(NULL),
         myStorageLayout(NULL)
 {
-    RMDBGONCE(2, RMDebug::module_mddmgr, "MDDObj", "MDDObj(" << mddType->getName() << ", " << domain << ", " << ms.getDBStorageLayout().getOId() << ") " <<(r_Ptr)this);
+    LTRACE << "MDDObj(" << mddType->getName() << ", " << domain << ", " << ms.getDBStorageLayout().getOId() << ") " <<(r_Ptr)this;
     if (!mddType)
     {
-        RMInit::logOut << "MDD type is NULL.  Please report query or raslib program to Customer Support." << endl;
+        LFATAL << "MDD type is NULL.  Please report query or raslib program to Customer Support.";
         throw r_Error(MDDTYPE_NULL);
     }
     myStorageLayout = new StorageLayout(ms);
@@ -221,13 +222,12 @@ insert tile:
 void
 MDDObj::insertTile(shared_ptr<Tile> newTile)
 {
-    RMDBGENTER(2, RMDebug::module_mddmgr, "MDDObj", "insertTile(Tile " << newTile->getDomain() << ")")
     std::vector <r_Minterval> layoutDoms = myStorageLayout->getLayout(newTile->getDomain());
     RMDBGIF(10, RMDebug::module_mddmgr, "printlayoutdoms", \
-            RMDBGMIDDLE(2, RMDebug::module_mddmgr, "MDDObj", "storage layout returned the following domains") \
+            LTRACE << "storage layout returned the following domains"; \
             for (std::vector <r_Minterval>::iterator domit = layoutDoms.begin(); domit != layoutDoms.end(); domit++) \
-            RMDBGMIDDLE(2, RMDebug::module_mddmgr, "MDDObj", *domit) \
-            RMDBGMIDDLE(2, RMDebug::module_mddmgr, "MDDObj", "end of storage layout domains"))
+            LTRACE << *domit; \
+            LTRACE << "end of storage layout domains");
 
     shared_ptr<Tile> tile;
     shared_ptr<Tile> tile2;
@@ -245,13 +245,13 @@ MDDObj::insertTile(shared_ptr<Tile> newTile)
         {
             // normal case.  just insert the tile.
             // this case also means that there was no insertion in the previous loops
-            RMDBGMIDDLE(2, RMDebug::module_mddmgr, "MDDObj", "tile domain is same as layout domain, just inserting data")
+            LTRACE << "tile domain is same as layout domain, just inserting data";
             myMDDIndex->insertTile(newTile);
             // set to NULL so it will not get deleted at the end of the method
             newTile.reset();
             if (layoutDoms.size() != 1)
             {
-                RMInit::logOut << "MDDObj::insertTile(Tile " << tileDom << ") the layout has more than one element but the tile domain completely covers the layout domain" << endl;
+                LFATAL << "MDDObj::insertTile(Tile " << tileDom << ") the layout has more than one element but the tile domain completely covers the layout domain";
                 throw r_Error(LAYOUTALGORITHMPROBLEM);
             }
         }
@@ -259,29 +259,29 @@ MDDObj::insertTile(shared_ptr<Tile> newTile)
         {
             // this could have been created in a previous loop run
             // we are using retiling here.  *it is therefore an indivisible layout domain.
-            RMDBGMIDDLE(2, RMDebug::module_mddmgr, "MDDObj", "tile domain (" << tileDom << ") is not the same as layout domain (" << *it << ")")
+            LTRACE << "tile domain (" << tileDom << ") is not the same as layout domain (" << *it << ")";
             indexTiles = myMDDIndex->intersect(*it);
             if (indexTiles && indexTiles->size() > 0)
             {
                 // there was a tile in the run before, which overlapped with this layout domain
                 // there may only be one entry in the index for this domain.
-                RMDBGMIDDLE(2, RMDebug::module_mddmgr, "MDDObj", "found tiles (" << indexTiles->size() << ") in layout domain " << *it)
+                LTRACE << "found tiles (" << indexTiles->size() << ") in layout domain " << *it;
                 if (indexTiles->size() != 1)
                 {
-                    RMInit::logOut << "MDDObj::insertTile(Tile " << tileDom << ") the index contains many entries for one layout domain" << endl;
+                    LFATAL << "MDDObj::insertTile(Tile " << tileDom << ") the index contains many entries for one layout domain";
                     throw r_Error(LAYOUTALGORITHMPROBLEM);
                 }
                 // update the existing tile with the new data
                 tempDom = (*it).create_intersection(tileDom);
                 (*(indexTiles->begin()))->copyTile(tempDom, newTile.get(), tempDom);
-                //RMInit::dbgOut << "updated tile to" << endl;
+                //LDEBUG << "updated tile to";
                 // (*(indexTiles->begin()))->printStatus(99,RMInit::dbgOut);
             }
             else     // there was no tile overlapping the current layout domain yet
             {
                 // create a new tile covering the whole layout domain
                 // must be computed everytime because layoutDoms may change in size
-                RMDBGMIDDLE(2, RMDebug::module_mddmgr, "MDDObj", "found no tiles in layout domain " << *it)
+                LTRACE << "found no tiles in layout domain " << *it;
                 // generate a tile of the domain : layout domain
                 completeArea = (*it).cell_count();
                 sizeOfData = sizeof(char) * completeArea * getMDDBaseType()->getBaseType()->getSize();
@@ -293,8 +293,8 @@ MDDObj::insertTile(shared_ptr<Tile> newTile)
                 tempDom = (*it).create_intersection(tileDom);
                 // only update the actual data - the rest was set to 0
                 tile->copyTile(tempDom, newTile.get(), tempDom);
-                RMDBGMIDDLE(2, RMDebug::module_mddmgr, "MDDObj", "created tile with domain " << tile->getDomain())
-                //RMInit::dbgOut << "insert tile" << endl;
+                LTRACE << "created tile with domain " << tile->getDomain();
+                //LDEBUG << "insert tile";
                 //  tile->printStatus(99,RMInit::dbgOut);
                 //FIXME: should not be neccessary
                 myMDDIndex->insertTile(tile);
@@ -309,12 +309,11 @@ MDDObj::insertTile(shared_ptr<Tile> newTile)
     }
     if (newTile)
     {
-        RMDBGMIDDLE(2, RMDebug::module_mddmgr, "MDDObj", "have to delete newTile")
+        LTRACE << "have to delete newTile";
         if (newTile->isPersistent())
             newTile->getDBTile()->setPersistent(false);
         newTile.reset();
     }
-    RMDBGEXIT(2, RMDebug::module_mddmgr, "MDDObj", "insertTile(Tile)")
 }
 
 std::vector< shared_ptr<Tile> >*
@@ -330,7 +329,7 @@ MDDObj::intersect(const r_Minterval& searchInter) const
     for (std::vector< shared_ptr<Tile> >::iterator it = retval->begin(); it != retval->end(); it++) \
         {
             \
-            RMInit::dbgOut << "FOUND " << (*it)->getDomain() << " " << endl; \
+            LTRACE << "FOUND " << (*it)->getDomain() << " "; \
             (*it)->printStatus(0, RMInit::dbgOut); \
         } \
         RManDebug = t; \
@@ -434,7 +433,7 @@ MDDObj::removeTile(shared_ptr<Tile>& tileToRemove)
     if (found)
     {
         // frees its memory. Persistent freeing??
-        RMDBGONCE(2, RMDebug::module_mddmgr, "MDDObj", "removeTile() about to delete tile")
+        LTRACE << "removeTile() about to delete tile";
         tileToRemove->getDBTile().delete_object();
         tileToRemove.reset();
     }
@@ -442,7 +441,7 @@ MDDObj::removeTile(shared_ptr<Tile>& tileToRemove)
 
 MDDObj::~MDDObj()
 {
-    RMDBGONCE(2, RMDebug::module_mddmgr, "MDDObj", "~MDDObj() " << (r_Ptr)this)
+    LTRACE << "~MDDObj() " << (r_Ptr)this;
 
     if (myMDDIndex)
     {

@@ -43,6 +43,7 @@ rasdaman GmbH.
 #include "rasmgr_utils_comm.hh"
 #include "rascontrol.hh"
 
+#include "../common/src/logging/easylogging++.hh"
 
 RasMgrClientComm::RasMgrClientComm()
 {
@@ -76,12 +77,10 @@ void RasMgrClientComm::setUserIdentification(const char *newUserName, const char
 
 int RasMgrClientComm::openSocket()
 {
-    ENTER("RasMgrClientComm::openSocket: enter." );
-
     // if open already, close beforehand
     if(rasmgrSocket!=-1)
     {
-        TALK ("RasMgrClientComm::openSocket: socket was open, closing it." );
+        LDEBUG << "RasMgrClientComm::openSocket: socket was open, closing it.";
         closeSocket();
     }
 
@@ -90,7 +89,7 @@ int RasMgrClientComm::openSocket()
 
     if(hostinfo==NULL)
     {
-        TALK ("RasMgrClientComm::openSocket: leave. unknown host " << rasmgrHost );
+        LDEBUG << "RasMgrClientComm::openSocket: leave. unknown host " << rasmgrHost;
         return -1;
     }
 
@@ -104,39 +103,34 @@ int RasMgrClientComm::openSocket()
     if(rasmgrSocket<0)
     {
         int tempErrno = errno;
-        TALK ("RasMgrClientComm::openSocket: leave. error opening socket: " << strerror(tempErrno ) );
+        LDEBUG << "RasMgrClientComm::openSocket: leave. error opening socket: " << strerror(tempErrno );
         return -1;
     }
 
     if(0>connect(rasmgrSocket,(struct sockaddr*)&internetAddress,sizeof(internetAddress)))
     {
         int tempErrno = errno;
-        TALK ("RasMgrClientComm::openSocket: leave. error connecting socket: " << strerror(tempErrno ) );
+        LDEBUG << "RasMgrClientComm::openSocket: leave. error connecting socket: " << strerror(tempErrno );
         return -1;
     }
 
-    LEAVE( "RasMgrClientComm::openSocket: leave. ok." );
     return 0;
 }
 
 void RasMgrClientComm::closeSocket()
 {
-    ENTER( "RasMgrClientComm::closeSocket. enter." );
     if(rasmgrSocket >0)
     {
-        TALK( "RasMgrClientComm::closeSocket. closing, socket=" << rasmgrSocket );
+        LDEBUG << "RasMgrClientComm::closeSocket. closing, socket=" << rasmgrSocket;
         close(rasmgrSocket);
         rasmgrSocket=-1;
     }
-    LEAVE( "RasMgrClientComm::closeSocket. leave." );
 }
 
 int RasMgrClientComm::sendMessage(const char *message)
 {
     char request[MAXMSG];
     int result = COMM_CONT;         // was: 0, but this is same value
-
-    ENTER( "RasMgrClientComm::sendMessage: enter. message=" << message );
 
     sprintf(request,                "POST rascontrol HTTP/1.1\r\nAccept: text/plain\r\nUserAgent: rascontrol/2.0");
     sprintf(request+strlen(request),"\r\nAuthorization: ras %s:%s",userName,encrPass);//"rasadmin","d293a15562d3e70b6fdc5ee452eaed40");
@@ -146,22 +140,19 @@ int RasMgrClientComm::sendMessage(const char *message)
     if(writeWholeMessage(rasmgrSocket,request,reqLen)<reqLen)
     {
         closeSocket();              // redundant, but ok as safety measure^
-        TALK( "RasMgrClientComm::sendMessage: cannot write, socket closed." );
+        LDEBUG << "RasMgrClientComm::sendMessage: cannot write, socket closed.";
         result = COMM_ERR;
     }
 
-    LEAVE( "RasMgrClientComm::sendMessage: leave. result=" << result );
     return result;
 }
 
 const char* RasMgrClientComm::readMessage()
 {
-    ENTER( "RasMgrClientComm::readMessage: enter." );
-
     if(readWholeMessage(rasmgrSocket,answerMessage,MAXMSGRASCONTROL)<0)
     {
         closeSocket();              // redundant, but ok as safety measure^
-        TALK( "RasMgrClientComm::readMessage: cannot read message from rasmgr." );
+        LDEBUG << "RasMgrClientComm::readMessage: cannot read message from rasmgr.";
         answerBody=answerMessage;
         answerMessage[0] = EOS_CHAR;
         return NULL;
@@ -178,7 +169,6 @@ const char* RasMgrClientComm::readMessage()
     else
         answerBody=answerMessage+strlen(answerMessage);
 
-    LEAVE( "RasMgrClientComm::readMessage: leave. answerBody=" << answerBody );
     return answerBody;
 }
 
@@ -198,13 +188,11 @@ int RasMgrClientComm::sendMessageGetAnswer(const char *message, const char **res
     int result = COMM_CONT;         // actually, in the end COMM_* from rasmgr_utils_comm.hh; COMM_CONT means OK
     const char *rcvMsg  = NULL;         // message ptr delivered by readMessage()
 
-    ENTER( "RasMgrClientComm::sendMessageGetAnswer: enter. message=" << message );
-
-    TALK( "RasMgrClientComm::sendMessageGetAnswer: opening socket." );
+    LDEBUG << "RasMgrClientComm::sendMessageGetAnswer: opening socket.";
     result = openSocket();          // open socket to rasmgr
     if ( result < 0 )               // open went wrong?
     {
-        TALK( "RasMgrClientComm::sendMessageGetAnswer: cannot open socket." );
+        LDEBUG << "RasMgrClientComm::sendMessageGetAnswer: cannot open socket.";
         result = COMM_ERR;
     }
     else                    // we have a good socket, proceed
@@ -214,7 +202,7 @@ int RasMgrClientComm::sendMessageGetAnswer(const char *message, const char **res
             rcvMsg = readMessage();     // receive result from rasmgr
         result = ( result == COMM_CONT && rcvMsg != NULL) ? COMM_CONT : COMM_ERR;
         // FIXME: should be refined
-        TALK( "RasMgrClientComm::sendMessageGetAnswer: closing socket." );
+        LDEBUG << "RasMgrClientComm::sendMessageGetAnswer: closing socket.";
         closeSocket();              // close socket again, in any case
         // (due to current implementation, may have been closed before, no problem)
     }
@@ -225,7 +213,6 @@ int RasMgrClientComm::sendMessageGetAnswer(const char *message, const char **res
         *responsePtr = rcvMsg;
     }
 
-    LEAVE( "RasMgrClientComm::sendMessageGetAnswer: leave. result=" << result );
     return result;
 }
 
@@ -244,8 +231,6 @@ const char* RasMgrClientComm::stripBlanks(const char *r)
 
 int RasMgrClientComm::writeWholeMessage(int socket,char *destBuffer,int buffSize)
 {
-    ENTER( "RasMgrClientComm::writeWholeMessage: enter. socket=" << socket );
-
     // we write the whole message, including the ending '\0', which is already in
     // the buffSize provided by the caller
     int totalLength=0;
@@ -257,7 +242,6 @@ int RasMgrClientComm::writeWholeMessage(int socket,char *destBuffer,int buffSize
         {
             if(errno == EINTR) continue; // read was interrupted by signal
 
-            LEAVE( "RasMgrClientComm::writeWholeMessage: leave. EINTR." );
             return -1; // another error
         }
         totalLength+=writeNow;
@@ -265,14 +249,11 @@ int RasMgrClientComm::writeWholeMessage(int socket,char *destBuffer,int buffSize
         if( totalLength==buffSize ) break; // THE END
     }
 
-    LEAVE( "RasMgrClientComm::writeWholeMessage: leave. totalLength=" << totalLength );
     return totalLength;
 }
 
 int RasMgrClientComm::readWholeMessage(int socket,char *destBuffer,int buffSize)
 {
-    ENTER( "RasMgrClientComm::readWholeMessage: enter. socket=" << socket );
-
     // we read what is comming in until we encounter a '\0'
     // this is our end-sign.
     int totalLength=0;
@@ -284,7 +265,6 @@ int RasMgrClientComm::readWholeMessage(int socket,char *destBuffer,int buffSize)
         {
             if(errno == EINTR) continue; // read was interrupted by signal
 
-            LEAVE( "RasMgrClientComm::readWholeMessage: leave. EINTR." );
             return -1; // another error
         }
         totalLength+=redNow;
@@ -292,7 +272,6 @@ int RasMgrClientComm::readWholeMessage(int socket,char *destBuffer,int buffSize)
         if(destBuffer[totalLength-1]==0) break; // THE END
     }
 
-    LEAVE( "RasMgrClientComm::readWholeMessage: leave. totalLength=" << totalLength );
     return totalLength;
 }
 

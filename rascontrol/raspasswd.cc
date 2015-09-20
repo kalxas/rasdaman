@@ -45,6 +45,8 @@ rasdaman GmbH.
 #include "rascontrol.hh"
 #include "raspasswd.hh"
 #include "rasmgr_utils_comm.hh"
+#include "../common/src/logging/easylogging++.hh"
+
 
 #ifndef RMANVERSION
 #error "Please specify the RMANVERSION variable!"
@@ -67,9 +69,30 @@ char message[100];
 char encrNewPass1[35];
 char encrNewPass2[35];
 
+_INITIALIZE_EASYLOGGINGPP
 
 int main(int argc, char **argv)
 {
+    //Logging configuration: to standard output, LDEBUG and LTRACE are not enabled
+    easyloggingpp::Configurations defaultConf;
+    defaultConf.setToDefault();
+    defaultConf.set(easyloggingpp::Level::All,
+            easyloggingpp::ConfigurationType::Format, "%datetime [%level] %log");
+    defaultConf.set(easyloggingpp::Level::Info,
+            easyloggingpp::ConfigurationType::Format, "%datetime  [%level] %log");
+    defaultConf.set(easyloggingpp::Level::Warning,
+            easyloggingpp::ConfigurationType::Format, "%datetime  [%level] %log");
+    defaultConf.set(easyloggingpp::Level::All,
+            easyloggingpp::ConfigurationType::ToFile, "false");
+    defaultConf.set(easyloggingpp::Level::All,
+            easyloggingpp::ConfigurationType::ToStandardOutput, "true");
+    defaultConf.set(easyloggingpp::Level::Debug,
+            easyloggingpp::ConfigurationType::Enabled, "false");
+    defaultConf.set(easyloggingpp::Level::Trace,
+            easyloggingpp::ConfigurationType::Enabled, "false");
+    easyloggingpp::Loggers::reconfigureAllLoggers(defaultConf);
+    defaultConf.clear();
+
     cout << "raspasswd: rasdaman password utility. rasdaman " << RMANVERSION << " -- generated on " << COMPDATE << "." <<endl;
     std::cout << " Copyright 2003, 2004, 2005, 2006, 2007, 2008, 2009 Peter Baumann rasdaman GmbH." << std::endl
               << "Rasdaman community is free software: you can redistribute it and/or modify "

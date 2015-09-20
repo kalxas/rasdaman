@@ -42,6 +42,8 @@ rasdaman GmbH.
 #include <fstream>
 #include <signal.h>
 
+#include "../common/src/logging/easylogging++.hh"
+
 #ifndef RMANVERSION
 #error "Please specify RMANVERSION variable!"
 #endif
@@ -79,8 +81,31 @@ int  batchMode();
 int testLogin();
 bool isCommand( const char *command, const char *key);
 
+_INITIALIZE_EASYLOGGINGPP
+
 int main(int argc, char **argv)
 {
+    //Logging configuration: to standard output, LDEBUG and LTRACE are not enabled
+    easyloggingpp::Configurations defaultConf;
+    defaultConf.setToDefault();
+    defaultConf.set(easyloggingpp::Level::All,
+            easyloggingpp::ConfigurationType::Format, "%datetime [%level] %log");
+    defaultConf.set(easyloggingpp::Level::Info,
+            easyloggingpp::ConfigurationType::Format, "%datetime  [%level] %log");
+    defaultConf.set(easyloggingpp::Level::Warning,
+            easyloggingpp::ConfigurationType::Format, "%datetime  [%level] %log");
+    defaultConf.set(easyloggingpp::Level::All,
+            easyloggingpp::ConfigurationType::ToFile, "false");
+    defaultConf.set(easyloggingpp::Level::All,
+            easyloggingpp::ConfigurationType::ToStandardOutput, "true");
+    defaultConf.set(easyloggingpp::Level::Debug,
+            easyloggingpp::ConfigurationType::Enabled, "false");
+    defaultConf.set(easyloggingpp::Level::Trace,
+            easyloggingpp::ConfigurationType::Enabled, "false");
+    easyloggingpp::Loggers::reconfigureAllLoggers(defaultConf);
+    defaultConf.clear();
+
+
     if(config.interpretArguments(argc,argv)==false) return 1;
 
     // /*for debug only: */ config.printDebugInfo(); return 0;
@@ -197,13 +222,13 @@ int interactiveWork()
     // shifted here, after return, so that it always will be closed
     if(historyFile)
     {
-        TALK( "RasControl::interactiveWork: using history file " << config.getHistFileName() );
+        LDEBUG << "RasControl::interactiveWork: using history file " << config.getHistFileName();
         history.open(config.getHistFileName(),std::ios::out|std::ios::trunc);
     }
 
     do
     {
-        TALK( "RasControl::interactiveWork: entering new request cycle." );
+        LDEBUG << "RasControl::interactiveWork: entering new request cycle.";
 
         const char *command=editLine.interactiveCommand(config.getPrompt());
         if(command == NULL || strlen(command)==0)   // empty cmd line
@@ -212,7 +237,7 @@ int interactiveWork()
         if(historyFile)
             history<<command<<std::endl;
 
-        TALK( "RasControl::interactiveWork: cmd=" << command );
+        LDEBUG << "RasControl::interactiveWork: cmd=" << command;
 
         // send message to rasmgr & receive answer
         answer = NULL;
@@ -235,10 +260,10 @@ int interactiveWork()
             answer = "Internal error: cannot decode rasmgr result.";
 
         // EXPERIMENTAL: close socket as early and as always as possible
-        //TALK( "RasControl::interactiveWork: closing socket." );
+        LDEBUG << "RasControl::interactiveWork: closing socket.";
         //httpClient.closeSocket();
 
-        TALK( "RasControl::interactiveWork: comm=" << comm );
+        LDEBUG << "RasControl::interactiveWork: comm=" << comm;
 
     }
     while( comm != COMM_EXIT && comm != COMM_ACDN);     // COMM_ERR is no reason to terminate interactive session
@@ -281,7 +306,7 @@ int batchMode()
     {
         const char *command= fromCommandLine ? config.getCommand():editLine.fromStdinCommand(prompt);
 
-        TALK( "batch: Command=" << command );
+        LDEBUG << "batch: Command=" << command;
 
         if(command == NULL ) return CANTCONNECT;
 

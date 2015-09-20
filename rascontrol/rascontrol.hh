@@ -83,10 +83,6 @@ const int  PROMPTFULL       = 2;
 #define RASMGRCMD_LIST_MODUS "list modus"
 
 
-// interim debug solution, should be replaced by std rasdaman mechanism -- now with ../rasmgr/debug.hh
-// #define TALK(a) cout << a << endl;
-//#define TALK(a) { /* TALK(a) */ }
-
 void printCommandLineHelp();
 int  getCommand();
 

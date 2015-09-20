@@ -48,6 +48,7 @@ rasdaman GmbH.
 #include "relmddif/dbmddset.hh"
 #include "reladminif/eoid.hh"
 #include "tilemgr/tile.hh"
+#include "../common/src/logging/easylogging++.hh"
 
 #include "relcatalogif/settype.hh"
 #include "relcatalogif/mdddomaintype.hh"
@@ -65,7 +66,7 @@ rasdaman GmbH.
 
 MDDColl::MDDColl(const CollectionType* newType, const char* name)
 {
-    RMDBGONCE(2, RMDebug::module_mddmgr, "MDDColl", "MDDColl(" << newType->getName() << ", " << (name?name:"null") << ") " << (r_Ptr)this);
+    LTRACE << "MDDColl(" << newType->getName() << ", " << (name?name:"null") << ") " << (r_Ptr)this;
     const char* theName = name;
     if (theName == NULL)
     {
@@ -120,10 +121,10 @@ MDDColl::insert(const MDDObj* newObj)
     RMDBGIF(0, RMDebug::module_mddmgr, "MDDColl", if (newObj == 0) \
 {
     \
-    RMInit::dbgOut << "MDDColl::insert(const MDDObj*) assertion failed" << endl; \
+    LTRACE << "MDDColl::insert(const MDDObj*) assertion failed"; \
     throw r_Error(MDD_NOT_VALID); \
     })
-    RMDBGONCE(2, RMDebug::module_mddmgr, "MDDColl", "insert(" << (r_Ptr)newObj << ")")
+    LTRACE << "insert(" << (r_Ptr)newObj << ")";
     dbColl->insert(newObj->getDBMDDObjId());
     insertIntoCache(newObj);
     RMDBGIF(2, RMDebug::module_mddmgr, "MDDColl", dbColl->printStatus(0, RMInit::dbgOut);)
@@ -144,7 +145,7 @@ MDDColl::releaseAll()
 
 MDDColl::~MDDColl()
 {
-    RMDBGONCE(2, RMDebug::module_mddmgr, "MDDColl", "~MDDColl() " << (r_Ptr)this);
+    LTRACE << (r_Ptr)this;
     if (isPersistent())
         releaseAll();
     //else released by release transfer structures
@@ -164,7 +165,7 @@ MDDColl::getDBMDDSet() const
 void
 MDDColl::insertIntoCache(const MDDObj* objToInsert) const
 {
-    RMDBGONCE(2, RMDebug::module_mddmgr, "MDDColl", "insertIntoCache(" << (r_Ptr)objToInsert << ")")
+    LTRACE << "insertIntoCache(" << (r_Ptr)objToInsert << ")";
     mddCache[objToInsert->getDBMDDObjId().ptr()] = const_cast<MDDObj*>(objToInsert);
 }
 
@@ -225,17 +226,17 @@ MDDColl::remove(const MDDObj* obj)
         MDDObjMap::iterator i = mddCache.find(t2.ptr());
         if(i != mddCache.end())
         {
-            RMDBGONCE(2, RMDebug::module_mddmgr, "MDDColl", "remove(" << (r_Ptr)obj << ") found in cache")
+            LTRACE << "remove(" << (r_Ptr)obj << ") found in cache";
             mddCache.erase(i);
         }
         else
         {
-            RMDBGONCE(0, RMDebug::module_mddmgr, "MDDColl", "remove(" << (r_Ptr)obj << ") not in collection cache")
+            LTRACE << "remove(" << (r_Ptr)obj << ") not in collection cache";
         }
     }
     else
     {
-        RMDBGONCE(0, RMDebug::module_mddmgr, "MDDColl", "remove(MDDObj*) NULL");
+        LTRACE << "remove(MDDObj*) NULL";
         throw r_Error(MDD_NOT_VALID);
     }
 }
@@ -256,12 +257,12 @@ MDDColl::removeFromCache(const PersMDDObj* objToRemove)
         RMDBGIF(0, RMDebug::module_mddmgr, "MDDColl", \
             if (mddCache.find(objIdVoidAddress) != mddCache.end()) \
                 { \
-                RMInit::dbgOut << "MDDColl::removeMDDObjfromCache() object multiple times in cache" << endl; \
+                LTRACE << "MDDColl::removeMDDObjfromCache() object multiple times in cache"; \
                 throw r_Error(MDD_EXISTS_MULTIPLE_TIMES); \
                 })
         }
     else    {
-        RMDBGONCE(0, RMDebug::module_mddmgr, "MDDColl", "removeMDDObjfromCache(" << objToRemove << ") not in collection")
+        LTRACE << "removeMDDObjfromCache(" << objToRemove << ") not in collection";
         }
     }
 */
@@ -290,19 +291,19 @@ MDDColl::createMDDCollection(const char* name, const CollectionType* ct) throw (
 {
     if (name == NULL)
     {
-        RMDBGONCE(0, RMDebug::module_mddmgr, "MDDColl", "createMDDColl(NULL, colltype)")
+        LTRACE << "createMDDColl(NULL, colltype)";
         throw r_Error(r_Error::r_Error_NameNotUnique);
     }
     if (ct == NULL)
     {
-        RMDBGONCE(0, RMDebug::module_mddmgr, "MDDColl", "createMDDColl(" << name << ", NULL)")
+        LTRACE << "createMDDColl(" << name << ", NULL)";
         throw r_Error(COLLTYPE_NULL);
     }
     if (!ct->isPersistent())
     {
         r_Error t(209);
         t.setTextParameter("type", ct->getName());
-        RMDBGONCE(0, RMDebug::module_mddmgr, "MDDColl", "createMDDColl(" << name << ", " << ct->getName() << " not persistent)")
+        LTRACE << "createMDDColl(" << name << ", " << ct->getName() << " not persistent)";
         throw t;
     }
     // may generate an exception:
@@ -316,19 +317,19 @@ MDDColl::createMDDCollection(const char* name, const OId& o, const CollectionTyp
     // may generate an exception:
     if (name == NULL)
     {
-        RMDBGONCE(0, RMDebug::module_mddmgr, "MDDColl", "createMDDColl(NULL, " << o << ", colltype)")
+        LTRACE << "createMDDColl(NULL, " << o << ", colltype)";
         throw r_Error(r_Error::r_Error_NameNotUnique);
     }
     if (ct == NULL)
     {
-        RMDBGONCE(0, RMDebug::module_mddmgr, "MDDColl", "createMDDColl(" << name << ", " << o << ", NULL)")
+        LTRACE << "createMDDColl(" << name << ", " << o << ", NULL)";
         throw r_Error(COLLTYPE_NULL);
     }
     if (!ct->isPersistent())
     {
         r_Error t(209);
         t.setTextParameter("type", ct->getName());
-        RMDBGONCE(0, RMDebug::module_mddmgr, "MDDColl", "createMDDColl(" << name << ", " << o << ", " << ct->getName() << " not persistent)")
+        LTRACE << "createMDDColl(" << name << ", " << o << ", " << ct->getName() << " not persistent)";
         throw t;
     }
     DBMDDSetId newDBColl = new DBMDDSet(name, o, ct);
@@ -350,19 +351,16 @@ MDDColl::dropMDDCollection(const OId& o)
 MDDColl*
 MDDColl::getMDDCollection(const OId& collOId) throw (r_Error)
 {
-    RMDBGENTER(2, RMDebug::module_mddmgr, "MDDColl", "getMDDCollection(" << collOId << ")")
     DBMDDSetId t(collOId);
     //this will throw an exception
     t->isModified();
     MDDColl* retval = new MDDColl(t);
-    RMDBGEXIT(2, RMDebug::module_mddmgr, "MDDColl", "getMDDCollection(" << collOId << ") " << retval)
     return retval;
 }
 
 MDDColl*
 MDDColl::getMDDCollection(const char* collName) throw (r_Error)
 {
-    RMDBGENTER(2, RMDebug::module_mddmgr, "MDDColl", "getMDDCollection(" << collName << ")")
     MDDColl* retval = 0;
     DBMDDSetId dbset;
     if (strcmp(collName, AllCollectionnamesName) == 0)
@@ -386,15 +384,15 @@ MDDColl::getMDDCollection(const char* collName) throw (r_Error)
         while (!list->empty())
         {
             dbset = *(list->begin());
-            RMDBGMIDDLE(2, RMDebug::module_mddmgr, "MDDColl", "Coll OId     : " << dbset.getOId())
+            LTRACE << "Coll OId     : " << dbset.getOId();
             nameBuffer = dbset->getName();
-            RMDBGMIDDLE(2, RMDebug::module_mddmgr, "MDDColl", "Coll Name    : " << nameBuffer)
+            LTRACE << "Coll Name    : " << nameBuffer;
             namelen = strlen(nameBuffer);
-            RMDBGMIDDLE(2, RMDebug::module_mddmgr, "MDDColl", "Coll Name Len: " << namelen)
+            LTRACE << "Coll Name Len: " << namelen;
             transName = static_cast<char*>(mymalloc(sizeof(char) * (namelen + 1)));
             memset(transName, 0, namelen + 1);
             strcpy(transName, nameBuffer);
-            RMDBGMIDDLE(2, RMDebug::module_mddmgr, "MDDColl", "Domain       : " << namelen)
+            LTRACE << "Domain       : " << namelen;
             nameDomain[0].set_high(static_cast<r_Range>(namelen));
             transObj = new MDDObj(mt, nameDomain);
             transTile.reset(new Tile(nameDomain, bt, transName, 0, r_Array));
@@ -537,7 +535,6 @@ MDDColl::getMDDCollection(const char* collName) throw (r_Error)
         dbset = DBMDDSet::getDBMDDSet(collName);
         retval = new MDDColl(dbset);
     }
-    RMDBGEXIT(2, RMDebug::module_mddmgr, "MDDColl", "getMDDCollection(" << collName << ") " << retval)
     return retval;
 }
 

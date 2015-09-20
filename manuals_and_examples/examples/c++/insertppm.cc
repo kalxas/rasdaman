@@ -67,7 +67,6 @@ using namespace std;
 #include <getopt.h>
 #include <list>
 
-#include "raslib/rminit.hh"
 #include "rasodmg/marray.hh"
 #include "rasodmg/ref.hh"
 #include "rasodmg/set.hh"
