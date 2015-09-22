@@ -31,7 +31,6 @@ using namespace std;
 #include <string>
 #include <sstream>
 
-#include "debug.hh" // ENTER, LEAVE, TALK
 #include "globals.hh"   // DEFAULT_PORT, LOGDIR, LOG_SUFFIX
 #include "rasserver_config.hh"
 

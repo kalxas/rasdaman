@@ -58,6 +58,9 @@ rasdaman GmbH.
 #include <cstdlib>
 #include <sstream>
 
+#include "../common/src/logging/easylogging++.hh"
+
+
 const r_Bytes   StorageLayout::DBSPageSize = 4096;
 
 r_Bytes     StorageLayout::DefaultMinimalTileSize = DBSPageSize;
@@ -81,21 +84,21 @@ StorageLayout::StorageLayout(r_Index_Type ixType)
 {
     setIndexType(ixType);
     extraFeatures = new StgMddConfig();
-    RMDBGONCE(4, RMDebug::module_storagemgr, "StorageLayout", "StorageLayout(" << ixType << ")")
+    LTRACE << "StorageLayout(" << ixType << ")";
 }
 
 StorageLayout::StorageLayout()
     :   myLayout(new DBStorageLayout())
 {
     extraFeatures = new StgMddConfig();
-    RMDBGONCE(4, RMDebug::module_storagemgr, "StorageLayout", "StorageLayout()")
+    LTRACE << "StorageLayout()";
 }
 
 StorageLayout::StorageLayout(const DBStorageLayoutId& id)
     :   myLayout(id)
 {
     extraFeatures = new StgMddConfig();
-    RMDBGONCE(4, RMDebug::module_storagemgr, "StorageLayout", "StorageLayout(" << id.getOId() << ")")
+    LTRACE << "StorageLayout(" << id.getOId() << ")";
 }
 
 StorageLayout::StorageLayout(const StorageLayout& other)
@@ -266,7 +269,6 @@ StorageLayout::setTilingSizeStrategy_AOI(r_Interest_Tiling::Tilesize_Limit input
 std::vector< r_Minterval >
 StorageLayout::getLayout(const r_Minterval& tileDomain)
 {
-    RMDBGENTER(5, RMDebug::module_storagemgr, "StorageLayout", "getLayout(" << tileDomain << ")");
     std::vector< r_Minterval > retval;
     if (myLayout->supportsTilingScheme())
         switch (myLayout->getTilingScheme())
@@ -276,26 +278,24 @@ StorageLayout::getLayout(const r_Minterval& tileDomain)
                 retval = calcRegLayout(tileDomain);
             else
             {
-                RMDBGMIDDLE(4, RMDebug::module_storagemgr, "StorageLayout",
-                    "getLayout(" << tileDomain << ") Regular Tiling without Tiling Domain");
+                LTRACE << "getLayout(" << tileDomain << ") Regular Tiling without Tiling Domain";
                 retval.push_back(tileDomain);
             }
             break;
         case r_InterestTiling:
             retval = calcInterestLayout(tileDomain);
-            RMDBGMIDDLE(4, RMDebug::module_storagemgr, "StorageLayout", "getLayout(" << tileDomain << ") Interest Tiling");
+            LTRACE << "getLayout(" << tileDomain << ") Interest Tiling";
             break;
         case r_StatisticalTiling:
             retval = calcStatisticLayout(tileDomain);
-            RMDBGMIDDLE(4, RMDebug::module_storagemgr, "StorageLayout", "Statistical Tiling chosen");
+            LTRACE << "Statistical Tiling chosen";
             break;
         case r_AlignedTiling:
             if (myLayout->getTileConfiguration().dimension() == tileDomain.dimension())
                 retval = calcAlignedLayout(tileDomain);
             else
             {
-                RMDBGMIDDLE(4, RMDebug::module_storagemgr, "StorageLayout",
-                    "getLayout(" << tileDomain << ") Aligned Tiling without Tiling Domain");
+                LTRACE << "getLayout(" << tileDomain << ") Aligned Tiling without Tiling Domain";
                 retval.push_back(tileDomain);
             }
             break;
@@ -304,30 +304,27 @@ StorageLayout::getLayout(const r_Minterval& tileDomain)
 //                if (myLayout->getTileConfiguration().dimension() == tileDomain.dimension())
             retval = calcDirectionalLayout(tileDomain);
 //                else {
-            RMDBGMIDDLE(4, RMDebug::module_storagemgr, "StorageLayout", "Directional Tiling chosen.");
-//                    RMDBGMIDDLE(0, RMDebug::module_storagemgr, "StorageLayout", "getLayout(" << tileDomain << ") Directional Tiling without Tiling Domain");
+            LTRACE << "Directional Tiling chosen.";
+//                    LTRACE << "getLayout(" << tileDomain << ") Directional Tiling without Tiling Domain";
 //                    retval.push_back(tileDomain);
             //              }
             break;
 
         case r_SizeTiling:
-            RMDBGMIDDLE(4, RMDebug::module_storagemgr, "StorageLayout",
-                "getLayout(" << tileDomain << ") of " << myLayout->getOId() << " Tiling Scheme "
-                             << myLayout->getTilingScheme() << " " << (int)myLayout->getTilingScheme()
-                             << " not supported");
+            LTRACE << "getLayout(" << tileDomain << ") of " << myLayout->getOId() << " Tiling Scheme "
+                   << myLayout->getTilingScheme() << " " << (int)myLayout->getTilingScheme()
+                   << " not supported";
             retval.push_back(tileDomain);
             break;
         default:
-            RMDBGMIDDLE(4, RMDebug::module_storagemgr, "StorageLayout",
-                "getLayout(" << tileDomain << ") of " << myLayout->getOId() << " unknown Tiling Scheme "
-                             << myLayout->getTilingScheme() << " " << (int)myLayout->getTilingScheme());
+            LTRACE << "getLayout(" << tileDomain << ") of " << myLayout->getOId() << " unknown Tiling Scheme "
+                   << myLayout->getTilingScheme() << " " << (int)myLayout->getTilingScheme();
         case r_NoTiling:
             retval.push_back(tileDomain);
             break;
         }
     else
         retval.push_back(tileDomain);
-    RMDBGEXIT(5, RMDebug::module_storagemgr, "StorageLayout", "getLayout(" << tileDomain << ")");
     return retval;
 }
 
@@ -343,11 +340,9 @@ StorageLayout::~StorageLayout()
 std::vector< r_Minterval >
 StorageLayout::calcRegLayout(const r_Minterval& tileDomain) const
 {
-    RMDBGENTER(4, RMDebug::module_storagemgr, "StorageLayout", 
-               "calcRegLayout(" << tileDomain << ") " << myLayout->getOId());
     std::vector< r_Minterval > retval;
     r_Minterval base = myLayout->getTileConfiguration();
-    RMDBGMIDDLE(5, RMDebug::module_storagemgr, "StorageLayout", "tiling configuration: " << base)
+    LTRACE << "tiling configuration: " << base;
     r_Point borigin = base.get_origin();
     r_Point bhigh = base.get_high();
     r_Point bextent = base.get_extent();
@@ -367,10 +362,8 @@ StorageLayout::calcRegLayout(const r_Minterval& tileDomain) const
     r_Range origindiff = 0;
     r_Range highdiff = 0;
     
-    RMDBGMIDDLE(5, RMDebug::module_storagemgr, "StorageLayout", 
-                "base       : origin " << borigin << ", high " << bhigh << ", extent " << bextent << ", dimension " << bdim)
-    RMDBGMIDDLE(5, RMDebug::module_storagemgr, "StorageLayout", 
-                "tile domain: origin " << torigin << ", high " << thigh << ", extent " << textent)
+    LTRACE << "base       : origin " << borigin << ", high " << bhigh << ", extent " << bextent << ", dimension " << bdim;
+    LTRACE << "tile domain: origin " << torigin << ", high " << thigh << ", extent " << textent;
     
     // go through all dimensions of the base tile configuration
     for (i = 0; i < bdim; i++)
@@ -435,57 +428,50 @@ StorageLayout::calcRegLayout(const r_Minterval& tileDomain) const
 
     RMDBGIF(5, RMDebug::module_storagemgr, "StorageLayout", \
             for (std::vector< r_Minterval >::iterator i = retval.begin(); i != retval.end(); i++) \
-            RMDBGMIDDLE(1, RMDebug::module_storagemgr, "StorageLayout", *i); \
+                LTRACE << *i; \
            );
-    RMDBGEXIT(4, RMDebug::module_storagemgr, "StorageLayout", "calcRegLayout(" 
-            << tileDomain << ") " << myLayout->getOId());
     return retval;
 }
 
 std::vector< r_Minterval >
 StorageLayout::calcInterestLayout(const r_Minterval& tileDomain)
 {
-    RMDBGENTER(4, RMDebug::module_storagemgr, "StorageLayout", "Entering CalcInterest Layout");
     //uadhikari
     r_Interest_Tiling* tiling = new r_Interest_Tiling
     (tileDomain.dimension(), extraFeatures->getBBoxes(), myLayout->getTileSize(), extraFeatures->getTilingSizeStrategy_AOI());
     std::vector<r_Minterval> ret;
     std::vector<r_Minterval>* ret1 = tiling->compute_tiles
                                      (tileDomain, static_cast<r_Bytes>(extraFeatures->getCellSize()));
-    RMDBGMIDDLE(4, RMDebug::module_storagemgr, "StorageLayout", "CalcInterest Layout: tile number: " << ret1->size());
+    LTRACE << "CalcInterest Layout: tile number: " << ret1->size();
     for (unsigned int i = 0; i < ret1->size(); i++)
     {
         ret.push_back(ret1->at(i));
     }
-    RMDBGEXIT(4, RMDebug::module_storagemgr, "StorageLayout", "CalcInterest Layout: tile number2: " << ret.size());
     return ret;
 }
 
 std::vector< r_Minterval >
 StorageLayout::calcAlignedLayout(const r_Minterval& tileDomain)
 {
-    RMDBGENTER(4, RMDebug::module_storagemgr, "StorageLayout", "Entering CalcAligned Layout");
     r_Aligned_Tiling* tiling = new r_Aligned_Tiling(myLayout->getTileConfiguration(),myLayout->getTileSize());
     std::vector<r_Minterval> ret;
     std::vector<r_Minterval>* ret1 = tiling->compute_tiles
                                      (tileDomain, static_cast<r_Bytes>(extraFeatures->getCellSize()));
     delete tiling;
     tiling = NULL;
-    RMDBGMIDDLE(4, RMDebug::module_storagemgr, "StorageLayout", "CalcAligned Layout: tile number: " << ret1->size());
+    LTRACE << "CalcAligned Layout: tile number: " << ret1->size();
     for (unsigned int i = 0; i < ret1->size(); i++)
     {
         ret.push_back(ret1->at(i));
     }
     delete ret1;
     ret1 = NULL;
-    RMDBGEXIT(4, RMDebug::module_storagemgr, "StorageLayout", "CalcAligned Layout: tile number2: " << ret.size());
     return ret;
 }
 
 std::vector< r_Minterval >
 StorageLayout::calcDirectionalLayout(const r_Minterval& tileDomain)
 {
-    RMDBGENTER(4, RMDebug::module_storagemgr, "StorageLayout", "Entering calcDirectionallLayout");
     r_Dir_Tiling* dirTile = NULL;
     if(!extraFeatures->getSubTiling())
         dirTile = new r_Dir_Tiling(tileDomain.dimension(),
@@ -499,20 +485,18 @@ StorageLayout::calcDirectionalLayout(const r_Minterval& tileDomain)
     std::vector<r_Minterval> ret;
     std::vector<r_Minterval>* ret1 = dirTile->compute_tiles
                                      (tileDomain, static_cast<r_Bytes>(extraFeatures->getCellSize()));
-    RMDBGMIDDLE(4, RMDebug::module_storagemgr, "StorageLayout", "calcDirectionalLayout: tile number: " << ret1->size());
+    LTRACE << "calcDirectionalLayout: tile number: " << ret1->size();
     for (unsigned int i = 0; i < ret1->size(); i++)
     {
         ret.push_back(ret1->at(i));
     }
     delete dirTile;
-    RMDBGEXIT(4, RMDebug::module_storagemgr, "StorageLayout", "calcDirectionalLayout: tile number2: " << ret.size());
     return ret;
 }
 
 std::vector< r_Minterval >
 StorageLayout::calcStatisticLayout(const r_Minterval& tileDomain)
 {
-    RMDBGENTER(4, RMDebug::module_storagemgr, "StorageLayout", "Entering CalcStatistic Layout");
     std::vector<r_Minterval> ret;
     vector<r_Minterval> temp = extraFeatures->getBBoxes();
     std::vector<r_Access> accesses;
@@ -529,9 +513,8 @@ StorageLayout::calcStatisticLayout(const r_Minterval& tileDomain)
         interestT = r_Stat_Tiling::DEF_INTERESTING_THR;
     else
         interestT = extraFeatures->getInterestThreshold();
-    RMDBGMIDDLE(4, RMDebug::module_storagemgr, "StorageLayout",
-        "Object is : " << tileDomain.dimension() << " " << accesses.size() << " "
-                       << myLayout->getTileSize() << " " << borderT << " " << interestT);
+    LTRACE << "Object is : " << tileDomain.dimension() << " " << accesses.size() << " "
+           << myLayout->getTileSize() << " " << borderT << " " << interestT;
     r_Stat_Tiling* stat = new r_Stat_Tiling(tileDomain.dimension(),accesses,
                                             myLayout->getTileSize(), borderT,
                                             interestT);
@@ -541,7 +524,6 @@ StorageLayout::calcStatisticLayout(const r_Minterval& tileDomain)
         ret.push_back(ret1->at(i));
     }
 
-    RMDBGEXIT(4, RMDebug::module_storagemgr, "StorageLayout", "End of CalcStatistic Layout tile numbers = "<< ret.size());
     return ret;
 }
 

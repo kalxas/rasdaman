@@ -39,6 +39,8 @@ using namespace std;
 
 #include "debug-srv.hh"
 
+#include "../common/src/logging/easylogging++.hh"
+
 // console output describing successful/unsuccessful actions (cf. servercomm/servercomm.cc)
 #define MSG_OK     "ok"
 #define MSG_FAILED "failed"
@@ -88,7 +90,7 @@ void RasServerEntry::compat_connectToDBMS() throw( r_Error )
 void RasServerEntry::compat_connectNewClient(const char *capability)
 {
     // we need to add the log information which otherwise is provided in ServerComm (servercomm/servercomm2.cc)
-    RMDBGIF(4, RMDebug::module_server, "RasServerEntry", RMInit::logOut << "Request: connectNewClient..." << flush;)
+    LTRACE << "Request: connectNewClient...";
 
     char client[256];
     strcpy( client, "unknown" );
@@ -108,29 +110,28 @@ void RasServerEntry::compat_connectNewClient(const char *capability)
     currentClientIdx = SINGLETON_CLIENTID;
     // if (currentClientContext==NULL)
     currentClientContext = new ClientTblElt( client, currentClientIdx );
-    TALK( "using constant Client id " << currentClientIdx );
+    LDEBUG << "using constant Client id " << currentClientIdx;
 
     // make sure any old element is deleted; currently inhibited, crashes :( -- PB 2005-sep-02
-    // RMInit::logOut << "client table has " << clientTbl.size() << " elements before cleanup, ";
+    // LINFO << "client table has " << clientTbl.size() << " elements before cleanup, ";
     // ServerComm::deleteClientTblEntry( currentClientIdx );
-    // RMInit::logOut << " and " << clientTbl.size() << " after.";
+    // LINFO << " and " << clientTbl.size() << " after.";
 #endif // 0
 
     // Put the context information in the static control list
     ServerComm::addClientTblEntry( currentClientContext );
 
-    TALK( "assigned Client id " << currentClientIdx );
+    LDEBUG << "assigned Client id " << currentClientIdx;
 
     if(accessControl.crunchCapability(capability) == CAPABILITY_REFUSED)
         throw r_Ecapability_refused();
-
-    RMDBGIF(4, RMDebug::module_server, "RasServerEntry", RMInit::logOut << MSG_OK << endl;)
+    LTRACE << MSG_OK;
 }
 
 void RasServerEntry::compat_disconnectClient()
 {
     // we need to add the log information which otherwise is provided in ServerComm (servercomm/servercomm2.cc)
-    RMDBGIF(4, RMDebug::module_server, "RasServerEntry", RMInit::logOut << "Request: disconnect..." << flush;)
+    LTRACE << "Request: disconnect...";
 
     // reverted the below to execute the #if part instead of the #else
     // details at: http://kahlua.eecs.jacobs-university.de/trac/rasdaman/ticket/239
@@ -148,7 +149,7 @@ void RasServerEntry::compat_disconnectClient()
 
     // clientTbl.resize( 0 );
 
-    RMInit::logOut << MSG_OK << endl;
+    LINFO << MSG_OK;
 #endif // 0
 
 // in a disconnect following an abortta, the client can't be found any more in the table.
@@ -233,7 +234,7 @@ int RasServerEntry::compat_executeQueryHttp(const char* httpParams, int httpPara
     {
         // we need to add the log information which otherwise is provided in ServerComm (servercomm/servercomm2.cc)
         // logged now in rnprotocol modules -- PB 2005-sep-05
-        // RMInit::logOut << "Request: http query '" << RequestInfo.QueryString << "'..." << flush;
+        // LINFO << "Request: http query '" << RequestInfo.QueryString << "'...";
         char* queryResult;
 
         resultLen = HttpServer::processRequest(currentClientIdx, RequestInfo.Database, RequestInfo.Command,
@@ -242,10 +243,10 @@ int RasServerEntry::compat_executeQueryHttp(const char* httpParams, int httpPara
                                                queryResult,RequestInfo.Capability);
 
         resultBuffer = queryResult;
-        RMInit::logOut << MSG_OK << endl;
+        LINFO << MSG_OK;
     }
     else
-        RMInit::logOut << "Error: Internal HTTP protocol mismatch." << endl;
+        LERROR << "Error: Internal HTTP protocol mismatch.";
 
     // free RequestInfo
     free(RequestInfo.Database);
@@ -406,8 +407,6 @@ void RasServerEntry::stopRpcServer() {}
 // local version of this function, with small adaptations to compile here.
 int GetHTTPRequestTemp( char *Source, int SourceLen, struct HTTPRequest *RequestInfo)
 {
-    ENTER( "GetHTTPRequestTemp, source=" << Source << ", SourceLen=" << SourceLen );
-
     int result = 0;     // function return value
     char *Buffer = NULL;    // ptr to current analysis point in Input
     char *Input = NULL; // local copy of Source
@@ -422,49 +421,49 @@ int GetHTTPRequestTemp( char *Source, int SourceLen, struct HTTPRequest *Request
         if( strcmp(Buffer,"Database") == 0 )
         {
             RequestInfo->Database = strdup(strtok( NULL, "&" ));
-            TALK( "Parameter Database is " << RequestInfo->Database );
+            LDEBUG << "Parameter Database is " << RequestInfo->Database;
             Buffer = strtok( NULL, "=" );
         }
         else if( strcmp(Buffer,"QueryString") == 0 )
         {
             RequestInfo->QueryString = strdup(strtok( NULL, "&" ));
-            TALK( "Parameter QueryString is " << RequestInfo->QueryString );
+            LDEBUG << "Parameter QueryString is " << RequestInfo->QueryString;
             Buffer = strtok( NULL, "=" );
         }
         else if( strcmp(Buffer,"Capability") == 0 )
         {
             RequestInfo->Capability = strdup(strtok( NULL, "&\0" ));
-            TALK( "Parameter Capability is " << RequestInfo->Capability );
+            LDEBUG << "Parameter Capability is " << RequestInfo->Capability;
             Buffer = strtok( NULL, "=" );
         }
         else if( strcmp(Buffer,"ClientID") == 0 )
         {
             RequestInfo->ClientID = strdup(strtok( NULL, "&" ));
-            TALK( "Parameter ClientID is " << RequestInfo->ClientID );
+            LDEBUG << "Parameter ClientID is " << RequestInfo->ClientID;
             Buffer = strtok( NULL, "=" );
         }
         else if( strcmp(Buffer,"Command") == 0 )
         {
             RequestInfo->Command = atoi( strtok( NULL, "&" ) );
-            TALK( "Parameter Command is " << RequestInfo->Command );
+            LDEBUG << "Parameter Command is " << RequestInfo->Command;
             Buffer = strtok( NULL, "=" );
         }
         else if( strcmp(Buffer,"Endianess") == 0 )
         {
             RequestInfo->Endianess = atoi( strtok( NULL, "&" ) );
-            TALK( "Parameter Endianess is " << RequestInfo->Endianess );
+            LDEBUG << "Parameter Endianess is " << RequestInfo->Endianess;
             Buffer = strtok( NULL, "=" );
         }
         else if( strcmp(Buffer,"NumberOfQueryParameters") == 0 )
         {
             RequestInfo->NumberOfQueryParams = atoi( strtok( NULL, "&" ) );
-            TALK( "Parameter NumberOfQueryParams is " << RequestInfo->NumberOfQueryParams );
+            LDEBUG << "Parameter NumberOfQueryParams is " << RequestInfo->NumberOfQueryParams;
             Buffer = strtok( NULL, "=" );
         }
         else if( strcmp(Buffer,"BinDataSize") == 0 )
         {
             RequestInfo->BinDataSize = atoi( strtok( NULL, "&" ) );
-            TALK( "Parameter BinDataSize is " << RequestInfo->BinDataSize );
+            LDEBUG << "Parameter BinDataSize is " << RequestInfo->BinDataSize;
             Buffer = strtok( NULL, "=" );
         }
         else if( strcmp(Buffer,"BinData") == 0 )
@@ -478,7 +477,7 @@ int GetHTTPRequestTemp( char *Source, int SourceLen, struct HTTPRequest *Request
         else if( strcmp(Buffer,"ClientType") == 0 )
         {
             Buffer = strtok( NULL, "&" );
-            TALK( "Parameter Type is " << Buffer );
+            LDEBUG << "Parameter Type is " << Buffer;
             /* BROWSER? */
             if( strcmp(Buffer,"BROWSER") == 0 )
                 RequestInfo->ClientType = 1;
@@ -488,7 +487,7 @@ int GetHTTPRequestTemp( char *Source, int SourceLen, struct HTTPRequest *Request
             /* Sonstiges */
             else
             {
-                TALK( "Error: Unknown Parameter: " << Buffer );
+                LDEBUG << "Error: Unknown Parameter: " << Buffer;
                 result = 2;
             }
             Buffer = strtok( NULL, "=" );
@@ -499,8 +498,6 @@ int GetHTTPRequestTemp( char *Source, int SourceLen, struct HTTPRequest *Request
 
     if (result == 0)
         delete[] Input;
-
-    LEAVE( "GetHTTPRequestTemp, result=" << result );
     return result;
 }
 

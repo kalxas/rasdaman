@@ -108,6 +108,8 @@ extern "C" int gethostname(char *name, int namelen);
 
 #include "lockmgr/lockmanager.hh"
 
+#include "../common/src/logging/easylogging++.hh"
+
 // console output describing successful/unsuccessful actions
 #define MSG_OK          "ok"
 #define MSG_FAILED      "failed"
@@ -122,15 +124,15 @@ char* ppInBuf = 0;
 char* ppOutBuf = 0;
 void ppreset()
 {
-    RMInit::logOut << "Error: Preprocessor not compiled in." << std::endl;
-    RMInit::dbgOut << "Error: Preprocessor not compiled in." << std::endl;
+    LFATAL << "Error: Preprocessor not compiled in.";
+    LTRACE << "Error: Preprocessor not compiled in.";
     throw r_Error(ILLEGALSTATEREACHED);
 }
 
 int ppparse()
 {
-    RMInit::logOut << "Error: Preprocessor not compiled in." << std::endl;
-    RMInit::dbgOut << "Error: Preprocessor not compiled in." << std::endl;
+    LFATAL << "Error: Preprocessor not compiled in.";
+    LTRACE << "Error: Preprocessor not compiled in.";
     throw r_Error(ILLEGALSTATEREACHED);
 }
 #else
@@ -182,11 +184,9 @@ ServerComm::openDB( unsigned long callingClientId,
                     const char* dbName,
                     const char* userName )
 {
-    RMDBGENTER( 4, RMDebug::module_servercomm, "ServerComm",  "openDB" )
-
     unsigned short returnValue=0;
     RMDBGIF(4, RMDebug::module_servercomm, "ServerComm",
-        RMInit::logOut << "Request: 'open DB', name = " << dbName << "'..." << std::flush; )
+        LINFO << "Request: 'open DB', name = " << dbName << "'..."; )
 
     ClientTblElt* context = getClientContext( callingClientId );
 
@@ -204,18 +204,18 @@ ServerComm::openDB( unsigned long callingClientId,
         {
             if(err.get_kind() == r_Error::r_Error_DatabaseUnknown)
             {
-                RMInit::logOut << "Error: database does not exist." << endl;
+                LERROR << "Error: database does not exist.";
                 returnValue = 2;
             }
             else if(err.get_kind() == r_Error::r_Error_DatabaseOpen)
             {
                 // ignore re-open to be fault tolerant -- PB 2004-dec-16
-                // RMInit::logOut << "Error: database is already open." << endl;
+                // LERROR << "Error: database is already open.";
                 returnValue = 3;
             }
             else
             {
-                RMInit::logOut << "Error: exception " << err.get_errorno() << ": " << err.what() << endl;
+                LERROR << "Error: exception " << err.get_errorno() << ": " << err.what();
                 //should be something else.  but better than no message about the problem at all
                 returnValue = 2;
             }
@@ -232,7 +232,7 @@ ServerComm::openDB( unsigned long callingClientId,
             context->userName = new char[strlen( userName )+1];
             strcpy( context->userName, userName );
 
-            RMDBGIF(4, RMDebug::module_servercomm, "ServerComm", RMInit::logOut << MSG_OK << std::endl;)
+            RMDBGIF(4, RMDebug::module_servercomm, "ServerComm", LINFO << MSG_OK;)
         }
 
         context->release();
@@ -240,17 +240,15 @@ ServerComm::openDB( unsigned long callingClientId,
         // ignore "already open" error to be more fault tolerant -- PB 2004-dec-16
         if( returnValue == 3 )
         {
-            RMInit::logOut << "Warning: database already open for user '" << userName << "', ignoring command." << endl;
+            LWARNING << "Warning: database already open for user '" << userName << "', ignoring command.";
             returnValue = 0;
         }
     }
     else
     {
-        RMInit::logOut << "Error: client not registered." << std::endl;
+        LERROR << "Error: client not registered.";
         returnValue = 1;
     }
-
-    RMDBGEXIT( 4, RMDebug::module_servercomm, "ServerComm",  "openDB" )
     return returnValue;
 }
 
@@ -262,11 +260,10 @@ ServerComm::openDB( unsigned long callingClientId,
 unsigned short
 ServerComm::closeDB( unsigned long callingClientId )
 {
-    RMDBGENTER( 4, RMDebug::module_servercomm, "ServerComm",  "closeDB" )
     unsigned short returnValue;
 
     RMDBGIF(4, RMDebug::module_servercomm, "ServerComm",
-        RMInit::logOut << "Request: 'close DB'..." << std::flush;)
+        LINFO << "Request: 'close DB'...";)
 
     ClientTblElt* context = getClientContext( callingClientId );
 
@@ -278,7 +275,7 @@ ServerComm::closeDB( unsigned long callingClientId )
         // If the current transaction belongs to this client, abort it.
         if( transactionActive == callingClientId )
         {
-            RMInit::logOut << "Warning: transaction is open; aborting this transaction..." << std::flush;
+            LWARNING << "Warning: transaction is open; aborting this transaction...";
 
             context->transaction.abort();
             transactionActive = 0;
@@ -300,15 +297,13 @@ ServerComm::closeDB( unsigned long callingClientId )
         purify_new_leaks();
 #endif
 
-        RMDBGIF(4, RMDebug::module_servercomm, "ServerComm", RMInit::logOut << MSG_OK << endl;)
+        RMDBGIF(4, RMDebug::module_servercomm, "ServerComm", LINFO << MSG_OK;)
     }
     else
     {
-        RMInit::logOut << "Error: client not registered." << std::endl;
+        LERROR << "Error: client not registered.";
         returnValue = 1;
     }
-
-    RMDBGEXIT( 4, RMDebug::module_servercomm, "ServerComm",  "closeDB" )
     return returnValue;
 }
 
@@ -325,7 +320,7 @@ ServerComm::createDB( char* name )
     // FIXME: what about client id? -- PB 2005-aug-27
 
     RMDBGIF(4, RMDebug::module_servercomm, "ServerComm",
-        RMInit::logOut << "Request: 'create DB', name = " << name << "'..." << std::flush;)
+        LINFO << "Request: 'create DB', name = " << name << "'...";)
 
     DatabaseIf* tempDbIf = new DatabaseIf;
 
@@ -333,21 +328,21 @@ ServerComm::createDB( char* name )
     try
     {
         tempDbIf->createDB( name, dbSchema );
-        RMDBGIF(4, RMDebug::module_servercomm, "ServerComm", RMInit::logOut << MSG_OK << endl;)
+        RMDBGIF(4, RMDebug::module_servercomm, "ServerComm", LINFO << MSG_OK;)
     }
     catch(r_Error& myErr)
     {
         RMDBGIF(2, RMDebug::module_servercomm, "ServerComm",
-            RMInit::logOut << "Error: exception " << myErr.get_errorno() << ": " << myErr.what() << std::endl;)
+        LERROR << "Error: exception " << myErr.get_errorno() << ": " << myErr.what();)
     }
     catch(std::bad_alloc)
     {
-        RMInit::logOut << "Error: cannot allocate memory." << std::endl;
+        LERROR << "Error: cannot allocate memory.";
         throw;
     }
     catch(...)
     {
-        RMInit::logOut << std::endl << "Error: Unspecified exception." << std::endl;
+        LERROR << "Error: Unspecified exception.";
     }
 
     delete tempDbIf;
@@ -371,7 +366,7 @@ ServerComm::destroyDB( char* name )
     unsigned short returnValue = 0;
 
     RMDBGIF(4, RMDebug::module_servercomm, "ServerComm",
-        RMInit::logOut << "Request: 'destroy DB', name = " << name << "'..." << std::flush;)
+        LINFO << "Request: 'destroy DB', name = " << name << "'...";)
 
     DatabaseIf* tempDbIf = new DatabaseIf;
 
@@ -387,7 +382,7 @@ ServerComm::destroyDB( char* name )
 
     delete tempDbIf;
 
-    RMDBGIF(4, RMDebug::module_servercomm, "ServerComm", RMInit::logOut << MSG_OK << std::endl;)
+    RMDBGIF(4, RMDebug::module_servercomm, "ServerComm", LINFO << MSG_OK;)
 
     return returnValue;
 }
@@ -401,22 +396,21 @@ unsigned short
 ServerComm::beginTA( unsigned long callingClientId,
                      unsigned short readOnly )
 {
-    RMDBGENTER( 4, RMDebug::module_servercomm, "ServerComm",  "beginTA" )
     unsigned short returnValue;
 
     RMDBGIF(4, RMDebug::module_servercomm, "ServerComm",
-        RMInit::logOut << "Request: 'begin TA', mode = " << ( readOnly ? "read" : "write" ) << "..." << std::flush;)
+        LINFO << "Request: 'begin TA', mode = " << ( readOnly ? "read" : "write" ) << "...";)
 
     ClientTblElt* context = getClientContext( callingClientId );
 
     if( context == 0 )
     {
-        RMInit::logOut << "Error: client not registered." << std::endl;
+        LERROR << "Error: client not registered.";
         returnValue = 1;
     }
     else if ( transactionActive )
     {
-        RMInit::logOut << "Error: transaction already active." << std::endl;
+        LERROR << "Error: transaction already active.";
         returnValue = 2;
         context->release();
     }
@@ -433,12 +427,12 @@ ServerComm::beginTA( unsigned long callingClientId,
         {
             // start the transaction
             context->transaction.begin( &(context->database), readOnly );
-            RMDBGIF(4, RMDebug::module_servercomm, "ServerComm", RMInit::logOut << MSG_OK << endl;)
+            RMDBGIF(4, RMDebug::module_servercomm, "ServerComm", LINFO << MSG_OK;)
         }
         catch(r_Error& err)
         {
             RMDBGIF(2, RMDebug::module_servercomm, "ServerComm",
-                RMInit::logOut << "Error: exception " << err.get_errorno() << ": " << err.what() << std::endl; )
+                LFATAL << "Error: exception " << err.get_errorno() << ": " << err.what(); )
             context->release();
             throw;
         }
@@ -449,8 +443,6 @@ ServerComm::beginTA( unsigned long callingClientId,
 
         context->release();
     }
-
-    RMDBGEXIT( 4, RMDebug::module_servercomm, "ServerComm",  "beginTA" )
     return returnValue;
 }
 
@@ -462,12 +454,11 @@ ServerComm::beginTA( unsigned long callingClientId,
 unsigned short
 ServerComm::commitTA( unsigned long callingClientId )
 {
-    RMDBGENTER( 4, RMDebug::module_servercomm, "ServerComm",  "commitTA" )
     unsigned short returnValue;
 
     ClientTblElt* context = getClientContext( callingClientId );
 
-    RMDBGIF(4, RMDebug::module_servercomm, "ServerComm", RMInit::logOut << "Request: 'commit TA'..." << std::flush;)
+    RMDBGIF(4, RMDebug::module_servercomm, "ServerComm", LINFO << "Request: 'commit TA'...";)
 
     if( context != 0 )
     {
@@ -500,11 +491,11 @@ ServerComm::commitTA( unsigned long callingClientId )
 
         context->release();
 
-        RMDBGIF(4, RMDebug::module_servercomm, "ServerComm", RMInit::logOut << MSG_OK << endl;)
+        RMDBGIF(4, RMDebug::module_servercomm, "ServerComm", LINFO << MSG_OK;)
     }
     else
     {
-        RMInit::logOut << "Error: client not registered." << std::endl;
+        LERROR << "Error: client not registered.";
         returnValue = 1;
     }
 
@@ -514,7 +505,6 @@ ServerComm::commitTA( unsigned long callingClientId )
     context->taTimer = 0;
 #endif
 
-    RMDBGEXIT( 4, RMDebug::module_servercomm, "ServerComm",  "commitTA" )
     return returnValue;
 }
 
@@ -526,10 +516,9 @@ ServerComm::commitTA( unsigned long callingClientId )
 unsigned short
 ServerComm::abortTA( unsigned long callingClientId )
 {
-    RMDBGENTER( 4, RMDebug::module_servercomm, "ServerComm",  "abortTA" )
     unsigned short returnValue;
 
-    RMDBGIF(4, RMDebug::module_servercomm, "ServerComm",RMInit::logOut << "Request: 'abort TA'..." << std::flush;)
+    RMDBGIF(4, RMDebug::module_servercomm, "ServerComm",LINFO << "Request: 'abort TA'...";)
 
     ClientTblElt* context = getClientContext( callingClientId );
 
@@ -553,11 +542,11 @@ ServerComm::abortTA( unsigned long callingClientId )
 
         context->release();
 
-        RMDBGIF(4, RMDebug::module_servercomm, "ServerComm", RMInit::logOut << MSG_OK << endl;)
+        RMDBGIF(4, RMDebug::module_servercomm, "ServerComm", LINFO << MSG_OK;)
     }
     else
     {
-        RMInit::logOut << "Error: client not registered." << std::endl;
+        LERROR << "Error: client not registered.";
         returnValue = 1;
     }
 
@@ -566,7 +555,6 @@ ServerComm::abortTA( unsigned long callingClientId )
     context->taTimer = 0;
 #endif
 
-    RMDBGEXIT( 4, RMDebug::module_servercomm, "ServerComm",  "abortTA" )
     return returnValue;
 }
 
@@ -581,17 +569,14 @@ ServerComm::abortTA( unsigned long callingClientId )
 bool
 ServerComm::isTAOpen( __attribute__ ((unused)) unsigned long callingClientId )
 {
-    RMDBGENTER( 4, RMDebug::module_servercomm, "ServerComm",  "isTAOpen" )
-
     RMDBGIF(4, RMDebug::module_servercomm, "ServerComm",
-        RMInit::logOut << "Request: 'is TA open'..." << std::flush;)
+        LINFO << "Request: 'is TA open'...";)
 
     bool returnValue = transactionActive;
 
     RMDBGIF(4, RMDebug::module_servercomm, "ServerComm",
-        RMInit::logOut << MSG_OK << (transactionActive?"yes.":"no.") << endl;)
+        LINFO << MSG_OK << (transactionActive?"yes.":"no.");)
 
-    RMDBGEXIT( 4, RMDebug::module_servercomm, "ServerComm",  "isTAOpen" )
     return returnValue;
 }
 
@@ -603,10 +588,9 @@ ServerComm::insertColl( unsigned long callingClientId,
                         const char*   typeName,
                         r_OId&        oid       )
 {
-    RMDBGENTER( 4, RMDebug::module_servercomm, "ServerComm",  "insertColl" )
     unsigned short returnValue = 0;
 
-    RMInit::logOut << "Request: 'insert collection', collection name = '" << collName << "', type = '" << typeName << "'..." << std::flush;
+    LINFO << "Request: 'insert collection', collection name = '" << collName << "', type = '" << typeName << "'...";
 
     ClientTblElt* context = getClientContext( callingClientId );
 
@@ -628,20 +612,20 @@ ServerComm::insertColl( unsigned long callingClientId,
             {
                 MDDColl* coll = MDDColl::createMDDCollection(collName, OId(oid.get_local_oid()), collType);
                 delete coll;
-                RMInit::logOut << MSG_OK << endl;
+                LINFO << MSG_OK;
             }
             catch( r_Error& obj )
             {
                 if (obj.get_kind() == r_Error::r_Error_NameNotUnique)
                 {
                     RMDBGIF(2, RMDebug::module_servercomm, "ServerComm",
-                        RMInit::logOut << "Error: collection exists already." << std::endl;);
+                        LERROR << "Error: collection exists already.";);
                     returnValue = 3;
                 }
                 else
                 {
                     RMDBGIF(2, RMDebug::module_servercomm, "ServerComm",
-                        RMInit::logOut << "Error: cannot create collection: " << obj.get_errorno() << " " << obj.what() << std::endl;);
+                        LERROR << "Error: cannot create collection: " << obj.get_errorno() << " " << obj.what(););
                     //this should be another code...
                     returnValue = 3;
                 }
@@ -650,7 +634,7 @@ ServerComm::insertColl( unsigned long callingClientId,
         }
         else
         {
-            RMInit::logOut << "Error: unknown collection type: '" << typeName << "'." << std::endl;
+            LERROR << "Error: unknown collection type: '" << typeName << "'.";
             returnValue = 2;
         }
 
@@ -662,11 +646,10 @@ ServerComm::insertColl( unsigned long callingClientId,
     }
     else
     {
-        RMInit::logOut << "Error: client not registered." << std::endl;
+        LERROR << "Error: client not registered.";
         returnValue = 1;
     }
 
-    RMDBGEXIT( 4, RMDebug::module_servercomm, "ServerComm",  "insertColl" )
     return returnValue;
 }
 
@@ -680,10 +663,9 @@ unsigned short
 ServerComm::deleteCollByName( unsigned long callingClientId,
                               const char*   collName         )
 {
-    RMDBGENTER( 4, RMDebug::module_servercomm, "ServerComm", "deleteCollByName(" << callingClientId << ", " << collName << ")")
     unsigned short returnValue;
 
-    RMInit::logOut << "Request: 'delete collection by name', name = '" << collName << "'..." << std::flush;
+    LINFO << "Request: 'delete collection by name', name = '" << collName << "'...";
 
     ClientTblElt* context = getClientContext( callingClientId );
 
@@ -699,14 +681,14 @@ ServerComm::deleteCollByName( unsigned long callingClientId,
         // delete root object with collection name
         if (MDDColl::dropMDDCollection(collName))
         {
-            RMDBGMIDDLE( 4, RMDebug::module_servercomm, "ServerComm", "collection dropped")
-            RMInit::logOut << MSG_OK << std::endl;
+            LTRACE << "collection dropped";
+            LINFO << MSG_OK;
             returnValue = 0;
         }
         else
         {
-            RMDBGMIDDLE( 4, RMDebug::module_servercomm, "ServerComm", "did not drop collection")
-            RMInit::logOut << "Error: collection does not exist." << std::endl;
+            LTRACE << "did not drop collection";
+            LERROR << "Error: collection does not exist.";
             returnValue = 2;
         }
 
@@ -718,11 +700,10 @@ ServerComm::deleteCollByName( unsigned long callingClientId,
     }
     else
     {
-        RMInit::logOut << "Error: client not registered." << std::endl;
+        LERROR << "Error: client not registered.";
         returnValue = 1;
     }
 
-    RMDBGEXIT( 4, RMDebug::module_servercomm, "ServerComm", "deleteCollByName(" << callingClientId << ", " << collName << ") " << returnValue)
     return returnValue;
 }
 
@@ -732,10 +713,9 @@ unsigned short
 ServerComm::deleteObjByOId( unsigned long callingClientId,
                             r_OId&        oid              )
 {
-    RMDBGENTER( 4, RMDebug::module_servercomm, "ServerComm", "deleteObjByOId(" << callingClientId << ", " << oid << ")");
     unsigned short returnValue;
 
-    RMInit::logOut << "Request: 'delete MDD by OID', oid = '" << oid << "'..." << std::flush;
+    LINFO << "Request: 'delete MDD by OID', oid = '" << oid << "'...";
 
     ClientTblElt* context = getClientContext( callingClientId );
 
@@ -747,35 +727,35 @@ ServerComm::deleteObjByOId( unsigned long callingClientId,
         // determine type of object
         OId oidIf( oid.get_local_oid() );
 
-        RMDBGMIDDLE( 4, RMDebug::module_servercomm, "ServerComm", "OId of object " << oidIf)
+        LTRACE << "OId of object " << oidIf;
         OId::OIdType objType = oidIf.getType();
 
         switch( objType )
         {
         case OId::MDDOID:
             // FIXME: why not deleted?? -- PB 2005-aug-27
-            RMInit::logOut << "found MDD object; NOT deleted yet..." << MSG_OK << std::endl;
-            RMDBGMIDDLE( 4, RMDebug::module_servercomm, "ServerComm", "not deleting mdd object")
+            LINFO << "found MDD object; NOT deleted yet..." << MSG_OK;
+            LTRACE << "not deleting mdd object";
             returnValue = 0;
             break;
         case OId::MDDCOLLOID:
-            RMInit::logOut << "deleting collection..." << std::flush;
+            LINFO << "deleting collection...";
             // delete root object with collection name
             if (MDDColl::dropMDDCollection(oidIf))
             {
-                RMInit::logOut << MSG_OK << std::endl;
-                RMDBGMIDDLE( 4, RMDebug::module_servercomm, "ServerComm", "deleted mdd coll")
+                LINFO << MSG_OK;
+                LTRACE << "deleted mdd coll";
                 returnValue = 0;
             }
             else
             {
-                RMInit::logOut << "Error: Collection does not exist." << std::endl;
-                RMDBGMIDDLE( 4, RMDebug::module_servercomm, "ServerComm", "did not delete mdd coll")
+                LERROR << "Error: Collection does not exist.";
+                LTRACE << "did not delete mdd coll";
                 returnValue = 2;
             }
             break;
         default:
-            RMInit::logOut << "Error: object has unknown type: " << objType << std::endl;
+            LERROR << "Error: object has unknown type: " << objType;
             returnValue = 2;
         }
 
@@ -787,11 +767,10 @@ ServerComm::deleteObjByOId( unsigned long callingClientId,
     }
     else
     {
-        RMInit::logOut << "Error: client not registered." << std::endl;
+        LERROR << "Error: client not registered.";
         returnValue = 1;
     }
 
-    RMDBGEXIT( 4, RMDebug::module_servercomm, "ServerComm", "deleteObjByOId(" << callingClientId << ", " << oid << ")" << returnValue)
     return returnValue;
 }
 
@@ -802,10 +781,9 @@ ServerComm::removeObjFromColl( unsigned long callingClientId,
                                const char*   collName,
                                r_OId&        oid              )
 {
-    RMDBGENTER( 4, RMDebug::module_servercomm, "ServerComm", "removeObjFromColl(" << callingClientId << ", " << collName << ", " << oid << ")")
     unsigned short returnValue;
 
-    RMInit::logOut << "Request: 'remove MDD from collection', collection name = '" << collName << "', oid = '" << oid << "'..." << std::flush;
+    LINFO << "Request: 'remove MDD from collection', collection name = '" << collName << "', oid = '" << oid << "'...";
 
     ClientTblElt* context = getClientContext( callingClientId );
 
@@ -816,7 +794,7 @@ ServerComm::removeObjFromColl( unsigned long callingClientId,
 
         OId oidIf( oid.get_local_oid() );
 
-        RMDBGMIDDLE( 4, RMDebug::module_servercomm, "ServerComm", "mdd object oid " << oidIf)
+        LTRACE << "mdd object oid " << oidIf;
 
         // open collection
         MDDColl* coll = 0;
@@ -824,7 +802,7 @@ ServerComm::removeObjFromColl( unsigned long callingClientId,
         try
         {
             coll = MDDColl::getMDDCollection(collName);
-            RMDBGMIDDLE( 4, RMDebug::module_servercomm, "ServerComm", "retrieved mdd coll")
+            LTRACE << "retrieved mdd coll";
         }
         catch(r_Error& obj)
         {
@@ -832,13 +810,13 @@ ServerComm::removeObjFromColl( unsigned long callingClientId,
             if (obj.get_kind() == r_Error::r_Error_ObjectUnknown)
             {
                 RMDBGIF(2, RMDebug::module_servercomm, "ServerComm",
-                    RMInit::logOut << "Error: collection not found." << std::endl;)
+                    LERROR << "Error: collection not found.");
                 returnValue = 2;
             }
             else
             {
                 RMDBGIF(2, RMDebug::module_servercomm, "ServerComm",
-                    RMInit::logOut << "Error " << obj.get_errorno() << ": " << obj.what() << std::endl; )
+                    LERROR << "Error " << obj.get_errorno() << ": " << obj.what(); )
                 // there should be another return code
                 returnValue = 2;
             }
@@ -846,13 +824,13 @@ ServerComm::removeObjFromColl( unsigned long callingClientId,
         }
         catch(std::bad_alloc)
         {
-            RMInit::logOut << "Error: cannot allocate memory." << std::endl;
+            LERROR << "Error: cannot allocate memory.";
             throw;
         }
         catch(...)
         {
             // collection name invalid
-            RMInit::logOut << "Error: unspecified exception." << std::endl;
+            LERROR << "Error: unspecified exception.";
             returnValue = 2;
         }
 
@@ -860,16 +838,16 @@ ServerComm::removeObjFromColl( unsigned long callingClientId,
         {
             if (coll->isPersistent())
             {
-                RMDBGMIDDLE( 4, RMDebug::module_servercomm, "ServerComm", "retrieved persistent mdd coll")
+                LTRACE << "retrieved persistent mdd coll";
 
                 OId collId;
                 coll->getOId(collId);
-                RMDBGMIDDLE( 4, RMDebug::module_servercomm, "ServerComm", "mdd coll oid " << collId)
+                LTRACE << "mdd coll oid " << collId;
                 MDDColl::removeMDDObject(collId, oidIf);
 
                 // no error management yet -> returnValue = 3
 
-                RMInit::logOut << MSG_OK << std::endl;
+                LINFO << MSG_OK;
                 returnValue = 0;
 
                 delete coll;
@@ -884,11 +862,10 @@ ServerComm::removeObjFromColl( unsigned long callingClientId,
     }
     else
     {
-        RMInit::logOut << "Error: client not registered." << std::endl;
+        LERROR << "Error: client not registered.";
         returnValue = 1;
     }
 
-    RMDBGEXIT( 4, RMDebug::module_servercomm, "ServerComm", "removeObjFromColl(" << callingClientId << ", " << collName << ", " << oid << ") " << returnValue)
     return returnValue;
 }
 
@@ -900,10 +877,9 @@ ServerComm::insertMDD( unsigned long  callingClientId,
                        const char*    typeName,
                        r_OId&         oid              )
 {
-    RMDBGENTER( 4, RMDebug::module_servercomm, "ServerComm",  "insertMDD" )
     unsigned short returnValue = 0;
 
-    RMInit::logOut << "Request: 'insert MDD type', type = '" << typeName << "', collection = '" << collName << "'..." << std::flush;
+    LINFO << "Request: 'insert MDD type', type = '" << typeName << "', collection = '" << collName << "'...";
 
     ClientTblElt* context = getClientContext( callingClientId );
     r_Data_Format myDataFmt = r_Array;
@@ -938,21 +914,21 @@ ServerComm::insertMDD( unsigned long  callingClientId,
                         collection = static_cast<MDDColl*>(almost);
                     else
                     {
-                        RMInit::logOut << "Error: inserting into system collection is illegal." << std::endl;
+                        LFATAL << "Error: inserting into system collection is illegal.";
                         context->release(); //!!!
                         throw r_Error(SYSTEM_COLLECTION_NOT_WRITABLE);
                     }
                 }
                 catch(std::bad_alloc)
                 {
-                    RMInit::logOut << "Error: cannot allocate memory." << std::endl;
+                    LFATAL << "Error: cannot allocate memory.";
                     context->release(); //!!!
                     throw;
                 }
                 catch (r_Error& err)
                 {
                     RMDBGIF(2, RMDebug::module_servercomm, "ServerComm",
-                        RMInit::logOut << "Error " << err.get_errorno() << ": " << err.what() << std::endl;)
+                        LERROR << "Error " << err.get_errorno() << ": " << err.what();)
                     returnValue = 5;
                     context->release(); //!!!
                     throw;
@@ -960,7 +936,7 @@ ServerComm::insertMDD( unsigned long  callingClientId,
                 catch(...)
                 {
                     returnValue = 5;
-                    RMInit::logOut << "Error: unspecific exception during collection read." << std::endl;
+                    LERROR << "Error: unspecific exception during collection read.";
                     context->release();
                     return returnValue;
                 }
@@ -974,9 +950,9 @@ ServerComm::insertMDD( unsigned long  callingClientId,
                 RMDBGIF(4, RMDebug::module_servercomm, "ServerComm", \
                         char* collTypeStructure = collection->getCollectionType()->getTypeStructure(); \
                         char* mddTypeStructure  = mddType->getTypeStructure(); \
-                        RMInit::dbgOut << std::endl << "Collection type structure.: " << collTypeStructure << std::endl \
-                        << "MDD type structure........: " << mddTypeStructure << std::endl \
-                        << "MDD domain................: " << domain << std::endl; \
+                        LTRACE << "Collection type structure.: " << collTypeStructure << "\n" \
+                        << "MDD type structure........: " << mddTypeStructure << "\n" \
+                        << "MDD domain................: " << domain; \
                         free( collTypeStructure ); \
                         free( mddTypeStructure ); )
 
@@ -988,7 +964,7 @@ ServerComm::insertMDD( unsigned long  callingClientId,
 
                     // return error
                     returnValue = 4;
-                    RMInit::logOut << "Error: MDD type is not compatible wrt. its domain: " << domain << std::endl;
+                    LERROR << "Error: MDD type is not compatible wrt. its domain: " << domain;
 
                     context->release();
 
@@ -1003,7 +979,7 @@ ServerComm::insertMDD( unsigned long  callingClientId,
 
                     // return error
                     returnValue = 3;
-                    RMInit::logOut << "Error: MDD and collection types are incompatible." << std::endl;
+                    LERROR << "Error: MDD and collection types are incompatible.";
 
                     context->release();
 
@@ -1040,21 +1016,21 @@ ServerComm::insertMDD( unsigned long  callingClientId,
                 }
                 catch(std::bad_alloc)
                 {
-                    RMInit::logOut << "Error: cannot allocate memory." << std::endl;
+                    LFATAL << "Error: cannot allocate memory.";
                     context->release(); //!!!
                     throw;
                 }
                 catch (r_Error& obj)
                 {
                     RMDBGIF(2, RMDebug::module_servercomm, "ServerComm",
-                        RMInit::logOut << "Error " << obj.get_errorno() << ": " << obj.what() << std::endl;)
+                        LERROR << "Error " << obj.get_errorno() << ": " << obj.what();)
                     context->release(); //!!!
                     throw;
                 }
                 catch(...)
                 {
                     returnValue = 6;
-                    RMInit::logOut << "Error: unspecific exception during creation of persistent object." << std::endl;
+                    LERROR << "Error: unspecific exception during creation of persistent object.";
 
                     context->release();
 
@@ -1063,12 +1039,12 @@ ServerComm::insertMDD( unsigned long  callingClientId,
 
                 myDataFmt = static_cast<r_Data_Format>(rpcMarray->storageFormat);
                 myCurrentFmt = static_cast<r_Data_Format>(rpcMarray->currentFormat);
-                RMInit::dbgOut  << "oid " << oid
+                LTRACE  << "oid " << oid
                                 << ", domain " << domain
                                 << ", cell length " << rpcMarray->cellTypeLength
                                 << ", data size " << dataSize
                                 << ", rpc storage " << myDataFmt
-                                << ", rpc transfer " << myCurrentFmt << " " << std::flush;
+                                << ", rpc transfer " << myCurrentFmt << " ";
 
                 // store in the specified storage format; the current tile format afterwards will be the
                 // requested format if all went well, but use the (new) current format to be sure.
@@ -1078,7 +1054,7 @@ ServerComm::insertMDD( unsigned long  callingClientId,
                 {
                     //FIXME returnValue
                     returnValue = 6;
-                    RMInit::logOut << "Error: illegal tile format for creating object." << std::endl;
+                    LERROR << "Error: illegal tile format for creating object.";
 
                     context->release();
 
@@ -1111,7 +1087,7 @@ ServerComm::insertMDD( unsigned long  callingClientId,
                         entireTile->setPersistent(0);
                     delete entireTile;
 
-                    RMInit::logOut << "creating " << tileSet->size() << " tile(s)..." << std::flush;
+                    LINFO << "creating " << tileSet->size() << " tile(s)...";
 
                     for( vector<Tile*>::iterator iter = tileSet->begin(); iter != tileSet->end(); iter++ )
                         mddObj->insertTile( *iter );
@@ -1124,9 +1100,9 @@ ServerComm::insertMDD( unsigned long  callingClientId,
                     Tile* tile = 0;
 
                     tile = new Tile( domain, baseType, dataPtr, getMDDData, static_cast<r_Bytes>(myDataFmt) );
-                    RMInit::dbgOut << "insertTile created new TransTile (" << myDataFmt << "), ";
+                    LTRACE << "insertTile created new TransTile (" << myDataFmt << "), ";
 
-                    RMInit::dbgOut << "one tile..." << std::flush;
+                    LTRACE << "one tile...";
                     mddObj->insertTile( tile );
                 }
 
@@ -1141,17 +1117,17 @@ ServerComm::insertMDD( unsigned long  callingClientId,
                 // done
                 //
 
-                RMInit::logOut << MSG_OK << std::endl;
+                LINFO << MSG_OK;
             }
             else
             {
-                RMInit::logOut << "Error: MDD type name '" << typeName << "' has no base type." << std::endl;
+                LERROR << "Error: MDD type name '" << typeName << "' has no base type.";
                 returnValue = 2;
             }
         }
         else
         {
-            RMInit::logOut << "Error: MDD type name '" << typeName << "' not found." << std::endl;
+            LERROR << "Error: MDD type name '" << typeName << "' not found.";
             returnValue = 2;
         }
 
@@ -1159,11 +1135,10 @@ ServerComm::insertMDD( unsigned long  callingClientId,
     }
     else
     {
-        RMInit::logOut << "Error: client not registered." << std::endl;
+        LERROR << "Error: client not registered.";
         returnValue = 1;
     }
 
-    RMDBGEXIT( 4, RMDebug::module_servercomm, "ServerComm",  "insertMDD " << returnValue)
     return returnValue;
 }
 
@@ -1174,10 +1149,9 @@ ServerComm::insertTileSplitted( unsigned long  callingClientId,
                                 RPCMarray*     rpcMarray,
                                 r_Minterval*   tileSize)
 {
-    RMDBGENTER( 4, RMDebug::module_servercomm, "ServerComm",  "insertTileSplitted" )
     unsigned short returnValue = 0;
 
-    RMInit::logOut << "Request: 'insert tile'..." << std::flush;
+    LINFO << "Request: 'insert tile'...";
 
     ClientTblElt* context = getClientContext( callingClientId );
 
@@ -1205,8 +1179,8 @@ ServerComm::insertTileSplitted( unsigned long  callingClientId,
             int           getMDDData    = 0;
             r_Data_Format myDataFmt = static_cast<r_Data_Format>(rpcMarray->storageFormat);
             r_Data_Format myCurrentFmt = static_cast<r_Data_Format>(rpcMarray->currentFormat);
-            RMDBGMIDDLE( 2, RMDebug::module_server, "ServerComm", "insertTileSplitted - rpc storage  format : " << myDataFmt)
-            RMDBGMIDDLE( 2, RMDebug::module_server, "ServerComm", "insertTileSplitted - rpc transfer format : " << myCurrentFmt)
+            LTRACE << "insertTileSplitted - rpc storage  format : " << myDataFmt;
+            LTRACE << "insertTileSplitted - rpc transfer format : " << myCurrentFmt;
             // store in specified storage format; use (new) current format afterwards
             // Don't repack here because of possible retiling.
             if(ensureTileFormat(myCurrentFmt, myDataFmt, domain,
@@ -1216,7 +1190,6 @@ ServerComm::insertTileSplitted( unsigned long  callingClientId,
                 returnValue = 1;
 
                 context->release();
-                RMDBGEXIT( 4, RMDebug::module_servercomm, "ServerComm",  "insertTileSplitted - ensureTileFormat Failed" )
 
                 return returnValue;
             }
@@ -1226,7 +1199,7 @@ ServerComm::insertTileSplitted( unsigned long  callingClientId,
 
             Tile* tile = 0;
 
-            RMInit::dbgOut << "insertTile created new TransTile (" << myDataFmt << "), ";
+            LTRACE << "insertTile created new TransTile (" << myDataFmt << "), ";
             myDataFmt = r_Array;
             tile = new Tile( domain, baseType, dataPtr, getMDDData, static_cast<r_Bytes>(myDataFmt) );
 
@@ -1237,7 +1210,7 @@ ServerComm::insertTileSplitted( unsigned long  callingClientId,
                 r_Endian::r_Endianness serverEndian = r_Endian::get_endianness();
                 if(serverEndian != r_Endian::r_Endian_Big)
                 {
-                    RMInit::dbgOut << "changing endianness..." << std::flush;
+                    LTRACE << "changing endianness...";
 
                     // we have to swap the endianess
                     char *tpstruct;
@@ -1257,7 +1230,7 @@ ServerComm::insertTileSplitted( unsigned long  callingClientId,
 
                 // Split the tile!
                 vector< Tile *>* tileSet = tile->splitTile( *tileSize );
-                RMInit::dbgOut << "inserting split tile...";
+                LTRACE << "inserting split tile...";
                 for( vector<Tile*>::iterator iter = tileSet->begin(); iter != tileSet->end(); iter++ )
                 {
                     if( isPersistent )
@@ -1274,7 +1247,7 @@ ServerComm::insertTileSplitted( unsigned long  callingClientId,
             {
                 //insert one single tile
                 // later, we should take into consideration the default server tile-size!
-                RMInit::logOut << "inserting single tile...";
+                LINFO << "inserting single tile...";
                 if( isPersistent )
                     context->assembleMDD->insertTile( tile );
                 else
@@ -1285,20 +1258,19 @@ ServerComm::insertTileSplitted( unsigned long  callingClientId,
             // done
             //
 
-            RMInit::logOut << MSG_OK << std::endl;
+            LINFO << MSG_OK;
         }
         else
-            RMInit::logOut << "Error: tile and MDD base type do not match." << std::endl;
+            LERROR << "Error: tile and MDD base type do not match.";
 
         context->release();
     }
     else
     {
-        RMInit::logOut << "Error: client not registered." << std::endl;
+        LERROR << "Error: client not registered.";
         returnValue = 1;
     }
 
-    RMDBGEXIT( 4, RMDebug::module_servercomm, "ServerComm",  "insertTileSplitted" )
     return returnValue;
 }
 
@@ -1324,12 +1296,11 @@ ServerComm::startInsertPersMDD( unsigned long  callingClientId,
                                 const char*    typeName,
                                 r_OId&         oid          )
 {
-    RMDBGENTER( 4, RMDebug::module_servercomm, "ServerComm",  "startInsertPersMDD" )
     unsigned short returnValue = 0;
 
-    RMInit::logOut << "Request: 'start inserting persistent MDD type', type = '" << typeName
+    LINFO << "Request: 'start inserting persistent MDD type', type = '" << typeName
                    << "', collection = '" << collName << "', domain = " << domain << ", cell size = " << typeLength
-                   << ", " << domain.cell_count()*typeLength << "..." << std::flush;
+                   << ", " << domain.cell_count()*typeLength << "...";
 
     ClientTblElt* context = getClientContext( callingClientId );
 
@@ -1353,7 +1324,7 @@ ServerComm::startInsertPersMDD( unsigned long  callingClientId,
                     context->transferColl = MDDColl::getMDDCollection( collName );
                     if (!context->transferColl->isPersistent())
                     {
-                        RMInit::logOut << "Error: inserting into system collection is illegal." << std::endl;
+                        LFATAL << "Error: inserting into system collection is illegal.";
                         context->release(); //!!!
                         throw r_Error(SYSTEM_COLLECTION_NOT_WRITABLE);
                     }
@@ -1361,20 +1332,20 @@ ServerComm::startInsertPersMDD( unsigned long  callingClientId,
                 catch (r_Error& obj)
                 {
                     RMDBGIF(2, RMDebug::module_servercomm, "ServerComm",
-                        RMInit::logOut << "Error " << obj.get_errorno() << ": " << obj.what() << std::endl;)
+                        LFATAL << "Error " << obj.get_errorno() << ": " << obj.what();)
                     context->release(); //!!!
                     throw;
                 }
                 catch(std::bad_alloc)
                 {
-                    RMInit::logOut << "Error: cannot allocate memory." << std::endl;
+                    LFATAL << "Error: cannot allocate memory.";
                     context->release(); //!!!
                     throw;
                 }
                 catch(...)
                 {
                     returnValue = 5;
-                    RMInit::logOut << "Error: unspecific exception while opening collection." << std::endl;
+                    LERROR << "Error: unspecific exception while opening collection.";
 
                     context->release();
 
@@ -1388,9 +1359,9 @@ ServerComm::startInsertPersMDD( unsigned long  callingClientId,
                 RMDBGIF(4, RMDebug::module_servercomm, "ServerComm", \
                         char* collTypeStructure = context->transferColl->getCollectionType()->getTypeStructure(); \
                         char* mddTypeStructure  = mddType->getTypeStructure(); \
-                        RMInit::dbgOut << std::endl << "Collection type structure.: " << collTypeStructure << std::endl \
-                        << "MDD type structure........: " << mddTypeStructure << std::endl \
-                        << "MDD domain................: " << domain << std::endl; \
+                        LTRACE << "Collection type structure.: " << collTypeStructure << "\n" \
+                        << "MDD type structure........: " << mddTypeStructure << "\n" \
+                        << "MDD domain................: " << domain; \
                         free( collTypeStructure ); \
                         free( mddTypeStructure ); )
 
@@ -1403,7 +1374,7 @@ ServerComm::startInsertPersMDD( unsigned long  callingClientId,
 
                     // return error
                     returnValue = 4;
-                    RMInit::logOut << "Error: MDD type not compatible wrt. its domain: " << domain << MSG_FAILED << std::endl;
+                    LERROR << "Error: MDD type not compatible wrt. its domain: " << domain << MSG_FAILED;
 
                     context->release();
 
@@ -1419,7 +1390,7 @@ ServerComm::startInsertPersMDD( unsigned long  callingClientId,
 
                     // return error
                     returnValue = 3;
-                    RMInit::logOut << "Error: incompatible MDD and collection types." << std::endl;
+                    LERROR << "Error: incompatible MDD and collection types.";
 
                     context->release();
 
@@ -1443,37 +1414,37 @@ ServerComm::startInsertPersMDD( unsigned long  callingClientId,
                 catch (r_Error& err)
                 {
                     RMDBGIF(2, RMDebug::module_servercomm, "ServerComm",
-                        RMInit::logOut << "Error: while creating persistent tile: " << err.get_errorno() << ": " << err.what() << std::endl;)
+                        LFATAL << "Error: while creating persistent tile: " << err.get_errorno() << ": " << err.what() << std::endl;)
                     context->release(); //!!!
                     throw;
                 }
                 catch(std::bad_alloc)
                 {
-                    RMInit::logOut << "Error: cannot allocate memory." << std::endl;
+                    LFATAL << "Error: cannot allocate memory.";
                     context->release(); //!!!
                     throw;
                 }
                 catch(...)
                 {
                     returnValue = 6;
-                    RMInit::logOut << "Error: unspecific exception during creation of persistent object." << std::endl;
+                    LERROR << "Error: unspecific exception during creation of persistent object.";
 
                     context->release();
 
                     return returnValue;
                 }
 
-                RMInit::logOut << MSG_OK << std::endl;
+                LINFO << MSG_OK;
             }
             else
             {
-                RMInit::logOut << "Error: MDD type '" << typeName << "' has no base type..." << std::endl;
+                LERROR << "Error: MDD type '" << typeName << "' has no base type...";
                 returnValue = 2;
             }
         }
         else
         {
-            RMInit::logOut << "Error: MDD type name '" << typeName << "' not found." << std::endl;
+            LERROR << "Error: MDD type name '" << typeName << "' not found.";
             returnValue = 2;
         }
 
@@ -1481,11 +1452,10 @@ ServerComm::startInsertPersMDD( unsigned long  callingClientId,
     }
     else
     {
-        RMInit::logOut << "Error: client not registered." << std::endl;
+        LERROR << "Error: client not registered.";
         returnValue = 1;
     }
 
-    RMDBGEXIT( 4, RMDebug::module_servercomm, "ServerComm",  "startInsertPersMDD" )
     return returnValue;
 }
 
@@ -1500,7 +1470,6 @@ ServerComm::executeQuery( unsigned long callingClientId,
                           const char* query,
                           ExecuteQueryRes &returnStructure )
 {
-    RMDBGENTER( 4, RMDebug::module_servercomm, "ServerComm",  "executeQuery" )
     unsigned short returnValue=0;
 
     // set all to zero as default. They are not really applicable here.
@@ -1508,7 +1477,7 @@ ServerComm::executeQuery( unsigned long callingClientId,
     returnStructure.lineNo        = 0;
     returnStructure.columnNo      = 0;
 
-    RMInit::logOut << "Request: '" << query << "'..." << std::flush;
+    LINFO << "Request: '" << query << "'...";
 
     ClientTblElt* context = getClientContext( callingClientId );
 
@@ -1549,12 +1518,12 @@ ServerComm::executeQuery( unsigned long callingClientId,
             //
             // preprocess
             //
-            RMInit::logOut << "preprocessing..." << std::flush;
+            LINFO << "preprocessing...";
             ppInBuf = const_cast<char*>(query);
             ppreset();
             ppRet = ppparse();
 
-            RMInit::dbgOut << "new query: '" << ppOutBuf << "'..." << std::flush;
+            LTRACE << "new query: '" << ppOutBuf << "'...";
 
             // initialize the input string parameters
             beginParseString = ppOutBuf;
@@ -1568,7 +1537,7 @@ ServerComm::executeQuery( unsigned long callingClientId,
 
         yyreset();
 
-        RMInit::logOut << "parsing..." << std::flush;
+        LINFO << "parsing...";
 
         parserRet=yyparse(0);
         if((ppRet == 0) && (parserRet == 0))
@@ -1579,7 +1548,7 @@ ServerComm::executeQuery( unsigned long callingClientId,
                         qtree->printTree( 2, RMInit::logOut);
                        );
 
-                RMInit::logOut << "checking semantics..." << std::flush;
+                LINFO << "checking semantics...";
                 qtree->checkSemantics();
 
                 RMDBGIF(1, RMDebug::module_servercomm, "ServerComm::executeQuery", \
@@ -1592,7 +1561,7 @@ ServerComm::executeQuery( unsigned long callingClientId,
 #endif
                 //qtree->checkSemantics();
                 //qtree->printTree( 2, std::cout );
-                RMInit::logOut << "evaluating..." << std::flush;
+                LINFO << "evaluating...";
                 context->transferData = qtree->evaluateRetrieval();
             }
             catch( ParseInfo& info )
@@ -1613,7 +1582,7 @@ ServerComm::executeQuery( unsigned long callingClientId,
             }
             catch( r_Ebase_dbms& myErr )
             {
-                RMInit::logOut << "Error: base DBMS exception: " << myErr.what() << std::endl;
+                LERROR << "Error: base DBMS exception: " << myErr.what();
 
                 // release data
                 context->releaseTransferStructures();
@@ -1636,7 +1605,7 @@ ServerComm::executeQuery( unsigned long callingClientId,
             catch( r_Error& myErr )
             {
                 RMDBGIF(2, RMDebug::module_servercomm, "ServerComm",
-                    RMInit::logOut << "Error: " << myErr.get_errorno() << " " << myErr.what() << std::endl;)
+                    LERROR << "Error: " << myErr.get_errorno() << " " << myErr.what();)
 
                 // release data
                 context->releaseTransferStructures();
@@ -1658,7 +1627,7 @@ ServerComm::executeQuery( unsigned long callingClientId,
             }
             catch(std::bad_alloc)
             {
-                RMInit::logOut << "Error: cannot allocate memory." << std::endl;
+                LERROR << "Error: cannot allocate memory.";
 
                 // release data
                 context->releaseTransferStructures();
@@ -1678,7 +1647,7 @@ ServerComm::executeQuery( unsigned long callingClientId,
             }
             catch(...)
             {
-                RMInit::logOut << "Error: unspecific exception." << std::endl;
+                LERROR << "Error: unspecific exception.";
 
                 context->releaseTransferStructures();
                 context->release(); //!!!
@@ -1746,11 +1715,11 @@ ServerComm::executeQuery( unsigned long callingClientId,
 
                         strcpy(globalHTTPSetTypeStructure, returnStructure.typeStructure);
 
-                        RMInit::logOut << MSG_OK << ", result type '" << returnStructure.typeStructure << "', " << context->transferData->size() << " element(s)." << std::endl;
+                        LINFO << MSG_OK << ", result type '" << returnStructure.typeStructure << "', " << context->transferData->size() << " element(s).";
                     }
                     else
                     {
-                        RMInit::logOut << MSG_OK << ", result is empty." << std::endl;
+                        LINFO << MSG_OK << ", result is empty.";
                         returnValue = 2;         // evaluation ok, no elements
 
                         returnStructure.typeName      = strdup("");
@@ -1759,7 +1728,7 @@ ServerComm::executeQuery( unsigned long callingClientId,
                 }
                 else
                 {
-                    RMInit::logOut << MSG_OK << ", result is empty." << std::endl;
+                    LINFO << MSG_OK << ", result is empty.";
                     returnValue = 2;         // evaluation ok, no elements
                 }
             }
@@ -1768,7 +1737,7 @@ ServerComm::executeQuery( unsigned long callingClientId,
         {
             if(ppRet)
             {
-                RMInit::logOut << MSG_OK << ",result is empty." << std::endl;
+                LINFO << MSG_OK << ",result is empty.";
                 returnValue = 2;         // evaluation ok, no elements
             }
             else    // parse error
@@ -1787,7 +1756,7 @@ ServerComm::executeQuery( unsigned long callingClientId,
                 else
                 {
                     returnStructure.errorNo = 309;
-                    RMInit::logOut << "Internal Error: Unknown parse error.";
+                    LERROR << "Internal Error: Unknown parse error.";
                 }
 
                 yyreset(); // reset the input buffer of the scanner
@@ -1853,11 +1822,10 @@ ServerComm::executeQuery( unsigned long callingClientId,
     }
     else
     {
-        RMInit::logOut << "Error: client not registered." << std::endl;
+        LERROR << "Error: client not registered.";
         returnValue = 3;
     }
 
-    RMDBGEXIT( 4, RMDebug::module_servercomm, "ServerComm",  "executeQuery" )
     return returnValue;
 }
 
@@ -1866,10 +1834,9 @@ ServerComm::executeQuery( unsigned long callingClientId,
 unsigned short
 ServerComm::initExecuteUpdate( unsigned long callingClientId )
 {
-    RMDBGENTER( 4, RMDebug::module_servercomm, "ServerComm",  "initExecuteUpdate" )
     unsigned short returnValue = 0;
 
-    RMInit::logOut << "Request: 'initialize update'..." << std::flush;
+    LINFO << "Request: 'initialize update'...";
 
     ClientTblElt* context = getClientContext( callingClientId );
 
@@ -1889,15 +1856,14 @@ ServerComm::initExecuteUpdate( unsigned long callingClientId )
 
         context->release();
 
-        RMInit::logOut << MSG_OK << std::endl;
+        LINFO << MSG_OK;
     }
     else
     {
-        RMInit::logOut << "Error: client not registered." << std::endl;
+        LERROR << "Error: client not registered.";
         returnValue = 1;
     }
 
-    RMDBGEXIT( 4, RMDebug::module_servercomm, "ServerComm",  "initExecuteUpdate" )
     return returnValue;
 }
 
@@ -1908,19 +1874,17 @@ ServerComm::startInsertTransMDD( unsigned long callingClientId,
                                  r_Minterval   &domain, unsigned long typeLength,
                                  const char*   typeName )
 {
-    RMDBGENTER( 4, RMDebug::module_servercomm, "ServerComm",  "startInsertTransMDD" )
     unsigned short returnValue = 0;
 
-    RMInit::logOut << "Request: 'insert MDD', type '"
+    LINFO << "Request: 'insert MDD', type '"
                    << typeName <<"', domain " << domain << ", cell length " << typeLength  << ", "
-                   << domain.cell_count()*typeLength << " bytes..." << std::flush;
+                   << domain.cell_count()*typeLength << " bytes...";
 
     ClientTblElt* context = getClientContext( callingClientId );
 
     if( context != 0 )
     {
-
-        RMDBGMIDDLE(1, RMDebug::module_servercomm, "ServerComm", "startInsertTransMDD(...) TRANSFER " << context->transferFormat << ", EXACT " << (bool)context->exactFormat);
+        LTRACE << "startInsertTransMDD(...) TRANSFER " << context->transferFormat << ", EXACT " << (bool)context->exactFormat;
 
         // Determine the type of the MDD to be inserted.
         const MDDType* mddType = TypeFactory::mapMDDType( typeName );
@@ -1935,7 +1899,7 @@ ServerComm::startInsertTransMDD( unsigned long callingClientId,
                 {
                     // return error
                     returnValue = 3;
-                    RMInit::logOut << "Error: MDD type incompatible wrt. domain: " << domain << std::endl;
+                    LERROR << "Error: MDD type incompatible wrt. domain: " << domain;
 
                     context->release();
 
@@ -1945,17 +1909,17 @@ ServerComm::startInsertTransMDD( unsigned long callingClientId,
                 // create for further insertions
                 context->transferMDD = new MDDObj( mddBaseType, domain );
 
-                RMInit::logOut << MSG_OK << std::endl;
+                LINFO << MSG_OK;
             }
             else
             {
-                RMInit::logOut << "Error: MDD type has no base type." << std::endl;
+                LERROR << "Error: MDD type has no base type.";
                 returnValue = 2;
             }
         }
         else
         {
-            RMInit::logOut << "Error: MDD type not found." << std::endl;
+            LERROR << "Error: MDD type not found.";
             returnValue = 2;
         }
 
@@ -1963,11 +1927,10 @@ ServerComm::startInsertTransMDD( unsigned long callingClientId,
     }
     else
     {
-        RMInit::logOut << "Error: client not registered." << std::endl;
+        LERROR << "Error: client not registered.";
         returnValue = 1;
     }
 
-    RMDBGEXIT( 4, RMDebug::module_servercomm, "ServerComm",  "startInsertTransMDD" )
     return returnValue;
 }
 
@@ -1977,11 +1940,10 @@ unsigned short
 ServerComm::endInsertMDD( unsigned long callingClientId,
                           int isPersistent )
 {
-    RMDBGENTER( 4, RMDebug::module_servercomm, "ServerComm",  "endInsertMDD" )
     unsigned short returnValue = 0;
 
     RMDBGIF(4, RMDebug::module_servercomm, "ServerComm",
-        RMInit::logOut << "Request: 'end insert MDD'..." << std::flush;)
+        LINFO << "Request: 'end insert MDD'...";)
 
     ClientTblElt* context = getClientContext( callingClientId );
 
@@ -2012,17 +1974,16 @@ ServerComm::endInsertMDD( unsigned long callingClientId,
             // of MDD objects will be used as constants for executeUpdate().
         }
 
-        RMDBGIF(4, RMDebug::module_servercomm, "ServerComm", RMInit::logOut << MSG_OK << std::endl;)
+        RMDBGIF(4, RMDebug::module_servercomm, "ServerComm", LINFO << MSG_OK;)
 
         context->release();
     }
     else
     {
-        RMInit::logOut << "Error: client not registered." << std::endl;
+        LERROR << "Error: client not registered.";
         returnValue = 1;
     }
 
-    RMDBGEXIT( 4, RMDebug::module_servercomm, "ServerComm",  "endInsertMDD" )
     return returnValue;
 }
 
@@ -2033,9 +1994,7 @@ ServerComm::executeUpdate( unsigned long callingClientId,
                            const char* query,
                            ExecuteUpdateRes &returnStructure )
 {
-    RMDBGENTER( 4, RMDebug::module_servercomm, "ServerComm",  "executeUpdate" )
-
-    RMInit::logOut << "Request: '" << query << "'..." << std::flush;
+    LINFO << "Request: '" << query << "'...";
 
 #ifdef RMANBENCHMARK
     Tile::relTimer.start();
@@ -2071,15 +2030,15 @@ ServerComm::executeUpdate( unsigned long callingClientId,
             //
             // preprocess
             //
-            RMInit::logOut << "preprocessing..." << std::flush;
+            LINFO << "preprocessing...";
             ppInBuf = const_cast<char*>(query);
             ppreset();
             ppRet = ppparse();
 
             if(ppOutBuf)
-                RMInit::dbgOut << "new query: '" << ppOutBuf << "'" << std::endl;
+                LTRACE << "new query: '" << ppOutBuf << "'";
             else
-                RMInit::dbgOut << "new query: empty." << std::endl;
+                LTRACE << "new query: empty.";
 
             // initialize the input string parameters
             beginParseString = ppOutBuf;
@@ -2093,7 +2052,7 @@ ServerComm::executeUpdate( unsigned long callingClientId,
 
         yyreset();
 
-        RMInit::logOut << "parsing..." << std::flush;
+        LINFO << "parsing...";
 
         if( ppRet == 0 && yyparse(0) == 0 )
         {
@@ -2103,7 +2062,7 @@ ServerComm::executeUpdate( unsigned long callingClientId,
                         qtree->printTree( 2, RMInit::logOut );
                        );
 
-                RMInit::logOut << "checking semantics..." << std::flush;
+                LINFO << "checking semantics...";
 
                 qtree->checkSemantics();
 
@@ -2116,7 +2075,7 @@ ServerComm::executeUpdate( unsigned long callingClientId,
                     context->evaluationTimer = new RMTimer("ServerComm", "evaluation");
 #endif
 
-                RMInit::logOut << "evaluating..." << std::flush;
+                LINFO << "evaluating...";
 
                 vector<QtData*>* updateResult = qtree->evaluateUpdate();
 
@@ -2124,7 +2083,7 @@ ServerComm::executeUpdate( unsigned long callingClientId,
                 delete updateResult;
                 context->releaseTransferStructures();
 
-                RMInit::logOut << MSG_OK << std::endl;
+                LINFO << MSG_OK;
             }
             catch( ParseInfo& info )
             {
@@ -2146,7 +2105,7 @@ ServerComm::executeUpdate( unsigned long callingClientId,
                 context->releaseTransferStructures();
                 context->release();
                 RMDBGIF(2, RMDebug::module_servercomm, "ServerComm",
-                    RMInit::logOut << "Error: " << err.get_errorno() << " " << err.what() << std::endl;)
+                    LFATAL << "Error: " << err.get_errorno() << " " << err.what();)
                 throw;
             }
         }
@@ -2154,7 +2113,7 @@ ServerComm::executeUpdate( unsigned long callingClientId,
         {
             if(ppRet)
             {
-                RMInit::logOut << MSG_OK << std::endl;
+                LINFO << MSG_OK;
                 returnValue = 0;
             }
             else    // parse error
@@ -2173,7 +2132,7 @@ ServerComm::executeUpdate( unsigned long callingClientId,
                 else
                 {
                     returnStructure.errorNo = 309;
-                    RMInit::logOut << "Error: unspecific internal parser error." << endl;
+                    LERROR << "Error: unspecific internal parser error.";
                 }
 
                 yyreset(); // reset the input buffer of the scanner
@@ -2198,7 +2157,7 @@ ServerComm::executeUpdate( unsigned long callingClientId,
     }
     else
     {
-        RMInit::logOut << "Error: client not registered." << std::endl;
+        LERROR << "Error: client not registered.";
         returnValue = 1;
     }
 
@@ -2215,7 +2174,6 @@ ServerComm::executeUpdate( unsigned long callingClientId,
     Tile::relTimer.stop();
 #endif
 
-    RMDBGEXIT( 4, RMDebug::module_servercomm, "ServerComm",  "executeUpdate" )
     return returnValue;
 }
 
@@ -2224,9 +2182,7 @@ ServerComm::executeInsert ( unsigned long callingClientId,
                            const char* query,
                            ExecuteQueryRes &returnStructure )
 {
-    RMDBGENTER( 4, RMDebug::module_servercomm, "ServerComm",  "executeInsert (returning)" )
-
-    RMInit::logOut << "Request: '" << query << "'..." << std::flush;
+    LINFO << "Request: '" << query << "'...";
 
 #ifdef RMANBENCHMARK
     Tile::relTimer.start();
@@ -2262,15 +2218,15 @@ ServerComm::executeInsert ( unsigned long callingClientId,
             //
             // preprocess
             //
-            RMInit::logOut << "preprocessing..." << std::flush;
+            LINFO << "preprocessing...";
             ppInBuf = const_cast<char*>(query);
             ppreset();
             ppRet = ppparse();
 
             if(ppOutBuf)
-                RMInit::dbgOut << "new query: '" << ppOutBuf << "'" << std::endl;
+                LTRACE << "new query: '" << ppOutBuf << "'";
             else
-                RMInit::dbgOut << "new query: empty." << std::endl;
+                LTRACE << "new query: empty.";
 
             // initialize the input string parameters
             beginParseString = ppOutBuf;
@@ -2284,7 +2240,7 @@ ServerComm::executeInsert ( unsigned long callingClientId,
 
         yyreset();
 
-        RMInit::logOut << "parsing..." << std::flush;
+        LINFO << "parsing...";
 
         if( ppRet == 0 && yyparse(0) == 0 )
         {
@@ -2294,7 +2250,7 @@ ServerComm::executeInsert ( unsigned long callingClientId,
                         qtree->printTree( 2, RMInit::logOut );
                        );
 
-                RMInit::logOut << "checking semantics..." << std::flush;
+                LINFO << "checking semantics...";
 
                 qtree->checkSemantics();
 
@@ -2307,7 +2263,7 @@ ServerComm::executeInsert ( unsigned long callingClientId,
                     context->evaluationTimer = new RMTimer("ServerComm", "evaluation");
 #endif
 
-                RMInit::logOut << "evaluating..." << std::flush;
+                LINFO << "evaluating...";
 
                 context->transferData = qtree->evaluateUpdate();
             }
@@ -2331,7 +2287,7 @@ ServerComm::executeInsert ( unsigned long callingClientId,
                 context->releaseTransferStructures();
                 context->release();
                 RMDBGIF(2, RMDebug::module_servercomm, "ServerComm",
-                    RMInit::logOut << "Error: " << err.get_errorno() << " " << err.what() << std::endl;)
+                    LFATAL << "Error: " << err.get_errorno() << " " << err.what();)
                 throw;
             }
 
@@ -2383,11 +2339,11 @@ ServerComm::executeInsert ( unsigned long callingClientId,
 
                         strcpy(globalHTTPSetTypeStructure, returnStructure.typeStructure);
 
-                        RMInit::logOut << MSG_OK << ", result type '" << returnStructure.typeStructure << "', " << context->transferData->size() << " element(s)." << std::endl;
+                        LINFO << MSG_OK << ", result type '" << returnStructure.typeStructure << "', " << context->transferData->size() << " element(s).";
                     }
                     else
                     {
-                        RMInit::logOut << MSG_OK << ", result is empty." << std::endl;
+                        LINFO << MSG_OK << ", result is empty.";
                         returnValue = 2;         // evaluation ok, no elements
 
                         returnStructure.typeName      = strdup("");
@@ -2396,7 +2352,7 @@ ServerComm::executeInsert ( unsigned long callingClientId,
                 }
                 else
                 {
-                    RMInit::logOut << MSG_OK << ", result is empty." << std::endl;
+                    LINFO << MSG_OK << ", result is empty.";
                     returnValue = 2;         // evaluation ok, no elements
                 }
             }
@@ -2405,7 +2361,7 @@ ServerComm::executeInsert ( unsigned long callingClientId,
         {
             if(ppRet)
             {
-                RMInit::logOut << MSG_OK << std::endl;
+                LINFO << MSG_OK;
                 returnValue = 2;
             }
             else    // parse error
@@ -2424,7 +2380,7 @@ ServerComm::executeInsert ( unsigned long callingClientId,
                 else
                 {
                     returnStructure.errorNo = 309;
-                    RMInit::logOut << "Error: unspecific internal parser error." << endl;
+                    LERROR << "Error: unspecific internal parser error.";
                 }
 
                 yyreset(); // reset the input buffer of the scanner
@@ -2457,7 +2413,7 @@ ServerComm::executeInsert ( unsigned long callingClientId,
     }
     else
     {
-        RMInit::logOut << "Error: client not registered." << std::endl;
+        LERROR << "Error: client not registered.";
         returnValue = 3;
     }
 
@@ -2474,7 +2430,6 @@ ServerComm::executeInsert ( unsigned long callingClientId,
     Tile::relTimer.stop();
 #endif
 
-    RMDBGEXIT( 4, RMDebug::module_servercomm, "ServerComm",  "executeUpdate" )
     return returnValue;
 }
 
@@ -2488,9 +2443,7 @@ ServerComm::getCollByName( unsigned long callingClientId,
                            char*         &typeStructure,
                            r_OId         &oid             )
 {
-    RMDBGENTER( 4, RMDebug::module_servercomm, "ServerComm",  "ServerComm::getCollByName" )
-
-    RMInit::logOut << "Request: 'get collection by name', name = " << collName << "'..." << std::flush;
+    LINFO << "Request: 'get collection by name', name = " << collName << "'...";
 
     unsigned short returnValue=0;
 
@@ -2509,25 +2462,25 @@ ServerComm::getCollByName( unsigned long callingClientId,
         try
         {
             context->transferColl = MDDColl::getMDDCollection( collName );
-            RMDBGMIDDLE( 4, RMDebug::module_server, "ServerComm", "retrieved mdd collection" )
+            LTRACE << "retrieved mdd collection";
         }
         catch(std::bad_alloc)
         {
-            RMInit::logOut << "Error: cannot allocate memory." << std::endl;
+            LFATAL << "Error: cannot allocate memory.";
             context->release(); //!!!
             throw;
         }
         catch (r_Error& err)
         {
             RMDBGIF(2, RMDebug::module_servercomm, "ServerComm",
-                RMInit::logOut << "Error " << err.get_errorno() << " " << err.what() << std::endl;)
+                LFATAL << "Error " << err.get_errorno() << " " << err.what();)
             context->release(); //!!!
             throw;
         }
         catch(...)
         {
             returnValue = 2;  // collection name invalid
-            RMInit::logOut << "Error: unspecific exception." << std::endl;
+            LERROR << "Error: unspecific exception.";
         }
 
         if( returnValue == 0 )
@@ -2554,18 +2507,18 @@ ServerComm::getCollByName( unsigned long callingClientId,
                             oid = r_OId( eOId.getSystemName(), eOId.getBaseName(), eOId.getOId() );
                     }
                 }
-                RMInit::logOut << MSG_OK << std::endl;
+                LINFO << MSG_OK;
             }
             else
             {
-                RMInit::logOut << "Warning: cannot obtain collection type information." << endl;
+                LWARNING << "Warning: cannot obtain collection type information.";
                 typeName      = strdup("");
                 typeStructure = strdup("");
             }
 
             if( !context->transferCollIter->notDone() )
             {
-                RMInit::logOut << MSG_OK << ", result empty.";
+                LINFO << MSG_OK << ", result empty.";
                 returnValue = 1;
 
                 // delete transfer collection/iterator
@@ -2581,11 +2534,9 @@ ServerComm::getCollByName( unsigned long callingClientId,
     }
     else
     {
-        RMInit::logOut << "Error: client not registered." << std::endl;
+        LERROR << "Error: client not registered.";
         returnValue = 3;
     }
-
-    RMDBGEXIT( 4, RMDebug::module_servercomm, "ServerComm",  " ServerComm::getCollByName" )
 
     return returnValue;
 }
@@ -2599,9 +2550,7 @@ ServerComm::getCollByOId( unsigned long callingClientId,
                           char*         &typeStructure,
                           char*         &collName       )
 {
-    RMDBGENTER( 4, RMDebug::module_servercomm, "ServerComm",  " ServerComm::getCollByOId" )
-
-    RMInit::logOut << "Request: 'get collection by OID', oid = " << oid << "..." << std::flush;
+    LINFO << "Request: 'get collection by OID', oid = " << oid << "...";
 
     unsigned short returnValue=0;
 
@@ -2624,26 +2573,25 @@ ServerComm::getCollByOId( unsigned long callingClientId,
 
             try
             {
-                RMDBGMIDDLE( 4, RMDebug::module_server, "ServerComm",
-                             std::endl << "  execute new PersMDDColl(" << oid << ")" )
+                LTRACE << "  execute new PersMDDColl(" << oid << ")";
                 context->transferColl = MDDColl::getMDDCollection(oidIf);
-                RMDBGMIDDLE( 4, RMDebug::module_server, "ServerComm", "  ok" )
+                LTRACE << "  ok";
             }
             catch(std::bad_alloc)
             {
-                RMInit::logOut << "Error: cannot allocate memory." << std::endl;
+                LFATAL << "Error: cannot allocate memory.";
                 throw;
             }
             catch (r_Error& err)
             {
                 RMDBGIF(2, RMDebug::module_servercomm, "ServerComm",
-                    RMInit::logOut << "Error " << err.get_errorno() << " " << err.what() << std::endl;)
+                    LFATAL << "Error " << err.get_errorno() << " " << err.what();)
                 throw;
             }
             catch(...)  // not found (?)
             {
                 returnValue = 2;
-                RMInit::logOut << "Error: unspecific exception." << endl;
+                LERROR << "Error: unspecific exception.";
             }
 
             //
@@ -2675,18 +2623,18 @@ ServerComm::getCollByOId( unsigned long callingClientId,
                         if (context->transferColl->getEOId(eOId) == true)
                             oid = r_OId( eOId.getSystemName(), eOId.getBaseName(), eOId.getOId() );
                     }
-                    RMInit::logOut << MSG_OK << std::endl;
+                    LINFO << MSG_OK;
                 }
                 else
                 {
-                    RMInit::logOut << MSG_OK << ", but warning: cannot obtain type information." << endl;
+                    LINFO << MSG_OK << ", but warning: cannot obtain type information.";
                     typeName      = strdup("");
                     typeStructure = strdup("");
                 }
 
                 if( !context->transferCollIter->notDone() )
                 {
-                    RMInit::logOut << MSG_OK << ", result empty." << endl;
+                    LINFO << MSG_OK << ", result empty.";
                     returnValue = 1;
 
                     // delete transfer collection/iterator
@@ -2698,7 +2646,7 @@ ServerComm::getCollByOId( unsigned long callingClientId,
         else
         {
             returnValue = 2; // oid does not belong to a collection object
-            RMInit::logOut << "Error: oid does not belong to a collection object." << std::endl;
+            LERROR << "Error: oid does not belong to a collection object.";
         }
 
         //
@@ -2709,11 +2657,9 @@ ServerComm::getCollByOId( unsigned long callingClientId,
     }
     else
     {
-        RMInit::logOut << "Error: client not registered." << std::endl;
+        LERROR << "Error: client not registered.";
         returnValue = 3;
     }
-
-    RMDBGEXIT( 4, RMDebug::module_servercomm, "ServerComm",  " ServerComm::getCollByOId" )
 
     return returnValue;
 }
@@ -2729,9 +2675,7 @@ ServerComm::getCollOIdsByName( unsigned long callingClientId,
                                RPCOIdEntry*  &oidTable,
                                unsigned int  &oidTableSize     )
 {
-    RMDBGENTER( 4, RMDebug::module_servercomm, "ServerComm",  "getCollOIdsByName" )
-
-    RMInit::logOut << "Request: 'get collection OIds by name', name = " << collName << "'..." << std::flush;
+    LINFO << "Request: 'get collection OIds by name', name = " << collName << "'...";
 
     unsigned short returnValue=0;
 
@@ -2748,40 +2692,40 @@ ServerComm::getCollOIdsByName( unsigned long callingClientId,
 
         try
         {
-            RMDBGMIDDLE( 4, RMDebug::module_server, "ServerComm", "retrieving collection " << collName)
+            LTRACE << "retrieving collection " << collName;
             almost = MDDColl::getMDDCollection( collName );
-            RMDBGMIDDLE( 4, RMDebug::module_server, "ServerComm", "retrieved collection " << collName)
+            LTRACE << "retrieved collection " << collName;
             if (!almost->isPersistent())
             {
-                RMDBGMIDDLE( 4, RMDebug::module_server, "ServerComm", "retrieved system collection")
-                RMInit::logOut << "Error: trying to get oid of system collection: " << collName << std::endl;
+                LTRACE << "retrieved system collection";
+                LFATAL << "Error: trying to get oid of system collection: " << collName;
                 throw r_Error(SYSTEM_COLLECTION_HAS_NO_OID);
             }
             else
             {
-                RMDBGMIDDLE( 4, RMDebug::module_server, "ServerComm", "retrieved persistent collection")
+                LTRACE << "retrieved persistent collection";
                 coll = static_cast<MDDColl*>(almost);
             }
         }
         catch(std::bad_alloc)
         {
-            RMInit::logOut << "Error: cannot allocate memory." << std::endl;
+            LFATAL << "Error: cannot allocate memory.";
             throw;
         }
         catch (r_Error& err)
         {
-            RMDBGMIDDLE( 4, RMDebug::module_server, "ServerComm", "caught exception")
+            LTRACE << "caught exception";
             RMDBGIF(2, RMDebug::module_servercomm, "ServerComm",
-               RMInit::logOut << "Error " << err.get_errorno() << ": " << err.what() << std::endl;)
+               LERROR << "Error " << err.get_errorno() << ": " << err.what();)
             returnValue = 2;  // collection name invalid
         }
         catch(...)
         {
-            RMDBGMIDDLE( 4, RMDebug::module_server, "ServerComm", "caught exception")
+            LTRACE << "caught exception";
             returnValue = 2;  // collection name invalid
-            RMInit::logOut << "Error: unspecific exception." << std::endl;
+            LERROR << "Error: unspecific exception.";
         }
-        RMDBGMIDDLE( 4, RMDebug::module_server, "ServerComm", "after exception catching")
+        LTRACE << "after exception catching";
 
         if( returnValue == 0 )
         {
@@ -2801,7 +2745,7 @@ ServerComm::getCollOIdsByName( unsigned long callingClientId,
             }
             else
             {
-                RMInit::logOut << "Warning: no type information available..." << std::flush;
+                LWARNING << "Warning: no type information available...";
                 typeName      = strdup("");
                 typeStructure = strdup("");
             }
@@ -2815,7 +2759,7 @@ ServerComm::getCollOIdsByName( unsigned long callingClientId,
                 oidTableSize = coll->getCardinality();
                 oidTable     = static_cast<RPCOIdEntry*>(mymalloc( sizeof(RPCOIdEntry) * oidTableSize ));
 
-                TALK( oidTableSize << " elements..." );
+                LDEBUG << oidTableSize << " elements..." ;
 
                 for( collIter->reset(), i=0; collIter->notDone(); collIter->advance(), i++ )
                 {
@@ -2837,11 +2781,11 @@ ServerComm::getCollOIdsByName( unsigned long callingClientId,
 
                 delete collIter;
 
-                RMInit::logOut << MSG_OK << ", " << coll->getCardinality() << " result(s)." << endl;
+                LINFO << MSG_OK << ", " << coll->getCardinality() << " result(s).";
             }
             else
             {
-                RMInit::logOut << MSG_OK << ", result empty." << endl;
+                LINFO << MSG_OK << ", result empty.";
                 returnValue = 1;
             }
 
@@ -2856,11 +2800,9 @@ ServerComm::getCollOIdsByName( unsigned long callingClientId,
     }
     else
     {
-        RMInit::logOut << "Error: client not registered." << std::endl;
+        LERROR << "Error: client not registered.";
         returnValue = 3;
     }
-
-    RMDBGEXIT( 4, RMDebug::module_servercomm, "ServerComm",  "getCollOIdsByName " << returnValue)
 
     return returnValue;
 }
@@ -2875,9 +2817,7 @@ ServerComm::getCollOIdsByOId( unsigned long callingClientId,
                               unsigned int  &oidTableSize,
                               char*         &collName        )
 {
-    RMDBGENTER( 4, RMDebug::module_servercomm, "ServerComm",  "getCollOIdsByOId" )
-
-    RMInit::logOut << "Request: 'get collection OIDs by OId', oid = " << oid << "..." << std::flush;
+    LINFO << "Request: 'get collection OIDs by OId', oid = " << oid << "...";
 
     unsigned short returnValue=0;
 
@@ -2899,19 +2839,19 @@ ServerComm::getCollOIdsByOId( unsigned long callingClientId,
 
             try
             {
-                RMDBGMIDDLE( 4, RMDebug::module_server, "ServerComm", "get mdd coll by oid " << oidIf)
+                LTRACE << "get mdd coll by oid " << oidIf;
                 coll = MDDColl::getMDDCollection(oidIf);
-                RMDBGMIDDLE( 4, RMDebug::module_server, "ServerComm", "retrieved mdd coll" )
+                LTRACE << "retrieved mdd coll";
             }
             catch(std::bad_alloc)
             {
-                RMInit::logOut << "Error: cannot allocate memory." << std::endl;
+                LFATAL << "Error: cannot allocate memory.";
                 throw;
             }
             catch (r_Error& err)
             {
                 RMDBGIF(2, RMDebug::module_servercomm, "ServerComm",
-                    RMInit::logOut << "Error " << err.get_errorno() << ": " << err.what() << std::endl;)
+                    LERROR << "Error " << err.get_errorno() << ": " << err.what();)
                 returnValue = 2;  // collection name invalid
                 if (err.get_kind() != r_Error::r_Error_RefNull)
                     throw;
@@ -2919,7 +2859,7 @@ ServerComm::getCollOIdsByOId( unsigned long callingClientId,
             catch(...)
             {
                 returnValue = 2;  // collection name invalid
-                RMInit::logOut << "Error: unknown collection name." << std::endl;
+                LERROR << "Error: unknown collection name.";
             }
 
             if( returnValue == 0 )
@@ -2943,7 +2883,7 @@ ServerComm::getCollOIdsByOId( unsigned long callingClientId,
                 }
                 else
                 {
-                    RMInit::logOut << "Warning: no type information available..." << std::flush;
+                    LWARNING << "Warning: no type information available...";
                     typeName      = strdup("");
                     typeStructure = strdup("");
                 }
@@ -2957,7 +2897,7 @@ ServerComm::getCollOIdsByOId( unsigned long callingClientId,
                     oidTableSize = coll->getCardinality();
                     oidTable     = static_cast<RPCOIdEntry*>(mymalloc( sizeof(RPCOIdEntry) * oidTableSize ));
 
-                    TALK( oidTableSize << " elements..." );
+                    LDEBUG << oidTableSize << " elements..." ;
 
                     for( collIter->reset(), i=0; collIter->notDone(); collIter->advance(), i++ )
                     {
@@ -2979,11 +2919,11 @@ ServerComm::getCollOIdsByOId( unsigned long callingClientId,
                     delete collIter;
                     //coll->releaseAll();
 
-                    RMInit::logOut << MSG_OK << ", " << coll->getCardinality() << " result(s)." << endl;
+                    LINFO << MSG_OK << ", " << coll->getCardinality() << " result(s).";
                 }
                 else
                 {
-                    RMInit::logOut << MSG_OK << ", result empty." << endl;
+                    LINFO << MSG_OK << ", result empty.";
                     returnValue = 1;
                 }
 
@@ -2993,7 +2933,7 @@ ServerComm::getCollOIdsByOId( unsigned long callingClientId,
         else
         {
             returnValue = 2; // oid does not belong to a collection object
-            RMInit::logOut << "Error: not a collection oid: " << oid << std::endl;
+            LERROR << "Error: not a collection oid: " << oid;
         }
 
         //
@@ -3004,11 +2944,10 @@ ServerComm::getCollOIdsByOId( unsigned long callingClientId,
     }
     else
     {
-        RMInit::logOut << "Error: client not registered." << std::endl;
+        LERROR << "Error: client not registered.";
         returnValue = 3;
     }
 
-    RMDBGEXIT( 4, RMDebug::module_servercomm, "ServerComm",  "getCollOIdsByOId " << returnValue)
     return returnValue;
 }
 
@@ -3022,10 +2961,8 @@ ServerComm::getNextMDD( unsigned long   callingClientId,
                         r_OId           &oid,
                         unsigned short  &currentFormat     )
 {
-    RMDBGENTER( 4, RMDebug::module_servercomm, "ServerComm",  "getNextMDD" )
-
     RMDBGIF(4, RMDebug::module_servercomm, "ServerComm",
-        RMInit::logOut << "Request (continuing): 'get next MDD'..." << std::flush;)
+        LINFO << "Request (continuing): 'get next MDD'...";)
 
     unsigned short returnValue = 0;
 
@@ -3048,7 +2985,7 @@ ServerComm::getNextMDD( unsigned long   callingClientId,
                 // initialize mddDomain to give it back
                 mddDomain = mddData->getLoadDomain();
 
-                TALK( "domain " << mddDomain );
+                LDEBUG << "domain " << mddDomain;
 
                 //
                 // initialize tiles to transfer
@@ -3134,7 +3071,7 @@ ServerComm::getNextMDD( unsigned long   callingClientId,
 
                 const BaseType* baseType = mddObj->getCellType();
 
-                TALK( "cell length " << baseType->getSize() );
+                LDEBUG << "cell length " << baseType->getSize();
 
                 //
                 // set typeName and typeStructure
@@ -3179,12 +3116,12 @@ ServerComm::getNextMDD( unsigned long   callingClientId,
                 if( context->transTiles->size() > 0 )
                 {
                     RMDBGIF(4, RMDebug::module_servercomm, "ServerComm",
-                        RMInit::logOut << MSG_OK << ", " << context->transTiles->size() << " more tile(s)" << endl;)
+                        LINFO << MSG_OK << ", " << context->transTiles->size() << " more tile(s)";)
                 }
                 else   // context->transTiles->size() == 0
                 {
                     returnValue = 2;
-                    RMInit::logOut << "Error: no tiles in MDD object." << std::endl;
+                    LERROR << "Error: no tiles in MDD object.";
                 }
 
                 context->totalTransferedSize = 0;
@@ -3196,13 +3133,13 @@ ServerComm::getNextMDD( unsigned long   callingClientId,
                 {
                     returnValue = 1;  // nothing left in the collection
                     RMDBGIF(4, RMDebug::module_servercomm, "ServerComm",
-                        RMInit::logOut << MSG_OK << ", no more tiles." << std::endl;)
+                        LINFO << MSG_OK << ", no more tiles.";)
                     context->releaseTransferStructures();
                 }
                 else
                 {
                     returnValue = 2;  // no actual transfer collection
-                    RMInit::logOut << "Error: no transfer collection. " << std::endl;
+                    LERROR << "Error: no transfer collection. ";
                 }
             }
 
@@ -3214,34 +3151,31 @@ ServerComm::getNextMDD( unsigned long   callingClientId,
         }
         catch( r_Ebase_dbms& myErr )
         {
-            RMInit::logOut << "Error: base DBMS exception (kind " << static_cast<unsigned int>(myErr.get_kind()) << ", errno " << myErr.get_errorno() << ") " << myErr.what() << std::endl;
+            LFATAL << "Error: base DBMS exception (kind " << static_cast<unsigned int>(myErr.get_kind()) << ", errno " << myErr.get_errorno() << ") " << myErr.what();
             returnValue = 42;
             throw;
         }
         catch( r_Error& myErr )
         {
             RMDBGIF(2, RMDebug::module_servercomm, "ServerComm",
-                RMInit::logOut << "Error: (kind " << myErr.get_kind() << ", errno " << myErr.get_errorno() << ") " << myErr.what() << std::endl;)
+                LFATAL << "Error: (kind " << myErr.get_kind() << ", errno " << myErr.get_errorno() << ") " << myErr.what();)
             throw;
         }
         catch(std::bad_alloc)
         {
-            RMInit::logOut << "Error: cannot allocate memory." << std::endl;
+            LFATAL << "Error: cannot allocate memory.";
             throw;
         }
         catch(...)
         {
-            RMInit::logOut << "Error: unspecified exception." << std::endl;
+            LERROR << "Error: unspecified exception.";
         }
     }
     else
     {
-        RMInit::logOut << "Error: client not registered." << std::endl;
+        LERROR << "Error: client not registered.";
         returnValue = 2;
     }
-
-
-    RMDBGEXIT( 4, RMDebug::module_servercomm, "ServerComm",  "getNextMDD" )
 
     return returnValue;
 }
@@ -3250,8 +3184,6 @@ void
 ServerComm::getNextStructElement( char*     &buffer,
                             BaseType*       baseType)
 {
-    RMDBGENTER(1, RMDebug::module_servercomm, "ServerComm", "getNextStructElement(...)")
-
     switch (baseType->getType())
     {
     case USHORT:
@@ -3316,13 +3248,9 @@ ServerComm::getNextStructElement( char*     &buffer,
         break;
 
     default:
-    {
-        RMDBGENTER(0, RMDebug::module_servercomm, "ServerComm", "getNextStructElement(...) bad dataType " << baseType->getType());
-    }
         break;
     }
 
-    RMDBGEXIT(1, RMDebug::module_servercomm, "ServerComm", "getNextStructElement(...)")
 }
 
 unsigned short
@@ -3330,10 +3258,8 @@ ServerComm::getNextElement( unsigned long   callingClientId,
                             char*           &buffer,
                             unsigned int    &bufferSize)
 {
-    RMDBGENTER(1, RMDebug::module_servercomm, "ServerComm", "getNextElement(...)")
-
     RMDBGIF(4, RMDebug::module_servercomm, "ServerComm",
-        RMInit::logOut << "Request (continuing): 'get next element'..." << std::flush;)
+        LINFO << "Request (continuing): 'get next element'...";)
 
     unsigned short returnValue = 0;
 
@@ -3341,7 +3267,7 @@ ServerComm::getNextElement( unsigned long   callingClientId,
 
     if( context != 0 )
     {
-        RMDBGMIDDLE(1, RMDebug::module_servercomm, "ServerComm", "getNextElement(...) TRANSFER " << context->transferFormat << ", EXACT " << (bool)context->exactFormat);
+        LTRACE << "getNextElement(...) TRANSFER " << context->transferFormat << ", EXACT " << (bool)context->exactFormat;
 
         if( context->transferData && context->transferDataIter &&
                 *(context->transferDataIter) != context->transferData->end() )
@@ -3413,7 +3339,7 @@ ServerComm::getNextElement( unsigned long   callingClientId,
                         //  if((context->clientId == 1) && (strcmp(context->clientIdText, ServerComm::HTTPCLIENT) == 0) &&  (serverEndian != r_Endian::r_Endian_Big))
                         if( (strcmp(context->clientIdText, ServerComm::HTTPCLIENT) == 0) && (serverEndian != r_Endian::r_Endian_Big))
                         {
-                            RMDBGIF(4, RMDebug::module_servercomm, "ServerComm", RMInit::logOut << "changing endianness..." << std::flush;)
+                            RMDBGIF(4, RMDebug::module_servercomm, "ServerComm", LINFO << "changing endianness...";)
                             // calling client is a http-client(java -> always BigEndian) and server has LittleEndian
                             switch(scalarDataObj->getDataType())
                             {
@@ -3481,9 +3407,6 @@ ServerComm::getNextElement( unsigned long   callingClientId,
                             break;
 
                             default:
-                            {
-                                RMDBGENTER( 0, RMDebug::module_servercomm, "ServerComm",  "getNextElement(...) bad dataType "  << scalarDataObj->getDataType());
-                            }
                             break;
                             }
                         }
@@ -3493,13 +3416,13 @@ ServerComm::getNextElement( unsigned long   callingClientId,
             }
             catch( r_Ebase_dbms& myErr)
             {
-                RMInit::logOut << "Error: base BMS exception (kind " << static_cast<unsigned int>(myErr.get_kind()) << ", errno " << myErr.get_errorno() << ") " << myErr.what() << std::endl;
+                LFATAL << "Error: base BMS exception (kind " << static_cast<unsigned int>(myErr.get_kind()) << ", errno " << myErr.get_errorno() << ") " << myErr.what();
                 throw;
             }
             catch (r_Error& err)
             {
                 RMDBGIF(2, RMDebug::module_servercomm, "ServerComm",
-                    RMInit::logOut << "Error: exception (kind " << err.get_kind() << ", errno " << err.get_errorno() << ") " << err.what() << std::endl;)
+                    LFATAL << "Error: exception (kind " << err.get_kind() << ", errno " << err.get_errorno() << ") " << err.what();)
                 throw;
             }
 
@@ -3509,12 +3432,12 @@ ServerComm::getNextElement( unsigned long   callingClientId,
             if( *(context->transferDataIter) != context->transferData->end() )
             {
                 returnValue = 0;
-                RMDBGIF(4, RMDebug::module_servercomm, "ServerComm", RMInit::logOut << MSG_OK << ", some more tile(s) left." << endl;)
+                RMDBGIF(4, RMDebug::module_servercomm, "ServerComm", LINFO << MSG_OK << ", some more tile(s) left.";)
             }
             else
             {
                 returnValue = 1;
-                RMDBGIF(4, RMDebug::module_servercomm, "ServerComm", RMInit::logOut << MSG_OK << ", no more tiles." << std::endl;)
+                RMDBGIF(4, RMDebug::module_servercomm, "ServerComm", LINFO << MSG_OK << ", no more tiles.";)
             }
         }
         else
@@ -3522,13 +3445,13 @@ ServerComm::getNextElement( unsigned long   callingClientId,
             if( context->transferDataIter && *(context->transferDataIter) == context->transferData->end() )
             {
                 returnValue = 1;  // nothing left in the collection
-                TALK( "nothing left..." << MSG_OK );
+                LDEBUG << "nothing left..." << MSG_OK;
                 context->releaseTransferStructures();
             }
             else
             {
                 returnValue = 2;  // no actual transfer collection
-                RMInit::logOut << "Error: no transfer collection." << endl;
+                LERROR << "Error: no transfer collection.";
             }
         }
 
@@ -3540,11 +3463,10 @@ ServerComm::getNextElement( unsigned long   callingClientId,
     }
     else
     {
-        RMInit::logOut << "Error: client not registered." << std::endl;
+        LERROR << "Error: client not registered.";
         returnValue = 2;
     }
 
-    RMDBGEXIT(1, RMDebug::module_servercomm, "ServerComm", "getNextElement(...)")
     return returnValue;
 }
 
@@ -3558,10 +3480,8 @@ ServerComm::getMDDByOId( unsigned long   callingClientId,
                          char*           &typeStructure,
                          unsigned short  &currentFormat   )
 {
-    RMDBGENTER( 4, RMDebug::module_servercomm, "ServerComm",  "getMDDByOId" )
-
     RMDBGIF(4, RMDebug::module_servercomm, "ServerComm",
-        RMInit::logOut << "Request: 'get MDD by OId', oid = " << oid << "..." << std::flush;)
+        LINFO << "Request: 'get MDD by OId', oid = " << oid << "...";)
 
     unsigned short returnValue = 0;
 
@@ -3585,21 +3505,21 @@ ServerComm::getMDDByOId( unsigned long   callingClientId,
             }
             catch(std::bad_alloc)
             {
-                RMInit::logOut << "Error: cannot allocate memory." << std::endl;
+                LFATAL << "Error: cannot allocate memory.";
                 context->release();
                 throw;
             }
             catch (r_Error& err)
             {
                 RMDBGIF(2, RMDebug::module_servercomm, "ServerComm",
-                    RMInit::logOut << "Error: (kind " << err.get_kind() << ", errno " << err.get_errorno() << ") " << err.what() << std::endl;)
+                    LFATAL << "Error: (kind " << err.get_kind() << ", errno " << err.get_errorno() << ") " << err.what();)
                 context->release();
                 throw;
             }
             catch(...)
             {
                 returnValue = 2;
-                RMInit::logOut << "Error: unspecified exception." << endl;
+                LERROR << "Error: unspecified exception.";
             }
 
             if( !returnValue )
@@ -3611,7 +3531,7 @@ ServerComm::getMDDByOId( unsigned long   callingClientId,
                 // initialize mddDomain to give it back
                 mddDomain = context->transferMDD->getCurrentDomain();
 
-                TALK( "domain " << mddDomain );
+                LDEBUG << "domain " << mddDomain;
 
                 // initialize context fields
                 // This is a hack. The mddObj is a part of context->transferDataIter and it will
@@ -3626,7 +3546,7 @@ ServerComm::getMDDByOId( unsigned long   callingClientId,
 
                 const BaseType* baseType = context->transferMDD->getCellType();
 
-                TALK( "cell length " << baseType->getSize() );
+                LDEBUG << "cell length " << baseType->getSize();
 
                 //
                 // set typeName and typeStructure
@@ -3671,19 +3591,19 @@ ServerComm::getMDDByOId( unsigned long   callingClientId,
                 if( context->transTiles->size() > 0 )
                 {
                     RMDBGIF(4, RMDebug::module_servercomm, "ServerComm",
-                        RMInit::logOut << MSG_OK << ", got " << context->transTiles->size() << " tile(s)." << endl;)
+                        LINFO << MSG_OK << ", got " << context->transTiles->size() << " tile(s).";)
                 }
                 else   // context->transTiles->size() == 0
                 {
                     returnValue = 3;
-                    RMInit::logOut << "Error: no tiles in MDD object." << endl;
+                    LERROR << "Error: no tiles in MDD object.";
                 }
             }
         }
         else
         {
             returnValue = 2; // oid does not belong to an MDD object
-            RMInit::logOut << "Error: oid does not belong to an MDD object." << endl;
+            LERROR << "Error: oid does not belong to an MDD object.";
         }
 
         //
@@ -3694,14 +3614,12 @@ ServerComm::getMDDByOId( unsigned long   callingClientId,
     }
     else
     {
-        RMInit::logOut << "Error: client not registered." << std::endl;
+        LERROR << "Error: client not registered.";
         returnValue = 1; // client context not found
     }
 
     context->totalRawSize = 0;
     context->totalTransferedSize = 0;
-
-    RMDBGEXIT( 4, RMDebug::module_servercomm, "ServerComm",  "getMDDByOId" )
 
     return returnValue;
 }
@@ -3712,10 +3630,8 @@ unsigned short
 ServerComm::getNextTile( unsigned long   callingClientId,
                          RPCMarray**     rpcMarray )
 {
-    RMDBGENTER( 4, RMDebug::module_servercomm, "ServerComm",  "getNextTile" )
-
     RMDBGIF(4, RMDebug::module_servercomm, "ServerComm",
-        RMInit::logOut << "Request (continuing): 'get next tile',..." << std::flush;)
+        LINFO << "Request (continuing): 'get next tile',...";)
 
     unsigned long  transOffset = 0;
     unsigned long  transSize = 0;
@@ -3757,7 +3673,7 @@ ServerComm::getNextTile( unsigned long   callingClientId,
                 //this is bad because useTransData is char* although it is not modified
                 useTransData = static_cast<char*>(resultTile->getContents());
                 (*rpcMarray)->currentFormat = resultTile->getDataFormat();
-                RMDBGMIDDLE(4, RMDebug::module_servercomm, "ServerComm", "using tile format " << (r_Data_Format)(*rpcMarray)->currentFormat)
+                LTRACE << "using tile format " << (r_Data_Format)(*rpcMarray)->currentFormat;
             }
             else
             {
@@ -3765,12 +3681,12 @@ ServerComm::getNextTile( unsigned long   callingClientId,
                 useTransData = context->encodedData;
                 (*rpcMarray)->currentFormat = context->transferFormat;
                 //FILE *fp = fopen("trans_data.raw", "wb"); fwrite(useTransData, 1, totalSize, fp); fclose(fp);
-                RMDBGMIDDLE(4, RMDebug::module_servercomm, "ServerComm", "using transfer format " << (r_Data_Format)(*rpcMarray)->currentFormat)
+                LTRACE << "using transfer format " << (r_Data_Format)(*rpcMarray)->currentFormat;
             }
             // Preserve storage format
             (*rpcMarray)->storageFormat = resultTile->getDataFormat();
-            RMDBGMIDDLE(4, RMDebug::module_servercomm, "ServerComm", "rpc storage  " << (r_Data_Format)(*rpcMarray)->storageFormat)
-            RMDBGMIDDLE(4, RMDebug::module_servercomm, "ServerComm", "rpc current  " << (r_Data_Format)(*rpcMarray)->currentFormat)
+            LTRACE << "rpc storage  " << (r_Data_Format)(*rpcMarray)->storageFormat;
+            LTRACE << "rpc current  " << (r_Data_Format)(*rpcMarray)->currentFormat;
 
             transSize = totalSize;
 
@@ -3779,7 +3695,7 @@ ServerComm::getNextTile( unsigned long   callingClientId,
                 // if there is the rest of a tile to transfer, do it!
                 if( context->bytesToTransfer )
                 {
-                    TALK( " resuming block transfer..." );
+                    LDEBUG << " resuming block transfer...";
                     transOffset = totalSize - context->bytesToTransfer;
                     if( context->bytesToTransfer > maxTransferBufferSize )
                     {
@@ -3796,7 +3712,7 @@ ServerComm::getNextTile( unsigned long   callingClientId,
                 }
                 else // transfer first block of too large tile
                 {
-                    TALK( " has to be split..." );
+                    LDEBUG << " has to be split...";
                     transSize = maxTransferBufferSize;
                     context->bytesToTransfer = totalSize - transSize;
                     statusValue = 1;
@@ -3811,7 +3727,7 @@ ServerComm::getNextTile( unsigned long   callingClientId,
             (*rpcMarray)->domain = mddDomain.get_string_representation();
 
             // 2. copy data pointers
-            TALK( " domain " << mddDomain << ", " << transSize << " bytes" );
+            LDEBUG << " domain " << mddDomain << ", " << transSize << " bytes";
 
             // allocate memory for the output parameter data and assign its fields
             (*rpcMarray)->data.confarray_len = static_cast<unsigned int>(transSize);
@@ -3852,9 +3768,9 @@ ServerComm::getNextTile( unsigned long   callingClientId,
                     if( *(context->transferDataIter) != context->transferData->end() )
                     {
                         returnValue = 1;
-                        TALK( " some MDDs left..." );
+                        LDEBUG << " some MDDs left...";
                         RMDBGIF(4, RMDebug::module_servercomm, "ServerComm",
-                            RMInit::logOut << MSG_OK << ", some MDD(s) left."  << endl;)
+                            LINFO << MSG_OK << ", some MDD(s) left.";)
                     }
                     else
                     {
@@ -3866,19 +3782,19 @@ ServerComm::getNextTile( unsigned long   callingClientId,
 
                         returnValue = 0;
                         RMDBGIF(4, RMDebug::module_servercomm, "ServerComm",
-                            RMInit::logOut << MSG_OK << ", all MDDs fetched."  << endl;)
+                            LINFO << MSG_OK << ", all MDDs fetched.";)
                     }
                 }
                 else
                 {
                     returnValue = 0;
                     RMDBGIF(4, RMDebug::module_servercomm, "ServerComm",
-                        RMInit::logOut << MSG_OK << ", MDD transfer complete."  << endl;)
+                        LINFO << MSG_OK << ", MDD transfer complete.";)
                 }
 
                 if ((context->totalTransferedSize != context->totalRawSize) && (context->totalRawSize != 0))
                 {
-                    TALK( "(compressed using " <<  context->transferFormat << " to " << ((r_Double)(100 * context->totalTransferedSize)) / context->totalRawSize << "%) " );
+                    LDEBUG << "(compressed using " <<  context->transferFormat << " to " << ((r_Double)(100 * context->totalTransferedSize)) / context->totalRawSize << "%) ";
                 }
             }
             else
@@ -3886,13 +3802,13 @@ ServerComm::getNextTile( unsigned long   callingClientId,
                 if( statusValue == 1 )   // at least one block in actual tile is left
                 {
                     RMDBGIF(4, RMDebug::module_servercomm, "ServerComm",
-                        RMInit::logOut << MSG_OK << ", some block(s) left."  << endl;)
+                        LINFO << MSG_OK << ", some block(s) left.";)
                     returnValue = 3;
                 }
                 else  // tiles left in actual MDD
                 {
                     RMDBGIF(4, RMDebug::module_servercomm, "ServerComm",
-                        RMInit::logOut << MSG_OK << ", some tile(s) left."  << endl;)
+                        LINFO << MSG_OK << ", some tile(s) left.";)
                     returnValue = 2;
                 }
             }
@@ -3900,7 +3816,7 @@ ServerComm::getNextTile( unsigned long   callingClientId,
         else    // no actual transfer collection or nothing left in the collection
         {
             returnValue = 4;
-            RMInit::logOut << "Error: no transfer collection or nothing left in collection."  << endl;
+            LERROR << "Error: no transfer collection or nothing left in collection.";
         }
 
         context->release();
@@ -3908,11 +3824,10 @@ ServerComm::getNextTile( unsigned long   callingClientId,
     else
     {
         // client context not found
-        RMInit::logOut << "Error: client not registered." << std::endl;
+        LERROR << "Error: client not registered.";
         returnValue = 4;
     }
 
-    RMDBGEXIT( 4, RMDebug::module_servercomm, "ServerComm",  "getNextTile" )
     return returnValue;
 }
 
@@ -3920,11 +3835,10 @@ ServerComm::getNextTile( unsigned long   callingClientId,
 unsigned short
 ServerComm::endTransfer( unsigned long client )
 {
-    RMDBGENTER( 4, RMDebug::module_servercomm, "ServerComm",  "endTransfer" )
     unsigned short returnValue = 0;
 
     RMDBGIF(4, RMDebug::module_servercomm, "ServerComm",
-        RMInit::logOut << "Client " << client << " called: endTransfer..." << std::flush;)
+        LINFO << "Client " << client << " called: endTransfer...";)
 
     ClientTblElt* context = getClientContext( client );
 
@@ -3951,15 +3865,14 @@ ServerComm::endTransfer( unsigned long client )
 
         context->release();
 
-        RMDBGIF(4, RMDebug::module_servercomm, "ServerComm", RMInit::logOut << MSG_OK << std::endl;)
+        RMDBGIF(4, RMDebug::module_servercomm, "ServerComm", LINFO << MSG_OK;)
     }
     else
     {
-        RMInit::logOut << "Error: client not registered." << std::endl;
+        LERROR << "Error: client not registered.";
         returnValue = 1;
     }
 
-    RMDBGEXIT( 4, RMDebug::module_servercomm, "ServerComm",  "endTransfer" )
     return returnValue;
 }
 
@@ -3974,7 +3887,7 @@ ServerComm::aliveSignal( unsigned long client )
     unsigned short returnValue = 0;
 
     RMDBGIF(4, RMDebug::module_servercomm, "ServerComm",
-        RMInit::logOut << "Client " << client << " called: endTransfer..." << std::flush;)
+        LINFO << "Client " << client << " called: endTransfer...";)
 
     ClientTblElt* context = getClientContext( client );
 
@@ -3988,11 +3901,11 @@ ServerComm::aliveSignal( unsigned long client )
         context->release();
 
         RMDBGIF(4, RMDebug::module_servercomm, "ServerComm",
-            RMInit::logOut << MSG_OK << std::endl;)
+            LINFO << MSG_OK;)
     }
     else
     {
-        RMInit::logOut << "Error: client not registered." << std::endl;
+        LERROR << "Error: client not registered.";
     }
 
     return returnValue;
@@ -4005,10 +3918,9 @@ ServerComm::getNewOId( unsigned long callingClientId,
                        unsigned short objType,
                        r_OId& oid )
 {
-    RMDBGENTER( 4, RMDebug::module_servercomm, "ServerComm",  "getNewOId" )
     unsigned short returnValue = 0;
 
-    RMInit::logOut << "Request: 'get new OId for " << (objType==1?"MDD":"collection") << " type'..." << std::flush;
+    LINFO << "Request: 'get new OId for " << (objType==1?"MDD":"collection") << " type'...";
 
     ClientTblElt* context = getClientContext( callingClientId );
 
@@ -4021,20 +3933,19 @@ ServerComm::getNewOId( unsigned long callingClientId,
         else // objType == 2
             EOId::allocateEOId( eOId, OId::MDDCOLLOID );
 
-        RMDBGMIDDLE( 4, RMDebug::module_servercomm, "ServerComm", "allocated " << eOId)
+        LTRACE << "allocated " << eOId;
         oid = r_OId( eOId.getSystemName(), eOId.getBaseName(), eOId.getOId() );
 
         context->release();
 
-        RMInit::logOut << MSG_OK << std::endl;
+        LINFO << MSG_OK;
     }
     else
     {
-        RMInit::logOut << "Error: client not registered." << std::endl;
+        LERROR << "Error: client not registered.";
         returnValue = 1;
     }
 
-    RMDBGEXIT( 4, RMDebug::module_servercomm, "ServerComm",  "getNewOId " << returnValue)
     return returnValue;
 }
 
@@ -4045,10 +3956,9 @@ ServerComm::getObjectType( unsigned long callingClientId,
                            r_OId& oid,
                            unsigned short &objType )
 {
-    RMDBGENTER( 4, RMDebug::module_servercomm, "ServerComm",  "getObjectType" )
     unsigned short returnValue = 0;
 
-    RMInit::logOut << "Request: 'get object type by OID', oid = " << oid << "..." << std::flush;
+    LINFO << "Request: 'get object type by OID', oid = " << oid << "...";
 
     ClientTblElt* context = getClientContext( callingClientId );
 
@@ -4061,23 +3971,22 @@ ServerComm::getObjectType( unsigned long callingClientId,
         if( objType == OId::INVALID )
         {
             // oid not found
-            RMInit::logOut << "Error: no type for this oid." << std::endl;
+            LERROR << "Error: no type for this oid.";
             returnValue = 2;
         }
         else
         {
-            RMInit::logOut << "type is " << (objType==1?"MDD":"collection") << "..." << MSG_OK << endl;
+            LINFO << "type is " << (objType==1?"MDD":"collection") << "..." << MSG_OK;
         }
 
         context->release();
     }
     else
     {
-        RMInit::logOut << "Error: client not registered." << endl;
+        LINFO << "Error: client not registered.";
         returnValue = 1;
     }
 
-    RMDBGEXIT( 4, RMDebug::module_servercomm, "ServerComm",  "getObjectType" )
     return returnValue;
 }
 
@@ -4089,21 +3998,20 @@ ServerComm::getTypeStructure( unsigned long  callingClientId,
                               unsigned short typeType,
                               char* &typeStructure )
 {
-    RMDBGENTER( 4, RMDebug::module_servercomm, "ServerComm",  "getTypeStructure" )
     unsigned short returnValue = 0;
 
-    RMInit::logOut << "Request: 'get type structure', type = '" << typeName << "'..." << std::flush;
+    LINFO << "Request: 'get type structure', type = '" << typeName << "'...";
 
     ClientTblElt* context = getClientContext( callingClientId );
     if (context == 0)
     {
-        RMInit::logOut << "Error: client not registered." << std::endl;
+        LERROR << "Error: client not registered.";
         returnValue = 1;
     }
 
     if (returnValue==0 && !transactionActive)
     {
-        RMInit::logOut << "Error: no transaction open." << endl;
+        LERROR << "Error: no transaction open.";
         returnValue = 1;
     }
 
@@ -4135,14 +4043,13 @@ ServerComm::getTypeStructure( unsigned long  callingClientId,
         }
 
         if( returnValue == 2 )
-            RMInit::logOut << "Error: unknown type." << endl;
+            LERROR << "Error: unknown type.";
         else
-            RMInit::logOut << MSG_OK << endl;
+            LINFO << MSG_OK;
 
         context->release();
     }
 
-    RMDBGEXIT( 4, RMDebug::module_servercomm, "ServerComm", "getTypeStructure" )
     return returnValue;
 }
 
@@ -4152,10 +4059,8 @@ ServerComm::setTransferMode( unsigned long callingClientId,
                              unsigned short format,
                              const char* formatParams )
 {
-    RMDBGENTER(4, RMDebug::module_servercomm, "ServerComm", "setTransferMode(" << callingClientId << ", " << format << ", " << formatParams)
-
     RMDBGIF(4, RMDebug::module_servercomm, "ServerComm",
-        RMInit::logOut << "Request: 'set transfer mode', format = '" << format << "', params = '" << formatParams << "'..." << std::flush;)
+        LINFO << "Request: 'set transfer mode', format = '" << format << "', params = '" << formatParams << "'...";)
 
     unsigned short retval = 1;
 
@@ -4180,20 +4085,19 @@ ServerComm::setTransferMode( unsigned long callingClientId,
         }
         context->transferFormat = fmt;
 
-        RMDBGIF(4, RMDebug::module_servercomm, "ServerComm", RMInit::logOut << MSG_OK << std::endl;)
+        RMDBGIF(4, RMDebug::module_servercomm, "ServerComm", LINFO << MSG_OK;)
         retval = 0;
 
         context->release();
-        RMDBGMIDDLE(1, RMDebug::module_servercomm, "ServerComm", "setTransferMode(...) current transfer format :" << context->transferFormat)
-        RMDBGMIDDLE(1, RMDebug::module_servercomm, "ServerComm", "setTransferMode(...)current transfer params :" << context->transferFormatParams );
+        LTRACE << "setTransferMode(...) current transfer format :" << context->transferFormat;
+        LTRACE << "setTransferMode(...)current transfer params :" << context->transferFormatParams;
     }
     else
     {
-        RMInit::logOut << "Error: client not registered." << std::endl;
+        LERROR << "Error: client not registered.";
         retval = 1;
     }
 
-    RMDBGEXIT(4, RMDebug::module_servercomm, "ServerComm",  "setTransferMode " << retval)
     return retval;
 }
 
@@ -4202,10 +4106,8 @@ ServerComm::setStorageMode( unsigned long callingClientId,
                             __attribute__ ((unused)) unsigned short format,
                             const char* formatParams )
 {
-    RMDBGENTER(4, RMDebug::module_servercomm, "ServerComm", "setStorageMode(" << callingClientId << ", " << format << ", " << formatParams)
-
     RMDBGIF(4, RMDebug::module_servercomm, "ServerComm",
-        RMInit::logOut << "Request: 'set storage mode', format = " << format << ", params = " << formatParams << "..." << std::flush;)
+        LINFO << "Request: 'set storage mode', format = " << format << ", params = " << formatParams << "...";)
 
     unsigned short retval = 1;
 
@@ -4227,20 +4129,19 @@ ServerComm::setStorageMode( unsigned long callingClientId,
         }
         context->storageFormat = fmt;
 
-        RMDBGIF(4, RMDebug::module_servercomm, "ServerComm", RMInit::logOut << MSG_OK << std::endl;)
+        RMDBGIF(4, RMDebug::module_servercomm, "ServerComm", LINFO << MSG_OK;)
         retval = 0;
 
         context->release();
-        RMDBGMIDDLE(1, RMDebug::module_servercomm, "ServerComm", "setStorageMode(...) current storage format :" << context->storageFormat)
-        RMDBGMIDDLE(1, RMDebug::module_servercomm, "ServerComm", "setStorageMode(...) current storage params :" << context->storageFormatParams)
+        LTRACE << "setStorageMode(...) current storage format :" << context->storageFormat;
+        LTRACE << "setStorageMode(...) current storage params :" << context->storageFormatParams;
     }
     else
     {
-        RMInit::logOut << "Error: client not registered." << std::endl;
+        LERROR << "Error: client not registered.";
         retval = 1;
     }
 
-    RMDBGEXIT(4, RMDebug::module_servercomm, "ServerComm",  "setStorageMode " << retval)
     return retval;
 }
 
@@ -4255,12 +4156,10 @@ ServerComm::ensureTileFormat( __attribute__ ((unused)) r_Data_Format &hasFmt,
                               __attribute__ ((unused)) int owner,
                               __attribute__ ((unused)) const char *params )
 {
-    RMDBGENTER(2, RMDebug::module_servercomm, "ServerComm", "ensureTileFormat(" << hasFmt << ", " << needFmt << ", " << dom << ", " << type->getName() << ", data, " << size << ", repack " << repack << ", owner " << owner << ", params " << params << ")")
     int status = ENSURE_TILE_FORMAT_OK;
 
-    RMDBGMIDDLE(2, RMDebug::module_servercomm, "ServerComm", "ensureTileFormat(...) #Size 1=" << size);
+    LTRACE << "ensureTileFormat(...) #Size 1=" << size;
+    LTRACE << "ensureTileFormat(...) #Size 3=" << size;
 
-    RMDBGMIDDLE(2, RMDebug::module_servercomm, "ServerComm", "ensureTileFormat(...) #Size 3=" << size);
-    RMDBGEXIT(2, RMDebug::module_servercomm, "ServerComm", "ensureTileFormat(...) " << ENSURE_TILE_FORMAT_OK)
     return status;
 }

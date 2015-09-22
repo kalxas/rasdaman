@@ -41,6 +41,7 @@ rasdaman GmbH.
 #include "raslib/rmdebug.hh"
 #include "reladminif/objectbroker.hh"
 #include "raslib/error.hh"
+#include "../common/src/logging/easylogging++.hh"
 
 #include <cstring>
 #include <string>
@@ -113,11 +114,9 @@ StructType::StructType(const OId& structtypeid) throw (r_Error)
         numElems(0),
         align(1)
 {
-    RMDBGENTER(4, RMDebug::module_catalogif, "StructType", "StructType(" << myOId << ")");
     myType = STRUCT;
     objecttype = OId::STRUCTTYPEOID;
     readFromDb();
-    RMDBGEXIT(4, RMDebug::module_catalogif, "StructType", "StructType(" << myOId << ")");
 }
 
 /*************************************************************
@@ -353,7 +352,7 @@ StructType::addElementPriv(const char* elemName, const BaseType* newType)
                     }
                     else
                     {
-                        RMDBGONCE(0, RMDebug::module_catalogif,"StructType", "addType() ERROR!");
+                        LTRACE << "addType() ERROR!";
                         // for debugging purposes only, shouldn't happen.
                     }
                 }
@@ -371,7 +370,6 @@ StructType::addElementPriv(const char* elemName, const BaseType* newType)
 unsigned int
 StructType::getOffset(const char* elemName) const
 {
-    RMDBGENTER(6, RMDebug::module_catalogif, "StructType", "getOffset(" << elemName << ") " << getName() << " " << myOId);
     unsigned int i;
     unsigned int retval = 0;
     bool found = false;
@@ -388,10 +386,10 @@ StructType::getOffset(const char* elemName) const
             if (found == false) \
 {
     \
-    RMDBGONCE(0, RMDebug::module_catalogif, "StructType", "ERROR in StructType::getOffset(" << elemName << ") name not found " << getName() << " " << myOId  << " retval " << retval); \
+    LFATAL << "ERROR in StructType::getOffset(" << elemName << ") name not found " << getName() << " " << myOId  << " retval " << retval; \
         throw r_Error(STRUCTTYPE_ELEMENT_UNKNOWN); \
     } )
-    RMDBGEXIT(6, RMDebug::module_catalogif, "StructType", "getOffset(" << elemName << ") " << getName() << " " << myOId << " retval " << retval);
+
     return retval;
     // should raise exception!
 }
@@ -401,7 +399,7 @@ StructType::getOffset(unsigned int num) const
 {
     if (num >= numElems)
     {
-        RMDBGONCE(0, RMDebug::module_catalogif, "StructType", "ERROR in StructType::getOffset(" << num << ") offset out of bounds " << getName() << " retval " << 0);
+        LTRACE << "ERROR in StructType::getOffset(" << num << ") offset out of bounds " << getName() << " retval " << 0;
         RMDBGIF(0, RMDebug::module_catalogif, "StructType", throw r_Error(STRUCTTYPE_ELEMENT_OUT_OF_BOUNDS); )
         return 0;
     }
@@ -411,7 +409,6 @@ StructType::getOffset(unsigned int num) const
 const BaseType*
 StructType::getElemType(const char* elemName) const
 {
-    RMDBGENTER(6, RMDebug::module_catalogif, "StructType", "getElemType(" << elemName << ") " << getName() << " " << myOId);
     const BaseType* retval = 0;
     unsigned int i;
 
@@ -427,10 +424,9 @@ StructType::getElemType(const char* elemName) const
             if (retval == 0) \
 {
     \
-    RMDBGMIDDLE(0, RMDebug::module_catalogif, "StructType", "ERROR in StructType::getElemType(" << elemName << ") name not found " << getName() << " " << myOId  << " retval " << retval); \
+    LFATAL << "ERROR in StructType::getElemType(" << elemName << ") name not found " << getName() << " " << myOId  << " retval " << retval; \
         throw r_Error(STRUCTTYPE_ELEMENT_UNKNOWN); \
     } )
-    RMDBGEXIT(6, RMDebug::module_catalogif, "StructType", "getElemType(" << elemName << ") " << getName() << " " << myOId << " retval " << retval);
     return retval;
 }
 
@@ -439,7 +435,7 @@ StructType::getElemType(unsigned int num) const
 {
     if(!(num < numElems))
     {
-        RMDBGONCE(0, RMDebug::module_catalogif, "StructType", "ERROR in StructType::getElemType(" << num << ") offset out of bounds " << getName() << " retval " << 0);
+        LTRACE << "ERROR in StructType::getElemType(" << num << ") offset out of bounds " << getName() << " retval " << 0;
         RMDBGIF(0, RMDebug::module_catalogif, "StructType", throw r_Error(STRUCTTYPE_ELEMENT_OUT_OF_BOUNDS); )
         return 0;
     }
@@ -451,7 +447,7 @@ StructType::getElemName(unsigned int num) const
 {
     if(!(num < numElems))
     {
-        RMDBGONCE(0, RMDebug::module_catalogif, "StructType", "ERROR in StructType::getElemName(" << num << ") offset out of bounds " << getName() << " retval " << 0);
+        LTRACE << "ERROR in StructType::getElemName(" << num << ") offset out of bounds " << getName() << " retval " << 0;
         RMDBGIF(0, RMDebug::module_catalogif, "StructType", throw r_Error(STRUCTTYPE_ELEMENT_OUT_OF_BOUNDS); )
         return 0;
     }
@@ -489,18 +485,17 @@ StructType::contains(const StructType* aStruct) const
 int
 StructType::compatibleWith(const Type* aType) const
 {
-    RMDBGENTER(7, RMDebug::module_catalogif, "StructType", "compatibleWith(" << aType->getName() << ") " << getName());
     int retval;
     if(aType->getType() != STRUCT)
     {
-        RMDBGMIDDLE(8, RMDebug::module_catalogif, "StructType", "no structtype");
+        LTRACE << "no structtype";
         retval = 0;
     }
     else
     {
         if(elements.size() != (static_cast<StructType*>(const_cast<Type*>(aType)))->elements.size())
         {
-            RMDBGMIDDLE(8, RMDebug::module_catalogif, "StructType", "not the same size");
+            LTRACE << "not the same size";
             retval = 0;
         }
         else
@@ -517,14 +512,13 @@ StructType::compatibleWith(const Type* aType) const
                 otherBaseType = (static_cast<StructType*>(const_cast<Type*>(aType)))->elements[i];
                 if(!myBaseType->compatibleWith(otherBaseType))
                 {
-                    RMDBGMIDDLE(8, RMDebug::module_catalogif, "StructType", i << ". element " << otherBaseType->getName() << " does not match " << myBaseType);
+                    LTRACE << i << ". element " << otherBaseType->getName() << " does not match " << myBaseType;
                     retval = 0;
                     break;
                 }
             }
         }
     }
-    RMDBGEXIT(7, RMDebug::module_catalogif, "StructType", "compatibleWith(" << aType->getName() << ") " << getName() << " retval " << retval);
     return retval;
 }
 
