@@ -107,7 +107,7 @@ DBRCIndexDS::insertInDb() throw (r_Error)
     char* lowerfixedbuf = static_cast<char*>(mymalloc(fixessize));
 
     LTRACE << "complete " << completesize << " bounds " << boundssize << " fixes " << fixessize;
-    DEBUG << "DBRCIndexDS: complete " << completesize << " bounds " << boundssize << " fixes " << fixessize;
+    LDEBUG << "DBRCIndexDS: complete " << completesize << " bounds " << boundssize << " fixes " << fixessize;
 
     // insert myDomain in buffers
     myDomain.insertInDb(&(lowerboundsbuf[0]), &(upperboundsbuf[0]), &(lowerfixedbuf[0]), &(upperfixedbuf[0]));
