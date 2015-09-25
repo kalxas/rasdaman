@@ -39,9 +39,6 @@ class Importer:
         if len(self.coverage.slices) > 0:
             if self._is_insert():
                 self._initialize_coverage()
-            else:
-                # If this is an update do not insert into wms
-                self.insert_into_wms = False
 
             # Insert the remaining slices
             self._insert_slices()

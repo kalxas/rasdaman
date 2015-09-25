@@ -115,16 +115,26 @@ public class InsertWCSLayerHandler implements Handler<InsertWCSLayerRequest, Ins
             CoverageMetadata coverageMetadata = getCoverageMetadata(request.getWcsCoverageId());
             //create a wms layer
             Layer wmsLayer = LayerParser.fromWcsCoverage(coverageMetadata, persistentMetadataObjectProvider);
-            //persist it
-            wmsLayer = persistentMetadataObjectProvider.getLayer().createIfNotExists(wmsLayer);
+
             persistentWmsLayer = persistentMetadataObjectProvider.getLayer().queryForId(wmsLayer.getId());
             //add the style
-            Style style = new Style(persistentWmsLayer.getName(), STYLE_DEFAULT_TITLE, STYLE_DEFAULT_ABSTRACT, null, "", persistentWmsLayer);
-            persistentMetadataObjectProvider.getStyle().createIfNotExists(style);
+            if (persistentWmsLayer.getStyles() == null || persistentWmsLayer.getStyles().isEmpty()) {
+                Style style = new Style(persistentWmsLayer.getName(), STYLE_DEFAULT_TITLE, STYLE_DEFAULT_ABSTRACT, null, "", persistentWmsLayer);
+                persistentMetadataObjectProvider.getStyle().createIfNotExists(style);
+            }
             //add bounding box
+            //but first remove any existing ones in case this is an update
+            if (persistentWmsLayer.getBoundingBoxes() != null && !persistentWmsLayer.getBoundingBoxes().isEmpty()) {
+                persistentMetadataObjectProvider.getBoundingBox().delete(persistentWmsLayer.getBoundingBoxes());
+            }
             addBoundingBox(coverageMetadata, persistentWmsLayer);
             //add extra dimensions if the coverage is more than 2d
+            //but first remove any existing ones in case this is an update
+            if(persistentWmsLayer.getDimensions() != null && !persistentWmsLayer.getDimensions().isEmpty()){
+                persistentMetadataObjectProvider.getDimension().delete(persistentWmsLayer.getDimensions());
+            }
             addExtraDimensions(coverageMetadata.getDomainList(), 2, persistentWmsLayer);
+
             //add rasdaman layers
             addRasdamanLayers(coverageMetadata, persistentWmsLayer);
             //return the response containing the layer name

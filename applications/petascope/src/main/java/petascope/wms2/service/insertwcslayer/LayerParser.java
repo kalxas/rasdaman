@@ -34,6 +34,7 @@ import petascope.wms2.service.exception.error.WMSInvalidCrsUriException;
 import petascope.wms2.util.CrsComputer;
 
 import java.sql.SQLException;
+import java.util.List;
 import java.util.UUID;
 
 /**
@@ -49,17 +50,26 @@ public class LayerParser {
      *
      * @param coverageMetadata
      * @param persistentMetadataObjectProvider
-     * @return
+     * @return the layer
      * @throws WMSInternalException
      */
-    public static Layer fromWcsCoverage(CoverageMetadata coverageMetadata, PersistentMetadataObjectProvider persistentMetadataObjectProvider) throws WMSInternalException, WMSInvalidCrsUriException, TransformException, FactoryException {
-        String layerTitle = computeLayerTitle(coverageMetadata.getCoverageName(), persistentMetadataObjectProvider);
+    public static Layer fromWcsCoverage(CoverageMetadata coverageMetadata, PersistentMetadataObjectProvider persistentMetadataObjectProvider) throws WMSInternalException, WMSInvalidCrsUriException, TransformException, FactoryException, SQLException {
+        String layerTitle = coverageMetadata.getCoverageName();
         Bbox wcsBbox = coverageMetadata.getBbox();
         String currentCrs = CrsComputer.convertCrsUriToWmsCrs(wcsBbox.getCrsName());
         EXGeographicBoundingBox exGeographicBoundingBox = CrsComputer.covertToWgs84(currentCrs,
-                wcsBbox.getMinX(), wcsBbox.getMinY(), wcsBbox.getMaxX(), wcsBbox.getMaxY());
+            wcsBbox.getMinX(), wcsBbox.getMinY(), wcsBbox.getMaxX(), wcsBbox.getMaxY());
         String layerAbstract = coverageMetadata.getAbstract();
-        return new Layer(0, 0, 1, 0, 0, 0, layerTitle, layerTitle, layerAbstract, exGeographicBoundingBox, null);
+        List<Layer> possibleLayers = persistentMetadataObjectProvider.getLayer().queryForEq(Layer.NAME_COLUMN_NAME, layerTitle);
+        final Layer retLayer;
+        if (possibleLayers.isEmpty()) {
+            Layer newLayer = new Layer(0, 0, 1, 0, 0, 0, layerTitle, layerTitle, layerAbstract, exGeographicBoundingBox, null);
+            newLayer = persistentMetadataObjectProvider.getLayer().createIfNotExists(newLayer);
+            retLayer = persistentMetadataObjectProvider.getLayer().queryForId(newLayer.getId());
+        } else {
+            retLayer = possibleLayers.get(0);
+        }
+        return retLayer;
     }
 
     /**
@@ -68,6 +78,7 @@ public class LayerParser {
      *
      * @param wcsCoverageId
      * @return
+     * @deprecated
      */
     private static String computeLayerTitle(String wcsCoverageId, PersistentMetadataObjectProvider persistentMetadataObjectProvider) throws WMSInternalException {
         try {
