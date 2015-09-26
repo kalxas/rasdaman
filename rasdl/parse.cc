@@ -33,6 +33,8 @@ rasdaman GmbH.
 #include "catalogmgr/typefactory.hh"
 #include "relcatalogif/alltypes.hh"
 
+#include "../common/src/logging/easylogging++.hh"
+
 extern void output_scope(FILE*out,const YSymbolTable::Scope*scope);
 
 Parse_info::Parse_info()
@@ -123,8 +125,8 @@ Parse_atom::~Parse_atom()
 
 void Parse_atom::insertData() const throw( r_Equery_execution_failed )
 {
-    RMDBGONCE(4, RMDebug::module_rasdl, "Parse_atom", "printData() kind " << kind << ", name " << name << ", symbol " << symbol)
-    TALK( "Parse_atom::insertData: doing nothing with name=" << name << ", symbol=" << symbol)
+    LTRACE << "printData() kind " << kind << ", name " << name << ", symbol " << symbol;
+    LDEBUG << "Parse_atom::insertData: doing nothing with name=" << name << ", symbol=" << symbol;
 }
 
 
@@ -245,24 +247,19 @@ void Parse_struct::output(FILE*stream)const
 
 void Parse_struct::insertData() const throw( r_Equery_execution_failed )
 {
-    ENTER( "Parse_struct::insertData" );
-    RMDBGENTER(4, RMDebug::module_rasdl, "Parse_struct", "insertData()")
-
     // get catalog type structure
     StructType* catType = static_cast<StructType*>(const_cast<CType*>(getType()));
-    TALK( "got type " << (char*)catType->getTypeName() );
+    LDEBUG << "got type " << catType->getTypeName();
 
-    RMDBGMIDDLE(4, RMDebug::module_rasdl, "Parse_struct", "inserting type " << catType->getTypeName())
+    LTRACE << "inserting type " << catType->getTypeName();
 
     if( TypeFactory::mapType( catType->getTypeName() ) )
         // Error: Struct type name exists already.
         throw( r_Equery_execution_failed( 905, static_cast<unsigned int>(symbol->where.line), static_cast<unsigned int>(symbol->where.column), symbol->get_name() ) );
 
-    TALK( "adding to the database as cell struct type" );
+    LDEBUG << "adding to the database as cell struct type";
     TypeFactory::addStructType( catType );
 
-    RMDBGEXIT(4, RMDebug::module_rasdl, "Parse_struct", "insertData()")
-    LEAVE( "Parse_struct::insertData" );
 }
 
 
@@ -274,11 +271,9 @@ Parse_struct::getType( const char* /*typeName*/ ) const
     StructType*  structType=NULL;
     Element*     scan=NULL;
 
-    RMDBGENTER(4, RMDebug::module_rasdl, "Parse_struct", "getType()")
-
     for( scan=elements; scan!=NULL; scan=scan->next, noElements++ );
 
-    RMDBGMIDDLE(4, RMDebug::module_rasdl, "Parse_struct", "Struct " << name << " has " << noElements << " elements.")
+    LTRACE << "Struct " << name << " has " << noElements << " elements.";
 
     structType = new StructType( name, noElements );
 
@@ -287,11 +282,9 @@ Parse_struct::getType( const char* /*typeName*/ ) const
             std::cerr << "Internal error: struct element doesn't deliver a catalog type" << std::endl;
         else
         {
-            RMDBGMIDDLE(4, RMDebug::module_rasdl, "Parse_struct", "Scan->name " << scan->name)
+            LTRACE << "Scan->name " << scan->name;
             structType->addElement( (scan->name), static_cast<const BaseType*>(const_cast<CType*>(scan->type->getType())) );
         }
-
-    RMDBGEXIT(4, RMDebug::module_rasdl, "Parse_struct", "getType()" )
 
     return structType;
 }
@@ -532,9 +525,6 @@ void Parse_alias::output(FILE*stream)const
 
 void Parse_alias::insertData() const throw( r_Equery_execution_failed )
 {
-    ENTER( "Parse_alias::insertData" );
-    RMDBGENTER(4, RMDebug::module_rasdl, "Parse_alias", "insertData()")
-
     // get catalog type structure
 
     const CType* catType = type->getType( name );
@@ -543,13 +533,13 @@ void Parse_alias::insertData() const throw( r_Equery_execution_failed )
         std::cerr << "Internal error: no type in alias definition." << std::endl;
         return;
     }
-    TALK( "got type " << name );
+    LDEBUG << "got type " << name;
 
     RMDBGIF(5, RMDebug::module_rasdl, "Parse_alias", \
     {
         \
         char* typeStructure = catType->getTypeStructure(); \
-        RMInit::dbgOut << "Name " << catType->getTypeName() << ", structure " << typeStructure << std::endl; \
+        LTRACE << "Name " << catType->getTypeName() << ", structure " << typeStructure; \
         free( typeStructure ); typeStructure = NULL; \
     } )
 
@@ -562,7 +552,7 @@ void Parse_alias::insertData() const throw( r_Equery_execution_failed )
             // Error: MDD type name exists already.
             throw( r_Equery_execution_failed( 906, static_cast<unsigned int>(symbol->where.line), static_cast<unsigned int>(symbol->where.column), symbol->get_name() ) );
         }
-        TALK( "adding to the database as MDD type" );
+        LDEBUG << "adding to the database as MDD type";
         TypeFactory::addMDDType( static_cast<const MDDType*>(const_cast<CType*>(catType) ));
         break;
 
@@ -573,7 +563,7 @@ void Parse_alias::insertData() const throw( r_Equery_execution_failed )
             // Error: Set type name exists already.
             throw( r_Equery_execution_failed( 907, static_cast<unsigned int>(symbol->where.line), static_cast<unsigned int>(symbol->where.column), symbol->get_name() ) );
         }
-        TALK( "adding to the database as set type" );
+        LDEBUG << "adding to the database as set type";
         TypeFactory::addSetType( static_cast<const SetType*>(const_cast<CType*>(catType) ));
         break;
 
@@ -584,9 +574,6 @@ void Parse_alias::insertData() const throw( r_Equery_execution_failed )
     }
 
     delete catType;
-
-    RMDBGEXIT( 4, RMDebug::module_rasdl, "Parse_alias", "insertData()")
-    LEAVE( "Parse_alias::insertData" );
 }
 
 /* enumerator */
@@ -881,8 +868,6 @@ void Parse_MDD::output(FILE*stream)const
 const Type*
 Parse_MDD::getType( const char* typeName ) const
 {
-    RMDBGENTER( 4, RMDebug::module_rasdl, "Parse_MDD", "getType()" )
-
     if( !base_type ||
             ( base_type->kind != Typereference && base_type->kind != Boolean &&
               base_type->kind != Float         && base_type->kind != Integer &&
@@ -909,11 +894,11 @@ Parse_MDD::getType( const char* typeName ) const
     {
         \
         char* typeStructure = catBaseType->getTypeStructure(); \
-        RMInit::dbgOut << "  Base type name " << catBaseType->getTypeName() << ", structure " << typeStructure << std::endl; \
+        LTRACE << "  Base type name " << catBaseType->getTypeName() << ", structure " << typeStructure; \
         free( typeStructure ); typeStructure = NULL; \
     } )
 
-    RMDBGMIDDLE(4, RMDebug::module_rasdl, "Parse_MDD", "type name " << typeName << ", base typIe name " << catBaseType->getTypeName() )
+    LTRACE << "type name " << typeName << ", base typIe name " << catBaseType->getTypeName();
 
     const MDDType* mddType;
 
@@ -923,8 +908,6 @@ Parse_MDD::getType( const char* typeName ) const
         mddType = new MDDDimensionType( typeName, catBaseType, dimensionality );
     else
         mddType = new MDDBaseType( typeName, catBaseType );
-
-    RMDBGEXIT(4, RMDebug::module_rasdl, "Parse_MDD", "getType()")
 
     return mddType;
 }
@@ -955,8 +938,6 @@ void Parse_set::output(FILE*stream)const
 const Type*
 Parse_set::getType( const char* typeName ) const
 {
-    RMDBGENTER(4, RMDebug::module_rasdl, "Parse_set", "getType()")
-
     if( !base_type || base_type->kind != Typereference )
         // Error: Set template type has to be a type reference.
         throw( r_Equery_execution_failed( 901, static_cast<unsigned int>(parseInfo.line), static_cast<unsigned int>(parseInfo.column), parseInfo.token ) );
@@ -975,7 +956,7 @@ Parse_set::getType( const char* typeName ) const
         return NULL;
     }
 
-    RMDBGMIDDLE(4, RMDebug::module_rasdl, "Parse_set", "Base type name " << baseTypeName)
+    LTRACE << "Base type name " << baseTypeName;
 
     const MDDType* catBaseType = TypeFactory::mapMDDType( baseTypeName );
 
@@ -987,20 +968,18 @@ Parse_set::getType( const char* typeName ) const
     {
         \
         char* typeStructure = catBaseType->getTypeStructure(); \
-        RMInit::dbgOut << "  Name " << catBaseType->getTypeName() << ", structure " << typeStructure << std::endl; \
+        LTRACE << "  Name " << catBaseType->getTypeName() << ", structure " << typeStructure; \
         free( typeStructure ); typeStructure = NULL; \
     })
 
-    RMDBGMIDDLE(4, RMDebug::module_rasdl, "Parse_set", "type name " << typeName << ", base type name " << baseTypeName )
+    LTRACE << "type name " << typeName << ", base type name " << baseTypeName;
 
     SetType* setType = new SetType( typeName, const_cast<MDDType*>(catBaseType) );
     if (nullValues != NULL)
     {
-        TALK("Set null values to " << nullValues->get_string_representation());
+        LDEBUG <<"Set null values to " << nullValues->get_string_representation();
         setType->setNullValues(*nullValues);
     }
-
-    RMDBGEXIT(4, RMDebug::module_rasdl, "Parse_set", "getType()")
 
     return setType;
 }

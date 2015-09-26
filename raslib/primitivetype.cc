@@ -25,11 +25,11 @@ static const char rcsid[] = "@(#)raslib, r_Primitive_Type: $Header: /home/rasdev
 
 #include "config.h"
 #include "raslib/primitivetype.hh"
-#include "raslib/rminit.hh"
-#include "raslib/rmdebug.hh"
 #include "raslib/odmgtypes.hh"
 #include "raslib/endian.hh"
 #include "raslib/error.hh"
+
+#include "../common/src/logging/easylogging++.hh"
 
 #include <iomanip>
 #include <string>
@@ -83,7 +83,7 @@ r_Primitive_Type::r_Primitive_Type( const char* newTypeName,
         typeSize = 2 * sizeof(double);
         break;
     default:
-        RMDBGONCE(3,    RMDebug::module_raslib, "r_Primitive_Type", "r_Primitive_Type(....) bad typeId " << typeId);
+        LTRACE << "r_Primitive_Type(....) bad typeId " << typeId;
         break;
     }
 }
@@ -176,7 +176,7 @@ r_Primitive_Type::convertToLittleEndian(char* cells, r_Area noCells) const
             ((r_Double *)cells)[i] = r_Endian::swap( ((r_Double *)cells)[i] );
         break;
     default:
-        RMDBGONCE(3,    RMDebug::module_raslib, "r_Primitive_Type", "convertToLittleEndian(....) bad typeId " << typeId);
+        LTRACE << "convertToLittleEndian(....) bad typeId " << typeId;
         break;
     }
 }
@@ -228,7 +228,7 @@ r_Primitive_Type::convertToBigEndian(char* cells, r_Area noCells) const
             ((r_Double *)cells)[i] = r_Endian::swap( ((r_Double *)cells)[i] );
         break;
     default:
-        RMDBGONCE(3,    RMDebug::module_raslib, "r_Primitive_Type", "convertToBigEndian(....) bad typeId " << typeId);
+        LTRACE << "convertToBigEndian(....) bad typeId " << typeId;
         break;
     }
 }
@@ -272,7 +272,7 @@ r_Primitive_Type::print_value( const char* storage,  std::ostream& s  ) const
         s << std::setw(5) << (int)( get_char( storage ) );
         break;
     default:
-        RMInit::logOut << "r_Primitive_Type::print_value(...) type unknown" << endl;
+        LERROR << "r_Primitive_Type::print_value(...) type unknown";
         break;
     }
 }
@@ -317,7 +317,7 @@ r_Primitive_Type::get_value( const char* storage ) const throw(r_Error)
         break;
     default:
     {
-        RMInit::logOut << "r_Primitive_Type::get_value(...) type unknown" << endl;
+        LFATAL << "r_Primitive_Type::get_value(...) type unknown";
         r_Error err( r_Error::r_Error_TypeInvalid );
         throw( err );
     };
@@ -364,7 +364,7 @@ r_Primitive_Type::set_value( char* storage, r_Double val ) throw(r_Error)
         break;
     default:
     {
-        RMInit::logOut << "r_Primitive_Type::set_value(...) type unknown" << endl;
+        LFATAL << "r_Primitive_Type::set_value(...) type unknown";
         r_Error err( r_Error::r_Error_TypeInvalid );
         throw( err );
     };
@@ -402,7 +402,7 @@ r_Primitive_Type::get_limits( r_Double& min, r_Double& max ) throw(r_Error)
         break;
     default:
     {
-        RMInit::logOut << "r_Primitive_Type::get_limits(...) type unknown" << endl;
+        LFATAL << "r_Primitive_Type::get_limits(...) type unknown";
         r_Error err( r_Error::r_Error_TypeInvalid );
         throw( err );
     };
@@ -415,7 +415,7 @@ r_Primitive_Type::get_boolean( const char* cell ) const throw( r_Error )
 {
     if( typeId != r_Type::BOOL )
     {
-        RMInit::logOut << "r_Primitive_Type::get_boolean(cell) type not a boolean" << endl;
+        LFATAL << "r_Primitive_Type::get_boolean(cell) type not a boolean";
         r_Error err( r_Error::r_Error_TypeInvalid );
         throw( err );
     }
@@ -430,7 +430,7 @@ r_Primitive_Type::get_char( const char* cell )    const throw( r_Error )
 {
     if( typeId != r_Type::CHAR )
     {
-        RMInit::logOut << "r_Primitive_Type::get_char(cell) type not a char" << endl;
+        LFATAL << "r_Primitive_Type::get_char(cell) type not a char";
         r_Error err( r_Error::r_Error_TypeInvalid );
         throw( err );
     }
@@ -445,7 +445,7 @@ r_Primitive_Type::get_octet( const char* cell )   const throw( r_Error )
 {
     if( typeId != r_Type::OCTET )
     {
-        RMInit::logOut << "r_Primitive_Type::get_octet(cell) type not a octet" << endl;
+        LFATAL << "r_Primitive_Type::get_octet(cell) type not a octet";
         r_Error err( r_Error::r_Error_TypeInvalid );
         throw( err );
     }
@@ -460,7 +460,7 @@ r_Primitive_Type::get_short( const char* cell )   const throw( r_Error )
 {
     if( typeId != r_Type::SHORT )
     {
-        RMInit::logOut << "r_Primitive_Type::get_short(cell) type not a short" << endl;
+        LFATAL << "r_Primitive_Type::get_short(cell) type not a short";
         r_Error err( r_Error::r_Error_TypeInvalid );
         throw( err );
     }
@@ -475,7 +475,7 @@ r_Primitive_Type::get_ushort( const char* cell )  const throw( r_Error )
 {
     if( typeId != r_Type::USHORT )
     {
-        RMInit::logOut << "r_Primitive_Type::get_ushort(cell) type not a ushort" << endl;
+        LFATAL << "r_Primitive_Type::get_ushort(cell) type not a ushort";
         r_Error err( r_Error::r_Error_TypeInvalid );
         throw( err );
     }
@@ -490,7 +490,7 @@ r_Primitive_Type::get_long( const char* cell )    const throw( r_Error )
 {
     if( typeId != r_Type::LONG )
     {
-        RMInit::logOut << "r_Primitive_Type::get_long(cell) type not a long" << endl;
+        LFATAL << "r_Primitive_Type::get_long(cell) type not a long";
         r_Error err( r_Error::r_Error_TypeInvalid );
         throw( err );
     }
@@ -505,7 +505,7 @@ r_Primitive_Type::get_ulong( const char* cell )   const throw( r_Error )
 {
     if( typeId != r_Type::ULONG )
     {
-        RMInit::logOut << "r_Primitive_Type::get_ulong(cell) type not a ulong" << endl;
+        LFATAL << "r_Primitive_Type::get_ulong(cell) type not a ulong";
         r_Error err( r_Error::r_Error_TypeInvalid );
         throw( err );
     }
@@ -520,7 +520,7 @@ r_Primitive_Type::get_float( const char* cell )   const throw( r_Error )
 {
     if( typeId != r_Type::FLOAT )
     {
-        RMInit::logOut << "r_Primitive_Type::get_float(cell) type not a float" << endl;
+        LFATAL << "r_Primitive_Type::get_float(cell) type not a float";
         r_Error err( r_Error::r_Error_TypeInvalid );
         throw( err );
     }
@@ -535,7 +535,7 @@ r_Primitive_Type::get_double( const char* cell )  const throw( r_Error )
 {
     if( typeId != r_Type::DOUBLE )
     {
-        RMInit::logOut << "r_Primitive_Type::get_double(cell) type not a double" << endl;
+        LFATAL << "r_Primitive_Type::get_double(cell) type not a double";
         r_Error err( r_Error::r_Error_TypeInvalid );
         throw( err );
     }
@@ -548,7 +548,7 @@ r_Primitive_Type::set_boolean( char* cell, r_Boolean val ) throw( r_Error )
 {
     if( typeId != r_Type::BOOL )
     {
-        RMInit::logOut << "r_Primitive_Type::set_boolean(cell, val) type not a boolean" << endl;
+        LFATAL << "r_Primitive_Type::set_boolean(cell, val) type not a boolean";
         r_Error err( r_Error::r_Error_TypeInvalid );
         throw( err );
     }
@@ -563,7 +563,7 @@ r_Primitive_Type::set_char( char* cell, r_Char val )    throw( r_Error )
 {
     if( typeId != r_Type::CHAR )
     {
-        RMInit::logOut << "r_Primitive_Type::set_char(cell, val) type not a char" << endl;
+        LFATAL << "r_Primitive_Type::set_char(cell, val) type not a char";
         r_Error err( r_Error::r_Error_TypeInvalid );
         throw( err );
     }
@@ -578,7 +578,7 @@ r_Primitive_Type::set_octet( char* cell, r_Octet val )   throw( r_Error )
 {
     if( typeId != r_Type::OCTET )
     {
-        RMInit::logOut << "r_Primitive_Type::set_octet(cell, val) type not a octet" << endl;
+        LFATAL << "r_Primitive_Type::set_octet(cell, val) type not a octet";
         r_Error err( r_Error::r_Error_TypeInvalid );
         throw( err );
     }
@@ -593,7 +593,7 @@ r_Primitive_Type::set_short( char* cell, r_Short val )   throw( r_Error )
 {
     if( typeId != r_Type::SHORT )
     {
-        RMInit::logOut << "r_Primitive_Type::set_short(cell, val) type not a short" << endl;
+        LFATAL << "r_Primitive_Type::set_short(cell, val) type not a short";
         r_Error err( r_Error::r_Error_TypeInvalid );
         throw( err );
     }
@@ -608,7 +608,7 @@ r_Primitive_Type::set_ushort( char* cell, r_UShort val )  throw( r_Error )
 {
     if( typeId != r_Type::USHORT )
     {
-        RMInit::logOut << "r_Primitive_Type::set_ushort(cell, val) type not a ushort" << endl;
+        LFATAL << "r_Primitive_Type::set_ushort(cell, val) type not a ushort";
         r_Error err( r_Error::r_Error_TypeInvalid );
         throw( err );
     }
@@ -623,7 +623,7 @@ r_Primitive_Type::set_long( char* cell, r_Long val )    throw( r_Error )
 {
     if( typeId != r_Type::LONG )
     {
-        RMInit::logOut << "r_Primitive_Type::set_long(cell, val) type not a long" << endl;
+        LFATAL << "r_Primitive_Type::set_long(cell, val) type not a long";
         r_Error err( r_Error::r_Error_TypeInvalid );
         throw( err );
     }
@@ -638,7 +638,7 @@ r_Primitive_Type::set_ulong( char* cell, r_ULong val )   throw( r_Error )
 {
     if( typeId != r_Type::ULONG )
     {
-        RMInit::logOut << "r_Primitive_Type::set_ulong(cell, val) type not a ulong" << endl;
+        LFATAL << "r_Primitive_Type::set_ulong(cell, val) type not a ulong";
         r_Error err( r_Error::r_Error_TypeInvalid );
         throw( err );
     }
@@ -653,7 +653,7 @@ r_Primitive_Type::set_float( char* cell, r_Float val )   throw( r_Error )
 {
     if( typeId != r_Type::FLOAT )
     {
-        RMInit::logOut << "r_Primitive_Type::set_float(cell, val) type not a float" << endl;
+        LFATAL << "r_Primitive_Type::set_float(cell, val) type not a float";
         r_Error err( r_Error::r_Error_TypeInvalid );
         throw( err );
     }
@@ -668,7 +668,7 @@ r_Primitive_Type::set_double( char* cell, r_Double val )  throw( r_Error )
 {
     if( typeId != r_Type::DOUBLE )
     {
-        RMInit::logOut << "r_Primitive_Type::set_double(cell, val) type not a double" << endl;
+        LFATAL << "r_Primitive_Type::set_double(cell, val) type not a double";
         r_Error err( r_Error::r_Error_TypeInvalid );
         throw( err );
     }

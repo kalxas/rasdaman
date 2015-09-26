@@ -21,7 +21,6 @@
 */
 
 #include "config.h"
-#include "raslib/rmdebug.hh"
 
 #include <signal.h>
 #include <execinfo.h>
@@ -36,6 +35,7 @@
 
 #include "commonutil.hh"
 
+#include "../common/src/logging/easylogging++.hh"
 
 #include "debug/debug.hh"   //ENTER and LEAVE
 
@@ -60,7 +60,7 @@ void print_stacktrace(void *ucontext) {
   char ** messages = backtrace_symbols(addresses, size);
 
   // skip first stack frame (points here)
-  RMInit::logOut << endl << endl << "Segmentation fault caught, stacktrace:" << endl;
+  LINFO << "Segmentation fault caught, stacktrace:";
 
   printf("\n\nSegmentation fault caught, stacktrace:\n");
 
@@ -95,7 +95,7 @@ void print_stacktrace(void *ucontext) {
 
       if (snprintf(linkname, sizeof(linkname), "/proc/%i/exe", pid) < 0)
       {
-          RMInit::logOut << endl << "Error getting binary path for print_stacktrace." << std::endl;
+          LERROR << "Error getting binary path for print_stacktrace.";
           printf("Error getting binary path for print_stackTrace.\n");
       }
 
@@ -118,24 +118,22 @@ void print_stacktrace(void *ucontext) {
 
       // if demangling is successful, output the demangled function name
       if (status == 0) {
-        RMInit::logOut << "[bt]: (" << j << ") " << messages[i] << " (" << sourceFileLine << ") - "
-                << real_name << "+" << offset_begin << offset_end
-                << std::endl;
+        LINFO << "[bt]: (" << j << ") " << messages[i] << " (" << sourceFileLine << ") - "
+                << real_name << "+" << offset_begin << offset_end;
         fflush(stdout);
         printf("[bt]: (%d) %s (%s) - %s+%s%s\n", j, messages[i], sourceFileLine, real_name, offset_begin, offset_end);
 
       }        // otherwise, output the mangled function name
       else {
-        RMInit::logOut << "[bt]: (" << j << ") " << messages[i] << " (" << sourceFileLine << ") - "
-                << mangled_name << "+" << offset_begin << offset_end
-                << std::endl;
+        LINFO << "[bt]: (" << j << ") " << messages[i] << " (" << sourceFileLine << ") - "
+                << mangled_name << "+" << offset_begin << offset_end;
         fflush(stdout);
         printf("[bt]: (%d) %s (%s) - %s+%s%s\n", j, messages[i], sourceFileLine, real_name, offset_begin, offset_end);
       }
       free(real_name);
     }      // otherwise, print the whole line
     else {
-      RMInit::logOut << "[bt]: (" << j << ") " << messages[i] << std::endl;
+      LINFO << "[bt]: (" << j << ") " << messages[i];
       printf("[bt]: (%d) %s\n", j, messages[i]);
     }
   }
@@ -146,8 +144,6 @@ void print_stacktrace(void *ucontext) {
 
 void
 installSigSegvHandler(void (*cleanUpHandler)(int, siginfo_t* , void* ) ){
-
-    ENTER( "installSigSegvHandler" );
 
     struct sigaction sigact;
 
@@ -163,10 +159,8 @@ installSigSegvHandler(void (*cleanUpHandler)(int, siginfo_t* , void* ) ){
 
     if(retVal != 0)
     {
-      RMInit::logOut << std::endl << "Installing SIGSEGV handler failed. " << std::endl;
+      LERROR << "Installing SIGSEGV handler failed. ";
     }
-
-    LEAVE( "installSigSegvHandler");
 
 }
 
@@ -175,7 +169,6 @@ installSigSegvHandler(void (*cleanUpHandler)(int, siginfo_t* , void* ) ){
 
 void* getFaultAddress(sig_ucontext_t * uc)
 {
-    ENTER( "getFaultAddress");
     void *              caller_address;
 
      /* Get the address at the time the signal was raised */
@@ -187,9 +180,6 @@ void* getFaultAddress(sig_ucontext_t * uc)
 #error Unsupported architecture. // TODO: Add support for other arch.
 #endif
 
-
-
-    LEAVE( "getFaultAddress");
     return caller_address;
 
 }

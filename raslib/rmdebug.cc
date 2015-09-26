@@ -42,6 +42,7 @@ using namespace std;
 #include <stdlib.h>
 #include <fstream>
 
+#include "../common/src/logging/easylogging++.hh"
 
 #include "raslib/rmdebug.hh"
 #include "raslib/odmgtypes.hh"
@@ -118,9 +119,9 @@ RMDebug::RMDebug(const char* newClass, const char* newFunc, const char* newModul
     {
         indentLine();
         // output, when entering function
-        RMInit::dbgOut << "D: " << myClass << "::" << myFunc << " entered "
+        LTRACE << "D: " << myClass << "::" << myFunc << " entered "
                        << "(" << myModule << ", " << myFile << ": " << myLine
-                       << ")." << endl;
+                       << ").";
         // indentation
         level++;
     }
@@ -137,9 +138,9 @@ RMDebug::RMDebug(int newLevel, const char* newClass, const char* newFunc, int ne
     {
         indentLine();
         // output when entering function
-        RMInit::dbgOut << "D: " << myClass << "::" << myFunc << " entered "
+        LTRACE << "D: " << myClass << "::" << myFunc << " entered "
                        << "(" << allModuleNames[myModuleNum] << ", " << myFile << ": "
-                       << myLine << ")." << endl;
+                       << myLine << ").";
         // indentation
         level++;
     }
@@ -153,8 +154,8 @@ RMDebug::~RMDebug(void)
         level--;
         indentLine();
         // output, when exiting function
-        RMInit::dbgOut << "D: " << myClass << "::" << myFunc
-                       << " exited." << endl;
+        LTRACE << "D: " << myClass << "::" << myFunc
+                       << " exited.";
     }
 }
 
@@ -260,9 +261,9 @@ RMDebug::initRMDebug(void)
             for (int i=0; i<module_number; i++)
             {
                 if (debugModules[j] == NULL)
-                    RMInit::logOut << "RMDebug::initRMDebug: debugModules[" << j << "] is NULL, skipping this." << std::endl;
+                    LWARNING << "RMDebug::initRMDebug: debugModules[" << j << "] is NULL, skipping this.";
                 else if (allModuleNames[i] == NULL)
-                    RMInit::logOut << "RMDebug::initRMDebug: allModuleNames[" << i << "] is NULL, skipping this." << std::endl;
+                    LWARNING << "RMDebug::initRMDebug: allModuleNames[" << i << "] is NULL, skipping this.";
                 else if (strcmp(debugModules[j], allModuleNames[i]) == 0)
                 {
                     transDebugModules[j] = i;
@@ -274,7 +275,7 @@ RMDebug::initRMDebug(void)
             j++;
         }
         for (j=0; j<module_number; j++)
-            RMInit::dbgOut << allModuleNames[j] << " : " << allModuleLevels[j] << endl;
+            LTRACE << allModuleNames[j] << " : " << allModuleLevels[j];
     }
 
     // -------------------
@@ -319,9 +320,8 @@ RMDebug::initRMDebug(void)
             }
         }
     }
-    RMInit::dbgOut << endl;
     for (j=0; j<numDebugClasses; j++)
-        RMInit::dbgOut << debugClasses[j] << endl;
+        LTRACE << debugClasses[j];
 
     if(errmod == -1 && errclass == -1)
         return -1;
@@ -417,10 +417,10 @@ RMCounter::RMCounter(int levell, int module, const char* cls)
 {
     if (RMDebug::debugOutput( levell, module, cls ))
     {
-        //RMInit::dbgOut << "RMCounter() " << RMDebug::level << " ";
+        //LTRACE << "RMCounter() " << RMDebug::level << " ";
         doStuff = true;
         RMDebug::level++;
-        //RMInit::dbgOut << RMDebug::level << endl;
+        //LTRACE << RMDebug::level;
     }
 }
 
@@ -428,9 +428,9 @@ RMCounter::~RMCounter()
 {
     if (doStuff == true)
     {
-        //RMInit::dbgOut << "~RMCounter() " << RMDebug::level << " ";
+        //LTRACE << "~RMCounter() " << RMDebug::level << " ";
         RMDebug::level--;
-        //RMInit::dbgOut << RMDebug::level << endl;
+        //LTRACE << RMDebug::level;
     }
 }
 

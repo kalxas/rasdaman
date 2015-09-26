@@ -27,8 +27,9 @@ static const char rcsid[] = "@(#) raslib, r_Attribute: $Header: /home/rasdev/CVS
 #include "raslib/attribute.hh"
 #include "raslib/basetype.hh"
 #include "raslib/structuretype.hh"
-#include "raslib/rminit.hh"
 #include "raslib/error.hh"
+
+#include "../common/src/logging/easylogging++.hh"
 
 #include "config.h"
 
@@ -109,7 +110,7 @@ r_Attribute::operator[](unsigned int number) const throw(r_Error)
 {
     if (type_of().type_id() != r_Type::STRUCTURETYPE)
     {
-        RMInit::logOut << "r_Attribute::operator[](" << number << ") not a struct type" << endl;
+        LFATAL << "r_Attribute::operator[](" << number << ") not a struct type";
         throw r_Error(r_Error::r_Error_TypeInvalid) ;
     }
 
@@ -125,7 +126,7 @@ r_Attribute::get_boolean(const char* cell) const throw(r_Error)
 {
     if (type_of().type_id() != r_Type::BOOL)
     {
-        RMInit::logOut << "r_Attribute::get_boolean(data) not a boolean" << endl;
+        LFATAL << "r_Attribute::get_boolean(data) not a boolean";
         r_Error err(r_Error::r_Error_TypeInvalid) ;
         throw(err) ;
     }
@@ -140,7 +141,7 @@ r_Attribute::get_char(const char* cell) const throw(r_Error)
 {
     if (type_of() .type_id() != r_Type::CHAR)
     {
-        RMInit::logOut << "r_Attribute::get_char(data) not a char" << endl;
+        LFATAL << "r_Attribute::get_char(data) not a char";
         r_Error err(r_Error::r_Error_TypeInvalid) ;
         throw(err) ;
     }
@@ -155,7 +156,7 @@ r_Attribute::get_octet(const char* cell) const throw(r_Error)
 {
     if (type_of() .type_id() != r_Type::OCTET)
     {
-        RMInit::logOut << "r_Attribute::get_octet(data) not a octet" << endl;
+        LFATAL << "r_Attribute::get_octet(data) not a octet";
         r_Error err(r_Error::r_Error_TypeInvalid) ;
         throw(err) ;
     }
@@ -170,7 +171,7 @@ r_Attribute::get_short(const char* cell) const throw(r_Error)
 {
     if (type_of() .type_id() != r_Type::SHORT)
     {
-        RMInit::logOut << "r_Attribute::get_short(data) not a short" << endl;
+        LFATAL << "r_Attribute::get_short(data) not a short";
         r_Error err(r_Error::r_Error_TypeInvalid) ;
         throw(err) ;
     }
@@ -185,7 +186,7 @@ r_Attribute::get_ushort(const char* cell) const throw(r_Error)
 {
     if (type_of() .type_id() != r_Type::USHORT)
     {
-        RMInit::logOut << "r_Attribute::get_ushort(data) not a ushort" << endl;
+        LFATAL << "r_Attribute::get_ushort(data) not a ushort";
         r_Error err(r_Error::r_Error_TypeInvalid) ;
         throw(err) ;
     }
@@ -200,7 +201,7 @@ r_Attribute::get_long(const char* cell) const throw(r_Error)
 {
     if (type_of() .type_id() != r_Type::LONG)
     {
-        RMInit::logOut << "r_Attribute::get_long(data) not a long" << endl;
+        LFATAL << "r_Attribute::get_long(data) not a long";
         r_Error err(r_Error::r_Error_TypeInvalid) ;
         throw(err) ;
     }
@@ -215,7 +216,7 @@ r_Attribute::get_ulong(const char* cell) const throw(r_Error)
 {
     if (type_of() .type_id() != r_Type::ULONG)
     {
-        RMInit::logOut << "r_Attribute::get_ulong(data) not a ulong" << endl;
+        LFATAL << "r_Attribute::get_ulong(data) not a ulong";
         r_Error err(r_Error::r_Error_TypeInvalid) ;
         throw(err) ;
     }
@@ -230,7 +231,7 @@ r_Attribute::get_float(const char* cell) const throw(r_Error)
 {
     if (type_of() .type_id() != r_Type::FLOAT)
     {
-        RMInit::logOut << "r_Attribute::get_float(data) not a float" << endl;
+        LFATAL << "r_Attribute::get_float(data) not a float";
         r_Error err(r_Error::r_Error_TypeInvalid) ;
         throw(err) ;
     }
@@ -245,7 +246,7 @@ r_Attribute::get_double(const char* cell) const throw(r_Error)
 {
     if (type_of() .type_id() != r_Type::DOUBLE)
     {
-        RMInit::logOut << "r_Attribute::get_double(data) not a double" << endl;
+        LFATAL << "r_Attribute::get_double(data) not a double";
         r_Error err(r_Error::r_Error_TypeInvalid) ;
         throw(err) ;
     }

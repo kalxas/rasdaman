@@ -42,6 +42,8 @@
 #include "raslib/rminit.hh"
 #include "raslib/rm.hh"
 
+#include "../common/src/logging/easylogging++.hh"
+
 extern int RManDebug;
 extern int RManBenchmark;
 
@@ -53,26 +55,26 @@ extern int RManBenchmark;
 #define RMDBGENTER( levell, module, cls, text ) \
   RMCounter rmCounter(levell, module, cls); \
   if (RMDebug::debugOutput( levell, module, cls )) { \
-    RMInit::dbgOut << "ENTER  "; RMInit::dbgOut.width(18); RMInit::dbgOut.setf(ios::left, ios::adjustfield); RMInit::dbgOut << cls << " "; RMDebug::indentLine(); RMInit::dbgOut << text << endl << std::flush; \
+    LTRACE << "ENTER  ";  LTRACE << cls << " "; RMDebug::indentLine(); LTRACE << text; \
   }
 
 #define RMDBGMIDDLE( levell, module, cls, text ) \
   if (RMDebug::debugOutput( levell, module, cls )) { \
-    RMInit::dbgOut << "MIDDLE "; RMInit::dbgOut.width(18); RMInit::dbgOut.setf(ios::left, ios::adjustfield); RMInit::dbgOut << cls << " "; RMDebug::indentLine(); RMInit::dbgOut << text << endl << std::flush; \
+    LTRACE << "MIDDLE "; LTRACE << cls << " "; RMDebug::indentLine(); LTRACE << text; \
   }
 
 #define RMDBGONCE( levell, module, cls, text ) \
   RMCounter rmCounter(levell, module, cls); \
   if (RMDebug::debugOutput(levell, module, cls)) \
   { \
-    RMInit::dbgOut << "ONCE   "; RMInit::dbgOut.width(18); RMInit::dbgOut.setf(ios::left, ios::adjustfield); RMInit::dbgOut << cls << " "; \
+    LTRACE << "ONCE   "; LTRACE << cls << " "; \
     RMDebug::indentLine(); \
-    RMInit::dbgOut << text << endl << std::flush; \
+    LTRACE << text; \
   }
 
 #define RMDBGEXIT( levell, module, cls, text ) \
   if (RMDebug::debugOutput( levell, module, cls )) { \
-    RMInit::dbgOut << "EXIT   "; RMInit::dbgOut.width(18); RMInit::dbgOut.setf(ios::left, ios::adjustfield); RMInit::dbgOut << cls << " "; RMDebug::indentLine(); RMInit::dbgOut << text << endl << std::flush; \
+    LTRACE << "EXIT   "; LTRACE << cls << " "; RMDebug::indentLine(); LTRACE << text; \
   }
 
 #define RMDBCLASS( t1, t2, t3, t4, t5 ) RMDebug localRMDebug = RMDebug( t1, t2, t3, t4, t5 );
@@ -170,7 +172,7 @@ public:
     /// indent by the amount specified by level
     static inline void indentLine(void)
     {
-        for (int i=0; i<level; i++) RMInit::dbgOut << "  ";
+        for (int i=0; i<level; i++) LTRACE << "  ";
     }
 
     /// return whether debug output should happen for the given module, class

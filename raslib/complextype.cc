@@ -28,8 +28,9 @@ rasdaman GmbH.
 
 #include "raslib/complextype.hh"
 #include "raslib/endian.hh"
-#include "raslib/rmdebug.hh"
 #include "raslib/error.hh"
+
+#include "../common/src/logging/easylogging++.hh"
 
 r_Complex_Type::r_Complex_Type()
     :   r_Primitive_Type(),
@@ -50,7 +51,7 @@ r_Complex_Type::r_Complex_Type(const char* newTypeName, const r_Type::r_Type_Id 
         imOff = sizeof(r_Double);
         break;
     default:
-        RMDBGONCE(3, RMDebug::module_raslib, "r_Complex_Type", "r_Complex_Type(...) bad typeId " << typeId);
+        LTRACE << "r_Complex_Type(...) bad typeId " << typeId;
         break;
     }
 }
@@ -90,7 +91,7 @@ r_Complex_Type::get_re(const char* cell) const throw(r_Error)
     if( (typeId != r_Type::COMPLEXTYPE1) &&
             (typeId != r_Type::COMPLEXTYPE2) )
     {
-        RMInit::logOut << "r_Complex_Type::get_re(cell) type not a complex1 or complex2" << endl;
+        LFATAL << "r_Complex_Type::get_re(cell) type not a complex1 or complex2";
         r_Error err( r_Error::r_Error_TypeInvalid );
         throw( err );
     }
@@ -105,7 +106,7 @@ r_Complex_Type::get_re(const char* cell) const throw(r_Error)
         res = *(r_Double *)const_cast<char*>(cell);
         break;
     default:
-        RMDBGONCE(3, RMDebug::module_raslib, "r_Complex_Type", "get_re(...) bad typeId " << typeId);
+        LTRACE << "get_re(...) bad typeId " << typeId;
         break;
     }
     return res;
@@ -119,7 +120,7 @@ r_Complex_Type::get_im(const char* cell) const throw(r_Error)
     if( (typeId != r_Type::COMPLEXTYPE1) &&
             (typeId != r_Type::COMPLEXTYPE2) )
     {
-        RMInit::logOut << "r_Complex_Type::get_im(cell) type not a complex1 or complex2" << endl;
+        LFATAL << "r_Complex_Type::get_im(cell) type not a complex1 or complex2";
         r_Error err( r_Error::r_Error_TypeInvalid );
         throw( err );
     }
@@ -133,7 +134,7 @@ r_Complex_Type::get_im(const char* cell) const throw(r_Error)
         res = *(r_Double*)(const_cast<char*>(cell) + imOff);
         break;
     default:
-        RMDBGONCE(3, RMDebug::module_raslib, "r_Complex_Type", "get_im(...) bad typeId " << typeId);
+        LTRACE << "get_im(...) bad typeId " << typeId;
         break;
     }
     return res;
@@ -149,7 +150,7 @@ r_Complex_Type::set_re(char* cell, r_Double re) throw(r_Error)
     if( (typeId != r_Type::COMPLEXTYPE1) &&
             (typeId != r_Type::COMPLEXTYPE2) )
     {
-        RMInit::logOut << "r_Complex_Type::set_re(cell, re) type not a complex1 or complex2" << endl;
+        LFATAL << "r_Complex_Type::set_re(cell, re) type not a complex1 or complex2";
         r_Error err( r_Error::r_Error_TypeInvalid );
         throw( err );
     }
@@ -164,7 +165,7 @@ r_Complex_Type::set_re(char* cell, r_Double re) throw(r_Error)
         memmove(cell, &re, imOff);
         break;
     default:
-        RMDBGONCE(3, RMDebug::module_raslib, "r_Complex_Type", "set_re(...) bad typeId " << typeId);
+        LTRACE << "set_re(...) bad typeId " << typeId;
         break;
     }
 }
@@ -177,7 +178,7 @@ r_Complex_Type::set_im(char* cell, r_Double im) throw(r_Error)
     if( (typeId != r_Type::COMPLEXTYPE1) &&
             (typeId != r_Type::COMPLEXTYPE2) )
     {
-        RMInit::logOut << "r_Complex_Type::set_im(cell, im) type not a complex1 or complex2" << endl;
+        LFATAL << "r_Complex_Type::set_im(cell, im) type not a complex1 or complex2";
         r_Error err( r_Error::r_Error_TypeInvalid );
         throw( err );
     }
@@ -192,7 +193,7 @@ r_Complex_Type::set_im(char* cell, r_Double im) throw(r_Error)
         memmove((cell + imOff), &im, imOff);
         break;
     default:
-        RMDBGONCE(3, RMDebug::module_raslib, "r_Complex_Type", "set_im(...) bad typeId " << typeId);
+        LTRACE << "set_im(...) bad typeId " << typeId;
         break;
     }
 }
@@ -210,7 +211,7 @@ r_Complex_Type::print_status(std::ostream& s) const
         s << "complex(double, double)";
         break;
     default:
-        RMDBGONCE(3, RMDebug::module_raslib, "r_Complex_Type", "print_status(...) bad typeId " << typeId);
+        LTRACE << "print_status(...) bad typeId " << typeId;
         break;
     }
 }
@@ -242,7 +243,7 @@ r_Complex_Type::convertToLittleEndian(char* cells, r_Area noCells) const
         }
         break;
     default:
-        RMDBGONCE(3, RMDebug::module_raslib, "r_Complex_Type", "convertToLittleEndian(...) bad typeId " << typeId);
+        LTRACE << "convertToLittleEndian(...) bad typeId " << typeId;
         break;
     }
 }
@@ -267,7 +268,7 @@ r_Complex_Type::convertToBigEndian(char* cells, r_Area noCells) const
         }
         break;
     default:
-        RMDBGONCE(3, RMDebug::module_raslib, "r_Complex_Type", "convertToBigEndian(...) bad typeId " << typeId);
+        LTRACE << "convertToBigEndian(...) bad typeId " << typeId;
         break;
     }
 }

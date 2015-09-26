@@ -35,8 +35,9 @@ rasdaman GmbH.
 
 #include "raslib/primitive.hh"
 #include "raslib/primitivetype.hh"
-#include "raslib/rminit.hh"
 #include "raslib/error.hh"
+
+#include "../common/src/logging/easylogging++.hh"
 
 #include <sstream>
 #include <string.h>
@@ -139,7 +140,7 @@ r_Primitive::get_boolean() const throw( r_Error )
 {
     if( !valueBuffer || !valueType )
     {
-        RMInit::logOut << "r_Primitive::get_boolean() buffer null or type null " << endl;
+        LFATAL << "r_Primitive::get_boolean() buffer null or type null ";
         r_Error err( r_Error::r_Error_TypeInvalid );
         throw err;
     }
@@ -154,7 +155,7 @@ r_Primitive::get_char() const throw( r_Error )
 {
     if( !valueBuffer || !valueType)
     {
-        RMInit::logOut << "r_Primitive::get_char() buffer null or type null" << endl;
+        LFATAL << "r_Primitive::get_char() buffer null or type null";
         r_Error err( r_Error::r_Error_TypeInvalid );
         throw err;
     }
@@ -169,7 +170,7 @@ r_Primitive::get_octet() const throw( r_Error )
 {
     if( !valueBuffer || !valueType )
     {
-        RMInit::logOut << "r_Primitive::get_octet() buffer null or type null" << endl;
+        LFATAL << "r_Primitive::get_octet() buffer null or type null";
         r_Error err( r_Error::r_Error_TypeInvalid );
         throw err;
     }
@@ -184,7 +185,7 @@ r_Primitive::get_short() const throw( r_Error )
 {
     if( !valueBuffer || !valueType )
     {
-        RMInit::logOut << "r_Primitive::get_short() buffer null or type null" << endl;
+        LFATAL << "r_Primitive::get_short() buffer null or type null";
         r_Error err( r_Error::r_Error_TypeInvalid );
         throw err;
     }
@@ -199,7 +200,7 @@ r_Primitive::get_ushort() const throw( r_Error )
 {
     if( !valueBuffer || !valueType )
     {
-        RMInit::logOut << "r_Primitive::get_ushort() buffer null or type null" << endl;
+        LFATAL << "r_Primitive::get_ushort() buffer null or type null";
         r_Error err( r_Error::r_Error_TypeInvalid );
         throw err;
     }
@@ -214,7 +215,7 @@ r_Primitive::get_long() const throw( r_Error )
 {
     if( !valueBuffer || !valueType )
     {
-        RMInit::logOut << "r_Primitive::get_long() buffer null or type null" << endl;
+        LFATAL << "r_Primitive::get_long() buffer null or type null";
         r_Error err( r_Error::r_Error_TypeInvalid );
         throw err;
     }
@@ -229,7 +230,7 @@ r_Primitive::get_ulong() const throw( r_Error )
 {
     if( !valueBuffer || !valueType )
     {
-        RMInit::logOut << "r_Primitive::get_ulong() buffer null or type null" << endl;
+        LFATAL << "r_Primitive::get_ulong() buffer null or type null";
         r_Error err( r_Error::r_Error_TypeInvalid );
         throw err;
     }
@@ -244,7 +245,7 @@ r_Primitive::get_float() const throw( r_Error )
 {
     if( !valueBuffer || !valueType )
     {
-        RMInit::logOut << "r_Primitive::get_float() buffer null or type null" << endl;
+        LFATAL << "r_Primitive::get_float() buffer null or type null";
         r_Error err( r_Error::r_Error_TypeInvalid );
         throw err;
     }
@@ -259,7 +260,7 @@ r_Primitive::get_double() const throw( r_Error )
 {
     if( !valueBuffer || !valueType )
     {
-        RMInit::logOut << "r_Primitive::get_double() buffer null or type null" << endl;
+        LFATAL << "r_Primitive::get_double() buffer null or type null";
         r_Error err( r_Error::r_Error_TypeInvalid );
         throw err;
     }
@@ -273,7 +274,7 @@ r_Primitive::set_boolean(r_Boolean val) throw( r_Error )
 {
     if( !valueType || valueType->type_id() != r_Type::BOOL )
     {
-        RMInit::logOut << "r_Primitive::set_boolean(" << val << ") not a boolean" << endl;
+        LFATAL << "r_Primitive::set_boolean(" << val << ") not a boolean";
         r_Error err( r_Error::r_Error_TypeInvalid );
         throw err;
     }
@@ -291,7 +292,7 @@ r_Primitive::set_char(r_Char val) throw( r_Error )
 {
     if( !valueType || valueType->type_id() != r_Type::CHAR )
     {
-        RMInit::logOut << "r_Primitive::set_char(" << val << ") not a char" << endl;
+        LFATAL << "r_Primitive::set_char(" << val << ") not a char";
         r_Error err( r_Error::r_Error_TypeInvalid );
         throw err;
     }
@@ -309,7 +310,7 @@ r_Primitive::set_octet(r_Octet val) throw( r_Error )
 {
     if( !valueType || valueType->type_id() != r_Type::OCTET )
     {
-        RMInit::logOut << "r_Primitive::set_octet(" << val << ") not a octet" << endl;
+        LFATAL << "r_Primitive::set_octet(" << val << ") not a octet";
         r_Error err( r_Error::r_Error_TypeInvalid );
         throw err;
     }
@@ -327,7 +328,7 @@ r_Primitive::set_short(r_Short val) throw( r_Error )
 {
     if( !valueType || valueType->type_id() != r_Type::SHORT )
     {
-        RMInit::logOut << "r_Primitive::set_short(" << val << ") not a short" << endl;
+        LFATAL << "r_Primitive::set_short(" << val << ") not a short";
         r_Error err( r_Error::r_Error_TypeInvalid );
         throw err;
     }
@@ -345,7 +346,7 @@ r_Primitive::set_ushort(r_UShort val) throw( r_Error )
 {
     if( !valueType || valueType->type_id() != r_Type::USHORT )
     {
-        RMInit::logOut << "r_Primitive::set_ushort(" << val << ") not a ushort" << endl;
+        LFATAL << "r_Primitive::set_ushort(" << val << ") not a ushort";
         r_Error err( r_Error::r_Error_TypeInvalid );
         throw err;
     }
@@ -363,7 +364,7 @@ r_Primitive::set_long(r_Long val) throw( r_Error )
 {
     if( !valueType || valueType->type_id() != r_Type::LONG )
     {
-        RMInit::logOut << "r_Primitive::set_long(" << val << ") not a long" << endl;
+        LFATAL << "r_Primitive::set_long(" << val << ") not a long";
         r_Error err( r_Error::r_Error_TypeInvalid );
         throw err;
     }
@@ -381,7 +382,7 @@ r_Primitive::set_ulong(r_ULong val) throw( r_Error )
 {
     if( !valueType || valueType->type_id() != r_Type::ULONG )
     {
-        RMInit::logOut << "r_Primitive::set_ulong(" << val << ") not a ulong" << endl;
+        LFATAL << "r_Primitive::set_ulong(" << val << ") not a ulong";
         r_Error err( r_Error::r_Error_TypeInvalid );
         throw err;
     }
@@ -399,7 +400,7 @@ r_Primitive::set_float(r_Float val) throw( r_Error )
 {
     if( !valueType || valueType->type_id() != r_Type::FLOAT )
     {
-        RMInit::logOut << "r_Primitive::set_float(" << val << ") not a float" << endl;
+        LFATAL << "r_Primitive::set_float(" << val << ") not a float";
         r_Error err( r_Error::r_Error_TypeInvalid );
         throw err;
     }
@@ -417,7 +418,7 @@ r_Primitive::set_double(r_Double val) throw( r_Error )
 {
     if( !valueType || valueType->type_id() != r_Type::DOUBLE )
     {
-        RMInit::logOut << "r_Primitive::set_double(" << val << ") not a double" << endl;
+        LFATAL << "r_Primitive::set_double(" << val << ") not a double";
         r_Error err( r_Error::r_Error_TypeInvalid );
         throw err;
     }

@@ -30,7 +30,7 @@ rasdaman GmbH.
 
 #include "raslib/miter.hh"
 #include "raslib/minterval.hh"
-#include "raslib/rmdebug.hh"
+#include "../common/src/logging/easylogging++.hh"
 
 inline
 r_Miter::r_Miter( const r_Minterval* newAreaIter,
@@ -39,7 +39,6 @@ r_Miter::r_Miter( const r_Minterval* newAreaIter,
     : areaIter(newAreaIter), areaTile(newAreaTile), cellSize(newCellSize),
       firstCell(newFirstCell), done(false)
 {
-    RMDBGENTER(1, RMDebug::module_raslib, "r_Miter", "r_Miter()");
     // the following initializes incArrIter and calculates the first offset
     int tIncIter = 1;     // total increment for current dimension
     int prevTIncIter = 1; // total increment for previous dimension
@@ -47,8 +46,8 @@ r_Miter::r_Miter( const r_Minterval* newAreaIter,
     r_Dimension i;
     int firstOff = 0;
 
-    RMDBGMIDDLE(2, RMDebug::module_raslib, "r_Miter", "area for iteration: " << *newAreaIter);
-    RMDBGMIDDLE(2, RMDebug::module_raslib, "r_Miter", "whole area: " << *newAreaTile);
+    LTRACE << "area for iteration: " << *newAreaIter;
+    LTRACE << "whole area: " << *newAreaTile;
 
     // dimensionality of both areaIter and areaTile
     r_Dimension dim = areaIter->dimension();
@@ -63,11 +62,11 @@ r_Miter::r_Miter( const r_Minterval* newAreaIter,
         incArrIter[i].curr = 0;
         // how often is the increment added?
         incArrIter[i].repeat = (*areaIter)[r].high() - (*areaIter)[r].low() + 1;
-        RMDBGMIDDLE(4, RMDebug::module_raslib, "r_Miter", "repeat dim " << i << ": " << incArrIter[i].repeat );
+        LTRACE << "repeat dim " << i << ": " << incArrIter[i].repeat ;
         // the increment for the result tile (higher dimensions calculated
         // further down)
         incArrIter[i].inc = static_cast<int>(incIter);
-        RMDBGMIDDLE(4, RMDebug::module_raslib, "r_Miter", "incIter dim " << i << ": " << incIter );
+        LTRACE << "incIter dim " << i << ": " << incIter;
 
         // calculate starting offset and increments for higher dimensions
         // firstOff is the offset in chars of the first cell
@@ -82,7 +81,6 @@ r_Miter::r_Miter( const r_Minterval* newAreaIter,
     }
     firstCell += firstOff;
     reset();
-    RMDBGEXIT(1, RMDebug::module_raslib, "r_Miter", "r_Miter()");
 }
 
 inline
