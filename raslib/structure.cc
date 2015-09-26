@@ -35,8 +35,9 @@
 #include "raslib/primitive.hh"
 #include "raslib/structuretype.hh"
 #include "raslib/error.hh"
-#include "raslib/rminit.hh"
 #include "mymalloc/mymalloc.h"
+
+#include "../common/src/logging/easylogging++.hh"
 
 #include <sstream>
 #include <string.h>
@@ -205,13 +206,13 @@ r_Structure::operator[]( unsigned int index ) const throw( r_Error )
 {
     if( !valueType )
     {
-        RMInit::logOut << "r_Structure::operator[](" << index << ") const value type is NULL" << endl;
+        LFATAL << "r_Structure::operator[](" << index << ") const value type is NULL";
         throw r_Error( r_Error::r_Error_TypeInvalid );
     }
 
     if( index > numElements )
     {
-        RMInit::logOut << "r_Structure::operator[](" << index << ") const index is out of bounds (" << numElements - 1 << ")" << endl;
+        LFATAL << "r_Structure::operator[](" << index << ") const index is out of bounds (" << numElements - 1 << ")";
         throw r_Eindex_violation( 0, numElements, index );
     }
 
@@ -225,7 +226,7 @@ r_Structure::operator[]( const char* name ) const throw( r_Error )
 {
     if( !valueType )
     {
-        RMInit::logOut << "r_Structure::operator[](" << name << ") value type is NULL" << endl;
+        LFATAL << "r_Structure::operator[](" << name << ") value type is NULL";
         r_Error err( r_Error::r_Error_TypeInvalid );
         throw( err );
     }
@@ -239,7 +240,7 @@ r_Structure::operator[]( const char* name ) const throw( r_Error )
 
     if( iter == structType->defines_attribute_end() )
     {
-        RMInit::logOut << "r_Structure::operator[](" << name << ") name is not valid" << endl;
+        LFATAL << "r_Structure::operator[](" << name << ") name is not valid";
         r_Error err( r_Error::r_Error_NameInvalid );
         throw( err );
     }

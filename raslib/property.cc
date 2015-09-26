@@ -26,8 +26,9 @@ static const char rcsid[] = "@(#)raslib, r_Meta_Object: $Header: /home/rasdev/CV
 #include "config.h"
 #include "raslib/property.hh"
 #include "raslib/basetype.hh"
-#include "raslib/rminit.hh"
 #include "raslib/error.hh"
+
+#include "../common/src/logging/easylogging++.hh"
 
 #ifdef __APPLE__
 #include <sys/malloc.h>
@@ -55,7 +56,7 @@ r_Property::r_Property(const r_Property& oldObj)
         myType = static_cast<r_Base_Type*>(oldObj.myType->clone());
     else
     {
-        RMInit::logOut << "r_Property::r_Property(oldObj) property does not have a base type" << endl;
+        LFATAL << "r_Property::r_Property(oldObj) property does not have a base type";
         throw r_Error(PROPERTYTYPEHASNOELEMENTTYPE);
     }
 }
@@ -77,7 +78,7 @@ r_Property::operator=(const r_Property& oldObj)
             myType = static_cast<r_Base_Type*>(oldObj.myType->clone());
         else
         {
-            RMInit::logOut << "r_Property::operator=(oldObj) property does not have a base type" << endl;
+            LFATAL << "r_Property::operator=(oldObj) property does not have a base type";
             throw r_Error(PROPERTYTYPEHASNOELEMENTTYPE);
         }
     }
@@ -96,7 +97,7 @@ r_Property::type_of() const
 {
     if (!myType)
     {
-        RMInit::logOut << "r_Property::type_of() property does not have a base type" << endl;
+        LFATAL << "r_Property::type_of() property does not have a base type";
         throw r_Error(PROPERTYTYPEHASNOELEMENTTYPE);
     }
 

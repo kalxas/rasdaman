@@ -38,7 +38,8 @@ static const char rcsid[] = "@(#)raslib, r_Point: $Id: point.cc,v 1.22 2002/08/2
 #include <string.h>
 #include <sstream>
 
-#include "raslib/rminit.hh"
+#include "../common/src/logging/easylogging++.hh"
+
 #include "raslib/error.hh"
 
 r_Point::r_Point( char* stringRep ) throw (r_Error)
@@ -104,7 +105,7 @@ r_Point& r_Point::operator<<( r_Range newElement ) throw( r_Einit_overflow )
 {
     if( streamInitCnt >= dimensionality )
     {
-        RMInit::logOut << "r_Point::operator<<(" << newElement << ") already fully initialised" << endl;
+        LFATAL << "r_Point::operator<<(" << newElement << ") already fully initialised";
         throw r_Einit_overflow();
     }
 
@@ -192,7 +193,7 @@ r_Point::operator[]( r_Dimension i ) const throw( r_Eindex_violation )
 {
     if( i >= dimensionality )
     {
-        RMInit::logOut << "r_Point::operator[](" << i << ") const dimension out of bounds (" << dimensionality << ")" << endl;
+        LFATAL << "r_Point::operator[](" << i << ") const dimension out of bounds (" << dimensionality << ")";
         throw r_Eindex_violation( 0, dimensionality-1, i );
     }
 
@@ -205,7 +206,7 @@ r_Point::operator[]( r_Dimension i ) throw( r_Eindex_violation )
 {
     if( i >= dimensionality )
     {
-        RMInit::logOut << "r_Point::operator[](" << i << ") dimension out of bounds (" << dimensionality << ")" << endl;
+        LFATAL << "r_Point::operator[](" << i << ") dimension out of bounds (" << dimensionality << ")";
         throw r_Eindex_violation( 0, dimensionality-1, i );
     }
 
@@ -277,7 +278,7 @@ r_Point::operator+( const r_Point& pt ) const throw( r_Edim_mismatch )
 {
     if( dimensionality != pt.dimension() )
     {
-        RMInit::logOut << "r_Point::operator+(" << pt << ") dimensions (" << dimensionality << ") do not match" << endl;
+        LFATAL << "r_Point::operator+(" << pt << ") dimensions (" << dimensionality << ") do not match";
         throw r_Edim_mismatch( dimensionality, pt.dimension() );
     }
 
@@ -294,7 +295,7 @@ r_Point::operator-( const r_Point& pt ) const throw( r_Edim_mismatch )
 {
     if( dimensionality != pt.dimension() )
     {
-        RMInit::logOut << "r_Point::operator-(" << pt << ") dimensions (" << dimensionality << ") do not match" << endl;
+        LFATAL << "r_Point::operator-(" << pt << ") dimensions (" << dimensionality << ") do not match";
         throw r_Edim_mismatch( dimensionality, pt.dimension() );
     }
 
@@ -311,7 +312,7 @@ r_Point::operator*( const r_Point& pt ) const throw( r_Edim_mismatch )
 {
     if( dimensionality != pt.dimension() )
     {
-        RMInit::logOut << "r_Point::operator*(" << pt << ") dimensions (" << dimensionality << ") do not match" << endl;
+        LFATAL << "r_Point::operator*(" << pt << ") dimensions (" << dimensionality << ") do not match";
         throw r_Edim_mismatch( dimensionality, pt.dimension() );
     }
 

@@ -33,8 +33,9 @@ static const char rcsid[] = "@(#)raslib, r_Structure_Type: $Header: /home/rasdev
 
 #include "raslib/structuretype.hh"
 #include "raslib/attribute.hh"
-#include "raslib/rminit.hh"
 #include "raslib/error.hh"
+
+#include "../common/src/logging/easylogging++.hh"
 
 r_Structure_Type::r_Structure_Type()
     : r_Base_Type(),
@@ -167,7 +168,7 @@ r_Structure_Type::resolve_attribute(const char* newName) const throw( r_Error )
 
     if( iter == defines_attribute_end() )
     {
-        RMInit::logOut << "r_Structure_Type::resolve_attribute(" << newName << ") not a valid atribute name" << endl;
+        LFATAL << "r_Structure_Type::resolve_attribute(" << newName << ") not a valid atribute name";
         r_Error err(r_Error::r_Error_NameInvalid);
         throw err;
     }
@@ -188,7 +189,7 @@ r_Structure_Type::resolve_attribute(unsigned int number) const throw( r_Error )
 
     if( iter == defines_attribute_end() || i < number )
     {
-        RMInit::logOut << "r_Structure_Type::resolve_attribute(" << number << ") index out of bounds (" << i << ")" << endl;
+        LFATAL << "r_Structure_Type::resolve_attribute(" << number << ") index out of bounds (" << i << ")";
         throw r_Eindex_violation( 0, numAttrs-1, number );
     }
 

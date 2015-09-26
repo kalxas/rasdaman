@@ -25,8 +25,8 @@ static const char rcsid[] = "@(#)raslib, r_Collection_Type: $Header: /home/rasde
 
 #include "config.h"
 #include "raslib/collectiontype.hh"
-#include "raslib/rminit.hh"
 #include "raslib/error.hh"
+#include "../common/src/logging/easylogging++.hh"
 
 #include "config.h"
 
@@ -50,7 +50,7 @@ r_Collection_Type::r_Collection_Type(const r_Collection_Type& oldObj) throw (r_E
         elementType = oldObj.elementType->clone();
     else
     {
-        RMInit::logOut << "r_Collection_Type::r_Collection_Type( oldObj ) the element type is NULL." << endl;
+        LFATAL << "r_Collection_Type::r_Collection_Type( oldObj ) the element type is NULL.";
         throw r_Error(COLLECTIONTYPEHASNOELEMENTTYPE);
     }
 }
@@ -75,7 +75,7 @@ r_Collection_Type::operator=(const r_Collection_Type& oldObj) throw (r_Error)
         elementType = oldObj.elementType->clone();
     else
     {
-        RMInit::logOut << "r_Collection_Type::operator=( oldObj ) the element type is NULL." << endl;
+        LFATAL << "r_Collection_Type::operator=( oldObj ) the element type is NULL.";
         throw r_Error(COLLECTIONTYPEHASNOELEMENTTYPE);
     }
     return *this;
@@ -86,7 +86,7 @@ r_Collection_Type::element_type() const throw (r_Error)
 {
     if (elementType == NULL)
     {
-        RMInit::logOut << "r_Collection_Type::element_type() the element type is NULL." << endl;
+        LFATAL << "r_Collection_Type::element_type() the element type is NULL.";
         throw r_Error(COLLECTIONTYPEHASNOELEMENTTYPE);
     }
     return *elementType;

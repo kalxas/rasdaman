@@ -35,13 +35,12 @@ rasdaman GmbH.
 
 
 #include "raslib/endian.hh"
-#include "raslib/rmdebug.hh"
 #include "raslib/minterval.hh"
 #include "raslib/primitivetype.hh"
 #include "raslib/structuretype.hh"
 #include "raslib/miter.hh"
 
-
+#include "../common/src/logging/easylogging++.hh"
 
 
 /*
@@ -351,7 +350,7 @@ void r_Endian::swap_array( const r_Primitive_Type *type, r_Bytes size, const voi
         swap_array_templ(size, static_cast<r_Double*>(dest), static_cast<const r_Double*>(src));
         break;
     default:
-        RMDBGONCE(3, RMDebug::module_raslib, "r_Endian", "swap_array(type, size, src, dest) bad typeId " << type->type_id());
+        LTRACE << "swap_array(type, size, src, dest) bad typeId " << type->type_id();
         break;
     }
 }
@@ -485,7 +484,7 @@ void r_Endian::swap_array( const r_Primitive_Type *type, const r_Minterval &srcD
             swap_array_templ(iter, static_cast<r_Double*>(dest), static_cast<const r_Double*>(src));
             break;
         default:
-            RMDBGONCE(3, RMDebug::module_raslib, "r_Endian", "swap_array(type, srcdom, srciterdom, src,  dest, step) bad typeId " << type->type_id());
+            LTRACE << "swap_array(type, srcdom, srciterdom, src,  dest, step) bad typeId " << type->type_id();
             break;
         }
     }
@@ -574,7 +573,7 @@ void r_Endian::swap_array( const r_Primitive_Type *type, const r_Minterval &srcD
             swap_array_templ(siter, diter, static_cast<const r_Double*>(src));
             break;
         default:
-            RMDBGONCE(3, RMDebug::module_raslib, "r_Endian", "swap_array(type, srcdom, srciterdom, destdom, destiterdom, src,  dest, step) bad typeId " << type->type_id());
+            LTRACE << "swap_array(type, srcdom, srciterdom, destdom, destiterdom, src,  dest, step) bad typeId " << type->type_id();
             break;
         }
     }

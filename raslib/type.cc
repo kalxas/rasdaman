@@ -39,7 +39,8 @@ static const char rcsid[] = "@(#)raslib, r_Type: $Header: /home/rasdev/CVS-repos
 #include "raslib/oidtype.hh"
 #include "raslib/attribute.hh"
 #include "raslib/error.hh"
-#include "raslib/rminit.hh"
+
+#include "../common/src/logging/easylogging++.hh"
 
 r_Type::r_Type()
     : r_Meta_Object()
@@ -326,7 +327,7 @@ r_Type::getCollectionType(char* &pos)
     // get '<'
     if(getNextToken(pos, identifier) != DLLAP)
     {
-        RMInit::logOut << "r_Type::getCollectionType(" << pos << ") expected DLLAP" << endl;
+        LFATAL << "r_Type::getCollectionType(" << pos << ") expected DLLAP";
         throw r_Error(INTERNALDLPARSEERROR);
     }
 
@@ -390,7 +391,7 @@ r_Type::getMarrayType(char* &pos)
     // get '<'
     if(getNextToken(pos, identifier) != DLLAP)
     {
-        RMInit::logOut << "r_Type::getMarrayType(" << pos << ") expected DLLAP" << endl;
+        LFATAL << "r_Type::getMarrayType(" << pos << ") expected DLLAP";
         throw r_Error(INTERNALDLPARSEERROR);
     }
 
@@ -467,7 +468,7 @@ r_Type::getPrimitiveType(char* &pos)
         break;
     default:
     {
-        RMInit::logOut << "r_Type::getPrimitiveType(" << pos << ") unknown token" << endl;
+        LFATAL << "r_Type::getPrimitiveType(" << pos << ") unknown token";
         throw r_Error(INTERNALDLPARSEERROR);
     }
     }
@@ -490,7 +491,7 @@ r_Type::getStructureType(char* &pos, int offset)
     // get '{'
     if(getNextToken(pos, identifier) != DLLCP)
     {
-        RMInit::logOut << "r_Type::getStructureType(" << pos << ", " << offset << ") expected DLLCP" << endl;
+        LFATAL << "r_Type::getStructureType(" << pos << ", " << offset << ") expected DLLCP";
         throw r_Error(INTERNALDLPARSEERROR);
     }
 
@@ -537,7 +538,7 @@ r_Type::getStructureType(char* &pos, int offset)
 
         if(token != DLCOMMA && token != DLRCP)
         {
-            RMInit::logOut << "r_Type::getStructureType(" << pos << ", " << offset << ") expected DLRCP or DLCOMMA" << endl;
+            LFATAL << "r_Type::getStructureType(" << pos << ", " << offset << ") expected DLRCP or DLCOMMA";
             throw r_Error(INTERNALDLPARSEERROR);
         }
     }

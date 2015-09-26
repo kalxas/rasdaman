@@ -43,7 +43,7 @@ static const char rcsid[] = "@(#)raslib, mddtypes: $Header: /home/rasdev/CVS-rep
 #endif
 
 #include "raslib/mddtypes.hh"
-#include "raslib/rminit.hh"
+#include "../common/src/logging/easylogging++.hh"
 
 
 /*
@@ -160,7 +160,7 @@ r_Data_Format get_data_format_from_name( const char *name )
 {
     if(!name)
     {
-        RMInit::logOut << "get_data_format_from_name(" << (name?name: "NULL") << ")" << endl;
+        LINFO << "get_data_format_from_name(" << (name?name: "NULL") << ")";
         return r_Data_Format_NUMBER;
     }
 
@@ -213,7 +213,7 @@ r_Scale_Function get_scale_function_from_name(const char *name)
 {
     if(!name)
     {
-        RMInit::logOut << "get_scale_function_from_name(" << (name?name: "NULL") << ")" << endl;
+        LINFO << "get_scale_function_from_name(" << (name?name: "NULL") << ")";
         return r_Scale_Function_NUMBER;
     }
 
@@ -274,7 +274,7 @@ r_Index_Type get_index_type_from_name( const char *name )
 {
     if(!name)
     {
-        RMInit::logOut << "get_index_type_from_name(" << (name?name: "NULL") << ")" << endl;
+        LINFO << "get_index_type_from_name(" << (name?name: "NULL") << ")";
         return r_Index_Type_NUMBER;
     }
 
@@ -362,7 +362,7 @@ r_Tiling_Scheme get_tiling_scheme_from_name( const char *name )
 {
     if(!name)
     {
-        RMInit::logOut << "get_tiling_scheme_from_name(" << (name?name: "NULL") << ")" << endl;
+        LINFO << "get_tiling_scheme_from_name(" << (name?name: "NULL") << ")";
         return r_Tiling_Scheme_NUMBER;
     }
 

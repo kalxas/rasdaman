@@ -27,7 +27,7 @@ static const char rcsid[] = "@(#)raslib, r_Marray_Type: $Header: /home/rasdev/CV
 #include "raslib/marraytype.hh"
 #include "raslib/basetype.hh"
 #include "raslib/error.hh"
-#include "raslib/rminit.hh"
+#include "../common/src/logging/easylogging++.hh"
 
 r_Marray_Type::r_Marray_Type()
     :   r_Type(),
@@ -48,7 +48,7 @@ r_Marray_Type::r_Marray_Type(const r_Marray_Type& oldObj) throw (r_Error)
         baseType =  static_cast<r_Base_Type*>(oldObj.baseType->clone());
     else
     {
-        RMInit::logOut << "r_Marray_Type::r_Marray_Type( oldObj ) the element type is NULL." << endl;
+        LFATAL << "r_Marray_Type::r_Marray_Type( oldObj ) the element type is NULL.";
         throw r_Error(MARRAYTYPEHASNOELEMENTTYPE);
     }
 }
@@ -71,7 +71,7 @@ r_Marray_Type::operator=(const r_Marray_Type& oldObj) throw (r_Error)
         baseType = static_cast<r_Base_Type*>(oldObj.baseType->clone());
     else
     {
-        RMInit::logOut << "r_Marray_Type::operator=( oldObj ) the element type is NULL." << endl;
+        LFATAL << "r_Marray_Type::operator=( oldObj ) the element type is NULL.";
         throw r_Error(MARRAYTYPEHASNOELEMENTTYPE);
     }
 

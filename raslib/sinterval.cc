@@ -47,7 +47,8 @@ using namespace std;
 
 
 #include "raslib/error.hh"
-#include "raslib/rminit.hh"
+
+#include "../common/src/logging/easylogging++.hh"
 
 r_Sinterval::r_Sinterval()
     : lower_bound(0),
@@ -66,7 +67,7 @@ r_Sinterval::r_Sinterval( char* stringRep ) throw(r_Eno_interval)
 {
     if(!stringRep)
     {
-        RMInit::dbgOut << "r_Sinterval::r_Sinterval(" << (stringRep?stringRep: "NULL") << ")" << std::endl;
+        LFATAL << "r_Sinterval::r_Sinterval(" << (stringRep?stringRep: "NULL") << ")";
         throw r_Eno_interval();
     }
 
@@ -95,7 +96,7 @@ r_Sinterval::r_Sinterval( char* stringRep ) throw(r_Eno_interval)
         low_fixed=false;
         high_fixed=false;
 
-        RMInit::dbgOut << "r_Sinterval::r_Sinterval(" << stringRep << ") string doesn't have the pattern a:b" << endl;
+        LFATAL << "r_Sinterval::r_Sinterval(" << stringRep << ") string doesn't have the pattern a:b";
         throw r_Eno_interval();
     }
 
@@ -119,7 +120,7 @@ r_Sinterval::r_Sinterval( r_Range newLow, r_Range newHigh ) throw( r_Eno_interva
 {
     if( newLow > newHigh )
     {
-        RMInit::dbgOut << "r_Sinterval::r_Sinterval(" << newLow << ", " << newHigh << ") not a interval" << endl;
+        LFATAL << "r_Sinterval::r_Sinterval(" << newLow << ", " << newHigh << ") not a interval";
         throw r_Eno_interval();
     }
 }
@@ -187,7 +188,7 @@ r_Sinterval::get_extent() const throw(r_Error)
 
     if(!low_fixed || !high_fixed)
     {
-        RMInit::dbgOut << "r_Sinterval::get_extent() low or high are not fixed (" << *this << ")" << std::endl;
+        LFATAL << "r_Sinterval::get_extent() low or high are not fixed (" << *this << ")";
         throw r_Error(INTERVALOPEN);
     }
 
@@ -201,7 +202,7 @@ r_Sinterval::set_low ( r_Range newLow  ) throw( r_Eno_interval )
 {
     if( high_fixed && newLow > upper_bound )
     {
-        RMInit::dbgOut << "r_Sinterval::set_low(" << newLow << ") not an interval (" << *this << ")" << endl;
+        LFATAL << "r_Sinterval::set_low(" << newLow << ") not an interval (" << *this << ")";
         throw r_Eno_interval();
     }
 
@@ -215,7 +216,7 @@ r_Sinterval::set_high( r_Range newHigh ) throw( r_Eno_interval )
 {
     if( low_fixed && newHigh < lower_bound )
     {
-        RMInit::dbgOut << "r_Sinterval::set_high(" << newHigh << ") not an interval (" << *this << ")" << endl;
+        LFATAL << "r_Sinterval::set_high(" << newHigh << ") not an interval (" << *this << ")";
         throw r_Eno_interval();
     }
 
@@ -229,7 +230,7 @@ r_Sinterval::set_interval( r_Range newLow, r_Range newHigh ) throw( r_Eno_interv
 {
     if( newLow > newHigh )
     {
-        RMInit::dbgOut << "r_Sinterval::set_interval(" << newLow << ", " << newHigh << ") not an interval (" << *this << ")" << endl;
+        LFATAL << "r_Sinterval::set_interval(" << newLow << ", " << newHigh << ") not an interval (" << *this << ")";
         throw r_Eno_interval();
     }
 
@@ -567,7 +568,7 @@ r_Sinterval::calc_union( const r_Sinterval& a, const r_Sinterval& b ) const thro
 
     default: // case in { 1, 6, 16, 21, 26, 31, 34, 37 }
     {
-        RMInit::dbgOut << "r_Sinterval::calc_union(" << a << ", " << b << ") not an interval" << endl;
+        LFATAL << "r_Sinterval::calc_union(" << a << ", " << b << ") not an interval";
         throw r_Eno_interval();
     }
     }
@@ -648,7 +649,7 @@ r_Sinterval::calc_difference( const r_Sinterval& a, const r_Sinterval& b ) const
 
     default: // case in { 3, 5, 11, 12, 13, 14, 19, 24, 25, 29, 30, 40, 41, 44, 45, 46, 47, 50, 51, 52 }
     {
-        RMInit::dbgOut << "r_Sinterval::calc_difference(" << a << ", " << b << ") not an interval" << endl;
+        LFATAL << "r_Sinterval::calc_difference(" << a << ", " << b << ") not an interval";
         throw r_Eno_interval();
     }
     }
@@ -761,7 +762,7 @@ r_Sinterval::calc_intersection( const r_Sinterval& a, const r_Sinterval& b ) con
         break;
 
     default: // case in { 1, 6, 16, 21, 26, 31, 34, 37 }
-        RMInit::dbgOut << "r_Sinterval::calc_intersection(" << a << ", " << b << ") not an interval" << endl;
+        LFATAL << "r_Sinterval::calc_intersection(" << a << ", " << b << ") not an interval";
         throw r_Eno_interval();
     }
 

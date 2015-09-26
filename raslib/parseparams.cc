@@ -40,10 +40,9 @@ rasdaman GmbH.
 #include <cerrno>
 
 
-#include "raslib/rminit.hh"
-#include "raslib/rmdebug.hh"
-
 #include "raslib/parseparams.hh"
+
+#include "../common/src/logging/easylogging++.hh"
 
 
 
@@ -75,10 +74,7 @@ r_Parse_Params::~r_Parse_Params( void )
 int r_Parse_Params::add( const char *key, void *store, parse_param_type type )
 {
 
-    RMDBGONCE(2, RMDebug::module_raslib, "r_Parse_Params", "add('"
-              << (key?key:"NULL") << "', "
-              << (store?store:"NULL") << ","
-              << type << ")");
+    LTRACE << "add('" << (key?key:"NULL") << "', " << (store?store:"NULL") << "," << type << ")";
 
     if (number >= maxnum)
     {
@@ -116,7 +112,7 @@ int r_Parse_Params::process( const char *str, char separator, bool withWhiteSpac
     int numkeys = 0;
     const char *b = str;
 
-    RMDBGONCE(2, RMDebug::module_raslib, "r_Parse_Params", "process('" << (str?str:"NULL") << ")");
+    LTRACE << "process('" << (str?str:"NULL") << ")";
 
     if ( (number == 0)     ||
             (str == NULL)     ||
@@ -243,10 +239,10 @@ int r_Parse_Params::process( const char *str, char separator, bool withWhiteSpac
                 switch (statval)
                 {
                 case -1:
-                    RMInit::logOut << "r_Parse_Params::process('" << str << "'): error parsing value for keyword " << params[knum].key << std::endl;
+                    LERROR << "r_Parse_Params::process('" << str << "'): error parsing value for keyword " << params[knum].key;
                     return -1;
                 case 0:
-                    RMInit::logOut << "r_Parse_Params::process('" << str << "'): keyword " << params[knum].key << " without value" << std::endl;
+                    LERROR << "r_Parse_Params::process('" << str << "'): keyword " << params[knum].key << " without value";
                     return -1;
                 case 1:
                     numkeys++;
@@ -264,13 +260,13 @@ int r_Parse_Params::process( const char *str, char separator, bool withWhiteSpac
             }
             if (inquotes != 0)
             {
-                RMInit::logOut << "r_Parse_Params::process('" << str << "'): unterminated string" << std::endl;
+                LERROR << "r_Parse_Params::process('" << str << "'): unterminated string";
                 return -1;
             }
         }
         else
         {
-            RMInit::logOut << "r_Parse_Params::process('" << str << "'): the string must start with alphabetic character" << std::endl;
+            LERROR << "r_Parse_Params::process('" << str << "'): the string must start with alphabetic character";
             return -1;
         }
     }

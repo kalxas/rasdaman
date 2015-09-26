@@ -31,18 +31,16 @@ rasdaman GmbH.
 #include "config.h"
 #include "raslib/mitera.hh"
 #include "raslib/minterval.hh"
-#include "raslib/rmdebug.hh"
+#include "../common/src/logging/easylogging++.hh"
 
 r_MiterArea::r_MiterArea( const r_Minterval* newIterDom,
                           const r_Minterval* newImgDom ) throw(r_Error)
     : iterDom(newIterDom), imgDom(newImgDom), done(false)
 {
-    RMDBGENTER( 1, RMDebug::module_raslib, "r_MiterArea", "r_MiterArea()");
-
     if (imgDom->dimension() != iterDom->dimension())
     {
         //in this case we have an undefined situation
-        RMInit::logOut << "r_MiterArea::rMiterArea(" << iterDom << ", " << imgDom << ") dimension mismatch" << endl;
+        LFATAL << "r_MiterArea::rMiterArea(" << iterDom << ", " << imgDom << ") dimension mismatch";
         throw r_Error(INTERVALSWITHDIFFERENTDIMENSION);
     }
 
@@ -50,7 +48,7 @@ r_MiterArea::r_MiterArea( const r_Minterval* newIterDom,
             !imgDom->is_high_fixed())
     {
         //in this case we have an undefined situation
-        RMInit::logOut << "r_MiterArea::rMiterArea(" << iterDom << ", " << imgDom << ") imgDom is opened" << endl;
+        LFATAL << "r_MiterArea::rMiterArea(" << iterDom << ", " << imgDom << ") imgDom is opened";
         throw r_Error(INTERVALOPEN);
     }
 
@@ -58,7 +56,7 @@ r_MiterArea::r_MiterArea( const r_Minterval* newIterDom,
             !iterDom->is_high_fixed())
     {
         //in this case we have an undefined situation
-        RMInit::logOut << "r_MiterArea::rMiterArea(" << iterDom << ", " << imgDom << ") iterDom is opened" << endl;
+        LFATAL << "r_MiterArea::rMiterArea(" << iterDom << ", " << imgDom << ") iterDom is opened";
         throw r_Error(INTERVALOPEN);
     }
 
@@ -76,10 +74,9 @@ r_MiterArea::r_MiterArea( const r_Minterval* newIterDom,
         incArrIter[i].repeat = (imgDom->get_extent()[i] / iterDom->get_extent()[i]) +
                                ( imgDom->get_extent()[i] % iterDom->get_extent()[i] != 0 );
 
-        RMDBGMIDDLE( 4, RMDebug::module_raslib, "r_MiterArea", "repeat dim " << i << ": " << incArrIter[i].repeat );
+        LTRACE << "repeat dim " << i << ": " << incArrIter[i].repeat;
     }
     reset();
-    RMDBGEXIT( 1, RMDebug::module_raslib, "r_MiterArea", "r_MiterArea()" );
 }
 
 

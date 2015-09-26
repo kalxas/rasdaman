@@ -23,9 +23,9 @@ rasdaman GmbH.
 
 #include "config.h"
 #include "raslib/complex.hh"
-#include "raslib/rminit.hh"
 #include "raslib/error.hh"
 #include "raslib/complextype.hh"
+#include "../common/src/logging/easylogging++.hh"
 
 #include "config.h"
 
@@ -61,7 +61,7 @@ r_Complex::get_re() const throw (r_Error)
 {
     if (!get_buffer() || !valueType || !valueType->isComplexType())
     {
-        RMInit::logOut << "r_Complex::get_re() value type is not a complex, not initialised or not buffered" << endl;
+        LFATAL << "r_Complex::get_re() value type is not a complex, not initialised or not buffered";
         r_Error err(r_Error::r_Error_TypeInvalid);
         throw err;
     }
@@ -73,7 +73,7 @@ r_Complex::get_im() const throw (r_Error)
 {
     if(!get_buffer() || !valueType || !valueType->isComplexType())
     {
-        RMInit::logOut << "r_Complex::get_im() value type is not a complex, not initialised or not buffered" << endl;
+        LFATAL << "r_Complex::get_im() value type is not a complex, not initialised or not buffered";
         r_Error err(r_Error::r_Error_TypeInvalid);
         throw err;
     }
@@ -85,7 +85,7 @@ r_Complex::set_re(r_Double re) throw (r_Error)
 {
     if (!valueType || !valueType->isComplexType())
     {
-        RMInit::logOut << "r_Complex::set_re(" << re << ") value type is not a complex or not initialised" << endl;
+        LFATAL << "r_Complex::set_re(" << re << ") value type is not a complex or not initialised";
         r_Error err(r_Error::r_Error_TypeInvalid);
         throw err;
     }
@@ -97,7 +97,7 @@ r_Complex::set_im(r_Double im) throw (r_Error)
 {
     if(!valueType || !valueType->isComplexType())
     {
-        RMInit::logOut << "r_Complex::get_im() value type is not a complex or not initialised" << endl;
+        LFATAL << "r_Complex::get_im() value type is not a complex or not initialised";
         r_Error err(r_Error::r_Error_TypeInvalid);
         throw err;
     }

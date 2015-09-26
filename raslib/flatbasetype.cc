@@ -38,8 +38,7 @@ rasdaman GmbH.
 #include "raslib/structuretype.hh"
 #include "raslib/flatbasetype.hh"
 #include "raslib/error.hh"
-#include "raslib/rminit.hh"
-
+#include "../common/src/logging/easylogging++.hh"
 
 r_Flat_Base_Type::r_Flat_Base_Type( void )
 {
@@ -81,7 +80,7 @@ const r_Primitive_Type *r_Flat_Base_Type::type( unsigned int num ) const throw (
     }
     else
     {
-        RMInit::logOut << "r_Flat_Base_Type::type(" << num << ") index out of bounds (" << numPrimTypes - 1 << ")" << endl;
+        LFATAL << "r_Flat_Base_Type::type(" << num << ") index out of bounds (" << numPrimTypes - 1 << ")";
         throw r_Eindex_violation(0, numPrimTypes - 1, num);
     }
 }
@@ -95,7 +94,7 @@ const r_Primitive_Type *r_Flat_Base_Type::operator[]( unsigned int num ) const t
     }
     else
     {
-        RMInit::logOut << "r_Flat_Base_Type::operator[](" << num << ") index out of bounds (" << numPrimTypes - 1 << ")" << endl;
+        LFATAL << "r_Flat_Base_Type::operator[](" << num << ") index out of bounds (" << numPrimTypes - 1 << ")";
         throw r_Eindex_violation(0, numPrimTypes - 1, num);
     }
 }
@@ -109,7 +108,7 @@ unsigned int r_Flat_Base_Type::offset( unsigned int num ) const throw (r_Eindex_
     }
     else
     {
-        RMInit::logOut << "r_Flat_Base_Type::offset(" << num << ") index out of bounds (" << numPrimTypes - 1 << ")" << endl;
+        LFATAL << "r_Flat_Base_Type::offset(" << num << ") index out of bounds (" << numPrimTypes - 1 << ")";
         throw r_Eindex_violation(0, numPrimTypes - 1, num);
     }
 }

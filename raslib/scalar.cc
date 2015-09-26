@@ -36,11 +36,11 @@
 #include <fstream>
 #include <stdlib.h>
 
-#include "raslib/rminit.hh"
 #include "raslib/scalar.hh"
 #include "raslib/basetype.hh"
 #include "raslib/error.hh"
 
+#include "../common/src/logging/easylogging++.hh"
 
 
 
@@ -51,7 +51,7 @@ r_Scalar::r_Scalar( const r_Base_Type* newType )
         valueType = static_cast<r_Base_Type*>(newType->clone());
     else
     {
-        RMInit::logOut << "r_Scalar::r_Scalar(NULL) base type must be not NULL" << endl;
+        LFATAL << "r_Scalar::r_Scalar(NULL) base type must be not NULL";
         throw r_Error(SCALARWASPASSEDNULLTYPE);
     }
 }
