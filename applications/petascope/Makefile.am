@@ -180,10 +180,11 @@ javadoc: $(all_javas)
 install: war service
 	$(MKDIR) $(DESTDIR)$(wardir)
 	$(CP) $(WAR) $(DESTDIR)$(wardir)
+if JAVA_SERVER_EMBEDDED
 	javac -cp $(JETTY)/jetty.jar $(JETTY)/start_petascope.java 	# Now build start_petascope.java and copy all files in Jetty folder to wardir
 	echo  'COPY FILE JETTY TO WAR FOLDER:' . $(CP) $(JETTY)/* $(DESTDIR)$(wardir)		# Now copy Jetty folder to wardir
 	$(CP) $(JETTY)/* $(DESTDIR)$(wardir)
-
+endif
 if GENERATE_DOCS
 	$(MKDIR) -p $(DESTDIR)$(pkgdatadir)/$(APIFOLDER)
 	$(CP) $(APIDOCS)/* $(DESTDIR)$(pkgdatadir)/$(APIFOLDER)

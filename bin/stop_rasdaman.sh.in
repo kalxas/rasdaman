@@ -57,6 +57,11 @@ PETASCOPEDB_PGSQL=postgresql
 PETASCOPEDB_HSQLDB=hsqldb
 PETASCOPEDB_SQLITE=sqlite
 
+# Java server mode (embedded/external)
+JAVA_SERVER=@java_server@
+JAVA_SERVER_EMBEDDED=embedded
+JAVA_SERVER_EXTERNAL=external
+
 # --- END CONSTANTS -------------------------------------------------
 
 # --- ACTION --------------------------------------------------------
@@ -100,19 +105,20 @@ if [ "$PETASCOPEDB" == "$PETASCOPEDB_HSQLDB" ]; then
   echo "done."
 fi
 
-# --- END ACTION ----------------------------------------------------
+# --- stop jetty ----------------------------------------------------
 
+if [ "$JAVA_SERVER" == "$JAVA_SERVER_EMBEDDED" ]; then
 
-# then kill the Jetty with Petascope is running in background
-# ------------------ BangPH (16:37 24/08/2015)
-pid=`ps -ef | grep '[r]asdaman/war/jetty.jar' | awk '{print $2; exit}'` # get the pid ID of lasted Jetty with Petascope to kill (make sure only 1 process is run background), the [] is trick to avoid grep process id is chosen.
+  # get the pid ID of lasted Jetty with Petascope to kill (make sure only 1 process is run background), the [] is trick to avoid grep process id is chosen.
+  pid=`ps -ef | grep '[r]asdaman/war/jetty.jar' | awk '{print $2; exit}'`
 
-if [[ -z "$pid" ]]; then # pid is empty then an exception when not start_rasdaman first
-   echo 'NOTE:Jetty with Petascope has not been started, so dont need to stop it! ';
-else # pid is exist, now kill it.
-   echo 'Jetty with Petascope is closing.........';
-   kill $pid;
-   echo 'NOTE: Jetty with Petascope has been closed successfully! Done'
+  # pid is empty then an exception when not start_rasdaman first
+  if [[ -n "$pid" ]]; then
+     # pid exist, now kill it.
+     kill $pid
+     echo 'petascope has been terminated successfully.'
+  fi
+
 fi
 # --- END ACTION ----------------------------------------------------
 

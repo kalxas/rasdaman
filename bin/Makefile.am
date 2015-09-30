@@ -47,6 +47,7 @@ script_edit = $(SED) \
      -e 's|@pkgdatadir[@]|$(pkgdatadir)/|g' \
      -e 's|@sysconfdir[@]|$(sysconfdir)|g' \
      -e 's|@libdir[@]|$(libdir)|g' \
+     -e 's|@java_server[@]|$(JAVA_SERVER)|g' \
      -e 's|@petascopedb[@]|$(PETASCOPEDB)|g'
 
 start_rasdaman.sh stop_rasdaman.sh create_db.sh update_db.sh: Makefile

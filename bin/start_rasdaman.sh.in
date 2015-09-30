@@ -70,6 +70,11 @@ PETASCOPEDB_PGSQL=postgresql
 PETASCOPEDB_HSQLDB=hsqldb
 PETASCOPEDB_SQLITE=sqlite
 
+# Java server mode (embedded/external)
+JAVA_SERVER=@java_server@
+JAVA_SERVER_EMBEDDED=embedded
+JAVA_SERVER_EXTERNAL=external
+
 # --- END CONSTANTS -------------------------------------------------
 
 # --- ACTION --------------------------------------------------------
@@ -130,48 +135,61 @@ else
 	@bindir@rascontrol -e -q -x up srv -all || exit $!
 fi
 
-# ...then start Jetty (BangPH: 13.38 24/08/2015)
+
 #---------------------------------------------------
-petascopePath=@wardir@ # Start jetty embedded @wardir@
-configPath=@sysconfdir@; # @sysconfdir@ ($RMANHOME)
-installPath=`echo ${configPath:0:-3}` # get only the path before /etc (default is /home/rasdaman/install)
 
-pid=`ps -ef | grep '[r]asdaman/war/jetty.jar' | awk '{print $2; exit}'` # get the pid ID of lasted Jetty with Petascope to kill (make sure only 1 process is run background), the [] is trick to avoid grep process id is chosen.
+if [ "$JAVA_SERVER" == "$JAVA_SERVER_EMBEDDED" ]; then
 
-if [[ -z "$pid" ]]; then # pid is empty then could start petascope
-   echo 'Jetty with Petascope now is starting.....'
+  # Start jetty embedded @wardir@
+  petascopePath=@wardir@
+  # @sysconfdir@ ($RMANHOME)
+  configPath=@sysconfdir@;
+  # get only the path before /etc (default is /home/rasdaman/install)
+  installPath=`echo ${configPath:0:-3}`
 
-   # First check that port of Jetty is not the same as other program
-   portJetty=`cat $installPath'etc/petascope.properties' | grep 'jetty_port'  | awk -F "=" '{print $2}'`
+  # get the pid ID of lasted Jetty with Petascope to kill (make sure only 1 process is run background), the [] is trick to avoid grep process id is chosen.
+  pid=`ps -ef | grep '[r]asdaman/war/jetty.jar' | awk '{print $2; exit}'`
 
-   isPortUsed=`netstat -anpp 2>/dev/null | grep $portJetty | awk '{print $6}'` # check that port is open or not 2>/dev/null to clean the warning: 'you must be root when using netstat'
+  if [[ -z "$pid" ]]; then # pid is empty then could start petascope
+     echo 'Jetty with Petascope now is starting.....'
 
-   if [[  $isPortUsed =~ 'LISTEN' ]]; then # If port is not used (not LISTENT) then could use this port
-	echo -e
-	echo 'NOTE: Could not start Jetty with Petascope due to conflict with port number: '$portJetty;
-	echo 'Please change this port (jetty_port=) in file: '$installPath'etc/petascope.properties'
-   else
-	echo 'NOTE: Jetty with Petascope using port number: '$portJetty;
+     # First check that port of Jetty is not the same as other program
+     portJetty=`cat $installPath'etc/petascope.properties' | grep 'jetty_port'  | awk -F "=" '{print $2}'`
 
-        nohup java -cp $petascopePath'jetty.jar:'$petascopePath start_petascope $installPath & # add argument in start_rasdaman.sh.in for what the file you want to change
-	#| echo $! > $petascopePath''.pid (to log the pid of Jetty run background)
-        # log Petascope in /usr/local/rasdaman/log/petascope.log (don't need > $petascopePath''petascope.log )
+     # check that port is open or not 2>/dev/null to clean the warning: 'you must be root when using netstat'
+     isPortUsed=`netstat -anpp 2>/dev/null | grep $portJetty | awk '{print $6}'`
 
-        # Check Jetty started successful
-        pid=`ps -ef | grep '[r]asdaman/war/jetty.jar' | awk '{print $2; exit}'` # get the pid ID of lasted Jetty with Petascope to kill (make sure only 1 process is run background), the [] is trick to avoid grep process id is chosen.
+     # If port is not used (not LISTENT) then could use this port
+     if [[  $isPortUsed =~ 'LISTEN' ]]; then
+	    echo -e
+	    echo 'NOTE: Could not start Jetty with Petascope due to conflict with port number: '$portJetty;
+	    echo 'Please change this port (jetty_port=) in file: '$installPath'etc/petascope.properties'
+     else
+	    echo 'NOTE: Jetty with Petascope using port number: '$portJetty;
 
-	if [[ ! -z "$pid" ]]; then # pid is empty then an exception when not start_rasdaman first
-	    echo 'NOTE: Jetty with Petascope started succesfully! Work, pid = '$pid
-        else
-	    echo 'NOTE: Jetty with Petascope start failed. Not work!'
-        fi
+      nohup java -cp $petascopePath'jetty.jar:'$petascopePath start_petascope $installPath &
+      # add argument in start_rasdaman.sh.in for what the file you want to change
+	    #| echo $! > $petascopePath''.pid (to log the pid of Jetty run background)
+      # log Petascope in /usr/local/rasdaman/log/petascope.log (don't need > $petascopePath''petascope.log )
 
-   fi; # end check port is open
-else # check that Jetty has openned
-   echo 'NOTE: Jetty with Petascope has been started, PID = '$pid', no need to start it again.'
+      # Check if Jetty started successful
+      # get the pid ID of lasted Jetty with Petascope to kill (make sure only 1 process is run background), the [] is trick to avoid grep process id is chosen.
+      pid=`ps -ef | grep '[r]asdaman/war/jetty.jar' | awk '{print $2; exit}'`
+
+	    if [[ ! -z "$pid" ]]; then # pid is empty then an exception when not start_rasdaman first
+        echo 'NOTE: Jetty with Petascope started succesfully! Work, pid = '$pid
+      else
+        echo 'NOTE: Jetty with Petascope start failed. Not work!'
+      fi
+
+     fi
+  else
+     echo 'NOTE: Jetty with Petascope has been started, PID = '$pid', no need to start it again.'
+  fi
+
+  # do not print the petascope log to terminal
+  disown
 fi
-
-disown # do not print the petascope log to terminal
 
 
 #---------------------------------------------------
@@ -186,7 +204,7 @@ if [ "$PETASCOPEDB" == "$PETASCOPEDB_HSQLDB" ]; then
   if [ $? -eq 0 ]; then
     echo done.
   else
-    echo failed, see @logdir@/hsqldb.log for more details.
+    echo "failed, see @logdir@/hsqldb.log for more details."
   fi
 fi
 

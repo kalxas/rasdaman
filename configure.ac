@@ -206,6 +206,8 @@ AH_TEMPLATE([PETASCOPEDB_PGSQL], [If defined we are compiling petascope over Pos
 AH_TEMPLATE([PETASCOPEDB_SQLITE], [If defined we are compiling petascope over SQLite])
 AH_TEMPLATE([PETASCOPEDB_HSQLDB], [If defined we are compiling petascope over HSQLDB])
 AH_TEMPLATE([PETASCOPEDB], [Name of the database used in petascope])
+AH_TEMPLATE([JAVA_SERVER], [Type of Java server for deploying rasdaman's Java web applications])
+AH_TEMPLATE([JAVA_SERVER_EMBEDDED], [Embedded Java server for deploying rasdaman's Java web applications])
 AH_TEMPLATE([__NO_MATH_INLINES], [Used by some performance implementaion of math libraries.])   
 AH_TEMPLATE([EARLY_TEMPLATE], [When set allows templates to be instantiated earlier.])    
 AH_TEMPLATE([IS_BIG_ENDIAN], [The host system uses big endian encoding.])    
@@ -286,6 +288,12 @@ AC_ARG_WITH([petascopedb],
                             [change the default DBMS used by petascope (postgresql, hsqldb, sqlite)])],
             [with_petascopedb=$withval],
             [with_petascopedb=postgresql])
+
+AC_ARG_WITH([java-server],
+            [AS_HELP_STRING([--with-java-server],
+                            [set the Java application deployment mode (external or embedded)])],
+            [with_java_server=$withval],
+            [with_java_server=external])
 
 AC_ARG_ENABLE([debug],
               [AS_HELP_STRING([--enable-debug],
@@ -446,9 +454,15 @@ AS_IF([test "x$with_default_basedb" == x],
       [with_default_basedb=sqlite])
 AS_IF([test "x$with_petascopedb" == x],
       [with_petascopedb=postgresql])
+AS_IF([test "x$with_java_server" == x],
+      [with_java_server=external])
+if test "$with_java_server" != external -a "$with_java_server" != embedded; then
+  AC_MSG_ERROR([Invalid Java server defined, must be one of external or embedded.])
+fi
 
 AC_MSG_NOTICE([Using database $with_default_basedb.])
 AC_MSG_NOTICE([Using petascope database $with_petascopedb.])
+AC_MSG_NOTICE([Using Java server mode: $with_java_server.])
 
 if test "$with_default_basedb" == sqlite; then
     SQLITE3_REQ_VERSION="3.0.0"
@@ -524,6 +538,11 @@ AM_CONDITIONAL([PETASCOPEDB_PGSQL], [test "$with_petascopedb" = postgresql])
 AM_CONDITIONAL([PETASCOPEDB_HSQLDB], [test "$with_petascopedb" = hsqldb])
 AM_CONDITIONAL([PETASCOPEDB_SQLITE], [test "$with_petascopedb" = sqlite])
 AC_DEFINE_UNQUOTED([PETASCOPEDB], ["$PETASCOPEDB"])
+
+JAVA_SERVER=$with_java_server
+AM_CONDITIONAL([JAVA_SERVER_EMBEDDED], [test "$with_java_server" = embedded])
+AM_CONDITIONAL([JAVA_SERVER_EXTERNAL], [test "$with_java_server" = external])
+AC_DEFINE_UNQUOTED([JAVA_SERVER], ["$JAVA_SERVER"])
 
 # --------------- General Configuration ----------------------------
 ####################################################################
@@ -635,6 +654,7 @@ AC_SUBST(wardir)
 AC_SUBST(wpswar)
 AC_SUBST(filedatadir)
 AC_SUBST(PETASCOPEDB)
+AC_SUBST(JAVA_SERVER)
 
 #Directories used in the source-code
 CXXFLAGS="$CXXFLAGS -DSHARE_DATA_DIR=\\\"\$(pkgdatadir)/\\\""
