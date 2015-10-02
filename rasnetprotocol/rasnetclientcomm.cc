@@ -138,7 +138,9 @@ using rasnet::ZmqUtil;
 using rasnet::BaseMessage;
 using rasnet::ClientController;
 
-RasnetClientComm::RasnetClientComm(string rasmgrHost, int rasmgrPort)
+RasnetClientComm::RasnetClientComm(string rasmgrHost, int rasmgrPort):
+  transferFormatParams(NULL),
+  storageFormatParams(NULL)
 {
     this->clientId = -1;
 
