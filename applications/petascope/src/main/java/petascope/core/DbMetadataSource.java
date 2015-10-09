@@ -57,6 +57,7 @@ import petascope.exceptions.PetascopeException;
 import petascope.exceptions.RasdamanException;
 import petascope.exceptions.SecoreException;
 import petascope.exceptions.WCSException;
+import petascope.exceptions.wcst.WCSTDuplicatedCoverageName;
 import petascope.ows.Description;
 import petascope.ows.ServiceProvider;
 import petascope.swe.datamodel.AbstractSimpleComponent;
@@ -1881,11 +1882,15 @@ public class DbMetadataSource implements IMetadataSource {
      * @param nativeFormatId
      * @return the id of the newly inserted coverage
      * @throws WCSException
+     * @throws  WCSTDuplicatedCoverageName
+     * @throws SQLException
+     * @throws PetascopeException
      */
-    private int insertIntoPsCoverage(Statement s, String coverageName, int gmlTypeId, int nativeFormatId) throws WCSException, SQLException, PetascopeException{
+    private int insertIntoPsCoverage(Statement s, String coverageName, int gmlTypeId, int nativeFormatId)
+            throws WCSTDuplicatedCoverageName, WCSException, SQLException, PetascopeException{
         //check if another coverage with the given name doesn't already exist
         if(this.existsCoverageName(coverageName)){
-            throw new WCSException(ExceptionCode.WCSTDuplicatedCoverageName);
+            throw new WCSTDuplicatedCoverageName();
         }
         String sqlQuery = "INSERT INTO " + TABLE_COVERAGE +
                            " (" + COVERAGE_NAME + "," + COVERAGE_GML_TYPE_ID + "," + COVERAGE_NATIVE_FORMAT_ID + ") VALUES "+

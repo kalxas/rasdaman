@@ -36,6 +36,9 @@ import petascope.HTTPRequest;
 import petascope.exceptions.ExceptionCode;
 import petascope.exceptions.WCSException;
 import petascope.exceptions.wcst.WCSTInvalidRequestException;
+import petascope.exceptions.wcst.WCSTMalformedURL;
+import petascope.exceptions.wcst.WCSTMissingCoverageParameter;
+import petascope.exceptions.wcst.WCSTUnknownUseId;
 import petascope.util.RequestUtil;
 import petascope.wcps2.parser.wcpsParser;
 import petascope.wcs2.handlers.RequestHandler;
@@ -104,14 +107,14 @@ public class KVPWCSTParser extends KVPParser<WCSTRequest> {
     /**
      * Parses the URL from the coverageRef parameter
      */
-    private URL parseCoverageRefUrl(String coverageRef) throws WCSException{
+    private URL parseCoverageRefUrl(String coverageRef) throws WCSTMalformedURL{
         URL ret = null;
         if(coverageRef != null){
             try {
                 ret = new URL(coverageRef);
             } catch (MalformedURLException ex) {
                 java.util.logging.Logger.getLogger(KVPWCSTParser.class.getName()).log(Level.SEVERE, null, ex);
-                throw new WCSException(ExceptionCode.WCSTMalformedURL);
+                throw new WCSTMalformedURL();
             }
         }
         return ret;
@@ -120,15 +123,15 @@ public class KVPWCSTParser extends KVPParser<WCSTRequest> {
     /**
      * Validates the request of type InsertCoverage against WCS-T spec
      */
-    private void validateInsertCoverageRequest(Map<String, String> params) throws WCSException{
+    private void validateInsertCoverageRequest(Map<String, String> params) throws WCSTMissingCoverageParameter, WCSTUnknownUseId{
         //Req 3: at least one of coverageRef or coverage params exists
         if(!params.containsKey(COVERAGE) && !params.containsKey(COVERAGE_REF)){
-            throw new WCSException(ExceptionCode.WCSTMissingCoverageParameter);
+            throw new WCSTMissingCoverageParameter();
         }
         //Req 6: if useId is specified, it should have one of the predefined values
         if(params.containsKey(USE_ID) && !params.get(USE_ID).equals(USE_EXISTING_ID)
                 && !params.get(USE_ID).equals(USE_NEW_ID)){
-            throw new WCSException((ExceptionCode.WCSTUnknownUseId));
+            throw new WCSTUnknownUseId();
         }
     }
 

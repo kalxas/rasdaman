@@ -38,7 +38,28 @@ import petascope.exceptions.SecoreException;
 import petascope.exceptions.WCPSException;
 import petascope.exceptions.WCSException;
 import petascope.exceptions.wcst.WCSTInvalidNilValueException;
+import petascope.exceptions.wcst.WCSTLowHighDifferentSizes;
+import petascope.exceptions.wcst.WCSTMissingBoundedBy;
+import petascope.exceptions.wcst.WCSTMissingDomainSet;
+import petascope.exceptions.wcst.WCSTMissingEnvelope;
+import petascope.exceptions.wcst.WCSTMissingGridEnvelope;
+import petascope.exceptions.wcst.WCSTMissingGridOrigin;
+import petascope.exceptions.wcst.WCSTMissingGridType;
+import petascope.exceptions.wcst.WCSTMissingHigh;
+import petascope.exceptions.wcst.WCSTMissingLimits;
+import petascope.exceptions.wcst.WCSTMissingLow;
+import petascope.exceptions.wcst.WCSTMissingPoint;
+import petascope.exceptions.wcst.WCSTMissingPos;
 import petascope.exceptions.wcst.WCSTUnsupportedCoverageTypeException;
+import petascope.exceptions.wcst.WCSTWrongInervalFormat;
+import petascope.exceptions.wcst.WCSTWrongNumberOfDataBlockElements;
+import petascope.exceptions.wcst.WCSTWrongNumberOfFileElements;
+import petascope.exceptions.wcst.WCSTWrongNumberOfFileReferenceElements;
+import petascope.exceptions.wcst.WCSTWrongNumberOfFileStructureElements;
+import petascope.exceptions.wcst.WCSTWrongNumberOfOffsetVectors;
+import petascope.exceptions.wcst.WCSTWrongNumberOfPixels;
+import petascope.exceptions.wcst.WCSTWrongNumberOfRangeSetElements;
+import petascope.exceptions.wcst.WCSTWrongNumberOfTupleLists;
 import petascope.swe.datamodel.AllowedValues;
 import petascope.swe.datamodel.NilValue;
 import petascope.swe.datamodel.Quantity;
@@ -77,10 +98,10 @@ public class GMLParserUtil {
      * @return the domainSet element
      * @throws WCSException
      */
-    public static Element parseDomainSet(Element root) throws WCSException {
+    public static Element parseDomainSet(Element root) throws WCSTMissingDomainSet {
         Elements domainSet = root.getChildElements(XMLSymbols.LABEL_DOMAIN_SET, XMLSymbols.NAMESPACE_GML);
         if (domainSet.size() != 1) {
-            throw new WCSException(ExceptionCode.WCSTMissingDomainSet);
+            throw new WCSTMissingDomainSet();
         }
         return domainSet.get(0);
     }
@@ -91,12 +112,12 @@ public class GMLParserUtil {
      *
      * @param domainSet: the domainSet element of the coverage in GML format
      * @return the element determining the grid type
-     * @throws WCSException
+     * @throws petascope.exceptions.wcst.WCSTMissingGridType
      */
-    public static Element parseGridType(Element domainSet) throws WCSException {
+    public static Element parseGridType(Element domainSet) throws WCSTMissingGridType {
         Elements gridType = domainSet.getChildElements();
         if (gridType.size() != 1) {
-            throw new WCSException(ExceptionCode.WCSTMissingGridType);
+            throw new WCSTMissingGridType();
         }
         return gridType.get(0);
     }
@@ -106,33 +127,39 @@ public class GMLParserUtil {
      *
      * @param rectifiedGrid: the rectified grid element from GML
      * @return ArrayList of cellDomainElements
+     * @throws petascope.exceptions.wcst.WCSTMissingLimits
+     * @throws petascope.exceptions.wcst.WCSTMissingGridEnvelope
+     * @throws petascope.exceptions.wcst.WCSTMissingLow
+     * @throws petascope.exceptions.wcst.WCSTMissingHigh
+     * @throws petascope.exceptions.wcst.WCSTLowHighDifferentSizes
      * @throws WCSException
      */
-    public static List<CellDomainElement> parseRectifiedGridCellDomain(Element rectifiedGrid) throws WCSException {
+    public static List<CellDomainElement> parseRectifiedGridCellDomain(Element rectifiedGrid)
+            throws WCSTMissingLimits, WCSTMissingGridEnvelope, WCSTMissingLow, WCSTMissingHigh, WCSTLowHighDifferentSizes {
         //get the grid limits
         Elements limits = rectifiedGrid.getChildElements(XMLSymbols.LABEL_LIMITS, XMLSymbols.NAMESPACE_GML);
         if (limits.size() != 1) {
-            throw new WCSException(ExceptionCode.WCSTMissingLimits);
+            throw new WCSTMissingLimits();
         }
         //get the grid envelope
         Elements gridEnvelope = limits.get(0).getChildElements(XMLSymbols.LABEL_GRID_ENVELOPE, XMLSymbols.NAMESPACE_GML);
         if (gridEnvelope.size() != 1) {
-            throw new WCSException(ExceptionCode.WCSTMissingGridEnvelope);
+            throw new WCSTMissingGridEnvelope();
         }
         //get the lower bounds
         Elements lowPoints = gridEnvelope.get(0).getChildElements(XMLSymbols.LABEL_LOW, XMLSymbols.NAMESPACE_GML);
         if (lowPoints.size() != 1) {
-            throw new WCSException(ExceptionCode.WCSTMissingLow);
+            throw new WCSTMissingLow();
         }
         //get upper bounds
         Elements highPoints = gridEnvelope.get(0).getChildElements(XMLSymbols.LABEL_HIGH, XMLSymbols.NAMESPACE_GML);
         if (highPoints.size() != 1) {
-            throw new WCSException(ExceptionCode.WCSTMissingHigh);
+            throw new WCSTMissingHigh();
         }
         String[] lowPointsList = lowPoints.get(0).getValue().trim().split(" ");
         String[] highPointsList = highPoints.get(0).getValue().trim().split(" ");
         if (lowPointsList.length != highPointsList.length) {
-            throw new WCSException(ExceptionCode.WCSTLowHighDifferentSizes);
+            throw new WCSTLowHighDifferentSizes();
         }
         //create the cellDominElements
         List<CellDomainElement> cellDomainElements = new ArrayList<CellDomainElement>(lowPointsList.length);
@@ -142,7 +169,7 @@ public class GMLParserUtil {
                 e = new CellDomainElement(lowPointsList[i], highPointsList[i], i);
                 cellDomainElements.add(e);
             } catch (WCPSException ex) {
-                throw new WCSException(ExceptionCode.WCSTLowHighDifferentSizes);
+                throw new WCSTLowHighDifferentSizes();
             }
         }
         return cellDomainElements;
@@ -153,18 +180,20 @@ public class GMLParserUtil {
      *
      * @param root: the root element of the coverage in GML
      * @return axis -> URI
+     * @throws petascope.exceptions.wcst.WCSTMissingBoundedBy
+     * @throws petascope.exceptions.wcst.WCSTMissingEnvelope
      * @throws WCSException
      * @throws petascope.exceptions.SecoreException
      */
     public static List<Pair<CrsDefinition.Axis, String>> parseCrsList(Element root)
-            throws WCSException, PetascopeException, SecoreException {
+            throws WCSTMissingBoundedBy, WCSTMissingEnvelope, PetascopeException, SecoreException {
         Elements boundedBy = root.getChildElements(XMLSymbols.LABEL_BOUNDEDBY, XMLSymbols.NAMESPACE_GML);
         if (boundedBy.size() != 1) {
-            throw new WCSException(ExceptionCode.WCSTMissingBoundedBy);
+            throw new WCSTMissingBoundedBy();
         }
         Elements envelope = boundedBy.get(0).getChildElements(XMLSymbols.LABEL_ENVELOPE, XMLSymbols.NAMESPACE_GML);
         if (envelope.size() != 1) {
-            throw new WCSException(ExceptionCode.WCSTMissingEnvelope);
+            throw new WCSTMissingEnvelope();
         }
 
         String srsNames = envelope.get(0).getAttributeValue(XMLSymbols.ATT_SRS_NAME);
@@ -186,9 +215,13 @@ public class GMLParserUtil {
      *
      * @param gridType
      * @return
+     * @throws petascope.exceptions.wcst.WCSTMissingGridOrigin
+     * @throws petascope.exceptions.wcst.WCSTMissingPoint
+     * @throws petascope.exceptions.wcst.WCSTMissingPos
      * @throws petascope.exceptions.WCSException
      */
-    public static String[] parseGridOrigin(Element gridType) throws PetascopeException {
+    public static String[] parseGridOrigin(Element gridType)
+            throws WCSTMissingGridOrigin, WCSTMissingPoint, WCSTMissingPos, PetascopeException {
         //get the origin element
         Elements origin = gridType.getChildElements(XMLSymbols.LABEL_ORIGIN, XMLSymbols.NAMESPACE_GML);
         if (origin.size() != 1) {
@@ -196,18 +229,18 @@ public class GMLParserUtil {
             origin = gridType.getChildElements(XMLSymbols.LABEL_ORIGIN, XMLSymbols.NAMESPACE_GMLRGRID);
             //if still not exactly one
             if(origin.size() != 1) {
-                throw new WCSException(ExceptionCode.WCSTMissingGridOrigin);
+                throw new WCSTMissingGridOrigin();
             }
         }
         //get the point element
         Elements point = origin.get(0).getChildElements(XMLSymbols.LABEL_POINT, XMLSymbols.NAMESPACE_GML);
         if (point.size() != 1) {
-            throw new WCSException(ExceptionCode.WCSTMissingPoint);
+            throw new WCSTMissingPoint();
         }
         //get the pos element
         Elements pos = point.get(0).getChildElements(XMLSymbols.LABEL_POS, XMLSymbols.NAMESPACE_GML);
         if (pos.size() != 1) {
-            throw new WCSException(ExceptionCode.WCSTMissingPos);
+            throw new WCSTMissingPos();
         }
 
         //transform the points into a list of BigDecimals
@@ -225,10 +258,12 @@ public class GMLParserUtil {
      * @param gridOriginSize the size of the grid origin vector, for consistency
      * check
      * @return LinkedHashMap<List<BigDecimal>, BigDecimal>
+     * @throws petascope.exceptions.wcst.WCSTWrongNumberOfOffsetVectors
      * @throws WCSException
      * @throws PetascopeException
      */
-    public static LinkedHashMap<List<BigDecimal>, BigDecimal> parseGridAxes(Element gridType, Integer gridOriginSize) throws WCSException, PetascopeException {
+    public static LinkedHashMap<List<BigDecimal>, BigDecimal> parseGridAxes(Element gridType, Integer gridOriginSize)
+            throws WCSTWrongNumberOfOffsetVectors, WCSException, PetascopeException {
         List<Pair<Element, BigDecimal>> offsetVectors;
         if(!gridType.getLocalName().equals(XMLSymbols.LABEL_RGBV)){
             offsetVectors = parseElements(gridType.getChildElements(XMLSymbols.LABEL_OFFSET_VECTOR, XMLSymbols.NAMESPACE_GML));
@@ -240,7 +275,7 @@ public class GMLParserUtil {
         String dimensionalityString = gridType.getAttributeValue(XMLSymbols.LABEL_DIMENSION);
         Integer dimensionality = new Integer(dimensionalityString);
         if (offsetVectors.size() != dimensionality) {
-            throw new WCSException(ExceptionCode.WCSTWrongNumberOfOffsetVectors);
+            throw new WCSTWrongNumberOfOffsetVectors();
         }
         //for each axis, add its vector
         LinkedHashMap<List<BigDecimal>, BigDecimal> result = new LinkedHashMap<List<BigDecimal>, BigDecimal>(dimensionality);
@@ -321,9 +356,10 @@ public class GMLParserUtil {
      *
      * @param quantity the Quantity element from the coverage in GML format
      * @return a Quantity object
+     * @throws petascope.exceptions.wcst.WCSTWrongInervalFormat
      * @throws WCSException
      */
-    public static Quantity parseSweQuantity(Element quantity) throws WCSException {
+    public static Quantity parseSweQuantity(Element quantity) throws WCSTWrongInervalFormat, WCSException {
         String label = null;
         String description = null;
         String definitionUri = null;
@@ -381,7 +417,7 @@ public class GMLParserUtil {
                     String[] intervalValues = intervals.get(k).getValue().trim().split(" ");
                     //check if the interval has exactly 2 points: low and high
                     if (intervalValues.length != 2) {
-                        throw new WCSException(ExceptionCode.WCSTWrongInervalFormat);
+                        throw new WCSTWrongInervalFormat();
                     }
                     BigDecimal lowLimit = new BigDecimal(intervalValues[0]);
                     BigDecimal highLimit = new BigDecimal(intervalValues[1]);
@@ -479,12 +515,13 @@ public class GMLParserUtil {
      *
      * @param root
      * @return the rangeSet element
+     * @throws petascope.exceptions.wcst.WCSTWrongNumberOfRangeSetElements
      * @throws WCSException
      */
-    public static Element parseRangeSet(Element root) throws WCSException {
+    public static Element parseRangeSet(Element root) throws WCSTWrongNumberOfRangeSetElements {
         Elements rangeSet = root.getChildElements(XMLSymbols.LABEL_RANGESET, XMLSymbols.NAMESPACE_GML);
         if (rangeSet.size() != 1) {
-            throw new WCSException(ExceptionCode.WCSTWrongNumberOfRangeSetElements);
+            throw new WCSTWrongNumberOfRangeSetElements();
         }
 
         return rangeSet.get(0);
@@ -495,12 +532,13 @@ public class GMLParserUtil {
      * first child.
      * @param rangeSet
      * @return the dataBlock element
+     * @throws petascope.exceptions.wcst.WCSTWrongNumberOfDataBlockElements
      * @throws WCSException
      */
-    public static Element parseDataBlock(Element rangeSet) throws WCSException {
+    public static Element parseDataBlock(Element rangeSet) throws WCSTWrongNumberOfDataBlockElements, WCSException {
         Elements dataBlock = rangeSet.getChildElements(XMLSymbols.LABEL_DATABLOCK, XMLSymbols.NAMESPACE_GML);
         if(dataBlock.size() != 1){
-            throw new WCSException(ExceptionCode.WCSTWrongNumberOfDataBlockElements);
+            throw new WCSTWrongNumberOfDataBlockElements();
         }
         return dataBlock.get(0);
     }
@@ -511,16 +549,17 @@ public class GMLParserUtil {
      * @return the mime type of the file to be inserted
      * @throws WCSException
      */
-    public static String parseMimeType(Element rangeSet) throws WCSException {
+    public static String parseMimeType(Element rangeSet)
+            throws WCSTWrongNumberOfFileElements, WCSTWrongNumberOfFileStructureElements, WCSException {
         //get the File element
         Elements file = rangeSet.getChildElements(XMLSymbols.LABEL_FILE, XMLSymbols.NAMESPACE_GML);
         if(file.size() != 1){
-            throw new WCSException(ExceptionCode.WCSTWrongNumberOfFileElements);
+            throw new WCSTWrongNumberOfFileElements();
         }
         //get the fileReference
         Elements mimetype = file.get(0).getChildElements(XMLSymbols.LABEL_FILE_STRUCTURE, XMLSymbols.NAMESPACE_GML);
         if(mimetype.size() != 1){
-            throw new WCSException(ExceptionCode.WCSTWrongNumberOfFileStructureElements);
+            throw new WCSTWrongNumberOfFileStructureElements();
         }
         return mimetype.get(0).getValue().trim();
     }
@@ -529,18 +568,21 @@ public class GMLParserUtil {
      * Parses the file reference form a GML coverage.
      * @param rangeSet
      * @return
+     * @throws petascope.exceptions.wcst.WCSTWrongNumberOfFileElements
+     * @throws petascope.exceptions.wcst.WCSTWrongNumberOfFileReferenceElements
      * @throws WCSException
      */
-    public static String parseFilePath(Element rangeSet) throws WCSException {
+    public static String parseFilePath(Element rangeSet)
+            throws WCSTWrongNumberOfFileElements, WCSTWrongNumberOfFileReferenceElements, WCSException {
         //get the File element
         Elements file = rangeSet.getChildElements(XMLSymbols.LABEL_FILE, XMLSymbols.NAMESPACE_GML);
         if(file.size() != 1){
-            throw new WCSException(ExceptionCode.WCSTWrongNumberOfFileElements);
+            throw new WCSTWrongNumberOfFileElements();
         }
         //get the fileReference
         Elements fileName = file.get(0).getChildElements(XMLSymbols.LABEL_FILE_REFERENCE, XMLSymbols.NAMESPACE_GML);
         if(fileName.size() != 1){
-            throw new WCSException(ExceptionCode.WCSTWrongNumberOfFileReferenceElements);
+            throw new WCSTWrongNumberOfFileReferenceElements();
         }
 
         return fileName.get(0).getValue().trim();
@@ -554,13 +596,16 @@ public class GMLParserUtil {
      * @param typeSuffix the suffix to be added to each point to indicate its
      * rasdaman type (i.e. rasdaman Char 1 world be 1c, so the suffix is c)
      * @return String representation of a rasdaman constant
+     * @throws petascope.exceptions.wcst.WCSTWrongNumberOfPixels
+     * @throws petascope.exceptions.wcst.WCSTWrongNumberOfTupleLists
      * @throws WCSException
      */
-    public static String parseGMLTupleList(Element dataBlock, List<CellDomainElement> cellDomains, String typeSuffix) throws WCSException {
+    public static String parseGMLTupleList(Element dataBlock, List<CellDomainElement> cellDomains, String typeSuffix)
+            throws WCSTWrongNumberOfPixels, WCSTWrongNumberOfTupleLists, WCSException {
         //get the tuple list
         Elements tupleLists = dataBlock.getChildElements(XMLSymbols.LABEL_TUPLELIST, XMLSymbols.NAMESPACE_GML);
         if (tupleLists.size() != 1) {
-            throw new WCSException(ExceptionCode.WCSTWrongNumberOfTupleLists);
+            throw new WCSTWrongNumberOfTupleLists();
         }
         //get the cell separators
         String ts = DEFAULT_TS;
@@ -593,7 +638,7 @@ public class GMLParserUtil {
             }
         }
         if (totalNumberOfPoints != points.length) {
-            throw new WCSException(ExceptionCode.WCSTWrongNumberOfPixels);
+            throw new WCSTWrongNumberOfPixels();
         }
         //iterate through all points
         for (int i = 0; i < totalNumberOfPoints; i++) {

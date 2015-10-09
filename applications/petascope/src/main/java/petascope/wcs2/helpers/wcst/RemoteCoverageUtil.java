@@ -29,6 +29,7 @@ import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
+import petascope.exceptions.wcst.WCSTCoverageNotFound;
 
 /**
  * utilities class for remote coverages.
@@ -62,8 +63,9 @@ public class RemoteCoverageUtil {
      *
      * @param url: the url where the coverage sits.
      * @return the contents of file at which the url points.
+     * @throws petascope.exceptions.wcst.WCSTCoverageNotFound
      */
-    public static String getRemoteGMLCoverage(URL url) throws WCSException {
+    public static String getRemoteGMLCoverage(URL url) throws WCSTCoverageNotFound {
         BufferedReader rd;
         String line;
         String result = "";
@@ -74,7 +76,7 @@ public class RemoteCoverageUtil {
             }
             rd.close();
         } catch (IOException e) {
-            throw new WCSException(ExceptionCode.WCSTCoverageNotFound);
+            throw new WCSTCoverageNotFound();
         }
         return result;
     }

@@ -64,6 +64,8 @@ import java.sql.SQLException;
 import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import petascope.exceptions.wcst.WCSTCoverageNotFound;
+import petascope.exceptions.wcst.WCSTInvalidXML;
 
 
 public class UpdateCoverageHandler extends AbstractRequestHandler<UpdateCoverageRequest> {
@@ -79,12 +81,15 @@ public class UpdateCoverageHandler extends AbstractRequestHandler<UpdateCoverage
      *
      * @param request the update coverage request.
      * @return empty response.
+     * @throws petascope.exceptions.wcst.WCSTCoverageNotFound
+     * @throws petascope.exceptions.wcst.WCSTInvalidXML
      * @throws PetascopeException
      * @throws WCSException
      * @throws SecoreException
      */
     @Override
-    public Response handle(UpdateCoverageRequest request) throws PetascopeException, SecoreException {
+    public Response handle(UpdateCoverageRequest request)
+            throws WCSTCoverageNotFound, WCSTInvalidXML, PetascopeException, SecoreException {
         log.info("Handling coverage update...");
         CoverageMetadata currentCoverage = this.meta.read(request.getCoverageId());
         String affectedCollectionName = getCurrentCollectionName(currentCoverage);
@@ -144,10 +149,10 @@ public class UpdateCoverageHandler extends AbstractRequestHandler<UpdateCoverage
             }
         } catch (IOException e) {
             Logger.getLogger(UpdateCoverageHandler.class.getName()).log(Level.SEVERE, null, e);
-            throw new PetascopeException(ExceptionCode.WCSTCoverageNotFound);
+            throw new WCSTCoverageNotFound();
         } catch (ParsingException e) {
             Logger.getLogger(InsertCoverageHandler.class.getName()).log(Level.SEVERE, null, e);
-            throw new PetascopeException(ExceptionCode.WCSTInvalidXML, e.getMessage());
+            throw new WCSTInvalidXML(e.getMessage());
         }
 
         return new Response("");

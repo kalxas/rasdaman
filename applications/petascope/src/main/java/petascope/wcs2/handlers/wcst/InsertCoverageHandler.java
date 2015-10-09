@@ -37,6 +37,8 @@ import petascope.exceptions.ExceptionCode;
 import petascope.exceptions.PetascopeException;
 import petascope.exceptions.SecoreException;
 import petascope.exceptions.WCSException;
+import petascope.exceptions.wcst.WCSTCoverageNotFound;
+import petascope.exceptions.wcst.WCSTInvalidXML;
 import petascope.util.GMLParserUtil;
 import petascope.util.Pair;
 import petascope.util.XMLSymbols;
@@ -119,11 +121,14 @@ public class InsertCoverageHandler extends AbstractRequestHandler<InsertCoverage
      * @param GMLCoverage: a coverage in GML format
      * @return if the ingestion if successful, a response containing the added
      * coverage id is returned.
+     * @throws  WCSTCoverageNotFound
+     * @throws WCSTInvalidXML
      * @throws WCSException
      * @throws PetascopeException
      * @throws SecoreException
      */
-    private String insertGMLCoverage(String GMLCoverage, InsertCoverageRequest request) throws PetascopeException, SecoreException {
+    private String insertGMLCoverage(String GMLCoverage, InsertCoverageRequest request)
+            throws WCSTCoverageNotFound, WCSTInvalidXML, PetascopeException, SecoreException {
         Boolean generateId = request.isUseNewId();
         String pixelDataType = request.getPixelDataType();
         String tiling = request.getTiling();
@@ -200,10 +205,10 @@ public class InsertCoverageHandler extends AbstractRequestHandler<InsertCoverage
 
         } catch (IOException ex) {
             Logger.getLogger(InsertCoverageHandler.class.getName()).log(Level.SEVERE, null, ex);
-            throw new PetascopeException(ExceptionCode.WCSTCoverageNotFound);
+            throw new WCSTCoverageNotFound();
         } catch (ParsingException ex) {
             Logger.getLogger(InsertCoverageHandler.class.getName()).log(Level.SEVERE, null, ex);
-            throw new PetascopeException(ExceptionCode.WCSTInvalidXML, ex.getMessage());
+            throw new WCSTInvalidXML(ex.getMessage());
         }
         return result;
     }
