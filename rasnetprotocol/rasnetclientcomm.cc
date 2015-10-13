@@ -32,7 +32,6 @@ rasdaman GmbH.
 #include "../rasodmg/tiling.hh"
 
 #include "../raslib/minterval.hh"
-#include "../raslib/rmdebug.hh"
 #include "../raslib/rminit.hh"
 #include "../raslib/primitivetype.hh"
 #include "../raslib/complextype.hh"
@@ -370,9 +369,6 @@ int RasnetClientComm::abortTA()
 
 void RasnetClientComm::insertMDD(const char *collName, r_GMarray *mar) throw (r_Error)
 {
-    ENTER( "RasnetClientComm::insertMDD(" << (collName?collName:"(null)") << "," << (long) mar << ")"  );
-    RMDBGENTER( 2, RMDebug::module_clientcomm, "RasnetClientComm", "insertMDD(" << collName << "," << (long) mar << ")"  );
-
     checkForRwTransaction();
 
     r_Minterval     spatdom;
@@ -407,19 +403,15 @@ void RasnetClientComm::insertMDD(const char *collName, r_GMarray *mar) throw (r_
     case 0:
         break; // OK
     case 2:
-        LEAVE( "RasnetClientComm::insertMDD() Error: database class undefined." );
         throw r_Error( r_Error::r_Error_DatabaseClassUndefined );
         break;
     case 3:
-        LEAVE( "RasnetClientComm::insertMDD() Error: collection element type mismatch." );
         throw r_Error( r_Error::r_Error_CollectionElementTypeMismatch );
         break;
     case 4:
-        LEAVE( "RasnetClientComm::insertMDD() Error: type invalid." );
         throw r_Error( r_Error::r_Error_TypeInvalid );
         break;
     default:
-        LEAVE( "RasnetClientComm::insertMDD() Error: transfer invalid." );
         throw r_Error( r_Error::r_Error_TransferFailed );
         break;
     }
@@ -428,7 +420,7 @@ void RasnetClientComm::insertMDD(const char *collName, r_GMarray *mar) throw (r_
 
     bagOfTiles = mar->get_storage_layout()->decomposeMDD( mar );
 
-    RMDBGMIDDLE(2, RMDebug::module_clientcomm, "RasnetClientComm", "decomposing into " << bagOfTiles->cardinality() << " tiles")
+    LTRACE << "decomposing into " << bagOfTiles->cardinality() << " tiles";
 
     r_Iterator< r_GMarray* > iter = bagOfTiles->create_iterator();
     r_GMarray *origTile;
@@ -437,7 +429,7 @@ void RasnetClientComm::insertMDD(const char *collName, r_GMarray *mar) throw (r_
     {
         origTile = *iter;
 
-        RMDBGMIDDLE(2, RMDebug::module_clientcomm, "RasnetClientComm", "inserting Tile with domain " << origTile->spatial_domain() << ", " << origTile->spatial_domain().cell_count() * origTile->get_type_length() << " bytes")
+        LTRACE << "inserting Tile with domain " << origTile->spatial_domain() << ", " << origTile->spatial_domain().cell_count() * origTile->get_type_length() << " bytes";
 
         getMarRpcRepresentation( origTile, rpcMarray, mar->get_storage_layout()->get_storage_format(), baseType );
 
@@ -461,30 +453,16 @@ void RasnetClientComm::insertMDD(const char *collName, r_GMarray *mar) throw (r_
     bagOfTiles->remove_all();
     delete bagOfTiles;
 
-
-
-    RMDBGEXIT( 2, RMDebug::module_clientcomm, "RasnetClientComm", "insertMDD()" );
-    LEAVE( "RasnetClientComm::insertMDD()"  );
-
 }
 
 r_Ref_Any RasnetClientComm::getMDDByOId(const r_OId &oid) throw (r_Error)
 {
-    ENTER( "RasnetClientComm::getMDDByOId(" << oid << ")"  );
-    RMDBGENTER( 2, RMDebug::module_clientcomm, "RasnetClientComm", "getMDDByOId(" << oid << ")"  );
-
-    RMInit::logOut << "Internal error: RasnetClientComm::getMDDByOId() not implemented, returning empty r_Ref_Any()." << endl;
-
-    RMDBGEXIT( 2, RMDebug::module_clientcomm, "RasnetClientComm", "getMDDByOId()" );
-    LEAVE( "RasnetClientComm::getMDDByOId()"  );
+    LERROR << "Internal error: RasnetClientComm::getMDDByOId() not implemented, returning empty r_Ref_Any().";
     return r_Ref_Any();
 }
 
 void RasnetClientComm::insertColl(const char *collName, const char *typeName, const r_OId &oid) throw (r_Error)
 {
-    ENTER( "RasnetClientComm::insertColl(" << collName << "," << typeName << "," << oid << ")"  );
-    RMDBGENTER( 2, RMDebug::module_clientcomm, "RasnetClientComm", "insertColl(" << collName << "," << typeName << "," << oid << ")"  );
-
     checkForRwTransaction();
 
     InsertCollectionReq insertCollectionReq;
@@ -505,16 +483,10 @@ void RasnetClientComm::insertColl(const char *collName, const char *typeName, co
     int status = insertCollectionRepl.status();
 
     handleStatusCode(status, "insertColl");
-
-    RMDBGEXIT( 2, RMDebug::module_clientcomm, "RasnetClientComm", "insertColl()" );
-    LEAVE( "RasnetClientComm::insertColl()"  );
 }
 
 void RasnetClientComm::deleteCollByName(const char *collName) throw (r_Error)
 {
-    ENTER( "RasnetClientComm::deleteCollByName(" << (collName?collName:"(null)") << ")"  );
-    RMDBGENTER( 2, RMDebug::module_clientcomm, "RasnetClientComm", "deleteCollByName(" << collName << ")"  );
-
     checkForRwTransaction();
 
     DeleteCollectionByNameReq deleteCollectionByNameReq;
@@ -531,15 +503,10 @@ void RasnetClientComm::deleteCollByName(const char *collName) throw (r_Error)
     }
 
     handleStatusCode(deleteCollectionByNameRepl.status(), "deleteCollByName");
-    RMDBGEXIT( 2, RMDebug::module_clientcomm, "RasnetClientComm", "deleteCollByName()" );
-    LEAVE( "RasnetClientComm::deleteCollByName()"  );
 }
 
 void RasnetClientComm::deleteObjByOId(const r_OId &oid) throw (r_Error)
 {
-    ENTER( "RasnetClientComm::deleteCollByName(" << (collName?collName:"(null)") << ")"  );
-    RMDBGENTER( 2, RMDebug::module_clientcomm, "RasnetClientComm", "deleteCollByName(" << collName << ")"  );
-
     checkForRwTransaction();
 
     DeleteCollectionByOidReq deleteCollectionByOidReq;
@@ -556,15 +523,10 @@ void RasnetClientComm::deleteObjByOId(const r_OId &oid) throw (r_Error)
     }
 
     handleStatusCode(deleteCollectionByOidRepl.status(), "deleteCollByName");
-    RMDBGEXIT( 2, RMDebug::module_clientcomm, "RasnetClientComm", "deleteCollByName()" );
-    LEAVE( "RasnetClientComm::deleteCollByName()"  );
 }
 
 void RasnetClientComm::removeObjFromColl(const char *name, const r_OId &oid) throw (r_Error)
 {
-    ENTER( "RasnetClientComm::removeObjFromColl(" << (collName?collName:"(null)") << "," << oid << ")"  );
-    RMDBGENTER( 2, RMDebug::module_clientcomm, "RasnetClientComm", "removeObjFromColl(" << collName << "," << oid << ")"  );
-
     checkForRwTransaction();
 
     RemoveObjectFromCollectionReq removeObjectFromCollectionReq;
@@ -583,64 +545,37 @@ void RasnetClientComm::removeObjFromColl(const char *name, const r_OId &oid) thr
 
     int status = removeObjectFromCollectionRepl.status();
     handleStatusCode(status, "removeObjFromColl");
-
-    RMDBGEXIT( 2, RMDebug::module_clientcomm, "RasnetClientComm", "removeObjFromColl()" );
-    LEAVE( "RasnetClientComm::removeObjFromColl()"  );
 }
 
 r_Ref_Any RasnetClientComm::getCollByName(const char *name) throw (r_Error)
 {
-    ENTER( "RasnetClientComm::getCollByName(" << (collName?collName:"(null)") << ")"  );
-    RMDBGENTER( 2, RMDebug::module_clientcomm, "RasnetClientComm", "getCollByName(" << collName << ")"  );
-
     r_Ref_Any result = executeGetCollByNameOrOId ( name, r_OId() );
-
-    RMDBGEXIT( 2, RMDebug::module_clientcomm, "RasnetClientComm", "getCollByName()" );
-    LEAVE( "RasnetClientComm::getCollByName()"  );
     return result;
 }
 
 r_Ref_Any RasnetClientComm::getCollByOId(const r_OId &oid) throw (r_Error)
 {
-    ENTER( "RasnetClientComm::getCollByOId(" << oid << ")"  );
-    RMDBGENTER( 2, RMDebug::module_clientcomm, "RasnetClientComm", "getCollByOId(" << oid << ")"  );
-
     r_Ref_Any result = executeGetCollByNameOrOId ( NULL, oid );
 
-    RMDBGEXIT( 2, RMDebug::module_clientcomm, "RasnetClientComm", "getCollByOId()" );
-    LEAVE( "RasnetClientComm::getCollByOId()"  );
     return result;
 }
 
 r_Ref_Any RasnetClientComm::getCollOIdsByName(const char *name) throw (r_Error)
 {
-    ENTER( "RasnetClientComm::getCollOIdsByName(" << (name?name:"(null)") << ")"  );
-    RMDBGENTER( 2, RMDebug::module_clientcomm, "RasnetClientComm", "getCollOIdsByName(" << name << ")"  );
-
     r_Ref_Any result = executeGetCollOIdsByNameOrOId ( name, r_OId() );
 
-    RMDBGEXIT( 2, RMDebug::module_clientcomm, "RasnetClientComm", "getCollOIdsByName()" );
-    LEAVE( "RasnetClientComm::getCollOIdsByName()"  );
     return result;
 }
 
 r_Ref_Any RasnetClientComm::getCollOIdsByOId(const r_OId &oid) throw (r_Error)
 {
-    ENTER( "RasnetClientComm::getCollOIdsByOId(" << oid << ")"  );
-    RMDBGENTER( 2, RMDebug::module_clientcomm, "RasnetClientComm", "getCollOIdsByOId(" << oid << ")"  );
-
     r_Ref_Any result = executeGetCollOIdsByNameOrOId ( NULL, oid );
 
-    RMDBGEXIT( 2, RMDebug::module_clientcomm, "RasnetClientComm", "getCollOIdsByOId()" );
-    LEAVE( "RasnetClientComm::getCollOIdsByOId()"  );
     return result;
 }
 
 void RasnetClientComm::executeQuery(const r_OQL_Query &query, r_Set<r_Ref_Any> &result) throw (r_Error)
 {
-    ENTER( "RasnetClientComm::executeQuery(_,_)"  );
-    RMDBGENTER( 2, RMDebug::module_clientcomm, "RasnetClientComm", "executeQuery(_,_)"  );
-
     sendMDDConstants(query);
     int status = executeExecuteQuery( query.get_query(), result );
 
@@ -654,36 +589,29 @@ void RasnetClientComm::executeQuery(const r_OQL_Query &query, r_Set<r_Ref_Any> &
         break;
         //case 2:  nothing
     default:
-        RMInit::logOut << "Internal error: RasnetClientComm::executeQuery(): illegal status value " << status << endl;
+        LERROR << "Internal error: RasnetClientComm::executeQuery(): illegal status value " << status;
     }
 
-    RMDBGEXIT( 2, RMDebug::module_clientcomm, "RasnetClientComm", "executeQuery()" );
-    LEAVE( "RasnetClientComm::executeQuery()"  );
 }
 
 void RasnetClientComm::executeQuery(const r_OQL_Query &query) throw (r_Error)
 {
-    ENTER( "RasnetClientComm::executeQuery(_)" );
-
     checkForRwTransaction();
 
     sendMDDConstants(query);
 
     executeExecuteUpdateQuery(query.get_query());
-    LEAVE( "RasnetClientComm::executeQuery(_)" );
 }
 
 void RasnetClientComm::executeQuery(const r_OQL_Query &query, r_Set<r_Ref_Any> &result, int dummy) throw (r_Error)
 {
-    ENTER( "RasnetClientComm::executeQuery(_,_,_)" );
-
     checkForRwTransaction();
 
     sendMDDConstants(query);
 
     int status = executeExecuteUpdateQuery(query.get_query(), result);
 
-    TALK("executeUpdateQuery (retrieval) returns " << status );
+    LDEBUG <<"executeUpdateQuery (retrieval) returns " << status;
 
     switch(status)
     {
@@ -695,10 +623,8 @@ void RasnetClientComm::executeQuery(const r_OQL_Query &query, r_Set<r_Ref_Any> &
         break;
         // case 2:  nothing, should not be error?
     default:
-        RMInit::logOut << "Internal error: RasnetClientComm::executeQuery(): illegal status value " << status << endl;
+        LERROR << "Internal error: RasnetClientComm::executeQuery(): illegal status value " << status;
     }
-
-    LEAVE( "RasnetClientComm::executeQuery(_)" );
 
 }
 
@@ -768,8 +694,6 @@ char* RasnetClientComm::getTypeStructure(const char *typeName, r_Type_Type typeT
 
 int RasnetClientComm::setTransferFormat(r_Data_Format format, const char *formatParams)
 {
-    ENTER( "RasnetClientComm::setStorageFormat( format=" << format << ", formatParams=" << (formatParams?formatParams:"(null)") << " )" );
-
     storageFormat = format;
 
     if (storageFormatParams != NULL)
@@ -787,14 +711,11 @@ int RasnetClientComm::setTransferFormat(r_Data_Format format, const char *format
 
     int result = executeSetFormat( false, format, formatParams);
 
-    LEAVE( "RasnetClientComm::setStorageFormat() -> " << result );
     return result;
 }
 
 int RasnetClientComm::setStorageFormat(r_Data_Format format, const char *formatParams)
 {
-    ENTER( "RasnetClientComm::setTransferFormat( format=" << format << ", formatParams=" << (formatParams?formatParams:"(null)") << " )" );
-
     transferFormat = format;
 
     if (transferFormatParams != NULL)
@@ -811,7 +732,6 @@ int RasnetClientComm::setStorageFormat(r_Data_Format format, const char *formatP
     }
 
     int result = executeSetFormat( true, format, formatParams);
-    LEAVE( "RasnetClientComm::setTransferFormat() -> " << result );
     return result;
 }
 
@@ -948,9 +868,6 @@ void RasnetClientComm::executeEndInsertMDD(bool persistent)
 
 void RasnetClientComm::getMDDCollection(r_Set<r_Ref_Any> &mddColl, unsigned int isQuery) throw (r_Error)
 {
-    ENTER( "RasnetClientComm::getMDDCollection(_," << isQuery << ")"  );
-    RMDBGENTER( 2, RMDebug::module_clientcomm, "RasnetClientComm", "getMDDCollection(_," << isQuery << ")"  );
-
     unsigned short tileStatus=0;
     unsigned short mddStatus = 0;
 
@@ -965,8 +882,7 @@ void RasnetClientComm::getMDDCollection(r_Set<r_Ref_Any> &mddColl, unsigned int 
 
         if( mddStatus == 2 )
         {
-            RMInit::logOut << "Error: getMDDCollection(...) - no transfer collection or empty transfer collection" << endl;
-            LEAVE( "RasnetClientComm::getMDDCollection(): exception, status = " << mddStatus );
+            LFATAL << "Error: getMDDCollection(...) - no transfer collection or empty transfer collection";
             throw r_Error( r_Error::r_Error_TransferFailed );
         }
 
@@ -988,9 +904,6 @@ void RasnetClientComm::getMDDCollection(r_Set<r_Ref_Any> &mddColl, unsigned int 
     } // end while( mddStatus == 0 )
 
     executeEndTransfer();
-
-    RMDBGEXIT( 2, RMDebug::module_clientcomm, "RasnetClientComm", "getMDDCollection()" );
-    LEAVE( "RasnetClientComm::getMDDCollection()"  );
 }
 
 int RasnetClientComm::executeEndTransfer()
@@ -1037,9 +950,6 @@ GetMDDRes* RasnetClientComm::executeGetNextMDD()
 
 unsigned short RasnetClientComm::getMDDCore(r_Ref<r_GMarray> &mdd, GetMDDRes *thisResult, unsigned int isQuery) throw (r_Error)
 {
-    ENTER( "RasnetClientComm::getMDDCore(_,_," << isQuery << ")"  );
-    RMDBGENTER( 2, RMDebug::module_clientcomm, "RasnetClientComm", "getMDDCore(_,_," << isQuery << ")"  );
-
     //  create r_Minterval and oid
     r_Minterval mddDomain( thisResult->domain );
     r_OId       rOId     ( thisResult->oid );
@@ -1083,8 +993,7 @@ unsigned short RasnetClientComm::getMDDCore(r_Ref<r_GMarray> &mdd, GetMDDRes *th
         if( tileStatus == 4 )
         {
             freeGetTileRes(tileRes);
-            RMInit::logOut << "Error: rpcGetNextTile(...) - no tile to transfer or empty transfer collection" << endl;
-            LEAVE( "RasnetClientComm::getMDDCore(): exception, status = " << tileStatus );
+            LFATAL << "Error: rpcGetNextTile(...) - no tile to transfer or empty transfer collection";
             throw r_Error( r_Error::r_Error_TransferFailed );
         }
 
@@ -1126,7 +1035,6 @@ unsigned short RasnetClientComm::getMDDCore(r_Ref<r_GMarray> &mdd, GetMDDRes *th
             if( subStatus == 4 )
             {
                 freeGetTileRes(tileRes);
-                LEAVE( "RasnetClientComm::getMDDCore(): exception, status = " << tileStatus << ", subStatus = " << subStatus );
                 throw r_Error( r_Error::r_Error_TransferFailed );
             }
 
@@ -1203,8 +1111,6 @@ unsigned short RasnetClientComm::getMDDCore(r_Ref<r_GMarray> &mdd, GetMDDRes *th
 
     mdd = r_Ref<r_GMarray>( marray->get_oid(), marray );
 
-    RMDBGEXIT( 2, RMDebug::module_clientcomm, "RasnetClientComm", "getMDDCore() -> " << tileStatus );
-    LEAVE( "RasnetClientComm::getMDDCore() -> " << tileStatus );
     return tileStatus;
 }
 
@@ -1241,9 +1147,6 @@ GetTileRes* RasnetClientComm::executeGetNextTile()
 
 void RasnetClientComm::getMarRpcRepresentation(const r_GMarray *mar, RPCMarray *&rpcMarray, r_Data_Format initStorageFormat, const r_Base_Type *baseType)
 {
-    ENTER( "RasnetClientComm::getMarRpcRepresentation(...)");
-    RMDBGENTER(2, RMDebug::module_clientcomm, "RasnetClientComm", "getMarRpcRepresentation(...)");
-
     // allocate memory for the RPCMarray data structure and assign its fields
     rpcMarray                 = (RPCMarray*)mymalloc( sizeof(RPCMarray) );
     rpcMarray->domain         = mar->spatial_domain().get_string_representation();
@@ -1252,31 +1155,21 @@ void RasnetClientComm::getMarRpcRepresentation(const r_GMarray *mar, RPCMarray *
     rpcMarray->data.confarray_len = mar->get_array_size();
     rpcMarray->data.confarray_val = (char*)(mar->get_array());
     rpcMarray->storageFormat = initStorageFormat;
-
-    RMDBGEXIT(2, RMDebug::module_clientcomm, "RasnetClientComm", "getMarRpcRepresentation(...)");
-    LEAVE( "RasnetClientComm::getMarRpcRepresentation()");
 }
 
 
 void RasnetClientComm::freeMarRpcRepresentation(const r_GMarray *mar, RPCMarray *rpcMarray)
 {
-    ENTER( "RasnetClientComm::freeMarRpcRepresentation(_,_)" );
-
     if (rpcMarray->data.confarray_val != ((r_GMarray*)mar)->get_array())
     {
         delete[] rpcMarray->data.confarray_val;
     }
     free( rpcMarray->domain );
     free( rpcMarray );
-
-    LEAVE( "RasnetClientComm::freeMarRpcRepresentation()" );
 }
 
 int RasnetClientComm::concatArrayData( const char *source, unsigned long srcSize, char *&dest, unsigned long &destSize, unsigned long &destLevel )
 {
-    ENTER( "RasnetClientComm::concatArrayData( 0x" << hex << (unsigned long) source << dec << "," << srcSize << ",_,_,_ )" );
-    RMDBGENTER( 2, RMDebug::module_clientcomm, "RasnetClientComm", "concatArrayData(" << source << "," << srcSize << ",_,_,_)" );
-
     if (destLevel + srcSize > destSize)
     {
         // need to extend dest
@@ -1286,12 +1179,10 @@ int RasnetClientComm::concatArrayData( const char *source, unsigned long srcSize
         // allocate a little extra if we have to extend
         newSize = newSize + newSize / 16;
 
-        //    RMDBGOUT( 1, "RasnetClientComm::concatArrayData(): need to extend from " << destSize << " to " << newSize );
+        //    LTRACE << "RasnetClientComm::concatArrayData(): need to extend from " << destSize << " to " << newSize;
 
         if ((newArray = new char[newSize]) == NULL)
         {
-            RMDBGEXIT( 2, RMDebug::module_clientcomm, "RasnetClientComm", "concatArrayData() -> " << -1 );
-            LEAVE( "RasnetClientComm::concatArrayData() -> -1" );
             return -1;
         }
 
@@ -1304,25 +1195,17 @@ int RasnetClientComm::concatArrayData( const char *source, unsigned long srcSize
     memcpy(dest + destLevel, source, srcSize);
     destLevel += srcSize;
 
-    RMDBGEXIT( 2, RMDebug::module_clientcomm, "RasnetClientComm", "concatArrayData() -> " << 0 );
-    LEAVE( "RasnetClientComm::concatArrayData() -> 0" );
     return 0;
 }
 
 void RasnetClientComm::freeGetTileRes(GetTileRes *ptr)
 {
-    ENTER( "RasnetClientComm::freeGetTileRes(_)"  );
-    RMDBGENTER( 2, RMDebug::module_clientcomm, "RasnetClientComm", "freeGetTileRes(_)"  );
-
     if(ptr->marray->domain)
         free(ptr->marray->domain);
     if(ptr->marray->data.confarray_val)
         free(ptr->marray->data.confarray_val);
     delete ptr->marray;
     delete ptr;
-
-    RMDBGEXIT( 2, RMDebug::module_clientcomm, "RasnetClientComm", "freeGetTileRes()" );
-    LEAVE( "RasnetClientComm::freeGetTileRes(_)"  );
 }
 
 r_Ref_Any RasnetClientComm::executeGetCollByNameOrOId(const char *collName, const r_OId &oid) throw( r_Error )
@@ -1366,7 +1249,6 @@ r_Ref_Any RasnetClientComm::executeGetCollByNameOrOId(const char *collName, cons
     //  else rpcStatus == 1 -> Result collection is empty and nothing has to be got.
 
     r_Ref_Any result = r_Ref_Any( set->get_oid(), set );
-    LEAVE( "RasnetClientComm::executeGetCollByNameOrOId() -> (result set not displayed)" );
     return result;
 }
 
@@ -1435,7 +1317,6 @@ void RasnetClientComm::sendMDDConstants( const r_OQL_Query& query ) throw( r_Err
         // in fact executeInitUpdate prepares server structures for MDD transfer
         if(executeInitUpdate() != 0)
         {
-            LEAVE( "Error: RasnetClientComm::sendMDDConstants(): MDD transaction initialization failed." );
             throw r_Error( r_Error::r_Error_TransferFailed );
         }
 
@@ -1455,15 +1336,12 @@ void RasnetClientComm::sendMDDConstants( const r_OQL_Query& query ) throw( r_Err
                 case 0:
                     break; // OK
                 case 2:
-                    LEAVE( "RasnetClientComm::sendMDDConstants(): exception, status = " << status );
                     throw r_Error( r_Error::r_Error_DatabaseClassUndefined );
                     break;
                 case 3:
-                    LEAVE( "RasnetClientComm::sendMDDConstants(): exception, status = " << status );
                     throw r_Error( r_Error::r_Error_TypeInvalid );
                     break;
                 default:
-                    LEAVE( "RasnetClientComm::sendMDDConstants(): exception, status = " << status );
                     throw r_Error( r_Error::r_Error_TransferFailed );
                     break;
                 }
@@ -1501,7 +1379,6 @@ void RasnetClientComm::sendMDDConstants( const r_OQL_Query& query ) throw( r_Err
 
                     if( status > 0 )
                     {
-                        LEAVE( "RasnetClientComm::sendMDDConstants(): exception, status = " << status );
                         throw r_Error( r_Error::r_Error_TransferFailed );
                     }
                 }
@@ -1585,7 +1462,6 @@ int RasnetClientComm::executeExecuteQuery(const char *query, r_Set<r_Ref_Any> &r
     if( status == 4 || status == 5 )
     {
         r_Equery_execution_failed err( errNo, lineNo, colNo, token );
-        LEAVE( "RasnetClientComm::executeExecuteQuery() exception: status=" << status );
         throw err;
     }
 
@@ -1618,12 +1494,9 @@ GetElementRes* RasnetClientComm::executeGetNextElement()
 
 void RasnetClientComm::getElementCollection( r_Set< r_Ref_Any >& resultColl ) throw(r_Error)
 {
-    ENTER( "RasnetClientComm::getElementCollection()" );
-    RMDBGENTER( 2, RMDebug::module_clientcomm, "RasnetClientComm", "getElementCollection(_)" );
-
     unsigned short rpcStatus = 0;
 
-    TALK( "got set of type " << resultColl.get_type_structure() );
+    LDEBUG << "got set of type " << resultColl.get_type_structure();
 
     while( rpcStatus == 0 ) // repeat until all elements are transferred
     {
@@ -1633,8 +1506,6 @@ void RasnetClientComm::getElementCollection( r_Set< r_Ref_Any >& resultColl ) th
 
         if( rpcStatus == 2 )
         {
-            RMInit::logOut << "Error: getElementCollection(...) - no transfer collection or empty transfer collection" << endl;
-            LEAVE( "RasnetClientComm::getElementCollection(): exception: rpcStatus = " << rpcStatus );
             throw r_Error( r_Error::r_Error_TransferFailed );
         }
         // create new collection element, use type of collection resultColl
@@ -1719,11 +1590,10 @@ void RasnetClientComm::getElementCollection( r_Set< r_Ref_Any >& resultColl ) th
         }
         break;
         default:
-            RMDBGENTER(2, RMDebug::module_clientcomm, "RasnetClientComm", "getElementCollection(...) bad element typeId" << elementType->type_id())
             break;
         }
 
-        TALK( "got an element" );
+        LDEBUG << "got an element";
 
         // insert element into result set
         resultColl.insert_element( element, 1 );
@@ -1733,9 +1603,6 @@ void RasnetClientComm::getElementCollection( r_Set< r_Ref_Any >& resultColl ) th
     }
 
     executeEndTransfer();
-
-    RMDBGEXIT( 2, RMDebug::module_clientcomm, "RasnetClientComm", "getElementCollection()" );
-    LEAVE( "RasnetClientComm::getElementCollection()" );
 }
 
 int RasnetClientComm::executeExecuteUpdateQuery(const char *query) throw( r_Error )
@@ -1762,23 +1629,19 @@ int RasnetClientComm::executeExecuteUpdateQuery(const char *query) throw( r_Erro
 
     if( status == 2 || status == 3 )
     {
-        LEAVE( "RasnetClientComm::executeExecuteUpdateQuery(): exception, status = " << status );
         throw r_Equery_execution_failed( errNo, lineNo, colNo, token.c_str() );
     }
 
     if( status == 1 )
     {
-        LEAVE( "RasnetClientComm::executeExecuteUpdateQuery(): exception, status = " << status );
         throw r_Error( r_Error::r_Error_ClientUnknown );
     }
 
     if( status > 3 )
     {
-        LEAVE( "RasnetClientComm::executeExecuteUpdateQuery(): exception, status = " << status );
         throw r_Error( r_Error::r_Error_TransferFailed );
     }
 
-    LEAVE( "RasnetClientComm::executeExecuteUpdateQuery()" );
     return status;
 }
 
@@ -1814,11 +1677,9 @@ int  RasnetClientComm::executeExecuteUpdateQuery(const char *query, r_Set< r_Ref
 
     if( status == 4 || status == 5 )
     {
-        LEAVE( "RasnetClientComm::executeExecuteUpdateQuery(_,_): exception, status = " << status );
         throw r_Equery_execution_failed( errNo, lineNo, colNo, token.c_str() );
     }
 
-    LEAVE( "RasnetClientComm::executeExecuteUpdateQuery()" );
     return status;
 }
 
@@ -1847,7 +1708,7 @@ void RasnetClientComm::checkForRwTransaction() throw( r_Error )
     r_Transaction *trans = r_Transaction::actual_transaction;
     if(  trans == 0 || trans->get_mode() == r_Transaction::read_only )
     {
-        TALK( "RasnetClientComm::checkForRwTransaction(): throwing exception from failed TA rw check." );
+        LDEBUG << "RasnetClientComm::checkForRwTransaction(): throwing exception from failed TA rw check.";
         throw r_Error( r_Error::r_Error_TransactionReadOnly );
     }
 }
@@ -1864,15 +1725,15 @@ void RasnetClientComm::handleStatusCode(int status, string method) throw( r_Erro
     case 0:
         break;
     case 1:
-        TALK( "RasnetClientComm::" << method << ": error: status = " << status );
+        LDEBUG << "RasnetClientComm::" << method << ": error: status = " << status;
         throw r_Error( r_Error::r_Error_ClientUnknown );
         break;
     case 2:
-        TALK( "RasnetClientComm::" << method << ": error: status = " << status );
+        LDEBUG << "RasnetClientComm::" << method << ": error: status = " << status;
         throw r_Error( r_Error::r_Error_ObjectUnknown );
         break;
     default:
-        TALK( "RasnetClientComm::" << method << ": error: status = " << status );
+        LDEBUG << "RasnetClientComm::" << method << ": error: status = " << status;
         throw r_Error( r_Error::r_Error_General );
         break;
     }

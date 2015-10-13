@@ -61,6 +61,8 @@ using std::sort;
 
 #include "debug/debug.hh"
 
+#include "../common/src/logging/easylogging++.hh"
+
 static const char rcsid[] = "@(#)rasodmg, r_Polygon: $Header: /home/rasdev/CVS-repository/rasdaman/rasodmg/polygon.cc,v 1.28 2003/12/27 23:02:56 rasdev Exp $";
 
 // ------------------------------------------------------------------
@@ -143,12 +145,10 @@ r_Polygon::r_Polygon(const char* init) throw (r_Error)
     :   closed(false),
         firstPointSet(false)
 {
-    ENTER( "r_Polygon::r_Polygon, init=" << init );
-
     if (init ==  NULL)
     {
-        TALK( "r_Polygon::r_Polygon(" << (init?init: "NULL") << ")" );
-        RMInit::logOut << "r_Polygon::r_Polygon(" << (init?init: "NULL") << ")" << std::endl;
+        LDEBUG << "r_Polygon::r_Polygon(" << (init?init: "NULL") << ")";
+        LFATAL << "r_Polygon::r_Polygon(" << (init?init: "NULL") << ")";
         throw r_Error(POLYGONWRONGINITSTRING);
     }
     const int POINTBUFFERLEN=512;
@@ -158,8 +158,8 @@ r_Polygon::r_Polygon(const char* init) throw (r_Error)
     const char* startPos = index(init, '[');
     if (startPos == NULL)
     {
-        TALK( "r_Polygon::r_Polygon(" << init << ") the init string has to start with a '['" );
-        RMInit::logOut << "r_Polygon::r_Polygon(" << init << ") the init string has to start with a '['" << std::endl;
+        LDEBUG << "r_Polygon::r_Polygon(" << init << ") the init string has to start with a '['";
+        LFATAL << "r_Polygon::r_Polygon(" << init << ") the init string has to start with a '['";
         throw r_Error(POLYGONWRONGINITSTRING);
     }
 
@@ -169,15 +169,15 @@ r_Polygon::r_Polygon(const char* init) throw (r_Error)
         endPos = index(startPos, ']');
         if (endPos == NULL)
         {
-            TALK( "r_Polygon::r_Polygon(" << init << ") the init string has to contain valid r_Point definitions" );
-            RMInit::logOut << "r_Polygon::r_Polygon(" << init << ") the init string has to contain valid r_Point definitions" << std::endl;
+            LDEBUG << "r_Polygon::r_Polygon(" << init << ") the init string has to contain valid r_Point definitions";
+            LFATAL << "r_Polygon::r_Polygon(" << init << ") the init string has to contain valid r_Point definitions";
             throw r_Error(POLYGONWRONGINITSTRING);
         }
         pointLen = static_cast<size_t>(endPos - startPos);
         if (static_cast<int>(pointLen) >= POINTBUFFERLEN)
         {
-            TALK( "r_Polygon::r_Polygon(" << init << ") the definition of one r_Point is too long, only 2 dimensions are allowed" );
-            RMInit::logOut << "r_Polygon::r_Polygon(" << init << ") the definition of one r_Point is too long, only 2 dimensions are allowed" << std::endl;
+            LDEBUG << "r_Polygon::r_Polygon(" << init << ") the definition of one r_Point is too long, only 2 dimensions are allowed";
+            LFATAL << "r_Polygon::r_Polygon(" << init << ") the definition of one r_Point is too long, only 2 dimensions are allowed";
             throw r_Error(POLYGONWRONGINITSTRING);
         }
         memset(pointBuffer, 0, POINTBUFFERLEN);
@@ -189,8 +189,6 @@ r_Polygon::r_Polygon(const char* init) throw (r_Error)
         //  break;
     }
     while( startPos != NULL);
-
-    LEAVE( "r_Polygon::r_Polygon" );
 }
 
 r_Polygon::r_Polygon(r_Range x, r_Range y) : closed(false), firstPointSet(true)
@@ -233,13 +231,13 @@ r_Polygon::addPoint(const r_Point& newPoint) throw(r_Error)
 {
     if (newPoint.dimension() != polyPointDim)
     {
-        RMInit::logOut << "r_Polygon::addPoint(" << newPoint << ") only " << polyPointDim << " dimensional r_Points allowed" << std::endl;
+        LFATAL << "r_Polygon::addPoint(" << newPoint << ") only " << polyPointDim << " dimensional r_Points allowed";
         throw r_Error(POLYGONWRONGPOINTDIMENSION);
     }
 
     if(closed)
     {
-        RMInit::logOut << "r_Polygon::addPoint(" << newPoint << ") polygon closed" << std::endl;
+        LFATAL << "r_Polygon::addPoint(" << newPoint << ") polygon closed";
         throw r_Error(r_Error::r_Error_General);
     }
 
@@ -285,7 +283,7 @@ r_Polygon::getEdges() const throw(r_Error)
     if(!closed)
     {
         // TO DO: This should be an internal error sometimes.
-        RMInit::logOut << "r_Polygon::getEdges() polygon opened" << std::endl;
+        LFATAL << "r_Polygon::getEdges() polygon opened";
         throw(r_Error(r_Error::r_Error_General));
     }
 
@@ -298,7 +296,7 @@ r_Polygon::getPoints() const throw(r_Error)
     if(!closed)
     {
         // TO DO: This should be an internal error sometimes.
-        RMInit::logOut << "r_Polygon::getPoints() polygon opened" << std::endl;
+        LFATAL << "r_Polygon::getPoints() polygon opened";
         throw(r_Error(r_Error::r_Error_General));
     }
 
@@ -394,7 +392,7 @@ r_Polygon::fillMArray( r_GMarray& myArray, bool fillInside, const std::string& b
     if(!closed)
     {
         // TO DO: This should be an internal error sometimes.
-        RMInit::logOut << "r_Polygon::fillMArray(...) polygon opened" << std::endl;
+        LFATAL << "r_Polygon::fillMArray(...) polygon opened";
         throw(r_Error(r_Error::r_Error_General));
     }
 
@@ -476,8 +474,8 @@ r_Polygon::getBoundingBox() const throw(r_Error)
     if(!closed)
     {
         // TO DO: This should be an internal error sometimes.
-        TALK( "r_Polygon::getBoundingBox() polygon opened" );
-        RMInit::logOut << "r_Polygon::getBoundingBox() polygon opened" << std::endl;
+        LDEBUG << "r_Polygon::getBoundingBox() polygon opened";
+        LFATAL << "r_Polygon::getBoundingBox() polygon opened";
         throw(r_Error(r_Error::r_Error_General));
     }
 
@@ -510,8 +508,8 @@ r_Polygon::clip(const r_Minterval& clipDom) throw(r_Error)
     if(!closed)
     {
         // TO DO: This should be an internal error sometimes.
-        TALK( "r_Polygon::getBoundingBox() polygon opened" );
-        RMInit::logOut << "r_Polygon::getBoundingBox() polygon opened" << std::endl;
+        LDEBUG << "r_Polygon::getBoundingBox() polygon opened";
+        LFATAL << "r_Polygon::getBoundingBox() polygon opened";
         throw(r_Error(r_Error::r_Error_General));
     }
 
@@ -646,8 +644,8 @@ r_Polygon::fromPoints(const std::vector<r_Point>& newPoints) throw(r_Error)
 
     if(newPoints.empty())
     {
-        TALK( "r_Polygon::fromPoinst(....) newPoints is empty" );
-        RMInit::logOut << "r_Polygon::fromPoinst(....) newPoints is empty" << std::endl;
+        LDEBUG << "r_Polygon::fromPoinst(....) newPoints is empty";
+        LFATAL << "r_Polygon::fromPoinst(....) newPoints is empty";
         throw r_Error(r_Error::r_Error_General);
     }
 

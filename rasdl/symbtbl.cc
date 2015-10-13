@@ -35,13 +35,13 @@ rasdaman GmbH.
 #include "config.h"
 #include "symbtbl.hh"
 
-#include "raslib/rmdebug.hh"
-
 #include "debug/debug.hh"
+
+#include "../common/src/logging/easylogging++.hh"
 
 YSymbol::YSymbol()
 {
-    TALK( "YSymbol::YSymbol default constructor" );
+    LDEBUG << "YSymbol::YSymbol default constructor";
 
     name            =NULL;
     next            =NULL;
@@ -53,7 +53,7 @@ YSymbol::YSymbol()
 
 YSymbol::YSymbol(const char*_name)
 {
-    TALK( "YSymbol::YSymbol constructor, name=" << _name );
+    LDEBUG << "YSymbol::YSymbol constructor, name=" << _name;
 
     name            =_name;
     next            =NULL;
@@ -65,8 +65,6 @@ YSymbol::YSymbol(const char*_name)
 
 YSymbolTable::YSymbolTable()
 {
-    TALK( "YSymbolTable::YSymbolTable default constructor" );
-
     scope            =NULL;
     global_scope   =NULL;
 }
@@ -109,11 +107,9 @@ const YSymbol *YSymbolTable::pop_scope()
 
 void   YSymbolTable::insert_symbol(YSymbol*symbol)const
 {
-    ENTER( "YSymbolTable::insert_symbol" );
-
     if(scope!=NULL)
     {
-        TALK( "adding symbol " << symbol->get_name() );
+        LDEBUG << "adding symbol " << symbol->get_name();
         if(scope->last_symbol==NULL)
             scope->symbols=symbol;
         else
@@ -124,14 +120,10 @@ void   YSymbolTable::insert_symbol(YSymbol*symbol)const
         symbol->next = NULL;
         symbol->scope = scope;
     }
-
-    LEAVE( "YSymbolTable::insert_symbol" );
 }
 
 bool  YSymbolTable::search_this_scope(const char*name,const Scope*this_scope,YSymbol*&result)const
 {
-    ENTER( "YSymbolTable::search_this_scope" );
-
     bool found = false;
 
     if((name==NULL)||(this_scope==NULL))
@@ -148,7 +140,6 @@ bool  YSymbolTable::search_this_scope(const char*name,const Scope*this_scope,YSy
         }
     }
 
-    LEAVE( "YSymbolTable::search_this_scope -> " << found );
     return( found );
 }
 
@@ -246,8 +237,6 @@ const YSymbol   *YSymbolTable::get_defining_symbol()const
 
 void YSymbolTable::Scope::output(FILE*out)const
 {
-    ENTER( "YSymbolTable::Scope::output" );
-
     YSymbol   *scan=symbols;
 
     while (scan!=NULL)
@@ -265,21 +254,17 @@ void YSymbolTable::Scope::output(FILE*out)const
                 scan->enumerator->output(out);
                 break;
             default:
-                RMDBGONCE(0, RMDebug::module_rasdl, "YSymbolTable::Scope", "output()  bad YSymbol_type " << scan->type);
+                LTRACE << "output()  bad YSymbol_type " << scan->type;
                 break;
             }
         }
         scan=scan->next;
     }
-
-    LEAVE( "YSymbolTable::Scope::output" );
 }
 
 
 void YSymbolTable::Scope::insertData() const
 {
-    ENTER( "YSymbolTable::Scope::insertData" );
-
     YSymbol   *scan=symbols;
 
     while(scan!=NULL)
@@ -295,12 +280,10 @@ void YSymbolTable::Scope::insertData() const
                 // scan->enumerator->output(out);
                 break;
             default:
-                RMDBGONCE(0, RMDebug::module_rasdl, "YSymbolTable::Scope", "output()  bad YSymbol_type " << scan->type);
+                LTRACE << "output()  bad YSymbol_type " << scan->type;
                 break;
             }
         }
         scan=scan->next;
     }
-
-    LEAVE( "YSymbolTable::Scope::insertData" );
 }

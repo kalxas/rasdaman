@@ -37,11 +37,12 @@ using namespace std;
 using namespace std;
 
 #include "config.h"
-#include "raslib/rmdebug.hh"
 #include "raslib/minterval.hh"
 #include "raslib/odmgtypes.hh"
 #include "raslib/dlist.hh"
 #include "mymalloc/mymalloc.h"
+
+#include "../common/src/logging/easylogging++.hh"
 
 #include <math.h>
 #include <string.h>
@@ -55,7 +56,7 @@ r_Minterval::r_Minterval(r_Dimension dim)
       dimensionality(dim),
       streamInitCnt(0)
 {
-    RMDBGONCE(20,   RMDebug::module_raslib, "r_Minterval", "r_Minterval(r_Dimension), this=" << (long)this)
+    LTRACE << "r_Minterval(r_Dimension), this=" << (long)this;
     intervals = new r_Sinterval[ dimensionality ];
 }
 
@@ -65,7 +66,7 @@ r_Minterval::constructorinit(char* mIntStr) throw(r_Eno_interval)
 
     if(!mIntStr)
     {
-        RMInit::logOut << "r_Minterval::r_Minterval(" << (mIntStr?mIntStr:"NULL") << ")" << endl;
+        LFATAL << "r_Minterval::r_Minterval(" << (mIntStr?mIntStr:"NULL") << ")";
         throw r_Eno_interval();
     }
 
@@ -98,7 +99,7 @@ r_Minterval::constructorinit(char* mIntStr) throw(r_Eno_interval)
         dimensionality = 0;
         delete[] intervals;
         intervals = NULL;
-        RMInit::logOut << "r_Minterval::r_Minterval(" << mIntStr << "): the string doesn't have pattern [a:b,c:d]" << endl;
+        LFATAL << "r_Minterval::r_Minterval(" << mIntStr << "): the string doesn't have pattern [a:b,c:d]";
         throw r_Eno_interval();
     }
 
@@ -115,7 +116,7 @@ r_Minterval::constructorinit(char* mIntStr) throw(r_Eno_interval)
             str >> b;       // read type r_Range
             if ( ! str )        // check for proper int recognition
             {
-                RMInit::logOut << "minterval constructor failed on dim " << i << ", lo" << endl << flush;
+                LFATAL << "minterval constructor failed on dim " << i << ", lo";
                 throw r_Eno_interval();
             }
             sint.set_low(b);    // store lo bound
@@ -129,7 +130,7 @@ r_Minterval::constructorinit(char* mIntStr) throw(r_Eno_interval)
             dimensionality = 0;
             delete[] intervals;
             intervals = NULL;
-            RMInit::logOut << "r_Minterval::r_Minterval(" << mIntStr << "): missing ':', string not like [a:b,c:d]" << endl;
+            LFATAL << "r_Minterval::r_Minterval(" << mIntStr << "): missing ':', string not like [a:b,c:d]";
             throw r_Eno_interval();
         }
 
@@ -143,7 +144,7 @@ r_Minterval::constructorinit(char* mIntStr) throw(r_Eno_interval)
             str >> b;
             if ( ! str )
             {
-                RMInit::logOut << "minterval constructor failed on dim " << i << ", hi" << endl << flush;
+                LFATAL << "minterval constructor failed on dim " << i << ", hi";
                 throw r_Eno_interval();
             }
             sint.set_high(b);
@@ -156,7 +157,7 @@ r_Minterval::constructorinit(char* mIntStr) throw(r_Eno_interval)
             dimensionality = 0;
             delete[] intervals;
             intervals = NULL;
-            RMInit::logOut << "r_Minterval::r_Minterval(" << mIntStr << "): missing ',' or ']', string not like [a:b,c:d]" << endl;
+            LFATAL << "r_Minterval::r_Minterval(" << mIntStr << "): missing ',' or ']', string not like [a:b,c:d]";
             throw r_Eno_interval();
         }
 
@@ -171,7 +172,7 @@ r_Minterval::r_Minterval(char* mIntStr) throw(r_Eno_interval)
         dimensionality(1),
         streamInitCnt(0)
 {
-    RMDBGONCE(20,   RMDebug::module_raslib, "r_Minterval", "r_Minterval(char*), this=" << (long)this)
+    LTRACE << "r_Minterval(char*), this=" << (long)this;
     constructorinit(mIntStr);
 }
 
@@ -180,7 +181,7 @@ r_Minterval::r_Minterval(const char* mIntStr) throw(r_Eno_interval)
         dimensionality(1),
         streamInitCnt(0)
 {
-    RMDBGONCE(20,   RMDebug::module_raslib, "r_Minterval", "r_Minterval(char*), this=" << (long)this)
+    //LTRACE << "r_Minterval(char*), this=" << (long)this;
     char* temp = static_cast<char*>(mymalloc((1 + strlen(mIntStr)) * sizeof(char)));
     strcpy(temp, mIntStr);
 
@@ -203,7 +204,7 @@ r_Minterval::operator<<(const r_Sinterval& newInterval) throw(r_Einit_overflow)
 {
     if (streamInitCnt >= dimensionality)
     {
-        RMInit::logOut << "r_Minterval::operator<<(" << newInterval << ") domain is already full" << endl;
+        LFATAL << "r_Minterval::operator<<(" << newInterval << ") domain is already full";
         throw r_Einit_overflow();
     }
 
@@ -216,7 +217,7 @@ r_Minterval::operator<<(r_Range p) throw(r_Einit_overflow)
 {
     if (streamInitCnt >= dimensionality)
     {
-        RMInit::logOut << "r_Minterval::operator<<(" << p << ") domain is already full" << endl;
+        LFATAL << "r_Minterval::operator<<(" << p << ") domain is already full";
         throw r_Einit_overflow();
     }
 
@@ -229,7 +230,7 @@ r_Minterval::r_Minterval()
         dimensionality(0),
         streamInitCnt(0)
 {
-    RMDBGONCE(20,   RMDebug::module_raslib, "r_Minterval", "r_Minterval(), this=" << this)
+    //LTRACE << "r_Minterval(), this=" << this;
 }
 
 //cannot use the initialise function because it will crash
@@ -238,7 +239,7 @@ r_Minterval::r_Minterval(const r_Minterval& minterval)
         dimensionality(0),
         streamInitCnt(0)
 {
-    RMDBGONCE(20,   RMDebug::module_raslib, "r_Minterval", "r_Minterval(const r_Minterval&), this=" << this)
+    LTRACE << "r_Minterval(const r_Minterval&), this=" << this;
     dimensionality = minterval.dimensionality;
     streamInitCnt = minterval.streamInitCnt;
     if(minterval.intervals)
@@ -251,7 +252,7 @@ r_Minterval::r_Minterval(const r_Minterval& minterval)
 
 r_Minterval::~r_Minterval()
 {
-    RMDBGONCE(20,   RMDebug::module_raslib, "r_Minterval", "~r_Minterval(), this=" << this)
+    //LTRACE << "~r_Minterval(), this=" << this;
     r_deactivate();
 }
 
@@ -272,7 +273,7 @@ r_Minterval::intersects_with(const r_Minterval& minterval) const
 
     if (dimensionality != minterval.dimension())
     {
-        RMInit::logOut << "r_Minterval::intersects_with(" << minterval << ") do not share the same dimension" << endl;
+        LFATAL << "r_Minterval::intersects_with(" << minterval << ") do not share the same dimension";
         return false;
     }
 
@@ -295,7 +296,7 @@ r_Minterval::operator[](r_Dimension i) const
 {
     if (i >= dimensionality)
     {
-        RMInit::logOut << "r_Minterval:::operator[](" << i << ") const index out of bounds (" << dimensionality << ")" << endl;
+        LFATAL << "r_Minterval:::operator[](" << i << ") const index out of bounds (" << dimensionality << ")";
         throw r_Eindex_violation(0, dimensionality-1, i);
     }
 
@@ -307,7 +308,7 @@ r_Minterval::operator[](r_Dimension i)
 {
     if (i >= dimensionality)
     {
-        RMInit::logOut << "r_Minterval:::operator[](" << i << ") index out of bounds (" << dimensionality << ")" << endl;
+        LFATAL << "r_Minterval:::operator[](" << i << ") index out of bounds (" << dimensionality << ")";
         throw r_Eindex_violation(0, dimensionality-1, i);
     }
 
@@ -377,7 +378,7 @@ r_Minterval::get_origin() const throw(r_Error)
 
     if(!is_origin_fixed())
     {
-        RMInit::logOut << "r_Minterval::get_origin() " << *this << " is opened" << endl;
+        LFATAL << "r_Minterval::get_origin() " << *this << " is opened";
         throw r_Error(INTERVALOPEN);
     }
 
@@ -394,7 +395,7 @@ r_Minterval::get_high() const throw(r_Error)
 
     if(!is_high_fixed())
     {
-        RMInit::logOut << "r_Minterval::get_high() " << *this << " is opened" << endl;
+        LFATAL << "r_Minterval::get_high() " << *this << " is opened";
         throw r_Error(INTERVALOPEN);
     }
 
@@ -411,7 +412,7 @@ r_Minterval::get_extent() const throw(r_Error)
 
     if(!is_origin_fixed() || !is_high_fixed())
     {
-        RMInit::logOut << "r_Minterval::get_high() " << *this << " is opened" << endl;
+        LFATAL << "r_Minterval::get_high() " << *this << " is opened";
         throw r_Error(INTERVALOPEN);
     }
 
@@ -426,13 +427,13 @@ r_Minterval::reverse_translate(const r_Point& t) throw(r_Error, r_Edim_mismatch,
 {
     if (dimensionality != t.dimension())
     {
-        RMInit::logOut << "r_Minterval::reverse_translate(" << t << ") dimensions (" << dimensionality << ") do not match" << endl;
+        LFATAL << "r_Minterval::reverse_translate(" << t << ") dimensions (" << dimensionality << ") do not match";
         throw(r_Edim_mismatch( dimensionality, t.dimension()));
     }
 
     if (!is_origin_fixed() || !is_high_fixed())
     {
-        RMInit::logOut << "r_Minterval::reverse_translate(" << t << ") " << *this << " is opened" << endl;
+        LFATAL << "r_Minterval::reverse_translate(" << t << ") " << *this << " is opened";
         throw r_Error(INTERVALOPEN);
     }
 
@@ -447,13 +448,13 @@ r_Minterval::translate(const r_Point& t) throw(r_Error, r_Edim_mismatch, r_Eno_i
 {
     if (dimensionality != t.dimension())
     {
-        RMInit::logOut << "r_Minterval::translate(" << t << ") dimensions (" << dimensionality << ") do not match" << endl;
+        LFATAL << "r_Minterval::translate(" << t << ") dimensions (" << dimensionality << ") do not match";
         throw(r_Edim_mismatch( dimensionality, t.dimension()));
     }
 
     if (!is_origin_fixed() || !is_high_fixed())
     {
-        RMInit::logOut << "r_Minterval::translate(" << t << ") " << *this << " is opened" << endl;
+        LFATAL << "r_Minterval::translate(" << t << ") " << *this << " is opened";
         throw r_Error(INTERVALOPEN);
     }
 
@@ -504,12 +505,9 @@ r_Minterval::scale(const vector<double>& scaleVec) throw(r_Eno_interval)
 {
     double high = 0., low = 0.;
 
-    RMDBGENTER(1, RMDebug::module_raslib, "r_Minterval", "scale(" << scaleVec << ") before " << *this );
-
     // if the size of scale vector is different from dimensionality, undefined behaviour
     if(scaleVec.size() != dimensionality)
     {
-        RMDBGEXIT(1, RMDebug::module_raslib, "r_Minterval", "scale(" << scaleVec << ") scaleVec has wrong size " << *this );
         throw r_Edim_mismatch(scaleVec.size(), dimensionality);
     }
 
@@ -536,9 +534,6 @@ r_Minterval::scale(const vector<double>& scaleVec) throw(r_Eno_interval)
 
         intervals[i].set_interval(static_cast<r_Range>(low), static_cast<r_Range>(high));
     }
-
-    RMDBGEXIT(1, RMDebug::module_raslib, "r_Minterval", "scale(" << scaleVec << ") after " << *this );
-
     return *this;
 }
 
@@ -570,7 +565,7 @@ r_Minterval::union_of(const r_Minterval& mint1, const r_Minterval& mint2) throw(
 {
     if (mint1.dimension() != mint2.dimension())
     {
-        RMInit::logOut << "r_Minterval::union_of(" << mint1 << ", " << mint2 << ") dimensions do not match" << endl;
+        LFATAL << "r_Minterval::union_of(" << mint1 << ", " << mint2 << ") dimensions do not match";
         throw(r_Edim_mismatch( mint1.dimension(), mint2.dimension()));
     }
 
@@ -594,7 +589,7 @@ r_Minterval::union_with(const r_Minterval& mint) throw(r_Edim_mismatch, r_Eno_in
 {
     if (dimensionality != mint.dimension())
     {
-        RMInit::logOut << "r_Minterval::union_with(" << mint << ") dimensions (" << dimensionality << ") do not match" << endl;
+        LFATAL << "r_Minterval::union_with(" << mint << ") dimensions (" << dimensionality << ") do not match";
         throw(r_Edim_mismatch( dimensionality, mint.dimension()));
     }
 
@@ -615,7 +610,7 @@ r_Minterval::create_union(const r_Minterval& mint) const throw(r_Edim_mismatch, 
 {
     if (dimensionality != mint.dimension())
     {
-        RMInit::logOut << "r_Minterval::create_union(" << mint << ") dimensions (" << dimensionality << ") do not match" << endl;
+        LFATAL << "r_Minterval::create_union(" << mint << ") dimensions (" << dimensionality << ") do not match";
         throw(r_Edim_mismatch( dimensionality, mint.dimension()));
     }
 
@@ -638,7 +633,7 @@ r_Minterval::difference_of(const r_Minterval& mint1, const r_Minterval& mint2) t
 {
     if (mint1.dimension() != mint2.dimension())
     {
-        RMInit::logOut << "r_Minterval::difference_of(" << mint1 << ", " << mint2 << ") dimensions do not match" << endl;
+        LFATAL << "r_Minterval::difference_of(" << mint1 << ", " << mint2 << ") dimensions do not match";
         throw(r_Edim_mismatch( mint1.dimension(), mint2.dimension()));
     }
 
@@ -664,7 +659,7 @@ r_Minterval::difference_with(const r_Minterval& mint) throw(r_Edim_mismatch, r_E
 {
     if (dimensionality != mint.dimension())
     {
-        RMInit::logOut << "r_Minterval::difference_with(" << mint << ") dimensions (" << dimensionality << ") do not match" << endl;
+        LFATAL << "r_Minterval::difference_with(" << mint << ") dimensions (" << dimensionality << ") do not match";
         throw(r_Edim_mismatch( dimensionality, mint.dimension()));
     }
 
@@ -685,7 +680,7 @@ r_Minterval::create_difference(const r_Minterval& mint) const throw(r_Edim_misma
 {
     if (dimensionality != mint.dimension())
     {
-        RMInit::logOut << "r_Minterval::create_difference(" << mint << ") dimensions (" << dimensionality << ") do not match" << endl;
+        LFATAL << "r_Minterval::create_difference(" << mint << ") dimensions (" << dimensionality << ") do not match";
         throw(r_Edim_mismatch( dimensionality, mint.dimension()));
     }
 
@@ -708,7 +703,7 @@ r_Minterval::intersection_of(const r_Minterval& mint1, const r_Minterval& mint2)
 {
     if (mint1.dimension() != mint2.dimension())
     {
-        RMInit::logOut << "r_Minterval::intersection_of(" << mint1 << ", " << mint2 << ") dimensions do not match" << endl;
+        LFATAL << "r_Minterval::intersection_of(" << mint1 << ", " << mint2 << ") dimensions do not match";
         throw(r_Edim_mismatch( mint1.dimension(), mint2.dimension()));
     }
     if (dimensionality != mint1.dimension())
@@ -732,7 +727,7 @@ r_Minterval::intersection_with(const r_Minterval& mint) throw(r_Edim_mismatch, r
 {
     if (dimensionality != mint.dimension())
     {
-        RMInit::logOut << "r_Minterval::intersection_with(" << mint << ") dimensions (" << dimensionality << ") do not match" << endl;
+        LFATAL << "r_Minterval::intersection_with(" << mint << ") dimensions (" << dimensionality << ") do not match";
         throw(r_Edim_mismatch( dimensionality, mint.dimension()));
     }
 
@@ -753,7 +748,7 @@ r_Minterval::create_intersection(const r_Minterval& mint) const throw(r_Edim_mis
 {
     if (dimensionality != mint.dimension())
     {
-        RMInit::logOut << "r_Minterval::create_intersection(" << mint << ") dimensions (" << dimensionality << ") do not match" << endl;
+        LFATAL << "r_Minterval::create_intersection(" << mint << ") dimensions (" << dimensionality << ") do not match";
         throw(r_Edim_mismatch( dimensionality, mint.dimension()));
     }
 
@@ -776,7 +771,7 @@ r_Minterval::closure_of(const r_Minterval& mint1, const r_Minterval& mint2) thro
 {
     if (mint1.dimension() != mint2.dimension())
     {
-        RMInit::logOut << "r_Minterval::closure_of(" << mint1 << ", " << mint2 << ") dimensions do not match" << endl;
+        LFATAL << "r_Minterval::closure_of(" << mint1 << ", " << mint2 << ") dimensions do not match";
         throw(r_Edim_mismatch( mint1.dimension(), mint2.dimension()));
     }
     if (mint1.dimension() != dimensionality)
@@ -801,7 +796,7 @@ r_Minterval::closure_with(const r_Minterval& mint) throw(r_Edim_mismatch, r_Eno_
 {
     if (dimensionality != mint.dimension())
     {
-        RMInit::logOut << "r_Minterval::closure_with(" << mint << ") dimensions (" << dimensionality << ") do not match" << endl;
+        LFATAL << "r_Minterval::closure_with(" << mint << ") dimensions (" << dimensionality << ") do not match";
         throw(r_Edim_mismatch( dimensionality, mint.dimension()));
     }
 
@@ -816,7 +811,7 @@ r_Minterval::create_closure(const r_Minterval& mint) const throw(r_Edim_mismatch
 {
     if (dimensionality != mint.dimension())
     {
-        RMInit::logOut << "r_Minterval::create_closure(" << mint << ") dimensions (" << dimensionality << ") do not match" << endl;
+        LFATAL << "r_Minterval::create_closure(" << mint << ") dimensions (" << dimensionality << ") do not match";
         throw(r_Edim_mismatch( dimensionality, mint.dimension()));
     }
 
@@ -881,7 +876,7 @@ r_Minterval::cell_offset(const r_Point& point) const throw(r_Eindex_violation, r
 
     if (dimensionality != point.dimension())
     {
-        RMInit::logOut << "r_Minterval::cell_offset(" << point << ") dimension of domain (" << dimensionality << ") does not match dimension of argument (" << point.dimension() << ")" << endl;
+        LFATAL << "r_Minterval::cell_offset(" << point << ") dimension of domain (" << dimensionality << ") does not match dimension of argument (" << point.dimension() << ")";
         throw r_Edim_mismatch(point.dimension(), dimensionality);
     }
 
@@ -892,7 +887,7 @@ r_Minterval::cell_offset(const r_Point& point) const throw(r_Eindex_violation, r
     {
         if (point[i] < intervals[i].low() || point[i] > intervals[i].high())
         {
-            RMInit::logOut << "r_Minterval::cell_offset(" << point << ") point is out of range (" << *this << ")" << endl;
+            LFATAL << "r_Minterval::cell_offset(" << point << ") point is out of range (" << *this << ")";
             throw(r_Eindex_violation(point[i], intervals[i].low(), intervals[i].high()));
         }
 
@@ -902,7 +897,7 @@ r_Minterval::cell_offset(const r_Point& point) const throw(r_Eindex_violation, r
     // now i = dimensionality - 1
     if (point[i] < intervals[i].low() || point[i] > intervals[i].high())
     {
-        RMInit::logOut << "r_Minterval::cell_offset(" << point << ") point is out of range (" << *this << ")" << endl;
+        LFATAL << "r_Minterval::cell_offset(" << point << ") point is out of range (" << *this << ")";
         throw(r_Eindex_violation(point[i], intervals[i].low(), intervals[i].high()));
     }
     offset += static_cast<long long unsigned int>(point[i] - intervals[i].low());
@@ -922,7 +917,7 @@ r_Minterval::cell_point(r_Area offset) const throw(r_Eno_cell, r_Error)
 
     if (offset >= cell_count())
     {
-        RMInit::logOut << "r_Minterval::cell_point(" << offset << ") offset is out of range (" << cell_count() << ")" << endl;
+        LFATAL << "r_Minterval::cell_point(" << offset << ") offset is out of range (" << cell_count() << ")";
         throw r_Eno_cell();
     }
 
@@ -946,7 +941,7 @@ r_Minterval::delete_dimension(r_Dimension dim) throw(r_Eindex_violation)
 {
     if (dim >= dimensionality)
     {
-        RMInit::logOut << "r_Minterval::delete_dimension(" << dim << ") dimension is out of range (" << dimensionality << ")" << endl;
+        LFATAL << "r_Minterval::delete_dimension(" << dim << ") dimension is out of range (" << dimensionality << ")";
         throw r_Eindex_violation(0, dimensionality-1, dim);
     }
 

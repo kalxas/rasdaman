@@ -43,7 +43,7 @@ SimpleFileStorage::SimpleFileStorage(const string& path) throw (r_Error) : root_
     {
         generateError("file storage data directory not found", path, FILEDATADIR_NOTFOUND);
     }
-    LDEBUG << "SimpleFileStorage initialized on root path" << path;
+    //LDEBUG << "SimpleFileStorage initialized on root path" << path;
 }
 
 void SimpleFileStorage::insert(const char* data, r_Bytes size, int BlobId) throw (r_Error)

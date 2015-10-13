@@ -35,8 +35,6 @@ rasdaman GmbH.
 #include <stdio.h>
 #include <vector>
 
-#include "raslib/rminit.hh"
-#include "raslib/rmdebug.hh"
 #include "raslib/minterval.hh"
 #include "raslib/error.hh"
 #include "rasodmg/storagelayout.hh"
@@ -46,6 +44,7 @@ rasdaman GmbH.
 #include "rasodmg/oqlquery.hh"
 #include "rasodmg/partinsert.hh"
 
+#include "../common/src/logging/easylogging++.hh"
 
 
 // format string for creating collections; parameters: collection name, set type
@@ -107,7 +106,6 @@ int r_Partial_Insert::update( r_GMarray *mddPtr,
                               const char* storageFormatParams
                             )
 {
-    RMDBGENTER(0, RMDebug::module_rasodmg, "r_Partial_Insert", "update()");
     try
     {
         mddPtr->set_storage_layout(mystl->clone());
@@ -115,8 +113,8 @@ int r_Partial_Insert::update( r_GMarray *mddPtr,
     }
     catch (r_Error &err)
     {
-        RMInit::logOut << "r_Partial_Insert::update(): unable to set storage_layout for the currend MDD: "
-                       << err.what() << endl;
+        LERROR << "r_Partial_Insert::update(): unable to set storage_layout for the currend MDD: "
+                       << err.what();
         return -1;
     }
 
@@ -134,11 +132,11 @@ int r_Partial_Insert::update( r_GMarray *mddPtr,
             r_OQL_Query query(queryBuffer);
             r_oql_execute(query);
             myta.commit();
-            RMDBGMIDDLE(0, RMDebug::module_rasodmg, "r_Partial_Insert", "update(): created new collection " << collName << " with type " << setType );
+            LTRACE << "update(): created new collection " << collName << " with type " << setType;
         }
         catch (r_Error &err)
         {
-            RMDBGMIDDLE(0, RMDebug::module_rasodmg, "r_Partial_Insert", "update(): can't create collection: " << err.what() );
+            LTRACE << "update(): can't create collection: " << err.what();
             myta.abort();
             // failure to create the collection is not an error
         }
@@ -156,13 +154,13 @@ int r_Partial_Insert::update( r_GMarray *mddPtr,
             mddCollPtr->insert_element(mddp);
             myOId = mddp->get_oid();
             myta.commit();
-            RMDBGMIDDLE(0, RMDebug::module_rasodmg, "r_Partial_Insert", "update(): reated root object OK, oid = " << myOId );
+            LTRACE << "update(): reated root object OK, oid = " << myOId;
             doUpdate = 1;
         }
         catch (r_Error &err)
         {
-            RMInit::logOut << "r_Partial_Insert::update(): unable to create root object: "
-                           << err.what() << endl;
+            LERROR << "r_Partial_Insert::update(): unable to create root object: "
+                           << err.what();
             myta.abort();
             return -1;
         }
@@ -178,25 +176,23 @@ int r_Partial_Insert::update( r_GMarray *mddPtr,
             myta.begin();
             mydb.set_transfer_format(transferFormat, transferFormatParams);
             mydb.set_storage_format(storageFormat, storageFormatParams);
-            RMDBGMIDDLE(1, RMDebug::module_rasodmg, "r_Partial_Insert", "update(): QUERY: " << queryBuffer );
+            LTRACE << "update(): QUERY: " << queryBuffer;
             r_OQL_Query query(queryBuffer);
             query << (*mddPtr);
             r_oql_execute(query);
             myta.commit();
-            RMDBGMIDDLE(0, RMDebug::module_rasodmg, "r_Partial_Insert", "update(): update object OK" );
+            LTRACE << "update(): update object OK";
         }
         catch (r_Error &err)
         {
-            RMInit::logOut << "r_Partial_Insert::update(): failed to update marray: "
-                           << err.what() << endl;
+            LERROR << "r_Partial_Insert::update(): failed to update marray: "
+                           << err.what();
             myta.abort();
             delete [] queryBuffer;
-            RMDBGEXIT(1, RMDebug::module_rasodmg, "r_Partial_Insert", "failed");
             return -1;
         }
         delete [] queryBuffer;
     }
-    RMDBGEXIT(1, RMDebug::module_rasodmg, "r_Partial_Insert", "update(): exiting OK" );
 
     return 0;
 }

@@ -40,7 +40,6 @@ using namespace std;
 #include "mymalloc/mymalloc.h"
 
 #include "raslib/error.hh"
-#include "raslib/rmdebug.hh"
 #include "debug.hh"
 
 #include <string.h>
@@ -52,6 +51,8 @@ using namespace std;
 #include <list>
 #include <stdlib.h>
 #include <stdio.h>
+
+#include "../common/src/logging/easylogging++.hh"
 
 
 using std::endl;
@@ -198,7 +199,7 @@ void r_Error::initTextTable()
     int filenameLength = snprintf( errorFileName, FILENAME_MAX, "%s/%s", SHARE_DATA_DIR, ERRORTEXT_FILE );
     if (filenameLength < FILENAME_MAX )
     {
-        RMInit::logOut << "Using error text file: " << errorFileName << endl;
+        //LINFO << "Using error text file: " << errorFileName;
     }
     else
     {
@@ -217,7 +218,7 @@ void r_Error::initTextTable()
 #endif
     {
         r_Error::textList = NULL;
-        RMInit::logOut << "No error texts file found at: " << errorFileName << endl;
+        LINFO << "No error texts file found at: " << errorFileName;
     }
     else    // File errtxts found
     {
@@ -229,7 +230,7 @@ void r_Error::initTextTable()
             char *errText = static_cast<char*>(mymalloc( line.length() + 1 ));
             if (errText == NULL)
             {
-                RMInit::logOut << "Fatal error: cannot allocate error text table line #" << numOfEntries << endl;
+                LFATAL << "Fatal error: cannot allocate error text table line #" << numOfEntries;
                 throw r_Error( r_Error::r_Error_MemoryAllocation );
             }
             // general line format is (aside of comments and empty lines): ddd^f^text...
@@ -244,7 +245,7 @@ void r_Error::initTextTable()
                 free(errText);
             }
         }
-        // RMInit::logOut << "number of error texts loaded: " << numOfEntries << endl;
+        // LFATAL << "number of error texts loaded: " << numOfEntries;
         errorTextsLoaded = true;
     }
     errortexts.close();
@@ -498,7 +499,7 @@ r_Error::setErrorTextOnNumber()
     errorText = new char[strlen(result) + 1];
     if (errorText == NULL)
     {
-        RMInit::logOut << "Error: cannot allocate error text." << endl;
+        LFATAL << "Error: cannot allocate error text.";
         throw r_Error( r_Error::r_Error_MemoryAllocation );
     }
     else
@@ -566,7 +567,7 @@ r_Error::resetErrorText()
 r_Eno_interval::r_Eno_interval()
     : r_Error(201)
 {
-    TALK( "r_Error::resetErrorText() - code 201" );
+    LDEBUG << "r_Error::resetErrorText() - code 201";
     resetErrorText();
 }
 
@@ -579,7 +580,7 @@ r_EGeneral::r_EGeneral(const std::string& errorText2)
 r_Eindex_violation::r_Eindex_violation(r_Range dlow, r_Range dhigh, r_Range dindex)
     : r_Error(202), low(dlow), high(dhigh), index(dindex)
 {
-    TALK( "r_Error::r_Eindex_violation() - code 202" );
+    LDEBUG << "r_Error::r_Eindex_violation() - code 202";
     resetErrorText();
 }
 
@@ -600,7 +601,7 @@ r_Eindex_violation::resetErrorText()
 r_Edim_mismatch::r_Edim_mismatch(r_Dimension pdim1, r_Dimension pdim2)
     : r_Error(203), dim1(pdim1), dim2(pdim2)
 {
-    TALK( "r_Error::r_Edim_mismatch() - code 203; dim1=" << pdim1 << ", dim2=" << pdim2 );
+    LDEBUG << "r_Error::r_Edim_mismatch() - code 203; dim1=" << pdim1 << ", dim2=" << pdim2;
     resetErrorText();
 }
 
@@ -620,7 +621,7 @@ r_Edim_mismatch::resetErrorText()
 r_Einit_overflow::r_Einit_overflow()
     : r_Error(204)
 {
-    TALK( "r_Error::r_Einit_overflow() - code 204" );
+    LDEBUG << "r_Error::r_Einit_overflow() - code 204";
     resetErrorText();
 }
 
@@ -629,7 +630,7 @@ r_Einit_overflow::r_Einit_overflow()
 r_Eno_cell::r_Eno_cell()
     : r_Error(205)
 {
-    TALK( "r_Error::r_Eno_cell() - code 205" );
+    LDEBUG << "r_Error::r_Eno_cell() - code 205";
     resetErrorText();
 }
 
@@ -640,7 +641,7 @@ r_Equery_execution_failed::r_Equery_execution_failed(unsigned int errorno, unsig
       lineNo(lineno),
       columnNo(columnno)
 {
-    TALK( "r_Error::r_Equery_execution_failed() - errorno=" << errorno );
+    LDEBUG << "r_Error::r_Equery_execution_failed() - errorno=" << errorno;
 
     token = new char[strlen(initToken)+1];
     strcpy(token, initToken);
@@ -655,7 +656,7 @@ r_Equery_execution_failed::r_Equery_execution_failed(const r_Equery_execution_fa
       lineNo(0),
       columnNo(0)
 {
-    TALK( "r_Error::r_Equery_execution_failed()" );
+    LDEBUG << "r_Error::r_Equery_execution_failed()";
 
     lineNo   = err.lineNo;
     columnNo = err.columnNo;
@@ -690,7 +691,7 @@ r_Equery_execution_failed::resetErrorText()
 r_Elimits_mismatch::r_Elimits_mismatch(r_Range lim1, r_Range lim2)
     : r_Error(r_Error_LimitsMismatch), i1(lim1), i2(lim2)
 {
-    TALK( "r_Error::r_Elimits_mismatch() - lim1=" << lim1 << ", lim2=" << lim2 );
+    LDEBUG << "r_Error::r_Elimits_mismatch() - lim1=" << lim1 << ", lim2=" << lim2;
     resetErrorText();
 }
 
@@ -714,7 +715,7 @@ r_Ebase_dbms::r_Ebase_dbms(const long& newDbmsErrNum, const char* newDbmsErrTxt)
       dbmsErrNum(newDbmsErrNum),
       whatTxt(0)
 {
-    TALK( "r_Error::r_Ebase_dbms() code 206 - " << newDbmsErrTxt );
+    LDEBUG << "r_Error::r_Ebase_dbms() code 206 - " << newDbmsErrTxt;
     baseDBMS = strdup("Error in base DBMS, error number: ");
     dbmsErrTxt = strdup(newDbmsErrTxt);
     buildWhat();
@@ -725,7 +726,7 @@ r_Ebase_dbms::r_Ebase_dbms(const r_Ebase_dbms& obj)
       dbmsErrNum(0),
       whatTxt(0)
 {
-    TALK( "r_Error::r_Ebase_dbms()" );
+    LDEBUG << "r_Error::r_Ebase_dbms()";
 
     dbmsErrNum = obj.dbmsErrNum;
     if (obj.baseDBMS)
@@ -755,7 +756,7 @@ r_Ebase_dbms::r_Ebase_dbms(const r_Ebase_dbms& obj)
 r_Ebase_dbms::r_Ebase_dbms(kind newTheKind, unsigned long newErrNum, const char* myStr)
     : r_Error(newTheKind, newErrNum), whatTxt(0)
 {
-    TALK( "r_Error::r_Ebase_dbms() - kind=" << newTheKind );
+    LDEBUG << "r_Error::r_Ebase_dbms() - kind=" << newTheKind;
 
     // as the const char* cannot be passed to strtol() - this was a bug anyway -
     // we copy the string. Efficiency is not a concern here. -- PB 2005-jan-14
@@ -872,21 +873,21 @@ r_Ebase_dbms::serialiseError()
 r_Eno_permission::r_Eno_permission()
     :r_Error(r_Error_AccesDenied,NO_PERMISSION_FOR_OPERATION)
 {
-    TALK( "r_Error::r_Eno_permission()" );
+    LDEBUG << "r_Error::r_Eno_permission()";
     resetErrorText();
 }
 
 
 r_Ememory_allocation::r_Ememory_allocation(): r_Error(r_Error_MemoryAllocation, 66) // 66 is: mem alloc failed
 {
-    TALK( "r_Error::r_Ememory_allocation() - code 66" );
+    LDEBUG << "r_Error::r_Ememory_allocation() - code 66";
     resetErrorText();
 }
 
 r_Ecapability_refused::r_Ecapability_refused()
     :r_Error(r_Error_AccesDenied,CAPABILITY_REFUSED)
 {
-    TALK( "r_Error::r_Ecapability_refused()" );
+    LDEBUG << "r_Error::r_Ecapability_refused()";
     resetErrorText();
 }
 

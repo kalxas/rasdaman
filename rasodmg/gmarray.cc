@@ -53,7 +53,6 @@ static const char rcsidgarray[] = "@(#)rasodmg, r_GMarray: $Id: gmarray.cc,v 1.4
 #undef __EXECUTABLE__
 #endif
 
-#include "raslib/rmdebug.hh"
 #include "raslib/type.hh"
 #include "raslib/marraytype.hh"
 #include "raslib/structuretype.hh"
@@ -62,6 +61,7 @@ static const char rcsidgarray[] = "@(#)rasodmg, r_GMarray: $Id: gmarray.cc,v 1.4
 #include <iostream>
 #include <iomanip>
 
+#include "../common/src/logging/easylogging++.hh"
 
 
 r_GMarray::r_GMarray() throw(r_Error)
@@ -106,20 +106,19 @@ r_GMarray::r_GMarray(const r_Minterval& initDomain, r_Bytes initLength, r_Storag
     }
     if (error != 0)
     {
-        RMInit::logOut << "r_GMarray::r_GMarray(" << initDomain << ", " << initLength << ", ";
+        LINFO << "r_GMarray::r_GMarray(" << initDomain << ", " << initLength << ", ";
         if (storage_layout == NULL)
-            RMInit::logOut << "no storage layout";
+            LINFO << "no storage layout) ";
         else
-            RMInit::logOut << *storage_layout;
-        RMInit::logOut << ") ";
+            LINFO << *storage_layout << ") ";
         if (error == 1)
         {
-            RMInit::logOut << "domain is not initialised";
+            LFATAL << "domain is not initialised";
             throw r_Error(DOMAINUNINITIALISED);
         }
         else
         {
-            RMInit::logOut << "storage layout is not compatible";
+            LFATAL << "storage layout is not compatible";
             throw r_Error(STORAGERLAYOUTINCOMPATIBLEWITHGMARRAY);
         }
     }
@@ -143,8 +142,6 @@ r_GMarray::r_GMarray(const r_GMarray &obj) throw(r_Error)
       current_format(obj.current_format),
       storage_layout(0)
 {
-    RMDBCLASS("r_GMarray", "r_GMarray(const r_GMarray)", "rasodmg", __FILE__, __LINE__)
-
     if (obj.data)
     {
         data_size = obj.data_size;
@@ -157,7 +154,7 @@ r_GMarray::r_GMarray(const r_GMarray &obj) throw(r_Error)
     if (obj.storage_layout)
         storage_layout = obj.storage_layout->clone();
     else
-        RMInit::logOut << "copy constructor no storage layout" << endl;
+        LWARNING << "copy constructor no storage layout";
 }
 
 
@@ -172,8 +169,6 @@ r_GMarray::r_GMarray(r_GMarray &obj) throw(r_Error)
       current_format(obj.current_format),
       storage_layout(0)
 {
-    RMDBCLASS("r_GMarray", "r_GMarray(r_GMarray)", "rasodmg", __FILE__, __LINE__)
-
     obj.data_size      = 0;
     obj.data           = 0;
     obj.tiled_data          = 0;
@@ -184,7 +179,7 @@ r_GMarray::r_GMarray(r_GMarray &obj) throw(r_Error)
     if (obj.storage_layout)
         storage_layout = obj.storage_layout->clone();
     else
-        RMInit::logOut << "copy constructor (no data) no storage layout" << endl;
+        LWARNING << "copy constructor (no data) no storage layout";
 }
 
 
@@ -199,8 +194,6 @@ r_GMarray::~r_GMarray()
 void
 r_GMarray::r_deactivate()
 {
-    RMDBGENTER(2, RMDebug::module_rasodmg, "r_GMarray", "r_deactivate()");
-
     if (data)
     {
         delete[] data;
@@ -221,8 +214,6 @@ r_GMarray::r_deactivate()
         delete storage_layout;
         storage_layout = 0;
     }
-
-    RMDBGEXIT(2, RMDebug::module_rasodmg, "r_GMarray", "r_deactivate()");
 }
 
 
@@ -248,9 +239,9 @@ r_GMarray::set_storage_layout(r_Storage_Layout *stl) throw(r_Error)
 {
     if (!stl->is_compatible(domain, type_length))
     {
-        RMInit::logOut << "r_GMarray::set_storage_layout(" << *stl << ") gmarray is not compatible with tiling" << endl;
-        RMInit::logOut << "\tgmarray domain   : " << spatial_domain() << endl;
-        RMInit::logOut << "\tgmarray type size: " << get_type_length() << endl;
+        LFATAL << "r_GMarray::set_storage_layout(" << *stl << ") gmarray is not compatible with tiling";
+        LFATAL << "\tgmarray domain   : " << spatial_domain();
+        LFATAL << "\tgmarray type size: " << get_type_length();
         throw r_Error(STORAGERLAYOUTINCOMPATIBLEWITHGMARRAY);
     }
 
@@ -310,7 +301,7 @@ r_GMarray::insert_obj_into_db()
     // of the r_Marray objects.
 
     // r_Database::actual_database->communication->insertSingleMDDObj(this);
-    RMInit::logOut << " do nothing " << std::flush;
+    LINFO << " do nothing ";
 }
 
 
@@ -493,7 +484,7 @@ r_GMarray::get_base_type_schema()
         else
         {
             //whenever this module is done correctly, it should be checked first, what kind of type we are dealing with.  therefore i do not declare a throw clause.
-            RMInit::logOut << "r_GMarray::get_base_type_schema() the type retrieved (" << typePtr->name() << ") was not a marray type" << endl;
+            LFATAL << "r_GMarray::get_base_type_schema() the type retrieved (" << typePtr->name() << ") was not a marray type";
             throw r_Error(NOTANMARRAYTYPE);
         }
     }
