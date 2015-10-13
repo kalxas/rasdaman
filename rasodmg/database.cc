@@ -44,6 +44,8 @@ static const char rcsid[] = "@(#)rasodmg, r_Database: $Id: database.cc,v 1.47 20
 #include "rasodmg/transaction.hh"
 #include "clientcomm/clientcomm.hh"
 
+#include "../common/src/logging/easylogging++.hh"
+
 #ifdef DATABASE_NOT_SET
 #undef __EXECUTABLE__
 #endif
@@ -71,7 +73,7 @@ r_Database::r_Database( const char* name ) throw(r_Error)
 {
     if(!name)
     {
-        RMInit::logOut << "Error: null database name." << std::endl;
+        LFATAL << "Error: null database name.";
         throw r_Error(r_Error::r_Error_NameInvalid);
     }
     this->rasmgrName = strdup( name );
@@ -134,7 +136,7 @@ throw( r_Error )
 
     if(!database_name)
     {
-        RMInit::logOut << "r_Database::open(name, new_status) name is null" << std::endl;
+        LFATAL << "r_Database::open(name, new_status) name is null";
         throw r_Error(r_Error::r_Error_NameInvalid);
     }
 
@@ -258,7 +260,7 @@ r_Database::set_servername( const char* name, int port ) throw (r_Error)
 
     if(!name)
     {
-        RMInit::logOut << "r_Database::set_servername(name, port) name is null" << std::endl;
+        LFATAL << "r_Database::set_servername(name, port) name is null";
         throw r_Error(r_Error::r_Error_NameInvalid);
     }
 
@@ -273,12 +275,12 @@ r_Database::set_useridentification( const char* name, const char *plain_pass ) t
 {
     if(!name)
     {
-        RMInit::logOut << "r_Database::set_useridentification(name, plain_pass) name is null" << std::endl;
+        LFATAL << "r_Database::set_useridentification(name, plain_pass) name is null";
         throw r_Error(r_Error::r_Error_NameInvalid);
     }
     if(!plain_pass)
     {
-        RMInit::logOut << "r_Database::set_useridentification(name, plain_pass) plain_pass is null" << std::endl;
+        LFATAL << "r_Database::set_useridentification(name, plain_pass) plain_pass is null";
         throw r_Error(r_Error::r_Error_NameInvalid);
     }
 
@@ -309,7 +311,7 @@ r_Database::lookup_object( const char* name ) const throw( r_Error )
 
     if(!name)
     {
-        RMInit::logOut << "r_Database::lookup_object(name) name is null" << std::endl;
+        LFATAL << "r_Database::lookup_object(name) name is null";
         throw r_Error(r_Error::r_Error_NameInvalid);
     }
 

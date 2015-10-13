@@ -131,7 +131,7 @@ r_convDesc& r_Conv_NTF::convertFrom( const char *options ) throw(r_Error)
     }
     else
     {
-        LFATAL::logOut << "r_Conv_NTF::convertFrom:" << "unsupported NITF file pixel type";
+        LFATAL << "r_Conv_NTF::convertFrom:" << "unsupported NITF file pixel type";
         throw r_Error(r_Error::r_Error_General);
     }
 

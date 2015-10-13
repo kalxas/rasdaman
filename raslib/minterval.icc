@@ -31,8 +31,8 @@ rasdaman GmbH.
 */
 
 // -*-C++-*- (for Emacs)
-#include "raslib/rminit.hh"
 #include "raslib/error.hh"
+#include "../common/src/logging/easylogging++.hh"
 
 inline r_Dimension
 r_Minterval::dimension() const
@@ -96,7 +96,7 @@ r_Minterval::covers( const r_Point& pnt ) const
     }
     else
     {
-        RMInit::logOut << "r_Minterval::covers(" << pnt << ") dimensions do not match" << endl;
+        LERROR << "r_Minterval::covers(" << pnt << ") dimensions do not match";
         retval=false;
     }
 
@@ -131,7 +131,7 @@ r_Minterval::covers( const r_Minterval& inter2  ) const
     }
     else
     {
-        RMInit::logOut << "r_Minterval::covers(" << inter2 << ") dimensions do not match" << endl;
+        LERROR << "r_Minterval::covers(" << inter2 << ") dimensions do not match";
         retval=false;
     }
 

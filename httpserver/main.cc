@@ -23,7 +23,6 @@ rasdaman GmbH.
 
 #include "config.h"
 #include "raslib/error.hh"
-#include "raslib/rminit.hh"
 
 #include   "httpserver.h"
 
@@ -31,6 +30,8 @@ rasdaman GmbH.
 #include   "protos.h"
 #include   "types.h"
 #include   "server.h"
+
+#include "../common/src/logging/easylogging++.hh"
 
 #ifdef PURIFY
 #include <purify.h>
@@ -82,15 +83,12 @@ extern int init_httpserver( int argc, char *argv[] )
 {
     pid_t ChildPId;          /* -> Server.ChildInfo   */
 
-    RMInit::logOut << "Initialising parameters for HTTP server... " << endl;
-    RMInit::logOut.flush();
+    LINFO << "Initialising parameters for HTTP server... ";
     Initialize( argc, argv, &Server );
 
-    RMInit::logOut << "Initialising server socket for HTTP server... " << endl;
-    RMInit::logOut.flush();
+    LINFO << "Initialising server socket for HTTP server... ";
     listen( Server.SockFD, 5 );
-    RMInit::logOut << "Waiting for client calls... " << endl;
-    RMInit::logOut.flush();
+    LINFO << "Waiting for client calls... ";
 
 #ifdef PURIFY
     purify_printf( "Server Startup Finnished." );

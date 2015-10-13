@@ -35,11 +35,12 @@ rasdaman GmbH.
 
 static const char rcsid[] = "@(#)rasodmg, r_Object: $Id: object.cc,v 1.37 2002/08/19 14:09:32 schatz Exp $";
 
-#include "raslib/rmdebug.hh"
 #include "raslib/type.hh"
 #include "raslib/error.hh"
 
 #include "rasodmg/object.hh"
+
+#include "../common/src/logging/easylogging++.hh"
 
 #ifdef __VISUALC__
 #ifndef __EXECUTABLE__
@@ -76,12 +77,10 @@ r_Object::r_Object()
       object_status( next_object_status ),
       oid()
 {
-    RMDBCLASS( "r_Object", "r_Object()", "rasodmg", __FILE__, __LINE__ )
-
     if( next_object_type_name ) type_name = strdup( next_object_type_name );
 
     if( next_object_type == persistent_object )
-        RMInit::logOut << "Error: A peristent object is constructed with default constructor." << std::endl;
+        LFATAL << "Error: A peristent object is constructed with default constructor.";
     else
         object_type = transient_object;
 
@@ -104,15 +103,13 @@ r_Object::r_Object( unsigned short objType ) throw(r_Error)
       object_status( next_object_status ),
       oid()
 {
-    RMDBCLASS( "r_Object", "r_Object( unsigned short )", "rasodmg", __FILE__, __LINE__ )
-
     if( next_object_type_name ) type_name = strdup( next_object_type_name );
 
     if( next_object_type == persistent_object )
     {
         if( r_Transaction::actual_transaction == 0 )
         {
-            RMInit::logOut << "Error: Tried to create a persistent object outside a transaction." << std::endl;
+            LFATAL << "Error: Tried to create a persistent object outside a transaction.";
             throw r_Error(r_Error::r_Error_TransactionNotOpen);
         }
 
@@ -130,7 +127,7 @@ r_Object::r_Object( unsigned short objType ) throw(r_Error)
             oid = next_object_oid;
             break;
         default:
-            RMDBGONCE(0, RMDebug::module_raslib, "r_Object", "r_Object(objType) bad object_status " << object_status);
+            LTRACE << "r_Object(objType) bad object_status " << object_status;
             break;
         }
 
@@ -164,15 +161,13 @@ r_Object::r_Object( unsigned short objType, const char* name ) throw(r_Error)
     type_schema(0),
     oid()
 {
-  RMANDEBUGOUT( "r_Object::r_Object( const char* name)" )
-
   if( next_object_type_name ) type_name = strdup( next_object_type_name );
 
   if( next_object_type == persistent_object )
   {
     if( r_Transaction::actual_transaction == 0 )
     {
-      RMInit::logOut << "Error: Tried to create a persistent object outside a transaction." << std::endl;
+      LFATAL << "Error: Tried to create a persistent object outside a transaction.";
       throw r_Error(r_Error::r_Error_TransactionNotOpen);
     }
 
@@ -204,15 +199,13 @@ r_Object::r_Object( const r_Object& obj, unsigned short objType ) throw(r_Error)
       object_status( next_object_status ),
       oid()
 {
-    RMDBCLASS( "r_Object", "r_Object( const r_Object& )", "rasodmg", __FILE__, __LINE__ )
-
     if( next_object_type_name ) type_name = strdup( next_object_type_name );
 
     if( next_object_type == persistent_object )
     {
         if( r_Transaction::actual_transaction == 0 )
         {
-            RMInit::logOut << "Error: Tried to create a persistent object outside a transaction." << std::endl;
+            LFATAL << "Error: Tried to create a persistent object outside a transaction.";
             throw r_Error(r_Error::r_Error_TransactionNotOpen);
         }
 
@@ -230,7 +223,7 @@ r_Object::r_Object( const r_Object& obj, unsigned short objType ) throw(r_Error)
             oid = next_object_oid;
             break;
         default:
-            RMDBGONCE(0, RMDebug::module_raslib, "r_Object", "r_Object(obj, objType) bad object_status " << object_status);
+            LTRACE << "r_Object(obj, objType) bad object_status " << object_status;
             break;
         }
 
@@ -266,7 +259,7 @@ r_Object::set_type_schema(const r_Type* tyy) throw (r_Error)
 {
     if (type_schema)
     {
-        RMInit::logOut << "r_Object::set_type_schema(" << tyy->name() << ") this object has already a type" << std::endl;
+        LFATAL << "r_Object::set_type_schema(" << tyy->name() << ") this object has already a type";
         throw r_Error(ILLEGALARGUMENT);
     }
     type_schema = tyy->clone();
@@ -285,8 +278,6 @@ r_Object::set_type_schema(const r_Type* tyy) throw (r_Error)
 
 r_Object::~r_Object()
 {
-    RMDBCLASS( "r_Object", "~r_Object()", "rasodmg", __FILE__, __LINE__ )
-
     // Free memory in the transient case. In the persistent case, r_deactivate()
     // is invoked at the commit/abort point.
     if( test_type( transient_object ) )
@@ -314,8 +305,6 @@ r_Object::~r_Object()
 void
 r_Object::r_deactivate()
 {
-    RMDBCLASS( "r_Object", "r_deactivate()", "rasodmg", __FILE__, __LINE__ )
-
     if( type_schema )
     {
         delete type_schema;
@@ -358,8 +347,6 @@ r_Object::r_deactivate()
 void*
 r_Object::operator new( size_t size )
 {
-    RMDBCLASS( "r_Object", "operator new( size_t )", "rasodmg", __FILE__, __LINE__ )
-
     r_Object::next_object_type      = transient_object;
     r_Object::next_object_status    = created;
     r_Object::next_object_type_name = 0;
@@ -386,8 +373,6 @@ r_Object::operator new( size_t size )
 void*
 r_Object::operator new( size_t size, r_Database* /*database*/, const char* type_name )
 {
-    RMDBCLASS( "r_Object", "operator new( size_t, r_Database, const char* )", "rasodmg", __FILE__, __LINE__ )
-
     r_Object::next_object_type      = persistent_object;
     r_Object::next_object_status    = created;
     r_Object::next_object_type_name = const_cast<char*>(type_name);
@@ -402,8 +387,6 @@ r_Object::operator new( size_t size, r_Database* /*database*/, const char* type_
 void*
 r_Object::operator new( size_t size, const char* type_name )
 {
-    RMDBCLASS( "r_Object", "operator new( size_t, const char* )", "rasodmg", __FILE__, __LINE__ )
-
     r_Object::next_object_type      = transient_object;
     r_Object::next_object_status    = created;
     r_Object::next_object_type_name = const_cast<char*>(type_name);
@@ -433,8 +416,6 @@ r_Object::operator new( size_t size, const char* type_name )
 void
 r_Object::operator delete( void* obj_ptr )
 {
-    RMDBCLASS( "r_Object", "operator delete()", "rasodmg", __FILE__, __LINE__ )
-
     if( r_Object::last_object_type == transient_object )
         free( obj_ptr );
 
@@ -495,8 +476,6 @@ r_Object::test_type( ObjectType type )
 void*
 r_Object::operator new( size_t size, r_Database* /*database*/, ObjectStatus status, const r_OId& oid )
 {
-    RMDBCLASS( "r_Object", "operator new( size_t, r_Database, ObjectStatus )", "rasodmg", __FILE__, __LINE__ )
-
     r_Object::next_object_type      = persistent_object;
     r_Object::next_object_status    = status;
     r_Object::next_object_type_name = 0;
@@ -544,8 +523,8 @@ r_Object::get_type_schema()
             }
             catch(r_Error& errObj)
             {
-                RMInit::logOut << "r_Object::get_type_schema() failed retriving typestructure" << std::endl;
-                RMInit::logOut << "Error " << errObj.get_errorno() << " : " << errObj.what() << std::endl;
+                LERROR << "r_Object::get_type_schema() failed retriving typestructure";
+                LERROR << "Error " << errObj.get_errorno() << " : " << errObj.what();
                 return NULL;
             }
         }
@@ -560,7 +539,7 @@ r_Object::get_type_schema()
 void
 r_Object::update_obj_in_db()
 {
-    RMInit::logOut << " dummy implementation " << std::flush;
+    LWARNING << " dummy implementation ";
 }
 
 
@@ -568,7 +547,7 @@ r_Object::update_obj_in_db()
 void
 r_Object::load_obj_from_db()
 {
-    RMInit::logOut << " dummy implementation " << std::flush;
+    LWARNING << " dummy implementation ";
 }
 
 
@@ -576,24 +555,22 @@ r_Object::load_obj_from_db()
 void
 r_Object::delete_obj_from_db()
 {
-    RMDBCLASS( "r_Object", "delete_obj_from_db()", "rasodmg", __FILE__, __LINE__ )
-
     if( object_name && strlen( object_name ) )
     {
-        RMInit::logOut << object_name << "... " << std::flush;
+        LINFO << object_name << "... ";
 
         // delete myself from the database
         r_Database::actual_database->getComm()->deleteCollByName( object_name );
     }
     else
     {
-        RMInit::logOut << "no name - take oid ... " << std::flush;
+        LERROR << "no name - take oid ... ";
 
         if( oid.get_local_oid() )
             // delete myself from the database
             r_Database::actual_database->getComm()->deleteObjByOId( oid );
         else
-            RMInit::logOut << " no oid ... FAILED" << std::flush;
+            LERROR << " no oid ... FAILED";
     }
 }
 

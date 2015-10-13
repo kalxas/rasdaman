@@ -271,7 +271,7 @@ r_convDesc &r_Conv_HDF::convertTo( const char *options ) throw(r_Error)
     tempFD = mkstemp(name);
     if(tempFD==-1)
     {
-        LFATAL::logOut << "r_Conv_hdf::convertTo(" << (options?options:"NULL")
+        LFATAL << "r_Conv_hdf::convertTo(" << (options?options:"NULL")
                         << ") desc.srcType (" << desc.srcType->type_id()
                         << ") unable to generate a tempory file !";
         throw r_Error();

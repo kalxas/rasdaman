@@ -35,8 +35,9 @@ using namespace std;
 static const char rcsidcollection[] = "@(#)rasodmg, r_Collection: $Id: collection.cc,v 1.53 2005/07/06 23:30:22 rasdev Exp $";
 
 #include "config.h"
-#include "raslib/rmdebug.hh"
 #include "raslib/collectiontype.hh"
+
+#include "../common/src/logging/easylogging++.hh"
 
 #include "rasodmg/collection.hh"
 #include "rasodmg/iterator.hh"
@@ -132,7 +133,7 @@ r_Collection<T>::r_Collection( const void* node1 )
 template<class T>
 r_Collection<T>::~r_Collection()
 {
-    RMDBGONCE(1, RMDebug::module_rasodmg, "r_Collection<T>", "~r_Collection")
+    //LTRACE << "~r_Collection";
 
     r_deactivate();
 }
@@ -154,7 +155,7 @@ template<class T>
 void
 r_Collection<T>::r_deactivate()
 {
-    RMDBGONCE(1, RMDebug::module_rasodmg, "r_Collection<T>", "r_deactivate()")
+    //LTRACE << "r_deactivate()";
 
     remove_all_nodes( coll );
     remove_all_nodes( removed_objects );
@@ -402,7 +403,7 @@ r_Collection<T>::update_obj_in_db()
             // specification for our case.
             r_Ref<r_Object> ref = static_cast<r_Ref<r_Object> >((*iter));
 
-            RMInit::logOut << "    Collection object " << ref.get_oid() << "  " << std::flush;
+            LINFO << "    Collection object " << ref.get_oid() << "  ";
 
             // check if object is loaded
             if( ref.get_memory_ptr() != 0 )
@@ -411,36 +412,36 @@ r_Collection<T>::update_obj_in_db()
                 switch( (static_cast<r_Ref<r_Object> >((*iter)))->get_status() )
                 {
                 case r_Object::deleted:
-                    RMInit::logOut << "state DELETED,  not implemented" << endl;
-                    RMInit::logOut << "OK" << endl;
+                    LINFO << "state DELETED,  not implemented";
+                    LINFO << "OK";
                     break;
 
                 case r_Object::created:
-                    RMInit::logOut << "state CREATED,  writing  ... " << std::flush;
+                    LINFO << "state CREATED,  writing  ... ";
                     // Search for *1 for an explanation of the following cast.
                     (static_cast<r_Object*>((static_cast<r_Ref<r_Object> >((*iter))).ptr()))->insert_obj_into_db( object_name );
-                    RMInit::logOut << "OK" << endl;
+                    LINFO << "OK";
                     break;
 
                 case r_Object::modified:
-                    RMInit::logOut << "state MODIFIED, not implemented" << endl;
+                    LINFO << "state MODIFIED, not implemented";
                     break;
 
                 case r_Object::read:
-                    RMInit::logOut << "state READ,     OK" << endl;
+                    LINFO << "state READ,     OK";
                     break;
 
                 case r_Object::transient:
-                    RMInit::logOut << "state TRANSIENT,     OK" << endl;
+                    LINFO << "state TRANSIENT,     OK";
                     break;
 
                 default:
-                    RMInit::logOut << "state UNKNOWN" << endl;
+                    LWARNING << "state UNKNOWN";
                     break;
                 }
             }
             else
-                RMInit::logOut << "state NOT LOADED" << endl;
+                LERROR << "state NOT LOADED";
         }
     }
 
@@ -460,19 +461,19 @@ r_Collection<T>::update_obj_in_db()
             // r_Ref would load the object from the server.
             r_OId currentOId = (static_cast<r_Ref<r_Object> >((*iter))).get_oid();
 
-            RMInit::logOut << "    Collection object " << currentOId << "  " << std::flush;
+            LINFO << "    Collection object " << currentOId << "  ";
 
-            RMInit::logOut << "state REMOVED,  removing ... " << std::flush;
+            LINFO << "state REMOVED,  removing ... ";
             try
             {
 //        r_Database::actual_database->communication->removeObjFromColl( object_name, currentOId );
                 r_Database::actual_database->removeObjFromColl( object_name, currentOId );
-                RMInit::logOut << "OK" << endl;
+                LINFO << "OK";
             }
             catch( r_Error& obj )
             {
-                RMInit::logOut << "FAILED" << endl;
-                RMInit::logOut << obj.what() << endl;
+                LERROR << "FAILED";
+                LERROR << obj.what();
             }
         }
     }

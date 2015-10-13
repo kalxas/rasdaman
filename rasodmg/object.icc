@@ -31,6 +31,7 @@ rasdaman GmbH.
 */
 
 #include <string.h>
+#include "../common/src/logging/easylogging++.hh"
 
 
 inline void
@@ -49,7 +50,7 @@ r_Object::set_object_name( const char* name ) throw(r_Error)
     if(!name)
     {
         //null pointer
-        RMInit::logOut << "r_Object::set_object_name(name) name is null!" << std::endl;
+        LFATAL << "r_Object::set_object_name(name) name is null!";
         throw r_Error(INVALIDOBJECTNAME);
     }
 
@@ -70,7 +71,7 @@ r_Object::set_object_name( const char* name ) throw(r_Error)
     if(*cptr)
     {
         //invalid character in object name
-        RMInit::logOut << "r_Object::set_object_name(" << name << ") invalid name!" << std::endl;
+        LFATAL << "r_Object::set_object_name(" << name << ") invalid name!";
         throw r_Error(INVALIDOBJECTNAME);
     }
 
@@ -87,7 +88,7 @@ r_Object::set_type_by_name( const char* name ) throw(r_Error)
     if(!name)
     {
         //null pointer
-        RMInit::logOut << "r_Object::set_type_by_name(name) name is null!" << std::endl;
+        LFATAL << "r_Object::set_type_by_name(name) name is null!";
         throw r_Error(r_Error:: r_Error_NameInvalid);
     }
 
@@ -104,7 +105,7 @@ r_Object::set_type_structure( const char* name ) throw(r_Error)
     if(!name)
     {
         //null pointer
-        RMInit::logOut << "r_Object::type_structure(name) name is null!" << std::endl;
+        LFATAL << "r_Object::type_structure(name) name is null!";
         throw r_Error(r_Error:: r_Error_NameInvalid);
     }
 
