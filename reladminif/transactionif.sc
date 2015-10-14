@@ -54,13 +54,13 @@ TransactionIf::begin( bool readOnly ) throw ( r_Error )
     AdminIf::setAborted(false);
     AdminIf::setReadOnlyTA(readOnly);
 
-    // if a transaction is already started, the commit it first
+    // if a transaction is already started, then commit it first
     if (SQLiteQuery::isTransactionActive())
     {
         SQLiteQuery::execute("COMMIT TRANSACTION");
     }
 
-    SQLiteQuery::execute("BEGIN TRANSACTION");
+    SQLiteQuery::execute("BEGIN IMMEDIATE TRANSACTION");
 
 #ifdef RMANBENCHMARK
     DBObject::readTimer.start();
@@ -89,6 +89,7 @@ TransactionIf::begin( bool readOnly ) throw ( r_Error )
 void
 TransactionIf::commit() throw (  r_Error  )
 {
+    LINFO << "committing transaction.. ro: " << isReadOnly;
     if (isReadOnly)
     {
         LTRACE << "read only: aborting";

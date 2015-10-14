@@ -31,6 +31,7 @@ rasdaman GmbH.
 
 #include "sqlitewrapper.hh"
 #include "sqlerror.hh"
+#include "raslib/rminit.hh"
 #include "debug/debug-srv.hh"
 #include <cstdarg>
 #include <cstdio>
@@ -39,12 +40,16 @@ rasdaman GmbH.
 
 extern sqlite3* sqliteConn;
 
+// 60s timeout, in case RASBASE is locked by another rasserver for writing
+#define SQLITE_BUSY_TIMEOUT 60000
+
 SQLiteQuery::SQLiteQuery(char q[]) :
 stmt(NULL), columnCounter(0)
 {
     query = query;
+    sqlite3_busy_timeout(sqliteConn, SQLITE_BUSY_TIMEOUT);
     sqlite3_prepare_v2(sqliteConn, q, -1, &stmt, NULL);
-    //LINFO << "SQL query: ";
+    //RMInit::logOut << "SQL query: " << query << endl;
     LDEBUG << "SQL query: " << query;
 }
 
@@ -57,8 +62,9 @@ stmt(NULL), columnCounter(0)
     vsnprintf(q, QUERY_MAXLEN, format, args);
     va_end(args);
     query = q;
+    sqlite3_busy_timeout(sqliteConn, SQLITE_BUSY_TIMEOUT);
     sqlite3_prepare_v2(sqliteConn, query, -1, &stmt, NULL);
-    //LINFO << "SQL query: " << query << endl;
+    //RMInit::logOut << "SQL query: " << query << endl;
     LDEBUG << "SQL query: " << query;
 }
 
@@ -110,6 +116,7 @@ void SQLiteQuery::bindBlob(char* param, int size)
 
 void SQLiteQuery::execute(int fail)
 {
+    sqlite3_busy_timeout(sqliteConn, SQLITE_BUSY_TIMEOUT);
     sqlite3_step(stmt);
     if (fail) {
         failOnError(query, sqliteConn);
@@ -120,8 +127,9 @@ void SQLiteQuery::execute(int fail)
 
 void SQLiteQuery::execute(const char* query)
 {
-    //LINFO << "SQL query: " << query;
+    //RMInit::logOut << "SQL query: " << query << endl;
     LDEBUG << "SQL query: " << query;
+    sqlite3_busy_timeout(sqliteConn, SQLITE_BUSY_TIMEOUT);
     sqlite3_exec(sqliteConn, query, 0, 0, 0);
     failOnError(query, sqliteConn);
 }
@@ -133,8 +141,9 @@ void SQLiteQuery::executeWithParams(const char* format, ...)
     va_start(args, format);
     vsnprintf(query, QUERY_MAXLEN, format, args);
     va_end(args);
-    //LINFO << "SQL query: " << query;
+    //RMInit::logOut << "SQL query: " << query << endl;
     LDEBUG << "SQL query: " << query;
+    sqlite3_busy_timeout(sqliteConn, SQLITE_BUSY_TIMEOUT);
     sqlite3_exec(sqliteConn, query, 0, 0, 0);
     failOnError(query, sqliteConn);
 }
