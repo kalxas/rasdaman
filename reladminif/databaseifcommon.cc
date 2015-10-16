@@ -78,14 +78,12 @@ DatabaseIf::~DatabaseIf()
 bool
 DatabaseIf::isConnected() const
 {
-    LTRACE << "isConnected() " << connected;
     return connected;
 }
 
 bool
 DatabaseIf::isOpen() const
 {
-    LTRACE << "isOpen() " << opened;
     return opened;
 }
 
@@ -119,7 +117,7 @@ DatabaseIf::baseDBMSOpen() throw (r_Error)
 {
     if (connected)
     {
-        LTRACE << "databasename is already connected";
+        LERROR << "Connection to database is already open.";
         throw r_Error(r_Error::r_Error_TransactionOpen);
     }
 #ifdef RMANDEBUG
@@ -207,7 +205,6 @@ DatabaseIf::DatabaseIf()
 const char*
 DatabaseIf::getName() const
 {
-    LTRACE << "getName() " << ((myName)? myName:"NULL");
     return myName;
 }
 
@@ -232,11 +229,5 @@ operator << (ostream& stream, DatabaseIf& db)
         stream << "\tDatabase is OFFLINE" << std::endl;
     }
     return stream;
-}
-
-void
-DatabaseIf::garbage( )
-{
-    LTRACE << "garbage() NOT IMPLEMENTED";
 }
 

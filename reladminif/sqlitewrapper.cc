@@ -70,11 +70,7 @@ stmt(NULL), columnCounter(0)
 
 SQLiteQuery::~SQLiteQuery()
 {
-    if (stmt != NULL)
-    {
-        sqlite3_finalize(stmt);
-        stmt = NULL;
-    }
+    finalize();
 }
 
 SQLiteQuery::SQLiteQuery(const SQLiteQuery& o)
@@ -82,6 +78,15 @@ SQLiteQuery::SQLiteQuery(const SQLiteQuery& o)
     stmt = o.stmt;
     query = o.query;
     columnCounter = o.columnCounter;
+}
+
+void SQLiteQuery::finalize()
+{
+    if (stmt != NULL)
+    {
+        sqlite3_finalize(stmt);
+        stmt = NULL;
+    }
 }
 
 void SQLiteQuery::bindNull()

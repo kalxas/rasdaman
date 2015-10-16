@@ -34,8 +34,9 @@ rasdaman GmbH.
 
 #include <sqlite3.h>
 #include <iostream>
-#include <stdlib.h>
-#include <string.h>
+#include <cstdlib>
+#include <cstring>
+#include <climits>
 #include "config.h"
 #include "version.h"
 #include "debug/debug.hh"
@@ -52,7 +53,7 @@ using namespace std;
 #include "adminif.hh"
 #include "../common/src/logging/easylogging++.hh"
 
-extern char globalConnectId[256];
+extern char globalConnectId[PATH_MAX];
 
 extern sqlite3 *sqliteConn;
 
@@ -67,8 +68,7 @@ DatabaseIf::disconnect() throw (r_Error)
         int error = sqlite3_close(sqliteConn);
         if (error != SQLITE_OK)
         {
-          LDEBUG << "Error while disconnecting;";
-          LTRACE << "error occured while disconnecting;";
+          warnOnError("close RASBASE connection", sqliteConn);
         }
         sqliteConn = NULL;
     }
@@ -80,16 +80,10 @@ DatabaseIf::connect() throw (r_Error)
     if (sqliteConn == NULL)
     {
         int error = sqlite3_open(globalConnectId, &sqliteConn);
-        LINFO << "Connecting to " << globalConnectId;
         if (error != SQLITE_OK)
         {
-            LDEBUG << "connect unsuccessful; wrong connect string?";
-            cout << "Error: connect unsuccessful; wrong connect string '" << globalConnectId << "'?" << endl;
+            LFATAL << "Connect unsuccessful; wrong connect string '" << globalConnectId << "'?";
             throw r_Error( 830 );
-        }
-        else
-        {
-            LDEBUG << "connect ok";
         }
     }
 }
@@ -108,17 +102,28 @@ DatabaseIf::isConsistent() throw (r_Error)
 }
 
 void
-DatabaseIf::createDB(__attribute__ ((unused)) const char* dbName, __attribute__ ((unused)) const char* schemaName, __attribute__ ((unused)) const char* volumeName) throw (r_Error)
+DatabaseIf::createDB(__attribute__ ((unused)) const char* dbName,
+                     __attribute__ ((unused)) const char* schemaName,
+                     __attribute__ ((unused)) const char* volumeName) throw (r_Error)
 {
     try
     {
         if (AdminIf::getCurrentDatabaseIf() != 0)
         {
-            LTRACE << "another database is open;";
-            LDEBUG <<"Error: another database is open";
+            LFATAL << "Another database is open already.";
             throw r_Error(r_Error::r_Error_DatabaseOpen);
         }
+
         connect();
+
+        SQLiteQuery checkTable("SELECT name FROM sqlite_master WHERE type='table' AND name='RAS_COUNTERS'");
+        if (checkTable.nextRow())
+        {
+            LFATAL << "Database exists already.";
+            checkTable.finalize();
+            disconnect();
+            throw r_Error( 832 );
+        }
 
         // --- start table/index creation ------------------------------
 
@@ -347,6 +352,7 @@ DatabaseIf::createDB(__attribute__ ((unused)) const char* dbName, __attribute__ 
         LTRACE << "create(" << dbName <<
                     ", " << schemaName << ", " << volumeName <<
                     ") error caught " << err.what() << " " << err.get_errorno();
+        disconnect();
         throw; // rethrow exception
     }
 }

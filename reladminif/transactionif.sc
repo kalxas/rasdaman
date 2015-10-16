@@ -50,34 +50,28 @@ rasdaman GmbH.
 void
 TransactionIf::begin( bool readOnly ) throw ( r_Error )
 {
-    isReadOnly = readOnly;
-    AdminIf::setAborted(false);
-    AdminIf::setReadOnlyTA(readOnly);
-
     // if a transaction is already started, then commit it first
     if (SQLiteQuery::isTransactionActive())
     {
         SQLiteQuery::execute("COMMIT TRANSACTION");
     }
-
     SQLiteQuery::execute("BEGIN IMMEDIATE TRANSACTION");
+
+    isReadOnly = readOnly;
+    AdminIf::setAborted(false);
+    AdminIf::setReadOnlyTA(readOnly);
 
 #ifdef RMANBENCHMARK
     DBObject::readTimer.start();
     DBObject::readTimer.pause();
-
     DBObject::updateTimer.start();
     DBObject::updateTimer.pause();
-
     DBObject::deleteTimer.start();
     DBObject::deleteTimer.pause();
-
     DBObject::insertTimer.start();
     DBObject::insertTimer.pause();
-
     OId::oidAlloc.start();
     OId::oidAlloc.pause();
-
     OId::oidResolve.start();
     OId::oidResolve.pause();
 #endif
@@ -89,45 +83,24 @@ TransactionIf::begin( bool readOnly ) throw ( r_Error )
 void
 TransactionIf::commit() throw (  r_Error  )
 {
-    LINFO << "committing transaction.. ro: " << isReadOnly;
-    if (isReadOnly)
-    {
-        LTRACE << "read only: aborting";
-        LDEBUG << "TA is readonly: aborting";
-        abort();
-    }
-    else
-    {
-        AdminIf::setAborted(false);
-        LTRACE << "set aborted false";
-        TypeFactory::freeTempTypes();
-        LTRACE << "freed temp types";
-        ObjectBroker::clearBroker();
-        LTRACE << "cleared broker";
-        OId::deinitialize();
-        LTRACE << "wrote oid counters";
-        AdminIf::setReadOnlyTA(false);
-        LTRACE << "committing";
+    AdminIf::setAborted(false);
+    TypeFactory::freeTempTypes();
+    ObjectBroker::clearBroker();
+    OId::deinitialize();
+    AdminIf::setReadOnlyTA(isReadOnly);
 
-        SQLiteQuery::execute("COMMIT TRANSACTION");
-        if (lastBase)
-        {
-            LTRACE << "closing dbms";
-            lastBase->baseDBMSClose();
-        }
+    SQLiteQuery::execute("COMMIT TRANSACTION");
+    if (lastBase)
+    {
+        lastBase->baseDBMSClose();
     }
 
 #ifdef RMANBENCHMARK
     DBObject::readTimer.stop();
-
     DBObject::updateTimer.stop();
-
     DBObject::deleteTimer.stop();
-
     DBObject::insertTimer.stop();
-
     OId::oidAlloc.stop();
-
     OId::oidResolve.stop();
 #endif
 
@@ -136,28 +109,22 @@ TransactionIf::commit() throw (  r_Error  )
 void
 TransactionIf::abort()
 {
-    SQLiteQuery::execute("ROLLBACK TRANSACTION");
-
     AdminIf::setAborted(true);
     TypeFactory::freeTempTypes();
     ObjectBroker::clearBroker();
     OId::deinitialize();
     AdminIf::setReadOnlyTA(false);
 
+    SQLiteQuery::execute("ROLLBACK TRANSACTION");
     if(lastBase)
         lastBase->baseDBMSClose();
 
 #ifdef RMANBENCHMARK
     DBObject::readTimer.stop();
-
     DBObject::updateTimer.stop();
-
     DBObject::deleteTimer.stop();
-
     DBObject::insertTimer.stop();
-
     OId::oidAlloc.stop();
-
     OId::oidResolve.stop();
 #endif
 }

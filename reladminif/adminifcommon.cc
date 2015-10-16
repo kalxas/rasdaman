@@ -86,21 +86,18 @@ AdminIf::isAborted()
 void
 AdminIf::setAborted(bool newAborted)
 {
-    LTRACE << "setAborted(" << newAborted << ") " << _isAborted;
     _isAborted = newAborted;
 }
 
 DatabaseIf*
 AdminIf::getCurrentDatabaseIf()
 {
-    LTRACE << "getCurrentDatabaseIf() " << myDatabaseIf;
     return myDatabaseIf;
 }
 
 void
 AdminIf::setCurrentDatabaseIf(DatabaseIf* db)
 {
-    LTRACE << "setCurrentDatabaseIf(" << db << ") " << myDatabaseIf;
     myDatabaseIf = db;
 }
 
@@ -148,21 +145,18 @@ AdminIf::~AdminIf()
 void
 AdminIf::setReadOnlyTA(bool newReadOnlyTA)
 {
-    LTRACE << "setReadOnlyTA(" << newReadOnlyTA << ")" << readOnlyTA;
     readOnlyTA = newReadOnlyTA;
 }
 
 bool
 AdminIf::isReadOnlyTA()
 {
-    LTRACE << "isReadOnlyTA()" << readOnlyTA;
     return readOnlyTA;
 }
 
 char*
 AdminIf::getSystemName()
 {
-    LTRACE << "getSystemName()" << systemName;
     return systemName;
 }
 

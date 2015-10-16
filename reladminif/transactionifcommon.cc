@@ -47,7 +47,6 @@ DatabaseIf* TransactionIf::lastBase = NULL;
 DatabaseIf*
 TransactionIf::getDatabaseIf()
 {
-    LTRACE << "getDatabaseIf() " << lastBase;
     return lastBase;
 }
 

@@ -209,6 +209,8 @@
 # 83x errors for base DBMS connections
 #
 830^E^base DBMS Error: Cannot connect to base DBMS server (invalid connect string in rasmgr config file?).
+831^E^base DBMS Error: No valid database found, please run create_db.sh first.
+832^E^Basis-DBMS Error: Database exists already.
 #
 # 9xx errors: Evaluation errors
 #

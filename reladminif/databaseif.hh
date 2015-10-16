@@ -108,11 +108,6 @@ public:
     */
 
 
-    void garbage();
-    /*@Doc:
-    this method does not do anything
-    */
-
     const char* getName() const;
     /*@Doc:
     returns a pointer to the name of the db.

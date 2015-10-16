@@ -67,6 +67,11 @@ public:
     SQLiteQuery(const SQLiteQuery& o);
 
     /**
+     * Finalize any query objects.
+     */
+    void finalize();
+
+    /**
      * @return go to next row of the SQL result set, and return true if there
      * is data or false otherwise. Initializes the column counter to 0.
      */

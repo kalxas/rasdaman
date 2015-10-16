@@ -32,6 +32,7 @@ rasdaman GmbH.
  ***********************************************************************/
 
 #include <sqlite3.h>
+#include <climits>
 
 #include "config.h"
 #include "debug-srv.hh"
@@ -43,7 +44,7 @@ rasdaman GmbH.
 #include "objectbroker.hh"
 #include "../common/src/logging/easylogging++.hh"
 
-extern char globalConnectId[256];
+extern char globalConnectId[PATH_MAX];
 
 const char AdminIf::dbmsName[SYSTEMNAME_MAXLEN]="SQLite";
 
@@ -86,30 +87,39 @@ void checkCounter(const char* counterName, const char* column,
     }
 }
 
+void closeDbConnection()
+{
+    if (sqliteConn != NULL)
+    {
+        if (sqlite3_close(sqliteConn) != SQLITE_OK)
+        {
+            warnOnError("close RASBASE connection", sqliteConn);
+        }
+        sqliteConn = NULL;
+    }
+}
+
 AdminIf::AdminIf() throw (r_Error)
 {
-    int error = sqlite3_open(globalConnectId, &sqliteConn);
-    LINFO << "Connecting to " << globalConnectId;
-    if (error != SQLITE_OK)
+    if (sqlite3_open(globalConnectId, &sqliteConn) != SQLITE_OK)
     {
         validConnection = false;
-        LDEBUG << "connect unsuccessful; wrong connect string?";
-        cout << "Error: connect unsuccessful; wrong connect string '" << globalConnectId << "'?" << endl;
+        LFATAL << "Connect unsuccessful; wrong connect string '" << globalConnectId << "'?";
         throw r_Error( 830 );
     }
     else
     {
         validConnection = true;
-        LDEBUG << "connect ok";
+        LINFO << "Connected successfully to '" << globalConnectId << "'";
     }
 
     ObjectBroker::init();
 
     // check database consistency
-    bool consistent = true;
     SQLiteQuery checkTable("SELECT name FROM sqlite_master WHERE type='table' AND name='RAS_COUNTERS'");
     if (checkTable.nextRow())
     {
+        bool consistent = true;
         checkCounter(OId::counterNames[OId::DBMINTERVALOID], "DomainId", "RAS_DOMAINS", "domain data", consistent);
         checkCounter(OId::counterNames[OId::MDDOID], "MDDId", "RAS_MDDOBJECTS", "MDD objects", consistent);
         checkCounter(OId::counterNames[OId::MDDCOLLOID], "MDDCollId", "RAS_MDDCOLLNAMES", "MDD collections", consistent);
@@ -122,10 +132,22 @@ AdminIf::AdminIf() throw (r_Error)
         checkCounter(OId::counterNames[OId::BLOBOID], "BlobId", "RAS_TILES", "tiles", consistent);
         checkCounter(OId::counterNames[OId::MDDHIERIXOID], "MDDObjIxOId", "RAS_HIERIX", "hierarchical MDD indexes", consistent);
         checkCounter(OId::counterNames[OId::STORAGEOID], "StorageId", "RAS_STORAGE", "MDD storage structures", consistent);
+        if (!consistent)
+        {
+            LFATAL << "Database inconsistent.";
+            checkTable.finalize();
+            closeDbConnection();
+            throw r_Error(DATABASE_INCONSISTENT);
+        }
     }
-    if (!consistent)
+    else
     {
-        LFATAL << "Database inconsistent.";
-        throw r_Error(DATABASE_INCONSISTENT);
+        LFATAL << "No tables found in " << globalConnectId << ", please run create_db.sh first.";
+        checkTable.finalize();
+        closeDbConnection();
+        throw r_Error( 831 );
     }
+    checkTable.finalize();
+
+    closeDbConnection();
 }
