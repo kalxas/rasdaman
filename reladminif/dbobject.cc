@@ -353,7 +353,7 @@ DBObject::setModified() throw (r_Error)
         _isModified = true;
     else
     {
-        LTRACE << "readonly transaction " << myOId;
+//        LTRACE << "readonly transaction " << myOId;
         //this happens really a lot.
         //LFATAL << "DBObject::setModified() read only transaction";
         //throw r_Error(r_Error::r_Error_TransactionReadOnly);
