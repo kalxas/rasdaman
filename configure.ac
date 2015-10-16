@@ -198,6 +198,7 @@ AC_CONFIG_FILES([Makefile
 ####################################################################
 AH_TEMPLATE([DEBUG], [Enables debug functionality])
 AH_TEMPLATE([RMANDEBUG], [Enables debug functionality])
+AH_TEMPLATE([_DISABLE_TRACE_LOGS], [Disable debug functionality])
 AH_TEMPLATE([HAVE_HDF], [Checks whether HDF4 is installed])
 AH_TEMPLATE([HAVE_NETCDF], [Checks whether NetCDF is installed])
 AH_TEMPLATE([BASEDB_PGSQL], [If defined we are compiling over PostgreSQL])
@@ -588,6 +589,7 @@ AS_IF([test "x$RMANDEBUG" != x],
        CXXFLAGS+=" -g3 -gdwarf-2 -rdynamic "
       ], 
       [
+       AC_DEFINE([_DISABLE_TRACE_LOGS])
        AS_IF([test "x$with_debug_symbols" == xyes],
        [CXXFLAGS+=" -g3 -gdwarf-2 -rdynamic "],
        [

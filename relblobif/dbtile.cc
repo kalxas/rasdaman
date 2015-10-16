@@ -134,7 +134,7 @@ DBTile::getCells()
 const char*
 DBTile::getCells() const
 {
-    //LTRACE << "getCells() const " << myOId;
+    LTRACE << "getCells() const " << myOId;
     return cells;
 }
 

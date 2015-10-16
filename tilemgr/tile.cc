@@ -161,7 +161,9 @@ Tile::Tile(const Tile* projTile, const r_Minterval& projDom, const std::set<r_Di
     {
         cellTile = newTileIter.nextCell();
         cellProj = projTileIter.nextCell();
-//        LTRACE << "offset in original: " << (int)(cellProj-(projTile)->getContents()) << " {" << (int)*cellProj << "} offset in result: " << (int)((int)(cellTile-getContents())) << " {" << (int)*cellTile << "}";
+#ifdef DEBUG
+        LTRACE << "offset in original: " << (int)(cellProj-(projTile)->getContents()) << " {" << (int)*cellProj << "} offset in result: " << (int)((int)(cellTile-getContents())) << " {" << (int)*cellTile << "}";
+#endif
         // execute operation on cell
         (*op)(cellTile, cellProj);
     }
