@@ -140,13 +140,13 @@ AdminIf::AdminIf() throw (r_Error)
             throw r_Error(DATABASE_INCONSISTENT);
         }
     }
-    else
-    {
-        LFATAL << "No tables found in " << globalConnectId << ", please run create_db.sh first.";
-        checkTable.finalize();
-        closeDbConnection();
-        throw r_Error( 831 );
-    }
+    //else
+    //{
+    //    LFATAL << "No tables found in " << globalConnectId << ", please run create_db.sh first.";
+    //    checkTable.finalize();
+    //    closeDbConnection();
+    //    throw r_Error( 831 );
+    //}
     checkTable.finalize();
 
     closeDbConnection();
