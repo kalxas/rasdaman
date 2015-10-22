@@ -82,6 +82,9 @@ void
 checkCounter(const char* counterName, const char* column,
                   const char* table, const char* tableDescr, bool& retval);
 
+void
+closeDbConnection();
+
 class AdminIf
 {
 public:
