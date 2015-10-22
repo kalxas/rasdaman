@@ -30,12 +30,12 @@
 
 #include "../../common/src/time/timer.hh"
 
-#include "server.hh"
-#include "user.hh"
-#include "userdatabaserights.hh"
-
 namespace rasmgr
 {
+
+class User;
+class Server;
+
 /**
  * @brief The Client class Represents a client that connects to rasmgr and requests
  * a server onto which to execute a query.
@@ -74,6 +74,8 @@ public:
      * @param dbName Name of the database for this session
      * @param assignedServer Server assigned to the client for this session
      * @param out_sessionId Unique ID that is created for this session.
+     * @throws An exception is thrown if the user does not have rights on the database with the given name
+     * or if the server cannot allocate a client session.
      */
     void addDbSession(const std::string& dbName, boost::shared_ptr<Server> assignedServer, std::string& out_sessionId);
 

@@ -29,10 +29,11 @@
 
 #include "messages/rasmgrmess.pb.h"
 
-#include "server.hh"
-
 namespace rasmgr
 {
+
+class Server;
+
 /**
  * @brief The ServerGroup class represents a group of servers with the same properties,
  * running on a set of predetermined ports. The same properties apply to all the servers.

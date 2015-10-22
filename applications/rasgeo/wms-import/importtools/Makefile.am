@@ -40,7 +40,7 @@ fillpyramid_LDADD = ../../../../rasodmg/librasodmg.a ../../../../clientcomm/libc
               ../../../../network/libnetwork.a
 
 if RMANRASNET
-    fillpyramid_LDADD += ../../../../rasnet/src/librasnet.a ../../../../common/src/libcommon.a @ZMQ_LIBS@ @PROTOBUF_LIBS@ @BOOST_LDFLAGS@ -lboost_thread -lboost_regex -lboost_program_options -lboost_system
+    fillpyramid_LDADD += ../../../../rasnet/src/librasnet.a ../../../../common/src/libcommon.a @GRPC_LIBS@ @GPR_LIBS@ @GRPCPP_LIBS@ @PROTOBUF_LIBS@ @BOOST_LDFLAGS@ -lboost_thread -lboost_regex -lboost_program_options -lboost_system
 endif
 
 SUBDIRS= ../../../../rasodmg ../../../../clientcomm \

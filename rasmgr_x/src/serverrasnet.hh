@@ -30,23 +30,24 @@
 #include <string>
 #include <vector>
 #include <utility>
+#include <memory>
 
 #include <boost/cstdint.hpp>
 #include <boost/date_time.hpp>
 #include <boost/smart_ptr.hpp>
 
-#include <google/protobuf/service.h>
+#include <grpc++/grpc++.h>
 
-#include "rasnet/src/client/channel.hh"
-#include "rasnet/src/messages/rassrvr_rasmgr_service.pb.h"
+#include "../../rasnet/messages/rassrvr_rasmgr_service.grpc.pb.h"
 
-#include "userdatabaserights.hh"
 #include "databasehost.hh"
+
 #include "serverconfig.hh"
 #include "server.hh"
 
 namespace rasmgr
 {
+
 class ServerRasNet:public Server
 {
 public:
@@ -170,11 +171,8 @@ private:
 
     boost::uint32_t sessionNo;
 
-    boost::scoped_ptr<google::protobuf::Closure> doNothing; /*! Closure used for service calls*/
-
     //!!!! DO NOT USE THESE DIRECTLY
-    boost::scoped_ptr<rasnet::Channel> channel; /*! Channel used for communicating with the server */
-    boost::shared_ptr<rasnet::service::RasServerService> service; /*! Service stub used to communicate with the RasServer process */
+    boost::shared_ptr<::rasnet::service::RasServerService::Stub> service; /*! Service stub used to communicate with the RasServer process */
     bool initializedService; /*! Flag used to indicate if the service was initialized */
     boost::shared_mutex serviceMtx;
     /**
@@ -189,7 +187,7 @@ private:
     /**
      * @return Initialized shared_ptr to the RasServerService.
      */
-    boost::shared_ptr<rasnet::service::RasServerService> getService();
+    boost::shared_ptr<::rasnet::service::RasServerService::Stub> getService();
     std::string getStartProcessCommand();
 
     //TODO-AT: remove this

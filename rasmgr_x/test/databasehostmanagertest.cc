@@ -32,6 +32,7 @@
 #include "../../rasmgr_x/src/databasehost.hh"
 #include "../../rasmgr_x/src/databasehostmanager.hh"
 #include "../src/messages/rasmgrmess.pb.h"
+
 namespace rasmgr
 {
 namespace test
@@ -91,29 +92,6 @@ TEST_F(DatabaseHostManagerTest, defineDatabaseHost)
 
     //Will fail because there already is a database host with the given host name
     ASSERT_ANY_THROW(dbhManager.defineDatabaseHost(properties));
-}
-
-TEST_F(DatabaseHostManagerTest, removeDatabaseHost)
-{
-    //no database with the given name
-    ASSERT_ANY_THROW(dbhManager.removeDatabaseHost(hostName));
-
-    DatabaseHostPropertiesProto properties;
-    properties.set_host_name(hostName);
-    properties.set_user_name(userName);
-    properties.set_password(passwdString);
-    properties.set_connect_string(connectString);
-    //Add a dbh
-    ASSERT_NO_THROW(dbhManager.defineDatabaseHost(properties));
-
-    //remove it
-    ASSERT_NO_THROW(dbhManager.removeDatabaseHost(hostName));
-
-    //verify that removal was successful
-    ASSERT_EQ(0, dbhManager.getDatabaseHostList().size());
-
-    //try to remove it again and fail
-    ASSERT_ANY_THROW(dbhManager.removeDatabaseHost(hostName));
 }
 
 TEST_F(DatabaseHostManagerTest, changeDbHostProperties)
@@ -193,10 +171,41 @@ TEST_F(DatabaseHostManagerTest, changeDbHostProperties)
     }
 }
 
+TEST_F(DatabaseHostManagerTest, removeDatabaseHostFailWhenInexistendDbHost)
+{
+    //no database with the given name
+    ASSERT_ANY_THROW(dbhManager.removeDatabaseHost(hostName));
+}
+
+TEST_F(DatabaseHostManagerTest, removeDatabaseHost)
+{
+    DatabaseHostPropertiesProto properties;
+    properties.set_host_name(hostName);
+    properties.set_user_name(userName);
+    properties.set_password(passwdString);
+    properties.set_connect_string(connectString);
+    //Add a dbh
+    ASSERT_NO_THROW(dbhManager.defineDatabaseHost(properties));
+
+    //remove it
+    ASSERT_NO_THROW(dbhManager.removeDatabaseHost(hostName));
+
+    //verify that removal was successful
+    ASSERT_EQ(0, dbhManager.getDatabaseHostList().size());
+
+    //try to remove it again and fail
+    ASSERT_ANY_THROW(dbhManager.removeDatabaseHost(hostName));
+}
+
+TEST_F(DatabaseHostManagerTest, getAndLockDHFailsWhenNoDbHost)
+{
+    boost::shared_ptr<DatabaseHost> dbhResult;
+    ASSERT_ANY_THROW(dbhManager.getAndLockDatabaseHost(hostName));
+}
+
 TEST_F(DatabaseHostManagerTest, getAndLockDH)
 {
     boost::shared_ptr<DatabaseHost> dbhResult;
-    ASSERT_ANY_THROW(dbhManager.getAndLockDH(hostName));
 
     DatabaseHostPropertiesProto originalDBH;
     originalDBH.set_host_name(hostName);
@@ -204,13 +213,14 @@ TEST_F(DatabaseHostManagerTest, getAndLockDH)
     originalDBH.set_password(passwdString);
     originalDBH.set_connect_string(connectString);
 
-    //Add a dbh
+    //Setup
     ASSERT_NO_THROW(dbhManager.defineDatabaseHost(originalDBH));
-
     ASSERT_FALSE(dbhManager.getDatabaseHostList().front()->isBusy());
 
-    ASSERT_NO_THROW(dbhResult=dbhManager.getAndLockDH(hostName));
+    // will succeed
+    ASSERT_NO_THROW(dbhResult=dbhManager.getAndLockDatabaseHost(hostName));
 
+    // because the dbh is blocked
     ASSERT_TRUE(dbhResult->isBusy());
 }
 

@@ -27,6 +27,7 @@
 #include "../../common/src/mock/gmock.h"
 #include "../../common/src/logging/easylogging++.hh"
 
+#include "../src/messages/rasmgrmess.pb.h"
 #include "../src/client.hh"
 #include "../src/user.hh"
 #include "../src/userdatabaserights.hh"
@@ -82,39 +83,39 @@ protected:
     boost::shared_ptr<rasmgr::DatabaseHost> dbHost;
 };
 
-//Test what happens to the client when it has no
-//open server sessions
-TEST_F(ClientTest, isAliveNoSessions)
+TEST_F(ClientTest, isAliveSucceedsWhenTheClientTimerHasNotExpired)
 {
     //Initially the client is alive
     ASSERT_TRUE(client->isAlive());
+}
 
+TEST_F(ClientTest, isAliveFailsWhenTheClientTimerHasExpiredNoServers)
+{
     //sleep so that the client's time expires
-    usleep(this->clientLifeTime*1000);
+    usleep(boost::uint32_t(this->clientLifeTime)*1000);
 
     //The client will now be dead
     ASSERT_FALSE(client->isAlive());
 }
 
 //Test when the client has active sessions with a server
-TEST_F(ClientTest, isAliveWSessions)
+TEST_F(ClientTest, isAliveSucceedsWhenClientAliveOnServers)
 {
     boost::shared_ptr<Server> server(new MockRasServer());
     std::string out_sessionId;
 
     EXPECT_CALL(*((MockRasServer*)server.get()), allocateClientSession(clientId, _ ,dbName, _)).Times(1);
     EXPECT_CALL(*((MockRasServer*)server.get()), isClientAlive(clientId)).WillOnce(Return(true));
-    ASSERT_TRUE(client->isAlive());
 
     client->addDbSession(dbName,server, out_sessionId);
 
-    usleep(this->clientLifeTime*1000);
+    usleep(boost::uint32_t(this->clientLifeTime)*1000);
 
     //This will now return true because the server will confirm that the client is alive
     ASSERT_TRUE(client->isAlive());
 }
 
-TEST_F(ClientTest, isAliveClientDeadOnServers)
+TEST_F(ClientTest, isAliveFailsWhenClientDeadOnServers)
 {
 
     boost::shared_ptr<Server> server(new MockRasServer());
@@ -126,7 +127,7 @@ TEST_F(ClientTest, isAliveClientDeadOnServers)
 
     client->addDbSession(dbName,server, out_sessionId);
 
-    usleep(this->clientLifeTime*1000);
+    usleep(boost::uint32_t(this->clientLifeTime)*1000);
 
     //This will now return true because the server will confirm that the client is alive
     ASSERT_FALSE(client->isAlive());
@@ -136,7 +137,7 @@ TEST_F(ClientTest, resetLiveliness)
 {
     ASSERT_TRUE(client->isAlive());
 
-    usleep(this->clientLifeTime*1000);
+    usleep(boost::uint32_t(this->clientLifeTime)*1000);
 
     ASSERT_FALSE(client->isAlive());
 
@@ -146,7 +147,7 @@ TEST_F(ClientTest, resetLiveliness)
 }
 
 
-TEST_F(ClientTest, addDbSessionFail)
+TEST_F(ClientTest, addDbSessionFailWhenUserDoesNotHaveRights)
 {
     //This method will throw an exception because the user does not have any rights
     // on the database.
@@ -182,8 +183,6 @@ TEST_F(ClientTest, removeDbSession)
     EXPECT_NO_THROW(client->addDbSession(dbName,server, out_sessionId));
     EXPECT_NO_THROW(client->removeDbSession(out_sessionId));
 }
-
-
 
 TEST_F(ClientTest, removeClientFromServers)
 {

@@ -39,6 +39,7 @@ using namespace std;
 
 #include "debug/debug.hh"
 #include "../common/src/logging/easylogging++.hh"
+#include "debug.hh"
 
 Configuration configuration;
 

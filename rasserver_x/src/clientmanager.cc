@@ -21,13 +21,11 @@ rasdaman GmbH.
 * or contact Peter Baumann via <baumann@rasdaman.com>.
 */
 
-#include "clientmanager.hh"
+#include "../../common/src/logging/easylogging++.hh"
+#include "../../common/src/uuid/uuid.hh"
+#include "../../server/rasserver_entry.hh"
 
-#include "rasnet/src/messages/communication.pb.h"
-#include "rasnet/src/messages/internal.pb.h"
-#include "rasnet/src/common/zmqutil.hh"
-#include "common/src/uuid/uuid.hh"
-#include "server/rasserver_entry.hh"
+#include "clientmanager.hh"
 
 namespace rasserver
 {
@@ -37,9 +35,6 @@ using std::pair;
 using std::make_pair;
 using std::map;
 using common::Timer;
-using zmq::socket_t;
-using rasnet::internal::InternalDisconnectReply;
-using rasnet::internal::InternalDisconnectRequest;
 using boost::scoped_ptr;
 using boost::unique_lock;
 using boost::shared_mutex;
@@ -48,34 +43,24 @@ using boost::shared_lock;
 using boost::thread;
 using boost::unique_lock;
 using common::UUID;
-using rasnet::ZmqUtil;
-using rasnet::BaseMessage;
 
 ClientManager::ClientManager()
 {
-    this->controlEndpoint = ZmqUtil::toInprocAddress(UUID::generateUUID());
+    this->isThreadRunning = true;
     this->managementThread.reset(
-                new thread(&ClientManager::evaluateClientStatus, this));
-
-    this->controlSocket.reset(new socket_t(this->context, ZMQ_PAIR));
-    this->controlSocket->connect(this->controlEndpoint.c_str());
+        new thread(&ClientManager::evaluateClientStatus, this));
 }
 
 ClientManager::~ClientManager()
 {
     try
     {
-        // Kill the thread in a clean way
-        InternalDisconnectRequest request = InternalDisconnectRequest::default_instance();
-        shared_ptr<BaseMessage> reply;
-
-        ZmqUtil::send(*(this->controlSocket.get()), request);
-        ZmqUtil::receive(*(this->controlSocket.get()), reply);
-
-        if(reply->type()!= InternalDisconnectReply::default_instance().GetTypeName())
         {
-            LERROR<<"Unexpected message received from control socket."<<reply->DebugString();
+            boost::lock_guard<boost::mutex> lock(this->threadMutex);
+            this->isThreadRunning = false;
         }
+
+        this->isThreadRunningCondition.notify_one();
 
         this->managementThread->join();
     }
@@ -94,6 +79,7 @@ bool ClientManager::allocateClient(std::string clientUUID, std::string sessionId
     Timer timer(ALIVE_PERIOD);
 
     pair<map<string, Timer>::iterator, bool> result = this->clientList.insert(make_pair(clientUUID, timer));
+
     return result.second;
 }
 
@@ -104,12 +90,12 @@ void ClientManager::deallocateClient(std::string clientUUID, std::string session
 
 bool ClientManager::isAlive(std::string clientUUID)
 {
-   map<string, Timer>::iterator clientIt = this->clientList.find(clientUUID);
-   if (clientIt == this->clientList.end())
-   {
-       return false;
-   }
-   return !clientIt->second.hasExpired();
+    map<string, Timer>::iterator clientIt = this->clientList.find(clientUUID);
+    if (clientIt == this->clientList.end())
+    {
+        return false;
+    }
+    return !clientIt->second.hasExpired();
 }
 
 void ClientManager::resetLiveliness(std::string clientUUID)
@@ -129,32 +115,21 @@ size_t ClientManager::getClientQueueSize()
 void ClientManager::evaluateClientStatus()
 {
     map<string, Timer>::iterator it;
-    map<string, Timer>::iterator toErase;
-    shared_ptr<BaseMessage> controlMessage;
-    bool keepRunning=true;
+    map<string, Timer >::iterator toErase;
 
-    try
+    boost::posix_time::time_duration timeToSleepFor = boost::posix_time::milliseconds(ALIVE_PERIOD);
+
+    boost::unique_lock<boost::mutex> threadLock(this->threadMutex);
+    while (this->isThreadRunning)
     {
-        zmq::socket_t control(this->context, ZMQ_PAIR);
-        control.bind(this->controlEndpoint.c_str());
-        zmq::pollitem_t items[] = {{control,0,ZMQ_POLLIN,0}};
-
-        while (keepRunning)
+        try
         {
-            zmq::poll(items, 1, ALIVE_PERIOD);
-            if (items[0].revents & ZMQ_POLLIN)
+            // Wait on the condition variable to be notified from the
+            // destructor when it is time to stop the worker thread
+            if(!this->isThreadRunningCondition.timed_wait(threadLock, timeToSleepFor))
             {
-                ZmqUtil::receive(control, controlMessage);
-                if(controlMessage->type() == InternalDisconnectRequest::default_instance().GetTypeName())
-                {
-                    keepRunning=false;
-                    InternalDisconnectReply disconnectReply;
-                    ZmqUtil::send(control, disconnectReply);
-                }
-            }
-            else
-            {
-                boost::upgrade_lock<boost::shared_mutex> lock(this->clientMutex);
+
+                boost::upgrade_lock<boost::shared_mutex> clientsLock(this->clientMutex);
                 it = this->clientList.begin();
 
                 while (it != this->clientList.end())
@@ -163,7 +138,7 @@ void ClientManager::evaluateClientStatus()
                     ++it;
                     if(toErase->second.hasExpired())
                     {
-                        boost::upgrade_to_unique_lock<boost::shared_mutex> uniqueLock(lock);
+                        boost::upgrade_to_unique_lock<boost::shared_mutex> uniqueLock(clientsLock);
                         this->clientList.erase(toErase);
 
                         // If the client dies, clean up
@@ -175,15 +150,15 @@ void ClientManager::evaluateClientStatus()
                 }
             }
         }
-    }
-    catch (std::exception& ex)
-    {
-        LERROR<<"Client management thread has failed";
-        LERROR<<ex.what();
-    }
-    catch (...)
-    {
-        LERROR<<"Client management thread failed for unknown reason.";
+        catch (std::exception& ex)
+        {
+            LERROR<<"Client management thread has failed";
+            LERROR<<ex.what();
+        }
+        catch (...)
+        {
+            LERROR<<"Client management thread failed for unknown reason.";
+        }
     }
 }
 

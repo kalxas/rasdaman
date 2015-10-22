@@ -24,6 +24,7 @@
 
 #include <boost/cstdlib.hpp>
 
+#include "../exceptions/invalidargumentexception.hh"
 #include "timer.hh"
 
 namespace common
@@ -32,7 +33,7 @@ Timer::Timer(boost::int32_t period)
 {
     if(period<0)
     {
-        throw std::runtime_error("The period must be positive.");
+        throw InvalidArgumentException("period");
     }
 
     gettimeofday(&this->start, NULL);

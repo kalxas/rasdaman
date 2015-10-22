@@ -181,8 +181,6 @@ AC_CONFIG_FILES([Makefile
                  common/src/Makefile
                  common/test/Makefile
                  rasnet/Makefile
-                 rasnet/src/Makefile
-                 rasnet/test/Makefile
                  rasserver_x/Makefile
                  rasserver_x/src/Makefile
                  rasmgr_x/Makefile
@@ -410,8 +408,29 @@ CXXFLAGS="$CXXFLAGS ${BOOST_CPPFLAGS}"
 
 ### Start - Check for rasnet ###
 if test "$enable_rasnet" = "yes"; then
+#TODO: Fix this
+    CXXFLAGS="$CXXFLAGS -std=c++11"
+
+    # check for grpc
+    PKG_CHECK_MODULES(GRPC, grpc >= 0.0.0, [], [AC_MSG_FAILURE(grpc not found. Plase install grpc or specify the path to the protobuf package in PKG_CONFIG_PATH variable if it was not installed on the default path.)])
+    AC_SUBST(GRPC_LIBS)
+    AC_SUBST(GRPC_CFLAGS)
+    CXXFLAGS="$CXXFLAGS ${GRPC_CFLAGS}"
+
+    # check for gpr
+    PKG_CHECK_MODULES(GPR, gpr >= 0.0.0, [], [AC_MSG_FAILURE(gpr not found. Plase install grpc or specify the path to the protobuf package in PKG_CONFIG_PATH variable if it was not installed on the default path.)])
+    AC_SUBST(GPR_LIBS)
+    AC_SUBST(GPR_CFLAGS)
+    CXXFLAGS="$CXXFLAGS ${GPR_CFLAGS}"
+
+    # check for gpr
+    PKG_CHECK_MODULES(GRPCPP, grpc++_unsecure >= 0.0.0, [], [AC_MSG_FAILURE(grpc++_unsecure not found. Plase install grpc or specify the path to the protobuf package in PKG_CONFIG_PATH variable if it was not installed on the default path.)])
+    AC_SUBST(GRPCPP_LIBS)
+    AC_SUBST(GRPCPP_CFLAGS)
+    CXXFLAGS="$CXXFLAGS ${GRPCPP_CFLAGS}"
+
     # check for protobuf
-    PKG_CHECK_MODULES(PROTOBUF, protobuf >= 2.4.0, [], [AC_MSG_FAILURE(libprotobuf not found. Plase install libprotobuf-dev or specify the path to the protobuf package in PKG_CONFIG_PATH variable if it was not installed on the default path.)])
+    PKG_CHECK_MODULES(PROTOBUF, protobuf >= 3.0.0, [], [AC_MSG_FAILURE(libprotobuf not found. Plase install libprotobuf-dev or specify the path to the protobuf package in PKG_CONFIG_PATH variable if it was not installed on the default path.)])
     AC_SUBST(PROTOBUF_LIBS)
     AC_SUBST(PROTOBUF_CFLAGS)
     CXXFLAGS="$CXXFLAGS ${PROTOBUF_CFLAGS}"
@@ -425,25 +444,24 @@ if test "$enable_rasnet" = "yes"; then
     )
     AS_IF([test "${PROTOC}" == "no"], [AC_MSG_ERROR([ProtoBuf compiler "protoc" not found. Please install protobuf-compiler or specify the binary path using --with-protoc if it was not installed on the default path.])])
 
-    if test "$disable_java" = "no"; then
+    # GRPC CPP PLUGIN compiler.
+    AC_ARG_WITH([grpc_cpp_plugin],
+        [AS_HELP_STRING([--with-grpc_cpp_plugin=/path/of/grpccppplugin],
+                        [Location of the grpc cpp plugin. Defaults to looking on path.])],
+        [GRPCCPPPLUGIN="$withval"],
+        [AS_IF([test "x${GRPCCPPPLUGIN}" == "x"], [AC_PATH_PROG([GRPCCPPPLUGIN], [grpc_cpp_plugin], [no])])]
+    )
+    AS_IF([test "${GRPCCPPPLUGIN}" == "no"], [AC_MSG_ERROR([grpc cpp plugin not found. Please install protobuf-compiler or specify the binary path using --with-grpc-cpp-plugin if it was not installed on the default path.])])
 
-        PROTOJAR_PATH="/usr/share/java/protobuf.jar"
+    # GRPC Java PLUGIN compiler.
+    AC_ARG_WITH([grpc-java-plugin],
+        [AS_HELP_STRING([--with-grpc-java-plugin=/path/of/grpcjavaplugin],
+                        [Location of the grpc java plugin. Defaults to looking on path.])],
+        [GRPCJAVAPLUGIN="$withval"],
+        [AS_IF([test "x${GRPCJAVAPLUGIN}" == "x"], [AC_PATH_PROG([GRPCJAVAPLUGIN], [protoc-gen-grpc-java], [no])])]
+    )
+    AS_IF([test "${GRPCJAVAPLUGIN}" == "no"], [AC_MSG_ERROR([grpc java plugin not found. Please install it or specify the binary path using --with-grpc-java-plugin if it was not installed on the default path.])])
 
-        AC_ARG_WITH([protojar],
-             [AS_HELP_STRING([--with-protojar=/path/of/protojar],
-                        [Location of the protocol buffers jar. Defaults to looking on path "$PROTOJAR_PATH".])],
-             [PROTOJAR_PATH="$withval"]
-        )
-
-        AC_CHECK_FILE("${PROTOJAR_PATH}", [], [AC_MSG_ERROR(Protobuf jar not found! Please install libprotobuf-java or specify the jar path using --with-protojar.)])
-        AC_SUBST(PROTOJAR_PATH)
-    fi
-
-    # check for libzmq
-    PKG_CHECK_MODULES(ZMQ, libzmq >= 4.0.5, [], [AC_MSG_FAILURE(libzmq not found. Plase install it or specify the path to the zmq package in PKG_CONFIG_PATH variable if it was not installed on the default path.)])
-    AC_SUBST(ZMQ_LIBS)
-    AC_SUBST(ZMQ_CFLAGS)
-    CXXFLAGS="$CXXFLAGS ${ZMQ_CFLAGS}"
 fi
 ### End - Check for rasnet ###
 
@@ -617,7 +635,7 @@ BASEDBCXXFLAGS+=" $DBIF_INC "
 COMPDATE=`date +"%d.%m.%Y %H:%M:%S"`
 AC_DEFINE_UNQUOTED([COMPDATE], ["$COMPDATE"])
 
-CXXFLAGS+=" -fno-stack-protector -fno-strict-overflow $GCC_OPTIMIZATION_FLAG "
+CXXFLAGS+=" -fno-stack-protector -fno-strict-overflow $GCC_OPTIMIZATION_FLAG"
 CXXFLAGS+=" -I$abs_top_srcdir -I$abs_top_srcdir/debug -I$abs_top_srcdir/include $USER_CXXFLAGS"
 CFLAGS+=" $GCC_OPTIMIZATION_FLAG "
 CFLAGS+=" $USER_CFLAGS"

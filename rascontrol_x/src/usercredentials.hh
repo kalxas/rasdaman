@@ -29,6 +29,11 @@
 
 namespace rascontrol
 {
+
+/**
+ * @brief The UserCredentials class is used for acquiring the user's credentials by interactive input
+ * or from the environment variable.
+ */
 class UserCredentials
 {
 public:

@@ -25,7 +25,11 @@
 #include "../../src/unittest/gtest.h"
 #include "../../src/time/timer.hh"
 
-using common::Timer;
+namespace common
+{
+namespace test
+{
+
 static int32_t period = 300;
 
 class TimerTest : public ::testing::Test
@@ -39,17 +43,24 @@ protected:
     Timer timer;
 };
 
-TEST_F(TimerTest, expire)
+TEST_F(TimerTest, CheckIfTimerIsNotExpiredWhenTimeHasNotPassed)
+{
+    ASSERT_FALSE(timer.hasExpired());
+}
+
+TEST_F(TimerTest, SleepUntilTimerExpires)
 {
     //Test if the timer has expired
     usleep(period * 1000);
     ASSERT_TRUE(timer.hasExpired());
 }
 
-TEST_F(TimerTest, reset)
+TEST_F(TimerTest, SleepUntilTimerExpiresAndReset)
 {
     //Test if the timer has expired
     usleep(period * 1000);
     timer.reset();
     ASSERT_FALSE(timer.hasExpired());
+}
+}
 }

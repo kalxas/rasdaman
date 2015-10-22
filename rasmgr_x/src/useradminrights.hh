@@ -23,10 +23,11 @@
 #ifndef RASMGR_X_SRC_USERADMINRIGHTS_HH_
 #define RASMGR_X_SRC_USERADMINRIGHTS_HH_
 
-#include "messages/rasmgrmess.pb.h"
-
 namespace rasmgr
 {
+
+class UserAdminRightsProto;
+
 /**
  * @brief The UserAdminRights class represents the administration rights of the
  * user. @see Installation and Administration Guide

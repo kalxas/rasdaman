@@ -3,15 +3,23 @@
 
 #include <signal.h>
 
+#include <memory>
+#include <string>
+
 #include <boost/shared_ptr.hpp>
+#include <boost/cstdint.hpp>
 
-#include "rasnet/src/server/servicemanager.hh"
-
-#include "configurationmanager.hh"
-#include "configuration.hh"
+namespace grpc
+{
+class Server;
+}
 
 namespace rasmgr
 {
+
+class Configuration;
+class ConfigurationManager;
+
 /**
  * @brief The RasManager class Central class of rasmgr that performs
  * initialization of the other submodules.
@@ -44,8 +52,8 @@ public:
      */
     void saveConfiguration();
 private:
-    boost::shared_ptr<rasnet::ServiceManager> serviceManager;
     boost::shared_ptr<ConfigurationManager> configManager;
+    std::unique_ptr<grpc::Server> server;
 
     sig_atomic_t running; /*!<True if the rasmgr is running, false otherwise */
     boost::uint32_t port; /*!< Port on which this rasmgr instance will be running */

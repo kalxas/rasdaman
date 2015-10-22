@@ -65,11 +65,14 @@ protected:
     boost::shared_ptr<DatabaseManager> dbManager;
 };
 
-TEST_F(DatabaseManagerTest, defineDatabase)
+TEST_F(DatabaseManagerTest, defineDatabaseFailBecauseThereIsNoHost)
 {
     //Throw because there is no host
     ASSERT_ANY_THROW(dbManager->defineDatabase(dbName, hostName));
+}
 
+TEST_F(DatabaseManagerTest, defineDatabaseSuccess)
+{
     DatabaseHostPropertiesProto proto;
     proto.set_host_name(hostName);
     proto.set_connect_string(connectString);
@@ -79,19 +82,43 @@ TEST_F(DatabaseManagerTest, defineDatabase)
 
     //Succeed
     ASSERT_NO_THROW(dbManager->defineDatabase(hostName, dbName));
+}
 
+TEST_F(DatabaseManagerTest, defineDatabaseFailsWhenDoneTwice)
+{
+    DatabaseHostPropertiesProto proto;
+    proto.set_host_name(hostName);
+    proto.set_connect_string(connectString);
+    proto.set_user_name(userName);
+    proto.set_password(passwdString);
+    dbhManager->defineDatabaseHost(proto);
+
+    //Succeed
+    ASSERT_NO_THROW(dbManager->defineDatabase(hostName, dbName));
     //Fail because of duplication
     ASSERT_ANY_THROW(dbManager->defineDatabase(hostName, dbName));
+}
+
+TEST_F(DatabaseManagerTest, defineDatabaseWithSameNameOnTwoHosts)
+{
+    DatabaseHostPropertiesProto proto;
+    proto.set_host_name(hostName);
+    proto.set_connect_string(connectString);
+    proto.set_user_name(userName);
+    proto.set_password(passwdString);
+    dbhManager->defineDatabaseHost(proto);
 
     std::string secondHost = "secondHost";
     proto.set_host_name(secondHost);
     dbhManager->defineDatabaseHost(proto);
 
+    //Succeed
+    ASSERT_NO_THROW(dbManager->defineDatabase(hostName, dbName));
     //succeed because defining the same database on multiple hosts works
     ASSERT_NO_THROW(dbManager->defineDatabase(secondHost, dbName));
 }
 
-TEST_F(DatabaseManagerTest, changeDatabaseName)
+TEST_F(DatabaseManagerTest, changeDatabaseNameWhenDatabaseDoesNotExist)
 {
     std::string newName =  "newName";
     DatabasePropertiesProto dbProperties;
@@ -99,6 +126,14 @@ TEST_F(DatabaseManagerTest, changeDatabaseName)
 
     //Throw because there is no db
     ASSERT_ANY_THROW(dbManager->changeDatabase(dbName, dbProperties));
+
+}
+
+TEST_F(DatabaseManagerTest, changeDatabaseName)
+{
+    std::string newName =  "newName";
+    DatabasePropertiesProto dbProperties;
+    dbProperties.set_n_name(newName);
 
     DatabaseHostPropertiesProto proto;
     proto.set_host_name(hostName);

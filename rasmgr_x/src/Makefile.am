@@ -5,7 +5,22 @@ PROTOBUF_FILES=protomessages/rasmgrmess.proto
 PROTO_SRC=messages/rasmgrmess.pb.cc
 
 SRC = $(PROTO_SRC) \
-      client.cc \
+	  exceptions/databasealreadyexistsexception.cc \
+	  exceptions/dbbusyexception.cc \
+	  exceptions/dbhostalreadyexistsexception.cc \
+	  exceptions/dbhostbusyexception.cc \
+	  exceptions/inexistentclientexception.cc \
+	  exceptions/duplicatedbsessionexception.cc \
+	  exceptions/inexistentdatabaseexception.cc \
+	  exceptions/inexistentdbhostexception.cc \
+	  exceptions/inexistentservergroupexception.cc \
+	  exceptions/inexistentuserexception.cc \
+	  exceptions/invalidclientcredentialsexception.cc \
+	  exceptions/servergroupbusyexception.cc \
+	  exceptions/servergroupduplicateexception.cc \
+	  exceptions/useralreadyexistsexception.cc \
+	  exceptions/userdbrightsexception.cc \
+	  client.cc \
 	  clientcredentials.cc \
 	  clientmanagementservice.cc \
 	  clientmanager.cc \
@@ -15,9 +30,9 @@ SRC = $(PROTO_SRC) \
 	  controlcommandexecutor.cc \
 	  controlservice.cc \
 	  database.cc \
-	  databasemanager.cc \
 	  databasehost.cc \
 	  databasehostmanager.cc \
+	  databasemanager.cc \
 	  rascontrol.cc \
 	  rasctrlgrammarconstants.cc \
 	  rasmanager.cc \
@@ -27,9 +42,9 @@ SRC = $(PROTO_SRC) \
 	  serverfactory.cc \
 	  serverfactoryrasnet.cc \
 	  servergroup.cc \
-	  servergroupimpl.cc \
 	  servergroupfactory.cc \
 	  servergroupfactoryimpl.cc \
+	  servergroupimpl.cc \
 	  servermanagementservice.cc \
 	  servermanager.cc \
 	  servermanagerconfig.cc \
@@ -39,18 +54,15 @@ SRC = $(PROTO_SRC) \
 	  userdatabaserights.cc \
 	  usermanager.cc
 
-
-
 rasmgr_SOURCES = main.cc ${SRC}
 
-rasmgr_LDFLAGS =
-rasmgr_LDADD = ../../rasnet/src/librasnet.a ../../common/src/libcommon.a ../../commline/libcommline.a @ZMQ_LIBS@ @PROTOBUF_LIBS@ @BOOST_LDFLAGS@ -lboost_thread -lboost_regex -lpthread -lboost_system -lboost_exception
+        rasmgr_LDADD = ../../rasnet/librasnet.a ../../common/src/libcommon.a ../../commline/libcommline.a @GRPCPP_LIBS@ @GPR_LIBS@  @GRPC_LIBS@ @PROTOBUF_LIBS@ @BOOST_LDFLAGS@ -lboost_thread -lboost_regex -lpthread -lboost_system -lboost_exception
 
 noinst_LIBRARIES = librasmgr.a
 
 librasmgr_a_SOURCES = ${SRC}
 
-librasmgr_a_LIBADD = ../../rasnet/src/librasnet.a ../../common/src/libcommon.a
+librasmgr_a_LIBADD = ../../rasnet/librasnet.a ../../common/src/libcommon.a
 
 $(PROTO_SRC): $(PROTOBUF_FILES)
 	echo "Generating buffers"

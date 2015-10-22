@@ -31,6 +31,9 @@
 
 namespace rasmgr
 {
+
+class UserProto;
+
 /**
  * @brief The User class holds information about a user of the rasdaman system.
  */
@@ -73,13 +76,13 @@ public:
     static User parseFromProto ( const UserProto& user );
 
 
-	/**
-	 * @brief Serialize the data of this object to protobuf representation.
-	 *
-	 * @param user Object to serialize.
-	 * @return rasmgr::UserProto
-	 */
-	static UserProto serializeToProto ( const User& user );
+    /**
+     * @brief Serialize the data of this object to protobuf representation.
+     *
+     * @param user Object to serialize.
+     * @return rasmgr::UserProto
+     */
+    static UserProto serializeToProto ( const User& user );
 
 private:
     std::string name;

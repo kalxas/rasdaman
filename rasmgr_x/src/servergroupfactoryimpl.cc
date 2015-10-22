@@ -1,3 +1,4 @@
+#include "databasehostmanager.hh"
 #include "servergroupfactoryimpl.hh"
 #include "servergroupimpl.hh"
 
@@ -11,9 +12,7 @@ ServerGroupFactoryImpl::ServerGroupFactoryImpl(boost::shared_ptr<DatabaseHostMan
 }
 
 ServerGroupFactoryImpl::~ServerGroupFactoryImpl()
-{
-
-}
+{}
 
 boost::shared_ptr<ServerGroup> ServerGroupFactoryImpl::createServerGroup(const ServerGroupConfigProto &config)
 {

@@ -21,65 +21,66 @@ rasdaman GmbH.
 * or contact Peter Baumann via <baumann@rasdaman.com>.
 */
 
+#include "clientmanager.hh"
+
 #include "rasserverserviceimpl.hh"
 #include "server/rasserver_entry.hh"
-
+namespace rasserver
+{
 RasServerServiceImpl::RasServerServiceImpl(::boost::shared_ptr<rasserver::ClientManager> clientManager)
 {
     this->clientManager = clientManager;
 }
 
-void RasServerServiceImpl::AllocateClient(::google::protobuf::RpcController* controller,
-                                          const ::rasnet::service::AllocateClientReq* request,
-                                          ::rasnet::service::Void* response,
-                                          ::google::protobuf::Closure* done)
+
+grpc::Status rasserver::RasServerServiceImpl::AllocateClient(grpc::ServerContext *context, const rasnet::service::AllocateClientReq *request, rasnet::service::Void *response)
 {
     if(!clientManager->allocateClient(request->clientid(), request->sessionid()))
     {
-        controller->SetFailed("Client already in list");
-    }else{
+        //TODO:Error handling
+        //controller->SetFailed("Client already in list");
+    }
+    else
+    {
         RasServerEntry& rasServerEntry = RasServerEntry::getInstance();
         rasServerEntry.compat_connectNewClient(request->capabilities().c_str());
     }
+
+    return grpc::Status::OK;
 }
 
-void RasServerServiceImpl::DeallocateClient(::google::protobuf::RpcController* controller,
-                                            const ::rasnet::service::DeallocateClientReq* request,
-                                            ::rasnet::service::Void* response,
-                                            ::google::protobuf::Closure* done)
+grpc::Status rasserver::RasServerServiceImpl::DeallocateClient(grpc::ServerContext *context, const rasnet::service::DeallocateClientReq *request, rasnet::service::Void *response)
 {
     this->clientManager->deallocateClient(request->clientid(), request->sessionid());
     RasServerEntry& rasServerEntry = RasServerEntry::getInstance();
     rasServerEntry.compat_disconnectClient();
+
+    return grpc::Status::OK;
 }
 
-void RasServerServiceImpl::Close(::google::protobuf::RpcController* controller,
-                                 const ::rasnet::service::CloseServerReq* request,
-                                 ::rasnet::service::Void* response,
-                                 ::google::protobuf::Closure* done)
+grpc::Status rasserver::RasServerServiceImpl::Close(grpc::ServerContext *context, const rasnet::service::CloseServerReq *request, rasnet::service::Void *response)
 {
+    //TODO: Implement a clean exit
     exit(EXIT_SUCCESS);
 }
 
-void RasServerServiceImpl::GetClientStatus(::google::protobuf::RpcController* controller,
-                                           const ::rasnet::service::ClientStatusReq* request,
-                                           ::rasnet::service::ClientStatusRepl* response,
-                                           ::google::protobuf::Closure* done)
+grpc::Status rasserver::RasServerServiceImpl::GetClientStatus(grpc::ServerContext *context, const rasnet::service::ClientStatusReq *request, rasnet::service::ClientStatusRepl *response)
 {
     if (this->clientManager->isAlive(request->clientid()))
     {
-         response->set_status(rasnet::service::ClientStatusRepl_Status_ALIVE);
+        response->set_status(rasnet::service::ClientStatusRepl_Status_ALIVE);
     }
     else
     {
         response->set_status(rasnet::service::ClientStatusRepl_Status_DEAD);
     }
+
+    return grpc::Status::OK;
 }
 
-void RasServerServiceImpl::GetServerStatus(::google::protobuf::RpcController* controller,
-                                           const ::rasnet::service::ServerStatusReq* request,
-                                           ::rasnet::service::ServerStatusRepl* response,
-                                           ::google::protobuf::Closure* done)
+grpc::Status rasserver::RasServerServiceImpl::GetServerStatus(grpc::ServerContext *context, const rasnet::service::ServerStatusReq *request, rasnet::service::ServerStatusRepl *response)
 {
     response->set_clientqueuesize(this->clientManager->getClientQueueSize());
+    return grpc::Status::OK;
+}
 }

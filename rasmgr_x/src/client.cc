@@ -25,8 +25,14 @@
 #include "../../common/src/uuid/uuid.hh"
 #include "../../common/src/logging/easylogging++.hh"
 
-#include "client.hh"
+#include "exceptions/rasmgrexceptions.hh"
+#include "messages/rasmgrmess.pb.h"
 #include "rasmgrconfig.hh"
+#include "server.hh"
+#include "user.hh"
+
+#include "client.hh"
+
 
 namespace rasmgr
 {
@@ -119,8 +125,7 @@ void Client::addDbSession(const std::string& dbName,
     }
     else
     {
-        throw runtime_error("User:\""+this->user->getName()
-                            +"\" does not have access rights on database:\""+dbName+"\"");
+        throw UserDbRightsException(this->user->getName(), dbName);
     }
 }
 

@@ -216,7 +216,8 @@ QtCondense::computeFullCondense( QtDataList* inputList, r_Minterval& areaOp )
     RMDBGIF(3, RMDebug::module_qlparser, "QtCondense",
             LTRACE << "opType of QtCondense::computeFullCondense(): " << opType;
             LTRACE <<         "Result.....................................: ";
-            returnValue->printStatus( RMInit::dbgOut );  )
+
+            returnValue->printStatus( RMInit::dbgOut );)
     }
 
     return returnValue;
@@ -240,7 +241,8 @@ QtCondense::checkType( QtTypeTuple* typeTuple )
         RMDBGIF(3, RMDebug::module_qlparser, "QtCondense",
                 LTRACE << "Class..: " << getClassName();
                 LTRACE << "Operand: ";
-                inputType.printStatus( RMInit::dbgOut );  )
+
+                inputType.printStatus( RMInit::dbgOut );)
 
         if( inputType.getDataType() != QT_MDD )
         {
@@ -658,7 +660,8 @@ QtAvgCells::evaluate( QtDataList* inputList )
 
     RMDBGIF(3, RMDebug::module_qlparser, "QtCondense",
             LTRACE <<         "Number of cells....: ";
-            constType->printCell( RMInit::dbgOut, constBuffer );  )
+
+            constType->printCell( RMInit::dbgOut, constBuffer );)
 
     Ops::execBinaryConstOp( Ops::OP_DIV, resultType,
                             scalarDataCond->getValueType(),   constType,
@@ -680,7 +683,8 @@ QtAvgCells::evaluate( QtDataList* inputList )
 
     RMDBGIF(3, RMDebug::module_qlparser, "QtCondense",
             LTRACE << "Result.............: ";
-            scalarDataResult->printStatus( RMInit::dbgOut );  )
+
+            scalarDataResult->printStatus( RMInit::dbgOut );)
 
     stopTimer();
     return scalarDataResult;

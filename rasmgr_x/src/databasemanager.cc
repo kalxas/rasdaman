@@ -26,6 +26,11 @@
 
 #include "../../common/src/logging/easylogging++.hh"
 
+#include "exceptions/rasmgrexceptions.hh"
+#include "database.hh"
+#include "databasehost.hh"
+#include "databasehostmanager.hh"
+
 #include "databasemanager.hh"
 
 namespace rasmgr
@@ -50,7 +55,7 @@ void DatabaseManager::defineDatabase(const std::string& dbHostName,
     unique_lock<mutex> lock(this->mut);
 
     //Get and lock access to the database host
-    boost::shared_ptr<DatabaseHost> dbHost = this->dbHostManager->getAndLockDH(dbHostName);
+    boost::shared_ptr<DatabaseHost> dbHost = this->dbHostManager->getAndLockDatabaseHost(dbHostName);
     //Release the lock as we do not care if the database host is removed in between
     dbHost->decreaseServerCount();
 
@@ -95,8 +100,7 @@ void DatabaseManager::changeDatabase(const std::string &oldDbName, const Databas
         {
             if((*it)->isBusy())
             {
-                throw std::runtime_error("The database named \""+
-                                         oldDbName+"\" is busy and its properties cannot be changed");
+		throw DbBusyException((*it)->getDbName());
             }
             else
             {
@@ -113,7 +117,7 @@ void DatabaseManager::changeDatabase(const std::string &oldDbName, const Databas
 
     if(!changedDb)
     {
-        throw runtime_error("There is no database named:\""+oldDbName+"\"");
+	throw InexistentDatabaseException(oldDbName);
     }
 }
 
@@ -122,7 +126,7 @@ void DatabaseManager::removeDatabase(const std::string &databaseHostName, const 
     unique_lock<mutex> lock(this->mut);
 
     //Get and lock access to the database host
-    boost::shared_ptr<DatabaseHost> dbHost = this->dbHostManager->getAndLockDH(databaseHostName);
+    boost::shared_ptr<DatabaseHost> dbHost = this->dbHostManager->getAndLockDatabaseHost(databaseHostName);
     //Release the lock as we do not care if the database host is removed in between
     dbHost->decreaseServerCount();
 
@@ -135,13 +139,10 @@ void DatabaseManager::removeDatabase(const std::string &databaseHostName, const 
     {
         if((*it)->getDbName()==databaseName)
         {
-            if((*it).use_count()==1)
-            {
-                LDEBUG<<"Removed database from list of active databases.";
-                this->databases.remove(*it);
+            LDEBUG<<"Removed database from list of active databases.";
+            this->databases.remove(*it);
 
-                break;
-            }
+            break;
         }
     }
 }

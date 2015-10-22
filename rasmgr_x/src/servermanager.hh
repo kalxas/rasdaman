@@ -32,18 +32,17 @@
 #include <boost/thread/mutex.hpp>
 #include <boost/smart_ptr.hpp>
 
-#include "../../common/src/zeromq/zmq.hh"
+#include "servermanagerconfig.hh"
 
 #include "messages/rasmgrmess.pb.h"
 
-#include "server.hh"
-#include "servergroup.hh"
-#include "serverfactory.hh"
-#include "servergroupfactory.hh"
-#include "servermanagerconfig.hh"
-
 namespace rasmgr
 {
+
+class Server;
+class ServerGroup;
+class ServerGroupFactory;
+
 /**
  * @brief The ServerManager class Responsible for the management of server groups (creation, destruction, change),
  * and registering new server processes with the parent group.
@@ -120,12 +119,6 @@ public:
     virtual ServerMgrProto serializeToProto();
 
 private:
-    zmq::context_t context; /*!< Context used for inter-thread communication */
-
-    boost::scoped_ptr<zmq::socket_t> controlSocket; /*!< Socket used for sending messages between the main thread and the worker thread*/
-
-    std::string controlEndpoint;/*!< Endpoint used for inter-thread communication */
-
     std::list<boost::shared_ptr<ServerGroup> > serverGroupList;/*!< Server group list */
 
     boost::shared_mutex serverGroupMutex;/*!< Mutex used to synchronize access to the list of server groups */
@@ -135,6 +128,11 @@ private:
     boost::shared_ptr<ServerGroupFactory> serverGroupFactory;
 
     ServerManagerConfig config;
+
+    bool isWorkerThreadRunning; /*! Flag used to stop the worker thread */
+    boost::mutex threadMutex;/*! Mutex used to safely stop the worker thread */
+    boost::condition_variable isThreadRunningCondition; /*! Condition variable used to stop the worker thread */
+
     /**
      * Function which cleans the servers which failed to start or were stopped.
      */

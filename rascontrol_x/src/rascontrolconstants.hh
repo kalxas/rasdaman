@@ -23,15 +23,23 @@
 #ifndef RASCONTROL_X_SRC_RASCONTROLCONSTANTS_HH
 #define RASCONTROL_X_SRC_RASCONTROLCONSTANTS_HH
 
+#include <string>
+
+#include <boost/cstdint.hpp>
+
 namespace rascontrol
 {
-const int MAXMSG = 2048; /*!< Maximum length of a rascontrol message. */
+const boost::uint32_t MAXMSG = 2048; /*!< Maximum length of a rascontrol message. */
 
-const int MAX_USERNAME_LENGTH=100; /*!< Maximum length of a user name */
+const boost::uint32_t MAX_USERNAME_LENGTH=100; /*!< Maximum length of a user name */
 
-const int MAX_USERPASS_LENGTH=100; /*!< Maximum length of a user password */
+const boost::uint32_t MAX_USERPASS_LENGTH=100; /*!< Maximum length of a user password */
 
 const char EOS_CHAR ='\0'; /*!< Constant representing the end of a string */
+
+const std::string RASLOGIN = "RASLOGIN"; /*!<  Name of RASLOGIN environment variable */
+
+const std::string COMMAND_HISTORY_FILE = "rascontrol.hist"; /*!<  Name of the file used to save command history. */
 }
 
 #endif // RASCONTROL_X_SRC_RASCONTROLCONSTANTS_HH

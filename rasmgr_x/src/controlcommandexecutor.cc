@@ -39,6 +39,8 @@ rasdaman GmbH.
 
 #include "../../common/src/logging/easylogging++.hh"
 
+#include "rascontrol.hh"
+
 #include "controlcommandexecutor.hh"
 
 namespace rasmgr

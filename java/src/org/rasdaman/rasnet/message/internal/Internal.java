@@ -8,42 +8,33 @@ public final class Internal {
   public static void registerAllExtensions(
       com.google.protobuf.ExtensionRegistry registry) {
   }
-  public interface InternalConnectRequestOrBuilder
-      extends com.google.protobuf.MessageOrBuilder {
+  public interface InternalConnectRequestOrBuilder extends
+      // @@protoc_insertion_point(interface_extends:rasnet.internal.InternalConnectRequest)
+      com.google.protobuf.MessageOrBuilder {
   }
   /**
    * Protobuf type {@code rasnet.internal.InternalConnectRequest}
    */
-  public static final class InternalConnectRequest extends
-      com.google.protobuf.GeneratedMessage
-      implements InternalConnectRequestOrBuilder {
+  public  static final class InternalConnectRequest extends
+      com.google.protobuf.GeneratedMessage implements
+      // @@protoc_insertion_point(message_implements:rasnet.internal.InternalConnectRequest)
+      InternalConnectRequestOrBuilder {
     // Use InternalConnectRequest.newBuilder() to construct.
     private InternalConnectRequest(com.google.protobuf.GeneratedMessage.Builder<?> builder) {
       super(builder);
-      this.unknownFields = builder.getUnknownFields();
     }
-    private InternalConnectRequest(boolean noInit) { this.unknownFields = com.google.protobuf.UnknownFieldSet.getDefaultInstance(); }
-
-    private static final InternalConnectRequest defaultInstance;
-    public static InternalConnectRequest getDefaultInstance() {
-      return defaultInstance;
+    private InternalConnectRequest() {
     }
 
-    public InternalConnectRequest getDefaultInstanceForType() {
-      return defaultInstance;
-    }
-
-    private final com.google.protobuf.UnknownFieldSet unknownFields;
     @java.lang.Override
     public final com.google.protobuf.UnknownFieldSet
-        getUnknownFields() {
+    getUnknownFields() {
       return this.unknownFields;
     }
     private InternalConnectRequest(
         com.google.protobuf.CodedInputStream input,
-        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-        throws com.google.protobuf.InvalidProtocolBufferException {
-      initFields();
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry) {
+      this();
       com.google.protobuf.UnknownFieldSet.Builder unknownFields =
           com.google.protobuf.UnknownFieldSet.newBuilder();
       try {
@@ -64,10 +55,11 @@ public final class Internal {
           }
         }
       } catch (com.google.protobuf.InvalidProtocolBufferException e) {
-        throw e.setUnfinishedMessage(this);
+        throw new RuntimeException(e.setUnfinishedMessage(this));
       } catch (java.io.IOException e) {
-        throw new com.google.protobuf.InvalidProtocolBufferException(
-            e.getMessage()).setUnfinishedMessage(this);
+        throw new RuntimeException(
+            new com.google.protobuf.InvalidProtocolBufferException(
+                e.getMessage()).setUnfinishedMessage(this));
       } finally {
         this.unknownFields = unknownFields.build();
         makeExtensionsImmutable();
@@ -85,27 +77,11 @@ public final class Internal {
               org.rasdaman.rasnet.message.internal.Internal.InternalConnectRequest.class, org.rasdaman.rasnet.message.internal.Internal.InternalConnectRequest.Builder.class);
     }
 
-    public static com.google.protobuf.Parser<InternalConnectRequest> PARSER =
-        new com.google.protobuf.AbstractParser<InternalConnectRequest>() {
-      public InternalConnectRequest parsePartialFrom(
-          com.google.protobuf.CodedInputStream input,
-          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-          throws com.google.protobuf.InvalidProtocolBufferException {
-        return new InternalConnectRequest(input, extensionRegistry);
-      }
-    };
-
-    @java.lang.Override
-    public com.google.protobuf.Parser<InternalConnectRequest> getParserForType() {
-      return PARSER;
-    }
-
-    private void initFields() {
-    }
     private byte memoizedIsInitialized = -1;
     public final boolean isInitialized() {
       byte isInitialized = memoizedIsInitialized;
-      if (isInitialized != -1) return isInitialized == 1;
+      if (isInitialized == 1) return true;
+      if (isInitialized == 0) return false;
 
       memoizedIsInitialized = 1;
       return true;
@@ -113,28 +89,20 @@ public final class Internal {
 
     public void writeTo(com.google.protobuf.CodedOutputStream output)
                         throws java.io.IOException {
-      getSerializedSize();
-      getUnknownFields().writeTo(output);
+      unknownFields.writeTo(output);
     }
 
-    private int memoizedSerializedSize = -1;
     public int getSerializedSize() {
-      int size = memoizedSerializedSize;
+      int size = memoizedSize;
       if (size != -1) return size;
 
       size = 0;
-      size += getUnknownFields().getSerializedSize();
-      memoizedSerializedSize = size;
+      size += unknownFields.getSerializedSize();
+      memoizedSize = size;
       return size;
     }
 
     private static final long serialVersionUID = 0L;
-    @java.lang.Override
-    protected java.lang.Object writeReplace()
-        throws java.io.ObjectStreamException {
-      return super.writeReplace();
-    }
-
     public static org.rasdaman.rasnet.message.internal.Internal.InternalConnectRequest parseFrom(
         com.google.protobuf.ByteString data)
         throws com.google.protobuf.InvalidProtocolBufferException {
@@ -188,12 +156,17 @@ public final class Internal {
       return PARSER.parseFrom(input, extensionRegistry);
     }
 
-    public static Builder newBuilder() { return Builder.create(); }
     public Builder newBuilderForType() { return newBuilder(); }
-    public static Builder newBuilder(org.rasdaman.rasnet.message.internal.Internal.InternalConnectRequest prototype) {
-      return newBuilder().mergeFrom(prototype);
+    public static Builder newBuilder() {
+      return DEFAULT_INSTANCE.toBuilder();
     }
-    public Builder toBuilder() { return newBuilder(this); }
+    public static Builder newBuilder(org.rasdaman.rasnet.message.internal.Internal.InternalConnectRequest prototype) {
+      return DEFAULT_INSTANCE.toBuilder().mergeFrom(prototype);
+    }
+    public Builder toBuilder() {
+      return this == DEFAULT_INSTANCE
+          ? new Builder() : new Builder().mergeFrom(this);
+    }
 
     @java.lang.Override
     protected Builder newBuilderForType(
@@ -205,8 +178,9 @@ public final class Internal {
      * Protobuf type {@code rasnet.internal.InternalConnectRequest}
      */
     public static final class Builder extends
-        com.google.protobuf.GeneratedMessage.Builder<Builder>
-       implements org.rasdaman.rasnet.message.internal.Internal.InternalConnectRequestOrBuilder {
+        com.google.protobuf.GeneratedMessage.Builder<Builder> implements
+        // @@protoc_insertion_point(builder_implements:rasnet.internal.InternalConnectRequest)
+        org.rasdaman.rasnet.message.internal.Internal.InternalConnectRequestOrBuilder {
       public static final com.google.protobuf.Descriptors.Descriptor
           getDescriptor() {
         return org.rasdaman.rasnet.message.internal.Internal.internal_static_rasnet_internal_InternalConnectRequest_descriptor;
@@ -233,17 +207,9 @@ public final class Internal {
         if (com.google.protobuf.GeneratedMessage.alwaysUseFieldBuilders) {
         }
       }
-      private static Builder create() {
-        return new Builder();
-      }
-
       public Builder clear() {
         super.clear();
         return this;
-      }
-
-      public Builder clone() {
-        return create().mergeFrom(buildPartial());
       }
 
       public com.google.protobuf.Descriptors.Descriptor
@@ -280,7 +246,8 @@ public final class Internal {
 
       public Builder mergeFrom(org.rasdaman.rasnet.message.internal.Internal.InternalConnectRequest other) {
         if (other == org.rasdaman.rasnet.message.internal.Internal.InternalConnectRequest.getDefaultInstance()) return this;
-        this.mergeUnknownFields(other.getUnknownFields());
+        this.mergeUnknownFields(other.unknownFields);
+        onChanged();
         return this;
       }
 
@@ -309,18 +276,54 @@ public final class Internal {
       // @@protoc_insertion_point(builder_scope:rasnet.internal.InternalConnectRequest)
     }
 
+    // @@protoc_insertion_point(class_scope:rasnet.internal.InternalConnectRequest)
+    private static final org.rasdaman.rasnet.message.internal.Internal.InternalConnectRequest DEFAULT_INSTANCE;
     static {
-      defaultInstance = new InternalConnectRequest(true);
-      defaultInstance.initFields();
+      DEFAULT_INSTANCE = new org.rasdaman.rasnet.message.internal.Internal.InternalConnectRequest();
     }
 
-    // @@protoc_insertion_point(class_scope:rasnet.internal.InternalConnectRequest)
+    public static org.rasdaman.rasnet.message.internal.Internal.InternalConnectRequest getDefaultInstance() {
+      return DEFAULT_INSTANCE;
+    }
+
+    @java.lang.Deprecated public static final com.google.protobuf.Parser<InternalConnectRequest>
+        PARSER = new com.google.protobuf.AbstractParser<InternalConnectRequest>() {
+      public InternalConnectRequest parsePartialFrom(
+          com.google.protobuf.CodedInputStream input,
+          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+          throws com.google.protobuf.InvalidProtocolBufferException {
+        try {
+          return new InternalConnectRequest(input, extensionRegistry);
+        } catch (RuntimeException e) {
+          if (e.getCause() instanceof
+              com.google.protobuf.InvalidProtocolBufferException) {
+            throw (com.google.protobuf.InvalidProtocolBufferException)
+                e.getCause();
+          }
+          throw e;
+        }
+      }
+    };
+
+    public static com.google.protobuf.Parser<InternalConnectRequest> parser() {
+      return PARSER;
+    }
+
+    @java.lang.Override
+    public com.google.protobuf.Parser<InternalConnectRequest> getParserForType() {
+      return PARSER;
+    }
+
+    public org.rasdaman.rasnet.message.internal.Internal.InternalConnectRequest getDefaultInstanceForType() {
+      return DEFAULT_INSTANCE;
+    }
+
   }
 
-  public interface InternalConnectReplyOrBuilder
-      extends com.google.protobuf.MessageOrBuilder {
+  public interface InternalConnectReplyOrBuilder extends
+      // @@protoc_insertion_point(interface_extends:rasnet.internal.InternalConnectReply)
+      com.google.protobuf.MessageOrBuilder {
 
-    // required bool success = 1;
     /**
      * <code>required bool success = 1;</code>
      */
@@ -333,36 +336,27 @@ public final class Internal {
   /**
    * Protobuf type {@code rasnet.internal.InternalConnectReply}
    */
-  public static final class InternalConnectReply extends
-      com.google.protobuf.GeneratedMessage
-      implements InternalConnectReplyOrBuilder {
+  public  static final class InternalConnectReply extends
+      com.google.protobuf.GeneratedMessage implements
+      // @@protoc_insertion_point(message_implements:rasnet.internal.InternalConnectReply)
+      InternalConnectReplyOrBuilder {
     // Use InternalConnectReply.newBuilder() to construct.
     private InternalConnectReply(com.google.protobuf.GeneratedMessage.Builder<?> builder) {
       super(builder);
-      this.unknownFields = builder.getUnknownFields();
     }
-    private InternalConnectReply(boolean noInit) { this.unknownFields = com.google.protobuf.UnknownFieldSet.getDefaultInstance(); }
-
-    private static final InternalConnectReply defaultInstance;
-    public static InternalConnectReply getDefaultInstance() {
-      return defaultInstance;
+    private InternalConnectReply() {
+      success_ = false;
     }
 
-    public InternalConnectReply getDefaultInstanceForType() {
-      return defaultInstance;
-    }
-
-    private final com.google.protobuf.UnknownFieldSet unknownFields;
     @java.lang.Override
     public final com.google.protobuf.UnknownFieldSet
-        getUnknownFields() {
+    getUnknownFields() {
       return this.unknownFields;
     }
     private InternalConnectReply(
         com.google.protobuf.CodedInputStream input,
-        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-        throws com.google.protobuf.InvalidProtocolBufferException {
-      initFields();
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry) {
+      this();
       int mutable_bitField0_ = 0;
       com.google.protobuf.UnknownFieldSet.Builder unknownFields =
           com.google.protobuf.UnknownFieldSet.newBuilder();
@@ -389,10 +383,11 @@ public final class Internal {
           }
         }
       } catch (com.google.protobuf.InvalidProtocolBufferException e) {
-        throw e.setUnfinishedMessage(this);
+        throw new RuntimeException(e.setUnfinishedMessage(this));
       } catch (java.io.IOException e) {
-        throw new com.google.protobuf.InvalidProtocolBufferException(
-            e.getMessage()).setUnfinishedMessage(this);
+        throw new RuntimeException(
+            new com.google.protobuf.InvalidProtocolBufferException(
+                e.getMessage()).setUnfinishedMessage(this));
       } finally {
         this.unknownFields = unknownFields.build();
         makeExtensionsImmutable();
@@ -410,23 +405,7 @@ public final class Internal {
               org.rasdaman.rasnet.message.internal.Internal.InternalConnectReply.class, org.rasdaman.rasnet.message.internal.Internal.InternalConnectReply.Builder.class);
     }
 
-    public static com.google.protobuf.Parser<InternalConnectReply> PARSER =
-        new com.google.protobuf.AbstractParser<InternalConnectReply>() {
-      public InternalConnectReply parsePartialFrom(
-          com.google.protobuf.CodedInputStream input,
-          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-          throws com.google.protobuf.InvalidProtocolBufferException {
-        return new InternalConnectReply(input, extensionRegistry);
-      }
-    };
-
-    @java.lang.Override
-    public com.google.protobuf.Parser<InternalConnectReply> getParserForType() {
-      return PARSER;
-    }
-
     private int bitField0_;
-    // required bool success = 1;
     public static final int SUCCESS_FIELD_NUMBER = 1;
     private boolean success_;
     /**
@@ -442,13 +421,11 @@ public final class Internal {
       return success_;
     }
 
-    private void initFields() {
-      success_ = false;
-    }
     private byte memoizedIsInitialized = -1;
     public final boolean isInitialized() {
       byte isInitialized = memoizedIsInitialized;
-      if (isInitialized != -1) return isInitialized == 1;
+      if (isInitialized == 1) return true;
+      if (isInitialized == 0) return false;
 
       if (!hasSuccess()) {
         memoizedIsInitialized = 0;
@@ -460,16 +437,14 @@ public final class Internal {
 
     public void writeTo(com.google.protobuf.CodedOutputStream output)
                         throws java.io.IOException {
-      getSerializedSize();
       if (((bitField0_ & 0x00000001) == 0x00000001)) {
         output.writeBool(1, success_);
       }
-      getUnknownFields().writeTo(output);
+      unknownFields.writeTo(output);
     }
 
-    private int memoizedSerializedSize = -1;
     public int getSerializedSize() {
-      int size = memoizedSerializedSize;
+      int size = memoizedSize;
       if (size != -1) return size;
 
       size = 0;
@@ -477,18 +452,12 @@ public final class Internal {
         size += com.google.protobuf.CodedOutputStream
           .computeBoolSize(1, success_);
       }
-      size += getUnknownFields().getSerializedSize();
-      memoizedSerializedSize = size;
+      size += unknownFields.getSerializedSize();
+      memoizedSize = size;
       return size;
     }
 
     private static final long serialVersionUID = 0L;
-    @java.lang.Override
-    protected java.lang.Object writeReplace()
-        throws java.io.ObjectStreamException {
-      return super.writeReplace();
-    }
-
     public static org.rasdaman.rasnet.message.internal.Internal.InternalConnectReply parseFrom(
         com.google.protobuf.ByteString data)
         throws com.google.protobuf.InvalidProtocolBufferException {
@@ -542,12 +511,17 @@ public final class Internal {
       return PARSER.parseFrom(input, extensionRegistry);
     }
 
-    public static Builder newBuilder() { return Builder.create(); }
     public Builder newBuilderForType() { return newBuilder(); }
-    public static Builder newBuilder(org.rasdaman.rasnet.message.internal.Internal.InternalConnectReply prototype) {
-      return newBuilder().mergeFrom(prototype);
+    public static Builder newBuilder() {
+      return DEFAULT_INSTANCE.toBuilder();
     }
-    public Builder toBuilder() { return newBuilder(this); }
+    public static Builder newBuilder(org.rasdaman.rasnet.message.internal.Internal.InternalConnectReply prototype) {
+      return DEFAULT_INSTANCE.toBuilder().mergeFrom(prototype);
+    }
+    public Builder toBuilder() {
+      return this == DEFAULT_INSTANCE
+          ? new Builder() : new Builder().mergeFrom(this);
+    }
 
     @java.lang.Override
     protected Builder newBuilderForType(
@@ -559,8 +533,9 @@ public final class Internal {
      * Protobuf type {@code rasnet.internal.InternalConnectReply}
      */
     public static final class Builder extends
-        com.google.protobuf.GeneratedMessage.Builder<Builder>
-       implements org.rasdaman.rasnet.message.internal.Internal.InternalConnectReplyOrBuilder {
+        com.google.protobuf.GeneratedMessage.Builder<Builder> implements
+        // @@protoc_insertion_point(builder_implements:rasnet.internal.InternalConnectReply)
+        org.rasdaman.rasnet.message.internal.Internal.InternalConnectReplyOrBuilder {
       public static final com.google.protobuf.Descriptors.Descriptor
           getDescriptor() {
         return org.rasdaman.rasnet.message.internal.Internal.internal_static_rasnet_internal_InternalConnectReply_descriptor;
@@ -587,19 +562,11 @@ public final class Internal {
         if (com.google.protobuf.GeneratedMessage.alwaysUseFieldBuilders) {
         }
       }
-      private static Builder create() {
-        return new Builder();
-      }
-
       public Builder clear() {
         super.clear();
         success_ = false;
         bitField0_ = (bitField0_ & ~0x00000001);
         return this;
-      }
-
-      public Builder clone() {
-        return create().mergeFrom(buildPartial());
       }
 
       public com.google.protobuf.Descriptors.Descriptor
@@ -646,13 +613,13 @@ public final class Internal {
         if (other.hasSuccess()) {
           setSuccess(other.getSuccess());
         }
-        this.mergeUnknownFields(other.getUnknownFields());
+        this.mergeUnknownFields(other.unknownFields);
+        onChanged();
         return this;
       }
 
       public final boolean isInitialized() {
         if (!hasSuccess()) {
-
           return false;
         }
         return true;
@@ -677,7 +644,6 @@ public final class Internal {
       }
       private int bitField0_;
 
-      // required bool success = 1;
       private boolean success_ ;
       /**
        * <code>required bool success = 1;</code>
@@ -713,50 +679,77 @@ public final class Internal {
       // @@protoc_insertion_point(builder_scope:rasnet.internal.InternalConnectReply)
     }
 
+    // @@protoc_insertion_point(class_scope:rasnet.internal.InternalConnectReply)
+    private static final org.rasdaman.rasnet.message.internal.Internal.InternalConnectReply DEFAULT_INSTANCE;
     static {
-      defaultInstance = new InternalConnectReply(true);
-      defaultInstance.initFields();
+      DEFAULT_INSTANCE = new org.rasdaman.rasnet.message.internal.Internal.InternalConnectReply();
     }
 
-    // @@protoc_insertion_point(class_scope:rasnet.internal.InternalConnectReply)
+    public static org.rasdaman.rasnet.message.internal.Internal.InternalConnectReply getDefaultInstance() {
+      return DEFAULT_INSTANCE;
+    }
+
+    @java.lang.Deprecated public static final com.google.protobuf.Parser<InternalConnectReply>
+        PARSER = new com.google.protobuf.AbstractParser<InternalConnectReply>() {
+      public InternalConnectReply parsePartialFrom(
+          com.google.protobuf.CodedInputStream input,
+          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+          throws com.google.protobuf.InvalidProtocolBufferException {
+        try {
+          return new InternalConnectReply(input, extensionRegistry);
+        } catch (RuntimeException e) {
+          if (e.getCause() instanceof
+              com.google.protobuf.InvalidProtocolBufferException) {
+            throw (com.google.protobuf.InvalidProtocolBufferException)
+                e.getCause();
+          }
+          throw e;
+        }
+      }
+    };
+
+    public static com.google.protobuf.Parser<InternalConnectReply> parser() {
+      return PARSER;
+    }
+
+    @java.lang.Override
+    public com.google.protobuf.Parser<InternalConnectReply> getParserForType() {
+      return PARSER;
+    }
+
+    public org.rasdaman.rasnet.message.internal.Internal.InternalConnectReply getDefaultInstanceForType() {
+      return DEFAULT_INSTANCE;
+    }
+
   }
 
-  public interface InternalDisconnectRequestOrBuilder
-      extends com.google.protobuf.MessageOrBuilder {
+  public interface InternalDisconnectRequestOrBuilder extends
+      // @@protoc_insertion_point(interface_extends:rasnet.internal.InternalDisconnectRequest)
+      com.google.protobuf.MessageOrBuilder {
   }
   /**
    * Protobuf type {@code rasnet.internal.InternalDisconnectRequest}
    */
-  public static final class InternalDisconnectRequest extends
-      com.google.protobuf.GeneratedMessage
-      implements InternalDisconnectRequestOrBuilder {
+  public  static final class InternalDisconnectRequest extends
+      com.google.protobuf.GeneratedMessage implements
+      // @@protoc_insertion_point(message_implements:rasnet.internal.InternalDisconnectRequest)
+      InternalDisconnectRequestOrBuilder {
     // Use InternalDisconnectRequest.newBuilder() to construct.
     private InternalDisconnectRequest(com.google.protobuf.GeneratedMessage.Builder<?> builder) {
       super(builder);
-      this.unknownFields = builder.getUnknownFields();
     }
-    private InternalDisconnectRequest(boolean noInit) { this.unknownFields = com.google.protobuf.UnknownFieldSet.getDefaultInstance(); }
-
-    private static final InternalDisconnectRequest defaultInstance;
-    public static InternalDisconnectRequest getDefaultInstance() {
-      return defaultInstance;
+    private InternalDisconnectRequest() {
     }
 
-    public InternalDisconnectRequest getDefaultInstanceForType() {
-      return defaultInstance;
-    }
-
-    private final com.google.protobuf.UnknownFieldSet unknownFields;
     @java.lang.Override
     public final com.google.protobuf.UnknownFieldSet
-        getUnknownFields() {
+    getUnknownFields() {
       return this.unknownFields;
     }
     private InternalDisconnectRequest(
         com.google.protobuf.CodedInputStream input,
-        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-        throws com.google.protobuf.InvalidProtocolBufferException {
-      initFields();
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry) {
+      this();
       com.google.protobuf.UnknownFieldSet.Builder unknownFields =
           com.google.protobuf.UnknownFieldSet.newBuilder();
       try {
@@ -777,10 +770,11 @@ public final class Internal {
           }
         }
       } catch (com.google.protobuf.InvalidProtocolBufferException e) {
-        throw e.setUnfinishedMessage(this);
+        throw new RuntimeException(e.setUnfinishedMessage(this));
       } catch (java.io.IOException e) {
-        throw new com.google.protobuf.InvalidProtocolBufferException(
-            e.getMessage()).setUnfinishedMessage(this);
+        throw new RuntimeException(
+            new com.google.protobuf.InvalidProtocolBufferException(
+                e.getMessage()).setUnfinishedMessage(this));
       } finally {
         this.unknownFields = unknownFields.build();
         makeExtensionsImmutable();
@@ -798,27 +792,11 @@ public final class Internal {
               org.rasdaman.rasnet.message.internal.Internal.InternalDisconnectRequest.class, org.rasdaman.rasnet.message.internal.Internal.InternalDisconnectRequest.Builder.class);
     }
 
-    public static com.google.protobuf.Parser<InternalDisconnectRequest> PARSER =
-        new com.google.protobuf.AbstractParser<InternalDisconnectRequest>() {
-      public InternalDisconnectRequest parsePartialFrom(
-          com.google.protobuf.CodedInputStream input,
-          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-          throws com.google.protobuf.InvalidProtocolBufferException {
-        return new InternalDisconnectRequest(input, extensionRegistry);
-      }
-    };
-
-    @java.lang.Override
-    public com.google.protobuf.Parser<InternalDisconnectRequest> getParserForType() {
-      return PARSER;
-    }
-
-    private void initFields() {
-    }
     private byte memoizedIsInitialized = -1;
     public final boolean isInitialized() {
       byte isInitialized = memoizedIsInitialized;
-      if (isInitialized != -1) return isInitialized == 1;
+      if (isInitialized == 1) return true;
+      if (isInitialized == 0) return false;
 
       memoizedIsInitialized = 1;
       return true;
@@ -826,28 +804,20 @@ public final class Internal {
 
     public void writeTo(com.google.protobuf.CodedOutputStream output)
                         throws java.io.IOException {
-      getSerializedSize();
-      getUnknownFields().writeTo(output);
+      unknownFields.writeTo(output);
     }
 
-    private int memoizedSerializedSize = -1;
     public int getSerializedSize() {
-      int size = memoizedSerializedSize;
+      int size = memoizedSize;
       if (size != -1) return size;
 
       size = 0;
-      size += getUnknownFields().getSerializedSize();
-      memoizedSerializedSize = size;
+      size += unknownFields.getSerializedSize();
+      memoizedSize = size;
       return size;
     }
 
     private static final long serialVersionUID = 0L;
-    @java.lang.Override
-    protected java.lang.Object writeReplace()
-        throws java.io.ObjectStreamException {
-      return super.writeReplace();
-    }
-
     public static org.rasdaman.rasnet.message.internal.Internal.InternalDisconnectRequest parseFrom(
         com.google.protobuf.ByteString data)
         throws com.google.protobuf.InvalidProtocolBufferException {
@@ -901,12 +871,17 @@ public final class Internal {
       return PARSER.parseFrom(input, extensionRegistry);
     }
 
-    public static Builder newBuilder() { return Builder.create(); }
     public Builder newBuilderForType() { return newBuilder(); }
-    public static Builder newBuilder(org.rasdaman.rasnet.message.internal.Internal.InternalDisconnectRequest prototype) {
-      return newBuilder().mergeFrom(prototype);
+    public static Builder newBuilder() {
+      return DEFAULT_INSTANCE.toBuilder();
     }
-    public Builder toBuilder() { return newBuilder(this); }
+    public static Builder newBuilder(org.rasdaman.rasnet.message.internal.Internal.InternalDisconnectRequest prototype) {
+      return DEFAULT_INSTANCE.toBuilder().mergeFrom(prototype);
+    }
+    public Builder toBuilder() {
+      return this == DEFAULT_INSTANCE
+          ? new Builder() : new Builder().mergeFrom(this);
+    }
 
     @java.lang.Override
     protected Builder newBuilderForType(
@@ -918,8 +893,9 @@ public final class Internal {
      * Protobuf type {@code rasnet.internal.InternalDisconnectRequest}
      */
     public static final class Builder extends
-        com.google.protobuf.GeneratedMessage.Builder<Builder>
-       implements org.rasdaman.rasnet.message.internal.Internal.InternalDisconnectRequestOrBuilder {
+        com.google.protobuf.GeneratedMessage.Builder<Builder> implements
+        // @@protoc_insertion_point(builder_implements:rasnet.internal.InternalDisconnectRequest)
+        org.rasdaman.rasnet.message.internal.Internal.InternalDisconnectRequestOrBuilder {
       public static final com.google.protobuf.Descriptors.Descriptor
           getDescriptor() {
         return org.rasdaman.rasnet.message.internal.Internal.internal_static_rasnet_internal_InternalDisconnectRequest_descriptor;
@@ -946,17 +922,9 @@ public final class Internal {
         if (com.google.protobuf.GeneratedMessage.alwaysUseFieldBuilders) {
         }
       }
-      private static Builder create() {
-        return new Builder();
-      }
-
       public Builder clear() {
         super.clear();
         return this;
-      }
-
-      public Builder clone() {
-        return create().mergeFrom(buildPartial());
       }
 
       public com.google.protobuf.Descriptors.Descriptor
@@ -993,7 +961,8 @@ public final class Internal {
 
       public Builder mergeFrom(org.rasdaman.rasnet.message.internal.Internal.InternalDisconnectRequest other) {
         if (other == org.rasdaman.rasnet.message.internal.Internal.InternalDisconnectRequest.getDefaultInstance()) return this;
-        this.mergeUnknownFields(other.getUnknownFields());
+        this.mergeUnknownFields(other.unknownFields);
+        onChanged();
         return this;
       }
 
@@ -1022,50 +991,77 @@ public final class Internal {
       // @@protoc_insertion_point(builder_scope:rasnet.internal.InternalDisconnectRequest)
     }
 
+    // @@protoc_insertion_point(class_scope:rasnet.internal.InternalDisconnectRequest)
+    private static final org.rasdaman.rasnet.message.internal.Internal.InternalDisconnectRequest DEFAULT_INSTANCE;
     static {
-      defaultInstance = new InternalDisconnectRequest(true);
-      defaultInstance.initFields();
+      DEFAULT_INSTANCE = new org.rasdaman.rasnet.message.internal.Internal.InternalDisconnectRequest();
     }
 
-    // @@protoc_insertion_point(class_scope:rasnet.internal.InternalDisconnectRequest)
+    public static org.rasdaman.rasnet.message.internal.Internal.InternalDisconnectRequest getDefaultInstance() {
+      return DEFAULT_INSTANCE;
+    }
+
+    @java.lang.Deprecated public static final com.google.protobuf.Parser<InternalDisconnectRequest>
+        PARSER = new com.google.protobuf.AbstractParser<InternalDisconnectRequest>() {
+      public InternalDisconnectRequest parsePartialFrom(
+          com.google.protobuf.CodedInputStream input,
+          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+          throws com.google.protobuf.InvalidProtocolBufferException {
+        try {
+          return new InternalDisconnectRequest(input, extensionRegistry);
+        } catch (RuntimeException e) {
+          if (e.getCause() instanceof
+              com.google.protobuf.InvalidProtocolBufferException) {
+            throw (com.google.protobuf.InvalidProtocolBufferException)
+                e.getCause();
+          }
+          throw e;
+        }
+      }
+    };
+
+    public static com.google.protobuf.Parser<InternalDisconnectRequest> parser() {
+      return PARSER;
+    }
+
+    @java.lang.Override
+    public com.google.protobuf.Parser<InternalDisconnectRequest> getParserForType() {
+      return PARSER;
+    }
+
+    public org.rasdaman.rasnet.message.internal.Internal.InternalDisconnectRequest getDefaultInstanceForType() {
+      return DEFAULT_INSTANCE;
+    }
+
   }
 
-  public interface InternalDisconnectReplyOrBuilder
-      extends com.google.protobuf.MessageOrBuilder {
+  public interface InternalDisconnectReplyOrBuilder extends
+      // @@protoc_insertion_point(interface_extends:rasnet.internal.InternalDisconnectReply)
+      com.google.protobuf.MessageOrBuilder {
   }
   /**
    * Protobuf type {@code rasnet.internal.InternalDisconnectReply}
    */
-  public static final class InternalDisconnectReply extends
-      com.google.protobuf.GeneratedMessage
-      implements InternalDisconnectReplyOrBuilder {
+  public  static final class InternalDisconnectReply extends
+      com.google.protobuf.GeneratedMessage implements
+      // @@protoc_insertion_point(message_implements:rasnet.internal.InternalDisconnectReply)
+      InternalDisconnectReplyOrBuilder {
     // Use InternalDisconnectReply.newBuilder() to construct.
     private InternalDisconnectReply(com.google.protobuf.GeneratedMessage.Builder<?> builder) {
       super(builder);
-      this.unknownFields = builder.getUnknownFields();
     }
-    private InternalDisconnectReply(boolean noInit) { this.unknownFields = com.google.protobuf.UnknownFieldSet.getDefaultInstance(); }
-
-    private static final InternalDisconnectReply defaultInstance;
-    public static InternalDisconnectReply getDefaultInstance() {
-      return defaultInstance;
+    private InternalDisconnectReply() {
     }
 
-    public InternalDisconnectReply getDefaultInstanceForType() {
-      return defaultInstance;
-    }
-
-    private final com.google.protobuf.UnknownFieldSet unknownFields;
     @java.lang.Override
     public final com.google.protobuf.UnknownFieldSet
-        getUnknownFields() {
+    getUnknownFields() {
       return this.unknownFields;
     }
     private InternalDisconnectReply(
         com.google.protobuf.CodedInputStream input,
-        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-        throws com.google.protobuf.InvalidProtocolBufferException {
-      initFields();
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry) {
+      this();
       com.google.protobuf.UnknownFieldSet.Builder unknownFields =
           com.google.protobuf.UnknownFieldSet.newBuilder();
       try {
@@ -1086,10 +1082,11 @@ public final class Internal {
           }
         }
       } catch (com.google.protobuf.InvalidProtocolBufferException e) {
-        throw e.setUnfinishedMessage(this);
+        throw new RuntimeException(e.setUnfinishedMessage(this));
       } catch (java.io.IOException e) {
-        throw new com.google.protobuf.InvalidProtocolBufferException(
-            e.getMessage()).setUnfinishedMessage(this);
+        throw new RuntimeException(
+            new com.google.protobuf.InvalidProtocolBufferException(
+                e.getMessage()).setUnfinishedMessage(this));
       } finally {
         this.unknownFields = unknownFields.build();
         makeExtensionsImmutable();
@@ -1107,27 +1104,11 @@ public final class Internal {
               org.rasdaman.rasnet.message.internal.Internal.InternalDisconnectReply.class, org.rasdaman.rasnet.message.internal.Internal.InternalDisconnectReply.Builder.class);
     }
 
-    public static com.google.protobuf.Parser<InternalDisconnectReply> PARSER =
-        new com.google.protobuf.AbstractParser<InternalDisconnectReply>() {
-      public InternalDisconnectReply parsePartialFrom(
-          com.google.protobuf.CodedInputStream input,
-          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-          throws com.google.protobuf.InvalidProtocolBufferException {
-        return new InternalDisconnectReply(input, extensionRegistry);
-      }
-    };
-
-    @java.lang.Override
-    public com.google.protobuf.Parser<InternalDisconnectReply> getParserForType() {
-      return PARSER;
-    }
-
-    private void initFields() {
-    }
     private byte memoizedIsInitialized = -1;
     public final boolean isInitialized() {
       byte isInitialized = memoizedIsInitialized;
-      if (isInitialized != -1) return isInitialized == 1;
+      if (isInitialized == 1) return true;
+      if (isInitialized == 0) return false;
 
       memoizedIsInitialized = 1;
       return true;
@@ -1135,28 +1116,20 @@ public final class Internal {
 
     public void writeTo(com.google.protobuf.CodedOutputStream output)
                         throws java.io.IOException {
-      getSerializedSize();
-      getUnknownFields().writeTo(output);
+      unknownFields.writeTo(output);
     }
 
-    private int memoizedSerializedSize = -1;
     public int getSerializedSize() {
-      int size = memoizedSerializedSize;
+      int size = memoizedSize;
       if (size != -1) return size;
 
       size = 0;
-      size += getUnknownFields().getSerializedSize();
-      memoizedSerializedSize = size;
+      size += unknownFields.getSerializedSize();
+      memoizedSize = size;
       return size;
     }
 
     private static final long serialVersionUID = 0L;
-    @java.lang.Override
-    protected java.lang.Object writeReplace()
-        throws java.io.ObjectStreamException {
-      return super.writeReplace();
-    }
-
     public static org.rasdaman.rasnet.message.internal.Internal.InternalDisconnectReply parseFrom(
         com.google.protobuf.ByteString data)
         throws com.google.protobuf.InvalidProtocolBufferException {
@@ -1210,12 +1183,17 @@ public final class Internal {
       return PARSER.parseFrom(input, extensionRegistry);
     }
 
-    public static Builder newBuilder() { return Builder.create(); }
     public Builder newBuilderForType() { return newBuilder(); }
-    public static Builder newBuilder(org.rasdaman.rasnet.message.internal.Internal.InternalDisconnectReply prototype) {
-      return newBuilder().mergeFrom(prototype);
+    public static Builder newBuilder() {
+      return DEFAULT_INSTANCE.toBuilder();
     }
-    public Builder toBuilder() { return newBuilder(this); }
+    public static Builder newBuilder(org.rasdaman.rasnet.message.internal.Internal.InternalDisconnectReply prototype) {
+      return DEFAULT_INSTANCE.toBuilder().mergeFrom(prototype);
+    }
+    public Builder toBuilder() {
+      return this == DEFAULT_INSTANCE
+          ? new Builder() : new Builder().mergeFrom(this);
+    }
 
     @java.lang.Override
     protected Builder newBuilderForType(
@@ -1227,8 +1205,9 @@ public final class Internal {
      * Protobuf type {@code rasnet.internal.InternalDisconnectReply}
      */
     public static final class Builder extends
-        com.google.protobuf.GeneratedMessage.Builder<Builder>
-       implements org.rasdaman.rasnet.message.internal.Internal.InternalDisconnectReplyOrBuilder {
+        com.google.protobuf.GeneratedMessage.Builder<Builder> implements
+        // @@protoc_insertion_point(builder_implements:rasnet.internal.InternalDisconnectReply)
+        org.rasdaman.rasnet.message.internal.Internal.InternalDisconnectReplyOrBuilder {
       public static final com.google.protobuf.Descriptors.Descriptor
           getDescriptor() {
         return org.rasdaman.rasnet.message.internal.Internal.internal_static_rasnet_internal_InternalDisconnectReply_descriptor;
@@ -1255,17 +1234,9 @@ public final class Internal {
         if (com.google.protobuf.GeneratedMessage.alwaysUseFieldBuilders) {
         }
       }
-      private static Builder create() {
-        return new Builder();
-      }
-
       public Builder clear() {
         super.clear();
         return this;
-      }
-
-      public Builder clone() {
-        return create().mergeFrom(buildPartial());
       }
 
       public com.google.protobuf.Descriptors.Descriptor
@@ -1302,7 +1273,8 @@ public final class Internal {
 
       public Builder mergeFrom(org.rasdaman.rasnet.message.internal.Internal.InternalDisconnectReply other) {
         if (other == org.rasdaman.rasnet.message.internal.Internal.InternalDisconnectReply.getDefaultInstance()) return this;
-        this.mergeUnknownFields(other.getUnknownFields());
+        this.mergeUnknownFields(other.unknownFields);
+        onChanged();
         return this;
       }
 
@@ -1331,50 +1303,77 @@ public final class Internal {
       // @@protoc_insertion_point(builder_scope:rasnet.internal.InternalDisconnectReply)
     }
 
+    // @@protoc_insertion_point(class_scope:rasnet.internal.InternalDisconnectReply)
+    private static final org.rasdaman.rasnet.message.internal.Internal.InternalDisconnectReply DEFAULT_INSTANCE;
     static {
-      defaultInstance = new InternalDisconnectReply(true);
-      defaultInstance.initFields();
+      DEFAULT_INSTANCE = new org.rasdaman.rasnet.message.internal.Internal.InternalDisconnectReply();
     }
 
-    // @@protoc_insertion_point(class_scope:rasnet.internal.InternalDisconnectReply)
+    public static org.rasdaman.rasnet.message.internal.Internal.InternalDisconnectReply getDefaultInstance() {
+      return DEFAULT_INSTANCE;
+    }
+
+    @java.lang.Deprecated public static final com.google.protobuf.Parser<InternalDisconnectReply>
+        PARSER = new com.google.protobuf.AbstractParser<InternalDisconnectReply>() {
+      public InternalDisconnectReply parsePartialFrom(
+          com.google.protobuf.CodedInputStream input,
+          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+          throws com.google.protobuf.InvalidProtocolBufferException {
+        try {
+          return new InternalDisconnectReply(input, extensionRegistry);
+        } catch (RuntimeException e) {
+          if (e.getCause() instanceof
+              com.google.protobuf.InvalidProtocolBufferException) {
+            throw (com.google.protobuf.InvalidProtocolBufferException)
+                e.getCause();
+          }
+          throw e;
+        }
+      }
+    };
+
+    public static com.google.protobuf.Parser<InternalDisconnectReply> parser() {
+      return PARSER;
+    }
+
+    @java.lang.Override
+    public com.google.protobuf.Parser<InternalDisconnectReply> getParserForType() {
+      return PARSER;
+    }
+
+    public org.rasdaman.rasnet.message.internal.Internal.InternalDisconnectReply getDefaultInstanceForType() {
+      return DEFAULT_INSTANCE;
+    }
+
   }
 
-  public interface ServiceRequestAvailableOrBuilder
-      extends com.google.protobuf.MessageOrBuilder {
+  public interface ServiceRequestAvailableOrBuilder extends
+      // @@protoc_insertion_point(interface_extends:rasnet.internal.ServiceRequestAvailable)
+      com.google.protobuf.MessageOrBuilder {
   }
   /**
    * Protobuf type {@code rasnet.internal.ServiceRequestAvailable}
    */
-  public static final class ServiceRequestAvailable extends
-      com.google.protobuf.GeneratedMessage
-      implements ServiceRequestAvailableOrBuilder {
+  public  static final class ServiceRequestAvailable extends
+      com.google.protobuf.GeneratedMessage implements
+      // @@protoc_insertion_point(message_implements:rasnet.internal.ServiceRequestAvailable)
+      ServiceRequestAvailableOrBuilder {
     // Use ServiceRequestAvailable.newBuilder() to construct.
     private ServiceRequestAvailable(com.google.protobuf.GeneratedMessage.Builder<?> builder) {
       super(builder);
-      this.unknownFields = builder.getUnknownFields();
     }
-    private ServiceRequestAvailable(boolean noInit) { this.unknownFields = com.google.protobuf.UnknownFieldSet.getDefaultInstance(); }
-
-    private static final ServiceRequestAvailable defaultInstance;
-    public static ServiceRequestAvailable getDefaultInstance() {
-      return defaultInstance;
+    private ServiceRequestAvailable() {
     }
 
-    public ServiceRequestAvailable getDefaultInstanceForType() {
-      return defaultInstance;
-    }
-
-    private final com.google.protobuf.UnknownFieldSet unknownFields;
     @java.lang.Override
     public final com.google.protobuf.UnknownFieldSet
-        getUnknownFields() {
+    getUnknownFields() {
       return this.unknownFields;
     }
     private ServiceRequestAvailable(
         com.google.protobuf.CodedInputStream input,
-        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-        throws com.google.protobuf.InvalidProtocolBufferException {
-      initFields();
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry) {
+      this();
       com.google.protobuf.UnknownFieldSet.Builder unknownFields =
           com.google.protobuf.UnknownFieldSet.newBuilder();
       try {
@@ -1395,10 +1394,11 @@ public final class Internal {
           }
         }
       } catch (com.google.protobuf.InvalidProtocolBufferException e) {
-        throw e.setUnfinishedMessage(this);
+        throw new RuntimeException(e.setUnfinishedMessage(this));
       } catch (java.io.IOException e) {
-        throw new com.google.protobuf.InvalidProtocolBufferException(
-            e.getMessage()).setUnfinishedMessage(this);
+        throw new RuntimeException(
+            new com.google.protobuf.InvalidProtocolBufferException(
+                e.getMessage()).setUnfinishedMessage(this));
       } finally {
         this.unknownFields = unknownFields.build();
         makeExtensionsImmutable();
@@ -1416,27 +1416,11 @@ public final class Internal {
               org.rasdaman.rasnet.message.internal.Internal.ServiceRequestAvailable.class, org.rasdaman.rasnet.message.internal.Internal.ServiceRequestAvailable.Builder.class);
     }
 
-    public static com.google.protobuf.Parser<ServiceRequestAvailable> PARSER =
-        new com.google.protobuf.AbstractParser<ServiceRequestAvailable>() {
-      public ServiceRequestAvailable parsePartialFrom(
-          com.google.protobuf.CodedInputStream input,
-          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-          throws com.google.protobuf.InvalidProtocolBufferException {
-        return new ServiceRequestAvailable(input, extensionRegistry);
-      }
-    };
-
-    @java.lang.Override
-    public com.google.protobuf.Parser<ServiceRequestAvailable> getParserForType() {
-      return PARSER;
-    }
-
-    private void initFields() {
-    }
     private byte memoizedIsInitialized = -1;
     public final boolean isInitialized() {
       byte isInitialized = memoizedIsInitialized;
-      if (isInitialized != -1) return isInitialized == 1;
+      if (isInitialized == 1) return true;
+      if (isInitialized == 0) return false;
 
       memoizedIsInitialized = 1;
       return true;
@@ -1444,28 +1428,20 @@ public final class Internal {
 
     public void writeTo(com.google.protobuf.CodedOutputStream output)
                         throws java.io.IOException {
-      getSerializedSize();
-      getUnknownFields().writeTo(output);
+      unknownFields.writeTo(output);
     }
 
-    private int memoizedSerializedSize = -1;
     public int getSerializedSize() {
-      int size = memoizedSerializedSize;
+      int size = memoizedSize;
       if (size != -1) return size;
 
       size = 0;
-      size += getUnknownFields().getSerializedSize();
-      memoizedSerializedSize = size;
+      size += unknownFields.getSerializedSize();
+      memoizedSize = size;
       return size;
     }
 
     private static final long serialVersionUID = 0L;
-    @java.lang.Override
-    protected java.lang.Object writeReplace()
-        throws java.io.ObjectStreamException {
-      return super.writeReplace();
-    }
-
     public static org.rasdaman.rasnet.message.internal.Internal.ServiceRequestAvailable parseFrom(
         com.google.protobuf.ByteString data)
         throws com.google.protobuf.InvalidProtocolBufferException {
@@ -1519,12 +1495,17 @@ public final class Internal {
       return PARSER.parseFrom(input, extensionRegistry);
     }
 
-    public static Builder newBuilder() { return Builder.create(); }
     public Builder newBuilderForType() { return newBuilder(); }
-    public static Builder newBuilder(org.rasdaman.rasnet.message.internal.Internal.ServiceRequestAvailable prototype) {
-      return newBuilder().mergeFrom(prototype);
+    public static Builder newBuilder() {
+      return DEFAULT_INSTANCE.toBuilder();
     }
-    public Builder toBuilder() { return newBuilder(this); }
+    public static Builder newBuilder(org.rasdaman.rasnet.message.internal.Internal.ServiceRequestAvailable prototype) {
+      return DEFAULT_INSTANCE.toBuilder().mergeFrom(prototype);
+    }
+    public Builder toBuilder() {
+      return this == DEFAULT_INSTANCE
+          ? new Builder() : new Builder().mergeFrom(this);
+    }
 
     @java.lang.Override
     protected Builder newBuilderForType(
@@ -1536,8 +1517,9 @@ public final class Internal {
      * Protobuf type {@code rasnet.internal.ServiceRequestAvailable}
      */
     public static final class Builder extends
-        com.google.protobuf.GeneratedMessage.Builder<Builder>
-       implements org.rasdaman.rasnet.message.internal.Internal.ServiceRequestAvailableOrBuilder {
+        com.google.protobuf.GeneratedMessage.Builder<Builder> implements
+        // @@protoc_insertion_point(builder_implements:rasnet.internal.ServiceRequestAvailable)
+        org.rasdaman.rasnet.message.internal.Internal.ServiceRequestAvailableOrBuilder {
       public static final com.google.protobuf.Descriptors.Descriptor
           getDescriptor() {
         return org.rasdaman.rasnet.message.internal.Internal.internal_static_rasnet_internal_ServiceRequestAvailable_descriptor;
@@ -1564,17 +1546,9 @@ public final class Internal {
         if (com.google.protobuf.GeneratedMessage.alwaysUseFieldBuilders) {
         }
       }
-      private static Builder create() {
-        return new Builder();
-      }
-
       public Builder clear() {
         super.clear();
         return this;
-      }
-
-      public Builder clone() {
-        return create().mergeFrom(buildPartial());
       }
 
       public com.google.protobuf.Descriptors.Descriptor
@@ -1611,7 +1585,8 @@ public final class Internal {
 
       public Builder mergeFrom(org.rasdaman.rasnet.message.internal.Internal.ServiceRequestAvailable other) {
         if (other == org.rasdaman.rasnet.message.internal.Internal.ServiceRequestAvailable.getDefaultInstance()) return this;
-        this.mergeUnknownFields(other.getUnknownFields());
+        this.mergeUnknownFields(other.unknownFields);
+        onChanged();
         return this;
       }
 
@@ -1640,50 +1615,77 @@ public final class Internal {
       // @@protoc_insertion_point(builder_scope:rasnet.internal.ServiceRequestAvailable)
     }
 
+    // @@protoc_insertion_point(class_scope:rasnet.internal.ServiceRequestAvailable)
+    private static final org.rasdaman.rasnet.message.internal.Internal.ServiceRequestAvailable DEFAULT_INSTANCE;
     static {
-      defaultInstance = new ServiceRequestAvailable(true);
-      defaultInstance.initFields();
+      DEFAULT_INSTANCE = new org.rasdaman.rasnet.message.internal.Internal.ServiceRequestAvailable();
     }
 
-    // @@protoc_insertion_point(class_scope:rasnet.internal.ServiceRequestAvailable)
+    public static org.rasdaman.rasnet.message.internal.Internal.ServiceRequestAvailable getDefaultInstance() {
+      return DEFAULT_INSTANCE;
+    }
+
+    @java.lang.Deprecated public static final com.google.protobuf.Parser<ServiceRequestAvailable>
+        PARSER = new com.google.protobuf.AbstractParser<ServiceRequestAvailable>() {
+      public ServiceRequestAvailable parsePartialFrom(
+          com.google.protobuf.CodedInputStream input,
+          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+          throws com.google.protobuf.InvalidProtocolBufferException {
+        try {
+          return new ServiceRequestAvailable(input, extensionRegistry);
+        } catch (RuntimeException e) {
+          if (e.getCause() instanceof
+              com.google.protobuf.InvalidProtocolBufferException) {
+            throw (com.google.protobuf.InvalidProtocolBufferException)
+                e.getCause();
+          }
+          throw e;
+        }
+      }
+    };
+
+    public static com.google.protobuf.Parser<ServiceRequestAvailable> parser() {
+      return PARSER;
+    }
+
+    @java.lang.Override
+    public com.google.protobuf.Parser<ServiceRequestAvailable> getParserForType() {
+      return PARSER;
+    }
+
+    public org.rasdaman.rasnet.message.internal.Internal.ServiceRequestAvailable getDefaultInstanceForType() {
+      return DEFAULT_INSTANCE;
+    }
+
   }
 
-  public interface ServiceResponseAvailableOrBuilder
-      extends com.google.protobuf.MessageOrBuilder {
+  public interface ServiceResponseAvailableOrBuilder extends
+      // @@protoc_insertion_point(interface_extends:rasnet.internal.ServiceResponseAvailable)
+      com.google.protobuf.MessageOrBuilder {
   }
   /**
    * Protobuf type {@code rasnet.internal.ServiceResponseAvailable}
    */
-  public static final class ServiceResponseAvailable extends
-      com.google.protobuf.GeneratedMessage
-      implements ServiceResponseAvailableOrBuilder {
+  public  static final class ServiceResponseAvailable extends
+      com.google.protobuf.GeneratedMessage implements
+      // @@protoc_insertion_point(message_implements:rasnet.internal.ServiceResponseAvailable)
+      ServiceResponseAvailableOrBuilder {
     // Use ServiceResponseAvailable.newBuilder() to construct.
     private ServiceResponseAvailable(com.google.protobuf.GeneratedMessage.Builder<?> builder) {
       super(builder);
-      this.unknownFields = builder.getUnknownFields();
     }
-    private ServiceResponseAvailable(boolean noInit) { this.unknownFields = com.google.protobuf.UnknownFieldSet.getDefaultInstance(); }
-
-    private static final ServiceResponseAvailable defaultInstance;
-    public static ServiceResponseAvailable getDefaultInstance() {
-      return defaultInstance;
+    private ServiceResponseAvailable() {
     }
 
-    public ServiceResponseAvailable getDefaultInstanceForType() {
-      return defaultInstance;
-    }
-
-    private final com.google.protobuf.UnknownFieldSet unknownFields;
     @java.lang.Override
     public final com.google.protobuf.UnknownFieldSet
-        getUnknownFields() {
+    getUnknownFields() {
       return this.unknownFields;
     }
     private ServiceResponseAvailable(
         com.google.protobuf.CodedInputStream input,
-        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-        throws com.google.protobuf.InvalidProtocolBufferException {
-      initFields();
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry) {
+      this();
       com.google.protobuf.UnknownFieldSet.Builder unknownFields =
           com.google.protobuf.UnknownFieldSet.newBuilder();
       try {
@@ -1704,10 +1706,11 @@ public final class Internal {
           }
         }
       } catch (com.google.protobuf.InvalidProtocolBufferException e) {
-        throw e.setUnfinishedMessage(this);
+        throw new RuntimeException(e.setUnfinishedMessage(this));
       } catch (java.io.IOException e) {
-        throw new com.google.protobuf.InvalidProtocolBufferException(
-            e.getMessage()).setUnfinishedMessage(this);
+        throw new RuntimeException(
+            new com.google.protobuf.InvalidProtocolBufferException(
+                e.getMessage()).setUnfinishedMessage(this));
       } finally {
         this.unknownFields = unknownFields.build();
         makeExtensionsImmutable();
@@ -1725,27 +1728,11 @@ public final class Internal {
               org.rasdaman.rasnet.message.internal.Internal.ServiceResponseAvailable.class, org.rasdaman.rasnet.message.internal.Internal.ServiceResponseAvailable.Builder.class);
     }
 
-    public static com.google.protobuf.Parser<ServiceResponseAvailable> PARSER =
-        new com.google.protobuf.AbstractParser<ServiceResponseAvailable>() {
-      public ServiceResponseAvailable parsePartialFrom(
-          com.google.protobuf.CodedInputStream input,
-          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-          throws com.google.protobuf.InvalidProtocolBufferException {
-        return new ServiceResponseAvailable(input, extensionRegistry);
-      }
-    };
-
-    @java.lang.Override
-    public com.google.protobuf.Parser<ServiceResponseAvailable> getParserForType() {
-      return PARSER;
-    }
-
-    private void initFields() {
-    }
     private byte memoizedIsInitialized = -1;
     public final boolean isInitialized() {
       byte isInitialized = memoizedIsInitialized;
-      if (isInitialized != -1) return isInitialized == 1;
+      if (isInitialized == 1) return true;
+      if (isInitialized == 0) return false;
 
       memoizedIsInitialized = 1;
       return true;
@@ -1753,28 +1740,20 @@ public final class Internal {
 
     public void writeTo(com.google.protobuf.CodedOutputStream output)
                         throws java.io.IOException {
-      getSerializedSize();
-      getUnknownFields().writeTo(output);
+      unknownFields.writeTo(output);
     }
 
-    private int memoizedSerializedSize = -1;
     public int getSerializedSize() {
-      int size = memoizedSerializedSize;
+      int size = memoizedSize;
       if (size != -1) return size;
 
       size = 0;
-      size += getUnknownFields().getSerializedSize();
-      memoizedSerializedSize = size;
+      size += unknownFields.getSerializedSize();
+      memoizedSize = size;
       return size;
     }
 
     private static final long serialVersionUID = 0L;
-    @java.lang.Override
-    protected java.lang.Object writeReplace()
-        throws java.io.ObjectStreamException {
-      return super.writeReplace();
-    }
-
     public static org.rasdaman.rasnet.message.internal.Internal.ServiceResponseAvailable parseFrom(
         com.google.protobuf.ByteString data)
         throws com.google.protobuf.InvalidProtocolBufferException {
@@ -1828,12 +1807,17 @@ public final class Internal {
       return PARSER.parseFrom(input, extensionRegistry);
     }
 
-    public static Builder newBuilder() { return Builder.create(); }
     public Builder newBuilderForType() { return newBuilder(); }
-    public static Builder newBuilder(org.rasdaman.rasnet.message.internal.Internal.ServiceResponseAvailable prototype) {
-      return newBuilder().mergeFrom(prototype);
+    public static Builder newBuilder() {
+      return DEFAULT_INSTANCE.toBuilder();
     }
-    public Builder toBuilder() { return newBuilder(this); }
+    public static Builder newBuilder(org.rasdaman.rasnet.message.internal.Internal.ServiceResponseAvailable prototype) {
+      return DEFAULT_INSTANCE.toBuilder().mergeFrom(prototype);
+    }
+    public Builder toBuilder() {
+      return this == DEFAULT_INSTANCE
+          ? new Builder() : new Builder().mergeFrom(this);
+    }
 
     @java.lang.Override
     protected Builder newBuilderForType(
@@ -1845,8 +1829,9 @@ public final class Internal {
      * Protobuf type {@code rasnet.internal.ServiceResponseAvailable}
      */
     public static final class Builder extends
-        com.google.protobuf.GeneratedMessage.Builder<Builder>
-       implements org.rasdaman.rasnet.message.internal.Internal.ServiceResponseAvailableOrBuilder {
+        com.google.protobuf.GeneratedMessage.Builder<Builder> implements
+        // @@protoc_insertion_point(builder_implements:rasnet.internal.ServiceResponseAvailable)
+        org.rasdaman.rasnet.message.internal.Internal.ServiceResponseAvailableOrBuilder {
       public static final com.google.protobuf.Descriptors.Descriptor
           getDescriptor() {
         return org.rasdaman.rasnet.message.internal.Internal.internal_static_rasnet_internal_ServiceResponseAvailable_descriptor;
@@ -1873,17 +1858,9 @@ public final class Internal {
         if (com.google.protobuf.GeneratedMessage.alwaysUseFieldBuilders) {
         }
       }
-      private static Builder create() {
-        return new Builder();
-      }
-
       public Builder clear() {
         super.clear();
         return this;
-      }
-
-      public Builder clone() {
-        return create().mergeFrom(buildPartial());
       }
 
       public com.google.protobuf.Descriptors.Descriptor
@@ -1920,7 +1897,8 @@ public final class Internal {
 
       public Builder mergeFrom(org.rasdaman.rasnet.message.internal.Internal.ServiceResponseAvailable other) {
         if (other == org.rasdaman.rasnet.message.internal.Internal.ServiceResponseAvailable.getDefaultInstance()) return this;
-        this.mergeUnknownFields(other.getUnknownFields());
+        this.mergeUnknownFields(other.unknownFields);
+        onChanged();
         return this;
       }
 
@@ -1949,12 +1927,48 @@ public final class Internal {
       // @@protoc_insertion_point(builder_scope:rasnet.internal.ServiceResponseAvailable)
     }
 
+    // @@protoc_insertion_point(class_scope:rasnet.internal.ServiceResponseAvailable)
+    private static final org.rasdaman.rasnet.message.internal.Internal.ServiceResponseAvailable DEFAULT_INSTANCE;
     static {
-      defaultInstance = new ServiceResponseAvailable(true);
-      defaultInstance.initFields();
+      DEFAULT_INSTANCE = new org.rasdaman.rasnet.message.internal.Internal.ServiceResponseAvailable();
     }
 
-    // @@protoc_insertion_point(class_scope:rasnet.internal.ServiceResponseAvailable)
+    public static org.rasdaman.rasnet.message.internal.Internal.ServiceResponseAvailable getDefaultInstance() {
+      return DEFAULT_INSTANCE;
+    }
+
+    @java.lang.Deprecated public static final com.google.protobuf.Parser<ServiceResponseAvailable>
+        PARSER = new com.google.protobuf.AbstractParser<ServiceResponseAvailable>() {
+      public ServiceResponseAvailable parsePartialFrom(
+          com.google.protobuf.CodedInputStream input,
+          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+          throws com.google.protobuf.InvalidProtocolBufferException {
+        try {
+          return new ServiceResponseAvailable(input, extensionRegistry);
+        } catch (RuntimeException e) {
+          if (e.getCause() instanceof
+              com.google.protobuf.InvalidProtocolBufferException) {
+            throw (com.google.protobuf.InvalidProtocolBufferException)
+                e.getCause();
+          }
+          throw e;
+        }
+      }
+    };
+
+    public static com.google.protobuf.Parser<ServiceResponseAvailable> parser() {
+      return PARSER;
+    }
+
+    @java.lang.Override
+    public com.google.protobuf.Parser<ServiceResponseAvailable> getParserForType() {
+      return PARSER;
+    }
+
+    public org.rasdaman.rasnet.message.internal.Internal.ServiceResponseAvailable getDefaultInstanceForType() {
+      return DEFAULT_INSTANCE;
+    }
+
   }
 
   private static com.google.protobuf.Descriptors.Descriptor
@@ -2005,53 +2019,53 @@ public final class Internal {
       "ge.internal"
     };
     com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner assigner =
-      new com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner() {
-        public com.google.protobuf.ExtensionRegistry assignDescriptors(
-            com.google.protobuf.Descriptors.FileDescriptor root) {
-          descriptor = root;
-          internal_static_rasnet_internal_InternalConnectRequest_descriptor =
-            getDescriptor().getMessageTypes().get(0);
-          internal_static_rasnet_internal_InternalConnectRequest_fieldAccessorTable = new
-            com.google.protobuf.GeneratedMessage.FieldAccessorTable(
-              internal_static_rasnet_internal_InternalConnectRequest_descriptor,
-              new java.lang.String[] { });
-          internal_static_rasnet_internal_InternalConnectReply_descriptor =
-            getDescriptor().getMessageTypes().get(1);
-          internal_static_rasnet_internal_InternalConnectReply_fieldAccessorTable = new
-            com.google.protobuf.GeneratedMessage.FieldAccessorTable(
-              internal_static_rasnet_internal_InternalConnectReply_descriptor,
-              new java.lang.String[] { "Success", });
-          internal_static_rasnet_internal_InternalDisconnectRequest_descriptor =
-            getDescriptor().getMessageTypes().get(2);
-          internal_static_rasnet_internal_InternalDisconnectRequest_fieldAccessorTable = new
-            com.google.protobuf.GeneratedMessage.FieldAccessorTable(
-              internal_static_rasnet_internal_InternalDisconnectRequest_descriptor,
-              new java.lang.String[] { });
-          internal_static_rasnet_internal_InternalDisconnectReply_descriptor =
-            getDescriptor().getMessageTypes().get(3);
-          internal_static_rasnet_internal_InternalDisconnectReply_fieldAccessorTable = new
-            com.google.protobuf.GeneratedMessage.FieldAccessorTable(
-              internal_static_rasnet_internal_InternalDisconnectReply_descriptor,
-              new java.lang.String[] { });
-          internal_static_rasnet_internal_ServiceRequestAvailable_descriptor =
-            getDescriptor().getMessageTypes().get(4);
-          internal_static_rasnet_internal_ServiceRequestAvailable_fieldAccessorTable = new
-            com.google.protobuf.GeneratedMessage.FieldAccessorTable(
-              internal_static_rasnet_internal_ServiceRequestAvailable_descriptor,
-              new java.lang.String[] { });
-          internal_static_rasnet_internal_ServiceResponseAvailable_descriptor =
-            getDescriptor().getMessageTypes().get(5);
-          internal_static_rasnet_internal_ServiceResponseAvailable_fieldAccessorTable = new
-            com.google.protobuf.GeneratedMessage.FieldAccessorTable(
-              internal_static_rasnet_internal_ServiceResponseAvailable_descriptor,
-              new java.lang.String[] { });
-          return null;
-        }
-      };
+        new com.google.protobuf.Descriptors.FileDescriptor.    InternalDescriptorAssigner() {
+          public com.google.protobuf.ExtensionRegistry assignDescriptors(
+              com.google.protobuf.Descriptors.FileDescriptor root) {
+            descriptor = root;
+            return null;
+          }
+        };
     com.google.protobuf.Descriptors.FileDescriptor
       .internalBuildGeneratedFileFrom(descriptorData,
         new com.google.protobuf.Descriptors.FileDescriptor[] {
         }, assigner);
+    internal_static_rasnet_internal_InternalConnectRequest_descriptor =
+      getDescriptor().getMessageTypes().get(0);
+    internal_static_rasnet_internal_InternalConnectRequest_fieldAccessorTable = new
+      com.google.protobuf.GeneratedMessage.FieldAccessorTable(
+        internal_static_rasnet_internal_InternalConnectRequest_descriptor,
+        new java.lang.String[] { });
+    internal_static_rasnet_internal_InternalConnectReply_descriptor =
+      getDescriptor().getMessageTypes().get(1);
+    internal_static_rasnet_internal_InternalConnectReply_fieldAccessorTable = new
+      com.google.protobuf.GeneratedMessage.FieldAccessorTable(
+        internal_static_rasnet_internal_InternalConnectReply_descriptor,
+        new java.lang.String[] { "Success", });
+    internal_static_rasnet_internal_InternalDisconnectRequest_descriptor =
+      getDescriptor().getMessageTypes().get(2);
+    internal_static_rasnet_internal_InternalDisconnectRequest_fieldAccessorTable = new
+      com.google.protobuf.GeneratedMessage.FieldAccessorTable(
+        internal_static_rasnet_internal_InternalDisconnectRequest_descriptor,
+        new java.lang.String[] { });
+    internal_static_rasnet_internal_InternalDisconnectReply_descriptor =
+      getDescriptor().getMessageTypes().get(3);
+    internal_static_rasnet_internal_InternalDisconnectReply_fieldAccessorTable = new
+      com.google.protobuf.GeneratedMessage.FieldAccessorTable(
+        internal_static_rasnet_internal_InternalDisconnectReply_descriptor,
+        new java.lang.String[] { });
+    internal_static_rasnet_internal_ServiceRequestAvailable_descriptor =
+      getDescriptor().getMessageTypes().get(4);
+    internal_static_rasnet_internal_ServiceRequestAvailable_fieldAccessorTable = new
+      com.google.protobuf.GeneratedMessage.FieldAccessorTable(
+        internal_static_rasnet_internal_ServiceRequestAvailable_descriptor,
+        new java.lang.String[] { });
+    internal_static_rasnet_internal_ServiceResponseAvailable_descriptor =
+      getDescriptor().getMessageTypes().get(5);
+    internal_static_rasnet_internal_ServiceResponseAvailable_fieldAccessorTable = new
+      com.google.protobuf.GeneratedMessage.FieldAccessorTable(
+        internal_static_rasnet_internal_ServiceResponseAvailable_descriptor,
+        new java.lang.String[] { });
   }
 
   // @@protoc_insertion_point(outer_class_scope)

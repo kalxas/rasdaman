@@ -14,7 +14,7 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with rasdaman community.  If not, see <http://www.gnu.org/licenses/>.
  *
- * Copyright 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014 Peter Baumann / rasdaman GmbH.
+ * Copyright 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015 Peter Baumann / rasdaman GmbH.
  *
  * For more information please see <http://www.rasdaman.org>
  * or contact Peter Baumann via <baumann@rasdaman.com>.
@@ -30,22 +30,33 @@
 #include "../../common/src/logging/easylogging++.hh"
 #include "../../include/globals.hh"
 
-#include "rascontrol.hh"
-#include "userdatabaserights.hh"
-#include "useradminrights.hh"
+#include "databasehostmanager.hh"
+#include "databasemanager.hh"
 #include "rasmanager.hh"
+#include "servermanager.hh"
+#include "usermanager.hh"
+#include "user.hh"
+
+#include "rascontrol.hh"
 #include "version.h"
+
 
 namespace rasmgr
 {
 using common::Crypto;
-using std::list;
+
 using boost::shared_ptr;
 using boost::format;
 
-RasControl::RasControl ( boost::shared_ptr<UserManager> userManager, boost::shared_ptr<DatabaseHostManager> dbHostManager, boost::shared_ptr<DatabaseManager> dbManager, boost::shared_ptr<ServerManager> serverManager, RasManager* rasmanager )
+using std::list;
+
+RasControl::RasControl ( boost::shared_ptr<UserManager> userManager,
+                         boost::shared_ptr<DatabaseHostManager> dbHostManager,
+                         boost::shared_ptr<DatabaseManager> dbManager,
+                         boost::shared_ptr<ServerManager> serverManager,
+                         RasManager* rasmanager )
 {
-    this->userManager=userManager;
+    this->userManager = userManager;
     this->dbHostManager = dbHostManager;
     this->dbManager = dbManager;
     this->serverManager = serverManager;
@@ -966,8 +977,9 @@ std::string RasControl::stopRasMgr()
         }
         else
         {
+            // I assume there is no problem if stopRasmgrAsync is called multiple times
+            this->stopRasmgrThread.reset(new boost::thread(&RasControl::stopRasmgrAsync, this));
             message = "rasmanager is shutting down. Good Bye!";
-            this->rasmanager->stop();
         }
     }
     catch ( std::exception& ex )
@@ -987,7 +999,7 @@ std::string RasControl::listVersion()
     return RMANVERSION;
 }
 
-string RasControl::login()
+std::string RasControl::login()
 {
     return "Welcome!";
 }
@@ -1120,6 +1132,11 @@ std::string RasControl::showHelp()
     return ss.str();
 }
 
+void RasControl::stopRasmgrAsync()
+{
+    this->rasmanager->stop();
+}
+
 bool RasControl::hasInfoRights ( std::string userName, std::string password )
 {
     boost::shared_ptr<User> user;
@@ -1175,7 +1192,7 @@ bool RasControl::hasServerAdminRights ( std::string userName,std::string passwor
         return false;
     }
 }
-bool RasControl::isValidUser ( string userName, string password )
+bool RasControl::isValidUser (std::string userName, std::string password )
 {
     boost::shared_ptr<User> user;
 

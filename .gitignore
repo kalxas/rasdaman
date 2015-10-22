@@ -113,6 +113,7 @@ applications/RRasdaman/build
 applications/RRasdaman/inst/java
 
 #rasnet protocol
+common/src/grpc/messages/
 rasnet/src/messages/
 rasmgr_x/src/messages/
 rasmgr_x/src/rasmgr

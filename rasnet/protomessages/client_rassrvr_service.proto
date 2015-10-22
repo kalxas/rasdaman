@@ -1,0 +1,401 @@
+/*
+ * This file is part of rasdaman community.
+ *
+ * Rasdaman community is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Rasdaman community is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with rasdaman community.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ * Copyright 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013,
+ *2014 Peter Baumann / rasdaman GmbH.
+ *
+ * For more information please see <http://www.rasdaman.org>
+ * or contact Peter Baumann via <baumann@rasdaman.com>.
+ */
+
+syntax = "proto3";
+//The first line must specify the syntax.
+package rasnet.service;
+
+option java_package = "org.rasdaman.rasnet.service";
+option java_outer_classname = "ClientRasServerService";
+
+option cc_generic_services = false;
+option java_generic_services = false;
+
+import "common_service.proto";
+
+// REGION: DATABASE METHODS
+message OpenServerDatabaseReq
+{
+    int32 client_id = 1;
+    string database_name = 2;
+}
+
+message OpenServerDatabaseRepl {}
+
+message CloseServerDatabaseReq {  int32 client_id = 1; }
+
+message CreateDatabaseReq
+{
+    int32 client_id = 1;
+    string database_name = 2;
+}
+
+message CreateDatabaseRepl {}
+
+message DestroyDatabaseReq
+{
+    int32 client_id = 1;
+    string database_name = 2;
+}
+
+message DestroyDatabaseRepl {}
+// ENDREGION: DATABASE METHODS
+
+// REGION: TRANSACTION METHODS
+message BeginTransactionReq
+{
+    int32 client_id = 1;
+    bool rw = 2;
+}
+
+message BeginTransactionRepl {}
+
+message CommitTransactionReq {  int32 client_id = 1; }
+
+message CommitTransactionRepl {}
+
+message AbortTransactionReq {  int32 client_id = 1; }
+
+message AbortTransactionRepl {}
+
+message IsTransactionOpenReq {  int32 client_id = 1; }
+
+message IsTransactionOpenRepl {  bool isOpen = 1; }
+// ENDREGION: TRANSACTION METHODS
+
+// REGION: MDD METHODS
+message StartInsertMDDReq
+{
+    int32 client_id = 1;
+    string collName = 2;
+    bytes domain = 3;
+    int32 type_length = 4;
+    string type_name = 5;
+    string oid = 6;
+}
+
+message StartInsertMDDRepl {  int32 status = 1; }
+
+message InsertTileReq
+{
+    int32 client_id = 1;
+    bool persistent = 2;
+    string domain = 3;
+    int32 type_length = 4;
+    int32 current_format = 5;
+    int32 storage_format = 6;
+    bytes data = 7;
+    int32 data_length = 8;
+}
+
+message InsertTileRepl {  int32 status = 1; }
+
+message EndInsertMDDReq
+{
+    int32 client_id = 1;
+    bool persistent = 2;
+}
+
+message EndInsertMDDRepl {  int32 status = 1; }
+
+message StartInsertTransMDDReq
+{
+    int32 client_id = 1;
+    string domain = 2;
+    int32 type_length = 3;
+    string type_name = 4;
+}
+
+message StartInsertTransMDDRepl {  int32 status = 1; }
+
+// ENDREGION: MDD METHODS
+
+// REGION: COLLECTION METHODS
+message InsertCollectionReq
+{
+    int32 client_id = 1;
+    string collection_name = 2;
+    string type_name = 3;
+    string oid = 4;
+}
+
+message InsertCollectionRepl {  int32 status = 1; }
+
+message DeleteCollectionByNameReq
+{
+    int32 client_id = 1;
+    string collection_name = 2;
+}
+
+message DeleteCollectionByNameRepl {  int32 status = 1; }
+
+message DeleteCollectionByOidReq
+{
+    int32 client_id = 1;
+    string oid = 2;
+}
+
+message DeleteCollectionByOidRepl {  int32 status = 1; }
+
+message GetCollectionByNameOrOidReq
+{
+    int32 client_id = 1;
+    string collection_identifier = 2;
+    bool is_name = 3;
+}
+
+message GetCollectionByNameOrOidRepl
+{
+    string type_name = 1;
+    string type_structure = 2;
+    string oid = 3;
+    string collection_name = 4;
+    int32 status = 5;
+}
+
+message GetCollOidsByNameOrOidReq
+{
+    int32 client_id = 1;
+    string collection_identifier = 2;
+    bool is_name = 3;
+}
+
+message GetCollOidsByNameOrOidRepl
+{
+    int32 status = 1;
+    string type_name = 2;
+    string type_structure = 3;
+    string oids_string = 4;
+    string collection_name = 5;
+    repeated string oid_set = 6;
+}
+
+message RemoveObjectFromCollectionReq
+{
+    int32 client_id = 1;
+    string collection_name = 2;
+    string oid = 3;
+}
+
+message RemoveObjectFromCollectionRepl {  int32 status = 1; }
+
+message GetNextMDDReq {  int32 client_id = 1; }
+
+message GetNextMDDRepl
+{
+    int32 status = 1;
+    string domain = 2;
+    string type_name = 3;
+    string type_structure = 4;
+    string oid = 5;
+    int32 current_format = 6;
+}
+
+message GetNextTileReq {  int32 client_id = 1; }
+
+message GetNextTileRepl
+{
+    int32 status = 1;
+    string domain = 2;
+    int32 cell_type_length = 3;
+    int32 current_format = 4;
+    int32 storage_format = 5;
+    int32 data_length = 6;
+    bytes data = 7;
+}
+
+message EndTransferReq {  int32 client_id = 1; }
+
+message EndTransferRepl {  int32 status = 1; }
+
+// ENDREGION: COLLECTION METHODS
+
+// REGION: QUERY METHODS
+message InitUpdateReq {  int32 client_id = 1; }
+
+message InitUpdateRepl {  int32 status = 1; }
+
+message ExecuteQueryReq
+{
+    int32 client_id = 1;
+    string query = 2;
+}
+
+message ExecuteQueryRepl
+{
+    int32 status = 1;
+    int32 err_no = 2;
+    int32 line_no = 3;
+    int32 col_no = 4;
+    string token = 5;
+    string type_name = 6;
+    string type_structure = 7;
+}
+
+message ExecuteHttpQueryReq
+{
+    int32 client_id = 1;
+    bytes data = 2;
+    int32 data_length = 3;
+}
+
+message ExecuteHttpQueryRepl {  bytes data = 1; }
+
+message GetNextElementReq {  int32 client_id = 1; }
+
+message GetNextElementRepl
+{
+    int32 status = 2;
+    int32 data_length = 3;
+    bytes data = 4;
+}
+
+message ExecuteUpdateQueryReq
+{
+    int32 client_id = 1;
+    string query = 2;
+}
+
+message ExecuteUpdateQueryRepl
+{
+    int32 status = 1;
+    int32 erroNo = 2;
+    int32 lineNo = 3;
+    int32 colNo = 4;
+    string token = 5;
+}
+
+message ExecuteInsertQueryReq
+{
+    int32 client_id = 1;
+    string query = 2;
+}
+
+message ExecuteInsertQueryRepl
+{
+    int32 status = 1;
+    int32 erroNo = 2;
+    int32 lineNo = 3;
+    int32 colNo = 4;
+    string token = 5;
+    string type_name = 6;
+    string type_structure = 7;
+}
+
+// ENDREGION: QUERYMETHODS
+
+// REGION: SYSTEM METHODS
+message GetNewOidReq
+{
+    int32 client_id = 1;
+    int32 object_type = 2;
+}
+
+message GetNewOidRepl {  string oid = 1; }
+
+message GetObjectTypeReq
+{
+    int32 client_id = 1;
+    string oid = 2;
+}
+
+message GetObjectTypeRepl
+{
+    int32 status = 1;
+    int32 object_type = 2;
+}
+
+message GetTypeStructureReq
+{
+    int32 client_id = 1;
+    string type_name = 2;
+    int32 type_type = 3;
+}
+
+message GetTypeStructureRepl
+{
+    int32 status = 1;
+    string type_structure = 2;
+}
+
+message SetFormatReq
+{
+    int32 client_id = 1;
+    int32 transfer_format = 2;
+    int32 format = 3;
+    string format_params = 4;
+}
+
+message SetFormatRepl {  int32 status = 2; }
+// ENDREGION: SYSTEM METHODS
+
+message KeepAliveRequest
+{
+    string client_uuid = 1;
+    string session_id = 2;
+}
+
+service ClientRassrvrService
+{
+    rpc OpenServerDatabase(OpenServerDatabaseReq)
+    returns (OpenServerDatabaseRepl);
+    rpc CloseServerDatabase(CloseServerDatabaseReq) returns (rasnet.service.Void);
+    rpc CreateDatabase(CreateDatabaseReq) returns (CreateDatabaseRepl);
+    rpc DestroyDatabase(DestroyDatabaseReq) returns (DestroyDatabaseRepl);
+    rpc BeginTransaction(BeginTransactionReq) returns (BeginTransactionRepl);
+    rpc CommitTransaction(CommitTransactionReq) returns (CommitTransactionRepl);
+    rpc AbortTransaction(AbortTransactionReq) returns (AbortTransactionRepl);
+    rpc IsTransactionOpen(IsTransactionOpenReq) returns (IsTransactionOpenRepl);
+    rpc StartInsertMDD(StartInsertMDDReq) returns (StartInsertMDDRepl);
+    rpc StartInsertTransMDD(StartInsertTransMDDReq)
+    returns (StartInsertTransMDDRepl);
+    rpc InsertTile(InsertTileReq) returns (InsertTileRepl);
+    rpc EndInsertMDD(EndInsertMDDReq) returns (EndInsertMDDRepl);
+    rpc InsertCollection(InsertCollectionReq) returns (InsertCollectionRepl);
+    rpc DeleteCollectionByName(DeleteCollectionByNameReq)
+    returns (DeleteCollectionByNameRepl);
+    rpc DeleteCollectionByOid(DeleteCollectionByOidReq)
+    returns (DeleteCollectionByOidRepl);
+    rpc RemoveObjectFromCollection(RemoveObjectFromCollectionReq)
+    returns (RemoveObjectFromCollectionRepl);
+    rpc GetCollectionByNameOrOid(GetCollectionByNameOrOidReq)
+    returns (GetCollectionByNameOrOidRepl);
+    rpc GetCollOidsByNameOrOid(GetCollOidsByNameOrOidReq)
+    returns (GetCollOidsByNameOrOidRepl);
+    rpc GetNextMDD(GetNextMDDReq) returns (GetNextMDDRepl);
+    rpc GetNextTile(GetNextTileReq) returns (GetNextTileRepl);
+    rpc EndTransfer(EndTransferReq) returns (EndTransferRepl);
+    rpc InitUpdate(InitUpdateReq) returns (InitUpdateRepl);
+    rpc ExecuteQuery(ExecuteQueryReq) returns (ExecuteQueryRepl);
+    rpc ExecuteHttpQuery(ExecuteHttpQueryReq) returns (ExecuteHttpQueryRepl);
+    rpc GetNextElement(GetNextElementReq) returns (GetNextElementRepl);
+    rpc ExecuteUpdateQuery(ExecuteUpdateQueryReq)
+    returns (ExecuteUpdateQueryRepl);
+    rpc ExecuteInsertQuery(ExecuteInsertQueryReq)
+    returns (ExecuteInsertQueryRepl);
+    rpc GetNewOid(GetNewOidReq) returns (GetNewOidRepl);
+    rpc GetObjectType(GetObjectTypeReq) returns (GetObjectTypeRepl);
+    rpc GetTypeStructure(GetTypeStructureReq) returns (GetTypeStructureRepl);
+    rpc SetFormat(SetFormatReq) returns (SetFormatRepl);
+    rpc KeepAlive(KeepAliveRequest) returns (rasnet.service.Void);
+}

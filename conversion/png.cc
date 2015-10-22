@@ -572,7 +572,7 @@ r_convDesc &r_Conv_PNG::convertFrom(const char *options) throw(r_Error)
     numPasses = png_set_interlace_handling(read_ptr);
 
 #ifdef RMANDEBUG
-    if (RManDebug >= 4)
+    if (RMANDEBUG >= 4)
     {
         LTRACE << "PNG image: width " << width << ", height " << height << ", bps " << bps;
         LTRACE << ", colour ";

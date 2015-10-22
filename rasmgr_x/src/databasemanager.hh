@@ -30,11 +30,13 @@
 #include <boost/thread/mutex.hpp>
 
 #include "messages/rasmgrmess.pb.h"
-#include "databasehostmanager.hh"
-#include "database.hh"
 
 namespace rasmgr
 {
+
+class DatabaseHostManager;
+class Database;
+
 /**
  * @brief The DatabaseManager class Keeps track of the databases available on
  * this rasmgr instance. There can be exactly one database with a given name at any moment.

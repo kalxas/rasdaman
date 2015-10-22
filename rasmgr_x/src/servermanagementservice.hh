@@ -23,31 +23,30 @@
 #ifndef RASMGR_X_SRC_SERVERMANAGEMENTSERVICE_HH_
 #define RASMGR_X_SRC_SERVERMANAGEMENTSERVICE_HH_
 
+#include <boost/smart_ptr.hpp>
+
 #include <google/protobuf/service.h>
 #include <google/protobuf/stubs/common.h>
 
-#include "rasnet/src/messages/rasmgr_rassrvr_service.pb.h"
-
-#include "servermanager.hh"
+#include "../../rasnet/messages/rasmgr_rassrvr_service.grpc.pb.h"
 
 namespace rasmgr
 {
+
+class ServerManager;
+
 /**
  * @brief The ServerManagementService class Service offered to rasservers, used to
  * register a server process after a successful initialization
  */
-class ServerManagementService: public ::rasnet::service::RasMgrRasServerService
+class ServerManagementService: public ::rasnet::service::RasMgrRasServerService::Service
 {
 public:
     ServerManagementService(boost::shared_ptr<ServerManager> serverManager);
 
     virtual ~ServerManagementService();
 
-    void RegisterServer(::google::protobuf::RpcController* controller,
-                        const ::rasnet::service::RegisterServerReq* request,
-                        ::rasnet::service::Void* response,
-                        ::google::protobuf::Closure* done);
-
+    virtual grpc::Status RegisterServer(grpc::ServerContext *context, const rasnet::service::RegisterServerReq *request, rasnet::service::Void *response) override;
 
 private:
     boost::shared_ptr<ServerManager> serverManager;

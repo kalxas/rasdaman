@@ -29,10 +29,11 @@
 
 #include "messages/rasmgrmess.pb.h"
 
-#include "databasehost.hh"
-
 namespace rasmgr
 {
+
+class DatabaseHost;
+
 /**
  * @brief The DatabaseHostManager class Keeps track of a list of database hosts,
  * allows for their properties to be changed and provides thread-safe access to
@@ -46,7 +47,7 @@ public:
     /**
      * @brief addNewDatabaseHost
      * @param newDbHost Configuration information required to define a new database host
-     * If the host name is not specified, it throws an exception.
+     * @throws If the host name is not specified, it throws an exception.
      */
     virtual void defineDatabaseHost(const DatabaseHostPropertiesProto& newDbHost);
 
@@ -74,7 +75,7 @@ public:
      * @param dbHostName
      * @return
      */
-    virtual boost::shared_ptr<DatabaseHost> getAndLockDH(const std::string& dbHostName);
+    virtual boost::shared_ptr<DatabaseHost> getAndLockDatabaseHost(const std::string& dbHostName);
 
     /**
      * @brief getDatabaseHostList Retrieve a list containing the list of database hosts

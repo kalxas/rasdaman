@@ -25,13 +25,20 @@
 #include <boost/cstdint.hpp>
 #include <boost/thread/locks.hpp>
 
-#include "rasnet/src/messages/rasmgr_client_service.pb.h"
-#include "common/src/logging/easylogging++.hh"
-#include "common/src/uuid/uuid.hh"
+#include "../../common/src/logging/easylogging++.hh"
+#include "../../common/src/uuid/uuid.hh"
+#include "../../common/src/grpc/grpcutils.hh"
+
+#include "../../rasnet/messages/rasmgr_client_service.grpc.pb.h"
+#include "../../rasnet/messages/rasmgr_client_service.pb.h"
+
+#include "clientmanager.hh"
+#include "servermanager.hh"
 
 #include "clientcredentials.hh"
 #include "clientmanagementservice.hh"
 #include "rasmgrconfig.hh"
+#include "server.hh"
 #include "user.hh"
 
 namespace rasmgr
@@ -39,10 +46,17 @@ namespace rasmgr
 using boost::mutex;
 using boost::shared_ptr;
 using boost::unique_lock;
+
+using common::GrpcUtils;
+
+using grpc::Status;
+
 using rasnet::service::ClientIdentity;
+
 using std::string;
 
-ClientManagementService::ClientManagementService(boost::shared_ptr<ClientManager> clientManager,boost::shared_ptr<ServerManager> serverManager)
+ClientManagementService::ClientManagementService(boost::shared_ptr<ClientManager> clientManager,
+        boost::shared_ptr<ServerManager> serverManager)
 {
     this->clientManager=clientManager;
     this->serverManager=serverManager;
@@ -51,13 +65,10 @@ ClientManagementService::ClientManagementService(boost::shared_ptr<ClientManager
 ClientManagementService::~ClientManagementService()
 {}
 
-void
-ClientManagementService::Connect(
-    ::google::protobuf::RpcController* controller,
-    const ::rasnet::service::ConnectReq* request,
-    ::rasnet::service::ConnectRepl* response,
-    ::google::protobuf::Closure* done)
+
+grpc::Status ClientManagementService::Connect(grpc::ServerContext *context, const rasnet::service::ConnectReq *request, rasnet::service::ConnectRepl *response)
 {
+    grpc::Status status = Status::OK;
     /**
      * 1. Use the client manager to register the client and obtain a UUID for the client
      * 2. Set the UUID in the response so that it is sent back to the client.
@@ -87,22 +98,23 @@ ClientManagementService::Connect(
     catch(std::exception& ex)
     {
         LERROR<<ex.what();
-        controller->SetFailed(ex.what());
+        status  = GrpcUtils::convertExceptionToStatus(ex);
     }
     catch(...)
     {
         string failureReason="Connect request failed for unknown reason.";
         LERROR<<failureReason;
-        controller->SetFailed(failureReason);
+
+        status = GrpcUtils::convertExceptionToStatus(failureReason);
     }
+
+    return status;
 }
 
-void
-ClientManagementService::Disconnect(
-    ::google::protobuf::RpcController* controller,
-    const ::rasnet::service::DisconnectReq* request,
-    ::rasnet::service::Void* response, ::google::protobuf::Closure* done)
+grpc::Status ClientManagementService::Disconnect(grpc::ServerContext *context, const rasnet::service::DisconnectReq *request, rasnet::service::Void *response)
 {
+    grpc::Status status = Status::OK;
+
     try
     {
         LDEBUG<<"Started disconnecting client with ID:"
@@ -116,23 +128,24 @@ ClientManagementService::Disconnect(
     catch(std::exception& ex)
     {
         LERROR<<ex.what();
-        controller->SetFailed(ex.what());
+
+        status = GrpcUtils::convertExceptionToStatus(ex);
     }
     catch(...)
     {
         string failureReason="Disconnect request failed for unknown reason";
         LERROR<<failureReason;
-        controller->SetFailed(failureReason);
+
+        status = GrpcUtils::convertExceptionToStatus(failureReason);
     }
+
+    return status;
 }
 
-void
-ClientManagementService::OpenDb(
-    ::google::protobuf::RpcController* controller,
-    const ::rasnet::service::OpenDbReq* request,
-    ::rasnet::service::OpenDbRepl* response,
-    ::google::protobuf::Closure* done)
+grpc::Status ClientManagementService::OpenDb(grpc::ServerContext *context, const rasnet::service::OpenDbReq *request, rasnet::service::OpenDbRepl *response)
 {
+    grpc::Status status = Status::OK;
+
     try
     {
         /**
@@ -162,29 +175,31 @@ ClientManagementService::OpenDb(
         else
         {
             //Fail if there is no available server.
-            controller->SetFailed("There is no available server for the client.");
+            status = GrpcUtils::convertExceptionToStatus("There is no available server for the client.");
         }
 
     }
     catch(std::exception& ex)
     {
         LERROR<<ex.what();
-        controller->SetFailed(ex.what());
+
+        status = GrpcUtils::convertExceptionToStatus(ex);
     }
     catch(...)
     {
         string failureReason="Open Database request failed for unknown reason.";
         LERROR<<failureReason;
-        controller->SetFailed(failureReason);
+
+        status = GrpcUtils::convertExceptionToStatus(failureReason);
     }
+
+    return status;
 }
 
-void
-ClientManagementService::CloseDb(
-    ::google::protobuf::RpcController* controller,
-    const ::rasnet::service::CloseDbReq* request,
-    ::rasnet::service::Void* response, ::google::protobuf::Closure* done)
+grpc::Status ClientManagementService::CloseDb(grpc::ServerContext *context, const rasnet::service::CloseDbReq *request, rasnet::service::Void *response)
 {
+    grpc::Status status;
+
     try
     {
         LDEBUG<<"Started closing database session: "
@@ -202,22 +217,24 @@ ClientManagementService::CloseDb(
     catch(std::exception& ex)
     {
         LERROR<<ex.what();
-        controller->SetFailed(ex.what());
+
+        status = GrpcUtils::convertExceptionToStatus(ex);
     }
     catch(...)
     {
         string failureReason="Close Database request failed with unknown exception";
         LERROR<<failureReason;
-        controller->SetFailed(failureReason);
+
+        status = GrpcUtils::convertExceptionToStatus(failureReason);
     }
+
+    return status;
 }
 
-void
-ClientManagementService::KeepAlive(
-    ::google::protobuf::RpcController* controller,
-    const ::rasnet::service::KeepAliveReq* request,
-    ::rasnet::service::Void* response, ::google::protobuf::Closure* done)
+grpc::Status ClientManagementService::KeepAlive(grpc::ServerContext *context, const rasnet::service::KeepAliveReq *request, rasnet::service::Void *response)
 {
+    grpc::Status status = Status::OK;
+
     try
     {
         LDEBUG<<"Start processing Keep Alive message from client with ID:"<<request->clientuuid();
@@ -229,14 +246,18 @@ ClientManagementService::KeepAlive(
     catch(std::exception& ex)
     {
         LERROR<<ex.what();
-        controller->SetFailed(ex.what());
+
+        status = GrpcUtils::convertExceptionToStatus(ex);
     }
     catch(...)
     {
         string failureReason="KeepAlive request failed with unknown exception";
         LERROR<<failureReason;
-        controller->SetFailed(failureReason);
+
+        status = GrpcUtils::convertExceptionToStatus(failureReason);
     }
+
+    return status;
 }
 
 } /* namespace rasmgr */

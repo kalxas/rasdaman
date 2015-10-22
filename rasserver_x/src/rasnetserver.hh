@@ -21,39 +21,43 @@ rasdaman GmbH.
 * or contact Peter Baumann via <baumann@rasdaman.com>.
 */
 
-#ifndef RASNETSERVER_HH
-#define RASNETSERVER_HH
+#ifndef RASSERVER_X_SRC_RASNETSERVER_HH
+#define RASSERVER_X_SRC_RASNETSERVER_HH
 
-#include <boost/program_options.hpp>
-#include <boost/scoped_ptr.hpp>
-#include <boost/shared_ptr.hpp>
-#include <boost/thread.hpp>
-#include <google/protobuf/service.h>
-#include <google/protobuf/stubs/common.h>
-#include <iostream>
 #include <unistd.h>
 
+#include <iostream>
+#include <memory>
 
-#include "common/src/logging/easylogging++.hh"
-#include "rasnet/src/messages/rasmgr_rassrvr_service.pb.h"
-#include "rasnet/src/messages/rassrvr_rasmgr_service.pb.h"
-#include "rasnet/src/client/channel.hh"
-#include "rasnet/src/client/clientcontroller.hh"
-#include "rasnet/src/server/servicemanager.hh"
-#include "server/rasserver_config.hh"
+#include <boost/thread.hpp>
 
+#include "../../server/rasserver_config.hh"
+#include "../../rasnetprotocol/rasnetservercomm.hh"
+
+#include "rasserverserviceimpl.hh"
+
+namespace grpc
+{
+class Server;
+}
+
+namespace rasserver
+{
 class RasnetServer
 {
 public:
     RasnetServer(Configuration configuration);
     void startRasnetServer();
-    void stopRasnetServer();
 
 private:
-    boost::shared_ptr<rasnet::ServiceManager> serviceManager;
-    int port;
+    bool isRunning;
+    Configuration& configuration;
 
-    boost::mutex runMutex;
+    std::unique_ptr<grpc::Server> server;
+    boost::shared_ptr<rasnet::service::RasServerService::Service> rasserverService;
+    boost::shared_ptr<rasnet::service::ClientRassrvrService::Service> clientServerService;
+
+    void registerServerWithRasmgr();
 };
-
-#endif // RASNETSERVER_HH
+}
+#endif // RASSERVER_X_SRC_RASNETSERVER_HH

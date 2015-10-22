@@ -101,10 +101,7 @@ protected:
     boost::shared_ptr<ClientManager> clientManager;
 };
 
-/**
- * Test what happens when a client with bad credentials connects
- */
-TEST_F(ClientManagerTest, connectClientFail)
+TEST_F(ClientManagerTest, connectClientFailsInexistentUser)
 {
     std::string badUser="badUser";
     std::string badPassword = "badPassword";
@@ -117,12 +114,22 @@ TEST_F(ClientManagerTest, connectClientFail)
 
     //Will fail because the user manager will say that there is no client with those credentials
     ASSERT_ANY_THROW(clientManager->connectClient(badCredentials, out_clientId));
+}
+
+TEST_F(ClientManagerTest, connectClientBadPassword)
+{
+    std::string badUser="badUser";
+    std::string badPassword = "badPassword";
+    std::string out_clientId;
+    rasmgr::ClientCredentials badCredentials(badUser, badPassword);
+    UserManagerMock& userMgrMock = *boost::dynamic_pointer_cast<UserManagerMock>(userManager);
+
+    EXPECT_CALL(userMgrMock, tryGetUser(_,_))
+    .WillOnce(Return(false)).WillRepeatedly(DoAll(testing::SetArgReferee<1>(user), Return(true)));
 
     //Good user name, bad password
     badCredentials.setUserName(user->getName());
     ASSERT_ANY_THROW(clientManager->connectClient(badCredentials, out_clientId));
-
-
 }
 
 TEST_F(ClientManagerTest, connectClientSuccess)
@@ -157,6 +164,21 @@ TEST_F(ClientManagerTest, disconnectClient)
     ASSERT_NO_THROW(clientManager->disconnectClient(out_clientId));
 }
 
+TEST_F(ClientManagerTest, openClientDbSessionFailBecauseThereIsNoClient)
+{
+    std::string out_clientId;
+    std::string out_sessionId;
+
+    boost::shared_ptr<Server> server(new MockRasServer());
+
+    MockRasServer& serverMock = *boost::dynamic_pointer_cast<MockRasServer>(server);
+    //  EXPECT_CALL(serverMock, allocateClientSession(_, _ ,dbName, _)).Times(1);
+    EXPECT_CALL(serverMock, isClientAlive(_)).WillRepeatedly(Return(false));
+
+    //Will fail because there is no client with this id
+    ASSERT_ANY_THROW(clientManager->openClientDbSession(out_clientId, dbName, server, out_sessionId));
+}
+
 TEST_F(ClientManagerTest, openClientDbSessionFail)
 {
     std::string out_clientId;
@@ -173,18 +195,15 @@ TEST_F(ClientManagerTest, openClientDbSessionFail)
     EXPECT_CALL(userMgrMock, tryGetUser(_,_))
     .WillOnce(DoAll(testing::SetArgReferee<1>(user), Return(true)));
 
-    //Will fail because there is no client with this id
-    ASSERT_ANY_THROW(clientManager->openClientDbSession(out_clientId, dbName, server, out_sessionId));
-
     ASSERT_NO_THROW(clientManager->connectClient(credentials, out_clientId));
 
     //Wait for the client to die
-    usleep(config.getCleanupInterval()*1000*2);
+    usleep(boost::uint32_t(config.getCleanupInterval()*1000*2));
 
     ASSERT_ANY_THROW(clientManager->openClientDbSession(out_clientId, dbName, server, out_sessionId));
 }
 
-TEST_F(ClientManagerTest, openClientDbSession)
+TEST_F(ClientManagerTest, openClientDbSessionSuccess)
 {
     std::string out_clientId;
     std::string out_sessionId;
@@ -206,7 +225,33 @@ TEST_F(ClientManagerTest, openClientDbSession)
 }
 
 
-TEST_F(ClientManagerTest, closeClientDbSession)
+TEST_F(ClientManagerTest, closeClientDbSessionWillFailsBecauseThereIsNoClient)
+{
+    std::string out_clientId;
+    std::string out_sessionId;
+
+    //There is no client connected.
+    ASSERT_ANY_THROW(clientManager->closeClientDbSession(out_clientId, out_sessionId));
+}
+
+TEST_F(ClientManagerTest, closeClientDbSessionNoOpenSessions)
+{
+    std::string out_clientId;
+    std::string out_sessionId;
+
+    rasmgr::ClientCredentials credentials(user->getName(), user->getPassword());
+
+    UserManagerMock& userMgrMock = *boost::dynamic_pointer_cast<UserManagerMock>(userManager);
+    EXPECT_CALL(userMgrMock, tryGetUser(_,_))
+    .WillOnce(DoAll(testing::SetArgReferee<1>(user), Return(true)));
+
+    clientManager->connectClient(credentials, out_clientId);
+
+    //Will succeed
+    ASSERT_NO_THROW(clientManager->closeClientDbSession(out_clientId, out_sessionId));
+}
+
+TEST_F(ClientManagerTest, closeClientDbSessionOpenDbSessions)
 {
     std::string out_clientId;
     std::string out_sessionId;
@@ -223,15 +268,10 @@ TEST_F(ClientManagerTest, closeClientDbSession)
     EXPECT_CALL(userMgrMock, tryGetUser(_,_))
     .WillOnce(DoAll(testing::SetArgReferee<1>(user), Return(true)));
 
-    //There is no client connected.
-    ASSERT_ANY_THROW(clientManager->closeClientDbSession(out_clientId, out_sessionId));
+    clientManager->connectClient(credentials, out_clientId);
+    clientManager->openClientDbSession(out_clientId, dbName, server, out_sessionId);
 
-    ASSERT_NO_THROW(clientManager->connectClient(credentials, out_clientId));
-
-    ASSERT_NO_THROW(clientManager->closeClientDbSession(out_clientId, out_sessionId));
-
-    ASSERT_NO_THROW(clientManager->openClientDbSession(out_clientId, dbName, server, out_sessionId));
-
+    //Will succeed
     ASSERT_NO_THROW(clientManager->closeClientDbSession(out_clientId, out_sessionId));
 }
 
@@ -254,10 +294,9 @@ TEST_F(ClientManagerTest, keepClientAliveFail)
     ASSERT_NO_THROW(clientManager->connectClient(credentials, out_clientId));
 
     //Wait for the client to die
-    usleep(config.getCleanupInterval()*1000*2);
+    usleep(boost::uint32_t(config.getCleanupInterval()*1000*2));
 
     ASSERT_ANY_THROW(clientManager->keepClientAlive(out_clientId));
 }
-
 }
 }

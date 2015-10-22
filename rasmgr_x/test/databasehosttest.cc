@@ -64,7 +64,7 @@ TEST_F(DatabaseHostTest, preconditions)
     ASSERT_FALSE(dbh.isBusy());
 }
 
-TEST_F(DatabaseHostTest, addClientSessionOnDB)
+TEST_F(DatabaseHostTest, addClientSessionOnDbNoDatabase)
 {
     std::string clientId = "clientId";
     std::string sessionId = "sessionId";
@@ -74,15 +74,34 @@ TEST_F(DatabaseHostTest, addClientSessionOnDB)
     //Will fail because there is no db on this host
     ASSERT_ANY_THROW(dbh.addClientSessionOnDB(db->getDbName(), clientId, sessionId));
 
+    ASSERT_FALSE(dbh.isBusy());
+}
+
+TEST_F(DatabaseHostTest, addClientSessionOnDbSuccess)
+{
+    std::string clientId = "clientId";
+    std::string sessionId = "sessionId";
+
+    ASSERT_FALSE(dbh.isBusy());
+
     //Add the db
     ASSERT_NO_THROW(dbh.addDbToHost(db));
+    ASSERT_NO_THROW(dbh.addClientSessionOnDB(db->getDbName(), clientId, sessionId));
 
+    ASSERT_TRUE(dbh.isBusy());
+}
+
+TEST_F(DatabaseHostTest, addClientSessionOnDbFailBecauseOfDuplicateSession)
+{
+    std::string clientId = "clientId";
+    std::string sessionId = "sessionId";
+
+    //Add the db
+    ASSERT_NO_THROW(dbh.addDbToHost(db));
     ASSERT_NO_THROW(dbh.addClientSessionOnDB(db->getDbName(), clientId, sessionId));
 
     //Will fail because there is already a session with this id
     ASSERT_ANY_THROW(dbh.addClientSessionOnDB(db->getDbName(), clientId, sessionId));
-
-    ASSERT_TRUE(dbh.isBusy());
 }
 
 TEST_F(DatabaseHostTest, removeClientSessionFromDB)
@@ -90,38 +109,44 @@ TEST_F(DatabaseHostTest, removeClientSessionFromDB)
     std::string clientId = "clientId";
     std::string sessionId = "sessionId";
 
-    ASSERT_FALSE(dbh.isBusy());
-
+    //Setup
     ASSERT_NO_THROW(dbh.addDbToHost(db));
-
     ASSERT_NO_THROW(dbh.addClientSessionOnDB(db->getDbName(), clientId, sessionId));
 
+    //Test
     ASSERT_NO_THROW(dbh.removeClientSessionFromDB(clientId, sessionId));
 
+    //Post conditions
     ASSERT_FALSE(dbh.isBusy());
 }
 
 TEST_F(DatabaseHostTest, increaseServerCount)
 {
+    // Preconditions
     ASSERT_FALSE(dbh.isBusy());
 
+    // Increasing the server count should not throw an exception
     ASSERT_NO_THROW(dbh.increaseServerCount());
 
+    // Postconditions
     ASSERT_TRUE(dbh.isBusy());
 }
 
 TEST_F(DatabaseHostTest, decreaseServerCount)
 {
+    // Preconditions
     ASSERT_FALSE(dbh.isBusy());
 
+    // Setup
     ASSERT_NO_THROW(dbh.increaseServerCount());
 
-    ASSERT_TRUE(dbh.isBusy());
-
+    //Must succeed while the server count is positive
     ASSERT_NO_THROW(dbh.decreaseServerCount());
 
+    // Postconditions
     ASSERT_FALSE(dbh.isBusy());
 
+    // Reducing the server count udner zero will throw an exception.
     ASSERT_ANY_THROW(dbh.decreaseServerCount());
 }
 
@@ -132,6 +157,7 @@ TEST_F(DatabaseHostTest, ownsDatabase)
 
     ASSERT_NO_THROW(dbh.addDbToHost(db));
 
+    //After adding it, the host does own the db
     ASSERT_TRUE(dbh.ownsDatabase(db->getDbName()));
 }
 
@@ -149,21 +175,21 @@ TEST_F(DatabaseHostTest, addDbToHost)
     ASSERT_ANY_THROW(dbh.addDbToHost(db));
 }
 
-TEST_F(DatabaseHostTest, removeDbFromHost)
+TEST_F(DatabaseHostTest, removeDbFromHostInexistentDatabase)
 {
-    //Before adding it, the host does not own the db
-    ASSERT_FALSE(dbh.ownsDatabase(db->getDbName()));
-
     //Removing a database that is not present on the host will not
     //throw an exception
     ASSERT_ANY_THROW(dbh.removeDbFromHost(db->getDbName()));
+}
 
-    ASSERT_NO_THROW(dbh.addDbToHost(db));
-
-    ASSERT_TRUE(dbh.ownsDatabase(db->getDbName()));
-
+TEST_F(DatabaseHostTest, removeDbFromHost)
+{
     std::string clientId = "clientId";
     std::string sessionId = "sessionId";
+
+    // Setup
+    ASSERT_NO_THROW(dbh.addDbToHost(db));
+    ASSERT_TRUE(dbh.ownsDatabase(db->getDbName()));
 
     ASSERT_NO_THROW(dbh.addClientSessionOnDB(db->getDbName(), clientId, sessionId));
 
@@ -173,6 +199,7 @@ TEST_F(DatabaseHostTest, removeDbFromHost)
     ASSERT_NO_THROW(dbh.removeClientSessionFromDB(clientId, sessionId));
 
     ASSERT_NO_THROW(dbh.removeDbFromHost(db->getDbName()));
+
     //The database will now be removed
     ASSERT_FALSE(dbh.ownsDatabase(db->getDbName()));
 }

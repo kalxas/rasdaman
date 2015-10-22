@@ -9,14 +9,16 @@
 
 #include "messages/rasmgrmess.pb.h"
 
-#include "databasehostmanager.hh"
-#include "databasehost.hh"
-#include "serverfactory.hh"
-
 #include "servergroup.hh"
 
 namespace rasmgr
 {
+
+class DatabaseHost;
+class DatabaseHostManager;
+class Server;
+class ServerFactory;
+
 class ServerGroupImpl:public ServerGroup
 {
 public:

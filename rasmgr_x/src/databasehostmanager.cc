@@ -23,6 +23,11 @@
 #include <stdexcept>
 
 #include "../../common/src/logging/easylogging++.hh"
+#include "../../common/src/exceptions/rasexceptions.hh"
+
+#include "exceptions/rasmgrexceptions.hh"
+#include "databasehost.hh"
+
 #include "databasehostmanager.hh"
 
 namespace rasmgr
@@ -38,9 +43,9 @@ DatabaseHostManager::~DatabaseHostManager()
 
 void DatabaseHostManager::defineDatabaseHost(const DatabaseHostPropertiesProto &newDbHost)
 {
-    if(!newDbHost.has_host_name())
+    if(!newDbHost.has_host_name() || newDbHost.host_name().empty())
     {
-        throw runtime_error("The database configuration object is invalid.");
+        throw new common::InvalidArgumentException("Invalid database host configuration:\n"+newDbHost.SerializeAsString());
     }
 
     list<shared_ptr<DatabaseHost> >::iterator it;
@@ -59,7 +64,7 @@ void DatabaseHostManager::defineDatabaseHost(const DatabaseHostPropertiesProto &
 
     if(duplicate)
     {
-        throw runtime_error("There already is a database host named:\""+newDbHost.host_name()+"\"");
+        throw DbHostAlreadyExistsException(newDbHost.host_name());
     }
     else
     {
@@ -68,6 +73,7 @@ void DatabaseHostManager::defineDatabaseHost(const DatabaseHostPropertiesProto &
         std::string userName = newDbHost.has_user_name()?newDbHost.user_name():empty;
         std::string password = newDbHost.has_password()?newDbHost.password():empty;
         shared_ptr<DatabaseHost> dbHost(new DatabaseHost(newDbHost.host_name(), connectStr, userName, password));
+
         this->hostList.push_back(dbHost);
     }
 }
@@ -85,7 +91,7 @@ void DatabaseHostManager::changeDatabaseHost(const std::string &oldName, const D
         {
             if((*it)->isBusy())
             {
-                throw runtime_error("The database host:\""+oldName+"\" is busy.");
+                throw DbHostBusyException((*it)->getHostName());
             }
             else
             {
@@ -94,7 +100,7 @@ void DatabaseHostManager::changeDatabaseHost(const std::string &oldName, const D
                     (*it)->setConnectString(newProperties.connect_string());
                 }
 
-                if(newProperties.has_host_name())
+                if(newProperties.has_host_name() && !newProperties.host_name().empty())
                 {
                     (*it)->setHostName(newProperties.host_name());
                 }
@@ -118,7 +124,7 @@ void DatabaseHostManager::changeDatabaseHost(const std::string &oldName, const D
 
     if(!changed)
     {
-        throw runtime_error("There exist no database host named:\""+oldName+"\"");
+        throw InexistentDbHostException(oldName);
     }
 }
 
@@ -135,12 +141,13 @@ void DatabaseHostManager::removeDatabaseHost(const std::string& dbHostName)
         {
             if((*it)->isBusy())
             {
-                throw runtime_error("The database host:\""+dbHostName+"\" is busy.");
+                throw DbHostBusyException((*it)->getHostName());
             }
             else
             {
                 this->hostList.erase(it);
                 erased=true;
+
                 break;
             }
         }
@@ -148,11 +155,11 @@ void DatabaseHostManager::removeDatabaseHost(const std::string& dbHostName)
 
     if(!erased)
     {
-        throw runtime_error("There exist no database host named:\""+dbHostName+"\"");
+        throw InexistentDbHostException(dbHostName);
     }
 }
 
-boost::shared_ptr<DatabaseHost> DatabaseHostManager::getAndLockDH(const std::string &dbHostName)
+boost::shared_ptr<DatabaseHost> DatabaseHostManager::getAndLockDatabaseHost(const std::string &dbHostName)
 {
     list<shared_ptr<DatabaseHost> >::iterator it;
 
@@ -167,7 +174,7 @@ boost::shared_ptr<DatabaseHost> DatabaseHostManager::getAndLockDH(const std::str
         }
     }
 
-    throw runtime_error("There is no database host with the name:"+dbHostName);
+    throw InexistentDbHostException(dbHostName);
 }
 
 std::list<boost::shared_ptr<DatabaseHost> > DatabaseHostManager::getDatabaseHostList() const

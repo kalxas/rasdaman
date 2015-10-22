@@ -20,13 +20,19 @@
  * or contact Peter Baumann via <baumann@rasdaman.com>.
  */
 
-#include "common/src/logging/easylogging++.hh"
+#include "../../common/src/logging/easylogging++.hh"
+#include "../../common/src/grpc/grpcutils.hh"
+
+#include "servermanager.hh"
 
 #include "servermanagementservice.hh"
 
 namespace rasmgr
 {
 using boost::shared_ptr;
+
+using grpc::Status;
+
 using std::string;
 
 ServerManagementService::ServerManagementService(shared_ptr<ServerManager> serverManager)
@@ -37,11 +43,10 @@ ServerManagementService::ServerManagementService(shared_ptr<ServerManager> serve
 ServerManagementService::~ServerManagementService()
 {}
 
-void ServerManagementService::RegisterServer(::google::protobuf::RpcController* controller,
-        const ::rasnet::service::RegisterServerReq* request,
-        ::rasnet::service::Void* response,
-        ::google::protobuf::Closure* done)
+grpc::Status ServerManagementService::RegisterServer(grpc::ServerContext *context, const rasnet::service::RegisterServerReq *request, rasnet::service::Void *response)
 {
+    Status status = Status::OK;
+
     try
     {
         LINFO<<"Registering server with ID:"<<request->serverid();
@@ -53,14 +58,17 @@ void ServerManagementService::RegisterServer(::google::protobuf::RpcController* 
     catch(std::exception& ex)
     {
         LERROR<<ex.what();
-        controller->SetFailed(ex.what());
+
+        status = common::GrpcUtils::convertExceptionToStatus(ex);
     }
     catch(...)
     {
         string failureReason="Failed to register server for unknown reason.";
         LERROR<<failureReason;
-        controller->SetFailed(failureReason);
-    }
-}
 
+        status = common::GrpcUtils::convertExceptionToStatus(failureReason);
+    }
+
+    return status;
+}
 } /* namespace rasmgr */

@@ -24,6 +24,7 @@
 
 #ifndef RASMGR_X_SRC_CLIENTCREDENTIALS_HH_
 #define RASMGR_X_SRC_CLIENTCREDENTIALS_HH_
+
 namespace rasmgr
 {
 class ClientCredentials
@@ -41,35 +42,30 @@ public:
     /**
      * Destroy an instance of the ClientCredentials object
      */
-    virtual
-    ~ClientCredentials();
+    virtual ~ClientCredentials();
 
     /**
      * @return the password hash.
      */
-    const std::string&
-    getPasswordHash() const;
+    const std::string& getPasswordHash() const;
 
     /**
      * Set the password hash.
      * @param passwordHash
      */
-    void
-    setPasswordHash(const std::string& passwordHash);
+    void setPasswordHash(const std::string& passwordHash);
 
     /**
      *
      * @return the user name
      */
-    const std::string&
-    getUserName() const;
+    const std::string& getUserName() const;
 
     /**
      * Set the user name
      * @param userName
      */
-    void
-    setUserName(const std::string& userName);
+    void setUserName(const std::string& userName);
 
 private:
     std::string userName;/*! User name used for authenticating the client*/

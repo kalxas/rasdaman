@@ -21,77 +21,86 @@ rasdaman GmbH.
 * or contact Peter Baumann via <baumann@rasdaman.com>.
 */
 
-#include "rasnetserver.hh"
-
-#include "rasserverserviceimpl.hh"
-#include "../rasnetprotocol/rasnetservercomm.hh"
-#include "server/rasserver_entry.hh"
-#include "rasnet/src/common/zmqutil.hh"
 
 #include <iostream>
+
+#include <grpc++/grpc++.h>
+
+#include "../../rasnet/messages/rasmgr_rassrvr_service.grpc.pb.h"
+
+#include "../../common/src/logging/easylogging++.hh"
+#include "../../common/src/grpc/grpcutils.hh"
+#include "../../rasnetprotocol/rasnetservercomm.hh"
+
+#include "../../server/rasserver_entry.hh"
+
 #include "clientmanager.hh"
 
-using rasnet::ServiceManager;
-using boost::shared_ptr;
-using rasnet::service::RasServerService;
-using rasnet::Channel;
-using boost::scoped_ptr;
-using google::protobuf::DoNothing;
-using google::protobuf::NewPermanentCallback;
-using rasnet::service::Void;
-using rasnet::ClientController;
-using rasserver::ClientManager;
-using rasnet::ZmqUtil;
+#include "rasnetserver.hh"
 
-RasnetServer::RasnetServer(Configuration configuration)
+namespace rasserver
 {
-    this->port = configuration.getListenPort();
 
-    //TODO-GM:Maybe move the parameters to the service manager somewhere else
-    rasnet::ServiceManagerConfig serviceManagerConfig;
-    serviceManager.reset(new ServiceManager(serviceManagerConfig));
+using boost::shared_ptr;
+using boost::scoped_ptr;
 
+RasnetServer::RasnetServer(Configuration configuration):
+    isRunning(false),
+    configuration(configuration)
+{
     shared_ptr<ClientManager> clientManager(new ClientManager());
 
-    shared_ptr<RasServerService> rasServerService(new RasServerServiceImpl(clientManager));
-    shared_ptr<RasnetServerComm> rasnetClinetServerComm(new RasnetServerComm(clientManager));
-
-    serviceManager->addService(rasServerService);
-    serviceManager->addService(rasnetClinetServerComm);
-
-    this->runMutex.lock();
-
-    rasnet::ChannelConfig channelConfig;
-    Channel channel(ZmqUtil::toTcpAddress(ZmqUtil::toEndpoint(configuration.getRasmgrHost(), configuration.getRasmgrPort())), channelConfig);
-
-    scoped_ptr<rasnet::service::RasMgrRasServerService> rasmgrRasserverService(new ::rasnet::service::RasMgrRasServerService_Stub(&channel));
-
-    ClientController controller;
-    boost::scoped_ptr<google::protobuf::Closure> doNothing;
-    doNothing.reset(NewPermanentCallback(&DoNothing));
-
-    ::rasnet::service::RegisterServerReq request;
-    Void response;
-
-    request.set_serverid(configuration.getNewServerId());
-    rasmgrRasserverService->RegisterServer(&controller, &request, &response, doNothing.get());
+    rasserverService.reset(new RasServerServiceImpl(clientManager));
+    clientServerService.reset(new RasnetServerComm(clientManager));
 }
 
 
 void RasnetServer::startRasnetServer()
 {
-    std::cout<<"Serving on " << this->port;
-    this->serviceManager->serve(rasnet::ZmqUtil::toEndpoint(rasnet::ZmqUtil::ALL_LOCAL_INTERFACES, this->port));
+    //std::cout<<"Serving on " << this->configuration.;
+    std::string serverAddress = common::GrpcUtils::convertAddressToString("0.0.0.0",  boost::uint32_t(configuration.getListenPort()));
+
+    grpc::ServerBuilder builder;
+    // Listen on the given address without any authentication mechanism.
+    builder.AddListeningPort(serverAddress, grpc::InsecureServerCredentials());
+    builder.RegisterService(rasserverService.get());
+    builder.RegisterService(clientServerService.get());
+
     RasServerEntry &rasserver = RasServerEntry::getInstance();
     rasserver.compat_connectToDBMS();
-    while (true)
+
+    this->isRunning = true;
+    // Finally assemble the server.
+    this->server = builder.BuildAndStart();
+
+    // Register the server
+    this->registerServerWithRasmgr();
+
+    // Wait for the server to shutdown. Note that some other thread must be
+    // responsible for shutting down the server for this call to ever return.
+    this->server->Wait();
+}
+
+void RasnetServer::registerServerWithRasmgr()
+{
+    std::string rasmgrAddress = common::GrpcUtils::convertAddressToString(configuration.getRasmgrHost(), boost::uint32_t( configuration.getRasmgrPort()));;
+    std::shared_ptr<grpc::Channel> channel( grpc::CreateChannel(rasmgrAddress, grpc::InsecureCredentials()));
+
+    ::rasnet::service::RasMgrRasServerService::Stub rasmgrRasserverService(channel);
+
+    ::rasnet::service::Void response;
+    ::rasnet::service::RegisterServerReq request;
+    request.set_serverid(configuration.getNewServerId());
+
+    grpc::ClientContext context;
+    grpc::Status status = rasmgrRasserverService.RegisterServer(&context, request, &response);
+
+    if(!status.ok())
     {
-        boost::this_thread::sleep(boost::posix_time::millisec(100000));
+        //TODO-GM: Throw the appropriate exception
+        LERROR<<status.error_message();
+        throw std::runtime_error("Could not register server with rasmgr.");
     }
 }
 
-
-void RasnetServer::stopRasnetServer()
-{
-    this->runMutex.unlock();
 }

@@ -446,7 +446,8 @@ QtConversion::evaluate( QtDataList* inputList )
             dataStreamType.setType( mddBaseType );
             RMDBGIF(4, RMDebug::module_qlparser, "QtConversion",
                 LDEBUG << " QtConversion::evaluate() for conversion " << conversionType << " real result is ";
-                dataStreamType.printStatus(RMInit::logOut); )
+
+                dataStreamType.printStatus(RMInit::logOut);)
         }
 
         long convResultSize = static_cast<long>(convResult.destInterv.cell_count()) * static_cast<long>(myType->getSize());

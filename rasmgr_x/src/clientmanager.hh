@@ -33,16 +33,16 @@
 #include <string>
 
 #include "../../common/src/time/timer.hh"
-#include "../../common/src/zeromq/zmq.hh"
 
-#include "usermanager.hh"
-#include "client.hh"
-#include "clientcredentials.hh"
-#include "servermanager.hh"
 #include "clientmanagerconfig.hh"
 
 namespace rasmgr
 {
+
+class Client;
+class ClientCredentials;
+class Server;
+class UserManager;
 
 /**
  * @brief The ClientManager class maintains the list of active clients,
@@ -109,19 +109,19 @@ public:
      * @brief getConfig Get a copy of the configuration object used by the client manager.
      * @return
      */
-    ClientManagerConfig getConfig();
+    const ClientManagerConfig& getConfig();
 
 private:
     ClientManagerConfig config;
-    zmq::context_t context;/*!< ZMQ context used for inter thread communication */
-    boost::scoped_ptr<zmq::socket_t> controlSocket; /*!<Socket for inter-thread communication */
-    std::string controlEndpoint; /*!<Endpoint used for inter-thread communication */
-
     boost::scoped_ptr<boost::thread> managementThread; /*! Thread used to manage the list of clients and remove dead ones */
 
     std::map<std::string, boost::shared_ptr<Client> > clients; /*! list of active clients */
     boost::shared_mutex clientsMutex; /*! Mutex used to synchronize access to the clients object*/
     boost::shared_ptr<UserManager> userManager;
+
+    boost::mutex threadMutex;/*! Mutex used to safely stop the worker thread */
+    bool isThreadRunning; /*! Flag used to stop the worker thread */
+    boost::condition_variable isThreadRunningCondition; /*! Condition variable used to stop the worker thread */
 
     /**
      * Evaluate the list of clients and remove the ones that have died.

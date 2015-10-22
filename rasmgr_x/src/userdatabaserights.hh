@@ -23,10 +23,11 @@
 #ifndef RASMGR_X_SRC_USERDATABASERIGHTS_HH_
 #define RASMGR_X_SRC_USERDATABASERIGHTS_HH_
 
-#include "messages/rasmgrmess.pb.h"
-
 namespace rasmgr
 {
+
+class UserDatabaseRightsProto;
+
 /**
  * @brief The UserDatabaseRights class represents the rights the user has on all
  * the databases in the rasdaman system.

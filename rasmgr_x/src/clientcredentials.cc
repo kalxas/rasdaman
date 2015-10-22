@@ -21,6 +21,7 @@
  */
 
 #include "clientcredentials.hh"
+
 namespace rasmgr
 {
 

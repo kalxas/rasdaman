@@ -8,10 +8,10 @@ public final class Communication {
   public static void registerAllExtensions(
       com.google.protobuf.ExtensionRegistry registry) {
   }
-  public interface MessageTypeOrBuilder
-      extends com.google.protobuf.MessageOrBuilder {
+  public interface MessageTypeOrBuilder extends
+      // @@protoc_insertion_point(interface_extends:rasnet.MessageType)
+      com.google.protobuf.MessageOrBuilder {
 
-    // required .rasnet.MessageType.Types type = 1;
     /**
      * <code>required .rasnet.MessageType.Types type = 1;</code>
      */
@@ -24,36 +24,27 @@ public final class Communication {
   /**
    * Protobuf type {@code rasnet.MessageType}
    */
-  public static final class MessageType extends
-      com.google.protobuf.GeneratedMessage
-      implements MessageTypeOrBuilder {
+  public  static final class MessageType extends
+      com.google.protobuf.GeneratedMessage implements
+      // @@protoc_insertion_point(message_implements:rasnet.MessageType)
+      MessageTypeOrBuilder {
     // Use MessageType.newBuilder() to construct.
     private MessageType(com.google.protobuf.GeneratedMessage.Builder<?> builder) {
       super(builder);
-      this.unknownFields = builder.getUnknownFields();
     }
-    private MessageType(boolean noInit) { this.unknownFields = com.google.protobuf.UnknownFieldSet.getDefaultInstance(); }
-
-    private static final MessageType defaultInstance;
-    public static MessageType getDefaultInstance() {
-      return defaultInstance;
+    private MessageType() {
+      type_ = 1;
     }
 
-    public MessageType getDefaultInstanceForType() {
-      return defaultInstance;
-    }
-
-    private final com.google.protobuf.UnknownFieldSet unknownFields;
     @java.lang.Override
     public final com.google.protobuf.UnknownFieldSet
-        getUnknownFields() {
+    getUnknownFields() {
       return this.unknownFields;
     }
     private MessageType(
         com.google.protobuf.CodedInputStream input,
-        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-        throws com.google.protobuf.InvalidProtocolBufferException {
-      initFields();
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry) {
+      this();
       int mutable_bitField0_ = 0;
       com.google.protobuf.UnknownFieldSet.Builder unknownFields =
           com.google.protobuf.UnknownFieldSet.newBuilder();
@@ -79,17 +70,18 @@ public final class Communication {
                 unknownFields.mergeVarintField(1, rawValue);
               } else {
                 bitField0_ |= 0x00000001;
-                type_ = value;
+                type_ = rawValue;
               }
               break;
             }
           }
         }
       } catch (com.google.protobuf.InvalidProtocolBufferException e) {
-        throw e.setUnfinishedMessage(this);
+        throw new RuntimeException(e.setUnfinishedMessage(this));
       } catch (java.io.IOException e) {
-        throw new com.google.protobuf.InvalidProtocolBufferException(
-            e.getMessage()).setUnfinishedMessage(this);
+        throw new RuntimeException(
+            new com.google.protobuf.InvalidProtocolBufferException(
+                e.getMessage()).setUnfinishedMessage(this));
       } finally {
         this.unknownFields = unknownFields.build();
         makeExtensionsImmutable();
@@ -105,21 +97,6 @@ public final class Communication {
       return org.rasdaman.rasnet.message.Communication.internal_static_rasnet_MessageType_fieldAccessorTable
           .ensureFieldAccessorsInitialized(
               org.rasdaman.rasnet.message.Communication.MessageType.class, org.rasdaman.rasnet.message.Communication.MessageType.Builder.class);
-    }
-
-    public static com.google.protobuf.Parser<MessageType> PARSER =
-        new com.google.protobuf.AbstractParser<MessageType>() {
-      public MessageType parsePartialFrom(
-          com.google.protobuf.CodedInputStream input,
-          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-          throws com.google.protobuf.InvalidProtocolBufferException {
-        return new MessageType(input, extensionRegistry);
-      }
-    };
-
-    @java.lang.Override
-    public com.google.protobuf.Parser<MessageType> getParserForType() {
-      return PARSER;
     }
 
     /**
@@ -179,7 +156,9 @@ public final class Communication {
       public static final int SERVICE_RESPONSE_VALUE = 6;
 
 
-      public final int getNumber() { return value; }
+      public final int getNumber() {
+        return value;
+      }
 
       public static Types valueOf(int value) {
         switch (value) {
@@ -197,8 +176,8 @@ public final class Communication {
           internalGetValueMap() {
         return internalValueMap;
       }
-      private static com.google.protobuf.Internal.EnumLiteMap<Types>
-          internalValueMap =
+      private static final com.google.protobuf.Internal.EnumLiteMap<
+          Types> internalValueMap =
             new com.google.protobuf.Internal.EnumLiteMap<Types>() {
               public Types findValueByNumber(int number) {
                 return Types.valueOf(number);
@@ -241,9 +220,8 @@ public final class Communication {
     }
 
     private int bitField0_;
-    // required .rasnet.MessageType.Types type = 1;
     public static final int TYPE_FIELD_NUMBER = 1;
-    private org.rasdaman.rasnet.message.Communication.MessageType.Types type_;
+    private int type_;
     /**
      * <code>required .rasnet.MessageType.Types type = 1;</code>
      */
@@ -254,16 +232,15 @@ public final class Communication {
      * <code>required .rasnet.MessageType.Types type = 1;</code>
      */
     public org.rasdaman.rasnet.message.Communication.MessageType.Types getType() {
-      return type_;
+      org.rasdaman.rasnet.message.Communication.MessageType.Types result = org.rasdaman.rasnet.message.Communication.MessageType.Types.valueOf(type_);
+      return result == null ? org.rasdaman.rasnet.message.Communication.MessageType.Types.CONNECT_REQUEST : result;
     }
 
-    private void initFields() {
-      type_ = org.rasdaman.rasnet.message.Communication.MessageType.Types.CONNECT_REQUEST;
-    }
     private byte memoizedIsInitialized = -1;
     public final boolean isInitialized() {
       byte isInitialized = memoizedIsInitialized;
-      if (isInitialized != -1) return isInitialized == 1;
+      if (isInitialized == 1) return true;
+      if (isInitialized == 0) return false;
 
       if (!hasType()) {
         memoizedIsInitialized = 0;
@@ -275,35 +252,27 @@ public final class Communication {
 
     public void writeTo(com.google.protobuf.CodedOutputStream output)
                         throws java.io.IOException {
-      getSerializedSize();
       if (((bitField0_ & 0x00000001) == 0x00000001)) {
-        output.writeEnum(1, type_.getNumber());
+        output.writeEnum(1, type_);
       }
-      getUnknownFields().writeTo(output);
+      unknownFields.writeTo(output);
     }
 
-    private int memoizedSerializedSize = -1;
     public int getSerializedSize() {
-      int size = memoizedSerializedSize;
+      int size = memoizedSize;
       if (size != -1) return size;
 
       size = 0;
       if (((bitField0_ & 0x00000001) == 0x00000001)) {
         size += com.google.protobuf.CodedOutputStream
-          .computeEnumSize(1, type_.getNumber());
+          .computeEnumSize(1, type_);
       }
-      size += getUnknownFields().getSerializedSize();
-      memoizedSerializedSize = size;
+      size += unknownFields.getSerializedSize();
+      memoizedSize = size;
       return size;
     }
 
     private static final long serialVersionUID = 0L;
-    @java.lang.Override
-    protected java.lang.Object writeReplace()
-        throws java.io.ObjectStreamException {
-      return super.writeReplace();
-    }
-
     public static org.rasdaman.rasnet.message.Communication.MessageType parseFrom(
         com.google.protobuf.ByteString data)
         throws com.google.protobuf.InvalidProtocolBufferException {
@@ -357,12 +326,17 @@ public final class Communication {
       return PARSER.parseFrom(input, extensionRegistry);
     }
 
-    public static Builder newBuilder() { return Builder.create(); }
     public Builder newBuilderForType() { return newBuilder(); }
-    public static Builder newBuilder(org.rasdaman.rasnet.message.Communication.MessageType prototype) {
-      return newBuilder().mergeFrom(prototype);
+    public static Builder newBuilder() {
+      return DEFAULT_INSTANCE.toBuilder();
     }
-    public Builder toBuilder() { return newBuilder(this); }
+    public static Builder newBuilder(org.rasdaman.rasnet.message.Communication.MessageType prototype) {
+      return DEFAULT_INSTANCE.toBuilder().mergeFrom(prototype);
+    }
+    public Builder toBuilder() {
+      return this == DEFAULT_INSTANCE
+          ? new Builder() : new Builder().mergeFrom(this);
+    }
 
     @java.lang.Override
     protected Builder newBuilderForType(
@@ -374,8 +348,9 @@ public final class Communication {
      * Protobuf type {@code rasnet.MessageType}
      */
     public static final class Builder extends
-        com.google.protobuf.GeneratedMessage.Builder<Builder>
-       implements org.rasdaman.rasnet.message.Communication.MessageTypeOrBuilder {
+        com.google.protobuf.GeneratedMessage.Builder<Builder> implements
+        // @@protoc_insertion_point(builder_implements:rasnet.MessageType)
+        org.rasdaman.rasnet.message.Communication.MessageTypeOrBuilder {
       public static final com.google.protobuf.Descriptors.Descriptor
           getDescriptor() {
         return org.rasdaman.rasnet.message.Communication.internal_static_rasnet_MessageType_descriptor;
@@ -402,19 +377,11 @@ public final class Communication {
         if (com.google.protobuf.GeneratedMessage.alwaysUseFieldBuilders) {
         }
       }
-      private static Builder create() {
-        return new Builder();
-      }
-
       public Builder clear() {
         super.clear();
-        type_ = org.rasdaman.rasnet.message.Communication.MessageType.Types.CONNECT_REQUEST;
+        type_ = 1;
         bitField0_ = (bitField0_ & ~0x00000001);
         return this;
-      }
-
-      public Builder clone() {
-        return create().mergeFrom(buildPartial());
       }
 
       public com.google.protobuf.Descriptors.Descriptor
@@ -461,13 +428,13 @@ public final class Communication {
         if (other.hasType()) {
           setType(other.getType());
         }
-        this.mergeUnknownFields(other.getUnknownFields());
+        this.mergeUnknownFields(other.unknownFields);
+        onChanged();
         return this;
       }
 
       public final boolean isInitialized() {
         if (!hasType()) {
-
           return false;
         }
         return true;
@@ -492,8 +459,7 @@ public final class Communication {
       }
       private int bitField0_;
 
-      // required .rasnet.MessageType.Types type = 1;
-      private org.rasdaman.rasnet.message.Communication.MessageType.Types type_ = org.rasdaman.rasnet.message.Communication.MessageType.Types.CONNECT_REQUEST;
+      private int type_ = 1;
       /**
        * <code>required .rasnet.MessageType.Types type = 1;</code>
        */
@@ -504,7 +470,8 @@ public final class Communication {
        * <code>required .rasnet.MessageType.Types type = 1;</code>
        */
       public org.rasdaman.rasnet.message.Communication.MessageType.Types getType() {
-        return type_;
+        org.rasdaman.rasnet.message.Communication.MessageType.Types result = org.rasdaman.rasnet.message.Communication.MessageType.Types.valueOf(type_);
+        return result == null ? org.rasdaman.rasnet.message.Communication.MessageType.Types.CONNECT_REQUEST : result;
       }
       /**
        * <code>required .rasnet.MessageType.Types type = 1;</code>
@@ -514,7 +481,7 @@ public final class Communication {
           throw new NullPointerException();
         }
         bitField0_ |= 0x00000001;
-        type_ = value;
+        type_ = value.getNumber();
         onChanged();
         return this;
       }
@@ -523,7 +490,7 @@ public final class Communication {
        */
       public Builder clearType() {
         bitField0_ = (bitField0_ & ~0x00000001);
-        type_ = org.rasdaman.rasnet.message.Communication.MessageType.Types.CONNECT_REQUEST;
+        type_ = 1;
         onChanged();
         return this;
       }
@@ -531,18 +498,54 @@ public final class Communication {
       // @@protoc_insertion_point(builder_scope:rasnet.MessageType)
     }
 
+    // @@protoc_insertion_point(class_scope:rasnet.MessageType)
+    private static final org.rasdaman.rasnet.message.Communication.MessageType DEFAULT_INSTANCE;
     static {
-      defaultInstance = new MessageType(true);
-      defaultInstance.initFields();
+      DEFAULT_INSTANCE = new org.rasdaman.rasnet.message.Communication.MessageType();
     }
 
-    // @@protoc_insertion_point(class_scope:rasnet.MessageType)
+    public static org.rasdaman.rasnet.message.Communication.MessageType getDefaultInstance() {
+      return DEFAULT_INSTANCE;
+    }
+
+    @java.lang.Deprecated public static final com.google.protobuf.Parser<MessageType>
+        PARSER = new com.google.protobuf.AbstractParser<MessageType>() {
+      public MessageType parsePartialFrom(
+          com.google.protobuf.CodedInputStream input,
+          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+          throws com.google.protobuf.InvalidProtocolBufferException {
+        try {
+          return new MessageType(input, extensionRegistry);
+        } catch (RuntimeException e) {
+          if (e.getCause() instanceof
+              com.google.protobuf.InvalidProtocolBufferException) {
+            throw (com.google.protobuf.InvalidProtocolBufferException)
+                e.getCause();
+          }
+          throw e;
+        }
+      }
+    };
+
+    public static com.google.protobuf.Parser<MessageType> parser() {
+      return PARSER;
+    }
+
+    @java.lang.Override
+    public com.google.protobuf.Parser<MessageType> getParserForType() {
+      return PARSER;
+    }
+
+    public org.rasdaman.rasnet.message.Communication.MessageType getDefaultInstanceForType() {
+      return DEFAULT_INSTANCE;
+    }
+
   }
 
-  public interface ServiceCallStatusOrBuilder
-      extends com.google.protobuf.MessageOrBuilder {
+  public interface ServiceCallStatusOrBuilder extends
+      // @@protoc_insertion_point(interface_extends:rasnet.ServiceCallStatus)
+      com.google.protobuf.MessageOrBuilder {
 
-    // required bool success = 1;
     /**
      * <code>required bool success = 1;</code>
      */
@@ -555,36 +558,27 @@ public final class Communication {
   /**
    * Protobuf type {@code rasnet.ServiceCallStatus}
    */
-  public static final class ServiceCallStatus extends
-      com.google.protobuf.GeneratedMessage
-      implements ServiceCallStatusOrBuilder {
+  public  static final class ServiceCallStatus extends
+      com.google.protobuf.GeneratedMessage implements
+      // @@protoc_insertion_point(message_implements:rasnet.ServiceCallStatus)
+      ServiceCallStatusOrBuilder {
     // Use ServiceCallStatus.newBuilder() to construct.
     private ServiceCallStatus(com.google.protobuf.GeneratedMessage.Builder<?> builder) {
       super(builder);
-      this.unknownFields = builder.getUnknownFields();
     }
-    private ServiceCallStatus(boolean noInit) { this.unknownFields = com.google.protobuf.UnknownFieldSet.getDefaultInstance(); }
-
-    private static final ServiceCallStatus defaultInstance;
-    public static ServiceCallStatus getDefaultInstance() {
-      return defaultInstance;
+    private ServiceCallStatus() {
+      success_ = false;
     }
 
-    public ServiceCallStatus getDefaultInstanceForType() {
-      return defaultInstance;
-    }
-
-    private final com.google.protobuf.UnknownFieldSet unknownFields;
     @java.lang.Override
     public final com.google.protobuf.UnknownFieldSet
-        getUnknownFields() {
+    getUnknownFields() {
       return this.unknownFields;
     }
     private ServiceCallStatus(
         com.google.protobuf.CodedInputStream input,
-        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-        throws com.google.protobuf.InvalidProtocolBufferException {
-      initFields();
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry) {
+      this();
       int mutable_bitField0_ = 0;
       com.google.protobuf.UnknownFieldSet.Builder unknownFields =
           com.google.protobuf.UnknownFieldSet.newBuilder();
@@ -611,10 +605,11 @@ public final class Communication {
           }
         }
       } catch (com.google.protobuf.InvalidProtocolBufferException e) {
-        throw e.setUnfinishedMessage(this);
+        throw new RuntimeException(e.setUnfinishedMessage(this));
       } catch (java.io.IOException e) {
-        throw new com.google.protobuf.InvalidProtocolBufferException(
-            e.getMessage()).setUnfinishedMessage(this);
+        throw new RuntimeException(
+            new com.google.protobuf.InvalidProtocolBufferException(
+                e.getMessage()).setUnfinishedMessage(this));
       } finally {
         this.unknownFields = unknownFields.build();
         makeExtensionsImmutable();
@@ -632,23 +627,7 @@ public final class Communication {
               org.rasdaman.rasnet.message.Communication.ServiceCallStatus.class, org.rasdaman.rasnet.message.Communication.ServiceCallStatus.Builder.class);
     }
 
-    public static com.google.protobuf.Parser<ServiceCallStatus> PARSER =
-        new com.google.protobuf.AbstractParser<ServiceCallStatus>() {
-      public ServiceCallStatus parsePartialFrom(
-          com.google.protobuf.CodedInputStream input,
-          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-          throws com.google.protobuf.InvalidProtocolBufferException {
-        return new ServiceCallStatus(input, extensionRegistry);
-      }
-    };
-
-    @java.lang.Override
-    public com.google.protobuf.Parser<ServiceCallStatus> getParserForType() {
-      return PARSER;
-    }
-
     private int bitField0_;
-    // required bool success = 1;
     public static final int SUCCESS_FIELD_NUMBER = 1;
     private boolean success_;
     /**
@@ -664,13 +643,11 @@ public final class Communication {
       return success_;
     }
 
-    private void initFields() {
-      success_ = false;
-    }
     private byte memoizedIsInitialized = -1;
     public final boolean isInitialized() {
       byte isInitialized = memoizedIsInitialized;
-      if (isInitialized != -1) return isInitialized == 1;
+      if (isInitialized == 1) return true;
+      if (isInitialized == 0) return false;
 
       if (!hasSuccess()) {
         memoizedIsInitialized = 0;
@@ -682,16 +659,14 @@ public final class Communication {
 
     public void writeTo(com.google.protobuf.CodedOutputStream output)
                         throws java.io.IOException {
-      getSerializedSize();
       if (((bitField0_ & 0x00000001) == 0x00000001)) {
         output.writeBool(1, success_);
       }
-      getUnknownFields().writeTo(output);
+      unknownFields.writeTo(output);
     }
 
-    private int memoizedSerializedSize = -1;
     public int getSerializedSize() {
-      int size = memoizedSerializedSize;
+      int size = memoizedSize;
       if (size != -1) return size;
 
       size = 0;
@@ -699,18 +674,12 @@ public final class Communication {
         size += com.google.protobuf.CodedOutputStream
           .computeBoolSize(1, success_);
       }
-      size += getUnknownFields().getSerializedSize();
-      memoizedSerializedSize = size;
+      size += unknownFields.getSerializedSize();
+      memoizedSize = size;
       return size;
     }
 
     private static final long serialVersionUID = 0L;
-    @java.lang.Override
-    protected java.lang.Object writeReplace()
-        throws java.io.ObjectStreamException {
-      return super.writeReplace();
-    }
-
     public static org.rasdaman.rasnet.message.Communication.ServiceCallStatus parseFrom(
         com.google.protobuf.ByteString data)
         throws com.google.protobuf.InvalidProtocolBufferException {
@@ -764,12 +733,17 @@ public final class Communication {
       return PARSER.parseFrom(input, extensionRegistry);
     }
 
-    public static Builder newBuilder() { return Builder.create(); }
     public Builder newBuilderForType() { return newBuilder(); }
-    public static Builder newBuilder(org.rasdaman.rasnet.message.Communication.ServiceCallStatus prototype) {
-      return newBuilder().mergeFrom(prototype);
+    public static Builder newBuilder() {
+      return DEFAULT_INSTANCE.toBuilder();
     }
-    public Builder toBuilder() { return newBuilder(this); }
+    public static Builder newBuilder(org.rasdaman.rasnet.message.Communication.ServiceCallStatus prototype) {
+      return DEFAULT_INSTANCE.toBuilder().mergeFrom(prototype);
+    }
+    public Builder toBuilder() {
+      return this == DEFAULT_INSTANCE
+          ? new Builder() : new Builder().mergeFrom(this);
+    }
 
     @java.lang.Override
     protected Builder newBuilderForType(
@@ -781,8 +755,9 @@ public final class Communication {
      * Protobuf type {@code rasnet.ServiceCallStatus}
      */
     public static final class Builder extends
-        com.google.protobuf.GeneratedMessage.Builder<Builder>
-       implements org.rasdaman.rasnet.message.Communication.ServiceCallStatusOrBuilder {
+        com.google.protobuf.GeneratedMessage.Builder<Builder> implements
+        // @@protoc_insertion_point(builder_implements:rasnet.ServiceCallStatus)
+        org.rasdaman.rasnet.message.Communication.ServiceCallStatusOrBuilder {
       public static final com.google.protobuf.Descriptors.Descriptor
           getDescriptor() {
         return org.rasdaman.rasnet.message.Communication.internal_static_rasnet_ServiceCallStatus_descriptor;
@@ -809,19 +784,11 @@ public final class Communication {
         if (com.google.protobuf.GeneratedMessage.alwaysUseFieldBuilders) {
         }
       }
-      private static Builder create() {
-        return new Builder();
-      }
-
       public Builder clear() {
         super.clear();
         success_ = false;
         bitField0_ = (bitField0_ & ~0x00000001);
         return this;
-      }
-
-      public Builder clone() {
-        return create().mergeFrom(buildPartial());
       }
 
       public com.google.protobuf.Descriptors.Descriptor
@@ -868,13 +835,13 @@ public final class Communication {
         if (other.hasSuccess()) {
           setSuccess(other.getSuccess());
         }
-        this.mergeUnknownFields(other.getUnknownFields());
+        this.mergeUnknownFields(other.unknownFields);
+        onChanged();
         return this;
       }
 
       public final boolean isInitialized() {
         if (!hasSuccess()) {
-
           return false;
         }
         return true;
@@ -899,7 +866,6 @@ public final class Communication {
       }
       private int bitField0_;
 
-      // required bool success = 1;
       private boolean success_ ;
       /**
        * <code>required bool success = 1;</code>
@@ -935,18 +901,54 @@ public final class Communication {
       // @@protoc_insertion_point(builder_scope:rasnet.ServiceCallStatus)
     }
 
+    // @@protoc_insertion_point(class_scope:rasnet.ServiceCallStatus)
+    private static final org.rasdaman.rasnet.message.Communication.ServiceCallStatus DEFAULT_INSTANCE;
     static {
-      defaultInstance = new ServiceCallStatus(true);
-      defaultInstance.initFields();
+      DEFAULT_INSTANCE = new org.rasdaman.rasnet.message.Communication.ServiceCallStatus();
     }
 
-    // @@protoc_insertion_point(class_scope:rasnet.ServiceCallStatus)
+    public static org.rasdaman.rasnet.message.Communication.ServiceCallStatus getDefaultInstance() {
+      return DEFAULT_INSTANCE;
+    }
+
+    @java.lang.Deprecated public static final com.google.protobuf.Parser<ServiceCallStatus>
+        PARSER = new com.google.protobuf.AbstractParser<ServiceCallStatus>() {
+      public ServiceCallStatus parsePartialFrom(
+          com.google.protobuf.CodedInputStream input,
+          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+          throws com.google.protobuf.InvalidProtocolBufferException {
+        try {
+          return new ServiceCallStatus(input, extensionRegistry);
+        } catch (RuntimeException e) {
+          if (e.getCause() instanceof
+              com.google.protobuf.InvalidProtocolBufferException) {
+            throw (com.google.protobuf.InvalidProtocolBufferException)
+                e.getCause();
+          }
+          throw e;
+        }
+      }
+    };
+
+    public static com.google.protobuf.Parser<ServiceCallStatus> parser() {
+      return PARSER;
+    }
+
+    @java.lang.Override
+    public com.google.protobuf.Parser<ServiceCallStatus> getParserForType() {
+      return PARSER;
+    }
+
+    public org.rasdaman.rasnet.message.Communication.ServiceCallStatus getDefaultInstanceForType() {
+      return DEFAULT_INSTANCE;
+    }
+
   }
 
-  public interface ConnectRequestOrBuilder
-      extends com.google.protobuf.MessageOrBuilder {
+  public interface ConnectRequestOrBuilder extends
+      // @@protoc_insertion_point(interface_extends:rasnet.ConnectRequest)
+      com.google.protobuf.MessageOrBuilder {
 
-    // required int32 retries = 1;
     /**
      * <code>required int32 retries = 1;</code>
      *
@@ -966,7 +968,6 @@ public final class Communication {
      */
     int getRetries();
 
-    // required int32 lifetime = 2;
     /**
      * <code>required int32 lifetime = 2;</code>
      *
@@ -995,36 +996,28 @@ public final class Communication {
    * when initiating a connection with the server.
    * </pre>
    */
-  public static final class ConnectRequest extends
-      com.google.protobuf.GeneratedMessage
-      implements ConnectRequestOrBuilder {
+  public  static final class ConnectRequest extends
+      com.google.protobuf.GeneratedMessage implements
+      // @@protoc_insertion_point(message_implements:rasnet.ConnectRequest)
+      ConnectRequestOrBuilder {
     // Use ConnectRequest.newBuilder() to construct.
     private ConnectRequest(com.google.protobuf.GeneratedMessage.Builder<?> builder) {
       super(builder);
-      this.unknownFields = builder.getUnknownFields();
     }
-    private ConnectRequest(boolean noInit) { this.unknownFields = com.google.protobuf.UnknownFieldSet.getDefaultInstance(); }
-
-    private static final ConnectRequest defaultInstance;
-    public static ConnectRequest getDefaultInstance() {
-      return defaultInstance;
+    private ConnectRequest() {
+      retries_ = 0;
+      lifetime_ = 0;
     }
 
-    public ConnectRequest getDefaultInstanceForType() {
-      return defaultInstance;
-    }
-
-    private final com.google.protobuf.UnknownFieldSet unknownFields;
     @java.lang.Override
     public final com.google.protobuf.UnknownFieldSet
-        getUnknownFields() {
+    getUnknownFields() {
       return this.unknownFields;
     }
     private ConnectRequest(
         com.google.protobuf.CodedInputStream input,
-        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-        throws com.google.protobuf.InvalidProtocolBufferException {
-      initFields();
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry) {
+      this();
       int mutable_bitField0_ = 0;
       com.google.protobuf.UnknownFieldSet.Builder unknownFields =
           com.google.protobuf.UnknownFieldSet.newBuilder();
@@ -1056,10 +1049,11 @@ public final class Communication {
           }
         }
       } catch (com.google.protobuf.InvalidProtocolBufferException e) {
-        throw e.setUnfinishedMessage(this);
+        throw new RuntimeException(e.setUnfinishedMessage(this));
       } catch (java.io.IOException e) {
-        throw new com.google.protobuf.InvalidProtocolBufferException(
-            e.getMessage()).setUnfinishedMessage(this);
+        throw new RuntimeException(
+            new com.google.protobuf.InvalidProtocolBufferException(
+                e.getMessage()).setUnfinishedMessage(this));
       } finally {
         this.unknownFields = unknownFields.build();
         makeExtensionsImmutable();
@@ -1077,23 +1071,7 @@ public final class Communication {
               org.rasdaman.rasnet.message.Communication.ConnectRequest.class, org.rasdaman.rasnet.message.Communication.ConnectRequest.Builder.class);
     }
 
-    public static com.google.protobuf.Parser<ConnectRequest> PARSER =
-        new com.google.protobuf.AbstractParser<ConnectRequest>() {
-      public ConnectRequest parsePartialFrom(
-          com.google.protobuf.CodedInputStream input,
-          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-          throws com.google.protobuf.InvalidProtocolBufferException {
-        return new ConnectRequest(input, extensionRegistry);
-      }
-    };
-
-    @java.lang.Override
-    public com.google.protobuf.Parser<ConnectRequest> getParserForType() {
-      return PARSER;
-    }
-
     private int bitField0_;
-    // required int32 retries = 1;
     public static final int RETRIES_FIELD_NUMBER = 1;
     private int retries_;
     /**
@@ -1119,7 +1097,6 @@ public final class Communication {
       return retries_;
     }
 
-    // required int32 lifetime = 2;
     public static final int LIFETIME_FIELD_NUMBER = 2;
     private int lifetime_;
     /**
@@ -1145,14 +1122,11 @@ public final class Communication {
       return lifetime_;
     }
 
-    private void initFields() {
-      retries_ = 0;
-      lifetime_ = 0;
-    }
     private byte memoizedIsInitialized = -1;
     public final boolean isInitialized() {
       byte isInitialized = memoizedIsInitialized;
-      if (isInitialized != -1) return isInitialized == 1;
+      if (isInitialized == 1) return true;
+      if (isInitialized == 0) return false;
 
       if (!hasRetries()) {
         memoizedIsInitialized = 0;
@@ -1168,19 +1142,17 @@ public final class Communication {
 
     public void writeTo(com.google.protobuf.CodedOutputStream output)
                         throws java.io.IOException {
-      getSerializedSize();
       if (((bitField0_ & 0x00000001) == 0x00000001)) {
         output.writeInt32(1, retries_);
       }
       if (((bitField0_ & 0x00000002) == 0x00000002)) {
         output.writeInt32(2, lifetime_);
       }
-      getUnknownFields().writeTo(output);
+      unknownFields.writeTo(output);
     }
 
-    private int memoizedSerializedSize = -1;
     public int getSerializedSize() {
-      int size = memoizedSerializedSize;
+      int size = memoizedSize;
       if (size != -1) return size;
 
       size = 0;
@@ -1192,18 +1164,12 @@ public final class Communication {
         size += com.google.protobuf.CodedOutputStream
           .computeInt32Size(2, lifetime_);
       }
-      size += getUnknownFields().getSerializedSize();
-      memoizedSerializedSize = size;
+      size += unknownFields.getSerializedSize();
+      memoizedSize = size;
       return size;
     }
 
     private static final long serialVersionUID = 0L;
-    @java.lang.Override
-    protected java.lang.Object writeReplace()
-        throws java.io.ObjectStreamException {
-      return super.writeReplace();
-    }
-
     public static org.rasdaman.rasnet.message.Communication.ConnectRequest parseFrom(
         com.google.protobuf.ByteString data)
         throws com.google.protobuf.InvalidProtocolBufferException {
@@ -1257,12 +1223,17 @@ public final class Communication {
       return PARSER.parseFrom(input, extensionRegistry);
     }
 
-    public static Builder newBuilder() { return Builder.create(); }
     public Builder newBuilderForType() { return newBuilder(); }
-    public static Builder newBuilder(org.rasdaman.rasnet.message.Communication.ConnectRequest prototype) {
-      return newBuilder().mergeFrom(prototype);
+    public static Builder newBuilder() {
+      return DEFAULT_INSTANCE.toBuilder();
     }
-    public Builder toBuilder() { return newBuilder(this); }
+    public static Builder newBuilder(org.rasdaman.rasnet.message.Communication.ConnectRequest prototype) {
+      return DEFAULT_INSTANCE.toBuilder().mergeFrom(prototype);
+    }
+    public Builder toBuilder() {
+      return this == DEFAULT_INSTANCE
+          ? new Builder() : new Builder().mergeFrom(this);
+    }
 
     @java.lang.Override
     protected Builder newBuilderForType(
@@ -1280,8 +1251,9 @@ public final class Communication {
      * </pre>
      */
     public static final class Builder extends
-        com.google.protobuf.GeneratedMessage.Builder<Builder>
-       implements org.rasdaman.rasnet.message.Communication.ConnectRequestOrBuilder {
+        com.google.protobuf.GeneratedMessage.Builder<Builder> implements
+        // @@protoc_insertion_point(builder_implements:rasnet.ConnectRequest)
+        org.rasdaman.rasnet.message.Communication.ConnectRequestOrBuilder {
       public static final com.google.protobuf.Descriptors.Descriptor
           getDescriptor() {
         return org.rasdaman.rasnet.message.Communication.internal_static_rasnet_ConnectRequest_descriptor;
@@ -1308,10 +1280,6 @@ public final class Communication {
         if (com.google.protobuf.GeneratedMessage.alwaysUseFieldBuilders) {
         }
       }
-      private static Builder create() {
-        return new Builder();
-      }
-
       public Builder clear() {
         super.clear();
         retries_ = 0;
@@ -1319,10 +1287,6 @@ public final class Communication {
         lifetime_ = 0;
         bitField0_ = (bitField0_ & ~0x00000002);
         return this;
-      }
-
-      public Builder clone() {
-        return create().mergeFrom(buildPartial());
       }
 
       public com.google.protobuf.Descriptors.Descriptor
@@ -1376,17 +1340,16 @@ public final class Communication {
         if (other.hasLifetime()) {
           setLifetime(other.getLifetime());
         }
-        this.mergeUnknownFields(other.getUnknownFields());
+        this.mergeUnknownFields(other.unknownFields);
+        onChanged();
         return this;
       }
 
       public final boolean isInitialized() {
         if (!hasRetries()) {
-
           return false;
         }
         if (!hasLifetime()) {
-
           return false;
         }
         return true;
@@ -1411,7 +1374,6 @@ public final class Communication {
       }
       private int bitField0_;
 
-      // required int32 retries = 1;
       private int retries_ ;
       /**
        * <code>required int32 retries = 1;</code>
@@ -1464,7 +1426,6 @@ public final class Communication {
         return this;
       }
 
-      // required int32 lifetime = 2;
       private int lifetime_ ;
       /**
        * <code>required int32 lifetime = 2;</code>
@@ -1520,18 +1481,54 @@ public final class Communication {
       // @@protoc_insertion_point(builder_scope:rasnet.ConnectRequest)
     }
 
+    // @@protoc_insertion_point(class_scope:rasnet.ConnectRequest)
+    private static final org.rasdaman.rasnet.message.Communication.ConnectRequest DEFAULT_INSTANCE;
     static {
-      defaultInstance = new ConnectRequest(true);
-      defaultInstance.initFields();
+      DEFAULT_INSTANCE = new org.rasdaman.rasnet.message.Communication.ConnectRequest();
     }
 
-    // @@protoc_insertion_point(class_scope:rasnet.ConnectRequest)
+    public static org.rasdaman.rasnet.message.Communication.ConnectRequest getDefaultInstance() {
+      return DEFAULT_INSTANCE;
+    }
+
+    @java.lang.Deprecated public static final com.google.protobuf.Parser<ConnectRequest>
+        PARSER = new com.google.protobuf.AbstractParser<ConnectRequest>() {
+      public ConnectRequest parsePartialFrom(
+          com.google.protobuf.CodedInputStream input,
+          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+          throws com.google.protobuf.InvalidProtocolBufferException {
+        try {
+          return new ConnectRequest(input, extensionRegistry);
+        } catch (RuntimeException e) {
+          if (e.getCause() instanceof
+              com.google.protobuf.InvalidProtocolBufferException) {
+            throw (com.google.protobuf.InvalidProtocolBufferException)
+                e.getCause();
+          }
+          throw e;
+        }
+      }
+    };
+
+    public static com.google.protobuf.Parser<ConnectRequest> parser() {
+      return PARSER;
+    }
+
+    @java.lang.Override
+    public com.google.protobuf.Parser<ConnectRequest> getParserForType() {
+      return PARSER;
+    }
+
+    public org.rasdaman.rasnet.message.Communication.ConnectRequest getDefaultInstanceForType() {
+      return DEFAULT_INSTANCE;
+    }
+
   }
 
-  public interface ConnectReplyOrBuilder
-      extends com.google.protobuf.MessageOrBuilder {
+  public interface ConnectReplyOrBuilder extends
+      // @@protoc_insertion_point(interface_extends:rasnet.ConnectReply)
+      com.google.protobuf.MessageOrBuilder {
 
-    // required int32 retries = 1;
     /**
      * <code>required int32 retries = 1;</code>
      *
@@ -1551,7 +1548,6 @@ public final class Communication {
      */
     int getRetries();
 
-    // required int32 lifetime = 2;
     /**
      * <code>required int32 lifetime = 2;</code>
      *
@@ -1577,36 +1573,28 @@ public final class Communication {
    * A ConnectReply message is sent by the server after receiving a ConnectRequest from a client.
    * </pre>
    */
-  public static final class ConnectReply extends
-      com.google.protobuf.GeneratedMessage
-      implements ConnectReplyOrBuilder {
+  public  static final class ConnectReply extends
+      com.google.protobuf.GeneratedMessage implements
+      // @@protoc_insertion_point(message_implements:rasnet.ConnectReply)
+      ConnectReplyOrBuilder {
     // Use ConnectReply.newBuilder() to construct.
     private ConnectReply(com.google.protobuf.GeneratedMessage.Builder<?> builder) {
       super(builder);
-      this.unknownFields = builder.getUnknownFields();
     }
-    private ConnectReply(boolean noInit) { this.unknownFields = com.google.protobuf.UnknownFieldSet.getDefaultInstance(); }
-
-    private static final ConnectReply defaultInstance;
-    public static ConnectReply getDefaultInstance() {
-      return defaultInstance;
+    private ConnectReply() {
+      retries_ = 0;
+      lifetime_ = 0;
     }
 
-    public ConnectReply getDefaultInstanceForType() {
-      return defaultInstance;
-    }
-
-    private final com.google.protobuf.UnknownFieldSet unknownFields;
     @java.lang.Override
     public final com.google.protobuf.UnknownFieldSet
-        getUnknownFields() {
+    getUnknownFields() {
       return this.unknownFields;
     }
     private ConnectReply(
         com.google.protobuf.CodedInputStream input,
-        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-        throws com.google.protobuf.InvalidProtocolBufferException {
-      initFields();
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry) {
+      this();
       int mutable_bitField0_ = 0;
       com.google.protobuf.UnknownFieldSet.Builder unknownFields =
           com.google.protobuf.UnknownFieldSet.newBuilder();
@@ -1638,10 +1626,11 @@ public final class Communication {
           }
         }
       } catch (com.google.protobuf.InvalidProtocolBufferException e) {
-        throw e.setUnfinishedMessage(this);
+        throw new RuntimeException(e.setUnfinishedMessage(this));
       } catch (java.io.IOException e) {
-        throw new com.google.protobuf.InvalidProtocolBufferException(
-            e.getMessage()).setUnfinishedMessage(this);
+        throw new RuntimeException(
+            new com.google.protobuf.InvalidProtocolBufferException(
+                e.getMessage()).setUnfinishedMessage(this));
       } finally {
         this.unknownFields = unknownFields.build();
         makeExtensionsImmutable();
@@ -1659,23 +1648,7 @@ public final class Communication {
               org.rasdaman.rasnet.message.Communication.ConnectReply.class, org.rasdaman.rasnet.message.Communication.ConnectReply.Builder.class);
     }
 
-    public static com.google.protobuf.Parser<ConnectReply> PARSER =
-        new com.google.protobuf.AbstractParser<ConnectReply>() {
-      public ConnectReply parsePartialFrom(
-          com.google.protobuf.CodedInputStream input,
-          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-          throws com.google.protobuf.InvalidProtocolBufferException {
-        return new ConnectReply(input, extensionRegistry);
-      }
-    };
-
-    @java.lang.Override
-    public com.google.protobuf.Parser<ConnectReply> getParserForType() {
-      return PARSER;
-    }
-
     private int bitField0_;
-    // required int32 retries = 1;
     public static final int RETRIES_FIELD_NUMBER = 1;
     private int retries_;
     /**
@@ -1701,7 +1674,6 @@ public final class Communication {
       return retries_;
     }
 
-    // required int32 lifetime = 2;
     public static final int LIFETIME_FIELD_NUMBER = 2;
     private int lifetime_;
     /**
@@ -1725,14 +1697,11 @@ public final class Communication {
       return lifetime_;
     }
 
-    private void initFields() {
-      retries_ = 0;
-      lifetime_ = 0;
-    }
     private byte memoizedIsInitialized = -1;
     public final boolean isInitialized() {
       byte isInitialized = memoizedIsInitialized;
-      if (isInitialized != -1) return isInitialized == 1;
+      if (isInitialized == 1) return true;
+      if (isInitialized == 0) return false;
 
       if (!hasRetries()) {
         memoizedIsInitialized = 0;
@@ -1748,19 +1717,17 @@ public final class Communication {
 
     public void writeTo(com.google.protobuf.CodedOutputStream output)
                         throws java.io.IOException {
-      getSerializedSize();
       if (((bitField0_ & 0x00000001) == 0x00000001)) {
         output.writeInt32(1, retries_);
       }
       if (((bitField0_ & 0x00000002) == 0x00000002)) {
         output.writeInt32(2, lifetime_);
       }
-      getUnknownFields().writeTo(output);
+      unknownFields.writeTo(output);
     }
 
-    private int memoizedSerializedSize = -1;
     public int getSerializedSize() {
-      int size = memoizedSerializedSize;
+      int size = memoizedSize;
       if (size != -1) return size;
 
       size = 0;
@@ -1772,18 +1739,12 @@ public final class Communication {
         size += com.google.protobuf.CodedOutputStream
           .computeInt32Size(2, lifetime_);
       }
-      size += getUnknownFields().getSerializedSize();
-      memoizedSerializedSize = size;
+      size += unknownFields.getSerializedSize();
+      memoizedSize = size;
       return size;
     }
 
     private static final long serialVersionUID = 0L;
-    @java.lang.Override
-    protected java.lang.Object writeReplace()
-        throws java.io.ObjectStreamException {
-      return super.writeReplace();
-    }
-
     public static org.rasdaman.rasnet.message.Communication.ConnectReply parseFrom(
         com.google.protobuf.ByteString data)
         throws com.google.protobuf.InvalidProtocolBufferException {
@@ -1837,12 +1798,17 @@ public final class Communication {
       return PARSER.parseFrom(input, extensionRegistry);
     }
 
-    public static Builder newBuilder() { return Builder.create(); }
     public Builder newBuilderForType() { return newBuilder(); }
-    public static Builder newBuilder(org.rasdaman.rasnet.message.Communication.ConnectReply prototype) {
-      return newBuilder().mergeFrom(prototype);
+    public static Builder newBuilder() {
+      return DEFAULT_INSTANCE.toBuilder();
     }
-    public Builder toBuilder() { return newBuilder(this); }
+    public static Builder newBuilder(org.rasdaman.rasnet.message.Communication.ConnectReply prototype) {
+      return DEFAULT_INSTANCE.toBuilder().mergeFrom(prototype);
+    }
+    public Builder toBuilder() {
+      return this == DEFAULT_INSTANCE
+          ? new Builder() : new Builder().mergeFrom(this);
+    }
 
     @java.lang.Override
     protected Builder newBuilderForType(
@@ -1859,8 +1825,9 @@ public final class Communication {
      * </pre>
      */
     public static final class Builder extends
-        com.google.protobuf.GeneratedMessage.Builder<Builder>
-       implements org.rasdaman.rasnet.message.Communication.ConnectReplyOrBuilder {
+        com.google.protobuf.GeneratedMessage.Builder<Builder> implements
+        // @@protoc_insertion_point(builder_implements:rasnet.ConnectReply)
+        org.rasdaman.rasnet.message.Communication.ConnectReplyOrBuilder {
       public static final com.google.protobuf.Descriptors.Descriptor
           getDescriptor() {
         return org.rasdaman.rasnet.message.Communication.internal_static_rasnet_ConnectReply_descriptor;
@@ -1887,10 +1854,6 @@ public final class Communication {
         if (com.google.protobuf.GeneratedMessage.alwaysUseFieldBuilders) {
         }
       }
-      private static Builder create() {
-        return new Builder();
-      }
-
       public Builder clear() {
         super.clear();
         retries_ = 0;
@@ -1898,10 +1861,6 @@ public final class Communication {
         lifetime_ = 0;
         bitField0_ = (bitField0_ & ~0x00000002);
         return this;
-      }
-
-      public Builder clone() {
-        return create().mergeFrom(buildPartial());
       }
 
       public com.google.protobuf.Descriptors.Descriptor
@@ -1955,17 +1914,16 @@ public final class Communication {
         if (other.hasLifetime()) {
           setLifetime(other.getLifetime());
         }
-        this.mergeUnknownFields(other.getUnknownFields());
+        this.mergeUnknownFields(other.unknownFields);
+        onChanged();
         return this;
       }
 
       public final boolean isInitialized() {
         if (!hasRetries()) {
-
           return false;
         }
         if (!hasLifetime()) {
-
           return false;
         }
         return true;
@@ -1990,7 +1948,6 @@ public final class Communication {
       }
       private int bitField0_;
 
-      // required int32 retries = 1;
       private int retries_ ;
       /**
        * <code>required int32 retries = 1;</code>
@@ -2043,7 +2000,6 @@ public final class Communication {
         return this;
       }
 
-      // required int32 lifetime = 2;
       private int lifetime_ ;
       /**
        * <code>required int32 lifetime = 2;</code>
@@ -2095,16 +2051,53 @@ public final class Communication {
       // @@protoc_insertion_point(builder_scope:rasnet.ConnectReply)
     }
 
+    // @@protoc_insertion_point(class_scope:rasnet.ConnectReply)
+    private static final org.rasdaman.rasnet.message.Communication.ConnectReply DEFAULT_INSTANCE;
     static {
-      defaultInstance = new ConnectReply(true);
-      defaultInstance.initFields();
+      DEFAULT_INSTANCE = new org.rasdaman.rasnet.message.Communication.ConnectReply();
     }
 
-    // @@protoc_insertion_point(class_scope:rasnet.ConnectReply)
+    public static org.rasdaman.rasnet.message.Communication.ConnectReply getDefaultInstance() {
+      return DEFAULT_INSTANCE;
+    }
+
+    @java.lang.Deprecated public static final com.google.protobuf.Parser<ConnectReply>
+        PARSER = new com.google.protobuf.AbstractParser<ConnectReply>() {
+      public ConnectReply parsePartialFrom(
+          com.google.protobuf.CodedInputStream input,
+          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+          throws com.google.protobuf.InvalidProtocolBufferException {
+        try {
+          return new ConnectReply(input, extensionRegistry);
+        } catch (RuntimeException e) {
+          if (e.getCause() instanceof
+              com.google.protobuf.InvalidProtocolBufferException) {
+            throw (com.google.protobuf.InvalidProtocolBufferException)
+                e.getCause();
+          }
+          throw e;
+        }
+      }
+    };
+
+    public static com.google.protobuf.Parser<ConnectReply> parser() {
+      return PARSER;
+    }
+
+    @java.lang.Override
+    public com.google.protobuf.Parser<ConnectReply> getParserForType() {
+      return PARSER;
+    }
+
+    public org.rasdaman.rasnet.message.Communication.ConnectReply getDefaultInstanceForType() {
+      return DEFAULT_INSTANCE;
+    }
+
   }
 
-  public interface AlivePingOrBuilder
-      extends com.google.protobuf.MessageOrBuilder {
+  public interface AlivePingOrBuilder extends
+      // @@protoc_insertion_point(interface_extends:rasnet.AlivePing)
+      com.google.protobuf.MessageOrBuilder {
   }
   /**
    * Protobuf type {@code rasnet.AlivePing}
@@ -2114,36 +2107,26 @@ public final class Communication {
    * An AlivePing message is sent by a peer when it wants to see if another peer is alive
    * </pre>
    */
-  public static final class AlivePing extends
-      com.google.protobuf.GeneratedMessage
-      implements AlivePingOrBuilder {
+  public  static final class AlivePing extends
+      com.google.protobuf.GeneratedMessage implements
+      // @@protoc_insertion_point(message_implements:rasnet.AlivePing)
+      AlivePingOrBuilder {
     // Use AlivePing.newBuilder() to construct.
     private AlivePing(com.google.protobuf.GeneratedMessage.Builder<?> builder) {
       super(builder);
-      this.unknownFields = builder.getUnknownFields();
     }
-    private AlivePing(boolean noInit) { this.unknownFields = com.google.protobuf.UnknownFieldSet.getDefaultInstance(); }
-
-    private static final AlivePing defaultInstance;
-    public static AlivePing getDefaultInstance() {
-      return defaultInstance;
+    private AlivePing() {
     }
 
-    public AlivePing getDefaultInstanceForType() {
-      return defaultInstance;
-    }
-
-    private final com.google.protobuf.UnknownFieldSet unknownFields;
     @java.lang.Override
     public final com.google.protobuf.UnknownFieldSet
-        getUnknownFields() {
+    getUnknownFields() {
       return this.unknownFields;
     }
     private AlivePing(
         com.google.protobuf.CodedInputStream input,
-        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-        throws com.google.protobuf.InvalidProtocolBufferException {
-      initFields();
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry) {
+      this();
       com.google.protobuf.UnknownFieldSet.Builder unknownFields =
           com.google.protobuf.UnknownFieldSet.newBuilder();
       try {
@@ -2164,10 +2147,11 @@ public final class Communication {
           }
         }
       } catch (com.google.protobuf.InvalidProtocolBufferException e) {
-        throw e.setUnfinishedMessage(this);
+        throw new RuntimeException(e.setUnfinishedMessage(this));
       } catch (java.io.IOException e) {
-        throw new com.google.protobuf.InvalidProtocolBufferException(
-            e.getMessage()).setUnfinishedMessage(this);
+        throw new RuntimeException(
+            new com.google.protobuf.InvalidProtocolBufferException(
+                e.getMessage()).setUnfinishedMessage(this));
       } finally {
         this.unknownFields = unknownFields.build();
         makeExtensionsImmutable();
@@ -2185,27 +2169,11 @@ public final class Communication {
               org.rasdaman.rasnet.message.Communication.AlivePing.class, org.rasdaman.rasnet.message.Communication.AlivePing.Builder.class);
     }
 
-    public static com.google.protobuf.Parser<AlivePing> PARSER =
-        new com.google.protobuf.AbstractParser<AlivePing>() {
-      public AlivePing parsePartialFrom(
-          com.google.protobuf.CodedInputStream input,
-          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-          throws com.google.protobuf.InvalidProtocolBufferException {
-        return new AlivePing(input, extensionRegistry);
-      }
-    };
-
-    @java.lang.Override
-    public com.google.protobuf.Parser<AlivePing> getParserForType() {
-      return PARSER;
-    }
-
-    private void initFields() {
-    }
     private byte memoizedIsInitialized = -1;
     public final boolean isInitialized() {
       byte isInitialized = memoizedIsInitialized;
-      if (isInitialized != -1) return isInitialized == 1;
+      if (isInitialized == 1) return true;
+      if (isInitialized == 0) return false;
 
       memoizedIsInitialized = 1;
       return true;
@@ -2213,28 +2181,20 @@ public final class Communication {
 
     public void writeTo(com.google.protobuf.CodedOutputStream output)
                         throws java.io.IOException {
-      getSerializedSize();
-      getUnknownFields().writeTo(output);
+      unknownFields.writeTo(output);
     }
 
-    private int memoizedSerializedSize = -1;
     public int getSerializedSize() {
-      int size = memoizedSerializedSize;
+      int size = memoizedSize;
       if (size != -1) return size;
 
       size = 0;
-      size += getUnknownFields().getSerializedSize();
-      memoizedSerializedSize = size;
+      size += unknownFields.getSerializedSize();
+      memoizedSize = size;
       return size;
     }
 
     private static final long serialVersionUID = 0L;
-    @java.lang.Override
-    protected java.lang.Object writeReplace()
-        throws java.io.ObjectStreamException {
-      return super.writeReplace();
-    }
-
     public static org.rasdaman.rasnet.message.Communication.AlivePing parseFrom(
         com.google.protobuf.ByteString data)
         throws com.google.protobuf.InvalidProtocolBufferException {
@@ -2288,12 +2248,17 @@ public final class Communication {
       return PARSER.parseFrom(input, extensionRegistry);
     }
 
-    public static Builder newBuilder() { return Builder.create(); }
     public Builder newBuilderForType() { return newBuilder(); }
-    public static Builder newBuilder(org.rasdaman.rasnet.message.Communication.AlivePing prototype) {
-      return newBuilder().mergeFrom(prototype);
+    public static Builder newBuilder() {
+      return DEFAULT_INSTANCE.toBuilder();
     }
-    public Builder toBuilder() { return newBuilder(this); }
+    public static Builder newBuilder(org.rasdaman.rasnet.message.Communication.AlivePing prototype) {
+      return DEFAULT_INSTANCE.toBuilder().mergeFrom(prototype);
+    }
+    public Builder toBuilder() {
+      return this == DEFAULT_INSTANCE
+          ? new Builder() : new Builder().mergeFrom(this);
+    }
 
     @java.lang.Override
     protected Builder newBuilderForType(
@@ -2310,8 +2275,9 @@ public final class Communication {
      * </pre>
      */
     public static final class Builder extends
-        com.google.protobuf.GeneratedMessage.Builder<Builder>
-       implements org.rasdaman.rasnet.message.Communication.AlivePingOrBuilder {
+        com.google.protobuf.GeneratedMessage.Builder<Builder> implements
+        // @@protoc_insertion_point(builder_implements:rasnet.AlivePing)
+        org.rasdaman.rasnet.message.Communication.AlivePingOrBuilder {
       public static final com.google.protobuf.Descriptors.Descriptor
           getDescriptor() {
         return org.rasdaman.rasnet.message.Communication.internal_static_rasnet_AlivePing_descriptor;
@@ -2338,17 +2304,9 @@ public final class Communication {
         if (com.google.protobuf.GeneratedMessage.alwaysUseFieldBuilders) {
         }
       }
-      private static Builder create() {
-        return new Builder();
-      }
-
       public Builder clear() {
         super.clear();
         return this;
-      }
-
-      public Builder clone() {
-        return create().mergeFrom(buildPartial());
       }
 
       public com.google.protobuf.Descriptors.Descriptor
@@ -2385,7 +2343,8 @@ public final class Communication {
 
       public Builder mergeFrom(org.rasdaman.rasnet.message.Communication.AlivePing other) {
         if (other == org.rasdaman.rasnet.message.Communication.AlivePing.getDefaultInstance()) return this;
-        this.mergeUnknownFields(other.getUnknownFields());
+        this.mergeUnknownFields(other.unknownFields);
+        onChanged();
         return this;
       }
 
@@ -2414,16 +2373,53 @@ public final class Communication {
       // @@protoc_insertion_point(builder_scope:rasnet.AlivePing)
     }
 
+    // @@protoc_insertion_point(class_scope:rasnet.AlivePing)
+    private static final org.rasdaman.rasnet.message.Communication.AlivePing DEFAULT_INSTANCE;
     static {
-      defaultInstance = new AlivePing(true);
-      defaultInstance.initFields();
+      DEFAULT_INSTANCE = new org.rasdaman.rasnet.message.Communication.AlivePing();
     }
 
-    // @@protoc_insertion_point(class_scope:rasnet.AlivePing)
+    public static org.rasdaman.rasnet.message.Communication.AlivePing getDefaultInstance() {
+      return DEFAULT_INSTANCE;
+    }
+
+    @java.lang.Deprecated public static final com.google.protobuf.Parser<AlivePing>
+        PARSER = new com.google.protobuf.AbstractParser<AlivePing>() {
+      public AlivePing parsePartialFrom(
+          com.google.protobuf.CodedInputStream input,
+          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+          throws com.google.protobuf.InvalidProtocolBufferException {
+        try {
+          return new AlivePing(input, extensionRegistry);
+        } catch (RuntimeException e) {
+          if (e.getCause() instanceof
+              com.google.protobuf.InvalidProtocolBufferException) {
+            throw (com.google.protobuf.InvalidProtocolBufferException)
+                e.getCause();
+          }
+          throw e;
+        }
+      }
+    };
+
+    public static com.google.protobuf.Parser<AlivePing> parser() {
+      return PARSER;
+    }
+
+    @java.lang.Override
+    public com.google.protobuf.Parser<AlivePing> getParserForType() {
+      return PARSER;
+    }
+
+    public org.rasdaman.rasnet.message.Communication.AlivePing getDefaultInstanceForType() {
+      return DEFAULT_INSTANCE;
+    }
+
   }
 
-  public interface AlivePongOrBuilder
-      extends com.google.protobuf.MessageOrBuilder {
+  public interface AlivePongOrBuilder extends
+      // @@protoc_insertion_point(interface_extends:rasnet.AlivePong)
+      com.google.protobuf.MessageOrBuilder {
   }
   /**
    * Protobuf type {@code rasnet.AlivePong}
@@ -2433,36 +2429,26 @@ public final class Communication {
    * An AlivePong message is sent by a peer as a response to an AlivePing message.
    * </pre>
    */
-  public static final class AlivePong extends
-      com.google.protobuf.GeneratedMessage
-      implements AlivePongOrBuilder {
+  public  static final class AlivePong extends
+      com.google.protobuf.GeneratedMessage implements
+      // @@protoc_insertion_point(message_implements:rasnet.AlivePong)
+      AlivePongOrBuilder {
     // Use AlivePong.newBuilder() to construct.
     private AlivePong(com.google.protobuf.GeneratedMessage.Builder<?> builder) {
       super(builder);
-      this.unknownFields = builder.getUnknownFields();
     }
-    private AlivePong(boolean noInit) { this.unknownFields = com.google.protobuf.UnknownFieldSet.getDefaultInstance(); }
-
-    private static final AlivePong defaultInstance;
-    public static AlivePong getDefaultInstance() {
-      return defaultInstance;
+    private AlivePong() {
     }
 
-    public AlivePong getDefaultInstanceForType() {
-      return defaultInstance;
-    }
-
-    private final com.google.protobuf.UnknownFieldSet unknownFields;
     @java.lang.Override
     public final com.google.protobuf.UnknownFieldSet
-        getUnknownFields() {
+    getUnknownFields() {
       return this.unknownFields;
     }
     private AlivePong(
         com.google.protobuf.CodedInputStream input,
-        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-        throws com.google.protobuf.InvalidProtocolBufferException {
-      initFields();
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry) {
+      this();
       com.google.protobuf.UnknownFieldSet.Builder unknownFields =
           com.google.protobuf.UnknownFieldSet.newBuilder();
       try {
@@ -2483,10 +2469,11 @@ public final class Communication {
           }
         }
       } catch (com.google.protobuf.InvalidProtocolBufferException e) {
-        throw e.setUnfinishedMessage(this);
+        throw new RuntimeException(e.setUnfinishedMessage(this));
       } catch (java.io.IOException e) {
-        throw new com.google.protobuf.InvalidProtocolBufferException(
-            e.getMessage()).setUnfinishedMessage(this);
+        throw new RuntimeException(
+            new com.google.protobuf.InvalidProtocolBufferException(
+                e.getMessage()).setUnfinishedMessage(this));
       } finally {
         this.unknownFields = unknownFields.build();
         makeExtensionsImmutable();
@@ -2504,27 +2491,11 @@ public final class Communication {
               org.rasdaman.rasnet.message.Communication.AlivePong.class, org.rasdaman.rasnet.message.Communication.AlivePong.Builder.class);
     }
 
-    public static com.google.protobuf.Parser<AlivePong> PARSER =
-        new com.google.protobuf.AbstractParser<AlivePong>() {
-      public AlivePong parsePartialFrom(
-          com.google.protobuf.CodedInputStream input,
-          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-          throws com.google.protobuf.InvalidProtocolBufferException {
-        return new AlivePong(input, extensionRegistry);
-      }
-    };
-
-    @java.lang.Override
-    public com.google.protobuf.Parser<AlivePong> getParserForType() {
-      return PARSER;
-    }
-
-    private void initFields() {
-    }
     private byte memoizedIsInitialized = -1;
     public final boolean isInitialized() {
       byte isInitialized = memoizedIsInitialized;
-      if (isInitialized != -1) return isInitialized == 1;
+      if (isInitialized == 1) return true;
+      if (isInitialized == 0) return false;
 
       memoizedIsInitialized = 1;
       return true;
@@ -2532,28 +2503,20 @@ public final class Communication {
 
     public void writeTo(com.google.protobuf.CodedOutputStream output)
                         throws java.io.IOException {
-      getSerializedSize();
-      getUnknownFields().writeTo(output);
+      unknownFields.writeTo(output);
     }
 
-    private int memoizedSerializedSize = -1;
     public int getSerializedSize() {
-      int size = memoizedSerializedSize;
+      int size = memoizedSize;
       if (size != -1) return size;
 
       size = 0;
-      size += getUnknownFields().getSerializedSize();
-      memoizedSerializedSize = size;
+      size += unknownFields.getSerializedSize();
+      memoizedSize = size;
       return size;
     }
 
     private static final long serialVersionUID = 0L;
-    @java.lang.Override
-    protected java.lang.Object writeReplace()
-        throws java.io.ObjectStreamException {
-      return super.writeReplace();
-    }
-
     public static org.rasdaman.rasnet.message.Communication.AlivePong parseFrom(
         com.google.protobuf.ByteString data)
         throws com.google.protobuf.InvalidProtocolBufferException {
@@ -2607,12 +2570,17 @@ public final class Communication {
       return PARSER.parseFrom(input, extensionRegistry);
     }
 
-    public static Builder newBuilder() { return Builder.create(); }
     public Builder newBuilderForType() { return newBuilder(); }
-    public static Builder newBuilder(org.rasdaman.rasnet.message.Communication.AlivePong prototype) {
-      return newBuilder().mergeFrom(prototype);
+    public static Builder newBuilder() {
+      return DEFAULT_INSTANCE.toBuilder();
     }
-    public Builder toBuilder() { return newBuilder(this); }
+    public static Builder newBuilder(org.rasdaman.rasnet.message.Communication.AlivePong prototype) {
+      return DEFAULT_INSTANCE.toBuilder().mergeFrom(prototype);
+    }
+    public Builder toBuilder() {
+      return this == DEFAULT_INSTANCE
+          ? new Builder() : new Builder().mergeFrom(this);
+    }
 
     @java.lang.Override
     protected Builder newBuilderForType(
@@ -2629,8 +2597,9 @@ public final class Communication {
      * </pre>
      */
     public static final class Builder extends
-        com.google.protobuf.GeneratedMessage.Builder<Builder>
-       implements org.rasdaman.rasnet.message.Communication.AlivePongOrBuilder {
+        com.google.protobuf.GeneratedMessage.Builder<Builder> implements
+        // @@protoc_insertion_point(builder_implements:rasnet.AlivePong)
+        org.rasdaman.rasnet.message.Communication.AlivePongOrBuilder {
       public static final com.google.protobuf.Descriptors.Descriptor
           getDescriptor() {
         return org.rasdaman.rasnet.message.Communication.internal_static_rasnet_AlivePong_descriptor;
@@ -2657,17 +2626,9 @@ public final class Communication {
         if (com.google.protobuf.GeneratedMessage.alwaysUseFieldBuilders) {
         }
       }
-      private static Builder create() {
-        return new Builder();
-      }
-
       public Builder clear() {
         super.clear();
         return this;
-      }
-
-      public Builder clone() {
-        return create().mergeFrom(buildPartial());
       }
 
       public com.google.protobuf.Descriptors.Descriptor
@@ -2704,7 +2665,8 @@ public final class Communication {
 
       public Builder mergeFrom(org.rasdaman.rasnet.message.Communication.AlivePong other) {
         if (other == org.rasdaman.rasnet.message.Communication.AlivePong.getDefaultInstance()) return this;
-        this.mergeUnknownFields(other.getUnknownFields());
+        this.mergeUnknownFields(other.unknownFields);
+        onChanged();
         return this;
       }
 
@@ -2733,18 +2695,54 @@ public final class Communication {
       // @@protoc_insertion_point(builder_scope:rasnet.AlivePong)
     }
 
+    // @@protoc_insertion_point(class_scope:rasnet.AlivePong)
+    private static final org.rasdaman.rasnet.message.Communication.AlivePong DEFAULT_INSTANCE;
     static {
-      defaultInstance = new AlivePong(true);
-      defaultInstance.initFields();
+      DEFAULT_INSTANCE = new org.rasdaman.rasnet.message.Communication.AlivePong();
     }
 
-    // @@protoc_insertion_point(class_scope:rasnet.AlivePong)
+    public static org.rasdaman.rasnet.message.Communication.AlivePong getDefaultInstance() {
+      return DEFAULT_INSTANCE;
+    }
+
+    @java.lang.Deprecated public static final com.google.protobuf.Parser<AlivePong>
+        PARSER = new com.google.protobuf.AbstractParser<AlivePong>() {
+      public AlivePong parsePartialFrom(
+          com.google.protobuf.CodedInputStream input,
+          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+          throws com.google.protobuf.InvalidProtocolBufferException {
+        try {
+          return new AlivePong(input, extensionRegistry);
+        } catch (RuntimeException e) {
+          if (e.getCause() instanceof
+              com.google.protobuf.InvalidProtocolBufferException) {
+            throw (com.google.protobuf.InvalidProtocolBufferException)
+                e.getCause();
+          }
+          throw e;
+        }
+      }
+    };
+
+    public static com.google.protobuf.Parser<AlivePong> parser() {
+      return PARSER;
+    }
+
+    @java.lang.Override
+    public com.google.protobuf.Parser<AlivePong> getParserForType() {
+      return PARSER;
+    }
+
+    public org.rasdaman.rasnet.message.Communication.AlivePong getDefaultInstanceForType() {
+      return DEFAULT_INSTANCE;
+    }
+
   }
 
-  public interface BaseMessageOrBuilder
-      extends com.google.protobuf.MessageOrBuilder {
+  public interface BaseMessageOrBuilder extends
+      // @@protoc_insertion_point(interface_extends:rasnet.BaseMessage)
+      com.google.protobuf.MessageOrBuilder {
 
-    // required string type = 1;
     /**
      * <code>required string type = 1;</code>
      *
@@ -2774,7 +2772,6 @@ public final class Communication {
     com.google.protobuf.ByteString
         getTypeBytes();
 
-    // required bytes data = 2;
     /**
      * <code>required bytes data = 2;</code>
      *
@@ -2803,36 +2800,28 @@ public final class Communication {
    * The type information is used to deserialize it and handle it properly at the receiving end.
    * </pre>
    */
-  public static final class BaseMessage extends
-      com.google.protobuf.GeneratedMessage
-      implements BaseMessageOrBuilder {
+  public  static final class BaseMessage extends
+      com.google.protobuf.GeneratedMessage implements
+      // @@protoc_insertion_point(message_implements:rasnet.BaseMessage)
+      BaseMessageOrBuilder {
     // Use BaseMessage.newBuilder() to construct.
     private BaseMessage(com.google.protobuf.GeneratedMessage.Builder<?> builder) {
       super(builder);
-      this.unknownFields = builder.getUnknownFields();
     }
-    private BaseMessage(boolean noInit) { this.unknownFields = com.google.protobuf.UnknownFieldSet.getDefaultInstance(); }
-
-    private static final BaseMessage defaultInstance;
-    public static BaseMessage getDefaultInstance() {
-      return defaultInstance;
+    private BaseMessage() {
+      type_ = "";
+      data_ = com.google.protobuf.ByteString.EMPTY;
     }
 
-    public BaseMessage getDefaultInstanceForType() {
-      return defaultInstance;
-    }
-
-    private final com.google.protobuf.UnknownFieldSet unknownFields;
     @java.lang.Override
     public final com.google.protobuf.UnknownFieldSet
-        getUnknownFields() {
+    getUnknownFields() {
       return this.unknownFields;
     }
     private BaseMessage(
         com.google.protobuf.CodedInputStream input,
-        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-        throws com.google.protobuf.InvalidProtocolBufferException {
-      initFields();
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry) {
+      this();
       int mutable_bitField0_ = 0;
       com.google.protobuf.UnknownFieldSet.Builder unknownFields =
           com.google.protobuf.UnknownFieldSet.newBuilder();
@@ -2852,8 +2841,9 @@ public final class Communication {
               break;
             }
             case 10: {
+              com.google.protobuf.ByteString bs = input.readBytes();
               bitField0_ |= 0x00000001;
-              type_ = input.readBytes();
+              type_ = bs;
               break;
             }
             case 18: {
@@ -2864,10 +2854,11 @@ public final class Communication {
           }
         }
       } catch (com.google.protobuf.InvalidProtocolBufferException e) {
-        throw e.setUnfinishedMessage(this);
+        throw new RuntimeException(e.setUnfinishedMessage(this));
       } catch (java.io.IOException e) {
-        throw new com.google.protobuf.InvalidProtocolBufferException(
-            e.getMessage()).setUnfinishedMessage(this);
+        throw new RuntimeException(
+            new com.google.protobuf.InvalidProtocolBufferException(
+                e.getMessage()).setUnfinishedMessage(this));
       } finally {
         this.unknownFields = unknownFields.build();
         makeExtensionsImmutable();
@@ -2885,25 +2876,9 @@ public final class Communication {
               org.rasdaman.rasnet.message.Communication.BaseMessage.class, org.rasdaman.rasnet.message.Communication.BaseMessage.Builder.class);
     }
 
-    public static com.google.protobuf.Parser<BaseMessage> PARSER =
-        new com.google.protobuf.AbstractParser<BaseMessage>() {
-      public BaseMessage parsePartialFrom(
-          com.google.protobuf.CodedInputStream input,
-          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-          throws com.google.protobuf.InvalidProtocolBufferException {
-        return new BaseMessage(input, extensionRegistry);
-      }
-    };
-
-    @java.lang.Override
-    public com.google.protobuf.Parser<BaseMessage> getParserForType() {
-      return PARSER;
-    }
-
     private int bitField0_;
-    // required string type = 1;
     public static final int TYPE_FIELD_NUMBER = 1;
-    private java.lang.Object type_;
+    private volatile java.lang.Object type_;
     /**
      * <code>required string type = 1;</code>
      *
@@ -2959,7 +2934,6 @@ public final class Communication {
       }
     }
 
-    // required bytes data = 2;
     public static final int DATA_FIELD_NUMBER = 2;
     private com.google.protobuf.ByteString data_;
     /**
@@ -2985,14 +2959,11 @@ public final class Communication {
       return data_;
     }
 
-    private void initFields() {
-      type_ = "";
-      data_ = com.google.protobuf.ByteString.EMPTY;
-    }
     private byte memoizedIsInitialized = -1;
     public final boolean isInitialized() {
       byte isInitialized = memoizedIsInitialized;
-      if (isInitialized != -1) return isInitialized == 1;
+      if (isInitialized == 1) return true;
+      if (isInitialized == 0) return false;
 
       if (!hasType()) {
         memoizedIsInitialized = 0;
@@ -3008,42 +2979,33 @@ public final class Communication {
 
     public void writeTo(com.google.protobuf.CodedOutputStream output)
                         throws java.io.IOException {
-      getSerializedSize();
       if (((bitField0_ & 0x00000001) == 0x00000001)) {
-        output.writeBytes(1, getTypeBytes());
+        com.google.protobuf.GeneratedMessage.writeString(output, 1, type_);
       }
       if (((bitField0_ & 0x00000002) == 0x00000002)) {
         output.writeBytes(2, data_);
       }
-      getUnknownFields().writeTo(output);
+      unknownFields.writeTo(output);
     }
 
-    private int memoizedSerializedSize = -1;
     public int getSerializedSize() {
-      int size = memoizedSerializedSize;
+      int size = memoizedSize;
       if (size != -1) return size;
 
       size = 0;
       if (((bitField0_ & 0x00000001) == 0x00000001)) {
-        size += com.google.protobuf.CodedOutputStream
-          .computeBytesSize(1, getTypeBytes());
+        size += com.google.protobuf.GeneratedMessage.computeStringSize(1, type_);
       }
       if (((bitField0_ & 0x00000002) == 0x00000002)) {
         size += com.google.protobuf.CodedOutputStream
           .computeBytesSize(2, data_);
       }
-      size += getUnknownFields().getSerializedSize();
-      memoizedSerializedSize = size;
+      size += unknownFields.getSerializedSize();
+      memoizedSize = size;
       return size;
     }
 
     private static final long serialVersionUID = 0L;
-    @java.lang.Override
-    protected java.lang.Object writeReplace()
-        throws java.io.ObjectStreamException {
-      return super.writeReplace();
-    }
-
     public static org.rasdaman.rasnet.message.Communication.BaseMessage parseFrom(
         com.google.protobuf.ByteString data)
         throws com.google.protobuf.InvalidProtocolBufferException {
@@ -3097,12 +3059,17 @@ public final class Communication {
       return PARSER.parseFrom(input, extensionRegistry);
     }
 
-    public static Builder newBuilder() { return Builder.create(); }
     public Builder newBuilderForType() { return newBuilder(); }
-    public static Builder newBuilder(org.rasdaman.rasnet.message.Communication.BaseMessage prototype) {
-      return newBuilder().mergeFrom(prototype);
+    public static Builder newBuilder() {
+      return DEFAULT_INSTANCE.toBuilder();
     }
-    public Builder toBuilder() { return newBuilder(this); }
+    public static Builder newBuilder(org.rasdaman.rasnet.message.Communication.BaseMessage prototype) {
+      return DEFAULT_INSTANCE.toBuilder().mergeFrom(prototype);
+    }
+    public Builder toBuilder() {
+      return this == DEFAULT_INSTANCE
+          ? new Builder() : new Builder().mergeFrom(this);
+    }
 
     @java.lang.Override
     protected Builder newBuilderForType(
@@ -3120,8 +3087,9 @@ public final class Communication {
      * </pre>
      */
     public static final class Builder extends
-        com.google.protobuf.GeneratedMessage.Builder<Builder>
-       implements org.rasdaman.rasnet.message.Communication.BaseMessageOrBuilder {
+        com.google.protobuf.GeneratedMessage.Builder<Builder> implements
+        // @@protoc_insertion_point(builder_implements:rasnet.BaseMessage)
+        org.rasdaman.rasnet.message.Communication.BaseMessageOrBuilder {
       public static final com.google.protobuf.Descriptors.Descriptor
           getDescriptor() {
         return org.rasdaman.rasnet.message.Communication.internal_static_rasnet_BaseMessage_descriptor;
@@ -3148,10 +3116,6 @@ public final class Communication {
         if (com.google.protobuf.GeneratedMessage.alwaysUseFieldBuilders) {
         }
       }
-      private static Builder create() {
-        return new Builder();
-      }
-
       public Builder clear() {
         super.clear();
         type_ = "";
@@ -3159,10 +3123,6 @@ public final class Communication {
         data_ = com.google.protobuf.ByteString.EMPTY;
         bitField0_ = (bitField0_ & ~0x00000002);
         return this;
-      }
-
-      public Builder clone() {
-        return create().mergeFrom(buildPartial());
       }
 
       public com.google.protobuf.Descriptors.Descriptor
@@ -3218,17 +3178,16 @@ public final class Communication {
         if (other.hasData()) {
           setData(other.getData());
         }
-        this.mergeUnknownFields(other.getUnknownFields());
+        this.mergeUnknownFields(other.unknownFields);
+        onChanged();
         return this;
       }
 
       public final boolean isInitialized() {
         if (!hasType()) {
-
           return false;
         }
         if (!hasData()) {
-
           return false;
         }
         return true;
@@ -3253,7 +3212,6 @@ public final class Communication {
       }
       private int bitField0_;
 
-      // required string type = 1;
       private java.lang.Object type_ = "";
       /**
        * <code>required string type = 1;</code>
@@ -3277,9 +3235,12 @@ public final class Communication {
       public java.lang.String getType() {
         java.lang.Object ref = type_;
         if (!(ref instanceof java.lang.String)) {
-          java.lang.String s = ((com.google.protobuf.ByteString) ref)
-              .toStringUtf8();
-          type_ = s;
+          com.google.protobuf.ByteString bs =
+              (com.google.protobuf.ByteString) ref;
+          java.lang.String s = bs.toStringUtf8();
+          if (bs.isValidUtf8()) {
+            type_ = s;
+          }
           return s;
         } else {
           return (java.lang.String) ref;
@@ -3357,7 +3318,6 @@ public final class Communication {
         return this;
       }
 
-      // required bytes data = 2;
       private com.google.protobuf.ByteString data_ = com.google.protobuf.ByteString.EMPTY;
       /**
        * <code>required bytes data = 2;</code>
@@ -3416,12 +3376,48 @@ public final class Communication {
       // @@protoc_insertion_point(builder_scope:rasnet.BaseMessage)
     }
 
+    // @@protoc_insertion_point(class_scope:rasnet.BaseMessage)
+    private static final org.rasdaman.rasnet.message.Communication.BaseMessage DEFAULT_INSTANCE;
     static {
-      defaultInstance = new BaseMessage(true);
-      defaultInstance.initFields();
+      DEFAULT_INSTANCE = new org.rasdaman.rasnet.message.Communication.BaseMessage();
     }
 
-    // @@protoc_insertion_point(class_scope:rasnet.BaseMessage)
+    public static org.rasdaman.rasnet.message.Communication.BaseMessage getDefaultInstance() {
+      return DEFAULT_INSTANCE;
+    }
+
+    @java.lang.Deprecated public static final com.google.protobuf.Parser<BaseMessage>
+        PARSER = new com.google.protobuf.AbstractParser<BaseMessage>() {
+      public BaseMessage parsePartialFrom(
+          com.google.protobuf.CodedInputStream input,
+          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+          throws com.google.protobuf.InvalidProtocolBufferException {
+        try {
+          return new BaseMessage(input, extensionRegistry);
+        } catch (RuntimeException e) {
+          if (e.getCause() instanceof
+              com.google.protobuf.InvalidProtocolBufferException) {
+            throw (com.google.protobuf.InvalidProtocolBufferException)
+                e.getCause();
+          }
+          throw e;
+        }
+      }
+    };
+
+    public static com.google.protobuf.Parser<BaseMessage> parser() {
+      return PARSER;
+    }
+
+    @java.lang.Override
+    public com.google.protobuf.Parser<BaseMessage> getParserForType() {
+      return PARSER;
+    }
+
+    public org.rasdaman.rasnet.message.Communication.BaseMessage getDefaultInstanceForType() {
+      return DEFAULT_INSTANCE;
+    }
+
   }
 
   private static com.google.protobuf.Descriptors.Descriptor
@@ -3482,59 +3478,59 @@ public final class Communication {
       "snet.message"
     };
     com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner assigner =
-      new com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner() {
-        public com.google.protobuf.ExtensionRegistry assignDescriptors(
-            com.google.protobuf.Descriptors.FileDescriptor root) {
-          descriptor = root;
-          internal_static_rasnet_MessageType_descriptor =
-            getDescriptor().getMessageTypes().get(0);
-          internal_static_rasnet_MessageType_fieldAccessorTable = new
-            com.google.protobuf.GeneratedMessage.FieldAccessorTable(
-              internal_static_rasnet_MessageType_descriptor,
-              new java.lang.String[] { "Type", });
-          internal_static_rasnet_ServiceCallStatus_descriptor =
-            getDescriptor().getMessageTypes().get(1);
-          internal_static_rasnet_ServiceCallStatus_fieldAccessorTable = new
-            com.google.protobuf.GeneratedMessage.FieldAccessorTable(
-              internal_static_rasnet_ServiceCallStatus_descriptor,
-              new java.lang.String[] { "Success", });
-          internal_static_rasnet_ConnectRequest_descriptor =
-            getDescriptor().getMessageTypes().get(2);
-          internal_static_rasnet_ConnectRequest_fieldAccessorTable = new
-            com.google.protobuf.GeneratedMessage.FieldAccessorTable(
-              internal_static_rasnet_ConnectRequest_descriptor,
-              new java.lang.String[] { "Retries", "Lifetime", });
-          internal_static_rasnet_ConnectReply_descriptor =
-            getDescriptor().getMessageTypes().get(3);
-          internal_static_rasnet_ConnectReply_fieldAccessorTable = new
-            com.google.protobuf.GeneratedMessage.FieldAccessorTable(
-              internal_static_rasnet_ConnectReply_descriptor,
-              new java.lang.String[] { "Retries", "Lifetime", });
-          internal_static_rasnet_AlivePing_descriptor =
-            getDescriptor().getMessageTypes().get(4);
-          internal_static_rasnet_AlivePing_fieldAccessorTable = new
-            com.google.protobuf.GeneratedMessage.FieldAccessorTable(
-              internal_static_rasnet_AlivePing_descriptor,
-              new java.lang.String[] { });
-          internal_static_rasnet_AlivePong_descriptor =
-            getDescriptor().getMessageTypes().get(5);
-          internal_static_rasnet_AlivePong_fieldAccessorTable = new
-            com.google.protobuf.GeneratedMessage.FieldAccessorTable(
-              internal_static_rasnet_AlivePong_descriptor,
-              new java.lang.String[] { });
-          internal_static_rasnet_BaseMessage_descriptor =
-            getDescriptor().getMessageTypes().get(6);
-          internal_static_rasnet_BaseMessage_fieldAccessorTable = new
-            com.google.protobuf.GeneratedMessage.FieldAccessorTable(
-              internal_static_rasnet_BaseMessage_descriptor,
-              new java.lang.String[] { "Type", "Data", });
-          return null;
-        }
-      };
+        new com.google.protobuf.Descriptors.FileDescriptor.    InternalDescriptorAssigner() {
+          public com.google.protobuf.ExtensionRegistry assignDescriptors(
+              com.google.protobuf.Descriptors.FileDescriptor root) {
+            descriptor = root;
+            return null;
+          }
+        };
     com.google.protobuf.Descriptors.FileDescriptor
       .internalBuildGeneratedFileFrom(descriptorData,
         new com.google.protobuf.Descriptors.FileDescriptor[] {
         }, assigner);
+    internal_static_rasnet_MessageType_descriptor =
+      getDescriptor().getMessageTypes().get(0);
+    internal_static_rasnet_MessageType_fieldAccessorTable = new
+      com.google.protobuf.GeneratedMessage.FieldAccessorTable(
+        internal_static_rasnet_MessageType_descriptor,
+        new java.lang.String[] { "Type", });
+    internal_static_rasnet_ServiceCallStatus_descriptor =
+      getDescriptor().getMessageTypes().get(1);
+    internal_static_rasnet_ServiceCallStatus_fieldAccessorTable = new
+      com.google.protobuf.GeneratedMessage.FieldAccessorTable(
+        internal_static_rasnet_ServiceCallStatus_descriptor,
+        new java.lang.String[] { "Success", });
+    internal_static_rasnet_ConnectRequest_descriptor =
+      getDescriptor().getMessageTypes().get(2);
+    internal_static_rasnet_ConnectRequest_fieldAccessorTable = new
+      com.google.protobuf.GeneratedMessage.FieldAccessorTable(
+        internal_static_rasnet_ConnectRequest_descriptor,
+        new java.lang.String[] { "Retries", "Lifetime", });
+    internal_static_rasnet_ConnectReply_descriptor =
+      getDescriptor().getMessageTypes().get(3);
+    internal_static_rasnet_ConnectReply_fieldAccessorTable = new
+      com.google.protobuf.GeneratedMessage.FieldAccessorTable(
+        internal_static_rasnet_ConnectReply_descriptor,
+        new java.lang.String[] { "Retries", "Lifetime", });
+    internal_static_rasnet_AlivePing_descriptor =
+      getDescriptor().getMessageTypes().get(4);
+    internal_static_rasnet_AlivePing_fieldAccessorTable = new
+      com.google.protobuf.GeneratedMessage.FieldAccessorTable(
+        internal_static_rasnet_AlivePing_descriptor,
+        new java.lang.String[] { });
+    internal_static_rasnet_AlivePong_descriptor =
+      getDescriptor().getMessageTypes().get(5);
+    internal_static_rasnet_AlivePong_fieldAccessorTable = new
+      com.google.protobuf.GeneratedMessage.FieldAccessorTable(
+        internal_static_rasnet_AlivePong_descriptor,
+        new java.lang.String[] { });
+    internal_static_rasnet_BaseMessage_descriptor =
+      getDescriptor().getMessageTypes().get(6);
+    internal_static_rasnet_BaseMessage_fieldAccessorTable = new
+      com.google.protobuf.GeneratedMessage.FieldAccessorTable(
+        internal_static_rasnet_BaseMessage_descriptor,
+        new java.lang.String[] { "Type", "Data", });
   }
 
   // @@protoc_insertion_point(outer_class_scope)

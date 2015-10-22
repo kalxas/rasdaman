@@ -5,7 +5,7 @@
 
 #include "../../../common/src/mock/gmock.h"
 
-#include "../src/serverfactory.hh"
+#include "../../src/serverfactory.hh"
 namespace rasmgr
 {
 namespace test

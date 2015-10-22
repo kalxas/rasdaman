@@ -22,51 +22,55 @@
 
 #include <stdexcept>
 
-#include "common/src/logging/easylogging++.hh"
-#include "rasnet/src/common/zmqutil.hh"
+#include <grpc++/grpc++.h>
+#include <grpc++/security/credentials.h>
+
+#include "../../rasnet/messages/rasmgr_rasctrl_service.pb.h"
+
+#include "../../common/src/logging/easylogging++.hh"
+#include "../../common/src/grpc/grpcutils.hh"
+#include "../../common/src/exceptions/rasexceptions.hh"
 
 #include "controlrasmgrrasnet.hh"
 
-
 namespace rascontrol
 {
-using std::runtime_error;
 
-using rasnet::Channel;
-using rasnet::ChannelConfig;
-using rasnet::service::RasMgrRasCtrlService_Stub;
+using common::GrpcUtils;
+using common::ConnectionFailedException;
+
+using std::runtime_error;
+using std::unique_ptr;
+using std::shared_ptr;
+
+using grpc::Channel;
+using grpc::ClientContext;
+using grpc::Status;
+
 using rasnet::service::RasCtrlRequest;
 using rasnet::service::RasCtrlResponse;
-using rasnet::ZmqUtil;
-
-using ::google::protobuf::NewPermanentCallback;
-using ::google::protobuf::DoNothing;
-using ::google::protobuf::Service;
+using rasnet::service::RasMgrRasCtrlService;
 
 
-ControlRasMgrRasnet::ControlRasMgrRasnet(const UserCredentials& userCredentials, RasControlConfig& config):userCredentials(userCredentials), config(config)
+ControlRasMgrRasnet::ControlRasMgrRasnet(const UserCredentials& userCredentials, RasControlConfig& config):
+    userCredentials(userCredentials), config(config)
 {
-    this->doNothing = ::google::protobuf::NewPermanentCallback(&DoNothing);
-
     try
     {
-        std::string host = ZmqUtil::toTcpAddress(config.getRasMgrHost());
-        ChannelConfig channelConfig;
-        Channel* channel =  new Channel(ZmqUtil::toEndpoint(host,config.getRasMgrPort()), channelConfig);
-        this->rasmgrService.reset(new RasMgrRasCtrlService_Stub(channel));
+        string serverAddress = common::GrpcUtils::convertAddressToString(config.getRasMgrHost(), config.getRasMgrPort());
+        std::shared_ptr<Channel> channel( grpc::CreateChannel(serverAddress, grpc::InsecureCredentials()));
+
+        this->rasmgrService = RasMgrRasCtrlService::NewStub(channel);
     }
     catch(std::exception& ex)
     {
         //Failed to connect.
         LERROR<<ex.what();
-        throw runtime_error("Could not connect to rasmgr.");
+
+        throw ConnectionFailedException(ex.what());
     }
 }
 
-ControlRasMgrRasnet::~ControlRasMgrRasnet()
-{
-    delete this->doNothing;
-}
 
 std::string ControlRasMgrRasnet::processCommand(const std::string& command)
 {
@@ -74,9 +78,7 @@ std::string ControlRasMgrRasnet::processCommand(const std::string& command)
     RasCtrlResponse response;
 
     //Default message that will be displayed to the user.
-    std::string responseMessage = "The command could not be processed.";
-
-    this->controller.Reset();
+    std::string responseMessage;
 
     std::string userName = this->userCredentials.getUserName();
     std::string password = this->userCredentials.getUserPassword();
@@ -85,14 +87,15 @@ std::string ControlRasMgrRasnet::processCommand(const std::string& command)
     request.set_password_hash(password);
     request.set_command(command);
 
-    this->rasmgrService->ExecuteCommand(&this->controller, &request, &response, this->doNothing);
+    ClientContext context;
+    Status status = this->rasmgrService->ExecuteCommand( &context, request, &response);
 
-    if(this->controller.Failed())
+    if(!status.ok())
     {
-        throw runtime_error(this->controller.ErrorText());
+        GrpcUtils::convertStatusToExceptionAndThrow(status);
     }
 
-    if(response.has_message())
+    if(!response.message().empty())
     {
         responseMessage = response.message();
     }

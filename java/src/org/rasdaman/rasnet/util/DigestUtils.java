@@ -22,8 +22,6 @@
 
 package org.rasdaman.rasnet.util;
 
-import org.rasdaman.rasnet.exception.RasnetException;
-
 import java.io.UnsupportedEncodingException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -33,16 +31,17 @@ public class DigestUtils {
     public static String MD5(String message) {
 
         MessageDigest messageDigest = null;
+
         try {
             messageDigest = MessageDigest.getInstance("MD5");
         } catch (NoSuchAlgorithmException e) {
-            throw new RasnetException("MD5 encryption not available.", e);
+            throw new RuntimeException("MD5 encryption not available.", e);
         }
         byte[] messageBytes;
         try {
             messageBytes = message.getBytes("UTF-8");
         } catch (UnsupportedEncodingException e) {
-            throw new RasnetException("UTF-8 encoding is not supported.", e);
+            throw new RuntimeException("UTF-8 encoding is not supported.", e);
         }
         byte[] hash = messageDigest.digest(messageBytes);
 

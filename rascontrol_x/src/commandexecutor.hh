@@ -25,17 +25,16 @@
 
 #include <boost/shared_ptr.hpp>
 
-#include "controlrasmgrcomm.hh"
-
 namespace rascontrol
 {
+class ControlRasMgrComm;
 
 class CommandExecutor
 {
 public:
     /**
       * @brief CommandExecutor Initialize an instance of the CommandExecutor class.
-      * @param communication Communication object used to send messages to the server.
+      * @param communication Communication object used to execute commands.
       */
     CommandExecutor(boost::shared_ptr<ControlRasMgrComm> communication);
 

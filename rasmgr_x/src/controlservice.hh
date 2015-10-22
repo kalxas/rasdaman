@@ -23,29 +23,30 @@
 #ifndef RASMGR_X_SRC_CONTROLSERVICE_HH_
 #define RASMGR_X_SRC_CONTROLSERVICE_HH_
 
-#include <boost/shared_ptr.hpp>
 #include <string>
 
-#include "rasnet/src/messages/rasmgr_rasctrl_service.pb.h"
-#include "controlcommandexecutor.hh"
+#include <boost/shared_ptr.hpp>
+
+#include "../../rasnet/messages/rasmgr_rasctrl_service.grpc.pb.h"
 
 namespace rasmgr
 {
+
+class ControlCommandExecutor;
+
 /**
  * @brief The ControlService class Service for executing rascontrol commands from
  * a rascontrol client that connects to rasmgr.
  */
-class ControlService:public ::rasnet::service::RasMgrRasCtrlService
+class ControlService:public ::rasnet::service::RasMgrRasCtrlService::Service
 {
 public:
     ControlService(boost::shared_ptr<ControlCommandExecutor> commandExecutor);
 
     virtual ~ControlService();
 
-    virtual void ExecuteCommand(::google::protobuf::RpcController* controller,
-                                const ::rasnet::service::RasCtrlRequest* request,
-                                ::rasnet::service::RasCtrlResponse* response,
-                                ::google::protobuf::Closure* done);
+    virtual grpc::Status ExecuteCommand(grpc::ServerContext *context, const rasnet::service::RasCtrlRequest *request, rasnet::service::RasCtrlResponse *response) override;
+
 private:
     boost::shared_ptr<ControlCommandExecutor> commandExecutor;
 };

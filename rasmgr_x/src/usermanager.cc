@@ -31,7 +31,13 @@
 
 #include "../../common/src/logging/easylogging++.hh"
 #include "../../common/src/crypto/crypto.hh"
-#include "globals.hh"
+#include "../../common/src/exceptions/rasexceptions.hh"
+#include "../../include/globals.hh"
+
+#include "messages/rasmgrmess.pb.h"
+#include "exceptions/rasmgrexceptions.hh"
+
+#include "user.hh"
 
 #include "usermanager.hh"
 
@@ -42,14 +48,16 @@ using std::list;
 using boost::shared_ptr;
 using boost::mutex;
 using boost::unique_lock;
+
+using common::InvalidArgumentException;
+
 using google::protobuf::io::CodedInputStream;
 using google::protobuf::io::CodedOutputStream;
 using google::protobuf::io::IstreamInputStream;
 using google::protobuf::io::OstreamOutputStream;
 
 UserManager::UserManager()
-{
-}
+{}
 
 UserManager::~UserManager()
 {}
@@ -59,9 +67,9 @@ void UserManager::defineUser (const UserProto &userInfo)
     bool duplicate=false;
     list<boost::shared_ptr<User> >::iterator it;
 
-    if(!userInfo.has_name())
+    if(!userInfo.has_name() || userInfo.name().empty())
     {
-        throw runtime_error("The user information must contain a name value.");
+        throw InvalidArgumentException("The user information must have a valid name value.");
     }
 
     unique_lock<mutex> lock ( this->mut );
@@ -76,18 +84,15 @@ void UserManager::defineUser (const UserProto &userInfo)
 
     if ( duplicate )
     {
-        throw runtime_error ( "There already exists a user named:\""+userInfo.name() +"\"");
+        throw UserAlreadyExistsException(userInfo.name());
     }
-    else
-    {
-        std::string empty;
-        boost::shared_ptr<User> user( new User ( userInfo.name(),
-                                      userInfo.password(),
-                                      UserDatabaseRights::parseFromProto(userInfo.default_db_rights()),
-                                      UserAdminRights::parseFromProto(userInfo.admin_rights())));
 
-        this->userList.push_back (user);
-    }
+    boost::shared_ptr<User> user( new User ( userInfo.name(),
+                                  userInfo.password(),
+                                  UserDatabaseRights::parseFromProto(userInfo.default_db_rights()),
+                                  UserAdminRights::parseFromProto(userInfo.admin_rights())));
+
+    this->userList.push_back (user);
 }
 
 void UserManager::changeUser(const std::string &userName, const UserProto &newUserInfo)
@@ -102,7 +107,7 @@ void UserManager::changeUser(const std::string &userName, const UserProto &newUs
         {
             changed=true;
 
-            if(newUserInfo.has_name())
+            if(newUserInfo.has_name() && !newUserInfo.name().empty())
             {
                 ( *it )->setName(newUserInfo.name());
             }
@@ -128,7 +133,7 @@ void UserManager::changeUser(const std::string &userName, const UserProto &newUs
 
     if ( !changed )
     {
-        throw runtime_error ( "There doesn't exist a user named:\""+userName +"\"");
+	throw InexistentUserException(userName);
     }
 }
 
@@ -150,7 +155,7 @@ void UserManager::removeUser ( const std::string& userName )
 
     if ( !removed )
     {
-        throw runtime_error ( "There doesn't exist a user named:"+userName );
+	throw InexistentUserException(userName);
     }
 }
 
@@ -184,7 +189,7 @@ void UserManager::saveUserInformation()
     if ( pathLen >= PATH_MAX )
     {
         authFileName[PATH_MAX-1] = '\0';    // force-terminate string before printing
-        throw runtime_error("Authentication file path longer than maximum allowed by OS:"+std::string(authFileName));
+        throw common::RuntimeException("Authentication file path longer than maximum allowed by OS:"+std::string(authFileName));
     }
 
     LDEBUG<<"Writing to authentication file:"<<authFileName;
@@ -194,7 +199,7 @@ void UserManager::saveUserInformation()
 
     if ( !ofs )
     {
-        throw runtime_error ( "Could not open authentication file for writing. File path:" + std::string ( authFileName ) );
+	throw common::RuntimeException( "Could not open authentication file for writing. File path:" + std::string ( authFileName ) );
     }
     else
     {
@@ -205,7 +210,7 @@ void UserManager::saveUserInformation()
         if ( r==false )
         {
             LERROR<<"Could not write to authentication file";
-            throw runtime_error ( "Could not write to authentication file.File path:" + std::string ( authFileName ) );
+            throw common::RuntimeException( "Could not write to authentication file. File path:" + std::string ( authFileName ) );
         }
     }
 
@@ -305,7 +310,10 @@ UserMgrProto UserManager::serializeToProto()
 
     unique_lock<mutex> lock ( this->mut );
 
-    for ( std::list<shared_ptr<User> >::iterator it = this->userList.begin(); it!=this->userList.end(); ++it )
+    for ( std::list<shared_ptr<User> >::iterator it = this->
+            userList.begin();
+            it!=this->userList.end();
+            ++it )
     {
         result.add_users()->CopyFrom ( User::serializeToProto ( * ( *it ).get() ) );
     }

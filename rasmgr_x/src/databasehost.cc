@@ -22,6 +22,11 @@
 
 #include <stdexcept>
 
+#include "../../common/src/exceptions/logicexception.hh"
+
+#include "exceptions/rasmgrexceptions.hh"
+#include "database.hh"
+
 #include "databasehost.hh"
 
 namespace rasmgr
@@ -60,7 +65,7 @@ void DatabaseHost::addClientSessionOnDB(const std::string& databaseName, const s
 
     if(!foundDb)
     {
-        throw runtime_error("The host does not contain database:\""+databaseName+"\"");
+        throw InexistentDatabaseException(databaseName);
     }
 }
 
@@ -86,7 +91,7 @@ void DatabaseHost::decreaseServerCount()
     unique_lock<mutex> lock(this->mut);
     if(this->serverCount==0)
     {
-        throw std::runtime_error("The server count cannot be further decreased.");
+        throw common::LogicException("serverCount==0");
     }
 
     this->serverCount--;
@@ -112,7 +117,7 @@ void DatabaseHost::addDbToHost(boost::shared_ptr<Database> db)
 
     if(this->containsDatabase(db->getDbName()))
     {
-        throw runtime_error("The database is already on this host.");
+        throw DatabaseAlreadyExistsException(db->getDbName(), this->getHostName());
     }
     else
     {
@@ -133,7 +138,7 @@ void DatabaseHost::removeDbFromHost(const std::string& dbName)
         {
             if((*it)->isBusy())
             {
-                throw runtime_error("The database \""+dbName+"\" is busy and cannot be removed");
+                throw DbBusyException((*it)->getDbName());
             }
             else
             {
@@ -147,48 +152,8 @@ void DatabaseHost::removeDbFromHost(const std::string& dbName)
 
     if(!removedDb)
     {
-        throw runtime_error("There is no database named \""+dbName+"\"");
+        throw InexistentDatabaseException(dbName);
     }
-}
-
-const std::string& DatabaseHost::getHostName() const
-{
-    return this->hostName;
-}
-
-void DatabaseHost::setHostName(const std::string& hostName)
-{
-    this->hostName = hostName;
-}
-
-const std::string& DatabaseHost::getConnectString() const
-{
-    return this->connectString;
-}
-
-void DatabaseHost::setConnectString(const std::string& connectString)
-{
-    this->connectString=connectString;
-}
-
-const std::string& DatabaseHost::getUserName() const
-{
-    return this->userName;
-}
-
-void DatabaseHost::setUserName(const std::string& userName)
-{
-    this->userName = userName;
-}
-
-const std::string& DatabaseHost::getPasswdString() const
-{
-    return this->passwdString;
-}
-
-void DatabaseHost::setPasswdString(const std::string& passwdString)
-{
-    this->passwdString=passwdString;
 }
 
 DatabaseHostProto DatabaseHost::serializeToProto(const DatabaseHost &dbHost)
@@ -213,6 +178,56 @@ DatabaseHostProto DatabaseHost::serializeToProto(const DatabaseHost &dbHost)
     return result;
 }
 
+const std::string& DatabaseHost::getHostName() const
+{
+    return this->hostName;
+}
+
+void DatabaseHost::setHostName(const std::string& hostName)
+{
+    if(hostName.empty())
+    {
+        throw common::LogicException("hostName.empty()");
+    }
+
+    this->hostName = hostName;
+}
+
+const std::string& DatabaseHost::getConnectString() const
+{
+    return this->connectString;
+}
+
+void DatabaseHost::setConnectString(const std::string& connectString)
+{
+    this->connectString=connectString;
+}
+
+const std::string& DatabaseHost::getUserName() const
+{
+    return this->userName;
+}
+
+void DatabaseHost::setUserName(const std::string& userName)
+{
+    if(userName.empty())
+    {
+        throw common::LogicException("userName.empty()");
+    }
+
+    this->userName = userName;
+}
+
+const std::string& DatabaseHost::getPasswdString() const
+{
+    return this->passwdString;
+}
+
+void DatabaseHost::setPasswdString(const std::string& passwdString)
+{
+    this->passwdString=passwdString;
+}
+
 bool DatabaseHost::containsDatabase(const std::string& dbName)
 {
     std::list<boost::shared_ptr<Database> >::iterator it;
@@ -227,5 +242,4 @@ bool DatabaseHost::containsDatabase(const std::string& dbName)
 
     return false;
 }
-
 }

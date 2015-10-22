@@ -31,11 +31,12 @@
 #include <stdexcept>
 
 #include "../../config.h"
-
+#include "../exceptions/missingresourceexception.hh"
 #include "crypto.hh"
 
 namespace common
 {
+
 bool Crypto::isMessageDigestAvailable(const std::string& mdName)
 {
     const EVP_MD *md;
@@ -70,7 +71,7 @@ std::string Crypto::messageDigest(const std::string &message, const std::string 
 
     if(!md)
     {
-        throw std::runtime_error("The " +mdName+" digest is not available.");
+        throw std::runtime_error("The " + mdName + " digest is not available.");
     }
 
     EVP_DigestInit(&mdctx, md);

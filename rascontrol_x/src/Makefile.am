@@ -5,11 +5,12 @@ rascontrol_SOURCES = rascontrol_main.cc \
 					  controlrasmgrcomm.cc \
 					  controlrasmgrrasnet.cc \
 					  editline.cc \
+					  invalidrasctrlcommandexception.cc \
 					  rascontrol.cc \
 					  rascontrolconfig.cc \
 					  usercredentials.cc
 
-rascontrol_LDADD = ../../commline/libcommline.a ../../rasnet/src/librasnet.a ../../common/src/libcommon.a ../../rasmgr_x/src/librasmgr.a @ZMQ_LIBS@ @PROTOBUF_LIBS@ @BOOST_LDFLAGS@ -lboost_thread -lboost_system
+rascontrol_LDADD = ../../commline/libcommline.a ../../rasnet/librasnet.a ../../common/src/libcommon.a ../../rasmgr_x/src/librasmgr.a @GRPC_LIBS@ @PROTOBUF_LIBS@ @BOOST_LDFLAGS@ @GPR_LIBS@ @GRPCPP_LIBS@ -lboost_thread -lboost_system
 
 noinst_LIBRARIES = librascontrol.a
 
@@ -21,4 +22,4 @@ librascontrol_a_SOURCES = commandexecutor.cc \
 							rascontrolconfig.cc \
 							usercredentials.cc
 
-librascontrol_a_LIBADD = ../../commline/libcommline.a ../../rasnet/src/librasnet.a ../../common/src/libcommon.a
+librascontrol_a_LIBADD = ../../commline/libcommline.a ../../rasnet/librasnet.a ../../common/src/libcommon.a

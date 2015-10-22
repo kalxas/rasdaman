@@ -25,6 +25,7 @@
 
 #include "../../include/globals.hh"
 
+#include "rascontrolconstants.hh"
 #include "rascontrolconfig.hh"
 
 namespace rascontrol
@@ -48,7 +49,7 @@ RasControlConfig::RasControlConfig() :
 {
     this->workMode = WKMINTERACTIV;
     this->loginMode = LGIINTERACTIV;
-    this->historyFileName = "rascontrol.hist";
+    this->historyFileName = COMMAND_HISTORY_FILE;
     this->promptMode =PROMPTFULL;
     this->isHistoryRequired = false;
     this->quiet = false;
@@ -280,6 +281,7 @@ void RasControlConfig::displayHelp() const
     cmlInter.printHelp();
     std::cout<<std::endl;
 }
+
 std::string RasControlConfig::getLogConfigFile() const
 {
     return logConfigFile;
@@ -290,5 +292,4 @@ bool RasControlConfig::paramError()
     std::cout<<"Invalid command line parameters!"<<std::endl;
     return false;
 }
-
 }

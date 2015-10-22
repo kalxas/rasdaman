@@ -1,7 +1,7 @@
 #ifndef RASMGR_X_SRC_SERVERMANAGERCONFIG_HH
 #define RASMGR_X_SRC_SERVERMANAGERCONFIG_HH
 
-#include "boost/cstdint.hpp"
+#include <boost/cstdint.hpp>
 
 namespace rasmgr
 {

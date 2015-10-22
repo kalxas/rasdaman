@@ -38,7 +38,9 @@
 
 namespace rascontrol
 {
-UserCredentials::UserCredentials(const std::string& userName, const std::string& userPassword):userName(userName)
+
+UserCredentials::UserCredentials(const std::string& userName, const std::string& userPassword):
+    userName(userName)
 {
     this->userPassword=common::Crypto::messageDigest(userPassword, DEFAULT_DIGEST);
 }
@@ -56,12 +58,12 @@ void UserCredentials::interactiveLogin()
         this->userName.erase(0,found);
     }
 
-    //TODO-AT:getpass is obsolete.
-    //TODO-AT:make it possible to choose the encryption algorithm
+    //TODO:Ticket #997 remove getpass from the code
+    //TODO:Ticket #998 make it possible to choose the encryption algorithm
 
     char *plainPass=getpass("  Password: ");
     std::string clearTextPass(plainPass);
-    this->userPassword = common::Crypto::messageDigest(clearTextPass,DEFAULT_DIGEST);
+    this->userPassword = common::Crypto::messageDigest(clearTextPass, DEFAULT_DIGEST);
 
     //Make sure we don't leave the password in the buffer
     for(int i=0; i<strlen(plainPass); i++)
@@ -75,10 +77,9 @@ void UserCredentials::interactiveLogin()
 void UserCredentials::environmentLogin()
 {
     char auxUserName[rascontrol::MAX_USERNAME_LENGTH];
-    char auxPassword[rascontrol::MAX_USERPASS_LENGTH];
     int i;
 
-    char *s=getenv("RASLOGIN");
+    char *s=getenv(RASLOGIN.c_str());
 
     if(s==NULL)
     {
@@ -89,6 +90,7 @@ void UserCredentials::environmentLogin()
     {
         auxUserName[i]=*s;
     }
+
     auxUserName[i]=0;
 
     this->userName = std::string(auxUserName);

@@ -1,11 +1,14 @@
 #ifndef RASMGR_X_SRC_CONFIGURATIONMANAGER_HH
 #define RASMGR_X_SRC_CONFIGURATIONMANAGER_HH
 
-#include "controlcommandexecutor.hh"
-#include "usermanager.hh"
+#include <boost/smart_ptr.hpp>
 
 namespace rasmgr
 {
+
+class ControlCommandExecutor;
+class UserManager;
+
 /**
  * @brief The ConfigurationManager class Used to save/load the list of users and their
  * associated information and the rasmgr.conf file.

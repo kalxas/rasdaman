@@ -535,7 +535,8 @@ QtEncode::checkType(QtTypeTuple* typeTuple)
         RMDBGIF(3, RMDebug::module_qlparser, "QtEncode",
                 LTRACE << "Class..: QtEncode";
                 LTRACE << "Operand: ";
-                inputType.printStatus(RMInit::dbgOut); )
+
+                inputType.printStatus(RMInit::dbgOut);)
 
         if (inputType.getDataType() != QT_MDD)
         {

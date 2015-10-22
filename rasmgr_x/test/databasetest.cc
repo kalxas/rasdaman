@@ -33,7 +33,7 @@ namespace rasmgr
 {
 namespace test
 {
-TEST(DatabaseTest, addClientSession)
+TEST(DatabaseTest, addClientSessionSuccess)
 {
     using rasmgr::Database;
 
@@ -42,34 +42,56 @@ TEST(DatabaseTest, addClientSession)
     std::string sessionId = "session";
     std::string sessionId2 = "session2";
 
+    // Test preconditions
     ASSERT_FALSE(db.isBusy());
 
     ASSERT_NO_THROW(db.addClientSession(clientId, sessionId));
 
     ASSERT_TRUE(db.isBusy());
 
+    //Adding another session will not cause failure
     ASSERT_NO_THROW(db.addClientSession(clientId, sessionId2));
+}
+
+TEST(DatabaseTest, addClientSessionFailWhenDuplicateIsAdded)
+{
+    using rasmgr::Database;
+
+    Database db("dbName");
+    std::string clientId = "client";
+    std::string sessionId = "session";
+
+    ASSERT_FALSE(db.isBusy());
+
+    ASSERT_NO_THROW(db.addClientSession(clientId, sessionId));
 
     //Will throw because there already is a session with these IDs
     ASSERT_ANY_THROW(db.addClientSession(clientId, sessionId));
 }
 
-TEST(DatabaseTest, isBusy)
+TEST(DatabaseTest, isBusyReturnsFalseWhenThereAreNoSessions)
+{
+    using rasmgr::Database;
+
+    Database db("dbName");
+
+    ASSERT_FALSE(db.isBusy());
+}
+
+TEST(DatabaseTest, isBusyReturnsTrueWhenThereIsAtLeastOneSessions)
 {
     using rasmgr::Database;
 
     Database db("dbName");
     std::string clientId = "client";
     std::string sessionId = "session";
-    std::string sessionId2 = "session2";
 
-    ASSERT_FALSE(db.isBusy());
-
+    //Add a client sessions and the state of the database should become busy
     ASSERT_NO_THROW(db.addClientSession(clientId, sessionId));
+
 
     ASSERT_TRUE(db.isBusy());
 }
-
 
 TEST(DatabaseTest, removeClientSession)
 {
@@ -97,10 +119,6 @@ TEST(DatabaseTest, removeClientSession)
 
 TEST(DatabaseTest, serializeToProto)
 {
-    using rasmgr::StringPair;
-    using rasmgr::DatabaseProto;
-    using rasmgr::Database;
-
     std::string dbName = "dbName";
     std::string clientId = "client";
     std::string sessionId = "session";
@@ -116,5 +134,32 @@ TEST(DatabaseTest, serializeToProto)
     ASSERT_EQ(sessionId, proto.sessions(0).second());
 }
 
+TEST(DatabaseTest, setDbNameDbIsNotBusy)
+{
+    std::string dbName = "dbName";
+    std::string newName = "newName";
+
+    Database db(dbName);
+
+    // Will succeed when the db is not busy
+    ASSERT_FALSE(db.isBusy());
+    ASSERT_NO_THROW(db.setDbName(newName));
+    ASSERT_EQ(newName, db.getDbName());
+}
+
+TEST(DatabaseTest, setDbNameDbIsBusy)
+{
+    std::string dbName = "dbName";
+    std::string newName = "newName";
+    std::string clientId = "client";
+    std::string sessionId = "session";
+
+    Database db(dbName);
+    db.addClientSession(clientId, sessionId);
+
+    // Will succeed when the db is not busy
+    ASSERT_TRUE(db.isBusy());
+    ASSERT_ANY_THROW(db.setDbName(newName));
+}
 }
 }

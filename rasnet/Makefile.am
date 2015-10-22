@@ -1,5 +1,53 @@
 AUTOMAKE_OPTIONS = foreign
 
 if RMANRASNET
-    SUBDIRS = src test
+
+PROTOBUF_FILES_CLIENT= protomessages/client_rassrvr_service.proto \
+					protomessages/common_service.proto \
+					protomessages/rasmgr_client_service.proto
+
+PROTOBUF_FILES_SERVER= protomessages/rasmgr_rasctrl_service.proto \
+				protomessages/rasmgr_rassrvr_service.proto \
+				protomessages/rassrvr_rasmgr_service.proto
+
+PROTO_SRC_CLIENT= messages/client_rassrvr_service.pb.cc \
+           messages/client_rassrvr_service.grpc.pb.cc \
+           messages/common_service.pb.cc \
+           messages/common_service.grpc.pb.cc \
+           messages/rasmgr_client_service.pb.cc \
+           messages/rasmgr_client_service.grpc.pb.cc
+
+PROTO_SRC_SERVER=messages/rasmgr_rasctrl_service.pb.cc \
+           messages/rasmgr_rasctrl_service.grpc.pb.cc \
+           messages/rasmgr_rassrvr_service.pb.cc \
+           messages/rasmgr_rassrvr_service.grpc.pb.cc \
+           messages/rassrvr_rasmgr_service.pb.cc \
+           messages/rassrvr_rasmgr_service.grpc.pb.cc
+
+noinst_LIBRARIES = librasnet.a
+librasnet_a_SOURCES = $(PROTO_SRC_CLIENT) $(PROTO_SRC_SERVER)
+
+$(PROTO_SRC_CLIENT): $(PROTOBUF_FILES_CLIENT)
+	echo "Generating client Protocol Buffers"
+	$(MKDIR_P) messages
+	$(PROTOC) --proto_path=protomessages --grpc_out=messages --plugin=protoc-gen-grpc=${GRPCCPPPLUGIN} $?
+	$(PROTOC) --proto_path=protomessages --cpp_out=messages $?
+
+if ENABLE_JAVA
+		$(PROTOC) --proto_path=protomessages --java_out=../java/src/ $?
+		$(PROTOC) --plugin=protoc-gen-grpc-java=${GRPCJAVAPLUGIN} \
+  --grpc-java_out=../java/src --proto_path=protomessages $?
+
+endif
+
+$(PROTO_SRC_SERVER): $(PROTOBUF_FILES_SERVER)
+	echo "Generating server Protocol Buffers"
+	$(MKDIR_P) messages
+	$(PROTOC) --proto_path=protomessages --grpc_out=messages --plugin=protoc-gen-grpc=${GRPCCPPPLUGIN} $?
+	$(PROTOC) --proto_path=protomessages --cpp_out=messages $?
+
+clean: clean-am
+	rm -f messages/*.h
+	rm -f messages/*.cc
+
 endif

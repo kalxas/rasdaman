@@ -57,7 +57,7 @@ public:
     void addClientSession(const std::string& clientId, const std::string& sessionId);
 
     /**
-     * @brief removeClientSession
+     * @brief removeClientSession Remove the session with the given client ID and session ID
      * @param clientId
      * @param sessionId
      * @return The number of sessions removed.

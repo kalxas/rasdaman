@@ -24,38 +24,51 @@
 #include <boost/spirit/include/qi.hpp>
 #include <boost/spirit/include/phoenix.hpp>
 
-#include "common/src/logging/easylogging++.hh"
+#include "../../common/src/logging/easylogging++.hh"
+#include "../../common/src/grpc/grpcutils.hh"
 
 #include "controlservice.hh"
+#include "controlcommandexecutor.hh"
 
 namespace rasmgr
 {
 
-ControlService::ControlService(boost::shared_ptr<ControlCommandExecutor> commandExecutor):commandExecutor(commandExecutor)
+ControlService::ControlService(boost::shared_ptr<ControlCommandExecutor> commandExecutor):
+    commandExecutor(commandExecutor)
 {}
-
 
 ControlService::~ControlService()
 {}
 
-void ControlService::ExecuteCommand(::google::protobuf::RpcController* controller,
-                                    const ::rasnet::service::RasCtrlRequest* request,
-                                    ::rasnet::service::RasCtrlResponse* response,
-                                    ::google::protobuf::Closure* done)
+
+grpc::Status rasmgr::ControlService::ExecuteCommand(grpc::ServerContext *context, const rasnet::service::RasCtrlRequest *request, rasnet::service::RasCtrlResponse *response)
 {
-	std::string result;
-    if(!request->has_user_name() || !request->has_password_hash())
+    grpc::Status status = grpc::Status::OK;
+
+    try
     {
-        result = "The user's credentials are not set";
+        std::string result;
+        if(request->user_name().empty() || request->password_hash().empty())
+        {
+            result = "The user's credentials are not set";
+        }
+        else
+        {
+            result = this->commandExecutor->executeCommand(request->command(), request->user_name(), request->password_hash());
+        }
+
+        response->set_message(result);
     }
-    else
+    catch(std::exception& ex)
     {
-	result = this->commandExecutor->executeCommand(request->command(), request->user_name(), request->password_hash());
+        status = common::GrpcUtils::convertExceptionToStatus(ex);
+    }
+    catch(...)
+    {
+        status = common::GrpcUtils::convertExceptionToStatus("Command execution failed for an unknown reason.");
     }
 
-    response->set_message(result);
+    return status;
 }
-
-
 }
 /* namespace rasmgr */

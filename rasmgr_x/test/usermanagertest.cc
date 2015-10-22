@@ -76,17 +76,27 @@ protected:
     rasmgr::UserManager userManager;
 };
 
-
-TEST_F(UserManagerTest, defineUser)
+TEST_F(UserManagerTest, defineUserFailsWhenUserDoesNotHaveName)
 {
-    UserMgrProto proto;
     UserProto user;
     //Fail because the user does not have a name
     ASSERT_ANY_THROW(userManager.defineUser(user));
-    user.set_name(userName);
+}
 
-    proto = userManager.serializeToProto();
-    ASSERT_EQ(0,proto.users_size());
+TEST_F(UserManagerTest, defineUserFailsWhenUserHasInvalidName)
+{
+    UserProto user;
+    user.set_name("");
+
+    //Fail because the user does not have a name
+    ASSERT_ANY_THROW(userManager.defineUser(user));
+}
+
+TEST_F(UserManagerTest, defineUserSucceedsWhenUserIsValid)
+{
+    UserMgrProto proto;
+    UserProto user;
+    user.set_name(userName);
 
     //Succeed
     ASSERT_NO_THROW(userManager.defineUser(user));
@@ -99,12 +109,28 @@ TEST_F(UserManagerTest, defineUser)
     ASSERT_ANY_THROW(userManager.defineUser(createUser()));
 }
 
-TEST_F(UserManagerTest, removeUser)
+TEST_F(UserManagerTest, defineUserFailsWhenUserAlreadyExists)
+{
+    UserProto user;
+    user.set_name(userName);
+
+    //Succeed
+    userManager.defineUser(user);
+
+    //Fail due to duplication
+    ASSERT_ANY_THROW(userManager.defineUser(createUser()));
+}
+
+TEST_F(UserManagerTest, removeUserFailsWhenUserDoesNotExist)
 {
     //Fail because the user does not exist
     ASSERT_ANY_THROW(userManager.removeUser(userName));
+}
 
-    ASSERT_NO_THROW(userManager.defineUser(createUser()));
+TEST_F(UserManagerTest, removeUserSuceedsWhenUserExists)
+{
+    //Create user
+    userManager.defineUser(createUser());
 
     //Valid call
     ASSERT_NO_THROW(userManager.removeUser(userName));
@@ -113,7 +139,20 @@ TEST_F(UserManagerTest, removeUser)
     ASSERT_ANY_THROW(userManager.removeUser(userName));
 }
 
-TEST_F(UserManagerTest, changeUser)
+TEST_F(UserManagerTest, removeUserFailsWhenUserHasAlreadyBeenRemoved)
+{
+    //Create user
+    userManager.defineUser(createUser());
+
+    //Valid call
+    ASSERT_NO_THROW(userManager.removeUser(userName));
+
+    //Fail because the user was already removed
+    ASSERT_ANY_THROW(userManager.removeUser(userName));
+}
+
+
+TEST_F(UserManagerTest, changeUserFailsWhenUserDoesNotExist)
 {
     UserProto newUserProp;
     std::string newUserName = "newUser";
@@ -137,12 +176,37 @@ TEST_F(UserManagerTest, changeUser)
 
     //Fail because there is no user
     ASSERT_ANY_THROW(userManager.changeUser(userName, newUserProp));
+}
 
+TEST_F(UserManagerTest, changeUserSucceeds)
+{
+    UserProto newUserProp;
+    std::string newUserName = "newUser";
+    std::string newPassword = "newPass";
+
+    newUserProp.set_name(newUserName);
+    newUserProp.set_password(newPassword);
+
+    UserAdminRightsProto* adminRights = new UserAdminRightsProto();
+    adminRights->set_access_control_rights(TestUtil::randomBool());
+    adminRights->set_info_rights(TestUtil::randomBool());
+    adminRights->set_server_admin_rights(TestUtil::randomBool());
+    adminRights->set_system_config_rights(TestUtil::randomBool());
+
+    UserDatabaseRightsProto* dbRights = new UserDatabaseRightsProto();
+    dbRights->set_read(TestUtil::randomBool());
+    dbRights->set_write(TestUtil::randomBool());
+
+    newUserProp.set_allocated_admin_rights(adminRights);
+    newUserProp.set_allocated_default_db_rights(dbRights);
+
+    //Define the user
     ASSERT_NO_THROW(userManager.defineUser(createUser()));
 
     //Valid call
     ASSERT_NO_THROW(userManager.changeUser(userName, newUserProp));
 
+    //Test that the change was valid.
     boost::shared_ptr<User> out_user;
     ASSERT_TRUE(userManager.tryGetUser(newUserName,out_user));
     ASSERT_EQ(newUserName, out_user->getName());
@@ -157,13 +221,17 @@ TEST_F(UserManagerTest, changeUser)
     ASSERT_EQ(dbRights->write(), out_user->getDefaultDbRights().hasWriteAccess());
 }
 
-
-TEST_F(UserManagerTest, tryGetUser)
+TEST_F(UserManagerTest, tryGetUserFailsWhenUserDoesNotExist)
 {
     boost::shared_ptr<User> out_user;
 
     ASSERT_FALSE(userManager.tryGetUser(userName, out_user));
+}
 
+TEST_F(UserManagerTest, tryGetUserSucceedsWhenUserExists)
+{
+    boost::shared_ptr<User> out_user;
+    //Define the user
     ASSERT_NO_THROW(userManager.defineUser(createUser()));
 
     ASSERT_TRUE(userManager.tryGetUser(userName, out_user));

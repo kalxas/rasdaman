@@ -49,7 +49,7 @@ KeyObject::KeyObject(const KeyObject& old)
 {
 }
 
-KeyObject::KeyObject(shared_ptr<Tile> tile)
+KeyObject::KeyObject(boost::shared_ptr<Tile> tile)
     :   persobject(),
         domain(tile->getDomain())
 {
@@ -81,7 +81,7 @@ KeyObject::setDomain(const r_Minterval& dom)
 }
 
 void
-KeyObject::setTransObject(shared_ptr<Tile> tile)
+KeyObject::setTransObject(boost::shared_ptr<Tile> tile)
 {
     domain = tile->getDomain();
     transobject = tile;
@@ -109,7 +109,7 @@ KeyObject::isPersCarrier() const
     return (transobject == NULL);
 }
 
-shared_ptr<Tile>
+boost::shared_ptr<Tile>
 KeyObject::getTransObject() const
 {
     return transobject;

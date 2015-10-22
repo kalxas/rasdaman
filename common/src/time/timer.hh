@@ -37,7 +37,7 @@ public:
     /**
     * Create a Timer object with a given lifetime. The timer automatically starts ticking.
     * @param period The number of milliseconds until the timer will expire.
-    * @throws std::runtime_error is thrown if the period is negative.
+    * @throws InvalidArgumentException is thrown if the period is negative.
     */
     Timer(boost::int32_t period);
 

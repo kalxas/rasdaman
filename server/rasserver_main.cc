@@ -83,7 +83,7 @@ RMINITGLOBALS('C')
 #include "rasserver_entry.hh"
 
 #ifdef RMANRASNET
-#include "rasserver_x/src/rasnetserver.hh"
+#include "../rasserver_x/src/rasnetserver.hh"
 #endif
 
 #include "../common/src/logging/easylogging++.hh"
@@ -206,7 +206,7 @@ int main ( int argc, char** argv )
         else if(configuration.isRasnetServer())
         {
             //start rasnet server
-            RasnetServer rasnetServer(configuration);
+            rasserver::RasnetServer rasnetServer(configuration);
             rasnetServer.startRasnetServer();
         }
 #endif
@@ -228,6 +228,12 @@ int main ( int argc, char** argv )
     {
         LDEBUG << "Error: encountered " << errorObj.get_errorno() << ": " << errorObj.what();
         LERROR << "Error: encountered " << errorObj.get_errorno() << ": " << errorObj.what();
+        returnCode = RC_ERROR;
+    }
+    catch (std::exception &ex)
+    {
+        LERROR << "Error encounter: " << ex.what();
+        LDEBUG << "std::exception: " << ex.what();
         returnCode = RC_ERROR;
     }
     catch(...)

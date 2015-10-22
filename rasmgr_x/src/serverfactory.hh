@@ -25,11 +25,12 @@
 
 #include <boost/shared_ptr.hpp>
 
-#include "server.hh"
-#include "serverconfig.hh"
-
 namespace rasmgr
 {
+
+class Server;
+class ServerConfig;
+
 class ServerFactory
 {
 public:

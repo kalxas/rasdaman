@@ -50,7 +50,7 @@ rasserver_LDADD=../servercomm/libservercomm.a ../qlparser/libqlparser.a ../conve
                 ../servercomm/libservercomm.a ../relcatalogif/librelcatalogif.a ../raslib/libraslib.a @BASEDBLDFLAGS@ @GDAL_LDFLAGS@
 
 if RMANRASNET
-    rasserver_LDADD += ../rasserver_x/src/librasnetserver.a ../rasnetprotocol/librasnetprotocol.a ../rasnet/src/librasnet.a ../common/src/libcommon.a @ZMQ_LIBS@ @PROTOBUF_LIBS@ @BOOST_LDFLAGS@ -lboost_thread -lboost_regex -lboost_program_options -lboost_system
+    rasserver_LDADD += ../rasserver_x/src/librasnetserver.a ../rasnetprotocol/librasnetprotocol.a ../rasnet/librasnet.a ../common/src/libcommon.a @GRPC_LIBS@ @GPR_LIBS@ @GRPCPP_LIBS@  @PROTOBUF_LIBS@ @BOOST_LDFLAGS@ -lboost_thread -lboost_regex -lboost_program_options -lboost_system
 endif
 
 SUBDIRS = ../relblobif ../relindexif ../relmddif ../relcatalogif ../reladminif ../relstorageif \

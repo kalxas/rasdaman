@@ -23,10 +23,13 @@
 #include <fstream>
 #include <stdexcept>
 
-#include "common/src/logging/easylogging++.hh"
+#include "../../common/src/logging/easylogging++.hh"
+#include "../../common/src/exceptions/logicexception.hh"
 
 #include "controlrasmgrrasnet.hh"
+#include "invalidrasctrlcommandexception.hh"
 #include "rascontrol.hh"
+#include "commandexecutor.hh"
 
 namespace rascontrol
 {
@@ -67,7 +70,7 @@ void RasControl::start()
 
     default:
     {
-        throw std::runtime_error("Invalid work mode.");
+        throw common::LogicException("Invalid work mode");
     }
     break;
     }
@@ -183,7 +186,7 @@ void RasControl::startBatchMode()
                 const char* commandLine = this->editLine.fromStdinCommand(prompt.c_str());
                 if(commandLine == NULL)
                 {
-                    throw std::runtime_error("Invalid command.");
+                    throw InvalidRasctrlCommandException();
                 }
                 else
                 {
@@ -196,7 +199,7 @@ void RasControl::startBatchMode()
             {
                 if(fromCommandLine)
                 {
-                    throw std::runtime_error("Invalid command.");
+                    throw InvalidRasctrlCommandException();
                 }
                 else
                 {

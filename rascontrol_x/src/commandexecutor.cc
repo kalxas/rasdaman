@@ -25,6 +25,7 @@
 #include "../../common/src/logging/easylogging++.hh"
 #include "../../rasmgr_x/src/rasctrlgrammarconstants.hh"
 
+#include "controlrasmgrcomm.hh"
 #include "commandexecutor.hh"
 
 namespace rascontrol
@@ -55,5 +56,4 @@ void CommandExecutor::executeLogin(std::string &reply)
 {
     reply = this->communication->processCommand(RasCtrlGrammarConstants::login);
 }
-
 }

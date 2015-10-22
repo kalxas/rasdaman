@@ -36,22 +36,25 @@
 #include <boost/thread/thread.hpp>
 #include <boost/format.hpp>
 
-#include "common/src/logging/easylogging++.hh"
-#include "common/src/uuid/uuid.hh"
-#include "rasnet/src/common/zmqutil.hh"
-#include "rasnet/src/messages/communication.pb.h"
-#include "rasnet/src/messages/internal.pb.h"
+#include "../../common/src/exceptions/rasexceptions.hh"
+#include "../../common/src/logging/easylogging++.hh"
+#include "../../common/src/uuid/uuid.hh"
 
-#include "rasmgrconfig.hh"
-#include "serverrasnet.hh"
+#include "exceptions/rasmgrexceptions.hh"
+
+#include "server.hh"
+#include "servergroup.hh"
+#include "servergroupfactory.hh"
+#include "servermanagerconfig.hh"
+
 #include "servermanager.hh"
-
-#include "serverfactoryrasnet.hh"
 
 namespace rasmgr
 {
 
+using boost::format;
 using boost::lexical_cast;
+using boost::mutex;
 using boost::posix_time::microsec_clock;
 using boost::posix_time::milliseconds;
 using boost::scoped_ptr;
@@ -61,8 +64,6 @@ using boost::shared_ptr;
 using boost::thread;
 using boost::unique_lock;
 using boost::unordered_set;
-using boost::mutex;
-using boost::format;
 
 using std::map;
 using std::runtime_error;
@@ -70,46 +71,36 @@ using std::set;
 using std::string;
 using std::list;
 
-using rasnet::BaseMessage;
 using common::UUID;
-using rasnet::internal::InternalDisconnectReply;
-using rasnet::internal::InternalDisconnectRequest;
-using zmq::socket_t;
-using rasnet::ZmqUtil;
+
 
 ServerManager::ServerManager(const ServerManagerConfig& config, boost::shared_ptr<ServerGroupFactory> serverGroupFactory)
-    :config(config), serverGroupFactory(serverGroupFactory)
+        :config(config), serverGroupFactory(serverGroupFactory)
 {
-    this->controlEndpoint = ZmqUtil::toInprocAddress(UUID::generateUUID());
+    this->isWorkerThreadRunning = true;
     this->workerCleanup.reset ( new thread ( &ServerManager::workerCleanupRunner, this ) );
-
-    this->controlSocket.reset ( new zmq::socket_t ( this->context, ZMQ_PAIR ) );
-    this->controlSocket->connect ( this->controlEndpoint.c_str() );
 }
 
 ServerManager::~ServerManager()
 {
     try
     {
-        InternalDisconnectRequest request = InternalDisconnectRequest::default_instance();
-        shared_ptr<BaseMessage> reply;
-        ZmqUtil::send(*(this->controlSocket.get()), request);
-        ZmqUtil::receive(*(this->controlSocket.get()), reply);
-
-        if ( reply->type() != InternalDisconnectReply::default_instance().GetTypeName() )
         {
-            LERROR<<"Unexpected message received from control socket."<<reply->DebugString();
+            boost::lock_guard<boost::mutex> lock(this->threadMutex);
+            this->isWorkerThreadRunning = false;
         }
+
+        this->isThreadRunningCondition.notify_one();
 
         this->workerCleanup->join();
     }
-    catch ( std::exception& ex )
+    catch (std::exception& ex)
     {
         LERROR<<ex.what();
     }
-    catch ( ... )
+    catch (...)
     {
-        LERROR<<"ServerManager destructor failed";
+        LERROR<<"ServerManager destructor has failed";
     }
 }
 
@@ -151,7 +142,7 @@ void ServerManager::registerServer ( const string& serverId )
 
     if ( !registered )
     {
-        throw runtime_error ( "There is no server with ID:"+serverId );
+        throw InexistentServerGroupException(serverId);
     }
 }
 
@@ -165,7 +156,7 @@ void ServerManager::defineServerGroup(const ServerGroupConfigProto &serverGroupC
     {
         if ( ( *it )->getGroupName() ==serverGroupConfig.name() )
         {
-            throw runtime_error ( "There already exists a server group named:\""+serverGroupConfig.name()+"\".");
+            throw ServerGroupDuplicateException(( *it )->getGroupName());
         }
     }
 
@@ -182,23 +173,24 @@ void ServerManager::changeServerGroup(const std::string &oldServerGroupName, con
     {
         if ( ( *it )->getGroupName() == oldServerGroupName )
         {
-            if(( *it )->isStopped() )
+            if((*it)->isStopped())
             {
-                changed=true;
                 ( *it )->changeGroupConfig ( newServerGroupConfig );
-                break;
+                changed=true;
             }
             else
             {
-                throw runtime_error ( string("Cannot change server group properties while it is running.")
-                                      + string(" Stop the server group.") );
+                std::string errorMessage("Cannot change ServerGroup configuration while the ServerGroup is running.");
+                throw common::InvalidStateException(errorMessage);
             }
+
+            break;
         }
     }
 
     if ( !changed )
     {
-        throw runtime_error ( "There is not server group named \""+oldServerGroupName+"\"" );
+        throw InexistentServerGroupException(oldServerGroupName);
     }
 }
 
@@ -214,21 +206,21 @@ void ServerManager::removeServerGroup ( const std::string &serverGroupName )
         {
             if(( *it )->isStopped() )
             {
-                removed=true;
                 this->serverGroupList.erase ( it );
+                removed=true;
+
                 break;
             }
             else
             {
-                throw runtime_error ( string("Cannot remove server group while it is running.")
-                                      + string(" Stop the server group.") );
+                throw ServerGroupBusyException(serverGroupName);
             }
         }
     }
 
     if ( !removed )
     {
-        throw runtime_error ( "There is no server group named \""+serverGroupName+"\"" );
+        throw InexistentServerGroupException(serverGroupName);
     }
 }
 
@@ -237,7 +229,7 @@ void ServerManager::startServerGroup ( const StartServerGroup &startGroup )
     list<shared_ptr<ServerGroup> >::iterator it;
     shared_lock<shared_mutex> lockMutexGroups ( this->serverGroupMutex );
 
-    if ( startGroup.has_group_name() )
+    if ( startGroup.has_group_name())
     {
         bool found=false;
         for ( it=this->serverGroupList.begin(); it!=this->serverGroupList.end(); ++it )
@@ -245,15 +237,8 @@ void ServerManager::startServerGroup ( const StartServerGroup &startGroup )
             shared_ptr<ServerGroup>  srv = ( *it );
             if ( srv->getGroupName() == startGroup.group_name() )
             {
+                srv->start();
                 found=true;
-                if ( srv->isStopped() )
-                {
-                    srv->start();
-                }
-                else
-                {
-                    throw runtime_error ( "The server group \""+startGroup.group_name() +"\" is already running." );
-                }
 
                 break;
             }
@@ -261,7 +246,7 @@ void ServerManager::startServerGroup ( const StartServerGroup &startGroup )
 
         if ( !found )
         {
-            throw runtime_error ( "There is not server group named \""+startGroup.group_name() +"\"" );
+            throw InexistentServerGroupException(startGroup.group_name());
         }
     }
     else if ( startGroup.has_host_name() )
@@ -283,7 +268,7 @@ void ServerManager::startServerGroup ( const StartServerGroup &startGroup )
 
         if ( !hostExists )
         {
-            throw runtime_error ( "There are no server groups defined on host \""+onHost+"\"" );
+            throw common::MissingResourceException("There are no server groups defined on host \""+onHost+"\"");
         }
     }
     else if ( startGroup.has_all() )
@@ -298,7 +283,7 @@ void ServerManager::startServerGroup ( const StartServerGroup &startGroup )
     }
     else
     {
-        throw runtime_error("Invalid start server command.");
+        throw common::InvalidArgumentException("startGroup");
     }
 }
 
@@ -309,31 +294,23 @@ void ServerManager::stopServerGroup ( const StopServerGroup &stopGroup )
 
     if ( stopGroup.has_group_name() )
     {
-        bool found=false;
+        bool stopped=false;
 
         for ( it=this->serverGroupList.begin(); it!=this->serverGroupList.end(); ++it )
         {
             shared_ptr<ServerGroup>  srv = ( *it );
             if ( srv->getGroupName() == stopGroup.group_name() )
             {
-                found=true;
-
-                if(srv->isStopped())
-                {
-                    throw runtime_error ( "The server group \""+stopGroup.group_name() +"\" is already stopped." );
-                }
-                else
-                {
-                    srv->stop(stopGroup.kill_level());
-                }
+                srv->stop(stopGroup.kill_level());
+                stopped=true;
 
                 break;
             }
         }
 
-        if ( !found )
+        if ( !stopped )
         {
-            throw runtime_error ( "There is not server group named \""+stopGroup.group_name() +"\"" );
+            throw InexistentServerGroupException(stopGroup.group_name());
         }
     }
     else if ( stopGroup.has_host_name() )
@@ -355,7 +332,7 @@ void ServerManager::stopServerGroup ( const StopServerGroup &stopGroup )
 
         if ( !hostExists )
         {
-            throw runtime_error ( "There are no server groups defined on host \""+onHost+"\"" );
+            throw common::MissingResourceException("There are no server groups defined on host \""+onHost+"\"");
         }
     }
     else if ( stopGroup.has_all() )
@@ -370,7 +347,7 @@ void ServerManager::stopServerGroup ( const StopServerGroup &stopGroup )
     }
     else
     {
-        throw runtime_error("Invalid stop server command.");
+        throw common::InvalidArgumentException("stopGroup");
     }
 }
 
@@ -410,44 +387,31 @@ ServerMgrProto ServerManager::serializeToProto()
 
 void ServerManager::workerCleanupRunner()
 {
-    shared_ptr<BaseMessage> controlMessage;
-    bool keepRunning=true;
+    boost::posix_time::time_duration timeToSleepFor = boost::posix_time::milliseconds(this->config.getCleanupInterval());
 
-    try
+    boost::unique_lock<boost::mutex> threadLock(this->threadMutex);
+    while (this->isWorkerThreadRunning)
     {
-        zmq::socket_t control ( this->context, ZMQ_PAIR );
-        control.bind ( this->controlEndpoint.c_str() );
-        zmq::pollitem_t items[] = {{control,0,ZMQ_POLLIN,0}};
-
-        while ( keepRunning )
+        try
         {
-            zmq::poll ( items, 1, this->config.getCleanupInterval() );
+            // Wait on the condition variable to be notified from the
+            // destructor when it is time to stop the worker thread
+            if(!this->isThreadRunningCondition.timed_wait(threadLock, timeToSleepFor))
+            {
 
-            if ( items[0].revents & ZMQ_POLLIN )
-            {
-                ZmqUtil::receive(control, controlMessage);
-                if ( controlMessage->type() ==InternalDisconnectRequest::default_instance().GetTypeName() )
-                {
-                    keepRunning=false;
-                    InternalDisconnectReply disconnectReply;
-                    ZmqUtil::send(control, disconnectReply);
-                }
-            }
-            else
-            {
                 shared_lock<shared_mutex> lock ( this->serverGroupMutex );
 
                 this->evaluateServerGroups();
             }
         }
-    }
-    catch ( std::exception& ex )
-    {
-        LERROR<<ex.what();
-    }
-    catch ( ... )
-    {
-        LERROR<<"Server management thread has failed";
+        catch ( std::exception& ex )
+        {
+            LERROR<<ex.what();
+        }
+        catch ( ... )
+        {
+            LERROR<<"Evaluating server groups has failed";
+        }
     }
 }
 

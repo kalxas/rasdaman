@@ -51,6 +51,8 @@ static const char rcsid[] = "@(#)mddobjix, MDDObjIx: $Id: mddobjix.cc,v 1.30 200
 #include "relblobif/tileid.hh"
 #include "../common/src/logging/easylogging++.hh"
 
+using boost::shared_ptr;
+
 void
 MDDObjIx::setNewLastAccess(const r_Minterval& newLastAccess, const std::vector< shared_ptr<Tile> >* newLastTiles)
 {

@@ -21,103 +21,96 @@
  */
 
 #include <string>
+#include <memory>
 #include <boost/cstdint.hpp>
+
+#include <grpc++/grpc++.h>
+#include <grpc++/security/credentials.h>
 
 #include "../../common/src/unittest/gtest.h"
 #include "../../common/src/mock/gmock.h"
 #include "../../common/src/logging/easylogging++.hh"
+#include "../../common/src/grpc/grpcutils.hh"
 
-#include "rasnet/src/server/servicemanager.hh"
-#include "rasnet/src/messages/rassrvr_rasmgr_service.pb.h"
+#include "../../rasnet/messages/rassrvr_rasmgr_service.grpc.pb.h"
 
 #include "../src/serverrasnet.hh"
 
+namespace rasmgr
+{
+namespace test
+{
 using rasmgr::ServerRasNet;
-using rasnet::ServiceManager;
 using rasnet::service::RasServerService;
+
+using grpc::Server;
+using grpc::ServerBuilder;
+using grpc::ServerContext;
+using grpc::Status;
+using grpc::SynchronousService;
 
 using ::testing::AtLeast;                     // #1
 using ::testing::_;
 using ::testing::Return;
 
-class MockRasServerService:public rasnet::service::RasServerService
+class MockRasServerService: public ::rasnet::service::RasServerService::Service
 {
-    virtual void AllocateClient(::google::protobuf::RpcController* controller,
-                                const ::rasnet::service::AllocateClientReq* request,
-                                ::rasnet::service::Void* response,
-                                ::google::protobuf::Closure* done)
+    grpc::Status AllocateClient(grpc::ServerContext *context, const rasnet::service::AllocateClientReq *request, rasnet::service::Void *response) override
     {
+        return Status::OK;
     }
 
-    virtual void DeallocateClient(::google::protobuf::RpcController* controller,
-                                  const ::rasnet::service::DeallocateClientReq* request,
-                                  ::rasnet::service::Void* response,
-                                  ::google::protobuf::Closure* done)
-    {}
+    grpc::Status DeallocateClient(grpc::ServerContext *context, const rasnet::service::DeallocateClientReq *request, rasnet::service::Void *response) override
+    {
+        return Status::OK;
+    }
 
-    virtual void Close(::google::protobuf::RpcController* controller,
-                       const ::rasnet::service::CloseServerReq* request,
-                       ::rasnet::service::Void* response,
-                       ::google::protobuf::Closure* done)
-    {}
+    grpc::Status Close(grpc::ServerContext *context, const rasnet::service::CloseServerReq *request, rasnet::service::Void *response) override
+    {
+        return Status::OK;
+    }
 
-    virtual void GetClientStatus(::google::protobuf::RpcController* controller,
-                                 const ::rasnet::service::ClientStatusReq* request,
-                                 ::rasnet::service::ClientStatusRepl* response,
-                                 ::google::protobuf::Closure* done)
+    grpc::Status GetClientStatus(grpc::ServerContext *context, const rasnet::service::ClientStatusReq *request, rasnet::service::ClientStatusRepl *response) override
     {
         response->set_status(rasnet::service::ClientStatusRepl_Status_ALIVE);
+
+        return Status::OK;
     }
 
-    virtual void GetServerStatus(::google::protobuf::RpcController* controller,
-                                 const ::rasnet::service::ServerStatusReq* request,
-                                 ::rasnet::service::ServerStatusRepl* response,
-                                 ::google::protobuf::Closure* done)
+    grpc::Status GetServerStatus(grpc::ServerContext *context, const rasnet::service::ServerStatusReq *request, rasnet::service::ServerStatusRepl *response) override
     {
         response->set_clientqueuesize(1);
+        return Status::OK;
     }
 }
 ;
 
-class FailingMockRasServerService:public rasnet::service::RasServerService
+class FailingMockRasServerService:public rasnet::service::RasServerService::Service
 {
-    virtual void AllocateClient(::google::protobuf::RpcController* controller,
-                                const ::rasnet::service::AllocateClientReq* request,
-                                ::rasnet::service::Void* response,
-                                ::google::protobuf::Closure* done)
+public:
+    grpc::Status AllocateClient(grpc::ServerContext *context, const rasnet::service::AllocateClientReq *request, rasnet::service::Void *response) override
     {
-        controller->SetFailed("Failed");
+        return Status::CANCELLED;
     }
 
-    virtual void DeallocateClient(::google::protobuf::RpcController* controller,
-                                  const ::rasnet::service::DeallocateClientReq* request,
-                                  ::rasnet::service::Void* response,
-                                  ::google::protobuf::Closure* done)
+    grpc::Status DeallocateClient(grpc::ServerContext *context, const rasnet::service::DeallocateClientReq *request, rasnet::service::Void *response) override
     {
-        controller->SetFailed("Failed");
+        return Status::CANCELLED;
     }
 
-    virtual void Close(::google::protobuf::RpcController* controller,
-                       const ::rasnet::service::CloseServerReq* request,
-                       ::rasnet::service::Void* response,
-                       ::google::protobuf::Closure* done)
-    {}
-
-    virtual void GetClientStatus(::google::protobuf::RpcController* controller,
-                                 const ::rasnet::service::ClientStatusReq* request,
-                                 ::rasnet::service::ClientStatusRepl* response,
-                                 ::google::protobuf::Closure* done)
+    grpc::Status Close(grpc::ServerContext *context, const rasnet::service::CloseServerReq *request, rasnet::service::Void *response) override
     {
+        return Status::OK;
+    }
 
+    grpc::Status GetClientStatus(grpc::ServerContext *context, const rasnet::service::ClientStatusReq *request, rasnet::service::ClientStatusRepl *response) override
+    {
         response->set_status(rasnet::service::ClientStatusRepl_Status_DEAD);
     }
 
-    virtual void GetServerStatus(::google::protobuf::RpcController* controller,
-                                 const ::rasnet::service::ServerStatusReq* request,
-                                 ::rasnet::service::ServerStatusRepl* response,
-                                 ::google::protobuf::Closure* done)
+    grpc::Status GetServerStatus(grpc::ServerContext *context, const rasnet::service::ServerStatusReq *request, rasnet::service::ServerStatusRepl *response) override
     {
-        controller->SetFailed("Failed");
+        return Status::CANCELLED;
     }
 }
 ;
@@ -127,194 +120,207 @@ class RasServerTest:public ::testing::Test
 protected:
     RasServerTest()
     {
-        hostName = "tcp://localhost";
-        port = 7001;
-        failPort = 7002;
+        this->hostName = "localhost";
+        this->goodPort = 50001;
+        this->badPort = 50002;
 
-        boost::shared_ptr<RasServerService> service (new MockRasServerService());
+        boost::shared_ptr<RasServerService::Service> service (new MockRasServerService());
 
-        boost::shared_ptr<RasServerService> failService (new FailingMockRasServerService());
+        boost::shared_ptr<RasServerService::Service> failService (new FailingMockRasServerService());
 
-        manager.reset((new ServiceManager()));
-        manager->addService(service);
-        manager->serve("tcp://*", port);
+        ServerBuilder goodServerBuilder;
+        ServerBuilder failingServerBuilder;
 
-        managerFail.reset((new ServiceManager()));
-        managerFail->addService(failService);
-        managerFail->serve("tcp://*", failPort);
+        std::string serverBaseAddress = "0.0.0.0";
+
+        goodServerBuilder.AddListeningPort(common::GrpcUtils::convertAddressToString(serverBaseAddress, this->goodPort), grpc::InsecureServerCredentials());
+        goodServerBuilder.RegisterService((SynchronousService*)service.get());
+        goodService = goodServerBuilder.BuildAndStart();
+
+        failingServerBuilder.AddListeningPort(common::GrpcUtils::convertAddressToString(serverBaseAddress, this->badPort), grpc::InsecureServerCredentials());
+        failingServerBuilder.RegisterService((SynchronousService*)failService.get());
+        failingService = failingServerBuilder.BuildAndStart();
+
 
         dbHost.reset(new rasmgr::DatabaseHost("hostName", "connectString", "user","passwd"));
 
-        server.reset(new rasmgr::ServerRasNet(hostName, port, dbHost));
-        failingServer.reset(new rasmgr::ServerRasNet(hostName, failPort, dbHost));
+        ServerConfig goodServerConfig(hostName, goodPort, dbHost);
+        ServerConfig failingServerConfig(hostName, badPort, dbHost);
+
+        server.reset(new rasmgr::ServerRasNet(goodServerConfig));
+        failingServer.reset(new rasmgr::ServerRasNet(failingServerConfig));
     }
 
 
     std::string hostName;
-    boost::int32_t port;
-    boost::int32_t failPort;
+    boost::int32_t goodPort;
+    boost::int32_t badPort;
 
-    boost::scoped_ptr<ServiceManager> manager;
-    boost::scoped_ptr<ServiceManager> managerFail;
+    std::unique_ptr<Server>  goodService;
+    std::unique_ptr<Server> failingService;
     boost::shared_ptr<rasmgr::DatabaseHost> dbHost;
+
     boost::shared_ptr<rasmgr::ServerRasNet> server;
     boost::shared_ptr<rasmgr::ServerRasNet> failingServer;
 };
 
-TEST_F(RasServerTest, DISABLED_isAlive)
-{
-    ASSERT_TRUE(server->isAlive());
-    ASSERT_FALSE(failingServer->isAlive());
-}
-
-TEST_F(RasServerTest, DISABLED_isClientAlive)
-{
-    ASSERT_TRUE(server->isClientAlive("test"));
-    ASSERT_FALSE(failingServer->isClientAlive("test"));
-}
-
-TEST_F(RasServerTest, DISABLED_allocateClientSession)
-{
-    std::string clientId = "clientId";
-    std::string sessionId = "sessionId";
-    std::string dbName = "dbName";
-    rasmgr::UserDatabaseRights dbRights(false,true);
-    rasmgr::Database db(dbName);
-
-    ASSERT_NO_THROW(server->registerServer(server->getServerId()));
-
-    //This will fail because the database host does not have the database with the given name
-    ASSERT_ANY_THROW(server->allocateClientSession(clientId, sessionId, dbName, dbRights));
-
-    dbHost->addDbToHost(db);
-    //Everything will work.
-    ASSERT_NO_THROW(server->allocateClientSession(clientId, sessionId, dbName, dbRights));
-
-    //Adding the same session twice will throw an exception
-    ASSERT_ANY_THROW(server->allocateClientSession(clientId, sessionId, dbName, dbRights));
-
-    //This will fail due to the server
-    ASSERT_ANY_THROW(failingServer->allocateClientSession(clientId, sessionId, dbName, dbRights));
-
-}
-
-//Test if the database host connection is freed
-TEST_F(RasServerTest, DISABLED_cleanupPerformed)
-{
-    std::string clientId = "clientId";
-    std::string sessionId = "sessionId";
-    std::string dbName = "dbName";
-    rasmgr::UserDatabaseRights dbRights(false,true);
-    rasmgr::Database db(dbName);
-    boost::shared_ptr<rasmgr::DatabaseHost> dbh( new rasmgr::DatabaseHost("hostName", "connectString", "user","passwd"));
-
-    dbh->addDbToHost(db);
-
-    rasmgr::ServerRasNet* srv = new ServerRasNet(hostName, port, dbh);
-
-    ASSERT_FALSE(dbh->isBusy());
-
-    ASSERT_NO_THROW(srv->registerServer(srv->getServerId()));
-
-    ASSERT_NO_THROW(srv->allocateClientSession(clientId, sessionId, dbName, dbRights));
-
-    ASSERT_TRUE(dbh->isBusy());
-
-    //Removing the server will also remove all its connections to the database host
-    delete srv;
-
-    ASSERT_FALSE(dbh->isBusy());
-
-}
-
-TEST_F(RasServerTest, DISABLED_deallocateClientSession)
-{
-    std::string clientId = "clientId";
-    std::string sessionId = "sessionId";
-    std::string dbName = "dbName";
-    rasmgr::UserDatabaseRights dbRights(false,true);
-    rasmgr::Database db(dbName);
-
-    dbHost->addDbToHost(db);
-
-    ASSERT_NO_THROW(server->registerServer(server->getServerId()));
-
-    //Everything will work.
-    ASSERT_NO_THROW(server->allocateClientSession(clientId, sessionId, dbName, dbRights));
-
-    ASSERT_NO_THROW(server->deallocateClientSession(clientId, sessionId));
-
-    ASSERT_ANY_THROW(failingServer->deallocateClientSession(clientId, sessionId));
-}
-
-TEST_F(RasServerTest, DISABLED_registerServer)
-{
-    ASSERT_ANY_THROW(server->registerServer("wrong"));
-
-    ASSERT_NO_THROW(server->registerServer(server->getServerId()));
-
-    ASSERT_NO_THROW(server->registerServer(server->getServerId()));
-}
-
-//TODO
-//TEST_F(RasServerTest, stop)
+//TEST_F(RasServerTest, isAlive)
 //{
+//    ASSERT_TRUE(server->isAlive());
+//    ASSERT_FALSE(failingServer->isAlive());
 //}
 
-TEST_F(RasServerTest, DISABLED_isStarting)
-{
-    ASSERT_TRUE(server->isStarting());
-
-    ASSERT_NO_THROW(server->registerServer(server->getServerId()));
-
-    //The server has already started
-    ASSERT_FALSE(server->isStarting());
-
+}
 }
 
+//TEST_F(RasServerTest, DISABLED_isClientAlive)
+//{
+//    ASSERT_TRUE(server->isClientAlive("test"));
+//    ASSERT_FALSE(failingServer->isClientAlive("test"));
+//}
 
-TEST_F(RasServerTest, DISABLED_isFree)
-{
-    ASSERT_NO_THROW(server->registerServer(server->getServerId()));
+//TEST_F(RasServerTest, DISABLED_allocateClientSession)
+//{
+//    std::string clientId = "clientId";
+//    std::string sessionId = "sessionId";
+//    std::string dbName = "dbName";
+//    rasmgr::UserDatabaseRights dbRights(false,true);
+//    rasmgr::Database db(dbName);
 
-    ASSERT_TRUE(server->isFree());
+//    ASSERT_NO_THROW(server->registerServer(server->getServerId()));
 
-    std::string clientId = "clientId";
-    std::string sessionId = "sessionId";
-    std::string dbName = "dbName";
-    rasmgr::UserDatabaseRights dbRights(false,true);
-    rasmgr::Database db(dbName);
+//    //This will fail because the database host does not have the database with the given name
+//    ASSERT_ANY_THROW(server->allocateClientSession(clientId, sessionId, dbName, dbRights));
 
-    dbHost->addDbToHost(db);
-    //Everything will work.
-    ASSERT_NO_THROW(server->allocateClientSession(clientId, sessionId, dbName, dbRights));
-    //Allocate client
+//    dbHost->addDbToHost(db);
+//    //Everything will work.
+//    ASSERT_NO_THROW(server->allocateClientSession(clientId, sessionId, dbName, dbRights));
 
-    ASSERT_FALSE(server->isFree());
+//    //Adding the same session twice will throw an exception
+//    ASSERT_ANY_THROW(server->allocateClientSession(clientId, sessionId, dbName, dbRights));
 
-    ASSERT_NO_THROW(server->deallocateClientSession(clientId, sessionId));
+//    //This will fail due to the server
+//    ASSERT_ANY_THROW(failingServer->allocateClientSession(clientId, sessionId, dbName, dbRights));
 
-    ASSERT_TRUE(server->isFree());
-}
+//}
+
+////Test if the database host connection is freed
+//TEST_F(RasServerTest, DISABLED_cleanupPerformed)
+//{
+//    std::string clientId = "clientId";
+//    std::string sessionId = "sessionId";
+//    std::string dbName = "dbName";
+//    rasmgr::UserDatabaseRights dbRights(false,true);
+//    rasmgr::Database db(dbName);
+//    boost::shared_ptr<rasmgr::DatabaseHost> dbh( new rasmgr::DatabaseHost("hostName", "connectString", "user","passwd"));
+
+//    dbh->addDbToHost(db);
+
+//    rasmgr::ServerRasNet* srv = new ServerRasNet(hostName, port, dbh);
+
+//    ASSERT_FALSE(dbh->isBusy());
+
+//    ASSERT_NO_THROW(srv->registerServer(srv->getServerId()));
+
+//    ASSERT_NO_THROW(srv->allocateClientSession(clientId, sessionId, dbName, dbRights));
+
+//    ASSERT_TRUE(dbh->isBusy());
+
+//    //Removing the server will also remove all its connections to the database host
+//    delete srv;
+
+//    ASSERT_FALSE(dbh->isBusy());
+
+//}
+
+//TEST_F(RasServerTest, DISABLED_deallocateClientSession)
+//{
+//    std::string clientId = "clientId";
+//    std::string sessionId = "sessionId";
+//    std::string dbName = "dbName";
+//    rasmgr::UserDatabaseRights dbRights(false,true);
+//    rasmgr::Database db(dbName);
+
+//    dbHost->addDbToHost(db);
+
+//    ASSERT_NO_THROW(server->registerServer(server->getServerId()));
+
+//    //Everything will work.
+//    ASSERT_NO_THROW(server->allocateClientSession(clientId, sessionId, dbName, dbRights));
+
+//    ASSERT_NO_THROW(server->deallocateClientSession(clientId, sessionId));
+
+//    ASSERT_ANY_THROW(failingServer->deallocateClientSession(clientId, sessionId));
+//}
+
+//TEST_F(RasServerTest, DISABLED_registerServer)
+//{
+//    ASSERT_ANY_THROW(server->registerServer("wrong"));
+
+//    ASSERT_NO_THROW(server->registerServer(server->getServerId()));
+
+//    ASSERT_NO_THROW(server->registerServer(server->getServerId()));
+//}
+
+////TODO
+////TEST_F(RasServerTest, stop)
+////{
+////}
+
+//TEST_F(RasServerTest, DISABLED_isStarting)
+//{
+//    ASSERT_TRUE(server->isStarting());
+
+//    ASSERT_NO_THROW(server->registerServer(server->getServerId()));
+
+//    //The server has already started
+//    ASSERT_FALSE(server->isStarting());
+
+//}
 
 
-TEST_F(RasServerTest, DISABLED_isAvailable)
-{
-    ASSERT_ANY_THROW(server->isAvailable());
-    ASSERT_NO_THROW(server->registerServer(server->getServerId()));
+//TEST_F(RasServerTest, DISABLED_isFree)
+//{
+//    ASSERT_NO_THROW(server->registerServer(server->getServerId()));
 
-    ASSERT_TRUE(server->isAvailable());
+//    ASSERT_TRUE(server->isFree());
 
-    std::string clientId = "clientId";
-    std::string sessionId = "sessionId";
-    std::string dbName = "dbName";
-    rasmgr::UserDatabaseRights dbRights(false,true);
-    rasmgr::Database db(dbName);
+//    std::string clientId = "clientId";
+//    std::string sessionId = "sessionId";
+//    std::string dbName = "dbName";
+//    rasmgr::UserDatabaseRights dbRights(false,true);
+//    rasmgr::Database db(dbName);
 
-    dbHost->addDbToHost(db);
-    //Everything will work.
-    ASSERT_NO_THROW(server->allocateClientSession(clientId, sessionId, dbName, dbRights));
-    //Allocate client
+//    dbHost->addDbToHost(db);
+//    //Everything will work.
+//    ASSERT_NO_THROW(server->allocateClientSession(clientId, sessionId, dbName, dbRights));
+//    //Allocate client
 
-    ASSERT_FALSE(server->isAvailable());
-}
+//    ASSERT_FALSE(server->isFree());
+
+//    ASSERT_NO_THROW(server->deallocateClientSession(clientId, sessionId));
+
+//    ASSERT_TRUE(server->isFree());
+//}
+
+
+//TEST_F(RasServerTest, DISABLED_isAvailable)
+//{
+//    ASSERT_ANY_THROW(server->isAvailable());
+//    ASSERT_NO_THROW(server->registerServer(server->getServerId()));
+
+//    ASSERT_TRUE(server->isAvailable());
+
+//    std::string clientId = "clientId";
+//    std::string sessionId = "sessionId";
+//    std::string dbName = "dbName";
+//    rasmgr::UserDatabaseRights dbRights(false,true);
+//    rasmgr::Database db(dbName);
+
+//    dbHost->addDbToHost(db);
+//    //Everything will work.
+//    ASSERT_NO_THROW(server->allocateClientSession(clientId, sessionId, dbName, dbRights));
+//    //Allocate client
+
+//    ASSERT_FALSE(server->isAvailable());
+//}

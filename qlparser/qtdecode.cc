@@ -228,7 +228,8 @@ const QtTypeElement& QtDecode::checkType(QtTypeTuple* typeTuple)
         RMDBGIF(3, RMDebug::module_qlparser, "QtDecode",
                 LTRACE << "Class..: QtDecode";
                 LTRACE << "Operand: ";
-                inputType.printStatus(RMInit::dbgOut); )
+
+                inputType.printStatus(RMInit::dbgOut);)
 
 		if (inputType.getDataType() != QT_MDD)
 		{

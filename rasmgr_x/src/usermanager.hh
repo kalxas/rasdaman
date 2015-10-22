@@ -27,13 +27,14 @@
 #include <boost/thread.hpp>
 #include <boost/shared_ptr.hpp>
 
-#include "user.hh"
-#include "useradminrights.hh"
-#include "userdatabaserights.hh"
-#include "messages/rasmgrmess.pb.h"
-
 namespace rasmgr
 {
+
+class UserProto;
+class UserMgrProto;
+
+class User;
+
 /**
  * @brief The UserManager class manages the users allowed to use this system.
  */
@@ -45,8 +46,10 @@ public:
     virtual ~UserManager();
 
     /**
-     * Insert a new user into the list of users.
-     * @return If a user with the same name already exits, return FALSE, TRUE otherwise.
+     * @brief Create a new user and insert it into the list of users if a user with the same time doesn't exist.
+     * @param userInfo Object containing the user's properties
+     * @throws An exception is thrown if the userInfo object does not contain a valid name,
+     * or if a user with the same name already exists.
      */
     virtual void defineUser ( const UserProto& userInfo);
 
@@ -55,13 +58,14 @@ public:
      * in newUserInfo
      * @param userName
      * @param newUserInfo
+     * @throws An exception is thrown if there is no user with the given name in the database.
      */
     virtual void changeUser (const std::string& userName, const UserProto& newUserInfo);
 
     /**
      * Remove the user with the given name from the list of users.
-     * @param userName
-     * @return FALSE if there was no user with this name, TRUE otherwise
+     * @param userName Name of the user to be removed
+     * @throws An exception is thrown if there is no user with the given user name.
      */
     virtual void removeUser ( const std::string& userName );
 
@@ -76,6 +80,7 @@ public:
      * @brief Save the information stored by the user manager to the RASMGR_AUTH_FILE
      * @return void
      * @throws std::runtime_error If the authentication information could not be saved.
+     * THIS METHOD IS NOT THREAD SAFE
      */
     virtual void saveUserInformation();
 

@@ -31,36 +31,69 @@ rasdaman GmbH.
 #include <boost/shared_ptr.hpp>
 #include <boost/thread.hpp>
 
-#include "common/src/time/timer.hh"
-#include "common/src/zeromq/zmq.hh"
-#include "common/src/logging/easylogging++.hh"
+#include "../../common/src/time/timer.hh"
 
-namespace rasserver {
+namespace rasserver
+{
 
 class ClientManager
 {
 public:
     ClientManager();
+
     virtual ~ClientManager();
 
+    /**
+     * @brief allocateClient Allocate a slot for the client with the given clientUUID and sessionId
+     * @param clientUUID
+     * @param sessionId
+     * @return TRUE if the allocation was successful, FALSE otherwise.
+     */
     bool allocateClient(std::string clientUUID, std::string sessionId);
+
+    /**
+     * @brief deallocateClient Remove the client with the given id from the list.
+     * @param clientUUID
+     * @param sessionId
+     */
     void deallocateClient(std::string clientUUID, std::string sessionId);
+
+    /**
+     * @brief isAlive Check if the client with the given ID is alive.
+     * @param clientUUID
+     * @return TRUE if the client id alive, false otherwise
+     */
     bool isAlive(std::string clientUUID);
+
+    /**
+     * @brief resetLiveliness Reset the lifetime of a client.
+     * @param clientUUID
+     */
     void resetLiveliness(std::string clientUUID);
+
+    /**
+     * @brief getClientQueueSize
+     * @return The number of alive clients.
+     */
     size_t getClientQueueSize();
 
 private:
     static const int ALIVE_PERIOD = 3000; /* milliseconds */
 
-    zmq::context_t context;
-    boost::scoped_ptr<zmq::socket_t> controlSocket;
-    std::string controlEndpoint;
-
     boost::scoped_ptr<boost::thread> managementThread;
 
-    boost::shared_mutex clientMutex;
-    std::map<std::string, common::Timer> clientList;
+    boost::shared_mutex clientMutex;/*! Mutex used to synchronize access to the clientList */
+    std::map<std::string, common::Timer> clientList;/*! Map between a clientId and a Timer that counts down from the last ping*/
 
+    boost::mutex threadMutex;/*! Mutex used to safely stop the worker thread */
+    bool isThreadRunning; /*! Flag used to stop the worker thread */
+    boost::condition_variable isThreadRunningCondition; /*! Condition variable used to stop the worker thread */
+
+    /**
+     * @brief evaluateClientStatus Evaluate the list of clients and remove the ones who's
+     * lifetime has expired.
+     * This method will be ran in another thread.
+     */
     void evaluateClientStatus();
 };
 

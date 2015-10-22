@@ -4,10 +4,11 @@
 #include <boost/shared_ptr.hpp>
 
 #include "messages/rasmgrmess.pb.h"
-#include "servergroup.hh"
 
 namespace rasmgr
 {
+class ServerGroup;
+
 /**
  * @brief The ServerGroupFactory class Abstract Factory for creating a server
  * group given a server group configuration.

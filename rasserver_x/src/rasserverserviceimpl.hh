@@ -27,38 +27,33 @@ rasdaman GmbH.
 #include <set>
 #include <utility>
 #include <string>
+
 #include <boost/smart_ptr.hpp>
 
-#include "clientmanager.hh"
-#include "rasnet/src/messages/rassrvr_rasmgr_service.pb.h"
+#include "../../rasnet/messages/rassrvr_rasmgr_service.grpc.pb.h"
 
-class RasServerServiceImpl : public rasnet::service::RasServerService
+namespace rasserver
+{
+class ClientManager;
+
+class RasServerServiceImpl : public rasnet::service::RasServerService::Service
 {
 public:
     RasServerServiceImpl(::boost::shared_ptr<rasserver::ClientManager> clientManager);
 
-    void AllocateClient(::google::protobuf::RpcController* controller,
-                         const ::rasnet::service::AllocateClientReq* request,
-                         ::rasnet::service::Void* response,
-                         ::google::protobuf::Closure* done);
-    void DeallocateClient(::google::protobuf::RpcController* controller,
-                         const ::rasnet::service::DeallocateClientReq* request,
-                         ::rasnet::service::Void* response,
-                         ::google::protobuf::Closure* done);
-    void Close(::google::protobuf::RpcController* controller,
-                         const ::rasnet::service::CloseServerReq* request,
-                         ::rasnet::service::Void* response,
-                         ::google::protobuf::Closure* done);
-    void GetClientStatus(::google::protobuf::RpcController* controller,
-                         const ::rasnet::service::ClientStatusReq* request,
-                         ::rasnet::service::ClientStatusRepl* response,
-                         ::google::protobuf::Closure* done);
-    void GetServerStatus(::google::protobuf::RpcController* controller,
-                         const ::rasnet::service::ServerStatusReq* request,
-                         ::rasnet::service::ServerStatusRepl* response,
-                         ::google::protobuf::Closure* done);
+    virtual grpc::Status AllocateClient(grpc::ServerContext *context, const rasnet::service::AllocateClientReq *request, rasnet::service::Void *response) override;
+
+    virtual grpc::Status DeallocateClient(grpc::ServerContext *context, const rasnet::service::DeallocateClientReq *request, rasnet::service::Void *response) override;
+
+    virtual grpc::Status Close(grpc::ServerContext *context, const rasnet::service::CloseServerReq *request, rasnet::service::Void *response) override;
+
+    virtual grpc::Status GetClientStatus(grpc::ServerContext *context, const rasnet::service::ClientStatusReq *request, rasnet::service::ClientStatusRepl *response) override;
+
+    virtual grpc::Status GetServerStatus(grpc::ServerContext *context, const rasnet::service::ServerStatusReq *request, rasnet::service::ServerStatusRepl *response) override;
+
 private:
     ::boost::shared_ptr<rasserver::ClientManager> clientManager;
 };
+}
 
 #endif // RASSERVERSERVICE_HH

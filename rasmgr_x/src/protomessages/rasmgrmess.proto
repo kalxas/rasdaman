@@ -21,6 +21,8 @@
  * or contact Peter Baumann via <baumann@rasdaman.com>.
  */
 
+syntax = "proto2";
+
 package rasmgr;
 
 // BEGIN:Server messages

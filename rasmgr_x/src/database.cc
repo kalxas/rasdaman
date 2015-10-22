@@ -23,6 +23,9 @@
 #include <stdexcept>
 
 #include "../../common/src/logging/easylogging++.hh"
+#include "../../common/src/exceptions/logicexception.hh"
+
+#include "exceptions/rasmgrexceptions.hh"
 
 #include "database.hh"
 
@@ -33,7 +36,8 @@ using std::pair;
 using std::string;
 using std::runtime_error;
 
-Database::Database(const std::string& dbName):dbName(dbName)
+Database::Database(const std::string& dbName):
+    dbName(dbName)
 {}
 
 Database::~Database()
@@ -44,7 +48,8 @@ void Database::addClientSession(const std::string& clientId, const std::string& 
     pair<set<pair<string,string> >::iterator,bool> insertResult = this->sessionList.insert(std::make_pair(clientId,sessionId));
     if(!insertResult.second)
     {
-        throw runtime_error("Database already contains session:<"+clientId+", "+ sessionId+">");
+        std::string sessionUID= "<"+clientId+", "+sessionId+">";
+        throw DuplicateDbSessionException(this->getDbName(), sessionUID);
     }
 }
 
@@ -83,7 +88,12 @@ void Database::setDbName(const std::string &value)
 {
     if(isBusy())
     {
-        throw std::runtime_error("Cannot change properties of running database.");
+        throw DbBusyException(this->dbName);
+    }
+
+    if(value.empty())
+    {
+        throw common::LogicException("value.empty()");
     }
 
     dbName = value;

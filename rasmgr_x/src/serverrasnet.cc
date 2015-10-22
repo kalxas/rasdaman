@@ -25,30 +25,34 @@
 #include <sys/wait.h>
 
 #include <cstring>
-#include <stdexcept>
 #include <iostream>
+#include <stdexcept>
 
 #include <boost/lexical_cast.hpp>
 
-#include <google/protobuf/service.h>
-#include <google/protobuf/stubs/common.h>
+#include <grpc++/grpc++.h>
+#include <grpc++/security/credentials.h>
 
-#include "common/src/uuid/uuid.hh"
-#include "common/src/logging/easylogging++.hh"
-#include "rasnet/src/messages/rassrvr_rasmgr_service.pb.h"
-#include "rasnet/src/client/channel.hh"
-#include "rasnet/src/client/clientcontroller.hh"
-#include "rasnet/src/common/zmqutil.hh"
+#include "../../common/src/exceptions/rasexceptions.hh"
+
+#include "../../common/src/grpc/grpcutils.hh"
+#include "../../common/src/uuid/uuid.hh"
+#include "../../common/src/logging/easylogging++.hh"
+
+#include "../../rasnet/messages/rassrvr_rasmgr_service.pb.h"
+
+#include "exceptions/rasmgrexceptions.hh"
 
 #include "serverrasnet.hh"
 #include "rasmgrconfig.hh"
+#include "userdatabaserights.hh"
 
 namespace rasmgr
 {
-using std::runtime_error;
 using std::string;
 using std::set;
 using std::pair;
+using std::runtime_error;
 
 using boost::scoped_ptr;
 using boost::shared_ptr;
@@ -57,11 +61,12 @@ using boost::shared_lock;
 using boost::shared_mutex;
 using boost::lexical_cast;
 
-using google::protobuf::Closure;
-using google::protobuf::DoNothing;
-using google::protobuf::NewPermanentCallback;
+using grpc::Channel;
+using grpc::ClientContext;
+using grpc::Status;
 
 using common::UUID;
+using common::GrpcUtils;
 
 using rasnet::service::Void;
 using rasnet::service::AllocateClientReq;
@@ -71,24 +76,18 @@ using rasnet::service::CloseServerReq;
 using rasnet::service::ServerStatusRepl;
 using rasnet::service::ServerStatusReq;
 using rasnet::service::DeallocateClientReq;
-using rasnet::service::RasServerService;
-using rasnet::service::RasServerService_Stub;
 using rasnet::service::DatabaseRights;
-using rasnet::Channel;
-using rasnet::ChannelConfig;
-using rasnet::ClientController;
-using rasnet::ZmqUtil;
+using rasnet::service::RasServerService;
 
 #define RASEXECUTABLE BINDIR"rasserver"
 
 ServerRasNet::ServerRasNet(const ServerConfig &config)
 {
-    this->hostName = ZmqUtil::toTcpAddress(config.getHostName());
+    this->hostName = config.getHostName();
     this->port = config.getPort();
     this->dbHost = config.getDbHost();
     this->options = config.getOptions();
     this->serverId = UUID::generateUUID();
-    this->doNothing.reset(NewPermanentCallback(&DoNothing));
 
     this->registered = false;
     this->started = false;
@@ -114,9 +113,11 @@ ServerRasNet::~ServerRasNet()
         LWARNING<<"The server process is running."
                 <<"Waiting for the process will cause this thread to block.";
     }
+
     int status;
-    int options = 0;
-    waitpid(this->processId, &status, options);
+    int waitOptions = 0;
+    waitpid(this->processId, &status, waitOptions);
+
     LDEBUG<<"RasServer destructed.";
 }
 
@@ -126,7 +127,7 @@ void ServerRasNet::startProcess()
 
     if(this->started)
     {
-        throw runtime_error("The process has already been started.");
+        throw common::InvalidStateException("The server process has already been started.");
     }
 
     lock.unlock();
@@ -209,15 +210,15 @@ bool ServerRasNet::isAlive()
 
         if(isProcessAlive)
         {
-            ClientController controller;
+            ClientContext context;
             ServerStatusReq request = ServerStatusReq::default_instance();
             ServerStatusRepl reply;
 
             LDEBUG<<"Check if server:"<<this->serverId<<" is alive";
-            this->getService()->GetServerStatus(&controller, &request, &reply, this->doNothing.get());
+            Status callStatus = this->getService()->GetServerStatus(&context, request, &reply);
 
             //If the communication has not failed, the server is alive
-            result= !controller.Failed();
+            result= callStatus.ok();
             LDEBUG<<"Server with ID"<<this->serverId<<" alive status:"<<result;
         }
     }
@@ -233,17 +234,17 @@ bool ServerRasNet::isClientAlive(const std::string& clientId)
     unique_lock<shared_mutex> lock(this->stateMtx);
     if(this->started)
     {
-        ClientController controller;
+        ClientContext context;
         ClientStatusRepl response;
         ClientStatusReq request;
 
         request.set_clientid(clientId);
 
-        this->getService()->GetClientStatus(&controller, &request, &response, this->doNothing.get());
+        Status status = this->getService()->GetClientStatus(&context, request, &response);
 
-        if(controller.Failed())
+        if(!status.ok())
         {
-            throw runtime_error(controller.ErrorText());
+            GrpcUtils::convertStatusToExceptionAndThrow(status);
         }
 
         result = (response.status()==ClientStatusRepl::ALIVE);
@@ -257,14 +258,14 @@ void ServerRasNet::allocateClientSession(const std::string& clientId,
         const std::string& dbName,
         const UserDatabaseRights& dbRights)
 {
-    ClientController controller;
+    ClientContext context;
     AllocateClientReq request;
     Void response;
     DatabaseRights* rights = new DatabaseRights;
 
     if(!this->isAvailable())
     {
-        throw runtime_error("The server cannot accept any new clients.");
+        throw common::RuntimeException("The server cannot accept any new clients.");
     }
 
     rights->set_read(dbRights.hasReadAccess());
@@ -275,11 +276,11 @@ void ServerRasNet::allocateClientSession(const std::string& clientId,
     request.set_clientid(clientId);
     request.set_sessionid(sessionId);
 
-    this->getService()->AllocateClient(&controller, &request, &response, this->doNothing.get());
+    Status status = this->getService()->AllocateClient(&context, request, &response);
 
-    if(controller.Failed())
+    if(!status.ok())
     {
-        throw runtime_error(controller.ErrorText());
+        GrpcUtils::convertStatusToExceptionAndThrow(status);
     }
 
     //If everything went well so far, increase the session count for this database
@@ -301,7 +302,7 @@ void ServerRasNet::allocateClientSession(const std::string& clientId,
 
 void ServerRasNet::deallocateClientSession(const std::string& clientId, const std::string& sessionId)
 {
-    ClientController controller;
+    ClientContext context;
     Void response;
     DeallocateClientReq request;
 
@@ -321,11 +322,11 @@ void ServerRasNet::deallocateClientSession(const std::string& clientId, const st
         this->allocatedClientsNo--;
     }
 
-    this->getService()->DeallocateClient(&controller, &request, &response, this->doNothing.get());
+    Status status = this->getService()->DeallocateClient(&context, request, &response);
 
-    if(controller.Failed())
+    if(!status.ok())
     {
-        throw runtime_error(controller.ErrorText());
+        GrpcUtils::convertStatusToExceptionAndThrow(status);
     }
 }
 
@@ -338,7 +339,7 @@ void ServerRasNet::registerServer(const std::string& serverId)
     }
     else
     {
-        throw runtime_error("Server registration failed. "+this->serverId+"!="+serverId);
+        throw common::RuntimeException("The registration of the server " + serverId + " failed.");
     }
 }
 
@@ -364,14 +365,14 @@ void ServerRasNet::stop(KillLevel level)
         bool isAlive = (kill(this->processId, signal)==0);
         if(isAlive)
         {
-            ClientController controller;
+            ClientContext context;
             CloseServerReq request;
             Void response;
 
             request.set_serverid(this->serverId.c_str());
 
-            this->getService()->Close(&controller, &request, &response, this->doNothing.get());
-            //If the controller fails, we assume that the server was stopped
+            //If the request fails, we assume that the server was stopped
+            this->getService()->Close(&context, request, &response);
         }
     }
     else
@@ -394,7 +395,7 @@ bool ServerRasNet::isFree()
     unique_lock<shared_mutex> stateLock(this->stateMtx);
     if(!this->registered || !this->started)
     {
-        throw runtime_error("The server is not registered with RasMgr.");
+        throw common::InvalidStateException("The server is not registered with rasmgr.");
     }
 
     if(this->allocatedClientsNo == 0)
@@ -413,7 +414,7 @@ bool ServerRasNet::isAvailable()
     unique_lock<shared_mutex> stateLock(this->stateMtx);
     if(!this->registered || !this->started)
     {
-        throw runtime_error("The server is not registered with RasMgr.");
+        throw common::InvalidStateException("The server is not registered with rasmgr.");
     }
     if(this->allocatedClientsNo < RasMgrConfig::getInstance()->getMaximumNumberOfClientsPerServer())
     {
@@ -444,15 +445,15 @@ string ServerRasNet::getServerId() const
 boost::uint32_t ServerRasNet::getClientQueueSize()
 {
     //Query the server's status and use that to report
-    ClientController controller;
+    ClientContext context;
     ServerStatusReq request = ServerStatusReq::default_instance();
     ServerStatusRepl reply;
 
-    this->getService()->GetServerStatus(&controller, &request, &reply, this->doNothing.get());
+    Status status = this->getService()->GetServerStatus(&context, request, &reply);
 
-    if(controller.Failed())
+    if(!status.ok())
     {
-        throw runtime_error(controller.ErrorText());
+        GrpcUtils::convertStatusToExceptionAndThrow(status);
     }
     else
     {
@@ -460,17 +461,17 @@ boost::uint32_t ServerRasNet::getClientQueueSize()
     }
 }
 
-boost::shared_ptr<rasnet::service::RasServerService> ServerRasNet::getService()
+boost::shared_ptr<::rasnet::service::RasServerService::Stub> ServerRasNet::getService()
 {
     unique_lock<shared_mutex> lock(this->serviceMtx);
     if(!this->initializedService)
     {
-        ChannelConfig config;
-        //Rasserver is running on the same machine as rasmgr and should be able to reply
-        //to a message in under 100 milliseconds
-        config.setConnectionTimeout(100);
-        channel.reset(new Channel(ZmqUtil::toEndpoint(this->hostName, this->port), config));
-        this->service.reset(new RasServerService_Stub(this->channel.get()));
+        std::string serverAddress = common::GrpcUtils::convertAddressToString(this->hostName, this->port);
+        std::shared_ptr<Channel> channel( grpc::CreateChannel(serverAddress, grpc::InsecureCredentials()));
+
+        this->service.reset(new ::rasnet::service::RasServerService::Stub(channel));
+
+        this->initializedService = true;
     }
 
     return this->service;

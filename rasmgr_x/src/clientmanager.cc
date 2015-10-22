@@ -27,16 +27,17 @@
 #include <boost/thread.hpp>
 #include <boost/bind.hpp>
 
-#include "common/src/logging/easylogging++.hh"
-#include "common/src/uuid/uuid.hh"
-#include "rasnet/src/common/zmqutil.hh"
-#include "rasnet/src/messages/communication.pb.h"
-#include "rasnet/src/messages/internal.pb.h"
+#include "../../common/src/logging/easylogging++.hh"
+#include "../../common/src/uuid/uuid.hh"
+
+#include "exceptions/rasmgrexceptions.hh"
+
+#include "client.hh"
+#include "clientcredentials.hh"
+#include "user.hh"
+#include "usermanager.hh"
 
 #include "clientmanager.hh"
-#include "rasmgrconfig.hh"
-#include "serverrasnet.hh"
-
 
 namespace rasmgr
 {
@@ -55,39 +56,26 @@ using std::map;
 using std::pair;
 using std::runtime_error;
 using std::string;
-using zmq::socket_t;
-using rasnet::internal::InternalDisconnectReply;
-using rasnet::internal::InternalDisconnectRequest;
-using rasnet::ZmqUtil;
-using rasnet::BaseMessage;
 
-ClientManager::ClientManager(const ClientManagerConfig& config, boost::shared_ptr<rasmgr::UserManager> userManager):config(config)
+ClientManager::ClientManager(const ClientManagerConfig& config, boost::shared_ptr<rasmgr::UserManager> userManager):
+    config(config),
+    userManager(userManager)
 {
-    this->userManager = userManager;
-    this->controlEndpoint = ZmqUtil::toInprocAddress(UUID::generateUUID());
-
+    this->isThreadRunning = true;
     this->managementThread.reset(
         new thread(&ClientManager::evaluateClientsStatus, this));
-
-    this->controlSocket.reset(new socket_t(this->context, ZMQ_PAIR));
-    this->controlSocket->connect(this->controlEndpoint.c_str());
 }
 
 ClientManager::~ClientManager()
 {
     try
     {
-        // Kill the thread in a clean way
-        InternalDisconnectRequest request = InternalDisconnectRequest::default_instance();
-        shared_ptr<BaseMessage> reply;
-
-        ZmqUtil::send(*(this->controlSocket.get()), request);
-        ZmqUtil::receive(*(this->controlSocket.get()), reply);
-
-        if(reply->type() != InternalDisconnectReply::default_instance().GetTypeName())
         {
-            LERROR<<"Unexpected message received from control socket."<<reply->DebugString();
+            boost::lock_guard<boost::mutex> lock(this->threadMutex);
+            this->isThreadRunning = false;
         }
+
+        this->isThreadRunningCondition.notify_one();
 
         this->managementThread->join();
     }
@@ -130,12 +118,12 @@ void ClientManager::connectClient(const ClientCredentials& clientCredentials, st
         }
         else
         {
-            throw runtime_error("Invalid client credentials for client :\""+clientCredentials.getUserName()+"\"");
+            throw InvalidClientCredentialsException();
         }
     }
     else
     {
-        throw runtime_error("There is no client named \""+clientCredentials.getUserName()+"\"");
+        throw InexistentClientException(clientCredentials.getUserName());
     }
 }
 
@@ -187,7 +175,7 @@ void ClientManager::openClientDbSession(std::string clientId, const std::string&
     }
     else
     {
-        throw runtime_error("Client with id:\""+clientId+"\" is not part of the list of active clients.");
+        throw InexistentClientException(clientId);
     }
 }
 
@@ -204,7 +192,7 @@ void ClientManager::closeClientDbSession(const std::string& clientId, const std:
     }
     else
     {
-        throw runtime_error("Client with id:\""+clientId+"\" is not part of the list of active clients.");
+        throw InexistentClientException(clientId);
     }
 }
 
@@ -221,13 +209,11 @@ void ClientManager::keepClientAlive(const std::string& clientId)
     }
     else
     {
-        throw runtime_error(
-            "Client with id:" + clientId
-            + " is not present in the list of active client");
+        throw InexistentClientException(clientId);
     }
 }
 
-ClientManagerConfig ClientManager::getConfig()
+const ClientManagerConfig& ClientManager::getConfig()
 {
     return this->config;
 }
@@ -237,31 +223,20 @@ void ClientManager::evaluateClientsStatus()
 {
     map<string, shared_ptr<Client> >::iterator it;
     map<string, shared_ptr<Client> >::iterator toErase;
-    shared_ptr<BaseMessage> controlMessage;
-    bool keepRunning=true;
 
-    try
+    boost::posix_time::time_duration timeToSleepFor = boost::posix_time::milliseconds(this->config.getCleanupInterval());
+
+    boost::unique_lock<boost::mutex> threadLock(this->threadMutex);
+    while (this->isThreadRunning)
     {
-        zmq::socket_t control(this->context, ZMQ_PAIR);
-        control.bind(this->controlEndpoint.c_str());
-        zmq::pollitem_t items[] = {{control,0,ZMQ_POLLIN,0}};
-
-        while (keepRunning)
+        try
         {
-            zmq::poll(items, 1, this->config.getCleanupInterval());
-            if (items[0].revents & ZMQ_POLLIN)
+            // Wait on the condition variable to be notified from the
+            // destructor when it is time to stop the worker thread
+            if(!this->isThreadRunningCondition.timed_wait(threadLock, timeToSleepFor))
             {
-                ZmqUtil::receive(control, controlMessage);
-                if(controlMessage->type()==InternalDisconnectRequest::default_instance().GetTypeName())
-                {
-                    keepRunning=false;
-                    InternalDisconnectReply disconnectReply;
-                    ZmqUtil::send(control, disconnectReply);
-                }
-            }
-            else
-            {
-                boost::upgrade_lock<boost::shared_mutex> lock(this->clientsMutex);
+
+                boost::upgrade_lock<boost::shared_mutex> clientsLock(this->clientsMutex);
                 it = this->clients.begin();
 
                 while (it != this->clients.end())
@@ -272,22 +247,23 @@ void ClientManager::evaluateClientsStatus()
                     {
                         toErase->second->removeClientFromServers();
 
-                        boost::upgrade_to_unique_lock<boost::shared_mutex> uniqueLock(lock);
+                        boost::upgrade_to_unique_lock<boost::shared_mutex> uniqueClientsLock(clientsLock);
                         this->clients.erase(toErase);
                     }
                 }
             }
         }
-    }
-    catch (std::exception& ex)
-    {
-        LERROR<<"Client management thread has failed";
-        LERROR<<ex.what();
-    }
-    catch (...)
-    {
-        LERROR<<"Client management thread failed for unknown reason.";
+        catch (std::exception& ex)
+        {
+            LERROR<<"Evaluating client status has failed";
+            LERROR<<ex.what();
+        }
+        catch (...)
+        {
+            LERROR<<"Evaluating client status has failed for an unknown reason.";
+        }
     }
 }
+
 
 } /* namespace rasmgr */

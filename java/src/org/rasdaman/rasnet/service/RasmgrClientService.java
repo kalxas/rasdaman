@@ -8,24 +8,15 @@ public final class RasmgrClientService {
   public static void registerAllExtensions(
       com.google.protobuf.ExtensionRegistry registry) {
   }
-  public interface ClientIdentityOrBuilder
-      extends com.google.protobuf.MessageOrBuilder {
+  public interface ClientIdentityOrBuilder extends
+      // @@protoc_insertion_point(interface_extends:rasnet.service.ClientIdentity)
+      com.google.protobuf.MessageOrBuilder {
 
-    // required bytes uuid = 1;
     /**
-     * <code>required bytes uuid = 1;</code>
-     */
-    boolean hasUuid();
-    /**
-     * <code>required bytes uuid = 1;</code>
+     * <code>optional bytes uuid = 1;</code>
      */
     com.google.protobuf.ByteString getUuid();
 
-    // optional int32 id = 2;
-    /**
-     * <code>optional int32 id = 2;</code>
-     */
-    boolean hasId();
     /**
      * <code>optional int32 id = 2;</code>
      */
@@ -34,39 +25,29 @@ public final class RasmgrClientService {
   /**
    * Protobuf type {@code rasnet.service.ClientIdentity}
    */
-  public static final class ClientIdentity extends
-      com.google.protobuf.GeneratedMessage
-      implements ClientIdentityOrBuilder {
+  public  static final class ClientIdentity extends
+      com.google.protobuf.GeneratedMessage implements
+      // @@protoc_insertion_point(message_implements:rasnet.service.ClientIdentity)
+      ClientIdentityOrBuilder {
     // Use ClientIdentity.newBuilder() to construct.
     private ClientIdentity(com.google.protobuf.GeneratedMessage.Builder<?> builder) {
       super(builder);
-      this.unknownFields = builder.getUnknownFields();
     }
-    private ClientIdentity(boolean noInit) { this.unknownFields = com.google.protobuf.UnknownFieldSet.getDefaultInstance(); }
-
-    private static final ClientIdentity defaultInstance;
-    public static ClientIdentity getDefaultInstance() {
-      return defaultInstance;
+    private ClientIdentity() {
+      uuid_ = com.google.protobuf.ByteString.EMPTY;
+      id_ = 0;
     }
 
-    public ClientIdentity getDefaultInstanceForType() {
-      return defaultInstance;
-    }
-
-    private final com.google.protobuf.UnknownFieldSet unknownFields;
     @java.lang.Override
     public final com.google.protobuf.UnknownFieldSet
-        getUnknownFields() {
-      return this.unknownFields;
+    getUnknownFields() {
+      return com.google.protobuf.UnknownFieldSet.getDefaultInstance();
     }
     private ClientIdentity(
         com.google.protobuf.CodedInputStream input,
-        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-        throws com.google.protobuf.InvalidProtocolBufferException {
-      initFields();
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry) {
+      this();
       int mutable_bitField0_ = 0;
-      com.google.protobuf.UnknownFieldSet.Builder unknownFields =
-          com.google.protobuf.UnknownFieldSet.newBuilder();
       try {
         boolean done = false;
         while (!done) {
@@ -76,31 +57,30 @@ public final class RasmgrClientService {
               done = true;
               break;
             default: {
-              if (!parseUnknownField(input, unknownFields,
-                                     extensionRegistry, tag)) {
+              if (!input.skipField(tag)) {
                 done = true;
               }
               break;
             }
             case 10: {
-              bitField0_ |= 0x00000001;
+
               uuid_ = input.readBytes();
               break;
             }
             case 16: {
-              bitField0_ |= 0x00000002;
+
               id_ = input.readInt32();
               break;
             }
           }
         }
       } catch (com.google.protobuf.InvalidProtocolBufferException e) {
-        throw e.setUnfinishedMessage(this);
+        throw new RuntimeException(e.setUnfinishedMessage(this));
       } catch (java.io.IOException e) {
-        throw new com.google.protobuf.InvalidProtocolBufferException(
-            e.getMessage()).setUnfinishedMessage(this);
+        throw new RuntimeException(
+            new com.google.protobuf.InvalidProtocolBufferException(
+                e.getMessage()).setUnfinishedMessage(this));
       } finally {
-        this.unknownFields = unknownFields.build();
         makeExtensionsImmutable();
       }
     }
@@ -116,47 +96,17 @@ public final class RasmgrClientService {
               org.rasdaman.rasnet.service.RasmgrClientService.ClientIdentity.class, org.rasdaman.rasnet.service.RasmgrClientService.ClientIdentity.Builder.class);
     }
 
-    public static com.google.protobuf.Parser<ClientIdentity> PARSER =
-        new com.google.protobuf.AbstractParser<ClientIdentity>() {
-      public ClientIdentity parsePartialFrom(
-          com.google.protobuf.CodedInputStream input,
-          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-          throws com.google.protobuf.InvalidProtocolBufferException {
-        return new ClientIdentity(input, extensionRegistry);
-      }
-    };
-
-    @java.lang.Override
-    public com.google.protobuf.Parser<ClientIdentity> getParserForType() {
-      return PARSER;
-    }
-
-    private int bitField0_;
-    // required bytes uuid = 1;
     public static final int UUID_FIELD_NUMBER = 1;
     private com.google.protobuf.ByteString uuid_;
     /**
-     * <code>required bytes uuid = 1;</code>
-     */
-    public boolean hasUuid() {
-      return ((bitField0_ & 0x00000001) == 0x00000001);
-    }
-    /**
-     * <code>required bytes uuid = 1;</code>
+     * <code>optional bytes uuid = 1;</code>
      */
     public com.google.protobuf.ByteString getUuid() {
       return uuid_;
     }
 
-    // optional int32 id = 2;
     public static final int ID_FIELD_NUMBER = 2;
     private int id_;
-    /**
-     * <code>optional int32 id = 2;</code>
-     */
-    public boolean hasId() {
-      return ((bitField0_ & 0x00000002) == 0x00000002);
-    }
     /**
      * <code>optional int32 id = 2;</code>
      */
@@ -164,61 +114,44 @@ public final class RasmgrClientService {
       return id_;
     }
 
-    private void initFields() {
-      uuid_ = com.google.protobuf.ByteString.EMPTY;
-      id_ = 0;
-    }
     private byte memoizedIsInitialized = -1;
     public final boolean isInitialized() {
       byte isInitialized = memoizedIsInitialized;
-      if (isInitialized != -1) return isInitialized == 1;
+      if (isInitialized == 1) return true;
+      if (isInitialized == 0) return false;
 
-      if (!hasUuid()) {
-        memoizedIsInitialized = 0;
-        return false;
-      }
       memoizedIsInitialized = 1;
       return true;
     }
 
     public void writeTo(com.google.protobuf.CodedOutputStream output)
                         throws java.io.IOException {
-      getSerializedSize();
-      if (((bitField0_ & 0x00000001) == 0x00000001)) {
+      if (!uuid_.isEmpty()) {
         output.writeBytes(1, uuid_);
       }
-      if (((bitField0_ & 0x00000002) == 0x00000002)) {
+      if (id_ != 0) {
         output.writeInt32(2, id_);
       }
-      getUnknownFields().writeTo(output);
     }
 
-    private int memoizedSerializedSize = -1;
     public int getSerializedSize() {
-      int size = memoizedSerializedSize;
+      int size = memoizedSize;
       if (size != -1) return size;
 
       size = 0;
-      if (((bitField0_ & 0x00000001) == 0x00000001)) {
+      if (!uuid_.isEmpty()) {
         size += com.google.protobuf.CodedOutputStream
           .computeBytesSize(1, uuid_);
       }
-      if (((bitField0_ & 0x00000002) == 0x00000002)) {
+      if (id_ != 0) {
         size += com.google.protobuf.CodedOutputStream
           .computeInt32Size(2, id_);
       }
-      size += getUnknownFields().getSerializedSize();
-      memoizedSerializedSize = size;
+      memoizedSize = size;
       return size;
     }
 
     private static final long serialVersionUID = 0L;
-    @java.lang.Override
-    protected java.lang.Object writeReplace()
-        throws java.io.ObjectStreamException {
-      return super.writeReplace();
-    }
-
     public static org.rasdaman.rasnet.service.RasmgrClientService.ClientIdentity parseFrom(
         com.google.protobuf.ByteString data)
         throws com.google.protobuf.InvalidProtocolBufferException {
@@ -272,12 +205,17 @@ public final class RasmgrClientService {
       return PARSER.parseFrom(input, extensionRegistry);
     }
 
-    public static Builder newBuilder() { return Builder.create(); }
     public Builder newBuilderForType() { return newBuilder(); }
-    public static Builder newBuilder(org.rasdaman.rasnet.service.RasmgrClientService.ClientIdentity prototype) {
-      return newBuilder().mergeFrom(prototype);
+    public static Builder newBuilder() {
+      return DEFAULT_INSTANCE.toBuilder();
     }
-    public Builder toBuilder() { return newBuilder(this); }
+    public static Builder newBuilder(org.rasdaman.rasnet.service.RasmgrClientService.ClientIdentity prototype) {
+      return DEFAULT_INSTANCE.toBuilder().mergeFrom(prototype);
+    }
+    public Builder toBuilder() {
+      return this == DEFAULT_INSTANCE
+          ? new Builder() : new Builder().mergeFrom(this);
+    }
 
     @java.lang.Override
     protected Builder newBuilderForType(
@@ -289,8 +227,9 @@ public final class RasmgrClientService {
      * Protobuf type {@code rasnet.service.ClientIdentity}
      */
     public static final class Builder extends
-        com.google.protobuf.GeneratedMessage.Builder<Builder>
-       implements org.rasdaman.rasnet.service.RasmgrClientService.ClientIdentityOrBuilder {
+        com.google.protobuf.GeneratedMessage.Builder<Builder> implements
+        // @@protoc_insertion_point(builder_implements:rasnet.service.ClientIdentity)
+        org.rasdaman.rasnet.service.RasmgrClientService.ClientIdentityOrBuilder {
       public static final com.google.protobuf.Descriptors.Descriptor
           getDescriptor() {
         return org.rasdaman.rasnet.service.RasmgrClientService.internal_static_rasnet_service_ClientIdentity_descriptor;
@@ -317,21 +256,13 @@ public final class RasmgrClientService {
         if (com.google.protobuf.GeneratedMessage.alwaysUseFieldBuilders) {
         }
       }
-      private static Builder create() {
-        return new Builder();
-      }
-
       public Builder clear() {
         super.clear();
         uuid_ = com.google.protobuf.ByteString.EMPTY;
-        bitField0_ = (bitField0_ & ~0x00000001);
-        id_ = 0;
-        bitField0_ = (bitField0_ & ~0x00000002);
-        return this;
-      }
 
-      public Builder clone() {
-        return create().mergeFrom(buildPartial());
+        id_ = 0;
+
+        return this;
       }
 
       public com.google.protobuf.Descriptors.Descriptor
@@ -353,17 +284,8 @@ public final class RasmgrClientService {
 
       public org.rasdaman.rasnet.service.RasmgrClientService.ClientIdentity buildPartial() {
         org.rasdaman.rasnet.service.RasmgrClientService.ClientIdentity result = new org.rasdaman.rasnet.service.RasmgrClientService.ClientIdentity(this);
-        int from_bitField0_ = bitField0_;
-        int to_bitField0_ = 0;
-        if (((from_bitField0_ & 0x00000001) == 0x00000001)) {
-          to_bitField0_ |= 0x00000001;
-        }
         result.uuid_ = uuid_;
-        if (((from_bitField0_ & 0x00000002) == 0x00000002)) {
-          to_bitField0_ |= 0x00000002;
-        }
         result.id_ = id_;
-        result.bitField0_ = to_bitField0_;
         onBuilt();
         return result;
       }
@@ -379,21 +301,17 @@ public final class RasmgrClientService {
 
       public Builder mergeFrom(org.rasdaman.rasnet.service.RasmgrClientService.ClientIdentity other) {
         if (other == org.rasdaman.rasnet.service.RasmgrClientService.ClientIdentity.getDefaultInstance()) return this;
-        if (other.hasUuid()) {
+        if (other.getUuid() != com.google.protobuf.ByteString.EMPTY) {
           setUuid(other.getUuid());
         }
-        if (other.hasId()) {
+        if (other.getId() != 0) {
           setId(other.getId());
         }
-        this.mergeUnknownFields(other.getUnknownFields());
+        onChanged();
         return this;
       }
 
       public final boolean isInitialized() {
-        if (!hasUuid()) {
-
-          return false;
-        }
         return true;
       }
 
@@ -414,52 +332,37 @@ public final class RasmgrClientService {
         }
         return this;
       }
-      private int bitField0_;
 
-      // required bytes uuid = 1;
       private com.google.protobuf.ByteString uuid_ = com.google.protobuf.ByteString.EMPTY;
       /**
-       * <code>required bytes uuid = 1;</code>
-       */
-      public boolean hasUuid() {
-        return ((bitField0_ & 0x00000001) == 0x00000001);
-      }
-      /**
-       * <code>required bytes uuid = 1;</code>
+       * <code>optional bytes uuid = 1;</code>
        */
       public com.google.protobuf.ByteString getUuid() {
         return uuid_;
       }
       /**
-       * <code>required bytes uuid = 1;</code>
+       * <code>optional bytes uuid = 1;</code>
        */
       public Builder setUuid(com.google.protobuf.ByteString value) {
         if (value == null) {
     throw new NullPointerException();
   }
-  bitField0_ |= 0x00000001;
+
         uuid_ = value;
         onChanged();
         return this;
       }
       /**
-       * <code>required bytes uuid = 1;</code>
+       * <code>optional bytes uuid = 1;</code>
        */
       public Builder clearUuid() {
-        bitField0_ = (bitField0_ & ~0x00000001);
+
         uuid_ = getDefaultInstance().getUuid();
         onChanged();
         return this;
       }
 
-      // optional int32 id = 2;
       private int id_ ;
-      /**
-       * <code>optional int32 id = 2;</code>
-       */
-      public boolean hasId() {
-        return ((bitField0_ & 0x00000002) == 0x00000002);
-      }
       /**
        * <code>optional int32 id = 2;</code>
        */
@@ -470,7 +373,7 @@ public final class RasmgrClientService {
        * <code>optional int32 id = 2;</code>
        */
       public Builder setId(int value) {
-        bitField0_ |= 0x00000002;
+
         id_ = value;
         onChanged();
         return this;
@@ -479,52 +382,89 @@ public final class RasmgrClientService {
        * <code>optional int32 id = 2;</code>
        */
       public Builder clearId() {
-        bitField0_ = (bitField0_ & ~0x00000002);
+
         id_ = 0;
         onChanged();
         return this;
       }
+      public final Builder setUnknownFields(
+          final com.google.protobuf.UnknownFieldSet unknownFields) {
+        return this;
+      }
+
+      public final Builder mergeUnknownFields(
+          final com.google.protobuf.UnknownFieldSet unknownFields) {
+        return this;
+      }
+
 
       // @@protoc_insertion_point(builder_scope:rasnet.service.ClientIdentity)
     }
 
+    // @@protoc_insertion_point(class_scope:rasnet.service.ClientIdentity)
+    private static final org.rasdaman.rasnet.service.RasmgrClientService.ClientIdentity DEFAULT_INSTANCE;
     static {
-      defaultInstance = new ClientIdentity(true);
-      defaultInstance.initFields();
+      DEFAULT_INSTANCE = new org.rasdaman.rasnet.service.RasmgrClientService.ClientIdentity();
     }
 
-    // @@protoc_insertion_point(class_scope:rasnet.service.ClientIdentity)
+    public static org.rasdaman.rasnet.service.RasmgrClientService.ClientIdentity getDefaultInstance() {
+      return DEFAULT_INSTANCE;
+    }
+
+    private static final com.google.protobuf.Parser<ClientIdentity>
+        PARSER = new com.google.protobuf.AbstractParser<ClientIdentity>() {
+      public ClientIdentity parsePartialFrom(
+          com.google.protobuf.CodedInputStream input,
+          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+          throws com.google.protobuf.InvalidProtocolBufferException {
+        try {
+          return new ClientIdentity(input, extensionRegistry);
+        } catch (RuntimeException e) {
+          if (e.getCause() instanceof
+              com.google.protobuf.InvalidProtocolBufferException) {
+            throw (com.google.protobuf.InvalidProtocolBufferException)
+                e.getCause();
+          }
+          throw e;
+        }
+      }
+    };
+
+    public static com.google.protobuf.Parser<ClientIdentity> parser() {
+      return PARSER;
+    }
+
+    @java.lang.Override
+    public com.google.protobuf.Parser<ClientIdentity> getParserForType() {
+      return PARSER;
+    }
+
+    public org.rasdaman.rasnet.service.RasmgrClientService.ClientIdentity getDefaultInstanceForType() {
+      return DEFAULT_INSTANCE;
+    }
+
   }
 
-  public interface ConnectReqOrBuilder
-      extends com.google.protobuf.MessageOrBuilder {
+  public interface ConnectReqOrBuilder extends
+      // @@protoc_insertion_point(interface_extends:rasnet.service.ConnectReq)
+      com.google.protobuf.MessageOrBuilder {
 
-    // required string userName = 1;
     /**
-     * <code>required string userName = 1;</code>
-     */
-    boolean hasUserName();
-    /**
-     * <code>required string userName = 1;</code>
+     * <code>optional string userName = 1;</code>
      */
     java.lang.String getUserName();
     /**
-     * <code>required string userName = 1;</code>
+     * <code>optional string userName = 1;</code>
      */
     com.google.protobuf.ByteString
         getUserNameBytes();
 
-    // required string passwordHash = 2;
     /**
-     * <code>required string passwordHash = 2;</code>
-     */
-    boolean hasPasswordHash();
-    /**
-     * <code>required string passwordHash = 2;</code>
+     * <code>optional string passwordHash = 2;</code>
      */
     java.lang.String getPasswordHash();
     /**
-     * <code>required string passwordHash = 2;</code>
+     * <code>optional string passwordHash = 2;</code>
      */
     com.google.protobuf.ByteString
         getPasswordHashBytes();
@@ -532,39 +472,29 @@ public final class RasmgrClientService {
   /**
    * Protobuf type {@code rasnet.service.ConnectReq}
    */
-  public static final class ConnectReq extends
-      com.google.protobuf.GeneratedMessage
-      implements ConnectReqOrBuilder {
+  public  static final class ConnectReq extends
+      com.google.protobuf.GeneratedMessage implements
+      // @@protoc_insertion_point(message_implements:rasnet.service.ConnectReq)
+      ConnectReqOrBuilder {
     // Use ConnectReq.newBuilder() to construct.
     private ConnectReq(com.google.protobuf.GeneratedMessage.Builder<?> builder) {
       super(builder);
-      this.unknownFields = builder.getUnknownFields();
     }
-    private ConnectReq(boolean noInit) { this.unknownFields = com.google.protobuf.UnknownFieldSet.getDefaultInstance(); }
-
-    private static final ConnectReq defaultInstance;
-    public static ConnectReq getDefaultInstance() {
-      return defaultInstance;
+    private ConnectReq() {
+      userName_ = "";
+      passwordHash_ = "";
     }
 
-    public ConnectReq getDefaultInstanceForType() {
-      return defaultInstance;
-    }
-
-    private final com.google.protobuf.UnknownFieldSet unknownFields;
     @java.lang.Override
     public final com.google.protobuf.UnknownFieldSet
-        getUnknownFields() {
-      return this.unknownFields;
+    getUnknownFields() {
+      return com.google.protobuf.UnknownFieldSet.getDefaultInstance();
     }
     private ConnectReq(
         com.google.protobuf.CodedInputStream input,
-        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-        throws com.google.protobuf.InvalidProtocolBufferException {
-      initFields();
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry) {
+      this();
       int mutable_bitField0_ = 0;
-      com.google.protobuf.UnknownFieldSet.Builder unknownFields =
-          com.google.protobuf.UnknownFieldSet.newBuilder();
       try {
         boolean done = false;
         while (!done) {
@@ -574,31 +504,32 @@ public final class RasmgrClientService {
               done = true;
               break;
             default: {
-              if (!parseUnknownField(input, unknownFields,
-                                     extensionRegistry, tag)) {
+              if (!input.skipField(tag)) {
                 done = true;
               }
               break;
             }
             case 10: {
-              bitField0_ |= 0x00000001;
-              userName_ = input.readBytes();
+              String s = input.readStringRequireUtf8();
+
+              userName_ = s;
               break;
             }
             case 18: {
-              bitField0_ |= 0x00000002;
-              passwordHash_ = input.readBytes();
+              String s = input.readStringRequireUtf8();
+
+              passwordHash_ = s;
               break;
             }
           }
         }
       } catch (com.google.protobuf.InvalidProtocolBufferException e) {
-        throw e.setUnfinishedMessage(this);
+        throw new RuntimeException(e.setUnfinishedMessage(this));
       } catch (java.io.IOException e) {
-        throw new com.google.protobuf.InvalidProtocolBufferException(
-            e.getMessage()).setUnfinishedMessage(this);
+        throw new RuntimeException(
+            new com.google.protobuf.InvalidProtocolBufferException(
+                e.getMessage()).setUnfinishedMessage(this));
       } finally {
-        this.unknownFields = unknownFields.build();
         makeExtensionsImmutable();
       }
     }
@@ -614,33 +545,10 @@ public final class RasmgrClientService {
               org.rasdaman.rasnet.service.RasmgrClientService.ConnectReq.class, org.rasdaman.rasnet.service.RasmgrClientService.ConnectReq.Builder.class);
     }
 
-    public static com.google.protobuf.Parser<ConnectReq> PARSER =
-        new com.google.protobuf.AbstractParser<ConnectReq>() {
-      public ConnectReq parsePartialFrom(
-          com.google.protobuf.CodedInputStream input,
-          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-          throws com.google.protobuf.InvalidProtocolBufferException {
-        return new ConnectReq(input, extensionRegistry);
-      }
-    };
-
-    @java.lang.Override
-    public com.google.protobuf.Parser<ConnectReq> getParserForType() {
-      return PARSER;
-    }
-
-    private int bitField0_;
-    // required string userName = 1;
     public static final int USERNAME_FIELD_NUMBER = 1;
-    private java.lang.Object userName_;
+    private volatile java.lang.Object userName_;
     /**
-     * <code>required string userName = 1;</code>
-     */
-    public boolean hasUserName() {
-      return ((bitField0_ & 0x00000001) == 0x00000001);
-    }
-    /**
-     * <code>required string userName = 1;</code>
+     * <code>optional string userName = 1;</code>
      */
     public java.lang.String getUserName() {
       java.lang.Object ref = userName_;
@@ -650,14 +558,12 @@ public final class RasmgrClientService {
         com.google.protobuf.ByteString bs =
             (com.google.protobuf.ByteString) ref;
         java.lang.String s = bs.toStringUtf8();
-        if (bs.isValidUtf8()) {
-          userName_ = s;
-        }
+        userName_ = s;
         return s;
       }
     }
     /**
-     * <code>required string userName = 1;</code>
+     * <code>optional string userName = 1;</code>
      */
     public com.google.protobuf.ByteString
         getUserNameBytes() {
@@ -673,17 +579,10 @@ public final class RasmgrClientService {
       }
     }
 
-    // required string passwordHash = 2;
     public static final int PASSWORDHASH_FIELD_NUMBER = 2;
-    private java.lang.Object passwordHash_;
+    private volatile java.lang.Object passwordHash_;
     /**
-     * <code>required string passwordHash = 2;</code>
-     */
-    public boolean hasPasswordHash() {
-      return ((bitField0_ & 0x00000002) == 0x00000002);
-    }
-    /**
-     * <code>required string passwordHash = 2;</code>
+     * <code>optional string passwordHash = 2;</code>
      */
     public java.lang.String getPasswordHash() {
       java.lang.Object ref = passwordHash_;
@@ -693,14 +592,12 @@ public final class RasmgrClientService {
         com.google.protobuf.ByteString bs =
             (com.google.protobuf.ByteString) ref;
         java.lang.String s = bs.toStringUtf8();
-        if (bs.isValidUtf8()) {
-          passwordHash_ = s;
-        }
+        passwordHash_ = s;
         return s;
       }
     }
     /**
-     * <code>required string passwordHash = 2;</code>
+     * <code>optional string passwordHash = 2;</code>
      */
     public com.google.protobuf.ByteString
         getPasswordHashBytes() {
@@ -716,65 +613,42 @@ public final class RasmgrClientService {
       }
     }
 
-    private void initFields() {
-      userName_ = "";
-      passwordHash_ = "";
-    }
     private byte memoizedIsInitialized = -1;
     public final boolean isInitialized() {
       byte isInitialized = memoizedIsInitialized;
-      if (isInitialized != -1) return isInitialized == 1;
+      if (isInitialized == 1) return true;
+      if (isInitialized == 0) return false;
 
-      if (!hasUserName()) {
-        memoizedIsInitialized = 0;
-        return false;
-      }
-      if (!hasPasswordHash()) {
-        memoizedIsInitialized = 0;
-        return false;
-      }
       memoizedIsInitialized = 1;
       return true;
     }
 
     public void writeTo(com.google.protobuf.CodedOutputStream output)
                         throws java.io.IOException {
-      getSerializedSize();
-      if (((bitField0_ & 0x00000001) == 0x00000001)) {
-        output.writeBytes(1, getUserNameBytes());
+      if (!getUserNameBytes().isEmpty()) {
+        com.google.protobuf.GeneratedMessage.writeString(output, 1, userName_);
       }
-      if (((bitField0_ & 0x00000002) == 0x00000002)) {
-        output.writeBytes(2, getPasswordHashBytes());
+      if (!getPasswordHashBytes().isEmpty()) {
+        com.google.protobuf.GeneratedMessage.writeString(output, 2, passwordHash_);
       }
-      getUnknownFields().writeTo(output);
     }
 
-    private int memoizedSerializedSize = -1;
     public int getSerializedSize() {
-      int size = memoizedSerializedSize;
+      int size = memoizedSize;
       if (size != -1) return size;
 
       size = 0;
-      if (((bitField0_ & 0x00000001) == 0x00000001)) {
-        size += com.google.protobuf.CodedOutputStream
-          .computeBytesSize(1, getUserNameBytes());
+      if (!getUserNameBytes().isEmpty()) {
+        size += com.google.protobuf.GeneratedMessage.computeStringSize(1, userName_);
       }
-      if (((bitField0_ & 0x00000002) == 0x00000002)) {
-        size += com.google.protobuf.CodedOutputStream
-          .computeBytesSize(2, getPasswordHashBytes());
+      if (!getPasswordHashBytes().isEmpty()) {
+        size += com.google.protobuf.GeneratedMessage.computeStringSize(2, passwordHash_);
       }
-      size += getUnknownFields().getSerializedSize();
-      memoizedSerializedSize = size;
+      memoizedSize = size;
       return size;
     }
 
     private static final long serialVersionUID = 0L;
-    @java.lang.Override
-    protected java.lang.Object writeReplace()
-        throws java.io.ObjectStreamException {
-      return super.writeReplace();
-    }
-
     public static org.rasdaman.rasnet.service.RasmgrClientService.ConnectReq parseFrom(
         com.google.protobuf.ByteString data)
         throws com.google.protobuf.InvalidProtocolBufferException {
@@ -828,12 +702,17 @@ public final class RasmgrClientService {
       return PARSER.parseFrom(input, extensionRegistry);
     }
 
-    public static Builder newBuilder() { return Builder.create(); }
     public Builder newBuilderForType() { return newBuilder(); }
-    public static Builder newBuilder(org.rasdaman.rasnet.service.RasmgrClientService.ConnectReq prototype) {
-      return newBuilder().mergeFrom(prototype);
+    public static Builder newBuilder() {
+      return DEFAULT_INSTANCE.toBuilder();
     }
-    public Builder toBuilder() { return newBuilder(this); }
+    public static Builder newBuilder(org.rasdaman.rasnet.service.RasmgrClientService.ConnectReq prototype) {
+      return DEFAULT_INSTANCE.toBuilder().mergeFrom(prototype);
+    }
+    public Builder toBuilder() {
+      return this == DEFAULT_INSTANCE
+          ? new Builder() : new Builder().mergeFrom(this);
+    }
 
     @java.lang.Override
     protected Builder newBuilderForType(
@@ -845,8 +724,9 @@ public final class RasmgrClientService {
      * Protobuf type {@code rasnet.service.ConnectReq}
      */
     public static final class Builder extends
-        com.google.protobuf.GeneratedMessage.Builder<Builder>
-       implements org.rasdaman.rasnet.service.RasmgrClientService.ConnectReqOrBuilder {
+        com.google.protobuf.GeneratedMessage.Builder<Builder> implements
+        // @@protoc_insertion_point(builder_implements:rasnet.service.ConnectReq)
+        org.rasdaman.rasnet.service.RasmgrClientService.ConnectReqOrBuilder {
       public static final com.google.protobuf.Descriptors.Descriptor
           getDescriptor() {
         return org.rasdaman.rasnet.service.RasmgrClientService.internal_static_rasnet_service_ConnectReq_descriptor;
@@ -873,21 +753,13 @@ public final class RasmgrClientService {
         if (com.google.protobuf.GeneratedMessage.alwaysUseFieldBuilders) {
         }
       }
-      private static Builder create() {
-        return new Builder();
-      }
-
       public Builder clear() {
         super.clear();
         userName_ = "";
-        bitField0_ = (bitField0_ & ~0x00000001);
-        passwordHash_ = "";
-        bitField0_ = (bitField0_ & ~0x00000002);
-        return this;
-      }
 
-      public Builder clone() {
-        return create().mergeFrom(buildPartial());
+        passwordHash_ = "";
+
+        return this;
       }
 
       public com.google.protobuf.Descriptors.Descriptor
@@ -909,17 +781,8 @@ public final class RasmgrClientService {
 
       public org.rasdaman.rasnet.service.RasmgrClientService.ConnectReq buildPartial() {
         org.rasdaman.rasnet.service.RasmgrClientService.ConnectReq result = new org.rasdaman.rasnet.service.RasmgrClientService.ConnectReq(this);
-        int from_bitField0_ = bitField0_;
-        int to_bitField0_ = 0;
-        if (((from_bitField0_ & 0x00000001) == 0x00000001)) {
-          to_bitField0_ |= 0x00000001;
-        }
         result.userName_ = userName_;
-        if (((from_bitField0_ & 0x00000002) == 0x00000002)) {
-          to_bitField0_ |= 0x00000002;
-        }
         result.passwordHash_ = passwordHash_;
-        result.bitField0_ = to_bitField0_;
         onBuilt();
         return result;
       }
@@ -935,29 +798,19 @@ public final class RasmgrClientService {
 
       public Builder mergeFrom(org.rasdaman.rasnet.service.RasmgrClientService.ConnectReq other) {
         if (other == org.rasdaman.rasnet.service.RasmgrClientService.ConnectReq.getDefaultInstance()) return this;
-        if (other.hasUserName()) {
-          bitField0_ |= 0x00000001;
+        if (!other.getUserName().isEmpty()) {
           userName_ = other.userName_;
           onChanged();
         }
-        if (other.hasPasswordHash()) {
-          bitField0_ |= 0x00000002;
+        if (!other.getPasswordHash().isEmpty()) {
           passwordHash_ = other.passwordHash_;
           onChanged();
         }
-        this.mergeUnknownFields(other.getUnknownFields());
+        onChanged();
         return this;
       }
 
       public final boolean isInitialized() {
-        if (!hasUserName()) {
-
-          return false;
-        }
-        if (!hasPasswordHash()) {
-
-          return false;
-        }
         return true;
       }
 
@@ -978,24 +831,17 @@ public final class RasmgrClientService {
         }
         return this;
       }
-      private int bitField0_;
 
-      // required string userName = 1;
       private java.lang.Object userName_ = "";
       /**
-       * <code>required string userName = 1;</code>
-       */
-      public boolean hasUserName() {
-        return ((bitField0_ & 0x00000001) == 0x00000001);
-      }
-      /**
-       * <code>required string userName = 1;</code>
+       * <code>optional string userName = 1;</code>
        */
       public java.lang.String getUserName() {
         java.lang.Object ref = userName_;
         if (!(ref instanceof java.lang.String)) {
-          java.lang.String s = ((com.google.protobuf.ByteString) ref)
-              .toStringUtf8();
+          com.google.protobuf.ByteString bs =
+              (com.google.protobuf.ByteString) ref;
+          java.lang.String s = bs.toStringUtf8();
           userName_ = s;
           return s;
         } else {
@@ -1003,7 +849,7 @@ public final class RasmgrClientService {
         }
       }
       /**
-       * <code>required string userName = 1;</code>
+       * <code>optional string userName = 1;</code>
        */
       public com.google.protobuf.ByteString
           getUserNameBytes() {
@@ -1019,57 +865,52 @@ public final class RasmgrClientService {
         }
       }
       /**
-       * <code>required string userName = 1;</code>
+       * <code>optional string userName = 1;</code>
        */
       public Builder setUserName(
           java.lang.String value) {
         if (value == null) {
     throw new NullPointerException();
   }
-  bitField0_ |= 0x00000001;
+
         userName_ = value;
         onChanged();
         return this;
       }
       /**
-       * <code>required string userName = 1;</code>
+       * <code>optional string userName = 1;</code>
        */
       public Builder clearUserName() {
-        bitField0_ = (bitField0_ & ~0x00000001);
+
         userName_ = getDefaultInstance().getUserName();
         onChanged();
         return this;
       }
       /**
-       * <code>required string userName = 1;</code>
+       * <code>optional string userName = 1;</code>
        */
       public Builder setUserNameBytes(
           com.google.protobuf.ByteString value) {
         if (value == null) {
     throw new NullPointerException();
   }
-  bitField0_ |= 0x00000001;
+  checkByteStringIsUtf8(value);
+
         userName_ = value;
         onChanged();
         return this;
       }
 
-      // required string passwordHash = 2;
       private java.lang.Object passwordHash_ = "";
       /**
-       * <code>required string passwordHash = 2;</code>
-       */
-      public boolean hasPasswordHash() {
-        return ((bitField0_ & 0x00000002) == 0x00000002);
-      }
-      /**
-       * <code>required string passwordHash = 2;</code>
+       * <code>optional string passwordHash = 2;</code>
        */
       public java.lang.String getPasswordHash() {
         java.lang.Object ref = passwordHash_;
         if (!(ref instanceof java.lang.String)) {
-          java.lang.String s = ((com.google.protobuf.ByteString) ref)
-              .toStringUtf8();
+          com.google.protobuf.ByteString bs =
+              (com.google.protobuf.ByteString) ref;
+          java.lang.String s = bs.toStringUtf8();
           passwordHash_ = s;
           return s;
         } else {
@@ -1077,7 +918,7 @@ public final class RasmgrClientService {
         }
       }
       /**
-       * <code>required string passwordHash = 2;</code>
+       * <code>optional string passwordHash = 2;</code>
        */
       public com.google.protobuf.ByteString
           getPasswordHashBytes() {
@@ -1093,85 +934,118 @@ public final class RasmgrClientService {
         }
       }
       /**
-       * <code>required string passwordHash = 2;</code>
+       * <code>optional string passwordHash = 2;</code>
        */
       public Builder setPasswordHash(
           java.lang.String value) {
         if (value == null) {
     throw new NullPointerException();
   }
-  bitField0_ |= 0x00000002;
+
         passwordHash_ = value;
         onChanged();
         return this;
       }
       /**
-       * <code>required string passwordHash = 2;</code>
+       * <code>optional string passwordHash = 2;</code>
        */
       public Builder clearPasswordHash() {
-        bitField0_ = (bitField0_ & ~0x00000002);
+
         passwordHash_ = getDefaultInstance().getPasswordHash();
         onChanged();
         return this;
       }
       /**
-       * <code>required string passwordHash = 2;</code>
+       * <code>optional string passwordHash = 2;</code>
        */
       public Builder setPasswordHashBytes(
           com.google.protobuf.ByteString value) {
         if (value == null) {
     throw new NullPointerException();
   }
-  bitField0_ |= 0x00000002;
+  checkByteStringIsUtf8(value);
+
         passwordHash_ = value;
         onChanged();
         return this;
       }
+      public final Builder setUnknownFields(
+          final com.google.protobuf.UnknownFieldSet unknownFields) {
+        return this;
+      }
+
+      public final Builder mergeUnknownFields(
+          final com.google.protobuf.UnknownFieldSet unknownFields) {
+        return this;
+      }
+
 
       // @@protoc_insertion_point(builder_scope:rasnet.service.ConnectReq)
     }
 
+    // @@protoc_insertion_point(class_scope:rasnet.service.ConnectReq)
+    private static final org.rasdaman.rasnet.service.RasmgrClientService.ConnectReq DEFAULT_INSTANCE;
     static {
-      defaultInstance = new ConnectReq(true);
-      defaultInstance.initFields();
+      DEFAULT_INSTANCE = new org.rasdaman.rasnet.service.RasmgrClientService.ConnectReq();
     }
 
-    // @@protoc_insertion_point(class_scope:rasnet.service.ConnectReq)
+    public static org.rasdaman.rasnet.service.RasmgrClientService.ConnectReq getDefaultInstance() {
+      return DEFAULT_INSTANCE;
+    }
+
+    private static final com.google.protobuf.Parser<ConnectReq>
+        PARSER = new com.google.protobuf.AbstractParser<ConnectReq>() {
+      public ConnectReq parsePartialFrom(
+          com.google.protobuf.CodedInputStream input,
+          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+          throws com.google.protobuf.InvalidProtocolBufferException {
+        try {
+          return new ConnectReq(input, extensionRegistry);
+        } catch (RuntimeException e) {
+          if (e.getCause() instanceof
+              com.google.protobuf.InvalidProtocolBufferException) {
+            throw (com.google.protobuf.InvalidProtocolBufferException)
+                e.getCause();
+          }
+          throw e;
+        }
+      }
+    };
+
+    public static com.google.protobuf.Parser<ConnectReq> parser() {
+      return PARSER;
+    }
+
+    @java.lang.Override
+    public com.google.protobuf.Parser<ConnectReq> getParserForType() {
+      return PARSER;
+    }
+
+    public org.rasdaman.rasnet.service.RasmgrClientService.ConnectReq getDefaultInstanceForType() {
+      return DEFAULT_INSTANCE;
+    }
+
   }
 
-  public interface ConnectReplOrBuilder
-      extends com.google.protobuf.MessageOrBuilder {
+  public interface ConnectReplOrBuilder extends
+      // @@protoc_insertion_point(interface_extends:rasnet.service.ConnectRepl)
+      com.google.protobuf.MessageOrBuilder {
 
-    // required string clientUUID = 1;
     /**
-     * <code>required string clientUUID = 1;</code>
-     */
-    boolean hasClientUUID();
-    /**
-     * <code>required string clientUUID = 1;</code>
+     * <code>optional string clientUUID = 1;</code>
      */
     java.lang.String getClientUUID();
     /**
-     * <code>required string clientUUID = 1;</code>
+     * <code>optional string clientUUID = 1;</code>
      */
     com.google.protobuf.ByteString
         getClientUUIDBytes();
 
-    // required int32 keepAliveTimeout = 2;
     /**
-     * <code>required int32 keepAliveTimeout = 2;</code>
-     */
-    boolean hasKeepAliveTimeout();
-    /**
-     * <code>required int32 keepAliveTimeout = 2;</code>
+     * <code>optional int32 keepAliveTimeout = 2;</code>
      */
     int getKeepAliveTimeout();
 
-    // optional int32 clientId = 3;
-    /**
-     * <code>optional int32 clientId = 3;</code>
-     */
-    boolean hasClientId();
     /**
      * <code>optional int32 clientId = 3;</code>
      */
@@ -1180,39 +1054,30 @@ public final class RasmgrClientService {
   /**
    * Protobuf type {@code rasnet.service.ConnectRepl}
    */
-  public static final class ConnectRepl extends
-      com.google.protobuf.GeneratedMessage
-      implements ConnectReplOrBuilder {
+  public  static final class ConnectRepl extends
+      com.google.protobuf.GeneratedMessage implements
+      // @@protoc_insertion_point(message_implements:rasnet.service.ConnectRepl)
+      ConnectReplOrBuilder {
     // Use ConnectRepl.newBuilder() to construct.
     private ConnectRepl(com.google.protobuf.GeneratedMessage.Builder<?> builder) {
       super(builder);
-      this.unknownFields = builder.getUnknownFields();
     }
-    private ConnectRepl(boolean noInit) { this.unknownFields = com.google.protobuf.UnknownFieldSet.getDefaultInstance(); }
-
-    private static final ConnectRepl defaultInstance;
-    public static ConnectRepl getDefaultInstance() {
-      return defaultInstance;
+    private ConnectRepl() {
+      clientUUID_ = "";
+      keepAliveTimeout_ = 0;
+      clientId_ = 0;
     }
 
-    public ConnectRepl getDefaultInstanceForType() {
-      return defaultInstance;
-    }
-
-    private final com.google.protobuf.UnknownFieldSet unknownFields;
     @java.lang.Override
     public final com.google.protobuf.UnknownFieldSet
-        getUnknownFields() {
-      return this.unknownFields;
+    getUnknownFields() {
+      return com.google.protobuf.UnknownFieldSet.getDefaultInstance();
     }
     private ConnectRepl(
         com.google.protobuf.CodedInputStream input,
-        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-        throws com.google.protobuf.InvalidProtocolBufferException {
-      initFields();
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry) {
+      this();
       int mutable_bitField0_ = 0;
-      com.google.protobuf.UnknownFieldSet.Builder unknownFields =
-          com.google.protobuf.UnknownFieldSet.newBuilder();
       try {
         boolean done = false;
         while (!done) {
@@ -1222,36 +1087,36 @@ public final class RasmgrClientService {
               done = true;
               break;
             default: {
-              if (!parseUnknownField(input, unknownFields,
-                                     extensionRegistry, tag)) {
+              if (!input.skipField(tag)) {
                 done = true;
               }
               break;
             }
             case 10: {
-              bitField0_ |= 0x00000001;
-              clientUUID_ = input.readBytes();
+              String s = input.readStringRequireUtf8();
+
+              clientUUID_ = s;
               break;
             }
             case 16: {
-              bitField0_ |= 0x00000002;
+
               keepAliveTimeout_ = input.readInt32();
               break;
             }
             case 24: {
-              bitField0_ |= 0x00000004;
+
               clientId_ = input.readInt32();
               break;
             }
           }
         }
       } catch (com.google.protobuf.InvalidProtocolBufferException e) {
-        throw e.setUnfinishedMessage(this);
+        throw new RuntimeException(e.setUnfinishedMessage(this));
       } catch (java.io.IOException e) {
-        throw new com.google.protobuf.InvalidProtocolBufferException(
-            e.getMessage()).setUnfinishedMessage(this);
+        throw new RuntimeException(
+            new com.google.protobuf.InvalidProtocolBufferException(
+                e.getMessage()).setUnfinishedMessage(this));
       } finally {
-        this.unknownFields = unknownFields.build();
         makeExtensionsImmutable();
       }
     }
@@ -1267,33 +1132,10 @@ public final class RasmgrClientService {
               org.rasdaman.rasnet.service.RasmgrClientService.ConnectRepl.class, org.rasdaman.rasnet.service.RasmgrClientService.ConnectRepl.Builder.class);
     }
 
-    public static com.google.protobuf.Parser<ConnectRepl> PARSER =
-        new com.google.protobuf.AbstractParser<ConnectRepl>() {
-      public ConnectRepl parsePartialFrom(
-          com.google.protobuf.CodedInputStream input,
-          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-          throws com.google.protobuf.InvalidProtocolBufferException {
-        return new ConnectRepl(input, extensionRegistry);
-      }
-    };
-
-    @java.lang.Override
-    public com.google.protobuf.Parser<ConnectRepl> getParserForType() {
-      return PARSER;
-    }
-
-    private int bitField0_;
-    // required string clientUUID = 1;
     public static final int CLIENTUUID_FIELD_NUMBER = 1;
-    private java.lang.Object clientUUID_;
+    private volatile java.lang.Object clientUUID_;
     /**
-     * <code>required string clientUUID = 1;</code>
-     */
-    public boolean hasClientUUID() {
-      return ((bitField0_ & 0x00000001) == 0x00000001);
-    }
-    /**
-     * <code>required string clientUUID = 1;</code>
+     * <code>optional string clientUUID = 1;</code>
      */
     public java.lang.String getClientUUID() {
       java.lang.Object ref = clientUUID_;
@@ -1303,14 +1145,12 @@ public final class RasmgrClientService {
         com.google.protobuf.ByteString bs =
             (com.google.protobuf.ByteString) ref;
         java.lang.String s = bs.toStringUtf8();
-        if (bs.isValidUtf8()) {
-          clientUUID_ = s;
-        }
+        clientUUID_ = s;
         return s;
       }
     }
     /**
-     * <code>required string clientUUID = 1;</code>
+     * <code>optional string clientUUID = 1;</code>
      */
     public com.google.protobuf.ByteString
         getClientUUIDBytes() {
@@ -1326,31 +1166,17 @@ public final class RasmgrClientService {
       }
     }
 
-    // required int32 keepAliveTimeout = 2;
     public static final int KEEPALIVETIMEOUT_FIELD_NUMBER = 2;
     private int keepAliveTimeout_;
     /**
-     * <code>required int32 keepAliveTimeout = 2;</code>
-     */
-    public boolean hasKeepAliveTimeout() {
-      return ((bitField0_ & 0x00000002) == 0x00000002);
-    }
-    /**
-     * <code>required int32 keepAliveTimeout = 2;</code>
+     * <code>optional int32 keepAliveTimeout = 2;</code>
      */
     public int getKeepAliveTimeout() {
       return keepAliveTimeout_;
     }
 
-    // optional int32 clientId = 3;
     public static final int CLIENTID_FIELD_NUMBER = 3;
     private int clientId_;
-    /**
-     * <code>optional int32 clientId = 3;</code>
-     */
-    public boolean hasClientId() {
-      return ((bitField0_ & 0x00000004) == 0x00000004);
-    }
     /**
      * <code>optional int32 clientId = 3;</code>
      */
@@ -1358,73 +1184,50 @@ public final class RasmgrClientService {
       return clientId_;
     }
 
-    private void initFields() {
-      clientUUID_ = "";
-      keepAliveTimeout_ = 0;
-      clientId_ = 0;
-    }
     private byte memoizedIsInitialized = -1;
     public final boolean isInitialized() {
       byte isInitialized = memoizedIsInitialized;
-      if (isInitialized != -1) return isInitialized == 1;
+      if (isInitialized == 1) return true;
+      if (isInitialized == 0) return false;
 
-      if (!hasClientUUID()) {
-        memoizedIsInitialized = 0;
-        return false;
-      }
-      if (!hasKeepAliveTimeout()) {
-        memoizedIsInitialized = 0;
-        return false;
-      }
       memoizedIsInitialized = 1;
       return true;
     }
 
     public void writeTo(com.google.protobuf.CodedOutputStream output)
                         throws java.io.IOException {
-      getSerializedSize();
-      if (((bitField0_ & 0x00000001) == 0x00000001)) {
-        output.writeBytes(1, getClientUUIDBytes());
+      if (!getClientUUIDBytes().isEmpty()) {
+        com.google.protobuf.GeneratedMessage.writeString(output, 1, clientUUID_);
       }
-      if (((bitField0_ & 0x00000002) == 0x00000002)) {
+      if (keepAliveTimeout_ != 0) {
         output.writeInt32(2, keepAliveTimeout_);
       }
-      if (((bitField0_ & 0x00000004) == 0x00000004)) {
+      if (clientId_ != 0) {
         output.writeInt32(3, clientId_);
       }
-      getUnknownFields().writeTo(output);
     }
 
-    private int memoizedSerializedSize = -1;
     public int getSerializedSize() {
-      int size = memoizedSerializedSize;
+      int size = memoizedSize;
       if (size != -1) return size;
 
       size = 0;
-      if (((bitField0_ & 0x00000001) == 0x00000001)) {
-        size += com.google.protobuf.CodedOutputStream
-          .computeBytesSize(1, getClientUUIDBytes());
+      if (!getClientUUIDBytes().isEmpty()) {
+        size += com.google.protobuf.GeneratedMessage.computeStringSize(1, clientUUID_);
       }
-      if (((bitField0_ & 0x00000002) == 0x00000002)) {
+      if (keepAliveTimeout_ != 0) {
         size += com.google.protobuf.CodedOutputStream
           .computeInt32Size(2, keepAliveTimeout_);
       }
-      if (((bitField0_ & 0x00000004) == 0x00000004)) {
+      if (clientId_ != 0) {
         size += com.google.protobuf.CodedOutputStream
           .computeInt32Size(3, clientId_);
       }
-      size += getUnknownFields().getSerializedSize();
-      memoizedSerializedSize = size;
+      memoizedSize = size;
       return size;
     }
 
     private static final long serialVersionUID = 0L;
-    @java.lang.Override
-    protected java.lang.Object writeReplace()
-        throws java.io.ObjectStreamException {
-      return super.writeReplace();
-    }
-
     public static org.rasdaman.rasnet.service.RasmgrClientService.ConnectRepl parseFrom(
         com.google.protobuf.ByteString data)
         throws com.google.protobuf.InvalidProtocolBufferException {
@@ -1478,12 +1281,17 @@ public final class RasmgrClientService {
       return PARSER.parseFrom(input, extensionRegistry);
     }
 
-    public static Builder newBuilder() { return Builder.create(); }
     public Builder newBuilderForType() { return newBuilder(); }
-    public static Builder newBuilder(org.rasdaman.rasnet.service.RasmgrClientService.ConnectRepl prototype) {
-      return newBuilder().mergeFrom(prototype);
+    public static Builder newBuilder() {
+      return DEFAULT_INSTANCE.toBuilder();
     }
-    public Builder toBuilder() { return newBuilder(this); }
+    public static Builder newBuilder(org.rasdaman.rasnet.service.RasmgrClientService.ConnectRepl prototype) {
+      return DEFAULT_INSTANCE.toBuilder().mergeFrom(prototype);
+    }
+    public Builder toBuilder() {
+      return this == DEFAULT_INSTANCE
+          ? new Builder() : new Builder().mergeFrom(this);
+    }
 
     @java.lang.Override
     protected Builder newBuilderForType(
@@ -1495,8 +1303,9 @@ public final class RasmgrClientService {
      * Protobuf type {@code rasnet.service.ConnectRepl}
      */
     public static final class Builder extends
-        com.google.protobuf.GeneratedMessage.Builder<Builder>
-       implements org.rasdaman.rasnet.service.RasmgrClientService.ConnectReplOrBuilder {
+        com.google.protobuf.GeneratedMessage.Builder<Builder> implements
+        // @@protoc_insertion_point(builder_implements:rasnet.service.ConnectRepl)
+        org.rasdaman.rasnet.service.RasmgrClientService.ConnectReplOrBuilder {
       public static final com.google.protobuf.Descriptors.Descriptor
           getDescriptor() {
         return org.rasdaman.rasnet.service.RasmgrClientService.internal_static_rasnet_service_ConnectRepl_descriptor;
@@ -1523,23 +1332,15 @@ public final class RasmgrClientService {
         if (com.google.protobuf.GeneratedMessage.alwaysUseFieldBuilders) {
         }
       }
-      private static Builder create() {
-        return new Builder();
-      }
-
       public Builder clear() {
         super.clear();
         clientUUID_ = "";
-        bitField0_ = (bitField0_ & ~0x00000001);
-        keepAliveTimeout_ = 0;
-        bitField0_ = (bitField0_ & ~0x00000002);
-        clientId_ = 0;
-        bitField0_ = (bitField0_ & ~0x00000004);
-        return this;
-      }
 
-      public Builder clone() {
-        return create().mergeFrom(buildPartial());
+        keepAliveTimeout_ = 0;
+
+        clientId_ = 0;
+
+        return this;
       }
 
       public com.google.protobuf.Descriptors.Descriptor
@@ -1561,21 +1362,9 @@ public final class RasmgrClientService {
 
       public org.rasdaman.rasnet.service.RasmgrClientService.ConnectRepl buildPartial() {
         org.rasdaman.rasnet.service.RasmgrClientService.ConnectRepl result = new org.rasdaman.rasnet.service.RasmgrClientService.ConnectRepl(this);
-        int from_bitField0_ = bitField0_;
-        int to_bitField0_ = 0;
-        if (((from_bitField0_ & 0x00000001) == 0x00000001)) {
-          to_bitField0_ |= 0x00000001;
-        }
         result.clientUUID_ = clientUUID_;
-        if (((from_bitField0_ & 0x00000002) == 0x00000002)) {
-          to_bitField0_ |= 0x00000002;
-        }
         result.keepAliveTimeout_ = keepAliveTimeout_;
-        if (((from_bitField0_ & 0x00000004) == 0x00000004)) {
-          to_bitField0_ |= 0x00000004;
-        }
         result.clientId_ = clientId_;
-        result.bitField0_ = to_bitField0_;
         onBuilt();
         return result;
       }
@@ -1591,30 +1380,21 @@ public final class RasmgrClientService {
 
       public Builder mergeFrom(org.rasdaman.rasnet.service.RasmgrClientService.ConnectRepl other) {
         if (other == org.rasdaman.rasnet.service.RasmgrClientService.ConnectRepl.getDefaultInstance()) return this;
-        if (other.hasClientUUID()) {
-          bitField0_ |= 0x00000001;
+        if (!other.getClientUUID().isEmpty()) {
           clientUUID_ = other.clientUUID_;
           onChanged();
         }
-        if (other.hasKeepAliveTimeout()) {
+        if (other.getKeepAliveTimeout() != 0) {
           setKeepAliveTimeout(other.getKeepAliveTimeout());
         }
-        if (other.hasClientId()) {
+        if (other.getClientId() != 0) {
           setClientId(other.getClientId());
         }
-        this.mergeUnknownFields(other.getUnknownFields());
+        onChanged();
         return this;
       }
 
       public final boolean isInitialized() {
-        if (!hasClientUUID()) {
-
-          return false;
-        }
-        if (!hasKeepAliveTimeout()) {
-
-          return false;
-        }
         return true;
       }
 
@@ -1635,24 +1415,17 @@ public final class RasmgrClientService {
         }
         return this;
       }
-      private int bitField0_;
 
-      // required string clientUUID = 1;
       private java.lang.Object clientUUID_ = "";
       /**
-       * <code>required string clientUUID = 1;</code>
-       */
-      public boolean hasClientUUID() {
-        return ((bitField0_ & 0x00000001) == 0x00000001);
-      }
-      /**
-       * <code>required string clientUUID = 1;</code>
+       * <code>optional string clientUUID = 1;</code>
        */
       public java.lang.String getClientUUID() {
         java.lang.Object ref = clientUUID_;
         if (!(ref instanceof java.lang.String)) {
-          java.lang.String s = ((com.google.protobuf.ByteString) ref)
-              .toStringUtf8();
+          com.google.protobuf.ByteString bs =
+              (com.google.protobuf.ByteString) ref;
+          java.lang.String s = bs.toStringUtf8();
           clientUUID_ = s;
           return s;
         } else {
@@ -1660,7 +1433,7 @@ public final class RasmgrClientService {
         }
       }
       /**
-       * <code>required string clientUUID = 1;</code>
+       * <code>optional string clientUUID = 1;</code>
        */
       public com.google.protobuf.ByteString
           getClientUUIDBytes() {
@@ -1676,82 +1449,69 @@ public final class RasmgrClientService {
         }
       }
       /**
-       * <code>required string clientUUID = 1;</code>
+       * <code>optional string clientUUID = 1;</code>
        */
       public Builder setClientUUID(
           java.lang.String value) {
         if (value == null) {
     throw new NullPointerException();
   }
-  bitField0_ |= 0x00000001;
+
         clientUUID_ = value;
         onChanged();
         return this;
       }
       /**
-       * <code>required string clientUUID = 1;</code>
+       * <code>optional string clientUUID = 1;</code>
        */
       public Builder clearClientUUID() {
-        bitField0_ = (bitField0_ & ~0x00000001);
+
         clientUUID_ = getDefaultInstance().getClientUUID();
         onChanged();
         return this;
       }
       /**
-       * <code>required string clientUUID = 1;</code>
+       * <code>optional string clientUUID = 1;</code>
        */
       public Builder setClientUUIDBytes(
           com.google.protobuf.ByteString value) {
         if (value == null) {
     throw new NullPointerException();
   }
-  bitField0_ |= 0x00000001;
+  checkByteStringIsUtf8(value);
+
         clientUUID_ = value;
         onChanged();
         return this;
       }
 
-      // required int32 keepAliveTimeout = 2;
       private int keepAliveTimeout_ ;
       /**
-       * <code>required int32 keepAliveTimeout = 2;</code>
-       */
-      public boolean hasKeepAliveTimeout() {
-        return ((bitField0_ & 0x00000002) == 0x00000002);
-      }
-      /**
-       * <code>required int32 keepAliveTimeout = 2;</code>
+       * <code>optional int32 keepAliveTimeout = 2;</code>
        */
       public int getKeepAliveTimeout() {
         return keepAliveTimeout_;
       }
       /**
-       * <code>required int32 keepAliveTimeout = 2;</code>
+       * <code>optional int32 keepAliveTimeout = 2;</code>
        */
       public Builder setKeepAliveTimeout(int value) {
-        bitField0_ |= 0x00000002;
+
         keepAliveTimeout_ = value;
         onChanged();
         return this;
       }
       /**
-       * <code>required int32 keepAliveTimeout = 2;</code>
+       * <code>optional int32 keepAliveTimeout = 2;</code>
        */
       public Builder clearKeepAliveTimeout() {
-        bitField0_ = (bitField0_ & ~0x00000002);
+
         keepAliveTimeout_ = 0;
         onChanged();
         return this;
       }
 
-      // optional int32 clientId = 3;
       private int clientId_ ;
-      /**
-       * <code>optional int32 clientId = 3;</code>
-       */
-      public boolean hasClientId() {
-        return ((bitField0_ & 0x00000004) == 0x00000004);
-      }
       /**
        * <code>optional int32 clientId = 3;</code>
        */
@@ -1762,7 +1522,7 @@ public final class RasmgrClientService {
        * <code>optional int32 clientId = 3;</code>
        */
       public Builder setClientId(int value) {
-        bitField0_ |= 0x00000004;
+
         clientId_ = value;
         onChanged();
         return this;
@@ -1771,46 +1531,83 @@ public final class RasmgrClientService {
        * <code>optional int32 clientId = 3;</code>
        */
       public Builder clearClientId() {
-        bitField0_ = (bitField0_ & ~0x00000004);
+
         clientId_ = 0;
         onChanged();
         return this;
       }
+      public final Builder setUnknownFields(
+          final com.google.protobuf.UnknownFieldSet unknownFields) {
+        return this;
+      }
+
+      public final Builder mergeUnknownFields(
+          final com.google.protobuf.UnknownFieldSet unknownFields) {
+        return this;
+      }
+
 
       // @@protoc_insertion_point(builder_scope:rasnet.service.ConnectRepl)
     }
 
+    // @@protoc_insertion_point(class_scope:rasnet.service.ConnectRepl)
+    private static final org.rasdaman.rasnet.service.RasmgrClientService.ConnectRepl DEFAULT_INSTANCE;
     static {
-      defaultInstance = new ConnectRepl(true);
-      defaultInstance.initFields();
+      DEFAULT_INSTANCE = new org.rasdaman.rasnet.service.RasmgrClientService.ConnectRepl();
     }
 
-    // @@protoc_insertion_point(class_scope:rasnet.service.ConnectRepl)
+    public static org.rasdaman.rasnet.service.RasmgrClientService.ConnectRepl getDefaultInstance() {
+      return DEFAULT_INSTANCE;
+    }
+
+    private static final com.google.protobuf.Parser<ConnectRepl>
+        PARSER = new com.google.protobuf.AbstractParser<ConnectRepl>() {
+      public ConnectRepl parsePartialFrom(
+          com.google.protobuf.CodedInputStream input,
+          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+          throws com.google.protobuf.InvalidProtocolBufferException {
+        try {
+          return new ConnectRepl(input, extensionRegistry);
+        } catch (RuntimeException e) {
+          if (e.getCause() instanceof
+              com.google.protobuf.InvalidProtocolBufferException) {
+            throw (com.google.protobuf.InvalidProtocolBufferException)
+                e.getCause();
+          }
+          throw e;
+        }
+      }
+    };
+
+    public static com.google.protobuf.Parser<ConnectRepl> parser() {
+      return PARSER;
+    }
+
+    @java.lang.Override
+    public com.google.protobuf.Parser<ConnectRepl> getParserForType() {
+      return PARSER;
+    }
+
+    public org.rasdaman.rasnet.service.RasmgrClientService.ConnectRepl getDefaultInstanceForType() {
+      return DEFAULT_INSTANCE;
+    }
+
   }
 
-  public interface DisconnectReqOrBuilder
-      extends com.google.protobuf.MessageOrBuilder {
+  public interface DisconnectReqOrBuilder extends
+      // @@protoc_insertion_point(interface_extends:rasnet.service.DisconnectReq)
+      com.google.protobuf.MessageOrBuilder {
 
-    // required string clientUUID = 1;
     /**
-     * <code>required string clientUUID = 1;</code>
-     */
-    boolean hasClientUUID();
-    /**
-     * <code>required string clientUUID = 1;</code>
+     * <code>optional string clientUUID = 1;</code>
      */
     java.lang.String getClientUUID();
     /**
-     * <code>required string clientUUID = 1;</code>
+     * <code>optional string clientUUID = 1;</code>
      */
     com.google.protobuf.ByteString
         getClientUUIDBytes();
 
-    // optional int32 clientId = 2;
-    /**
-     * <code>optional int32 clientId = 2;</code>
-     */
-    boolean hasClientId();
     /**
      * <code>optional int32 clientId = 2;</code>
      */
@@ -1819,39 +1616,29 @@ public final class RasmgrClientService {
   /**
    * Protobuf type {@code rasnet.service.DisconnectReq}
    */
-  public static final class DisconnectReq extends
-      com.google.protobuf.GeneratedMessage
-      implements DisconnectReqOrBuilder {
+  public  static final class DisconnectReq extends
+      com.google.protobuf.GeneratedMessage implements
+      // @@protoc_insertion_point(message_implements:rasnet.service.DisconnectReq)
+      DisconnectReqOrBuilder {
     // Use DisconnectReq.newBuilder() to construct.
     private DisconnectReq(com.google.protobuf.GeneratedMessage.Builder<?> builder) {
       super(builder);
-      this.unknownFields = builder.getUnknownFields();
     }
-    private DisconnectReq(boolean noInit) { this.unknownFields = com.google.protobuf.UnknownFieldSet.getDefaultInstance(); }
-
-    private static final DisconnectReq defaultInstance;
-    public static DisconnectReq getDefaultInstance() {
-      return defaultInstance;
+    private DisconnectReq() {
+      clientUUID_ = "";
+      clientId_ = 0;
     }
 
-    public DisconnectReq getDefaultInstanceForType() {
-      return defaultInstance;
-    }
-
-    private final com.google.protobuf.UnknownFieldSet unknownFields;
     @java.lang.Override
     public final com.google.protobuf.UnknownFieldSet
-        getUnknownFields() {
-      return this.unknownFields;
+    getUnknownFields() {
+      return com.google.protobuf.UnknownFieldSet.getDefaultInstance();
     }
     private DisconnectReq(
         com.google.protobuf.CodedInputStream input,
-        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-        throws com.google.protobuf.InvalidProtocolBufferException {
-      initFields();
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry) {
+      this();
       int mutable_bitField0_ = 0;
-      com.google.protobuf.UnknownFieldSet.Builder unknownFields =
-          com.google.protobuf.UnknownFieldSet.newBuilder();
       try {
         boolean done = false;
         while (!done) {
@@ -1861,31 +1648,31 @@ public final class RasmgrClientService {
               done = true;
               break;
             default: {
-              if (!parseUnknownField(input, unknownFields,
-                                     extensionRegistry, tag)) {
+              if (!input.skipField(tag)) {
                 done = true;
               }
               break;
             }
             case 10: {
-              bitField0_ |= 0x00000001;
-              clientUUID_ = input.readBytes();
+              String s = input.readStringRequireUtf8();
+
+              clientUUID_ = s;
               break;
             }
             case 16: {
-              bitField0_ |= 0x00000002;
+
               clientId_ = input.readInt32();
               break;
             }
           }
         }
       } catch (com.google.protobuf.InvalidProtocolBufferException e) {
-        throw e.setUnfinishedMessage(this);
+        throw new RuntimeException(e.setUnfinishedMessage(this));
       } catch (java.io.IOException e) {
-        throw new com.google.protobuf.InvalidProtocolBufferException(
-            e.getMessage()).setUnfinishedMessage(this);
+        throw new RuntimeException(
+            new com.google.protobuf.InvalidProtocolBufferException(
+                e.getMessage()).setUnfinishedMessage(this));
       } finally {
-        this.unknownFields = unknownFields.build();
         makeExtensionsImmutable();
       }
     }
@@ -1901,33 +1688,10 @@ public final class RasmgrClientService {
               org.rasdaman.rasnet.service.RasmgrClientService.DisconnectReq.class, org.rasdaman.rasnet.service.RasmgrClientService.DisconnectReq.Builder.class);
     }
 
-    public static com.google.protobuf.Parser<DisconnectReq> PARSER =
-        new com.google.protobuf.AbstractParser<DisconnectReq>() {
-      public DisconnectReq parsePartialFrom(
-          com.google.protobuf.CodedInputStream input,
-          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-          throws com.google.protobuf.InvalidProtocolBufferException {
-        return new DisconnectReq(input, extensionRegistry);
-      }
-    };
-
-    @java.lang.Override
-    public com.google.protobuf.Parser<DisconnectReq> getParserForType() {
-      return PARSER;
-    }
-
-    private int bitField0_;
-    // required string clientUUID = 1;
     public static final int CLIENTUUID_FIELD_NUMBER = 1;
-    private java.lang.Object clientUUID_;
+    private volatile java.lang.Object clientUUID_;
     /**
-     * <code>required string clientUUID = 1;</code>
-     */
-    public boolean hasClientUUID() {
-      return ((bitField0_ & 0x00000001) == 0x00000001);
-    }
-    /**
-     * <code>required string clientUUID = 1;</code>
+     * <code>optional string clientUUID = 1;</code>
      */
     public java.lang.String getClientUUID() {
       java.lang.Object ref = clientUUID_;
@@ -1937,14 +1701,12 @@ public final class RasmgrClientService {
         com.google.protobuf.ByteString bs =
             (com.google.protobuf.ByteString) ref;
         java.lang.String s = bs.toStringUtf8();
-        if (bs.isValidUtf8()) {
-          clientUUID_ = s;
-        }
+        clientUUID_ = s;
         return s;
       }
     }
     /**
-     * <code>required string clientUUID = 1;</code>
+     * <code>optional string clientUUID = 1;</code>
      */
     public com.google.protobuf.ByteString
         getClientUUIDBytes() {
@@ -1960,15 +1722,8 @@ public final class RasmgrClientService {
       }
     }
 
-    // optional int32 clientId = 2;
     public static final int CLIENTID_FIELD_NUMBER = 2;
     private int clientId_;
-    /**
-     * <code>optional int32 clientId = 2;</code>
-     */
-    public boolean hasClientId() {
-      return ((bitField0_ & 0x00000002) == 0x00000002);
-    }
     /**
      * <code>optional int32 clientId = 2;</code>
      */
@@ -1976,61 +1731,43 @@ public final class RasmgrClientService {
       return clientId_;
     }
 
-    private void initFields() {
-      clientUUID_ = "";
-      clientId_ = 0;
-    }
     private byte memoizedIsInitialized = -1;
     public final boolean isInitialized() {
       byte isInitialized = memoizedIsInitialized;
-      if (isInitialized != -1) return isInitialized == 1;
+      if (isInitialized == 1) return true;
+      if (isInitialized == 0) return false;
 
-      if (!hasClientUUID()) {
-        memoizedIsInitialized = 0;
-        return false;
-      }
       memoizedIsInitialized = 1;
       return true;
     }
 
     public void writeTo(com.google.protobuf.CodedOutputStream output)
                         throws java.io.IOException {
-      getSerializedSize();
-      if (((bitField0_ & 0x00000001) == 0x00000001)) {
-        output.writeBytes(1, getClientUUIDBytes());
+      if (!getClientUUIDBytes().isEmpty()) {
+        com.google.protobuf.GeneratedMessage.writeString(output, 1, clientUUID_);
       }
-      if (((bitField0_ & 0x00000002) == 0x00000002)) {
+      if (clientId_ != 0) {
         output.writeInt32(2, clientId_);
       }
-      getUnknownFields().writeTo(output);
     }
 
-    private int memoizedSerializedSize = -1;
     public int getSerializedSize() {
-      int size = memoizedSerializedSize;
+      int size = memoizedSize;
       if (size != -1) return size;
 
       size = 0;
-      if (((bitField0_ & 0x00000001) == 0x00000001)) {
-        size += com.google.protobuf.CodedOutputStream
-          .computeBytesSize(1, getClientUUIDBytes());
+      if (!getClientUUIDBytes().isEmpty()) {
+        size += com.google.protobuf.GeneratedMessage.computeStringSize(1, clientUUID_);
       }
-      if (((bitField0_ & 0x00000002) == 0x00000002)) {
+      if (clientId_ != 0) {
         size += com.google.protobuf.CodedOutputStream
           .computeInt32Size(2, clientId_);
       }
-      size += getUnknownFields().getSerializedSize();
-      memoizedSerializedSize = size;
+      memoizedSize = size;
       return size;
     }
 
     private static final long serialVersionUID = 0L;
-    @java.lang.Override
-    protected java.lang.Object writeReplace()
-        throws java.io.ObjectStreamException {
-      return super.writeReplace();
-    }
-
     public static org.rasdaman.rasnet.service.RasmgrClientService.DisconnectReq parseFrom(
         com.google.protobuf.ByteString data)
         throws com.google.protobuf.InvalidProtocolBufferException {
@@ -2084,12 +1821,17 @@ public final class RasmgrClientService {
       return PARSER.parseFrom(input, extensionRegistry);
     }
 
-    public static Builder newBuilder() { return Builder.create(); }
     public Builder newBuilderForType() { return newBuilder(); }
-    public static Builder newBuilder(org.rasdaman.rasnet.service.RasmgrClientService.DisconnectReq prototype) {
-      return newBuilder().mergeFrom(prototype);
+    public static Builder newBuilder() {
+      return DEFAULT_INSTANCE.toBuilder();
     }
-    public Builder toBuilder() { return newBuilder(this); }
+    public static Builder newBuilder(org.rasdaman.rasnet.service.RasmgrClientService.DisconnectReq prototype) {
+      return DEFAULT_INSTANCE.toBuilder().mergeFrom(prototype);
+    }
+    public Builder toBuilder() {
+      return this == DEFAULT_INSTANCE
+          ? new Builder() : new Builder().mergeFrom(this);
+    }
 
     @java.lang.Override
     protected Builder newBuilderForType(
@@ -2101,8 +1843,9 @@ public final class RasmgrClientService {
      * Protobuf type {@code rasnet.service.DisconnectReq}
      */
     public static final class Builder extends
-        com.google.protobuf.GeneratedMessage.Builder<Builder>
-       implements org.rasdaman.rasnet.service.RasmgrClientService.DisconnectReqOrBuilder {
+        com.google.protobuf.GeneratedMessage.Builder<Builder> implements
+        // @@protoc_insertion_point(builder_implements:rasnet.service.DisconnectReq)
+        org.rasdaman.rasnet.service.RasmgrClientService.DisconnectReqOrBuilder {
       public static final com.google.protobuf.Descriptors.Descriptor
           getDescriptor() {
         return org.rasdaman.rasnet.service.RasmgrClientService.internal_static_rasnet_service_DisconnectReq_descriptor;
@@ -2129,21 +1872,13 @@ public final class RasmgrClientService {
         if (com.google.protobuf.GeneratedMessage.alwaysUseFieldBuilders) {
         }
       }
-      private static Builder create() {
-        return new Builder();
-      }
-
       public Builder clear() {
         super.clear();
         clientUUID_ = "";
-        bitField0_ = (bitField0_ & ~0x00000001);
-        clientId_ = 0;
-        bitField0_ = (bitField0_ & ~0x00000002);
-        return this;
-      }
 
-      public Builder clone() {
-        return create().mergeFrom(buildPartial());
+        clientId_ = 0;
+
+        return this;
       }
 
       public com.google.protobuf.Descriptors.Descriptor
@@ -2165,17 +1900,8 @@ public final class RasmgrClientService {
 
       public org.rasdaman.rasnet.service.RasmgrClientService.DisconnectReq buildPartial() {
         org.rasdaman.rasnet.service.RasmgrClientService.DisconnectReq result = new org.rasdaman.rasnet.service.RasmgrClientService.DisconnectReq(this);
-        int from_bitField0_ = bitField0_;
-        int to_bitField0_ = 0;
-        if (((from_bitField0_ & 0x00000001) == 0x00000001)) {
-          to_bitField0_ |= 0x00000001;
-        }
         result.clientUUID_ = clientUUID_;
-        if (((from_bitField0_ & 0x00000002) == 0x00000002)) {
-          to_bitField0_ |= 0x00000002;
-        }
         result.clientId_ = clientId_;
-        result.bitField0_ = to_bitField0_;
         onBuilt();
         return result;
       }
@@ -2191,23 +1917,18 @@ public final class RasmgrClientService {
 
       public Builder mergeFrom(org.rasdaman.rasnet.service.RasmgrClientService.DisconnectReq other) {
         if (other == org.rasdaman.rasnet.service.RasmgrClientService.DisconnectReq.getDefaultInstance()) return this;
-        if (other.hasClientUUID()) {
-          bitField0_ |= 0x00000001;
+        if (!other.getClientUUID().isEmpty()) {
           clientUUID_ = other.clientUUID_;
           onChanged();
         }
-        if (other.hasClientId()) {
+        if (other.getClientId() != 0) {
           setClientId(other.getClientId());
         }
-        this.mergeUnknownFields(other.getUnknownFields());
+        onChanged();
         return this;
       }
 
       public final boolean isInitialized() {
-        if (!hasClientUUID()) {
-
-          return false;
-        }
         return true;
       }
 
@@ -2228,24 +1949,17 @@ public final class RasmgrClientService {
         }
         return this;
       }
-      private int bitField0_;
 
-      // required string clientUUID = 1;
       private java.lang.Object clientUUID_ = "";
       /**
-       * <code>required string clientUUID = 1;</code>
-       */
-      public boolean hasClientUUID() {
-        return ((bitField0_ & 0x00000001) == 0x00000001);
-      }
-      /**
-       * <code>required string clientUUID = 1;</code>
+       * <code>optional string clientUUID = 1;</code>
        */
       public java.lang.String getClientUUID() {
         java.lang.Object ref = clientUUID_;
         if (!(ref instanceof java.lang.String)) {
-          java.lang.String s = ((com.google.protobuf.ByteString) ref)
-              .toStringUtf8();
+          com.google.protobuf.ByteString bs =
+              (com.google.protobuf.ByteString) ref;
+          java.lang.String s = bs.toStringUtf8();
           clientUUID_ = s;
           return s;
         } else {
@@ -2253,7 +1967,7 @@ public final class RasmgrClientService {
         }
       }
       /**
-       * <code>required string clientUUID = 1;</code>
+       * <code>optional string clientUUID = 1;</code>
        */
       public com.google.protobuf.ByteString
           getClientUUIDBytes() {
@@ -2269,49 +1983,43 @@ public final class RasmgrClientService {
         }
       }
       /**
-       * <code>required string clientUUID = 1;</code>
+       * <code>optional string clientUUID = 1;</code>
        */
       public Builder setClientUUID(
           java.lang.String value) {
         if (value == null) {
     throw new NullPointerException();
   }
-  bitField0_ |= 0x00000001;
+
         clientUUID_ = value;
         onChanged();
         return this;
       }
       /**
-       * <code>required string clientUUID = 1;</code>
+       * <code>optional string clientUUID = 1;</code>
        */
       public Builder clearClientUUID() {
-        bitField0_ = (bitField0_ & ~0x00000001);
+
         clientUUID_ = getDefaultInstance().getClientUUID();
         onChanged();
         return this;
       }
       /**
-       * <code>required string clientUUID = 1;</code>
+       * <code>optional string clientUUID = 1;</code>
        */
       public Builder setClientUUIDBytes(
           com.google.protobuf.ByteString value) {
         if (value == null) {
     throw new NullPointerException();
   }
-  bitField0_ |= 0x00000001;
+  checkByteStringIsUtf8(value);
+
         clientUUID_ = value;
         onChanged();
         return this;
       }
 
-      // optional int32 clientId = 2;
       private int clientId_ ;
-      /**
-       * <code>optional int32 clientId = 2;</code>
-       */
-      public boolean hasClientId() {
-        return ((bitField0_ & 0x00000002) == 0x00000002);
-      }
       /**
        * <code>optional int32 clientId = 2;</code>
        */
@@ -2322,7 +2030,7 @@ public final class RasmgrClientService {
        * <code>optional int32 clientId = 2;</code>
        */
       public Builder setClientId(int value) {
-        bitField0_ |= 0x00000002;
+
         clientId_ = value;
         onChanged();
         return this;
@@ -2331,62 +2039,94 @@ public final class RasmgrClientService {
        * <code>optional int32 clientId = 2;</code>
        */
       public Builder clearClientId() {
-        bitField0_ = (bitField0_ & ~0x00000002);
+
         clientId_ = 0;
         onChanged();
         return this;
       }
+      public final Builder setUnknownFields(
+          final com.google.protobuf.UnknownFieldSet unknownFields) {
+        return this;
+      }
+
+      public final Builder mergeUnknownFields(
+          final com.google.protobuf.UnknownFieldSet unknownFields) {
+        return this;
+      }
+
 
       // @@protoc_insertion_point(builder_scope:rasnet.service.DisconnectReq)
     }
 
+    // @@protoc_insertion_point(class_scope:rasnet.service.DisconnectReq)
+    private static final org.rasdaman.rasnet.service.RasmgrClientService.DisconnectReq DEFAULT_INSTANCE;
     static {
-      defaultInstance = new DisconnectReq(true);
-      defaultInstance.initFields();
+      DEFAULT_INSTANCE = new org.rasdaman.rasnet.service.RasmgrClientService.DisconnectReq();
     }
 
-    // @@protoc_insertion_point(class_scope:rasnet.service.DisconnectReq)
+    public static org.rasdaman.rasnet.service.RasmgrClientService.DisconnectReq getDefaultInstance() {
+      return DEFAULT_INSTANCE;
+    }
+
+    private static final com.google.protobuf.Parser<DisconnectReq>
+        PARSER = new com.google.protobuf.AbstractParser<DisconnectReq>() {
+      public DisconnectReq parsePartialFrom(
+          com.google.protobuf.CodedInputStream input,
+          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+          throws com.google.protobuf.InvalidProtocolBufferException {
+        try {
+          return new DisconnectReq(input, extensionRegistry);
+        } catch (RuntimeException e) {
+          if (e.getCause() instanceof
+              com.google.protobuf.InvalidProtocolBufferException) {
+            throw (com.google.protobuf.InvalidProtocolBufferException)
+                e.getCause();
+          }
+          throw e;
+        }
+      }
+    };
+
+    public static com.google.protobuf.Parser<DisconnectReq> parser() {
+      return PARSER;
+    }
+
+    @java.lang.Override
+    public com.google.protobuf.Parser<DisconnectReq> getParserForType() {
+      return PARSER;
+    }
+
+    public org.rasdaman.rasnet.service.RasmgrClientService.DisconnectReq getDefaultInstanceForType() {
+      return DEFAULT_INSTANCE;
+    }
+
   }
 
-  public interface OpenDbReqOrBuilder
-      extends com.google.protobuf.MessageOrBuilder {
+  public interface OpenDbReqOrBuilder extends
+      // @@protoc_insertion_point(interface_extends:rasnet.service.OpenDbReq)
+      com.google.protobuf.MessageOrBuilder {
 
-    // required string clientUUID = 1;
     /**
-     * <code>required string clientUUID = 1;</code>
-     */
-    boolean hasClientUUID();
-    /**
-     * <code>required string clientUUID = 1;</code>
+     * <code>optional string clientUUID = 1;</code>
      */
     java.lang.String getClientUUID();
     /**
-     * <code>required string clientUUID = 1;</code>
+     * <code>optional string clientUUID = 1;</code>
      */
     com.google.protobuf.ByteString
         getClientUUIDBytes();
 
-    // optional int32 clientId = 2;
-    /**
-     * <code>optional int32 clientId = 2;</code>
-     */
-    boolean hasClientId();
     /**
      * <code>optional int32 clientId = 2;</code>
      */
     int getClientId();
 
-    // required string databaseName = 3;
     /**
-     * <code>required string databaseName = 3;</code>
-     */
-    boolean hasDatabaseName();
-    /**
-     * <code>required string databaseName = 3;</code>
+     * <code>optional string databaseName = 3;</code>
      */
     java.lang.String getDatabaseName();
     /**
-     * <code>required string databaseName = 3;</code>
+     * <code>optional string databaseName = 3;</code>
      */
     com.google.protobuf.ByteString
         getDatabaseNameBytes();
@@ -2394,39 +2134,30 @@ public final class RasmgrClientService {
   /**
    * Protobuf type {@code rasnet.service.OpenDbReq}
    */
-  public static final class OpenDbReq extends
-      com.google.protobuf.GeneratedMessage
-      implements OpenDbReqOrBuilder {
+  public  static final class OpenDbReq extends
+      com.google.protobuf.GeneratedMessage implements
+      // @@protoc_insertion_point(message_implements:rasnet.service.OpenDbReq)
+      OpenDbReqOrBuilder {
     // Use OpenDbReq.newBuilder() to construct.
     private OpenDbReq(com.google.protobuf.GeneratedMessage.Builder<?> builder) {
       super(builder);
-      this.unknownFields = builder.getUnknownFields();
     }
-    private OpenDbReq(boolean noInit) { this.unknownFields = com.google.protobuf.UnknownFieldSet.getDefaultInstance(); }
-
-    private static final OpenDbReq defaultInstance;
-    public static OpenDbReq getDefaultInstance() {
-      return defaultInstance;
+    private OpenDbReq() {
+      clientUUID_ = "";
+      clientId_ = 0;
+      databaseName_ = "";
     }
 
-    public OpenDbReq getDefaultInstanceForType() {
-      return defaultInstance;
-    }
-
-    private final com.google.protobuf.UnknownFieldSet unknownFields;
     @java.lang.Override
     public final com.google.protobuf.UnknownFieldSet
-        getUnknownFields() {
-      return this.unknownFields;
+    getUnknownFields() {
+      return com.google.protobuf.UnknownFieldSet.getDefaultInstance();
     }
     private OpenDbReq(
         com.google.protobuf.CodedInputStream input,
-        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-        throws com.google.protobuf.InvalidProtocolBufferException {
-      initFields();
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry) {
+      this();
       int mutable_bitField0_ = 0;
-      com.google.protobuf.UnknownFieldSet.Builder unknownFields =
-          com.google.protobuf.UnknownFieldSet.newBuilder();
       try {
         boolean done = false;
         while (!done) {
@@ -2436,36 +2167,37 @@ public final class RasmgrClientService {
               done = true;
               break;
             default: {
-              if (!parseUnknownField(input, unknownFields,
-                                     extensionRegistry, tag)) {
+              if (!input.skipField(tag)) {
                 done = true;
               }
               break;
             }
             case 10: {
-              bitField0_ |= 0x00000001;
-              clientUUID_ = input.readBytes();
+              String s = input.readStringRequireUtf8();
+
+              clientUUID_ = s;
               break;
             }
             case 16: {
-              bitField0_ |= 0x00000002;
+
               clientId_ = input.readInt32();
               break;
             }
             case 26: {
-              bitField0_ |= 0x00000004;
-              databaseName_ = input.readBytes();
+              String s = input.readStringRequireUtf8();
+
+              databaseName_ = s;
               break;
             }
           }
         }
       } catch (com.google.protobuf.InvalidProtocolBufferException e) {
-        throw e.setUnfinishedMessage(this);
+        throw new RuntimeException(e.setUnfinishedMessage(this));
       } catch (java.io.IOException e) {
-        throw new com.google.protobuf.InvalidProtocolBufferException(
-            e.getMessage()).setUnfinishedMessage(this);
+        throw new RuntimeException(
+            new com.google.protobuf.InvalidProtocolBufferException(
+                e.getMessage()).setUnfinishedMessage(this));
       } finally {
-        this.unknownFields = unknownFields.build();
         makeExtensionsImmutable();
       }
     }
@@ -2481,33 +2213,10 @@ public final class RasmgrClientService {
               org.rasdaman.rasnet.service.RasmgrClientService.OpenDbReq.class, org.rasdaman.rasnet.service.RasmgrClientService.OpenDbReq.Builder.class);
     }
 
-    public static com.google.protobuf.Parser<OpenDbReq> PARSER =
-        new com.google.protobuf.AbstractParser<OpenDbReq>() {
-      public OpenDbReq parsePartialFrom(
-          com.google.protobuf.CodedInputStream input,
-          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-          throws com.google.protobuf.InvalidProtocolBufferException {
-        return new OpenDbReq(input, extensionRegistry);
-      }
-    };
-
-    @java.lang.Override
-    public com.google.protobuf.Parser<OpenDbReq> getParserForType() {
-      return PARSER;
-    }
-
-    private int bitField0_;
-    // required string clientUUID = 1;
     public static final int CLIENTUUID_FIELD_NUMBER = 1;
-    private java.lang.Object clientUUID_;
+    private volatile java.lang.Object clientUUID_;
     /**
-     * <code>required string clientUUID = 1;</code>
-     */
-    public boolean hasClientUUID() {
-      return ((bitField0_ & 0x00000001) == 0x00000001);
-    }
-    /**
-     * <code>required string clientUUID = 1;</code>
+     * <code>optional string clientUUID = 1;</code>
      */
     public java.lang.String getClientUUID() {
       java.lang.Object ref = clientUUID_;
@@ -2517,14 +2226,12 @@ public final class RasmgrClientService {
         com.google.protobuf.ByteString bs =
             (com.google.protobuf.ByteString) ref;
         java.lang.String s = bs.toStringUtf8();
-        if (bs.isValidUtf8()) {
-          clientUUID_ = s;
-        }
+        clientUUID_ = s;
         return s;
       }
     }
     /**
-     * <code>required string clientUUID = 1;</code>
+     * <code>optional string clientUUID = 1;</code>
      */
     public com.google.protobuf.ByteString
         getClientUUIDBytes() {
@@ -2540,15 +2247,8 @@ public final class RasmgrClientService {
       }
     }
 
-    // optional int32 clientId = 2;
     public static final int CLIENTID_FIELD_NUMBER = 2;
     private int clientId_;
-    /**
-     * <code>optional int32 clientId = 2;</code>
-     */
-    public boolean hasClientId() {
-      return ((bitField0_ & 0x00000002) == 0x00000002);
-    }
     /**
      * <code>optional int32 clientId = 2;</code>
      */
@@ -2556,17 +2256,10 @@ public final class RasmgrClientService {
       return clientId_;
     }
 
-    // required string databaseName = 3;
     public static final int DATABASENAME_FIELD_NUMBER = 3;
-    private java.lang.Object databaseName_;
+    private volatile java.lang.Object databaseName_;
     /**
-     * <code>required string databaseName = 3;</code>
-     */
-    public boolean hasDatabaseName() {
-      return ((bitField0_ & 0x00000004) == 0x00000004);
-    }
-    /**
-     * <code>required string databaseName = 3;</code>
+     * <code>optional string databaseName = 3;</code>
      */
     public java.lang.String getDatabaseName() {
       java.lang.Object ref = databaseName_;
@@ -2576,14 +2269,12 @@ public final class RasmgrClientService {
         com.google.protobuf.ByteString bs =
             (com.google.protobuf.ByteString) ref;
         java.lang.String s = bs.toStringUtf8();
-        if (bs.isValidUtf8()) {
-          databaseName_ = s;
-        }
+        databaseName_ = s;
         return s;
       }
     }
     /**
-     * <code>required string databaseName = 3;</code>
+     * <code>optional string databaseName = 3;</code>
      */
     public com.google.protobuf.ByteString
         getDatabaseNameBytes() {
@@ -2599,73 +2290,49 @@ public final class RasmgrClientService {
       }
     }
 
-    private void initFields() {
-      clientUUID_ = "";
-      clientId_ = 0;
-      databaseName_ = "";
-    }
     private byte memoizedIsInitialized = -1;
     public final boolean isInitialized() {
       byte isInitialized = memoizedIsInitialized;
-      if (isInitialized != -1) return isInitialized == 1;
+      if (isInitialized == 1) return true;
+      if (isInitialized == 0) return false;
 
-      if (!hasClientUUID()) {
-        memoizedIsInitialized = 0;
-        return false;
-      }
-      if (!hasDatabaseName()) {
-        memoizedIsInitialized = 0;
-        return false;
-      }
       memoizedIsInitialized = 1;
       return true;
     }
 
     public void writeTo(com.google.protobuf.CodedOutputStream output)
                         throws java.io.IOException {
-      getSerializedSize();
-      if (((bitField0_ & 0x00000001) == 0x00000001)) {
-        output.writeBytes(1, getClientUUIDBytes());
+      if (!getClientUUIDBytes().isEmpty()) {
+        com.google.protobuf.GeneratedMessage.writeString(output, 1, clientUUID_);
       }
-      if (((bitField0_ & 0x00000002) == 0x00000002)) {
+      if (clientId_ != 0) {
         output.writeInt32(2, clientId_);
       }
-      if (((bitField0_ & 0x00000004) == 0x00000004)) {
-        output.writeBytes(3, getDatabaseNameBytes());
+      if (!getDatabaseNameBytes().isEmpty()) {
+        com.google.protobuf.GeneratedMessage.writeString(output, 3, databaseName_);
       }
-      getUnknownFields().writeTo(output);
     }
 
-    private int memoizedSerializedSize = -1;
     public int getSerializedSize() {
-      int size = memoizedSerializedSize;
+      int size = memoizedSize;
       if (size != -1) return size;
 
       size = 0;
-      if (((bitField0_ & 0x00000001) == 0x00000001)) {
-        size += com.google.protobuf.CodedOutputStream
-          .computeBytesSize(1, getClientUUIDBytes());
+      if (!getClientUUIDBytes().isEmpty()) {
+        size += com.google.protobuf.GeneratedMessage.computeStringSize(1, clientUUID_);
       }
-      if (((bitField0_ & 0x00000002) == 0x00000002)) {
+      if (clientId_ != 0) {
         size += com.google.protobuf.CodedOutputStream
           .computeInt32Size(2, clientId_);
       }
-      if (((bitField0_ & 0x00000004) == 0x00000004)) {
-        size += com.google.protobuf.CodedOutputStream
-          .computeBytesSize(3, getDatabaseNameBytes());
+      if (!getDatabaseNameBytes().isEmpty()) {
+        size += com.google.protobuf.GeneratedMessage.computeStringSize(3, databaseName_);
       }
-      size += getUnknownFields().getSerializedSize();
-      memoizedSerializedSize = size;
+      memoizedSize = size;
       return size;
     }
 
     private static final long serialVersionUID = 0L;
-    @java.lang.Override
-    protected java.lang.Object writeReplace()
-        throws java.io.ObjectStreamException {
-      return super.writeReplace();
-    }
-
     public static org.rasdaman.rasnet.service.RasmgrClientService.OpenDbReq parseFrom(
         com.google.protobuf.ByteString data)
         throws com.google.protobuf.InvalidProtocolBufferException {
@@ -2719,12 +2386,17 @@ public final class RasmgrClientService {
       return PARSER.parseFrom(input, extensionRegistry);
     }
 
-    public static Builder newBuilder() { return Builder.create(); }
     public Builder newBuilderForType() { return newBuilder(); }
-    public static Builder newBuilder(org.rasdaman.rasnet.service.RasmgrClientService.OpenDbReq prototype) {
-      return newBuilder().mergeFrom(prototype);
+    public static Builder newBuilder() {
+      return DEFAULT_INSTANCE.toBuilder();
     }
-    public Builder toBuilder() { return newBuilder(this); }
+    public static Builder newBuilder(org.rasdaman.rasnet.service.RasmgrClientService.OpenDbReq prototype) {
+      return DEFAULT_INSTANCE.toBuilder().mergeFrom(prototype);
+    }
+    public Builder toBuilder() {
+      return this == DEFAULT_INSTANCE
+          ? new Builder() : new Builder().mergeFrom(this);
+    }
 
     @java.lang.Override
     protected Builder newBuilderForType(
@@ -2736,8 +2408,9 @@ public final class RasmgrClientService {
      * Protobuf type {@code rasnet.service.OpenDbReq}
      */
     public static final class Builder extends
-        com.google.protobuf.GeneratedMessage.Builder<Builder>
-       implements org.rasdaman.rasnet.service.RasmgrClientService.OpenDbReqOrBuilder {
+        com.google.protobuf.GeneratedMessage.Builder<Builder> implements
+        // @@protoc_insertion_point(builder_implements:rasnet.service.OpenDbReq)
+        org.rasdaman.rasnet.service.RasmgrClientService.OpenDbReqOrBuilder {
       public static final com.google.protobuf.Descriptors.Descriptor
           getDescriptor() {
         return org.rasdaman.rasnet.service.RasmgrClientService.internal_static_rasnet_service_OpenDbReq_descriptor;
@@ -2764,23 +2437,15 @@ public final class RasmgrClientService {
         if (com.google.protobuf.GeneratedMessage.alwaysUseFieldBuilders) {
         }
       }
-      private static Builder create() {
-        return new Builder();
-      }
-
       public Builder clear() {
         super.clear();
         clientUUID_ = "";
-        bitField0_ = (bitField0_ & ~0x00000001);
-        clientId_ = 0;
-        bitField0_ = (bitField0_ & ~0x00000002);
-        databaseName_ = "";
-        bitField0_ = (bitField0_ & ~0x00000004);
-        return this;
-      }
 
-      public Builder clone() {
-        return create().mergeFrom(buildPartial());
+        clientId_ = 0;
+
+        databaseName_ = "";
+
+        return this;
       }
 
       public com.google.protobuf.Descriptors.Descriptor
@@ -2802,21 +2467,9 @@ public final class RasmgrClientService {
 
       public org.rasdaman.rasnet.service.RasmgrClientService.OpenDbReq buildPartial() {
         org.rasdaman.rasnet.service.RasmgrClientService.OpenDbReq result = new org.rasdaman.rasnet.service.RasmgrClientService.OpenDbReq(this);
-        int from_bitField0_ = bitField0_;
-        int to_bitField0_ = 0;
-        if (((from_bitField0_ & 0x00000001) == 0x00000001)) {
-          to_bitField0_ |= 0x00000001;
-        }
         result.clientUUID_ = clientUUID_;
-        if (((from_bitField0_ & 0x00000002) == 0x00000002)) {
-          to_bitField0_ |= 0x00000002;
-        }
         result.clientId_ = clientId_;
-        if (((from_bitField0_ & 0x00000004) == 0x00000004)) {
-          to_bitField0_ |= 0x00000004;
-        }
         result.databaseName_ = databaseName_;
-        result.bitField0_ = to_bitField0_;
         onBuilt();
         return result;
       }
@@ -2832,32 +2485,22 @@ public final class RasmgrClientService {
 
       public Builder mergeFrom(org.rasdaman.rasnet.service.RasmgrClientService.OpenDbReq other) {
         if (other == org.rasdaman.rasnet.service.RasmgrClientService.OpenDbReq.getDefaultInstance()) return this;
-        if (other.hasClientUUID()) {
-          bitField0_ |= 0x00000001;
+        if (!other.getClientUUID().isEmpty()) {
           clientUUID_ = other.clientUUID_;
           onChanged();
         }
-        if (other.hasClientId()) {
+        if (other.getClientId() != 0) {
           setClientId(other.getClientId());
         }
-        if (other.hasDatabaseName()) {
-          bitField0_ |= 0x00000004;
+        if (!other.getDatabaseName().isEmpty()) {
           databaseName_ = other.databaseName_;
           onChanged();
         }
-        this.mergeUnknownFields(other.getUnknownFields());
+        onChanged();
         return this;
       }
 
       public final boolean isInitialized() {
-        if (!hasClientUUID()) {
-
-          return false;
-        }
-        if (!hasDatabaseName()) {
-
-          return false;
-        }
         return true;
       }
 
@@ -2878,24 +2521,17 @@ public final class RasmgrClientService {
         }
         return this;
       }
-      private int bitField0_;
 
-      // required string clientUUID = 1;
       private java.lang.Object clientUUID_ = "";
       /**
-       * <code>required string clientUUID = 1;</code>
-       */
-      public boolean hasClientUUID() {
-        return ((bitField0_ & 0x00000001) == 0x00000001);
-      }
-      /**
-       * <code>required string clientUUID = 1;</code>
+       * <code>optional string clientUUID = 1;</code>
        */
       public java.lang.String getClientUUID() {
         java.lang.Object ref = clientUUID_;
         if (!(ref instanceof java.lang.String)) {
-          java.lang.String s = ((com.google.protobuf.ByteString) ref)
-              .toStringUtf8();
+          com.google.protobuf.ByteString bs =
+              (com.google.protobuf.ByteString) ref;
+          java.lang.String s = bs.toStringUtf8();
           clientUUID_ = s;
           return s;
         } else {
@@ -2903,7 +2539,7 @@ public final class RasmgrClientService {
         }
       }
       /**
-       * <code>required string clientUUID = 1;</code>
+       * <code>optional string clientUUID = 1;</code>
        */
       public com.google.protobuf.ByteString
           getClientUUIDBytes() {
@@ -2919,49 +2555,43 @@ public final class RasmgrClientService {
         }
       }
       /**
-       * <code>required string clientUUID = 1;</code>
+       * <code>optional string clientUUID = 1;</code>
        */
       public Builder setClientUUID(
           java.lang.String value) {
         if (value == null) {
     throw new NullPointerException();
   }
-  bitField0_ |= 0x00000001;
+
         clientUUID_ = value;
         onChanged();
         return this;
       }
       /**
-       * <code>required string clientUUID = 1;</code>
+       * <code>optional string clientUUID = 1;</code>
        */
       public Builder clearClientUUID() {
-        bitField0_ = (bitField0_ & ~0x00000001);
+
         clientUUID_ = getDefaultInstance().getClientUUID();
         onChanged();
         return this;
       }
       /**
-       * <code>required string clientUUID = 1;</code>
+       * <code>optional string clientUUID = 1;</code>
        */
       public Builder setClientUUIDBytes(
           com.google.protobuf.ByteString value) {
         if (value == null) {
     throw new NullPointerException();
   }
-  bitField0_ |= 0x00000001;
+  checkByteStringIsUtf8(value);
+
         clientUUID_ = value;
         onChanged();
         return this;
       }
 
-      // optional int32 clientId = 2;
       private int clientId_ ;
-      /**
-       * <code>optional int32 clientId = 2;</code>
-       */
-      public boolean hasClientId() {
-        return ((bitField0_ & 0x00000002) == 0x00000002);
-      }
       /**
        * <code>optional int32 clientId = 2;</code>
        */
@@ -2972,7 +2602,7 @@ public final class RasmgrClientService {
        * <code>optional int32 clientId = 2;</code>
        */
       public Builder setClientId(int value) {
-        bitField0_ |= 0x00000002;
+
         clientId_ = value;
         onChanged();
         return this;
@@ -2981,28 +2611,22 @@ public final class RasmgrClientService {
        * <code>optional int32 clientId = 2;</code>
        */
       public Builder clearClientId() {
-        bitField0_ = (bitField0_ & ~0x00000002);
+
         clientId_ = 0;
         onChanged();
         return this;
       }
 
-      // required string databaseName = 3;
       private java.lang.Object databaseName_ = "";
       /**
-       * <code>required string databaseName = 3;</code>
-       */
-      public boolean hasDatabaseName() {
-        return ((bitField0_ & 0x00000004) == 0x00000004);
-      }
-      /**
-       * <code>required string databaseName = 3;</code>
+       * <code>optional string databaseName = 3;</code>
        */
       public java.lang.String getDatabaseName() {
         java.lang.Object ref = databaseName_;
         if (!(ref instanceof java.lang.String)) {
-          java.lang.String s = ((com.google.protobuf.ByteString) ref)
-              .toStringUtf8();
+          com.google.protobuf.ByteString bs =
+              (com.google.protobuf.ByteString) ref;
+          java.lang.String s = bs.toStringUtf8();
           databaseName_ = s;
           return s;
         } else {
@@ -3010,7 +2634,7 @@ public final class RasmgrClientService {
         }
       }
       /**
-       * <code>required string databaseName = 3;</code>
+       * <code>optional string databaseName = 3;</code>
        */
       public com.google.protobuf.ByteString
           getDatabaseNameBytes() {
@@ -3026,131 +2650,155 @@ public final class RasmgrClientService {
         }
       }
       /**
-       * <code>required string databaseName = 3;</code>
+       * <code>optional string databaseName = 3;</code>
        */
       public Builder setDatabaseName(
           java.lang.String value) {
         if (value == null) {
     throw new NullPointerException();
   }
-  bitField0_ |= 0x00000004;
+
         databaseName_ = value;
         onChanged();
         return this;
       }
       /**
-       * <code>required string databaseName = 3;</code>
+       * <code>optional string databaseName = 3;</code>
        */
       public Builder clearDatabaseName() {
-        bitField0_ = (bitField0_ & ~0x00000004);
+
         databaseName_ = getDefaultInstance().getDatabaseName();
         onChanged();
         return this;
       }
       /**
-       * <code>required string databaseName = 3;</code>
+       * <code>optional string databaseName = 3;</code>
        */
       public Builder setDatabaseNameBytes(
           com.google.protobuf.ByteString value) {
         if (value == null) {
     throw new NullPointerException();
   }
-  bitField0_ |= 0x00000004;
+  checkByteStringIsUtf8(value);
+
         databaseName_ = value;
         onChanged();
         return this;
       }
+      public final Builder setUnknownFields(
+          final com.google.protobuf.UnknownFieldSet unknownFields) {
+        return this;
+      }
+
+      public final Builder mergeUnknownFields(
+          final com.google.protobuf.UnknownFieldSet unknownFields) {
+        return this;
+      }
+
 
       // @@protoc_insertion_point(builder_scope:rasnet.service.OpenDbReq)
     }
 
+    // @@protoc_insertion_point(class_scope:rasnet.service.OpenDbReq)
+    private static final org.rasdaman.rasnet.service.RasmgrClientService.OpenDbReq DEFAULT_INSTANCE;
     static {
-      defaultInstance = new OpenDbReq(true);
-      defaultInstance.initFields();
+      DEFAULT_INSTANCE = new org.rasdaman.rasnet.service.RasmgrClientService.OpenDbReq();
     }
 
-    // @@protoc_insertion_point(class_scope:rasnet.service.OpenDbReq)
+    public static org.rasdaman.rasnet.service.RasmgrClientService.OpenDbReq getDefaultInstance() {
+      return DEFAULT_INSTANCE;
+    }
+
+    private static final com.google.protobuf.Parser<OpenDbReq>
+        PARSER = new com.google.protobuf.AbstractParser<OpenDbReq>() {
+      public OpenDbReq parsePartialFrom(
+          com.google.protobuf.CodedInputStream input,
+          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+          throws com.google.protobuf.InvalidProtocolBufferException {
+        try {
+          return new OpenDbReq(input, extensionRegistry);
+        } catch (RuntimeException e) {
+          if (e.getCause() instanceof
+              com.google.protobuf.InvalidProtocolBufferException) {
+            throw (com.google.protobuf.InvalidProtocolBufferException)
+                e.getCause();
+          }
+          throw e;
+        }
+      }
+    };
+
+    public static com.google.protobuf.Parser<OpenDbReq> parser() {
+      return PARSER;
+    }
+
+    @java.lang.Override
+    public com.google.protobuf.Parser<OpenDbReq> getParserForType() {
+      return PARSER;
+    }
+
+    public org.rasdaman.rasnet.service.RasmgrClientService.OpenDbReq getDefaultInstanceForType() {
+      return DEFAULT_INSTANCE;
+    }
+
   }
 
-  public interface OpenDbReplOrBuilder
-      extends com.google.protobuf.MessageOrBuilder {
+  public interface OpenDbReplOrBuilder extends
+      // @@protoc_insertion_point(interface_extends:rasnet.service.OpenDbRepl)
+      com.google.protobuf.MessageOrBuilder {
 
-    // required string dbSessionId = 1;
     /**
-     * <code>required string dbSessionId = 1;</code>
-     */
-    boolean hasDbSessionId();
-    /**
-     * <code>required string dbSessionId = 1;</code>
+     * <code>optional string dbSessionId = 1;</code>
      */
     java.lang.String getDbSessionId();
     /**
-     * <code>required string dbSessionId = 1;</code>
+     * <code>optional string dbSessionId = 1;</code>
      */
     com.google.protobuf.ByteString
         getDbSessionIdBytes();
 
-    // required string serverHostName = 2;
     /**
-     * <code>required string serverHostName = 2;</code>
-     */
-    boolean hasServerHostName();
-    /**
-     * <code>required string serverHostName = 2;</code>
+     * <code>optional string serverHostName = 2;</code>
      */
     java.lang.String getServerHostName();
     /**
-     * <code>required string serverHostName = 2;</code>
+     * <code>optional string serverHostName = 2;</code>
      */
     com.google.protobuf.ByteString
         getServerHostNameBytes();
 
-    // required uint32 port = 3;
     /**
-     * <code>required uint32 port = 3;</code>
-     */
-    boolean hasPort();
-    /**
-     * <code>required uint32 port = 3;</code>
+     * <code>optional uint32 port = 3;</code>
      */
     int getPort();
   }
   /**
    * Protobuf type {@code rasnet.service.OpenDbRepl}
    */
-  public static final class OpenDbRepl extends
-      com.google.protobuf.GeneratedMessage
-      implements OpenDbReplOrBuilder {
+  public  static final class OpenDbRepl extends
+      com.google.protobuf.GeneratedMessage implements
+      // @@protoc_insertion_point(message_implements:rasnet.service.OpenDbRepl)
+      OpenDbReplOrBuilder {
     // Use OpenDbRepl.newBuilder() to construct.
     private OpenDbRepl(com.google.protobuf.GeneratedMessage.Builder<?> builder) {
       super(builder);
-      this.unknownFields = builder.getUnknownFields();
     }
-    private OpenDbRepl(boolean noInit) { this.unknownFields = com.google.protobuf.UnknownFieldSet.getDefaultInstance(); }
-
-    private static final OpenDbRepl defaultInstance;
-    public static OpenDbRepl getDefaultInstance() {
-      return defaultInstance;
+    private OpenDbRepl() {
+      dbSessionId_ = "";
+      serverHostName_ = "";
+      port_ = 0;
     }
 
-    public OpenDbRepl getDefaultInstanceForType() {
-      return defaultInstance;
-    }
-
-    private final com.google.protobuf.UnknownFieldSet unknownFields;
     @java.lang.Override
     public final com.google.protobuf.UnknownFieldSet
-        getUnknownFields() {
-      return this.unknownFields;
+    getUnknownFields() {
+      return com.google.protobuf.UnknownFieldSet.getDefaultInstance();
     }
     private OpenDbRepl(
         com.google.protobuf.CodedInputStream input,
-        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-        throws com.google.protobuf.InvalidProtocolBufferException {
-      initFields();
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry) {
+      this();
       int mutable_bitField0_ = 0;
-      com.google.protobuf.UnknownFieldSet.Builder unknownFields =
-          com.google.protobuf.UnknownFieldSet.newBuilder();
       try {
         boolean done = false;
         while (!done) {
@@ -3160,36 +2808,37 @@ public final class RasmgrClientService {
               done = true;
               break;
             default: {
-              if (!parseUnknownField(input, unknownFields,
-                                     extensionRegistry, tag)) {
+              if (!input.skipField(tag)) {
                 done = true;
               }
               break;
             }
             case 10: {
-              bitField0_ |= 0x00000001;
-              dbSessionId_ = input.readBytes();
+              String s = input.readStringRequireUtf8();
+
+              dbSessionId_ = s;
               break;
             }
             case 18: {
-              bitField0_ |= 0x00000002;
-              serverHostName_ = input.readBytes();
+              String s = input.readStringRequireUtf8();
+
+              serverHostName_ = s;
               break;
             }
             case 24: {
-              bitField0_ |= 0x00000004;
+
               port_ = input.readUInt32();
               break;
             }
           }
         }
       } catch (com.google.protobuf.InvalidProtocolBufferException e) {
-        throw e.setUnfinishedMessage(this);
+        throw new RuntimeException(e.setUnfinishedMessage(this));
       } catch (java.io.IOException e) {
-        throw new com.google.protobuf.InvalidProtocolBufferException(
-            e.getMessage()).setUnfinishedMessage(this);
+        throw new RuntimeException(
+            new com.google.protobuf.InvalidProtocolBufferException(
+                e.getMessage()).setUnfinishedMessage(this));
       } finally {
-        this.unknownFields = unknownFields.build();
         makeExtensionsImmutable();
       }
     }
@@ -3205,33 +2854,10 @@ public final class RasmgrClientService {
               org.rasdaman.rasnet.service.RasmgrClientService.OpenDbRepl.class, org.rasdaman.rasnet.service.RasmgrClientService.OpenDbRepl.Builder.class);
     }
 
-    public static com.google.protobuf.Parser<OpenDbRepl> PARSER =
-        new com.google.protobuf.AbstractParser<OpenDbRepl>() {
-      public OpenDbRepl parsePartialFrom(
-          com.google.protobuf.CodedInputStream input,
-          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-          throws com.google.protobuf.InvalidProtocolBufferException {
-        return new OpenDbRepl(input, extensionRegistry);
-      }
-    };
-
-    @java.lang.Override
-    public com.google.protobuf.Parser<OpenDbRepl> getParserForType() {
-      return PARSER;
-    }
-
-    private int bitField0_;
-    // required string dbSessionId = 1;
     public static final int DBSESSIONID_FIELD_NUMBER = 1;
-    private java.lang.Object dbSessionId_;
+    private volatile java.lang.Object dbSessionId_;
     /**
-     * <code>required string dbSessionId = 1;</code>
-     */
-    public boolean hasDbSessionId() {
-      return ((bitField0_ & 0x00000001) == 0x00000001);
-    }
-    /**
-     * <code>required string dbSessionId = 1;</code>
+     * <code>optional string dbSessionId = 1;</code>
      */
     public java.lang.String getDbSessionId() {
       java.lang.Object ref = dbSessionId_;
@@ -3241,14 +2867,12 @@ public final class RasmgrClientService {
         com.google.protobuf.ByteString bs =
             (com.google.protobuf.ByteString) ref;
         java.lang.String s = bs.toStringUtf8();
-        if (bs.isValidUtf8()) {
-          dbSessionId_ = s;
-        }
+        dbSessionId_ = s;
         return s;
       }
     }
     /**
-     * <code>required string dbSessionId = 1;</code>
+     * <code>optional string dbSessionId = 1;</code>
      */
     public com.google.protobuf.ByteString
         getDbSessionIdBytes() {
@@ -3264,17 +2888,10 @@ public final class RasmgrClientService {
       }
     }
 
-    // required string serverHostName = 2;
     public static final int SERVERHOSTNAME_FIELD_NUMBER = 2;
-    private java.lang.Object serverHostName_;
+    private volatile java.lang.Object serverHostName_;
     /**
-     * <code>required string serverHostName = 2;</code>
-     */
-    public boolean hasServerHostName() {
-      return ((bitField0_ & 0x00000002) == 0x00000002);
-    }
-    /**
-     * <code>required string serverHostName = 2;</code>
+     * <code>optional string serverHostName = 2;</code>
      */
     public java.lang.String getServerHostName() {
       java.lang.Object ref = serverHostName_;
@@ -3284,14 +2901,12 @@ public final class RasmgrClientService {
         com.google.protobuf.ByteString bs =
             (com.google.protobuf.ByteString) ref;
         java.lang.String s = bs.toStringUtf8();
-        if (bs.isValidUtf8()) {
-          serverHostName_ = s;
-        }
+        serverHostName_ = s;
         return s;
       }
     }
     /**
-     * <code>required string serverHostName = 2;</code>
+     * <code>optional string serverHostName = 2;</code>
      */
     public com.google.protobuf.ByteString
         getServerHostNameBytes() {
@@ -3307,93 +2922,58 @@ public final class RasmgrClientService {
       }
     }
 
-    // required uint32 port = 3;
     public static final int PORT_FIELD_NUMBER = 3;
     private int port_;
     /**
-     * <code>required uint32 port = 3;</code>
-     */
-    public boolean hasPort() {
-      return ((bitField0_ & 0x00000004) == 0x00000004);
-    }
-    /**
-     * <code>required uint32 port = 3;</code>
+     * <code>optional uint32 port = 3;</code>
      */
     public int getPort() {
       return port_;
     }
 
-    private void initFields() {
-      dbSessionId_ = "";
-      serverHostName_ = "";
-      port_ = 0;
-    }
     private byte memoizedIsInitialized = -1;
     public final boolean isInitialized() {
       byte isInitialized = memoizedIsInitialized;
-      if (isInitialized != -1) return isInitialized == 1;
+      if (isInitialized == 1) return true;
+      if (isInitialized == 0) return false;
 
-      if (!hasDbSessionId()) {
-        memoizedIsInitialized = 0;
-        return false;
-      }
-      if (!hasServerHostName()) {
-        memoizedIsInitialized = 0;
-        return false;
-      }
-      if (!hasPort()) {
-        memoizedIsInitialized = 0;
-        return false;
-      }
       memoizedIsInitialized = 1;
       return true;
     }
 
     public void writeTo(com.google.protobuf.CodedOutputStream output)
                         throws java.io.IOException {
-      getSerializedSize();
-      if (((bitField0_ & 0x00000001) == 0x00000001)) {
-        output.writeBytes(1, getDbSessionIdBytes());
+      if (!getDbSessionIdBytes().isEmpty()) {
+        com.google.protobuf.GeneratedMessage.writeString(output, 1, dbSessionId_);
       }
-      if (((bitField0_ & 0x00000002) == 0x00000002)) {
-        output.writeBytes(2, getServerHostNameBytes());
+      if (!getServerHostNameBytes().isEmpty()) {
+        com.google.protobuf.GeneratedMessage.writeString(output, 2, serverHostName_);
       }
-      if (((bitField0_ & 0x00000004) == 0x00000004)) {
+      if (port_ != 0) {
         output.writeUInt32(3, port_);
       }
-      getUnknownFields().writeTo(output);
     }
 
-    private int memoizedSerializedSize = -1;
     public int getSerializedSize() {
-      int size = memoizedSerializedSize;
+      int size = memoizedSize;
       if (size != -1) return size;
 
       size = 0;
-      if (((bitField0_ & 0x00000001) == 0x00000001)) {
-        size += com.google.protobuf.CodedOutputStream
-          .computeBytesSize(1, getDbSessionIdBytes());
+      if (!getDbSessionIdBytes().isEmpty()) {
+        size += com.google.protobuf.GeneratedMessage.computeStringSize(1, dbSessionId_);
       }
-      if (((bitField0_ & 0x00000002) == 0x00000002)) {
-        size += com.google.protobuf.CodedOutputStream
-          .computeBytesSize(2, getServerHostNameBytes());
+      if (!getServerHostNameBytes().isEmpty()) {
+        size += com.google.protobuf.GeneratedMessage.computeStringSize(2, serverHostName_);
       }
-      if (((bitField0_ & 0x00000004) == 0x00000004)) {
+      if (port_ != 0) {
         size += com.google.protobuf.CodedOutputStream
           .computeUInt32Size(3, port_);
       }
-      size += getUnknownFields().getSerializedSize();
-      memoizedSerializedSize = size;
+      memoizedSize = size;
       return size;
     }
 
     private static final long serialVersionUID = 0L;
-    @java.lang.Override
-    protected java.lang.Object writeReplace()
-        throws java.io.ObjectStreamException {
-      return super.writeReplace();
-    }
-
     public static org.rasdaman.rasnet.service.RasmgrClientService.OpenDbRepl parseFrom(
         com.google.protobuf.ByteString data)
         throws com.google.protobuf.InvalidProtocolBufferException {
@@ -3447,12 +3027,17 @@ public final class RasmgrClientService {
       return PARSER.parseFrom(input, extensionRegistry);
     }
 
-    public static Builder newBuilder() { return Builder.create(); }
     public Builder newBuilderForType() { return newBuilder(); }
-    public static Builder newBuilder(org.rasdaman.rasnet.service.RasmgrClientService.OpenDbRepl prototype) {
-      return newBuilder().mergeFrom(prototype);
+    public static Builder newBuilder() {
+      return DEFAULT_INSTANCE.toBuilder();
     }
-    public Builder toBuilder() { return newBuilder(this); }
+    public static Builder newBuilder(org.rasdaman.rasnet.service.RasmgrClientService.OpenDbRepl prototype) {
+      return DEFAULT_INSTANCE.toBuilder().mergeFrom(prototype);
+    }
+    public Builder toBuilder() {
+      return this == DEFAULT_INSTANCE
+          ? new Builder() : new Builder().mergeFrom(this);
+    }
 
     @java.lang.Override
     protected Builder newBuilderForType(
@@ -3464,8 +3049,9 @@ public final class RasmgrClientService {
      * Protobuf type {@code rasnet.service.OpenDbRepl}
      */
     public static final class Builder extends
-        com.google.protobuf.GeneratedMessage.Builder<Builder>
-       implements org.rasdaman.rasnet.service.RasmgrClientService.OpenDbReplOrBuilder {
+        com.google.protobuf.GeneratedMessage.Builder<Builder> implements
+        // @@protoc_insertion_point(builder_implements:rasnet.service.OpenDbRepl)
+        org.rasdaman.rasnet.service.RasmgrClientService.OpenDbReplOrBuilder {
       public static final com.google.protobuf.Descriptors.Descriptor
           getDescriptor() {
         return org.rasdaman.rasnet.service.RasmgrClientService.internal_static_rasnet_service_OpenDbRepl_descriptor;
@@ -3492,23 +3078,15 @@ public final class RasmgrClientService {
         if (com.google.protobuf.GeneratedMessage.alwaysUseFieldBuilders) {
         }
       }
-      private static Builder create() {
-        return new Builder();
-      }
-
       public Builder clear() {
         super.clear();
         dbSessionId_ = "";
-        bitField0_ = (bitField0_ & ~0x00000001);
-        serverHostName_ = "";
-        bitField0_ = (bitField0_ & ~0x00000002);
-        port_ = 0;
-        bitField0_ = (bitField0_ & ~0x00000004);
-        return this;
-      }
 
-      public Builder clone() {
-        return create().mergeFrom(buildPartial());
+        serverHostName_ = "";
+
+        port_ = 0;
+
+        return this;
       }
 
       public com.google.protobuf.Descriptors.Descriptor
@@ -3530,21 +3108,9 @@ public final class RasmgrClientService {
 
       public org.rasdaman.rasnet.service.RasmgrClientService.OpenDbRepl buildPartial() {
         org.rasdaman.rasnet.service.RasmgrClientService.OpenDbRepl result = new org.rasdaman.rasnet.service.RasmgrClientService.OpenDbRepl(this);
-        int from_bitField0_ = bitField0_;
-        int to_bitField0_ = 0;
-        if (((from_bitField0_ & 0x00000001) == 0x00000001)) {
-          to_bitField0_ |= 0x00000001;
-        }
         result.dbSessionId_ = dbSessionId_;
-        if (((from_bitField0_ & 0x00000002) == 0x00000002)) {
-          to_bitField0_ |= 0x00000002;
-        }
         result.serverHostName_ = serverHostName_;
-        if (((from_bitField0_ & 0x00000004) == 0x00000004)) {
-          to_bitField0_ |= 0x00000004;
-        }
         result.port_ = port_;
-        result.bitField0_ = to_bitField0_;
         onBuilt();
         return result;
       }
@@ -3560,36 +3126,22 @@ public final class RasmgrClientService {
 
       public Builder mergeFrom(org.rasdaman.rasnet.service.RasmgrClientService.OpenDbRepl other) {
         if (other == org.rasdaman.rasnet.service.RasmgrClientService.OpenDbRepl.getDefaultInstance()) return this;
-        if (other.hasDbSessionId()) {
-          bitField0_ |= 0x00000001;
+        if (!other.getDbSessionId().isEmpty()) {
           dbSessionId_ = other.dbSessionId_;
           onChanged();
         }
-        if (other.hasServerHostName()) {
-          bitField0_ |= 0x00000002;
+        if (!other.getServerHostName().isEmpty()) {
           serverHostName_ = other.serverHostName_;
           onChanged();
         }
-        if (other.hasPort()) {
+        if (other.getPort() != 0) {
           setPort(other.getPort());
         }
-        this.mergeUnknownFields(other.getUnknownFields());
+        onChanged();
         return this;
       }
 
       public final boolean isInitialized() {
-        if (!hasDbSessionId()) {
-
-          return false;
-        }
-        if (!hasServerHostName()) {
-
-          return false;
-        }
-        if (!hasPort()) {
-
-          return false;
-        }
         return true;
       }
 
@@ -3610,24 +3162,17 @@ public final class RasmgrClientService {
         }
         return this;
       }
-      private int bitField0_;
 
-      // required string dbSessionId = 1;
       private java.lang.Object dbSessionId_ = "";
       /**
-       * <code>required string dbSessionId = 1;</code>
-       */
-      public boolean hasDbSessionId() {
-        return ((bitField0_ & 0x00000001) == 0x00000001);
-      }
-      /**
-       * <code>required string dbSessionId = 1;</code>
+       * <code>optional string dbSessionId = 1;</code>
        */
       public java.lang.String getDbSessionId() {
         java.lang.Object ref = dbSessionId_;
         if (!(ref instanceof java.lang.String)) {
-          java.lang.String s = ((com.google.protobuf.ByteString) ref)
-              .toStringUtf8();
+          com.google.protobuf.ByteString bs =
+              (com.google.protobuf.ByteString) ref;
+          java.lang.String s = bs.toStringUtf8();
           dbSessionId_ = s;
           return s;
         } else {
@@ -3635,7 +3180,7 @@ public final class RasmgrClientService {
         }
       }
       /**
-       * <code>required string dbSessionId = 1;</code>
+       * <code>optional string dbSessionId = 1;</code>
        */
       public com.google.protobuf.ByteString
           getDbSessionIdBytes() {
@@ -3651,57 +3196,52 @@ public final class RasmgrClientService {
         }
       }
       /**
-       * <code>required string dbSessionId = 1;</code>
+       * <code>optional string dbSessionId = 1;</code>
        */
       public Builder setDbSessionId(
           java.lang.String value) {
         if (value == null) {
     throw new NullPointerException();
   }
-  bitField0_ |= 0x00000001;
+
         dbSessionId_ = value;
         onChanged();
         return this;
       }
       /**
-       * <code>required string dbSessionId = 1;</code>
+       * <code>optional string dbSessionId = 1;</code>
        */
       public Builder clearDbSessionId() {
-        bitField0_ = (bitField0_ & ~0x00000001);
+
         dbSessionId_ = getDefaultInstance().getDbSessionId();
         onChanged();
         return this;
       }
       /**
-       * <code>required string dbSessionId = 1;</code>
+       * <code>optional string dbSessionId = 1;</code>
        */
       public Builder setDbSessionIdBytes(
           com.google.protobuf.ByteString value) {
         if (value == null) {
     throw new NullPointerException();
   }
-  bitField0_ |= 0x00000001;
+  checkByteStringIsUtf8(value);
+
         dbSessionId_ = value;
         onChanged();
         return this;
       }
 
-      // required string serverHostName = 2;
       private java.lang.Object serverHostName_ = "";
       /**
-       * <code>required string serverHostName = 2;</code>
-       */
-      public boolean hasServerHostName() {
-        return ((bitField0_ & 0x00000002) == 0x00000002);
-      }
-      /**
-       * <code>required string serverHostName = 2;</code>
+       * <code>optional string serverHostName = 2;</code>
        */
       public java.lang.String getServerHostName() {
         java.lang.Object ref = serverHostName_;
         if (!(ref instanceof java.lang.String)) {
-          java.lang.String s = ((com.google.protobuf.ByteString) ref)
-              .toStringUtf8();
+          com.google.protobuf.ByteString bs =
+              (com.google.protobuf.ByteString) ref;
+          java.lang.String s = bs.toStringUtf8();
           serverHostName_ = s;
           return s;
         } else {
@@ -3709,7 +3249,7 @@ public final class RasmgrClientService {
         }
       }
       /**
-       * <code>required string serverHostName = 2;</code>
+       * <code>optional string serverHostName = 2;</code>
        */
       public com.google.protobuf.ByteString
           getServerHostNameBytes() {
@@ -3725,124 +3265,150 @@ public final class RasmgrClientService {
         }
       }
       /**
-       * <code>required string serverHostName = 2;</code>
+       * <code>optional string serverHostName = 2;</code>
        */
       public Builder setServerHostName(
           java.lang.String value) {
         if (value == null) {
     throw new NullPointerException();
   }
-  bitField0_ |= 0x00000002;
+
         serverHostName_ = value;
         onChanged();
         return this;
       }
       /**
-       * <code>required string serverHostName = 2;</code>
+       * <code>optional string serverHostName = 2;</code>
        */
       public Builder clearServerHostName() {
-        bitField0_ = (bitField0_ & ~0x00000002);
+
         serverHostName_ = getDefaultInstance().getServerHostName();
         onChanged();
         return this;
       }
       /**
-       * <code>required string serverHostName = 2;</code>
+       * <code>optional string serverHostName = 2;</code>
        */
       public Builder setServerHostNameBytes(
           com.google.protobuf.ByteString value) {
         if (value == null) {
     throw new NullPointerException();
   }
-  bitField0_ |= 0x00000002;
+  checkByteStringIsUtf8(value);
+
         serverHostName_ = value;
         onChanged();
         return this;
       }
 
-      // required uint32 port = 3;
       private int port_ ;
       /**
-       * <code>required uint32 port = 3;</code>
-       */
-      public boolean hasPort() {
-        return ((bitField0_ & 0x00000004) == 0x00000004);
-      }
-      /**
-       * <code>required uint32 port = 3;</code>
+       * <code>optional uint32 port = 3;</code>
        */
       public int getPort() {
         return port_;
       }
       /**
-       * <code>required uint32 port = 3;</code>
+       * <code>optional uint32 port = 3;</code>
        */
       public Builder setPort(int value) {
-        bitField0_ |= 0x00000004;
+
         port_ = value;
         onChanged();
         return this;
       }
       /**
-       * <code>required uint32 port = 3;</code>
+       * <code>optional uint32 port = 3;</code>
        */
       public Builder clearPort() {
-        bitField0_ = (bitField0_ & ~0x00000004);
+
         port_ = 0;
         onChanged();
         return this;
       }
+      public final Builder setUnknownFields(
+          final com.google.protobuf.UnknownFieldSet unknownFields) {
+        return this;
+      }
+
+      public final Builder mergeUnknownFields(
+          final com.google.protobuf.UnknownFieldSet unknownFields) {
+        return this;
+      }
+
 
       // @@protoc_insertion_point(builder_scope:rasnet.service.OpenDbRepl)
     }
 
+    // @@protoc_insertion_point(class_scope:rasnet.service.OpenDbRepl)
+    private static final org.rasdaman.rasnet.service.RasmgrClientService.OpenDbRepl DEFAULT_INSTANCE;
     static {
-      defaultInstance = new OpenDbRepl(true);
-      defaultInstance.initFields();
+      DEFAULT_INSTANCE = new org.rasdaman.rasnet.service.RasmgrClientService.OpenDbRepl();
     }
 
-    // @@protoc_insertion_point(class_scope:rasnet.service.OpenDbRepl)
+    public static org.rasdaman.rasnet.service.RasmgrClientService.OpenDbRepl getDefaultInstance() {
+      return DEFAULT_INSTANCE;
+    }
+
+    private static final com.google.protobuf.Parser<OpenDbRepl>
+        PARSER = new com.google.protobuf.AbstractParser<OpenDbRepl>() {
+      public OpenDbRepl parsePartialFrom(
+          com.google.protobuf.CodedInputStream input,
+          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+          throws com.google.protobuf.InvalidProtocolBufferException {
+        try {
+          return new OpenDbRepl(input, extensionRegistry);
+        } catch (RuntimeException e) {
+          if (e.getCause() instanceof
+              com.google.protobuf.InvalidProtocolBufferException) {
+            throw (com.google.protobuf.InvalidProtocolBufferException)
+                e.getCause();
+          }
+          throw e;
+        }
+      }
+    };
+
+    public static com.google.protobuf.Parser<OpenDbRepl> parser() {
+      return PARSER;
+    }
+
+    @java.lang.Override
+    public com.google.protobuf.Parser<OpenDbRepl> getParserForType() {
+      return PARSER;
+    }
+
+    public org.rasdaman.rasnet.service.RasmgrClientService.OpenDbRepl getDefaultInstanceForType() {
+      return DEFAULT_INSTANCE;
+    }
+
   }
 
-  public interface CloseDbReqOrBuilder
-      extends com.google.protobuf.MessageOrBuilder {
+  public interface CloseDbReqOrBuilder extends
+      // @@protoc_insertion_point(interface_extends:rasnet.service.CloseDbReq)
+      com.google.protobuf.MessageOrBuilder {
 
-    // required string clientUUID = 1;
     /**
-     * <code>required string clientUUID = 1;</code>
-     */
-    boolean hasClientUUID();
-    /**
-     * <code>required string clientUUID = 1;</code>
+     * <code>optional string clientUUID = 1;</code>
      */
     java.lang.String getClientUUID();
     /**
-     * <code>required string clientUUID = 1;</code>
+     * <code>optional string clientUUID = 1;</code>
      */
     com.google.protobuf.ByteString
         getClientUUIDBytes();
 
-    // optional int32 clientId = 2;
-    /**
-     * <code>optional int32 clientId = 2;</code>
-     */
-    boolean hasClientId();
     /**
      * <code>optional int32 clientId = 2;</code>
      */
     int getClientId();
 
-    // required string dbSessionId = 3;
     /**
-     * <code>required string dbSessionId = 3;</code>
-     */
-    boolean hasDbSessionId();
-    /**
-     * <code>required string dbSessionId = 3;</code>
+     * <code>optional string dbSessionId = 3;</code>
      */
     java.lang.String getDbSessionId();
     /**
-     * <code>required string dbSessionId = 3;</code>
+     * <code>optional string dbSessionId = 3;</code>
      */
     com.google.protobuf.ByteString
         getDbSessionIdBytes();
@@ -3850,39 +3416,30 @@ public final class RasmgrClientService {
   /**
    * Protobuf type {@code rasnet.service.CloseDbReq}
    */
-  public static final class CloseDbReq extends
-      com.google.protobuf.GeneratedMessage
-      implements CloseDbReqOrBuilder {
+  public  static final class CloseDbReq extends
+      com.google.protobuf.GeneratedMessage implements
+      // @@protoc_insertion_point(message_implements:rasnet.service.CloseDbReq)
+      CloseDbReqOrBuilder {
     // Use CloseDbReq.newBuilder() to construct.
     private CloseDbReq(com.google.protobuf.GeneratedMessage.Builder<?> builder) {
       super(builder);
-      this.unknownFields = builder.getUnknownFields();
     }
-    private CloseDbReq(boolean noInit) { this.unknownFields = com.google.protobuf.UnknownFieldSet.getDefaultInstance(); }
-
-    private static final CloseDbReq defaultInstance;
-    public static CloseDbReq getDefaultInstance() {
-      return defaultInstance;
+    private CloseDbReq() {
+      clientUUID_ = "";
+      clientId_ = 0;
+      dbSessionId_ = "";
     }
 
-    public CloseDbReq getDefaultInstanceForType() {
-      return defaultInstance;
-    }
-
-    private final com.google.protobuf.UnknownFieldSet unknownFields;
     @java.lang.Override
     public final com.google.protobuf.UnknownFieldSet
-        getUnknownFields() {
-      return this.unknownFields;
+    getUnknownFields() {
+      return com.google.protobuf.UnknownFieldSet.getDefaultInstance();
     }
     private CloseDbReq(
         com.google.protobuf.CodedInputStream input,
-        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-        throws com.google.protobuf.InvalidProtocolBufferException {
-      initFields();
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry) {
+      this();
       int mutable_bitField0_ = 0;
-      com.google.protobuf.UnknownFieldSet.Builder unknownFields =
-          com.google.protobuf.UnknownFieldSet.newBuilder();
       try {
         boolean done = false;
         while (!done) {
@@ -3892,36 +3449,37 @@ public final class RasmgrClientService {
               done = true;
               break;
             default: {
-              if (!parseUnknownField(input, unknownFields,
-                                     extensionRegistry, tag)) {
+              if (!input.skipField(tag)) {
                 done = true;
               }
               break;
             }
             case 10: {
-              bitField0_ |= 0x00000001;
-              clientUUID_ = input.readBytes();
+              String s = input.readStringRequireUtf8();
+
+              clientUUID_ = s;
               break;
             }
             case 16: {
-              bitField0_ |= 0x00000002;
+
               clientId_ = input.readInt32();
               break;
             }
             case 26: {
-              bitField0_ |= 0x00000004;
-              dbSessionId_ = input.readBytes();
+              String s = input.readStringRequireUtf8();
+
+              dbSessionId_ = s;
               break;
             }
           }
         }
       } catch (com.google.protobuf.InvalidProtocolBufferException e) {
-        throw e.setUnfinishedMessage(this);
+        throw new RuntimeException(e.setUnfinishedMessage(this));
       } catch (java.io.IOException e) {
-        throw new com.google.protobuf.InvalidProtocolBufferException(
-            e.getMessage()).setUnfinishedMessage(this);
+        throw new RuntimeException(
+            new com.google.protobuf.InvalidProtocolBufferException(
+                e.getMessage()).setUnfinishedMessage(this));
       } finally {
-        this.unknownFields = unknownFields.build();
         makeExtensionsImmutable();
       }
     }
@@ -3937,33 +3495,10 @@ public final class RasmgrClientService {
               org.rasdaman.rasnet.service.RasmgrClientService.CloseDbReq.class, org.rasdaman.rasnet.service.RasmgrClientService.CloseDbReq.Builder.class);
     }
 
-    public static com.google.protobuf.Parser<CloseDbReq> PARSER =
-        new com.google.protobuf.AbstractParser<CloseDbReq>() {
-      public CloseDbReq parsePartialFrom(
-          com.google.protobuf.CodedInputStream input,
-          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-          throws com.google.protobuf.InvalidProtocolBufferException {
-        return new CloseDbReq(input, extensionRegistry);
-      }
-    };
-
-    @java.lang.Override
-    public com.google.protobuf.Parser<CloseDbReq> getParserForType() {
-      return PARSER;
-    }
-
-    private int bitField0_;
-    // required string clientUUID = 1;
     public static final int CLIENTUUID_FIELD_NUMBER = 1;
-    private java.lang.Object clientUUID_;
+    private volatile java.lang.Object clientUUID_;
     /**
-     * <code>required string clientUUID = 1;</code>
-     */
-    public boolean hasClientUUID() {
-      return ((bitField0_ & 0x00000001) == 0x00000001);
-    }
-    /**
-     * <code>required string clientUUID = 1;</code>
+     * <code>optional string clientUUID = 1;</code>
      */
     public java.lang.String getClientUUID() {
       java.lang.Object ref = clientUUID_;
@@ -3973,14 +3508,12 @@ public final class RasmgrClientService {
         com.google.protobuf.ByteString bs =
             (com.google.protobuf.ByteString) ref;
         java.lang.String s = bs.toStringUtf8();
-        if (bs.isValidUtf8()) {
-          clientUUID_ = s;
-        }
+        clientUUID_ = s;
         return s;
       }
     }
     /**
-     * <code>required string clientUUID = 1;</code>
+     * <code>optional string clientUUID = 1;</code>
      */
     public com.google.protobuf.ByteString
         getClientUUIDBytes() {
@@ -3996,15 +3529,8 @@ public final class RasmgrClientService {
       }
     }
 
-    // optional int32 clientId = 2;
     public static final int CLIENTID_FIELD_NUMBER = 2;
     private int clientId_;
-    /**
-     * <code>optional int32 clientId = 2;</code>
-     */
-    public boolean hasClientId() {
-      return ((bitField0_ & 0x00000002) == 0x00000002);
-    }
     /**
      * <code>optional int32 clientId = 2;</code>
      */
@@ -4012,17 +3538,10 @@ public final class RasmgrClientService {
       return clientId_;
     }
 
-    // required string dbSessionId = 3;
     public static final int DBSESSIONID_FIELD_NUMBER = 3;
-    private java.lang.Object dbSessionId_;
+    private volatile java.lang.Object dbSessionId_;
     /**
-     * <code>required string dbSessionId = 3;</code>
-     */
-    public boolean hasDbSessionId() {
-      return ((bitField0_ & 0x00000004) == 0x00000004);
-    }
-    /**
-     * <code>required string dbSessionId = 3;</code>
+     * <code>optional string dbSessionId = 3;</code>
      */
     public java.lang.String getDbSessionId() {
       java.lang.Object ref = dbSessionId_;
@@ -4032,14 +3551,12 @@ public final class RasmgrClientService {
         com.google.protobuf.ByteString bs =
             (com.google.protobuf.ByteString) ref;
         java.lang.String s = bs.toStringUtf8();
-        if (bs.isValidUtf8()) {
-          dbSessionId_ = s;
-        }
+        dbSessionId_ = s;
         return s;
       }
     }
     /**
-     * <code>required string dbSessionId = 3;</code>
+     * <code>optional string dbSessionId = 3;</code>
      */
     public com.google.protobuf.ByteString
         getDbSessionIdBytes() {
@@ -4055,73 +3572,49 @@ public final class RasmgrClientService {
       }
     }
 
-    private void initFields() {
-      clientUUID_ = "";
-      clientId_ = 0;
-      dbSessionId_ = "";
-    }
     private byte memoizedIsInitialized = -1;
     public final boolean isInitialized() {
       byte isInitialized = memoizedIsInitialized;
-      if (isInitialized != -1) return isInitialized == 1;
+      if (isInitialized == 1) return true;
+      if (isInitialized == 0) return false;
 
-      if (!hasClientUUID()) {
-        memoizedIsInitialized = 0;
-        return false;
-      }
-      if (!hasDbSessionId()) {
-        memoizedIsInitialized = 0;
-        return false;
-      }
       memoizedIsInitialized = 1;
       return true;
     }
 
     public void writeTo(com.google.protobuf.CodedOutputStream output)
                         throws java.io.IOException {
-      getSerializedSize();
-      if (((bitField0_ & 0x00000001) == 0x00000001)) {
-        output.writeBytes(1, getClientUUIDBytes());
+      if (!getClientUUIDBytes().isEmpty()) {
+        com.google.protobuf.GeneratedMessage.writeString(output, 1, clientUUID_);
       }
-      if (((bitField0_ & 0x00000002) == 0x00000002)) {
+      if (clientId_ != 0) {
         output.writeInt32(2, clientId_);
       }
-      if (((bitField0_ & 0x00000004) == 0x00000004)) {
-        output.writeBytes(3, getDbSessionIdBytes());
+      if (!getDbSessionIdBytes().isEmpty()) {
+        com.google.protobuf.GeneratedMessage.writeString(output, 3, dbSessionId_);
       }
-      getUnknownFields().writeTo(output);
     }
 
-    private int memoizedSerializedSize = -1;
     public int getSerializedSize() {
-      int size = memoizedSerializedSize;
+      int size = memoizedSize;
       if (size != -1) return size;
 
       size = 0;
-      if (((bitField0_ & 0x00000001) == 0x00000001)) {
-        size += com.google.protobuf.CodedOutputStream
-          .computeBytesSize(1, getClientUUIDBytes());
+      if (!getClientUUIDBytes().isEmpty()) {
+        size += com.google.protobuf.GeneratedMessage.computeStringSize(1, clientUUID_);
       }
-      if (((bitField0_ & 0x00000002) == 0x00000002)) {
+      if (clientId_ != 0) {
         size += com.google.protobuf.CodedOutputStream
           .computeInt32Size(2, clientId_);
       }
-      if (((bitField0_ & 0x00000004) == 0x00000004)) {
-        size += com.google.protobuf.CodedOutputStream
-          .computeBytesSize(3, getDbSessionIdBytes());
+      if (!getDbSessionIdBytes().isEmpty()) {
+        size += com.google.protobuf.GeneratedMessage.computeStringSize(3, dbSessionId_);
       }
-      size += getUnknownFields().getSerializedSize();
-      memoizedSerializedSize = size;
+      memoizedSize = size;
       return size;
     }
 
     private static final long serialVersionUID = 0L;
-    @java.lang.Override
-    protected java.lang.Object writeReplace()
-        throws java.io.ObjectStreamException {
-      return super.writeReplace();
-    }
-
     public static org.rasdaman.rasnet.service.RasmgrClientService.CloseDbReq parseFrom(
         com.google.protobuf.ByteString data)
         throws com.google.protobuf.InvalidProtocolBufferException {
@@ -4175,12 +3668,17 @@ public final class RasmgrClientService {
       return PARSER.parseFrom(input, extensionRegistry);
     }
 
-    public static Builder newBuilder() { return Builder.create(); }
     public Builder newBuilderForType() { return newBuilder(); }
-    public static Builder newBuilder(org.rasdaman.rasnet.service.RasmgrClientService.CloseDbReq prototype) {
-      return newBuilder().mergeFrom(prototype);
+    public static Builder newBuilder() {
+      return DEFAULT_INSTANCE.toBuilder();
     }
-    public Builder toBuilder() { return newBuilder(this); }
+    public static Builder newBuilder(org.rasdaman.rasnet.service.RasmgrClientService.CloseDbReq prototype) {
+      return DEFAULT_INSTANCE.toBuilder().mergeFrom(prototype);
+    }
+    public Builder toBuilder() {
+      return this == DEFAULT_INSTANCE
+          ? new Builder() : new Builder().mergeFrom(this);
+    }
 
     @java.lang.Override
     protected Builder newBuilderForType(
@@ -4192,8 +3690,9 @@ public final class RasmgrClientService {
      * Protobuf type {@code rasnet.service.CloseDbReq}
      */
     public static final class Builder extends
-        com.google.protobuf.GeneratedMessage.Builder<Builder>
-       implements org.rasdaman.rasnet.service.RasmgrClientService.CloseDbReqOrBuilder {
+        com.google.protobuf.GeneratedMessage.Builder<Builder> implements
+        // @@protoc_insertion_point(builder_implements:rasnet.service.CloseDbReq)
+        org.rasdaman.rasnet.service.RasmgrClientService.CloseDbReqOrBuilder {
       public static final com.google.protobuf.Descriptors.Descriptor
           getDescriptor() {
         return org.rasdaman.rasnet.service.RasmgrClientService.internal_static_rasnet_service_CloseDbReq_descriptor;
@@ -4220,23 +3719,15 @@ public final class RasmgrClientService {
         if (com.google.protobuf.GeneratedMessage.alwaysUseFieldBuilders) {
         }
       }
-      private static Builder create() {
-        return new Builder();
-      }
-
       public Builder clear() {
         super.clear();
         clientUUID_ = "";
-        bitField0_ = (bitField0_ & ~0x00000001);
-        clientId_ = 0;
-        bitField0_ = (bitField0_ & ~0x00000002);
-        dbSessionId_ = "";
-        bitField0_ = (bitField0_ & ~0x00000004);
-        return this;
-      }
 
-      public Builder clone() {
-        return create().mergeFrom(buildPartial());
+        clientId_ = 0;
+
+        dbSessionId_ = "";
+
+        return this;
       }
 
       public com.google.protobuf.Descriptors.Descriptor
@@ -4258,21 +3749,9 @@ public final class RasmgrClientService {
 
       public org.rasdaman.rasnet.service.RasmgrClientService.CloseDbReq buildPartial() {
         org.rasdaman.rasnet.service.RasmgrClientService.CloseDbReq result = new org.rasdaman.rasnet.service.RasmgrClientService.CloseDbReq(this);
-        int from_bitField0_ = bitField0_;
-        int to_bitField0_ = 0;
-        if (((from_bitField0_ & 0x00000001) == 0x00000001)) {
-          to_bitField0_ |= 0x00000001;
-        }
         result.clientUUID_ = clientUUID_;
-        if (((from_bitField0_ & 0x00000002) == 0x00000002)) {
-          to_bitField0_ |= 0x00000002;
-        }
         result.clientId_ = clientId_;
-        if (((from_bitField0_ & 0x00000004) == 0x00000004)) {
-          to_bitField0_ |= 0x00000004;
-        }
         result.dbSessionId_ = dbSessionId_;
-        result.bitField0_ = to_bitField0_;
         onBuilt();
         return result;
       }
@@ -4288,32 +3767,22 @@ public final class RasmgrClientService {
 
       public Builder mergeFrom(org.rasdaman.rasnet.service.RasmgrClientService.CloseDbReq other) {
         if (other == org.rasdaman.rasnet.service.RasmgrClientService.CloseDbReq.getDefaultInstance()) return this;
-        if (other.hasClientUUID()) {
-          bitField0_ |= 0x00000001;
+        if (!other.getClientUUID().isEmpty()) {
           clientUUID_ = other.clientUUID_;
           onChanged();
         }
-        if (other.hasClientId()) {
+        if (other.getClientId() != 0) {
           setClientId(other.getClientId());
         }
-        if (other.hasDbSessionId()) {
-          bitField0_ |= 0x00000004;
+        if (!other.getDbSessionId().isEmpty()) {
           dbSessionId_ = other.dbSessionId_;
           onChanged();
         }
-        this.mergeUnknownFields(other.getUnknownFields());
+        onChanged();
         return this;
       }
 
       public final boolean isInitialized() {
-        if (!hasClientUUID()) {
-
-          return false;
-        }
-        if (!hasDbSessionId()) {
-
-          return false;
-        }
         return true;
       }
 
@@ -4334,24 +3803,17 @@ public final class RasmgrClientService {
         }
         return this;
       }
-      private int bitField0_;
 
-      // required string clientUUID = 1;
       private java.lang.Object clientUUID_ = "";
       /**
-       * <code>required string clientUUID = 1;</code>
-       */
-      public boolean hasClientUUID() {
-        return ((bitField0_ & 0x00000001) == 0x00000001);
-      }
-      /**
-       * <code>required string clientUUID = 1;</code>
+       * <code>optional string clientUUID = 1;</code>
        */
       public java.lang.String getClientUUID() {
         java.lang.Object ref = clientUUID_;
         if (!(ref instanceof java.lang.String)) {
-          java.lang.String s = ((com.google.protobuf.ByteString) ref)
-              .toStringUtf8();
+          com.google.protobuf.ByteString bs =
+              (com.google.protobuf.ByteString) ref;
+          java.lang.String s = bs.toStringUtf8();
           clientUUID_ = s;
           return s;
         } else {
@@ -4359,7 +3821,7 @@ public final class RasmgrClientService {
         }
       }
       /**
-       * <code>required string clientUUID = 1;</code>
+       * <code>optional string clientUUID = 1;</code>
        */
       public com.google.protobuf.ByteString
           getClientUUIDBytes() {
@@ -4375,49 +3837,43 @@ public final class RasmgrClientService {
         }
       }
       /**
-       * <code>required string clientUUID = 1;</code>
+       * <code>optional string clientUUID = 1;</code>
        */
       public Builder setClientUUID(
           java.lang.String value) {
         if (value == null) {
     throw new NullPointerException();
   }
-  bitField0_ |= 0x00000001;
+
         clientUUID_ = value;
         onChanged();
         return this;
       }
       /**
-       * <code>required string clientUUID = 1;</code>
+       * <code>optional string clientUUID = 1;</code>
        */
       public Builder clearClientUUID() {
-        bitField0_ = (bitField0_ & ~0x00000001);
+
         clientUUID_ = getDefaultInstance().getClientUUID();
         onChanged();
         return this;
       }
       /**
-       * <code>required string clientUUID = 1;</code>
+       * <code>optional string clientUUID = 1;</code>
        */
       public Builder setClientUUIDBytes(
           com.google.protobuf.ByteString value) {
         if (value == null) {
     throw new NullPointerException();
   }
-  bitField0_ |= 0x00000001;
+  checkByteStringIsUtf8(value);
+
         clientUUID_ = value;
         onChanged();
         return this;
       }
 
-      // optional int32 clientId = 2;
       private int clientId_ ;
-      /**
-       * <code>optional int32 clientId = 2;</code>
-       */
-      public boolean hasClientId() {
-        return ((bitField0_ & 0x00000002) == 0x00000002);
-      }
       /**
        * <code>optional int32 clientId = 2;</code>
        */
@@ -4428,7 +3884,7 @@ public final class RasmgrClientService {
        * <code>optional int32 clientId = 2;</code>
        */
       public Builder setClientId(int value) {
-        bitField0_ |= 0x00000002;
+
         clientId_ = value;
         onChanged();
         return this;
@@ -4437,28 +3893,22 @@ public final class RasmgrClientService {
        * <code>optional int32 clientId = 2;</code>
        */
       public Builder clearClientId() {
-        bitField0_ = (bitField0_ & ~0x00000002);
+
         clientId_ = 0;
         onChanged();
         return this;
       }
 
-      // required string dbSessionId = 3;
       private java.lang.Object dbSessionId_ = "";
       /**
-       * <code>required string dbSessionId = 3;</code>
-       */
-      public boolean hasDbSessionId() {
-        return ((bitField0_ & 0x00000004) == 0x00000004);
-      }
-      /**
-       * <code>required string dbSessionId = 3;</code>
+       * <code>optional string dbSessionId = 3;</code>
        */
       public java.lang.String getDbSessionId() {
         java.lang.Object ref = dbSessionId_;
         if (!(ref instanceof java.lang.String)) {
-          java.lang.String s = ((com.google.protobuf.ByteString) ref)
-              .toStringUtf8();
+          com.google.protobuf.ByteString bs =
+              (com.google.protobuf.ByteString) ref;
+          java.lang.String s = bs.toStringUtf8();
           dbSessionId_ = s;
           return s;
         } else {
@@ -4466,7 +3916,7 @@ public final class RasmgrClientService {
         }
       }
       /**
-       * <code>required string dbSessionId = 3;</code>
+       * <code>optional string dbSessionId = 3;</code>
        */
       public com.google.protobuf.ByteString
           getDbSessionIdBytes() {
@@ -4482,75 +3932,113 @@ public final class RasmgrClientService {
         }
       }
       /**
-       * <code>required string dbSessionId = 3;</code>
+       * <code>optional string dbSessionId = 3;</code>
        */
       public Builder setDbSessionId(
           java.lang.String value) {
         if (value == null) {
     throw new NullPointerException();
   }
-  bitField0_ |= 0x00000004;
+
         dbSessionId_ = value;
         onChanged();
         return this;
       }
       /**
-       * <code>required string dbSessionId = 3;</code>
+       * <code>optional string dbSessionId = 3;</code>
        */
       public Builder clearDbSessionId() {
-        bitField0_ = (bitField0_ & ~0x00000004);
+
         dbSessionId_ = getDefaultInstance().getDbSessionId();
         onChanged();
         return this;
       }
       /**
-       * <code>required string dbSessionId = 3;</code>
+       * <code>optional string dbSessionId = 3;</code>
        */
       public Builder setDbSessionIdBytes(
           com.google.protobuf.ByteString value) {
         if (value == null) {
     throw new NullPointerException();
   }
-  bitField0_ |= 0x00000004;
+  checkByteStringIsUtf8(value);
+
         dbSessionId_ = value;
         onChanged();
         return this;
       }
+      public final Builder setUnknownFields(
+          final com.google.protobuf.UnknownFieldSet unknownFields) {
+        return this;
+      }
+
+      public final Builder mergeUnknownFields(
+          final com.google.protobuf.UnknownFieldSet unknownFields) {
+        return this;
+      }
+
 
       // @@protoc_insertion_point(builder_scope:rasnet.service.CloseDbReq)
     }
 
+    // @@protoc_insertion_point(class_scope:rasnet.service.CloseDbReq)
+    private static final org.rasdaman.rasnet.service.RasmgrClientService.CloseDbReq DEFAULT_INSTANCE;
     static {
-      defaultInstance = new CloseDbReq(true);
-      defaultInstance.initFields();
+      DEFAULT_INSTANCE = new org.rasdaman.rasnet.service.RasmgrClientService.CloseDbReq();
     }
 
-    // @@protoc_insertion_point(class_scope:rasnet.service.CloseDbReq)
+    public static org.rasdaman.rasnet.service.RasmgrClientService.CloseDbReq getDefaultInstance() {
+      return DEFAULT_INSTANCE;
+    }
+
+    private static final com.google.protobuf.Parser<CloseDbReq>
+        PARSER = new com.google.protobuf.AbstractParser<CloseDbReq>() {
+      public CloseDbReq parsePartialFrom(
+          com.google.protobuf.CodedInputStream input,
+          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+          throws com.google.protobuf.InvalidProtocolBufferException {
+        try {
+          return new CloseDbReq(input, extensionRegistry);
+        } catch (RuntimeException e) {
+          if (e.getCause() instanceof
+              com.google.protobuf.InvalidProtocolBufferException) {
+            throw (com.google.protobuf.InvalidProtocolBufferException)
+                e.getCause();
+          }
+          throw e;
+        }
+      }
+    };
+
+    public static com.google.protobuf.Parser<CloseDbReq> parser() {
+      return PARSER;
+    }
+
+    @java.lang.Override
+    public com.google.protobuf.Parser<CloseDbReq> getParserForType() {
+      return PARSER;
+    }
+
+    public org.rasdaman.rasnet.service.RasmgrClientService.CloseDbReq getDefaultInstanceForType() {
+      return DEFAULT_INSTANCE;
+    }
+
   }
 
-  public interface KeepAliveReqOrBuilder
-      extends com.google.protobuf.MessageOrBuilder {
+  public interface KeepAliveReqOrBuilder extends
+      // @@protoc_insertion_point(interface_extends:rasnet.service.KeepAliveReq)
+      com.google.protobuf.MessageOrBuilder {
 
-    // required string clientUUID = 1;
     /**
-     * <code>required string clientUUID = 1;</code>
-     */
-    boolean hasClientUUID();
-    /**
-     * <code>required string clientUUID = 1;</code>
+     * <code>optional string clientUUID = 1;</code>
      */
     java.lang.String getClientUUID();
     /**
-     * <code>required string clientUUID = 1;</code>
+     * <code>optional string clientUUID = 1;</code>
      */
     com.google.protobuf.ByteString
         getClientUUIDBytes();
 
-    // optional int32 clientId = 2;
-    /**
-     * <code>optional int32 clientId = 2;</code>
-     */
-    boolean hasClientId();
     /**
      * <code>optional int32 clientId = 2;</code>
      */
@@ -4559,39 +4047,29 @@ public final class RasmgrClientService {
   /**
    * Protobuf type {@code rasnet.service.KeepAliveReq}
    */
-  public static final class KeepAliveReq extends
-      com.google.protobuf.GeneratedMessage
-      implements KeepAliveReqOrBuilder {
+  public  static final class KeepAliveReq extends
+      com.google.protobuf.GeneratedMessage implements
+      // @@protoc_insertion_point(message_implements:rasnet.service.KeepAliveReq)
+      KeepAliveReqOrBuilder {
     // Use KeepAliveReq.newBuilder() to construct.
     private KeepAliveReq(com.google.protobuf.GeneratedMessage.Builder<?> builder) {
       super(builder);
-      this.unknownFields = builder.getUnknownFields();
     }
-    private KeepAliveReq(boolean noInit) { this.unknownFields = com.google.protobuf.UnknownFieldSet.getDefaultInstance(); }
-
-    private static final KeepAliveReq defaultInstance;
-    public static KeepAliveReq getDefaultInstance() {
-      return defaultInstance;
+    private KeepAliveReq() {
+      clientUUID_ = "";
+      clientId_ = 0;
     }
 
-    public KeepAliveReq getDefaultInstanceForType() {
-      return defaultInstance;
-    }
-
-    private final com.google.protobuf.UnknownFieldSet unknownFields;
     @java.lang.Override
     public final com.google.protobuf.UnknownFieldSet
-        getUnknownFields() {
-      return this.unknownFields;
+    getUnknownFields() {
+      return com.google.protobuf.UnknownFieldSet.getDefaultInstance();
     }
     private KeepAliveReq(
         com.google.protobuf.CodedInputStream input,
-        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-        throws com.google.protobuf.InvalidProtocolBufferException {
-      initFields();
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry) {
+      this();
       int mutable_bitField0_ = 0;
-      com.google.protobuf.UnknownFieldSet.Builder unknownFields =
-          com.google.protobuf.UnknownFieldSet.newBuilder();
       try {
         boolean done = false;
         while (!done) {
@@ -4601,31 +4079,31 @@ public final class RasmgrClientService {
               done = true;
               break;
             default: {
-              if (!parseUnknownField(input, unknownFields,
-                                     extensionRegistry, tag)) {
+              if (!input.skipField(tag)) {
                 done = true;
               }
               break;
             }
             case 10: {
-              bitField0_ |= 0x00000001;
-              clientUUID_ = input.readBytes();
+              String s = input.readStringRequireUtf8();
+
+              clientUUID_ = s;
               break;
             }
             case 16: {
-              bitField0_ |= 0x00000002;
+
               clientId_ = input.readInt32();
               break;
             }
           }
         }
       } catch (com.google.protobuf.InvalidProtocolBufferException e) {
-        throw e.setUnfinishedMessage(this);
+        throw new RuntimeException(e.setUnfinishedMessage(this));
       } catch (java.io.IOException e) {
-        throw new com.google.protobuf.InvalidProtocolBufferException(
-            e.getMessage()).setUnfinishedMessage(this);
+        throw new RuntimeException(
+            new com.google.protobuf.InvalidProtocolBufferException(
+                e.getMessage()).setUnfinishedMessage(this));
       } finally {
-        this.unknownFields = unknownFields.build();
         makeExtensionsImmutable();
       }
     }
@@ -4641,33 +4119,10 @@ public final class RasmgrClientService {
               org.rasdaman.rasnet.service.RasmgrClientService.KeepAliveReq.class, org.rasdaman.rasnet.service.RasmgrClientService.KeepAliveReq.Builder.class);
     }
 
-    public static com.google.protobuf.Parser<KeepAliveReq> PARSER =
-        new com.google.protobuf.AbstractParser<KeepAliveReq>() {
-      public KeepAliveReq parsePartialFrom(
-          com.google.protobuf.CodedInputStream input,
-          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-          throws com.google.protobuf.InvalidProtocolBufferException {
-        return new KeepAliveReq(input, extensionRegistry);
-      }
-    };
-
-    @java.lang.Override
-    public com.google.protobuf.Parser<KeepAliveReq> getParserForType() {
-      return PARSER;
-    }
-
-    private int bitField0_;
-    // required string clientUUID = 1;
     public static final int CLIENTUUID_FIELD_NUMBER = 1;
-    private java.lang.Object clientUUID_;
+    private volatile java.lang.Object clientUUID_;
     /**
-     * <code>required string clientUUID = 1;</code>
-     */
-    public boolean hasClientUUID() {
-      return ((bitField0_ & 0x00000001) == 0x00000001);
-    }
-    /**
-     * <code>required string clientUUID = 1;</code>
+     * <code>optional string clientUUID = 1;</code>
      */
     public java.lang.String getClientUUID() {
       java.lang.Object ref = clientUUID_;
@@ -4677,14 +4132,12 @@ public final class RasmgrClientService {
         com.google.protobuf.ByteString bs =
             (com.google.protobuf.ByteString) ref;
         java.lang.String s = bs.toStringUtf8();
-        if (bs.isValidUtf8()) {
-          clientUUID_ = s;
-        }
+        clientUUID_ = s;
         return s;
       }
     }
     /**
-     * <code>required string clientUUID = 1;</code>
+     * <code>optional string clientUUID = 1;</code>
      */
     public com.google.protobuf.ByteString
         getClientUUIDBytes() {
@@ -4700,15 +4153,8 @@ public final class RasmgrClientService {
       }
     }
 
-    // optional int32 clientId = 2;
     public static final int CLIENTID_FIELD_NUMBER = 2;
     private int clientId_;
-    /**
-     * <code>optional int32 clientId = 2;</code>
-     */
-    public boolean hasClientId() {
-      return ((bitField0_ & 0x00000002) == 0x00000002);
-    }
     /**
      * <code>optional int32 clientId = 2;</code>
      */
@@ -4716,61 +4162,43 @@ public final class RasmgrClientService {
       return clientId_;
     }
 
-    private void initFields() {
-      clientUUID_ = "";
-      clientId_ = 0;
-    }
     private byte memoizedIsInitialized = -1;
     public final boolean isInitialized() {
       byte isInitialized = memoizedIsInitialized;
-      if (isInitialized != -1) return isInitialized == 1;
+      if (isInitialized == 1) return true;
+      if (isInitialized == 0) return false;
 
-      if (!hasClientUUID()) {
-        memoizedIsInitialized = 0;
-        return false;
-      }
       memoizedIsInitialized = 1;
       return true;
     }
 
     public void writeTo(com.google.protobuf.CodedOutputStream output)
                         throws java.io.IOException {
-      getSerializedSize();
-      if (((bitField0_ & 0x00000001) == 0x00000001)) {
-        output.writeBytes(1, getClientUUIDBytes());
+      if (!getClientUUIDBytes().isEmpty()) {
+        com.google.protobuf.GeneratedMessage.writeString(output, 1, clientUUID_);
       }
-      if (((bitField0_ & 0x00000002) == 0x00000002)) {
+      if (clientId_ != 0) {
         output.writeInt32(2, clientId_);
       }
-      getUnknownFields().writeTo(output);
     }
 
-    private int memoizedSerializedSize = -1;
     public int getSerializedSize() {
-      int size = memoizedSerializedSize;
+      int size = memoizedSize;
       if (size != -1) return size;
 
       size = 0;
-      if (((bitField0_ & 0x00000001) == 0x00000001)) {
-        size += com.google.protobuf.CodedOutputStream
-          .computeBytesSize(1, getClientUUIDBytes());
+      if (!getClientUUIDBytes().isEmpty()) {
+        size += com.google.protobuf.GeneratedMessage.computeStringSize(1, clientUUID_);
       }
-      if (((bitField0_ & 0x00000002) == 0x00000002)) {
+      if (clientId_ != 0) {
         size += com.google.protobuf.CodedOutputStream
           .computeInt32Size(2, clientId_);
       }
-      size += getUnknownFields().getSerializedSize();
-      memoizedSerializedSize = size;
+      memoizedSize = size;
       return size;
     }
 
     private static final long serialVersionUID = 0L;
-    @java.lang.Override
-    protected java.lang.Object writeReplace()
-        throws java.io.ObjectStreamException {
-      return super.writeReplace();
-    }
-
     public static org.rasdaman.rasnet.service.RasmgrClientService.KeepAliveReq parseFrom(
         com.google.protobuf.ByteString data)
         throws com.google.protobuf.InvalidProtocolBufferException {
@@ -4824,12 +4252,17 @@ public final class RasmgrClientService {
       return PARSER.parseFrom(input, extensionRegistry);
     }
 
-    public static Builder newBuilder() { return Builder.create(); }
     public Builder newBuilderForType() { return newBuilder(); }
-    public static Builder newBuilder(org.rasdaman.rasnet.service.RasmgrClientService.KeepAliveReq prototype) {
-      return newBuilder().mergeFrom(prototype);
+    public static Builder newBuilder() {
+      return DEFAULT_INSTANCE.toBuilder();
     }
-    public Builder toBuilder() { return newBuilder(this); }
+    public static Builder newBuilder(org.rasdaman.rasnet.service.RasmgrClientService.KeepAliveReq prototype) {
+      return DEFAULT_INSTANCE.toBuilder().mergeFrom(prototype);
+    }
+    public Builder toBuilder() {
+      return this == DEFAULT_INSTANCE
+          ? new Builder() : new Builder().mergeFrom(this);
+    }
 
     @java.lang.Override
     protected Builder newBuilderForType(
@@ -4841,8 +4274,9 @@ public final class RasmgrClientService {
      * Protobuf type {@code rasnet.service.KeepAliveReq}
      */
     public static final class Builder extends
-        com.google.protobuf.GeneratedMessage.Builder<Builder>
-       implements org.rasdaman.rasnet.service.RasmgrClientService.KeepAliveReqOrBuilder {
+        com.google.protobuf.GeneratedMessage.Builder<Builder> implements
+        // @@protoc_insertion_point(builder_implements:rasnet.service.KeepAliveReq)
+        org.rasdaman.rasnet.service.RasmgrClientService.KeepAliveReqOrBuilder {
       public static final com.google.protobuf.Descriptors.Descriptor
           getDescriptor() {
         return org.rasdaman.rasnet.service.RasmgrClientService.internal_static_rasnet_service_KeepAliveReq_descriptor;
@@ -4869,21 +4303,13 @@ public final class RasmgrClientService {
         if (com.google.protobuf.GeneratedMessage.alwaysUseFieldBuilders) {
         }
       }
-      private static Builder create() {
-        return new Builder();
-      }
-
       public Builder clear() {
         super.clear();
         clientUUID_ = "";
-        bitField0_ = (bitField0_ & ~0x00000001);
-        clientId_ = 0;
-        bitField0_ = (bitField0_ & ~0x00000002);
-        return this;
-      }
 
-      public Builder clone() {
-        return create().mergeFrom(buildPartial());
+        clientId_ = 0;
+
+        return this;
       }
 
       public com.google.protobuf.Descriptors.Descriptor
@@ -4905,17 +4331,8 @@ public final class RasmgrClientService {
 
       public org.rasdaman.rasnet.service.RasmgrClientService.KeepAliveReq buildPartial() {
         org.rasdaman.rasnet.service.RasmgrClientService.KeepAliveReq result = new org.rasdaman.rasnet.service.RasmgrClientService.KeepAliveReq(this);
-        int from_bitField0_ = bitField0_;
-        int to_bitField0_ = 0;
-        if (((from_bitField0_ & 0x00000001) == 0x00000001)) {
-          to_bitField0_ |= 0x00000001;
-        }
         result.clientUUID_ = clientUUID_;
-        if (((from_bitField0_ & 0x00000002) == 0x00000002)) {
-          to_bitField0_ |= 0x00000002;
-        }
         result.clientId_ = clientId_;
-        result.bitField0_ = to_bitField0_;
         onBuilt();
         return result;
       }
@@ -4931,23 +4348,18 @@ public final class RasmgrClientService {
 
       public Builder mergeFrom(org.rasdaman.rasnet.service.RasmgrClientService.KeepAliveReq other) {
         if (other == org.rasdaman.rasnet.service.RasmgrClientService.KeepAliveReq.getDefaultInstance()) return this;
-        if (other.hasClientUUID()) {
-          bitField0_ |= 0x00000001;
+        if (!other.getClientUUID().isEmpty()) {
           clientUUID_ = other.clientUUID_;
           onChanged();
         }
-        if (other.hasClientId()) {
+        if (other.getClientId() != 0) {
           setClientId(other.getClientId());
         }
-        this.mergeUnknownFields(other.getUnknownFields());
+        onChanged();
         return this;
       }
 
       public final boolean isInitialized() {
-        if (!hasClientUUID()) {
-
-          return false;
-        }
         return true;
       }
 
@@ -4968,24 +4380,17 @@ public final class RasmgrClientService {
         }
         return this;
       }
-      private int bitField0_;
 
-      // required string clientUUID = 1;
       private java.lang.Object clientUUID_ = "";
       /**
-       * <code>required string clientUUID = 1;</code>
-       */
-      public boolean hasClientUUID() {
-        return ((bitField0_ & 0x00000001) == 0x00000001);
-      }
-      /**
-       * <code>required string clientUUID = 1;</code>
+       * <code>optional string clientUUID = 1;</code>
        */
       public java.lang.String getClientUUID() {
         java.lang.Object ref = clientUUID_;
         if (!(ref instanceof java.lang.String)) {
-          java.lang.String s = ((com.google.protobuf.ByteString) ref)
-              .toStringUtf8();
+          com.google.protobuf.ByteString bs =
+              (com.google.protobuf.ByteString) ref;
+          java.lang.String s = bs.toStringUtf8();
           clientUUID_ = s;
           return s;
         } else {
@@ -4993,7 +4398,7 @@ public final class RasmgrClientService {
         }
       }
       /**
-       * <code>required string clientUUID = 1;</code>
+       * <code>optional string clientUUID = 1;</code>
        */
       public com.google.protobuf.ByteString
           getClientUUIDBytes() {
@@ -5009,49 +4414,43 @@ public final class RasmgrClientService {
         }
       }
       /**
-       * <code>required string clientUUID = 1;</code>
+       * <code>optional string clientUUID = 1;</code>
        */
       public Builder setClientUUID(
           java.lang.String value) {
         if (value == null) {
     throw new NullPointerException();
   }
-  bitField0_ |= 0x00000001;
+
         clientUUID_ = value;
         onChanged();
         return this;
       }
       /**
-       * <code>required string clientUUID = 1;</code>
+       * <code>optional string clientUUID = 1;</code>
        */
       public Builder clearClientUUID() {
-        bitField0_ = (bitField0_ & ~0x00000001);
+
         clientUUID_ = getDefaultInstance().getClientUUID();
         onChanged();
         return this;
       }
       /**
-       * <code>required string clientUUID = 1;</code>
+       * <code>optional string clientUUID = 1;</code>
        */
       public Builder setClientUUIDBytes(
           com.google.protobuf.ByteString value) {
         if (value == null) {
     throw new NullPointerException();
   }
-  bitField0_ |= 0x00000001;
+  checkByteStringIsUtf8(value);
+
         clientUUID_ = value;
         onChanged();
         return this;
       }
 
-      // optional int32 clientId = 2;
       private int clientId_ ;
-      /**
-       * <code>optional int32 clientId = 2;</code>
-       */
-      public boolean hasClientId() {
-        return ((bitField0_ & 0x00000002) == 0x00000002);
-      }
       /**
        * <code>optional int32 clientId = 2;</code>
        */
@@ -5062,7 +4461,7 @@ public final class RasmgrClientService {
        * <code>optional int32 clientId = 2;</code>
        */
       public Builder setClientId(int value) {
-        bitField0_ |= 0x00000002;
+
         clientId_ = value;
         onChanged();
         return this;
@@ -5071,537 +4470,67 @@ public final class RasmgrClientService {
        * <code>optional int32 clientId = 2;</code>
        */
       public Builder clearClientId() {
-        bitField0_ = (bitField0_ & ~0x00000002);
+
         clientId_ = 0;
         onChanged();
         return this;
       }
+      public final Builder setUnknownFields(
+          final com.google.protobuf.UnknownFieldSet unknownFields) {
+        return this;
+      }
+
+      public final Builder mergeUnknownFields(
+          final com.google.protobuf.UnknownFieldSet unknownFields) {
+        return this;
+      }
+
 
       // @@protoc_insertion_point(builder_scope:rasnet.service.KeepAliveReq)
     }
 
-    static {
-      defaultInstance = new KeepAliveReq(true);
-      defaultInstance.initFields();
-    }
-
     // @@protoc_insertion_point(class_scope:rasnet.service.KeepAliveReq)
-  }
-
-  /**
-   * Protobuf service {@code rasnet.service.RasMgrClientService}
-   */
-  public static abstract class RasMgrClientService
-      implements com.google.protobuf.Service {
-    protected RasMgrClientService() {}
-
-    public interface Interface {
-      /**
-       * <code>rpc Connect(.rasnet.service.ConnectReq) returns (.rasnet.service.ConnectRepl);</code>
-       */
-      public abstract void connect(
-          com.google.protobuf.RpcController controller,
-          org.rasdaman.rasnet.service.RasmgrClientService.ConnectReq request,
-          com.google.protobuf.RpcCallback<org.rasdaman.rasnet.service.RasmgrClientService.ConnectRepl> done);
-
-      /**
-       * <code>rpc Disconnect(.rasnet.service.DisconnectReq) returns (.rasnet.service.Void);</code>
-       */
-      public abstract void disconnect(
-          com.google.protobuf.RpcController controller,
-          org.rasdaman.rasnet.service.RasmgrClientService.DisconnectReq request,
-          com.google.protobuf.RpcCallback<org.rasdaman.rasnet.message.CommonService.Void> done);
-
-      /**
-       * <code>rpc OpenDb(.rasnet.service.OpenDbReq) returns (.rasnet.service.OpenDbRepl);</code>
-       */
-      public abstract void openDb(
-          com.google.protobuf.RpcController controller,
-          org.rasdaman.rasnet.service.RasmgrClientService.OpenDbReq request,
-          com.google.protobuf.RpcCallback<org.rasdaman.rasnet.service.RasmgrClientService.OpenDbRepl> done);
-
-      /**
-       * <code>rpc CloseDb(.rasnet.service.CloseDbReq) returns (.rasnet.service.Void);</code>
-       */
-      public abstract void closeDb(
-          com.google.protobuf.RpcController controller,
-          org.rasdaman.rasnet.service.RasmgrClientService.CloseDbReq request,
-          com.google.protobuf.RpcCallback<org.rasdaman.rasnet.message.CommonService.Void> done);
-
-      /**
-       * <code>rpc KeepAlive(.rasnet.service.KeepAliveReq) returns (.rasnet.service.Void);</code>
-       */
-      public abstract void keepAlive(
-          com.google.protobuf.RpcController controller,
-          org.rasdaman.rasnet.service.RasmgrClientService.KeepAliveReq request,
-          com.google.protobuf.RpcCallback<org.rasdaman.rasnet.message.CommonService.Void> done);
-
+    private static final org.rasdaman.rasnet.service.RasmgrClientService.KeepAliveReq DEFAULT_INSTANCE;
+    static {
+      DEFAULT_INSTANCE = new org.rasdaman.rasnet.service.RasmgrClientService.KeepAliveReq();
     }
 
-    public static com.google.protobuf.Service newReflectiveService(
-        final Interface impl) {
-      return new RasMgrClientService() {
-        @java.lang.Override
-        public  void connect(
-            com.google.protobuf.RpcController controller,
-            org.rasdaman.rasnet.service.RasmgrClientService.ConnectReq request,
-            com.google.protobuf.RpcCallback<org.rasdaman.rasnet.service.RasmgrClientService.ConnectRepl> done) {
-          impl.connect(controller, request, done);
-        }
-
-        @java.lang.Override
-        public  void disconnect(
-            com.google.protobuf.RpcController controller,
-            org.rasdaman.rasnet.service.RasmgrClientService.DisconnectReq request,
-            com.google.protobuf.RpcCallback<org.rasdaman.rasnet.message.CommonService.Void> done) {
-          impl.disconnect(controller, request, done);
-        }
-
-        @java.lang.Override
-        public  void openDb(
-            com.google.protobuf.RpcController controller,
-            org.rasdaman.rasnet.service.RasmgrClientService.OpenDbReq request,
-            com.google.protobuf.RpcCallback<org.rasdaman.rasnet.service.RasmgrClientService.OpenDbRepl> done) {
-          impl.openDb(controller, request, done);
-        }
-
-        @java.lang.Override
-        public  void closeDb(
-            com.google.protobuf.RpcController controller,
-            org.rasdaman.rasnet.service.RasmgrClientService.CloseDbReq request,
-            com.google.protobuf.RpcCallback<org.rasdaman.rasnet.message.CommonService.Void> done) {
-          impl.closeDb(controller, request, done);
-        }
-
-        @java.lang.Override
-        public  void keepAlive(
-            com.google.protobuf.RpcController controller,
-            org.rasdaman.rasnet.service.RasmgrClientService.KeepAliveReq request,
-            com.google.protobuf.RpcCallback<org.rasdaman.rasnet.message.CommonService.Void> done) {
-          impl.keepAlive(controller, request, done);
-        }
-
-      };
+    public static org.rasdaman.rasnet.service.RasmgrClientService.KeepAliveReq getDefaultInstance() {
+      return DEFAULT_INSTANCE;
     }
 
-    public static com.google.protobuf.BlockingService
-        newReflectiveBlockingService(final BlockingInterface impl) {
-      return new com.google.protobuf.BlockingService() {
-        public final com.google.protobuf.Descriptors.ServiceDescriptor
-            getDescriptorForType() {
-          return getDescriptor();
-        }
-
-        public final com.google.protobuf.Message callBlockingMethod(
-            com.google.protobuf.Descriptors.MethodDescriptor method,
-            com.google.protobuf.RpcController controller,
-            com.google.protobuf.Message request)
-            throws com.google.protobuf.ServiceException {
-          if (method.getService() != getDescriptor()) {
-            throw new java.lang.IllegalArgumentException(
-              "Service.callBlockingMethod() given method descriptor for " +
-              "wrong service type.");
+    private static final com.google.protobuf.Parser<KeepAliveReq>
+        PARSER = new com.google.protobuf.AbstractParser<KeepAliveReq>() {
+      public KeepAliveReq parsePartialFrom(
+          com.google.protobuf.CodedInputStream input,
+          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+          throws com.google.protobuf.InvalidProtocolBufferException {
+        try {
+          return new KeepAliveReq(input, extensionRegistry);
+        } catch (RuntimeException e) {
+          if (e.getCause() instanceof
+              com.google.protobuf.InvalidProtocolBufferException) {
+            throw (com.google.protobuf.InvalidProtocolBufferException)
+                e.getCause();
           }
-          switch(method.getIndex()) {
-            case 0:
-              return impl.connect(controller, (org.rasdaman.rasnet.service.RasmgrClientService.ConnectReq)request);
-            case 1:
-              return impl.disconnect(controller, (org.rasdaman.rasnet.service.RasmgrClientService.DisconnectReq)request);
-            case 2:
-              return impl.openDb(controller, (org.rasdaman.rasnet.service.RasmgrClientService.OpenDbReq)request);
-            case 3:
-              return impl.closeDb(controller, (org.rasdaman.rasnet.service.RasmgrClientService.CloseDbReq)request);
-            case 4:
-              return impl.keepAlive(controller, (org.rasdaman.rasnet.service.RasmgrClientService.KeepAliveReq)request);
-            default:
-              throw new java.lang.AssertionError("Can't get here.");
-          }
+          throw e;
         }
+      }
+    };
 
-        public final com.google.protobuf.Message
-            getRequestPrototype(
-            com.google.protobuf.Descriptors.MethodDescriptor method) {
-          if (method.getService() != getDescriptor()) {
-            throw new java.lang.IllegalArgumentException(
-              "Service.getRequestPrototype() given method " +
-              "descriptor for wrong service type.");
-          }
-          switch(method.getIndex()) {
-            case 0:
-              return org.rasdaman.rasnet.service.RasmgrClientService.ConnectReq.getDefaultInstance();
-            case 1:
-              return org.rasdaman.rasnet.service.RasmgrClientService.DisconnectReq.getDefaultInstance();
-            case 2:
-              return org.rasdaman.rasnet.service.RasmgrClientService.OpenDbReq.getDefaultInstance();
-            case 3:
-              return org.rasdaman.rasnet.service.RasmgrClientService.CloseDbReq.getDefaultInstance();
-            case 4:
-              return org.rasdaman.rasnet.service.RasmgrClientService.KeepAliveReq.getDefaultInstance();
-            default:
-              throw new java.lang.AssertionError("Can't get here.");
-          }
-        }
-
-        public final com.google.protobuf.Message
-            getResponsePrototype(
-            com.google.protobuf.Descriptors.MethodDescriptor method) {
-          if (method.getService() != getDescriptor()) {
-            throw new java.lang.IllegalArgumentException(
-              "Service.getResponsePrototype() given method " +
-              "descriptor for wrong service type.");
-          }
-          switch(method.getIndex()) {
-            case 0:
-              return org.rasdaman.rasnet.service.RasmgrClientService.ConnectRepl.getDefaultInstance();
-            case 1:
-              return org.rasdaman.rasnet.message.CommonService.Void.getDefaultInstance();
-            case 2:
-              return org.rasdaman.rasnet.service.RasmgrClientService.OpenDbRepl.getDefaultInstance();
-            case 3:
-              return org.rasdaman.rasnet.message.CommonService.Void.getDefaultInstance();
-            case 4:
-              return org.rasdaman.rasnet.message.CommonService.Void.getDefaultInstance();
-            default:
-              throw new java.lang.AssertionError("Can't get here.");
-          }
-        }
-
-      };
+    public static com.google.protobuf.Parser<KeepAliveReq> parser() {
+      return PARSER;
     }
 
-    /**
-     * <code>rpc Connect(.rasnet.service.ConnectReq) returns (.rasnet.service.ConnectRepl);</code>
-     */
-    public abstract void connect(
-        com.google.protobuf.RpcController controller,
-        org.rasdaman.rasnet.service.RasmgrClientService.ConnectReq request,
-        com.google.protobuf.RpcCallback<org.rasdaman.rasnet.service.RasmgrClientService.ConnectRepl> done);
-
-    /**
-     * <code>rpc Disconnect(.rasnet.service.DisconnectReq) returns (.rasnet.service.Void);</code>
-     */
-    public abstract void disconnect(
-        com.google.protobuf.RpcController controller,
-        org.rasdaman.rasnet.service.RasmgrClientService.DisconnectReq request,
-        com.google.protobuf.RpcCallback<org.rasdaman.rasnet.message.CommonService.Void> done);
-
-    /**
-     * <code>rpc OpenDb(.rasnet.service.OpenDbReq) returns (.rasnet.service.OpenDbRepl);</code>
-     */
-    public abstract void openDb(
-        com.google.protobuf.RpcController controller,
-        org.rasdaman.rasnet.service.RasmgrClientService.OpenDbReq request,
-        com.google.protobuf.RpcCallback<org.rasdaman.rasnet.service.RasmgrClientService.OpenDbRepl> done);
-
-    /**
-     * <code>rpc CloseDb(.rasnet.service.CloseDbReq) returns (.rasnet.service.Void);</code>
-     */
-    public abstract void closeDb(
-        com.google.protobuf.RpcController controller,
-        org.rasdaman.rasnet.service.RasmgrClientService.CloseDbReq request,
-        com.google.protobuf.RpcCallback<org.rasdaman.rasnet.message.CommonService.Void> done);
-
-    /**
-     * <code>rpc KeepAlive(.rasnet.service.KeepAliveReq) returns (.rasnet.service.Void);</code>
-     */
-    public abstract void keepAlive(
-        com.google.protobuf.RpcController controller,
-        org.rasdaman.rasnet.service.RasmgrClientService.KeepAliveReq request,
-        com.google.protobuf.RpcCallback<org.rasdaman.rasnet.message.CommonService.Void> done);
-
-    public static final
-        com.google.protobuf.Descriptors.ServiceDescriptor
-        getDescriptor() {
-      return org.rasdaman.rasnet.service.RasmgrClientService.getDescriptor().getServices().get(0);
-    }
-    public final com.google.protobuf.Descriptors.ServiceDescriptor
-        getDescriptorForType() {
-      return getDescriptor();
+    @java.lang.Override
+    public com.google.protobuf.Parser<KeepAliveReq> getParserForType() {
+      return PARSER;
     }
 
-    public final void callMethod(
-        com.google.protobuf.Descriptors.MethodDescriptor method,
-        com.google.protobuf.RpcController controller,
-        com.google.protobuf.Message request,
-        com.google.protobuf.RpcCallback<
-          com.google.protobuf.Message> done) {
-      if (method.getService() != getDescriptor()) {
-        throw new java.lang.IllegalArgumentException(
-          "Service.callMethod() given method descriptor for wrong " +
-          "service type.");
-      }
-      switch(method.getIndex()) {
-        case 0:
-          this.connect(controller, (org.rasdaman.rasnet.service.RasmgrClientService.ConnectReq)request,
-            com.google.protobuf.RpcUtil.<org.rasdaman.rasnet.service.RasmgrClientService.ConnectRepl>specializeCallback(
-              done));
-          return;
-        case 1:
-          this.disconnect(controller, (org.rasdaman.rasnet.service.RasmgrClientService.DisconnectReq)request,
-            com.google.protobuf.RpcUtil.<org.rasdaman.rasnet.message.CommonService.Void>specializeCallback(
-              done));
-          return;
-        case 2:
-          this.openDb(controller, (org.rasdaman.rasnet.service.RasmgrClientService.OpenDbReq)request,
-            com.google.protobuf.RpcUtil.<org.rasdaman.rasnet.service.RasmgrClientService.OpenDbRepl>specializeCallback(
-              done));
-          return;
-        case 3:
-          this.closeDb(controller, (org.rasdaman.rasnet.service.RasmgrClientService.CloseDbReq)request,
-            com.google.protobuf.RpcUtil.<org.rasdaman.rasnet.message.CommonService.Void>specializeCallback(
-              done));
-          return;
-        case 4:
-          this.keepAlive(controller, (org.rasdaman.rasnet.service.RasmgrClientService.KeepAliveReq)request,
-            com.google.protobuf.RpcUtil.<org.rasdaman.rasnet.message.CommonService.Void>specializeCallback(
-              done));
-          return;
-        default:
-          throw new java.lang.AssertionError("Can't get here.");
-      }
+    public org.rasdaman.rasnet.service.RasmgrClientService.KeepAliveReq getDefaultInstanceForType() {
+      return DEFAULT_INSTANCE;
     }
 
-    public final com.google.protobuf.Message
-        getRequestPrototype(
-        com.google.protobuf.Descriptors.MethodDescriptor method) {
-      if (method.getService() != getDescriptor()) {
-        throw new java.lang.IllegalArgumentException(
-          "Service.getRequestPrototype() given method " +
-          "descriptor for wrong service type.");
-      }
-      switch(method.getIndex()) {
-        case 0:
-          return org.rasdaman.rasnet.service.RasmgrClientService.ConnectReq.getDefaultInstance();
-        case 1:
-          return org.rasdaman.rasnet.service.RasmgrClientService.DisconnectReq.getDefaultInstance();
-        case 2:
-          return org.rasdaman.rasnet.service.RasmgrClientService.OpenDbReq.getDefaultInstance();
-        case 3:
-          return org.rasdaman.rasnet.service.RasmgrClientService.CloseDbReq.getDefaultInstance();
-        case 4:
-          return org.rasdaman.rasnet.service.RasmgrClientService.KeepAliveReq.getDefaultInstance();
-        default:
-          throw new java.lang.AssertionError("Can't get here.");
-      }
-    }
-
-    public final com.google.protobuf.Message
-        getResponsePrototype(
-        com.google.protobuf.Descriptors.MethodDescriptor method) {
-      if (method.getService() != getDescriptor()) {
-        throw new java.lang.IllegalArgumentException(
-          "Service.getResponsePrototype() given method " +
-          "descriptor for wrong service type.");
-      }
-      switch(method.getIndex()) {
-        case 0:
-          return org.rasdaman.rasnet.service.RasmgrClientService.ConnectRepl.getDefaultInstance();
-        case 1:
-          return org.rasdaman.rasnet.message.CommonService.Void.getDefaultInstance();
-        case 2:
-          return org.rasdaman.rasnet.service.RasmgrClientService.OpenDbRepl.getDefaultInstance();
-        case 3:
-          return org.rasdaman.rasnet.message.CommonService.Void.getDefaultInstance();
-        case 4:
-          return org.rasdaman.rasnet.message.CommonService.Void.getDefaultInstance();
-        default:
-          throw new java.lang.AssertionError("Can't get here.");
-      }
-    }
-
-    public static Stub newStub(
-        com.google.protobuf.RpcChannel channel) {
-      return new Stub(channel);
-    }
-
-    public static final class Stub extends org.rasdaman.rasnet.service.RasmgrClientService.RasMgrClientService implements Interface {
-      private Stub(com.google.protobuf.RpcChannel channel) {
-        this.channel = channel;
-      }
-
-      private final com.google.protobuf.RpcChannel channel;
-
-      public com.google.protobuf.RpcChannel getChannel() {
-        return channel;
-      }
-
-      public  void connect(
-          com.google.protobuf.RpcController controller,
-          org.rasdaman.rasnet.service.RasmgrClientService.ConnectReq request,
-          com.google.protobuf.RpcCallback<org.rasdaman.rasnet.service.RasmgrClientService.ConnectRepl> done) {
-        channel.callMethod(
-          getDescriptor().getMethods().get(0),
-          controller,
-          request,
-          org.rasdaman.rasnet.service.RasmgrClientService.ConnectRepl.getDefaultInstance(),
-          com.google.protobuf.RpcUtil.generalizeCallback(
-            done,
-            org.rasdaman.rasnet.service.RasmgrClientService.ConnectRepl.class,
-            org.rasdaman.rasnet.service.RasmgrClientService.ConnectRepl.getDefaultInstance()));
-      }
-
-      public  void disconnect(
-          com.google.protobuf.RpcController controller,
-          org.rasdaman.rasnet.service.RasmgrClientService.DisconnectReq request,
-          com.google.protobuf.RpcCallback<org.rasdaman.rasnet.message.CommonService.Void> done) {
-        channel.callMethod(
-          getDescriptor().getMethods().get(1),
-          controller,
-          request,
-          org.rasdaman.rasnet.message.CommonService.Void.getDefaultInstance(),
-          com.google.protobuf.RpcUtil.generalizeCallback(
-            done,
-            org.rasdaman.rasnet.message.CommonService.Void.class,
-            org.rasdaman.rasnet.message.CommonService.Void.getDefaultInstance()));
-      }
-
-      public  void openDb(
-          com.google.protobuf.RpcController controller,
-          org.rasdaman.rasnet.service.RasmgrClientService.OpenDbReq request,
-          com.google.protobuf.RpcCallback<org.rasdaman.rasnet.service.RasmgrClientService.OpenDbRepl> done) {
-        channel.callMethod(
-          getDescriptor().getMethods().get(2),
-          controller,
-          request,
-          org.rasdaman.rasnet.service.RasmgrClientService.OpenDbRepl.getDefaultInstance(),
-          com.google.protobuf.RpcUtil.generalizeCallback(
-            done,
-            org.rasdaman.rasnet.service.RasmgrClientService.OpenDbRepl.class,
-            org.rasdaman.rasnet.service.RasmgrClientService.OpenDbRepl.getDefaultInstance()));
-      }
-
-      public  void closeDb(
-          com.google.protobuf.RpcController controller,
-          org.rasdaman.rasnet.service.RasmgrClientService.CloseDbReq request,
-          com.google.protobuf.RpcCallback<org.rasdaman.rasnet.message.CommonService.Void> done) {
-        channel.callMethod(
-          getDescriptor().getMethods().get(3),
-          controller,
-          request,
-          org.rasdaman.rasnet.message.CommonService.Void.getDefaultInstance(),
-          com.google.protobuf.RpcUtil.generalizeCallback(
-            done,
-            org.rasdaman.rasnet.message.CommonService.Void.class,
-            org.rasdaman.rasnet.message.CommonService.Void.getDefaultInstance()));
-      }
-
-      public  void keepAlive(
-          com.google.protobuf.RpcController controller,
-          org.rasdaman.rasnet.service.RasmgrClientService.KeepAliveReq request,
-          com.google.protobuf.RpcCallback<org.rasdaman.rasnet.message.CommonService.Void> done) {
-        channel.callMethod(
-          getDescriptor().getMethods().get(4),
-          controller,
-          request,
-          org.rasdaman.rasnet.message.CommonService.Void.getDefaultInstance(),
-          com.google.protobuf.RpcUtil.generalizeCallback(
-            done,
-            org.rasdaman.rasnet.message.CommonService.Void.class,
-            org.rasdaman.rasnet.message.CommonService.Void.getDefaultInstance()));
-      }
-    }
-
-    public static BlockingInterface newBlockingStub(
-        com.google.protobuf.BlockingRpcChannel channel) {
-      return new BlockingStub(channel);
-    }
-
-    public interface BlockingInterface {
-      public org.rasdaman.rasnet.service.RasmgrClientService.ConnectRepl connect(
-          com.google.protobuf.RpcController controller,
-          org.rasdaman.rasnet.service.RasmgrClientService.ConnectReq request)
-          throws com.google.protobuf.ServiceException;
-
-      public org.rasdaman.rasnet.message.CommonService.Void disconnect(
-          com.google.protobuf.RpcController controller,
-          org.rasdaman.rasnet.service.RasmgrClientService.DisconnectReq request)
-          throws com.google.protobuf.ServiceException;
-
-      public org.rasdaman.rasnet.service.RasmgrClientService.OpenDbRepl openDb(
-          com.google.protobuf.RpcController controller,
-          org.rasdaman.rasnet.service.RasmgrClientService.OpenDbReq request)
-          throws com.google.protobuf.ServiceException;
-
-      public org.rasdaman.rasnet.message.CommonService.Void closeDb(
-          com.google.protobuf.RpcController controller,
-          org.rasdaman.rasnet.service.RasmgrClientService.CloseDbReq request)
-          throws com.google.protobuf.ServiceException;
-
-      public org.rasdaman.rasnet.message.CommonService.Void keepAlive(
-          com.google.protobuf.RpcController controller,
-          org.rasdaman.rasnet.service.RasmgrClientService.KeepAliveReq request)
-          throws com.google.protobuf.ServiceException;
-    }
-
-    private static final class BlockingStub implements BlockingInterface {
-      private BlockingStub(com.google.protobuf.BlockingRpcChannel channel) {
-        this.channel = channel;
-      }
-
-      private final com.google.protobuf.BlockingRpcChannel channel;
-
-      public org.rasdaman.rasnet.service.RasmgrClientService.ConnectRepl connect(
-          com.google.protobuf.RpcController controller,
-          org.rasdaman.rasnet.service.RasmgrClientService.ConnectReq request)
-          throws com.google.protobuf.ServiceException {
-        return (org.rasdaman.rasnet.service.RasmgrClientService.ConnectRepl) channel.callBlockingMethod(
-          getDescriptor().getMethods().get(0),
-          controller,
-          request,
-          org.rasdaman.rasnet.service.RasmgrClientService.ConnectRepl.getDefaultInstance());
-      }
-
-
-      public org.rasdaman.rasnet.message.CommonService.Void disconnect(
-          com.google.protobuf.RpcController controller,
-          org.rasdaman.rasnet.service.RasmgrClientService.DisconnectReq request)
-          throws com.google.protobuf.ServiceException {
-        return (org.rasdaman.rasnet.message.CommonService.Void) channel.callBlockingMethod(
-          getDescriptor().getMethods().get(1),
-          controller,
-          request,
-          org.rasdaman.rasnet.message.CommonService.Void.getDefaultInstance());
-      }
-
-
-      public org.rasdaman.rasnet.service.RasmgrClientService.OpenDbRepl openDb(
-          com.google.protobuf.RpcController controller,
-          org.rasdaman.rasnet.service.RasmgrClientService.OpenDbReq request)
-          throws com.google.protobuf.ServiceException {
-        return (org.rasdaman.rasnet.service.RasmgrClientService.OpenDbRepl) channel.callBlockingMethod(
-          getDescriptor().getMethods().get(2),
-          controller,
-          request,
-          org.rasdaman.rasnet.service.RasmgrClientService.OpenDbRepl.getDefaultInstance());
-      }
-
-
-      public org.rasdaman.rasnet.message.CommonService.Void closeDb(
-          com.google.protobuf.RpcController controller,
-          org.rasdaman.rasnet.service.RasmgrClientService.CloseDbReq request)
-          throws com.google.protobuf.ServiceException {
-        return (org.rasdaman.rasnet.message.CommonService.Void) channel.callBlockingMethod(
-          getDescriptor().getMethods().get(3),
-          controller,
-          request,
-          org.rasdaman.rasnet.message.CommonService.Void.getDefaultInstance());
-      }
-
-
-      public org.rasdaman.rasnet.message.CommonService.Void keepAlive(
-          com.google.protobuf.RpcController controller,
-          org.rasdaman.rasnet.service.RasmgrClientService.KeepAliveReq request)
-          throws com.google.protobuf.ServiceException {
-        return (org.rasdaman.rasnet.message.CommonService.Void) channel.callBlockingMethod(
-          getDescriptor().getMethods().get(4),
-          controller,
-          request,
-          org.rasdaman.rasnet.message.CommonService.Void.getDefaultInstance());
-      }
-
-    }
-
-    // @@protoc_insertion_point(class_scope:rasnet.service.RasMgrClientService)
   }
 
   private static com.google.protobuf.Descriptors.Descriptor
@@ -5655,18 +4584,18 @@ public final class RasmgrClientService {
     java.lang.String[] descriptorData = {
       "\n\033rasmgr_client_service.proto\022\016rasnet.se" +
       "rvice\032\024common_service.proto\"*\n\016ClientIde" +
-      "ntity\022\014\n\004uuid\030\001 \002(\014\022\n\n\002id\030\002 \001(\005\"4\n\nConne" +
-      "ctReq\022\020\n\010userName\030\001 \002(\t\022\024\n\014passwordHash\030" +
-      "\002 \002(\t\"M\n\013ConnectRepl\022\022\n\nclientUUID\030\001 \002(\t" +
-      "\022\030\n\020keepAliveTimeout\030\002 \002(\005\022\020\n\010clientId\030\003" +
-      " \001(\005\"5\n\rDisconnectReq\022\022\n\nclientUUID\030\001 \002(" +
+      "ntity\022\014\n\004uuid\030\001 \001(\014\022\n\n\002id\030\002 \001(\005\"4\n\nConne" +
+      "ctReq\022\020\n\010userName\030\001 \001(\t\022\024\n\014passwordHash\030" +
+      "\002 \001(\t\"M\n\013ConnectRepl\022\022\n\nclientUUID\030\001 \001(\t" +
+      "\022\030\n\020keepAliveTimeout\030\002 \001(\005\022\020\n\010clientId\030\003" +
+      " \001(\005\"5\n\rDisconnectReq\022\022\n\nclientUUID\030\001 \001(" +
       "\t\022\020\n\010clientId\030\002 \001(\005\"G\n\tOpenDbReq\022\022\n\nclie" +
-      "ntUUID\030\001 \002(\t\022\020\n\010clientId\030\002 \001(\005\022\024\n\014databa" +
-      "seName\030\003 \002(\t\"G\n\nOpenDbRepl\022\023\n\013dbSessionI",
-      "d\030\001 \002(\t\022\026\n\016serverHostName\030\002 \002(\t\022\014\n\004port\030" +
-      "\003 \002(\r\"G\n\nCloseDbReq\022\022\n\nclientUUID\030\001 \002(\t\022" +
-      "\020\n\010clientId\030\002 \001(\005\022\023\n\013dbSessionId\030\003 \002(\t\"4" +
-      "\n\014KeepAliveReq\022\022\n\nclientUUID\030\001 \002(\t\022\020\n\010cl" +
+      "ntUUID\030\001 \001(\t\022\020\n\010clientId\030\002 \001(\005\022\024\n\014databa" +
+      "seName\030\003 \001(\t\"G\n\nOpenDbRepl\022\023\n\013dbSessionI",
+      "d\030\001 \001(\t\022\026\n\016serverHostName\030\002 \001(\t\022\014\n\004port\030" +
+      "\003 \001(\r\"G\n\nCloseDbReq\022\022\n\nclientUUID\030\001 \001(\t\022" +
+      "\020\n\010clientId\030\002 \001(\005\022\023\n\013dbSessionId\030\003 \001(\t\"4" +
+      "\n\014KeepAliveReq\022\022\n\nclientUUID\030\001 \001(\t\022\020\n\010cl" +
       "ientId\030\002 \001(\0052\333\002\n\023RasMgrClientService\022B\n\007" +
       "Connect\022\032.rasnet.service.ConnectReq\032\033.ra" +
       "snet.service.ConnectRepl\022A\n\nDisconnect\022\035" +
@@ -5676,69 +4605,71 @@ public final class RasmgrClientService {
       "CloseDb\022\032.rasnet.service.CloseDbReq\032\024.ra" +
       "snet.service.Void\022?\n\tKeepAlive\022\034.rasnet." +
       "service.KeepAliveReq\032\024.rasnet.service.Vo" +
-      "idB#\n\033org.rasdaman.rasnet.service\200\001\001\210\001\001"
+      "idB#\n\033org.rasdaman.rasnet.service\200\001\000\210\001\000b" +
+      "\006proto3"
     };
     com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner assigner =
-      new com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner() {
-        public com.google.protobuf.ExtensionRegistry assignDescriptors(
-            com.google.protobuf.Descriptors.FileDescriptor root) {
-          descriptor = root;
-          internal_static_rasnet_service_ClientIdentity_descriptor =
-            getDescriptor().getMessageTypes().get(0);
-          internal_static_rasnet_service_ClientIdentity_fieldAccessorTable = new
-            com.google.protobuf.GeneratedMessage.FieldAccessorTable(
-              internal_static_rasnet_service_ClientIdentity_descriptor,
-              new java.lang.String[] { "Uuid", "Id", });
-          internal_static_rasnet_service_ConnectReq_descriptor =
-            getDescriptor().getMessageTypes().get(1);
-          internal_static_rasnet_service_ConnectReq_fieldAccessorTable = new
-            com.google.protobuf.GeneratedMessage.FieldAccessorTable(
-              internal_static_rasnet_service_ConnectReq_descriptor,
-              new java.lang.String[] { "UserName", "PasswordHash", });
-          internal_static_rasnet_service_ConnectRepl_descriptor =
-            getDescriptor().getMessageTypes().get(2);
-          internal_static_rasnet_service_ConnectRepl_fieldAccessorTable = new
-            com.google.protobuf.GeneratedMessage.FieldAccessorTable(
-              internal_static_rasnet_service_ConnectRepl_descriptor,
-              new java.lang.String[] { "ClientUUID", "KeepAliveTimeout", "ClientId", });
-          internal_static_rasnet_service_DisconnectReq_descriptor =
-            getDescriptor().getMessageTypes().get(3);
-          internal_static_rasnet_service_DisconnectReq_fieldAccessorTable = new
-            com.google.protobuf.GeneratedMessage.FieldAccessorTable(
-              internal_static_rasnet_service_DisconnectReq_descriptor,
-              new java.lang.String[] { "ClientUUID", "ClientId", });
-          internal_static_rasnet_service_OpenDbReq_descriptor =
-            getDescriptor().getMessageTypes().get(4);
-          internal_static_rasnet_service_OpenDbReq_fieldAccessorTable = new
-            com.google.protobuf.GeneratedMessage.FieldAccessorTable(
-              internal_static_rasnet_service_OpenDbReq_descriptor,
-              new java.lang.String[] { "ClientUUID", "ClientId", "DatabaseName", });
-          internal_static_rasnet_service_OpenDbRepl_descriptor =
-            getDescriptor().getMessageTypes().get(5);
-          internal_static_rasnet_service_OpenDbRepl_fieldAccessorTable = new
-            com.google.protobuf.GeneratedMessage.FieldAccessorTable(
-              internal_static_rasnet_service_OpenDbRepl_descriptor,
-              new java.lang.String[] { "DbSessionId", "ServerHostName", "Port", });
-          internal_static_rasnet_service_CloseDbReq_descriptor =
-            getDescriptor().getMessageTypes().get(6);
-          internal_static_rasnet_service_CloseDbReq_fieldAccessorTable = new
-            com.google.protobuf.GeneratedMessage.FieldAccessorTable(
-              internal_static_rasnet_service_CloseDbReq_descriptor,
-              new java.lang.String[] { "ClientUUID", "ClientId", "DbSessionId", });
-          internal_static_rasnet_service_KeepAliveReq_descriptor =
-            getDescriptor().getMessageTypes().get(7);
-          internal_static_rasnet_service_KeepAliveReq_fieldAccessorTable = new
-            com.google.protobuf.GeneratedMessage.FieldAccessorTable(
-              internal_static_rasnet_service_KeepAliveReq_descriptor,
-              new java.lang.String[] { "ClientUUID", "ClientId", });
-          return null;
-        }
-      };
+        new com.google.protobuf.Descriptors.FileDescriptor.    InternalDescriptorAssigner() {
+          public com.google.protobuf.ExtensionRegistry assignDescriptors(
+              com.google.protobuf.Descriptors.FileDescriptor root) {
+            descriptor = root;
+            return null;
+          }
+        };
     com.google.protobuf.Descriptors.FileDescriptor
       .internalBuildGeneratedFileFrom(descriptorData,
         new com.google.protobuf.Descriptors.FileDescriptor[] {
-          org.rasdaman.rasnet.message.CommonService.getDescriptor(),
+          org.rasdaman.rasnet.service.CommonService.getDescriptor(),
         }, assigner);
+    internal_static_rasnet_service_ClientIdentity_descriptor =
+      getDescriptor().getMessageTypes().get(0);
+    internal_static_rasnet_service_ClientIdentity_fieldAccessorTable = new
+      com.google.protobuf.GeneratedMessage.FieldAccessorTable(
+        internal_static_rasnet_service_ClientIdentity_descriptor,
+        new java.lang.String[] { "Uuid", "Id", });
+    internal_static_rasnet_service_ConnectReq_descriptor =
+      getDescriptor().getMessageTypes().get(1);
+    internal_static_rasnet_service_ConnectReq_fieldAccessorTable = new
+      com.google.protobuf.GeneratedMessage.FieldAccessorTable(
+        internal_static_rasnet_service_ConnectReq_descriptor,
+        new java.lang.String[] { "UserName", "PasswordHash", });
+    internal_static_rasnet_service_ConnectRepl_descriptor =
+      getDescriptor().getMessageTypes().get(2);
+    internal_static_rasnet_service_ConnectRepl_fieldAccessorTable = new
+      com.google.protobuf.GeneratedMessage.FieldAccessorTable(
+        internal_static_rasnet_service_ConnectRepl_descriptor,
+        new java.lang.String[] { "ClientUUID", "KeepAliveTimeout", "ClientId", });
+    internal_static_rasnet_service_DisconnectReq_descriptor =
+      getDescriptor().getMessageTypes().get(3);
+    internal_static_rasnet_service_DisconnectReq_fieldAccessorTable = new
+      com.google.protobuf.GeneratedMessage.FieldAccessorTable(
+        internal_static_rasnet_service_DisconnectReq_descriptor,
+        new java.lang.String[] { "ClientUUID", "ClientId", });
+    internal_static_rasnet_service_OpenDbReq_descriptor =
+      getDescriptor().getMessageTypes().get(4);
+    internal_static_rasnet_service_OpenDbReq_fieldAccessorTable = new
+      com.google.protobuf.GeneratedMessage.FieldAccessorTable(
+        internal_static_rasnet_service_OpenDbReq_descriptor,
+        new java.lang.String[] { "ClientUUID", "ClientId", "DatabaseName", });
+    internal_static_rasnet_service_OpenDbRepl_descriptor =
+      getDescriptor().getMessageTypes().get(5);
+    internal_static_rasnet_service_OpenDbRepl_fieldAccessorTable = new
+      com.google.protobuf.GeneratedMessage.FieldAccessorTable(
+        internal_static_rasnet_service_OpenDbRepl_descriptor,
+        new java.lang.String[] { "DbSessionId", "ServerHostName", "Port", });
+    internal_static_rasnet_service_CloseDbReq_descriptor =
+      getDescriptor().getMessageTypes().get(6);
+    internal_static_rasnet_service_CloseDbReq_fieldAccessorTable = new
+      com.google.protobuf.GeneratedMessage.FieldAccessorTable(
+        internal_static_rasnet_service_CloseDbReq_descriptor,
+        new java.lang.String[] { "ClientUUID", "ClientId", "DbSessionId", });
+    internal_static_rasnet_service_KeepAliveReq_descriptor =
+      getDescriptor().getMessageTypes().get(7);
+    internal_static_rasnet_service_KeepAliveReq_fieldAccessorTable = new
+      com.google.protobuf.GeneratedMessage.FieldAccessorTable(
+        internal_static_rasnet_service_KeepAliveReq_descriptor,
+        new java.lang.String[] { "ClientUUID", "ClientId", });
+    org.rasdaman.rasnet.service.CommonService.getDescriptor();
   }
 
   // @@protoc_insertion_point(outer_class_scope)

@@ -28,36 +28,50 @@
 #include "../../include/globals.hh"
 
 #include "../../rascontrol_x/src/usercredentials.hh"
+#include "../../rascontrol_x/src/rascontrolconstants.hh"
 
-using rascontrol::UserCredentials;
-
+namespace rascontrol
+{
+namespace test
+{
 TEST(RasControlTest, UserCredentialsConstructor)
 {
+    std::string testPassword = "testPass";
+    std::string testUser = "testUser";
+
+    UserCredentials configuredUserCredentials(testUser,testPassword);
     UserCredentials defaultCredentials;
-    UserCredentials configuredUserCredentials("test","testpass");
 
     ASSERT_EQ(DEFAULT_USER, defaultCredentials.getUserName());
-    ASSERT_EQ(DEFAULT_PASSWD, defaultCredentials.getUserPassword());
+    ASSERT_EQ(common::Crypto::messageDigest(DEFAULT_PASSWD, DEFAULT_DIGEST), defaultCredentials.getUserPassword());
 
-    ASSERT_EQ("test", configuredUserCredentials.getUserName());
-    ASSERT_EQ(common::Crypto::messageDigest("testpass","MD5"), configuredUserCredentials.getUserPassword());
+    ASSERT_EQ(testUser, configuredUserCredentials.getUserName());
+    ASSERT_EQ(common::Crypto::messageDigest(testPassword,DEFAULT_DIGEST), configuredUserCredentials.getUserPassword());
 
 }
 
 TEST(RasControlTest, UserCredentialsEnvironmentLogin)
 {
-    char* envVar = new char[25];
-    strcpy(envVar,"RASLOGIN=user:testpass");
+    std::string testPassword = "testPass";
+    std::string testUser = "testUser";
+
+    char* envVar = new char[30];
+    std::string envVarString = RASLOGIN+"="+testUser+":"+testPassword;
+    strcpy(envVar,envVarString.c_str());
     UserCredentials credentials;
 
     ASSERT_ANY_THROW(credentials.environmentLogin());
 
     putenv(envVar);
+    char *s=getenv("RASLOGIN");
+    printf("%s\n", s);
 
     ASSERT_NO_THROW(credentials.environmentLogin());
-    ASSERT_EQ("user",credentials.getUserName());
-    ASSERT_EQ(common::Crypto::messageDigest("testpass","MD5"),credentials.getUserPassword());
+    ASSERT_EQ(testUser,credentials.getUserName());
+    ASSERT_EQ(testPassword,credentials.getUserPassword());
 
-    delete []envVar;
+    delete[] envVar;
+}
 
+}
 }

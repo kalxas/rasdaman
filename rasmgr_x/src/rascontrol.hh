@@ -23,18 +23,21 @@
 #ifndef RASMGR_X_SRC_RASCONTROL_HH
 #define RASMGR_X_SRC_RASCONTROL_HH
 
+#include <string>
+
 #include <boost/smart_ptr.hpp>
+#include <boost/thread.hpp>
 
 #include "messages/rasmgrmess.pb.h"
 
-#include "usermanager.hh"
-#include "databasehostmanager.hh"
-#include "databasemanager.hh"
-#include "servermanager.hh"
-
 namespace rasmgr
 {
+class DatabaseHostManager;
+class DatabaseManager;
 class RasManager;
+class ServerManager;
+class UserManager;
+
 
 /**
  * @brief The RasControl class Delegates management commands to the appropriate component of rasmgr.
@@ -42,7 +45,11 @@ class RasManager;
 class RasControl
 {
 public:
-    RasControl ( boost::shared_ptr<UserManager> userManager, boost::shared_ptr<DatabaseHostManager> dbHostManager,boost::shared_ptr<DatabaseManager> dbManager,boost::shared_ptr<ServerManager> serverManager, RasManager* rasmanager);
+    RasControl ( boost::shared_ptr<UserManager> userManager,
+                 boost::shared_ptr<DatabaseHostManager> dbHostManager,
+                 boost::shared_ptr<DatabaseManager> dbManager,
+                 boost::shared_ptr<ServerManager> serverManager,
+                 RasManager* rasmanager);
 
     std::string deprecatedCommand();
 
@@ -116,6 +123,14 @@ private:
     std::string formatErrorMessage(const std::string& message);
     std::string getNotImplementedMes();
     std::string showHelp();
+
+    /**
+     * @brief stopRasmgrAsync This method is launched in a separate thread
+     * to tell the RPC server to shutdown.
+     */
+    void stopRasmgrAsync();
+
+    boost::scoped_ptr<boost::thread> stopRasmgrThread;
 };
 }
 

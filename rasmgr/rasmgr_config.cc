@@ -59,8 +59,8 @@ using namespace std;
 #include <sys/stat.h> // mkdir()
 #endif
 
-#include "debug-srv.hh"
 #include "raslib/rminit.hh"
+#include "debug/debug-srv.hh"
 
 #include "../common/src/logging/easylogging++.hh"
 

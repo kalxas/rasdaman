@@ -25,14 +25,13 @@
 #include "../../common/src/logging/easylogging++.hh"
 #include "../../common/src/crypto/crypto.hh"
 
-#include "config.h"
-#include "version.h"
+#include "../../config.h"
+#include "../../version.h"
 
 #include "rascontrolconfig.hh"
 #include "usercredentials.hh"
 #include "rascontrolconstants.hh"
 #include "rascontrol.hh"
-
 
 
 #ifndef RMANVERSION
@@ -126,8 +125,9 @@ int main(int argc, char** argv)
     }
     catch(...)
     {
-        std::cout << "RasControl failed for an unknown reason."
+        std::cout << "rascontrol failed for an unknown reason."
                   << " Please contact the administrator with instructions to reproduce the failure" << std::endl;
+
         return EXIT_FAILURE;
     }
 

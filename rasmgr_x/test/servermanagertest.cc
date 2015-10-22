@@ -80,7 +80,7 @@ TEST_F(ServerManagerTest, defineServerGroup)
 
     boost::shared_ptr<ServerGroup> serverGroup(new ServerGroupMock());
     ServerGroupMock& serverGroupMockRef = *boost::dynamic_pointer_cast<ServerGroupMock>(serverGroup);
-    EXPECT_CALL(serverGroupMockRef, getGroupName()).WillOnce(Return(groupConfig.name())).WillOnce(Return(groupConfig.name()));
+    EXPECT_CALL(serverGroupMockRef, getGroupName()).Times(3).WillRepeatedly(Return(groupConfig.name()));
 
     boost::shared_ptr<ServerGroup> serverGroup2(new ServerGroupMock());
 
@@ -324,11 +324,9 @@ TEST_F(ServerManagerTest, startServerGroupByName)
 
     boost::shared_ptr<ServerGroup> serverGroup(new ServerGroupMock());
     ServerGroupMock& serverGroupMockRef = *boost::dynamic_pointer_cast<ServerGroupMock>(serverGroup);
-    EXPECT_CALL(serverGroupMockRef, isStopped()).WillOnce(Return(false)).WillOnce(Return(true));
     EXPECT_CALL(serverGroupMockRef, start());
     EXPECT_CALL(serverGroupMockRef, getGroupName())
     .WillOnce(Return(""))
-    .WillOnce(Return(groupName))
     .WillOnce(Return(groupName));
 
     ServerGroupFactoryMock& serverGroupFactoryRef  = *boost::dynamic_pointer_cast<ServerGroupFactoryMock>(serverGroupFactory);
@@ -337,7 +335,6 @@ TEST_F(ServerManagerTest, startServerGroupByName)
     serverManager.defineServerGroup(groupConfig);
 
     //Will throw because the group is running
-    ASSERT_ANY_THROW(serverManager.startServerGroup(startGroup));
     ASSERT_ANY_THROW(serverManager.startServerGroup(startGroup));
     ASSERT_NO_THROW(serverManager.startServerGroup(startGroup));
 }
@@ -414,11 +411,9 @@ TEST_F(ServerManagerTest, stopServerGroupByName)
 
     boost::shared_ptr<ServerGroup> serverGroup(new ServerGroupMock());
     ServerGroupMock& serverGroupMockRef = *boost::dynamic_pointer_cast<ServerGroupMock>(serverGroup);
-    EXPECT_CALL(serverGroupMockRef, isStopped()).WillOnce(Return(false)).WillOnce(Return(true));
-    EXPECT_CALL(serverGroupMockRef, stop(FORCE));
+    EXPECT_CALL(serverGroupMockRef, stop(FORCE)).Times(1);
     EXPECT_CALL(serverGroupMockRef, getGroupName())
     .WillOnce(Return(""))
-    .WillOnce(Return(groupName))
     .WillOnce(Return(groupName));
 
     ServerGroupFactoryMock& serverGroupFactoryRef  = *boost::dynamic_pointer_cast<ServerGroupFactoryMock>(serverGroupFactory);
@@ -429,7 +424,6 @@ TEST_F(ServerManagerTest, stopServerGroupByName)
     //Will throw because the group is running
     ASSERT_ANY_THROW(serverManager.stopServerGroup(stopGroup));
     ASSERT_NO_THROW(serverManager.stopServerGroup(stopGroup));
-    ASSERT_ANY_THROW(serverManager.stopServerGroup(stopGroup));
 }
 
 TEST_F(ServerManagerTest, serializeToProto)

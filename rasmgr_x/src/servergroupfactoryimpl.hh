@@ -2,11 +2,12 @@
 #define RASMGR_X_SRC_SERVERGROUPFACTORYIMPL_HH
 
 #include "servergroupfactory.hh"
-#include "databasehostmanager.hh"
-#include "serverfactory.hh"
 
 namespace rasmgr
 {
+class DatabaseHostManager;
+class ServerFactory;
+
 class ServerGroupFactoryImpl:public ServerGroupFactory
 {
 public:

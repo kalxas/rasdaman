@@ -36,10 +36,9 @@ public:
     * @return A standard UUID represented by a 36 character C++ string.
     */
     static std::string generateUUID();
-    static int generateIntId();
 
+    static int generateIntId();
 private:
-    static bool initialized;
     static boost::uuids::random_generator uuidGenerator;
     static boost::mutex generatorMutex;
 };

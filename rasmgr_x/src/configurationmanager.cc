@@ -6,9 +6,13 @@
 #include "../../config.h"
 #include "../../include/globals.hh"
 #include "../../common/src/logging/easylogging++.hh"
+#include "../../common/src/exceptions/missingresourceexception.hh"
+
+#include "constants.hh"
+#include "controlcommandexecutor.hh"
+#include "usermanager.hh"
 
 #include "configurationmanager.hh"
-#include "constants.hh"
 
 namespace rasmgr
 {
@@ -67,8 +71,7 @@ void ConfigurationManager::loadRasMgrConf()
 
     if ( !ifs )
     {
-        throw runtime_error(std::string("Could not open initialization file:")
-                            + std::string ( configFileName ));
+        throw common::MissingResourceException(std::string ( configFileName ));
     }
     else
     {

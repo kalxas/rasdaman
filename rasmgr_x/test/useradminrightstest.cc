@@ -24,6 +24,7 @@
 #include "../src/useradminrights.hh"
 #include "../src/messages/rasmgrmess.pb.h"
 #include "util/testutil.hh"
+
 namespace rasmgr
 {
 namespace test

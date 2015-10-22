@@ -28,10 +28,12 @@
 #include <boost/thread.hpp>
 
 #include "messages/rasmgrmess.pb.h"
-#include "database.hh"
 
 namespace rasmgr
 {
+
+class Database;
+
 /**
  * @brief The DatabaseHost class A database host manages multiple databases,
  * keeps track of servers using this database host
@@ -52,6 +54,7 @@ public:
     /**
      * @brief addClientSessionOnDB Increase the number of sessions running
      * on the given database
+     * @throws An exception is thrown if this host does not contain a database
      */
     void addClientSessionOnDB(const std::string& databaseName, const std::string& clientId, const std::string& sessionId);
 
@@ -68,6 +71,7 @@ public:
 
     /**
      * @brief decreaseServerCount Decrease the number of servers using this host.
+     * @throws An exception is thrown if the server count cannot be further decreased.
      */
     void decreaseServerCount();
 
@@ -100,6 +104,13 @@ public:
      */
     void removeDbFromHost(const std::string& dbName);
 
+    /**
+     * @brief serializeToProto
+     * @param dbHost
+     * @return Serialized representation of this DatabaseHost
+     */
+    static DatabaseHostProto serializeToProto(const DatabaseHost& dbHost);
+
     const std::string& getHostName() const;
     void setHostName(const std::string& hostName);
 
@@ -111,8 +122,6 @@ public:
 
     const std::string& getPasswdString() const;
     void setPasswdString(const std::string& passwdString);
-
-    static DatabaseHostProto serializeToProto(const DatabaseHost& dbHost);
 
 private:
     std::string hostName; /*!< Name of this database host */

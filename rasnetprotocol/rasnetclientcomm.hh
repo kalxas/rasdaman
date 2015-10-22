@@ -28,16 +28,15 @@ rasdaman GmbH.
 #include <boost/shared_ptr.hpp>
 #include <boost/thread/locks.hpp>
 #include <boost/thread/shared_mutex.hpp>
+
 #include <google/protobuf/service.h>
 #include <google/protobuf/stubs/common.h>
 
+#include "../rasnet/messages/rasmgr_client_service.grpc.pb.h"
+#include "../rasnet/messages/client_rassrvr_service.grpc.pb.h"
+
 #include "../clientcomm/clientcomm.hh"
 #include "../clientcomm/rpcif.h"
-#include "rasnet/src/messages/client_rassrvr_service.pb.h"
-#include "rasnet/src/client/channel.hh"
-#include "rasnet/src/client/clientcontroller.hh"
-#include "rasnet/src/messages/rasmgr_client_service.pb.h"
-#include "rasnet/src/messages/internal.pb.h"
 #include "../rasodmg/ref.hh"
 
 class RasnetClientComm : public ClientComm
@@ -93,30 +92,23 @@ public:
     void setTimeoutInterval(int seconds);
     int  getTimeoutInterval();
 
-
 private:
-    google::protobuf::Closure* doNothing;
-
-
-    ::boost::shared_ptr<rasnet::service::ClientRassrvrService> rasserverService; /*! Service stub used to communicate with the RasServer process */
+    ::boost::shared_ptr<rasnet::service::ClientRassrvrService::Stub> rasserverService; /*! Service stub used to communicate with the RasServer process */
     bool initializedRasServerService; /*! Flag used to indicate if the service was initialized */
     ::boost::shared_mutex rasServerServiceMtx;
-    ::boost::shared_ptr<rasnet::Channel> rasserverChannel;
 
-    ::boost::shared_ptr<rasnet::service::RasMgrClientService> rasmgrService; /*! Service stub used to communicate with the RasServer process */
+    ::boost::shared_ptr<rasnet::service::RasMgrClientService::Stub> rasmgrService; /*! Service stub used to communicate with the RasServer process */
     bool initializedRasMgrService; /*! Flag used to indicate if the service was initialized */
     ::boost::shared_mutex rasMgrServiceMtx;
-    ::boost::shared_ptr<rasnet::Channel> rasmgrChannel;
 
     /* START: KEEP ALIVE */
-    u_int64_t keepAliveTimeout;
+    int64_t keepAliveTimeout;
 
     /* RASMGR */
-    ::zmq::context_t rasmgrKeepAliveContext;
-    ::boost::scoped_ptr< ::zmq::socket_t> rasmgrKeepAliveControlSocket;
-    ::std::string rasmgrKeepAliveControlEndpoint;
-
     ::boost::scoped_ptr< ::boost::thread> rasMgrKeepAliveManagementThread;
+    boost::mutex rasmgrKeepAliveMutex;/*! Mutex used to safely stop the worker thread */
+    bool isRasmgrKeepAliveRunning; /*! Flag used to stop the worker thread */
+    boost::condition_variable isRasmgrKeepAliveRunningCondition; /*! Condition variable used to stop the worker thread */
 
     void startRasMgrKeepAlive();
     void stopRasMgrKeepAlive();
@@ -124,24 +116,23 @@ private:
     void clientRasMgrKeepAliveRunner();
 
     /* RASSERVER */
-    ::zmq::context_t rasserverKeepAliveContext;
-    ::boost::scoped_ptr< ::zmq::socket_t> rasserverKeepAliveSocket;
-    ::std::string rasserverKeepAliveControlEndpoint;
-
     ::boost::scoped_ptr< ::boost::thread> rasServerKeepAliveManagementThread;
+    boost::mutex rasserverKeepAliveMutex;/*! Mutex used to safely stop the worker thread */
+    bool isRasserverKeepAliveRunning; /*! Flag used to stop the worker thread */
+    boost::condition_variable isRasserverKeepAliveRunningCondition; /*! Condition variable used to stop the worker thread */
 
     void startRasServerKeepAlive();
     void stopRasServerKeepAlive();
 
     void clientRasServerKeepAliveRunner();
-     /* END: KEEP ALIVE */
+    /* END: KEEP ALIVE */
 
-    ::boost::shared_ptr<rasnet::service::ClientRassrvrService> getRasServerService();
-    ::boost::shared_ptr<rasnet::service::RasMgrClientService> getRasMgrService();
+    ::boost::shared_ptr<rasnet::service::ClientRassrvrService::Stub> getRasServerService();
+    ::boost::shared_ptr<rasnet::service::RasMgrClientService::Stub> getRasMgrService();
     void closeRasserverService();
     void closeRasmgrService();
 
-    int clientId;
+    long unsigned int clientId;
     std::string clientUUID;
     std::string sessionId;
 
@@ -161,9 +152,8 @@ private:
     int rasServerPort;
 
     std::string rasmgrHost;
-    int rasmgrPort;
 
-    static void handleError(std::string error) throw (r_Error);
+    static void handleError(std::string error);
     static void handleStatusCode(int status, std::string method) throw (r_Error);
 
     int executeStartInsertPersMDD(const char* collName, r_GMarray* mar);

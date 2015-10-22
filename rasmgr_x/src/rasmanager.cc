@@ -20,30 +20,39 @@
  * or contact Peter Baumann via <baumann@rasdaman.com>.
  */
 
+#include <memory>
+
+#include <grpc++/grpc++.h>
+#include <grpc/support/time.h>
+
 #include "../../include/globals.hh"
 #include "../../common/src/crypto/crypto.hh"
-
+#include "../../common/src/grpc/grpcutils.hh"
+#include "../../common/src/logging/easylogging++.hh"
+#include "../../rasnet/messages/rasmgr_rasctrl_service.grpc.pb.h"
+#include "../../rasnet/messages/rasmgr_rassrvr_service.grpc.pb.h"
+#include "../../rasnet/messages/rasmgr_client_service.grpc.pb.h"
 #include "messages/rasmgrmess.pb.h"
 
-#include "userdatabaserights.hh"
-#include "useradminrights.hh"
-#include "usermanager.hh"
+#include "clientmanager.hh"
+#include "clientmanagerconfig.hh"
+#include "clientmanagementservice.hh"
+#include "controlcommandexecutor.hh"
+#include "controlservice.hh"
+#include "configuration.hh"
+#include "configurationmanager.hh"
 #include "databasehostmanager.hh"
 #include "databasemanager.hh"
+#include "rasmgrconfig.hh"
+#include "rascontrol.hh"
+#include "servermanagerconfig.hh"
+#include "serverfactoryrasnet.hh"
+#include "servergroupfactoryimpl.hh"
 #include "servermanager.hh"
 #include "servermanagementservice.hh"
-#include "rascontrol.hh"
-#include "controlservice.hh"
-#include "clientmanager.hh"
-#include "clientmanagementservice.hh"
+#include "usermanager.hh"
+
 #include "rasmanager.hh"
-#include "controlcommandexecutor.hh"
-#include "rasmgrconfig.hh"
-#include "clientmanagerconfig.hh"
-#include "servergroupfactoryimpl.hh"
-#include "serverfactoryrasnet.hh"
-#include "rasnet/src/common/zmqutil.hh"
-#include "rasnet/src/server/servicemanagerconfig.hh"
 
 namespace rasmgr
 {
@@ -84,24 +93,31 @@ void RasManager::start()
     this->configManager->loadConfiguration();
     LINFO<<"Finished loading rasmgr configuration.";
 
-    boost::shared_ptr<rasnet::service::RasMgrRasServerService> serverManagementService ( new rasmgr::ServerManagementService ( serverManager ) );
-    boost::shared_ptr<rasnet::service::RasMgrRasCtrlService> rasctrlService ( new rasmgr::ControlService ( commandExecutor ) );
-    boost::shared_ptr<rasnet::service::RasMgrClientService> clientService ( new rasmgr::ClientManagementService ( clientManager, serverManager ) );
 
-    rasnet::ServiceManagerConfig config;
-    this->serviceManager.reset ( new rasnet::ServiceManager(config) );
+    boost::shared_ptr<rasnet::service::RasMgrRasServerService::Service> serverManagementService ( new rasmgr::ServerManagementService ( serverManager ) );
+    boost::shared_ptr<rasnet::service::RasMgrRasCtrlService::Service> rasctrlService ( new rasmgr::ControlService ( commandExecutor ) );
+    boost::shared_ptr<rasnet::service::RasMgrClientService::Service> clientService ( new rasmgr::ClientManagementService ( clientManager, serverManager ) );
 
-    this->serviceManager->addService ( clientService );
-    this->serviceManager->addService ( serverManagementService );
-    this->serviceManager->addService ( rasctrlService );
+    std::string serverAddress = common::GrpcUtils::convertAddressToString(DEFAULT_HOSTNAME,  this->port);
+    //GreeterServiceImpl service;
 
-    this->running=true;
-    this->serviceManager->serve (rasnet::ZmqUtil::toEndpoint(rasnet::ZmqUtil::ALL_LOCAL_INTERFACES, this->port ));
+    grpc::ServerBuilder builder;
+    // Listen on the given address without any authentication mechanism.
+    builder.AddListeningPort(serverAddress, grpc::InsecureServerCredentials());
 
-    while ( this->running )
-    {
-        boost::this_thread::sleep ( boost::posix_time::seconds ( 5 ) );
-    }
+    // Register "service" as the instance through which we'll communicate with
+    // clients. In this case it corresponds to an *synchronous* service.
+    builder.RegisterService(clientService.get());
+    builder.RegisterService(serverManagementService.get());
+    builder.RegisterService(rasctrlService.get());
+
+    this->running = true;
+    // Finally assemble the server.
+    this->server = builder.BuildAndStart();
+
+    // Wait for the server to shutdown. Note that some other thread must be
+    // responsible for shutting down the server for this call to ever return.
+    server->Wait();
 }
 
 void RasManager::stop()
@@ -109,7 +125,8 @@ void RasManager::stop()
     if(this->running)
     {
         this->configManager->saveConfiguration();
-        this->running = false;
+        //TODO: Check shutdown
+        this->server->Shutdown();
         LINFO<<"Stopping rasmanager.";
     }
 }

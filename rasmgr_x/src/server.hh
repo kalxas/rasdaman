@@ -5,10 +5,13 @@
 
 #include <boost/cstdint.hpp>
 
-#include "userdatabaserights.hh"
+#include "messages/rasmgrmess.pb.h"
 
 namespace rasmgr
 {
+
+class UserDatabaseRights;
+
 /**
  * @brief The Server class Abstract class representing the interface to a server.
  */

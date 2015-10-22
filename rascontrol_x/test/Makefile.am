@@ -1,7 +1,6 @@
 check_PROGRAMS = main_test
 
 main_test_SOURCES = main_test.cc \
-					usercredentialstest.cc \
-					rascontrolconfigtest.cc
+					usercredentialstest.cc
 
-main_test_LDADD = ../src/librascontrolx.a  ../../commline/libcommline.a ../../rasnet/src/librasnet.a ../../common/src/libcommon.a @ZMQ_LIBS@ @PROTOBUF_LIBS@ @BOOST_LDFLAGS@ -lpthread
+main_test_LDADD = ../src/librascontrol.a  ../../commline/libcommline.a ../../rasnet/librasnet.a ../../common/src/libcommon.a @PROTOBUF_LIBS@ @BOOST_LDFLAGS@

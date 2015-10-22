@@ -26,9 +26,7 @@
 namespace rasmgr
 {
 ServerGroup::~ServerGroup()
-{
-
-}
+{}
 }
 
 

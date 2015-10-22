@@ -8,8 +8,9 @@ public final class CommonService {
   public static void registerAllExtensions(
       com.google.protobuf.ExtensionRegistry registry) {
   }
-  public interface VoidOrBuilder
-      extends com.google.protobuf.MessageOrBuilder {
+  public interface VoidOrBuilder extends
+      // @@protoc_insertion_point(interface_extends:rasnet.service.Void)
+      com.google.protobuf.MessageOrBuilder {
   }
   /**
    * Protobuf type {@code rasnet.service.Void}
@@ -18,38 +19,26 @@ public final class CommonService {
    * Message representing a void request or reply from a service
    * </pre>
    */
-  public static final class Void extends
-      com.google.protobuf.GeneratedMessage
-      implements VoidOrBuilder {
+  public  static final class Void extends
+      com.google.protobuf.GeneratedMessage implements
+      // @@protoc_insertion_point(message_implements:rasnet.service.Void)
+      VoidOrBuilder {
     // Use Void.newBuilder() to construct.
     private Void(com.google.protobuf.GeneratedMessage.Builder<?> builder) {
       super(builder);
-      this.unknownFields = builder.getUnknownFields();
     }
-    private Void(boolean noInit) { this.unknownFields = com.google.protobuf.UnknownFieldSet.getDefaultInstance(); }
-
-    private static final Void defaultInstance;
-    public static Void getDefaultInstance() {
-      return defaultInstance;
+    private Void() {
     }
 
-    public Void getDefaultInstanceForType() {
-      return defaultInstance;
-    }
-
-    private final com.google.protobuf.UnknownFieldSet unknownFields;
     @java.lang.Override
     public final com.google.protobuf.UnknownFieldSet
-        getUnknownFields() {
-      return this.unknownFields;
+    getUnknownFields() {
+      return com.google.protobuf.UnknownFieldSet.getDefaultInstance();
     }
     private Void(
         com.google.protobuf.CodedInputStream input,
-        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-        throws com.google.protobuf.InvalidProtocolBufferException {
-      initFields();
-      com.google.protobuf.UnknownFieldSet.Builder unknownFields =
-          com.google.protobuf.UnknownFieldSet.newBuilder();
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry) {
+      this();
       try {
         boolean done = false;
         while (!done) {
@@ -59,8 +48,7 @@ public final class CommonService {
               done = true;
               break;
             default: {
-              if (!parseUnknownField(input, unknownFields,
-                                     extensionRegistry, tag)) {
+              if (!input.skipField(tag)) {
                 done = true;
               }
               break;
@@ -68,12 +56,12 @@ public final class CommonService {
           }
         }
       } catch (com.google.protobuf.InvalidProtocolBufferException e) {
-        throw e.setUnfinishedMessage(this);
+        throw new RuntimeException(e.setUnfinishedMessage(this));
       } catch (java.io.IOException e) {
-        throw new com.google.protobuf.InvalidProtocolBufferException(
-            e.getMessage()).setUnfinishedMessage(this);
+        throw new RuntimeException(
+            new com.google.protobuf.InvalidProtocolBufferException(
+                e.getMessage()).setUnfinishedMessage(this));
       } finally {
-        this.unknownFields = unknownFields.build();
         makeExtensionsImmutable();
       }
     }
@@ -89,27 +77,11 @@ public final class CommonService {
               org.rasdaman.rasnet.message.CommonService.Void.class, org.rasdaman.rasnet.message.CommonService.Void.Builder.class);
     }
 
-    public static com.google.protobuf.Parser<Void> PARSER =
-        new com.google.protobuf.AbstractParser<Void>() {
-      public Void parsePartialFrom(
-          com.google.protobuf.CodedInputStream input,
-          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-          throws com.google.protobuf.InvalidProtocolBufferException {
-        return new Void(input, extensionRegistry);
-      }
-    };
-
-    @java.lang.Override
-    public com.google.protobuf.Parser<Void> getParserForType() {
-      return PARSER;
-    }
-
-    private void initFields() {
-    }
     private byte memoizedIsInitialized = -1;
     public final boolean isInitialized() {
       byte isInitialized = memoizedIsInitialized;
-      if (isInitialized != -1) return isInitialized == 1;
+      if (isInitialized == 1) return true;
+      if (isInitialized == 0) return false;
 
       memoizedIsInitialized = 1;
       return true;
@@ -117,28 +89,18 @@ public final class CommonService {
 
     public void writeTo(com.google.protobuf.CodedOutputStream output)
                         throws java.io.IOException {
-      getSerializedSize();
-      getUnknownFields().writeTo(output);
     }
 
-    private int memoizedSerializedSize = -1;
     public int getSerializedSize() {
-      int size = memoizedSerializedSize;
+      int size = memoizedSize;
       if (size != -1) return size;
 
       size = 0;
-      size += getUnknownFields().getSerializedSize();
-      memoizedSerializedSize = size;
+      memoizedSize = size;
       return size;
     }
 
     private static final long serialVersionUID = 0L;
-    @java.lang.Override
-    protected java.lang.Object writeReplace()
-        throws java.io.ObjectStreamException {
-      return super.writeReplace();
-    }
-
     public static org.rasdaman.rasnet.message.CommonService.Void parseFrom(
         com.google.protobuf.ByteString data)
         throws com.google.protobuf.InvalidProtocolBufferException {
@@ -192,12 +154,17 @@ public final class CommonService {
       return PARSER.parseFrom(input, extensionRegistry);
     }
 
-    public static Builder newBuilder() { return Builder.create(); }
     public Builder newBuilderForType() { return newBuilder(); }
-    public static Builder newBuilder(org.rasdaman.rasnet.message.CommonService.Void prototype) {
-      return newBuilder().mergeFrom(prototype);
+    public static Builder newBuilder() {
+      return DEFAULT_INSTANCE.toBuilder();
     }
-    public Builder toBuilder() { return newBuilder(this); }
+    public static Builder newBuilder(org.rasdaman.rasnet.message.CommonService.Void prototype) {
+      return DEFAULT_INSTANCE.toBuilder().mergeFrom(prototype);
+    }
+    public Builder toBuilder() {
+      return this == DEFAULT_INSTANCE
+          ? new Builder() : new Builder().mergeFrom(this);
+    }
 
     @java.lang.Override
     protected Builder newBuilderForType(
@@ -213,8 +180,9 @@ public final class CommonService {
      * </pre>
      */
     public static final class Builder extends
-        com.google.protobuf.GeneratedMessage.Builder<Builder>
-       implements org.rasdaman.rasnet.message.CommonService.VoidOrBuilder {
+        com.google.protobuf.GeneratedMessage.Builder<Builder> implements
+        // @@protoc_insertion_point(builder_implements:rasnet.service.Void)
+        org.rasdaman.rasnet.message.CommonService.VoidOrBuilder {
       public static final com.google.protobuf.Descriptors.Descriptor
           getDescriptor() {
         return org.rasdaman.rasnet.message.CommonService.internal_static_rasnet_service_Void_descriptor;
@@ -241,17 +209,9 @@ public final class CommonService {
         if (com.google.protobuf.GeneratedMessage.alwaysUseFieldBuilders) {
         }
       }
-      private static Builder create() {
-        return new Builder();
-      }
-
       public Builder clear() {
         super.clear();
         return this;
-      }
-
-      public Builder clone() {
-        return create().mergeFrom(buildPartial());
       }
 
       public com.google.protobuf.Descriptors.Descriptor
@@ -288,7 +248,7 @@ public final class CommonService {
 
       public Builder mergeFrom(org.rasdaman.rasnet.message.CommonService.Void other) {
         if (other == org.rasdaman.rasnet.message.CommonService.Void.getDefaultInstance()) return this;
-        this.mergeUnknownFields(other.getUnknownFields());
+        onChanged();
         return this;
       }
 
@@ -313,16 +273,62 @@ public final class CommonService {
         }
         return this;
       }
+      public final Builder setUnknownFields(
+          final com.google.protobuf.UnknownFieldSet unknownFields) {
+        return this;
+      }
+
+      public final Builder mergeUnknownFields(
+          final com.google.protobuf.UnknownFieldSet unknownFields) {
+        return this;
+      }
+
 
       // @@protoc_insertion_point(builder_scope:rasnet.service.Void)
     }
 
+    // @@protoc_insertion_point(class_scope:rasnet.service.Void)
+    private static final org.rasdaman.rasnet.message.CommonService.Void DEFAULT_INSTANCE;
     static {
-      defaultInstance = new Void(true);
-      defaultInstance.initFields();
+      DEFAULT_INSTANCE = new org.rasdaman.rasnet.message.CommonService.Void();
     }
 
-    // @@protoc_insertion_point(class_scope:rasnet.service.Void)
+    public static org.rasdaman.rasnet.message.CommonService.Void getDefaultInstance() {
+      return DEFAULT_INSTANCE;
+    }
+
+    private static final com.google.protobuf.Parser<Void>
+        PARSER = new com.google.protobuf.AbstractParser<Void>() {
+      public Void parsePartialFrom(
+          com.google.protobuf.CodedInputStream input,
+          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+          throws com.google.protobuf.InvalidProtocolBufferException {
+        try {
+          return new Void(input, extensionRegistry);
+        } catch (RuntimeException e) {
+          if (e.getCause() instanceof
+              com.google.protobuf.InvalidProtocolBufferException) {
+            throw (com.google.protobuf.InvalidProtocolBufferException)
+                e.getCause();
+          }
+          throw e;
+        }
+      }
+    };
+
+    public static com.google.protobuf.Parser<Void> parser() {
+      return PARSER;
+    }
+
+    @java.lang.Override
+    public com.google.protobuf.Parser<Void> getParserForType() {
+      return PARSER;
+    }
+
+    public org.rasdaman.rasnet.message.CommonService.Void getDefaultInstanceForType() {
+      return DEFAULT_INSTANCE;
+    }
+
   }
 
   private static com.google.protobuf.Descriptors.Descriptor
@@ -340,26 +346,27 @@ public final class CommonService {
   static {
     java.lang.String[] descriptorData = {
       "\n\024common_service.proto\022\016rasnet.service\"\006" +
-      "\n\004VoidB\035\n\033org.rasdaman.rasnet.message"
+      "\n\004VoidB\035\n\033org.rasdaman.rasnet.messageb\006p" +
+      "roto3"
     };
     com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner assigner =
-      new com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner() {
-        public com.google.protobuf.ExtensionRegistry assignDescriptors(
-            com.google.protobuf.Descriptors.FileDescriptor root) {
-          descriptor = root;
-          internal_static_rasnet_service_Void_descriptor =
-            getDescriptor().getMessageTypes().get(0);
-          internal_static_rasnet_service_Void_fieldAccessorTable = new
-            com.google.protobuf.GeneratedMessage.FieldAccessorTable(
-              internal_static_rasnet_service_Void_descriptor,
-              new java.lang.String[] { });
-          return null;
-        }
-      };
+        new com.google.protobuf.Descriptors.FileDescriptor.    InternalDescriptorAssigner() {
+          public com.google.protobuf.ExtensionRegistry assignDescriptors(
+              com.google.protobuf.Descriptors.FileDescriptor root) {
+            descriptor = root;
+            return null;
+          }
+        };
     com.google.protobuf.Descriptors.FileDescriptor
       .internalBuildGeneratedFileFrom(descriptorData,
         new com.google.protobuf.Descriptors.FileDescriptor[] {
         }, assigner);
+    internal_static_rasnet_service_Void_descriptor =
+      getDescriptor().getMessageTypes().get(0);
+    internal_static_rasnet_service_Void_fieldAccessorTable = new
+      com.google.protobuf.GeneratedMessage.FieldAccessorTable(
+        internal_static_rasnet_service_Void_descriptor,
+        new java.lang.String[] { });
   }
 
   // @@protoc_insertion_point(outer_class_scope)

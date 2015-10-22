@@ -52,7 +52,7 @@ libclientcomm_a_CPPFLAGS=-I../rnprotocol
 if RMANRASNET
     libclientcomm_a_SOURCES += ../rasnetprotocol/rasnetclientcomm.cc \
                           ../rasnetprotocol/rasnetclientcomm.hh
-    libclientcomm_a_LIBADD = ../rasnet/src/librasnet.a ../common/src/libcommon.a
+    libclientcomm_a_LIBADD = ../rasnet/librasnet.a ../common/src/libcommon.a
 endif
 
 EXTRA_libclientcomm_a_SOURCES = rpcif.x                          

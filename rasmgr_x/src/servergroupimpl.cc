@@ -29,11 +29,15 @@
 #include <boost/cstdint.hpp>
 
 #include "../../common/src/logging/easylogging++.hh"
+#include "../../common/src/exceptions/rasexceptions.hh"
 
-#include "rasmgrconfig.hh"
-#include "serverconfig.hh"
 #include "constants.hh"
-
+#include "databasehost.hh"
+#include "databasehostmanager.hh"
+#include "rasmgrconfig.hh"
+#include "server.hh"
+#include "serverconfig.hh"
+#include "serverfactory.hh"
 #include "servergroupimpl.hh"
 
 namespace rasmgr
@@ -56,14 +60,14 @@ using boost::lexical_cast;
 using common::Timer;
 
 ServerGroupImpl::ServerGroupImpl(const ServerGroupConfigProto &config, boost::shared_ptr<DatabaseHostManager> dbhManager, boost::shared_ptr<ServerFactory> serverFactory):
-    config(config), dbhManager(dbhManager), serverFactory(serverFactory)
+        config(config), dbhManager(dbhManager), serverFactory(serverFactory)
 {
     //Validate the configuration and initialize defaults
     this->validateAndInitConfig(this->config);
 
     //Make sure to decrease the server count in the destructor
     //or when the database host is changed.
-    this->databaseHost = dbhManager->getAndLockDH(this->config.db_host());
+    this->databaseHost = dbhManager->getAndLockDatabaseHost(this->config.db_host());
     this->stopped = true;
 
     for(int i=0; i<this->config.ports_size(); ++i)
@@ -74,8 +78,19 @@ ServerGroupImpl::ServerGroupImpl(const ServerGroupConfigProto &config, boost::sh
 
 ServerGroupImpl::~ServerGroupImpl()
 {
-    this->databaseHost->decreaseServerCount();
-    this->stopActiveServers(KILL);
+    try
+    {
+        this->databaseHost->decreaseServerCount();
+        this->stopActiveServers(KILL);
+    }
+    catch(std::exception& ex)
+    {
+        LERROR<<"ServerGroup destructor failed."<<ex.what();
+    }
+    catch(...)
+    {
+        LERROR<<"ServerGroup destructor failed for unknown reason";
+    }
 }
 
 void ServerGroupImpl::start()
@@ -84,6 +99,7 @@ void ServerGroupImpl::start()
       1. Get exclusive access and start the minimum number of alive servers
       */
     boost::unique_lock<shared_mutex> groupLock(this->groupMutex);
+    // Start is idempotent
     if(this->stopped)
     {
         this->stopped=false;
@@ -103,14 +119,13 @@ bool ServerGroupImpl::isStopped()
 
 void ServerGroupImpl::stop(KillLevel level)
 {
-    list<shared_ptr<Server> >::iterator it;
-    list<shared_ptr<Server> >::iterator toErase;
-
     unique_lock<shared_mutex> groupLock(this->groupMutex);
 
     if(this->stopped)
     {
-        throw runtime_error("The server group is already stopped.");
+	std::string errorMessage("ServerGroup is already stopped");
+
+        throw common::InvalidStateException(errorMessage);
     }
     else
     {
@@ -135,7 +150,8 @@ bool ServerGroupImpl::tryRegisterServer(const std::string &serverId)
     //If the server group is stopped, we cannot register new servers.
     if(this->stopped)
     {
-        throw runtime_error("The server group is stopped. No new servers can register.");
+	std::string errorMessage("ServerGroup is already stopped. No new servers can register.");
+        throw common::InvalidStateException(errorMessage);
     }
 
     it = this->startingServers.find(serverId);
@@ -193,7 +209,8 @@ void ServerGroupImpl::changeGroupConfig(const ServerGroupConfigProto &value)
 
     if(!this->stopped)
     {
-        throw runtime_error("Cannot change server group configuration while the group is busy.");
+	std::string errorMessage("Cannot change ServerGroup configuration while the ServerGroup is running.");
+        throw common::InvalidStateException(errorMessage);
     }
 
     if(value.has_name())
@@ -259,7 +276,7 @@ void ServerGroupImpl::changeGroupConfig(const ServerGroupConfigProto &value)
         this->databaseHost->decreaseServerCount();
 
         //Retrieve and lock the new database host.
-        this->databaseHost = dbhManager->getAndLockDH(this->config.db_host());
+        this->databaseHost = dbhManager->getAndLockDatabaseHost(this->config.db_host());
     }
 
     if(value.ports_size()>0)
@@ -458,7 +475,7 @@ void ServerGroupImpl::evaluateRestartingServers()
                 {
                     (*restartingServerToEraseIt)->stop(KILL);
                     LDEBUG<<"Stopping server with ID:"<<(*restartingServerToEraseIt)->getServerId()
-                          <<" because it has to be restarted.";
+                    <<" because it has to be restarted.";
 
                     //add the port back to the pool
                     this->availablePorts.insert((*restartingServerToEraseIt)->getPort());
@@ -468,15 +485,15 @@ void ServerGroupImpl::evaluateRestartingServers()
                 catch(std::exception& ex)
                 {
                     LERROR<<"Failed to kill server with ID"
-                          <<(*restartingServerToEraseIt)->getServerId()
-                          <<" reason:"<<ex.what();
+                    <<(*restartingServerToEraseIt)->getServerId()
+                    <<" reason:"<<ex.what();
 
                 }
                 catch(...)
                 {
                     LERROR<<"Failed to kill server with ID"
-                          <<(*restartingServerToEraseIt)->getServerId()
-                          << " for unknown reason.";
+                    <<(*restartingServerToEraseIt)->getServerId()
+                    << " for unknown reason.";
                 }
             }
         }
@@ -558,7 +575,7 @@ void ServerGroupImpl::startServer()
     //This should never happen
     if(this->availablePorts.empty())
     {
-        throw runtime_error("The group has reached capacity. No more servers can be started.");
+        throw common::InvalidStateException(std::string("The ServerGroup has reached capacity. No more servers can be started."));
     }
     else
     {
@@ -642,22 +659,22 @@ void ServerGroupImpl::validateAndInitConfig(ServerGroupConfigProto &config)
 {
     if(!config.has_name())
     {
-        throw runtime_error("Missing configuration parameter:\"name\"");
+        throw common::InvalidArgumentException("Missing configuration parameter:\"name\"");
     }
 
     if(!config.has_host())
     {
-        throw runtime_error("Missing configuration parameter:\"host\"");
+        throw common::InvalidArgumentException("Missing configuration parameter:\"host\"");
     }
 
     if(!config.has_db_host())
     {
-        throw runtime_error("Missing configuration parameter:\"db_host\"");
+        throw common::InvalidArgumentException("Missing configuration parameter:\"db_host\"");
     }
 
     if(!config.ports_size())
     {
-        throw runtime_error("Missing configuration parameter:\"ports\"");
+        throw common::InvalidArgumentException("Missing configuration parameter:\"ports\"");
     }
 
     //Make the list of ports contain unique entries
@@ -706,15 +723,16 @@ void ServerGroupImpl::validateAndInitConfig(ServerGroupConfigProto &config)
 
     if(config.min_available_server_no() > config.min_alive_server_no())
     {
-        throw runtime_error(string("The minimum number of available ")+
-                            string("servers must be less or equal to")+
-                            string(" the minimum number of alive servers"));
+        std::string errorMessage = "The minimum number of available servers must be less or equal to the minimum number of alive servers";
+
+        throw common::InvalidArgumentException(errorMessage);
     }
 
     if(config.ports_size() < config.min_alive_server_no())
     {
-        throw runtime_error(string("The number of allocated ports must be bigger")
-                            +string(" than the minimum number of alive servers."));
+        std::string errorMessage = "The number of allocated ports must be greater than the minimum number of alive servers.";
+
+        throw common::InvalidArgumentException(errorMessage);
     }
 }
 

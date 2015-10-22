@@ -42,11 +42,12 @@ rasdaman GmbH.
 #include <boost/shared_ptr.hpp>
 #include <boost/thread.hpp>
 
-#include "rascontrol.hh"
 #include "rascontrolgrammar.hh"
 
 namespace rasmgr
 {
+
+class RasControl;
 
 /**
  * @brief The ControlCommandExecutor class Executes rascontrol string commands

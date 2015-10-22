@@ -23,15 +23,9 @@
 #ifndef RASCONTROL_X_SRC_CONTROLRASMGRRASNET_HH_
 #define RASCONTROL_X_SRC_CONTROLRASMGRRASNET_HH_
 
-#include <boost/smart_ptr.hpp>
+#include <memory>
 
-#include <google/protobuf/service.h>
-#include <google/protobuf/stubs/common.h>
-
-#include "rasnet/src/client/channel.hh"
-#include "rasnet/src/client/channelconfig.hh"
-#include "rasnet/src/client/clientcontroller.hh"
-#include "rasnet/src/messages/rasmgr_rasctrl_service.pb.h"
+#include "../../rasnet/messages/rasmgr_rasctrl_service.grpc.pb.h"
 
 #include "controlrasmgrcomm.hh"
 #include "usercredentials.hh"
@@ -47,22 +41,18 @@ class ControlRasMgrRasnet:public ControlRasMgrComm
 public:
     ControlRasMgrRasnet(const rascontrol::UserCredentials& userCredentials, rascontrol::RasControlConfig& config);
 
-    virtual ~ControlRasMgrRasnet();
-
     /**
      * @brief processCommand Process a command and return the response to that command.
      * @param command
-     * @return
+     * @return The result from processing the command.
      */
     virtual std::string processCommand(const std::string& command);
 
 private:
     const UserCredentials& userCredentials;
     rascontrol::RasControlConfig& config;
-    ::google::protobuf::Closure* doNothing;
-    rasnet::ClientController controller;
 
-    boost::scoped_ptr< ::rasnet::service::RasMgrRasCtrlService> rasmgrService;
+    std::unique_ptr< ::rasnet::service::RasMgrRasCtrlService::Stub> rasmgrService;
 };
 
 } /* namespace rascontrol */

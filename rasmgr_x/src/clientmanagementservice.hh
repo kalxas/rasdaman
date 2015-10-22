@@ -26,56 +26,38 @@
 #include <boost/smart_ptr.hpp>
 #include <boost/thread.hpp>
 
-#include "rasnet/src/messages/rasmgr_client_service.pb.h"
-
-#include "clientmanager.hh"
-#include "servermanager.hh"
+#include "../../rasnet/messages/rasmgr_client_service.grpc.pb.h"
 
 namespace rasmgr
 {
+
+class ClientManager;
+class ServerManager;
+
 /**
  * @brief The ClientManagementService class Handles requests from clients,
  * keeps track of active clients sessions and removes clients that have
  * not reported activity in a predefined amount of time.
  */
-class ClientManagementService : public rasnet::service::RasMgrClientService
+class ClientManagementService : public rasnet::service::RasMgrClientService::Service
 {
 public:
 
-    ClientManagementService(boost::shared_ptr<ClientManager> clientManager,boost::shared_ptr<ServerManager> serverManager);
+    ClientManagementService(boost::shared_ptr<ClientManager> clientManager,
+                            boost::shared_ptr<ServerManager> serverManager);
 
-    virtual
-    ~ClientManagementService();
+    virtual ~ClientManagementService();
 
-    virtual void
-    Connect(::google::protobuf::RpcController* controller,
-            const ::rasnet::service::ConnectReq* request,
-            ::rasnet::service::ConnectRepl* response,
-            ::google::protobuf::Closure* done);
+    virtual grpc::Status Connect(grpc::ServerContext *context, const rasnet::service::ConnectReq *request, rasnet::service::ConnectRepl *response) override;
 
-    virtual void
-    Disconnect(::google::protobuf::RpcController* controller,
-               const ::rasnet::service::DisconnectReq* request,
-               ::rasnet::service::Void* response,
-               ::google::protobuf::Closure* done);
+    virtual grpc::Status Disconnect(grpc::ServerContext *context, const rasnet::service::DisconnectReq *request, rasnet::service::Void *response) override;
 
-    virtual void
-    OpenDb(::google::protobuf::RpcController* controller,
-           const ::rasnet::service::OpenDbReq* request,
-           ::rasnet::service::OpenDbRepl* response,
-           ::google::protobuf::Closure* done);
+    virtual grpc::Status OpenDb(grpc::ServerContext *context, const rasnet::service::OpenDbReq *request, rasnet::service::OpenDbRepl *response) override;
 
-    virtual void
-    CloseDb(::google::protobuf::RpcController* controller,
-            const ::rasnet::service::CloseDbReq* request,
-            ::rasnet::service::Void* response,
-            ::google::protobuf::Closure* done);
+    virtual grpc::Status CloseDb(grpc::ServerContext *context, const rasnet::service::CloseDbReq *request, rasnet::service::Void *response) override;
 
-    virtual void
-    KeepAlive(::google::protobuf::RpcController* controller,
-              const ::rasnet::service::KeepAliveReq* request,
-              ::rasnet::service::Void* response,
-              ::google::protobuf::Closure* done);
+    virtual grpc::Status KeepAlive(grpc::ServerContext *context, const rasnet::service::KeepAliveReq *request, rasnet::service::Void *response) override;
+
 private:
     boost::shared_ptr<ClientManager> clientManager;/*! Instance of the ClientManager class used for adding clients and client sessions */
     boost::shared_ptr<ServerManager> serverManager;/*! Instance of the ServerManager class used for retrieving available servers*/

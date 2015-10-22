@@ -14,7 +14,7 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with rasdaman community.  If not, see <http://www.gnu.org/licenses/>.
  *
- * Copyright 2003, 2004, 2005, 2006, 2007, 2008, 2009,2010,2011,2012,2013,2014 Peter Baumann / rasdaman GmbH.
+ * Copyright 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014 Peter Baumann / rasdaman GmbH.
  *
  * For more information please see <http://www.rasdaman.org>
  * or contact Peter Baumann via <baumann@rasdaman.com>.
@@ -27,11 +27,12 @@
 
 #include "rascontrolconfig.hh"
 #include "usercredentials.hh"
-#include "commandexecutor.hh"
 #include "editline.hh"
+#include "commandexecutor.hh"
 
 namespace rascontrol
 {
+
 /**
  * @brief The RasControl class This is the main class of the rascontrol component.
  * It starts the process of communicating with the server.
@@ -46,6 +47,9 @@ public:
      */
     RasControl(RasControlConfig& config, const UserCredentials& userCredentials);
 
+    /**
+     * @brief start Start the rascontrol execution.
+     */
     void start();
 
 private:
