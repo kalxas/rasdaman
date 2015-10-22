@@ -48,6 +48,7 @@ static const char rcsid[] = "@(#)qlparser, QtCondenseOp: $Header: /home/rasdev/C
 #include "../common/src/logging/easylogging++.hh"
 
 #include "catalogmgr/typefactory.hh"
+#include "relcatalogif/doubletype.hh"
 
 #include <iostream>
 #ifndef CPPSTDLIB
@@ -256,22 +257,33 @@ QtCondenseOp::evaluate( QtDataList* inputList )
     // determine aggregation type
     const BaseType* cellBaseType;
     QtDataType cellType = input2->getDataStreamType().getDataType();
-    if(cellType == QT_MDD){
-        cellBaseType = (static_cast<MDDBaseType*>(const_cast<Type*>(input2->getDataStreamType().getType())))->getBaseType();
+    if (cellType == QT_MDD)
+    {
+        cellBaseType = (static_cast<MDDBaseType*> (const_cast<Type*> (input2->getDataStreamType().getType())))->getBaseType();
     }
-    else{
-        cellBaseType = static_cast<BaseType*>(const_cast<Type*>(input2->getDataStreamType().getType()));
+    else
+    {
+        cellBaseType = static_cast<BaseType*> (const_cast<Type*> (input2->getDataStreamType().getType()));
+    }
+    const BaseType* resBaseType;
+    if (cellType == QT_FLOAT)
+    {
+        resBaseType = new DoubleType();
+    }
+    else
+    {
+        resBaseType = cellBaseType;
     }
 
     // get operation object
-    BinaryOp* cellBinOp = Ops::getBinaryOp( operation, cellBaseType, cellBaseType, cellBaseType );
+    BinaryOp* cellBinOp = Ops::getBinaryOp( operation, resBaseType, resBaseType, cellBaseType );
 
     try {
         if(cellType == QT_MDD){
             returnValue = evaluateInducedOp(inputList, cellBinOp, domain);
         }
         else{
-            returnValue = evaluateScalarOp(inputList, cellBaseType, cellBinOp, domain);
+            returnValue = evaluateScalarOp(inputList, resBaseType, cellBinOp, domain);
         }
     }
 
@@ -296,10 +308,10 @@ QtCondenseOp::evaluate( QtDataList* inputList )
 }
 
 QtData*
-QtCondenseOp::evaluateScalarOp(QtDataList* inputList, const BaseType* cellType, BinaryOp* cellBinOp, r_Minterval domain){
+QtCondenseOp::evaluateScalarOp(QtDataList* inputList, const BaseType* resType, BinaryOp* cellBinOp, r_Minterval domain){
     // create execution object QLCondenseOp
     QLCondenseOp* qlCondenseOp = new QLCondenseOp( input2, condOp, inputList, iteratorName,
-            cellType, 0, cellBinOp );
+            resType, 0, cellBinOp );
 
     // result buffer
     char* result=NULL;
@@ -315,22 +327,22 @@ QtCondenseOp::evaluateScalarOp(QtDataList* inputList, const BaseType* cellType, 
     }
 
     // allocate cell buffer
-    char* resultBuffer = new char[ cellType->getSize() ];
+    char* resultBuffer = new char[ resType->getSize() ];
 
     // copy cell content
-    memcpy( resultBuffer, result, cellType->getSize() );
+    memcpy( resultBuffer, result, resType->getSize() );
 
     delete qlCondenseOp;
     qlCondenseOp=NULL;
 
     // create data object for the cell
     QtScalarData* scalarDataObj = NULL;
-    if( cellType->getType() == STRUCT )
+    if( resType->getType() == STRUCT )
         scalarDataObj = new QtComplexData();
     else
         scalarDataObj = new QtAtomicData();
 
-    scalarDataObj->setValueType  ( cellType );
+    scalarDataObj->setValueType  ( resType );
     scalarDataObj->setValueBuffer( resultBuffer );
 
     // set return data object
