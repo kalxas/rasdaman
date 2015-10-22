@@ -329,11 +329,9 @@ bool Configuration::interpretArguments(int argc, char **argv, __attribute__ ((un
 
     initLogFiles();
 
-    SET_OUTPUT( true );         // by default, enable trace (debug) output
     verbose = true;         // by default, be verbose
     if( (result==true) && cmlQuiet.isPresent() )
     {
-        SET_OUTPUT( false );            // disable trace (debug) output
         // debugOutput = true;          // done via the above macro
         verbose = false;            // only minimum messages
         result = true;

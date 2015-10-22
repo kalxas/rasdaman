@@ -118,7 +118,7 @@ QtOperationIterator::getChilds( QtChildType flag )
                         (*debugIter)->printTree( 2, RMInit::dbgOut, QtNode::QT_DIRECT_CHILDS ); )
 
                     RMDBGIF(3, RMDebug::module_qlparser, "QtOperationIterator", \
-                            LTRACE << << "4. old list (must be empty)"; \
+                            LTRACE << "4. old list (must be empty)"; \
                             list<QtNode*>::iterator debugIter; \
                             if (subList) for( debugIter=subList->begin(); debugIter!=subList->end(); debugIter++ ) \
                             (*debugIter)->printTree( 2, RMInit::dbgOut, QtNode::QT_DIRECT_CHILDS ); )
@@ -133,7 +133,7 @@ QtOperationIterator::getChilds( QtChildType flag )
                 resultList->push_back( *iter );
 
             RMDBGIF(3, RMDebug::module_qlparser, "QtOperationIterator", \
-                    LTRACE << << "4. current child list including direct childs "; \
+                    LTRACE << "4. current child list including direct childs "; \
                     list<QtNode*>::iterator debugIter; \
                     for( debugIter=resultList->begin(); debugIter!=resultList->end(); debugIter++ ) \
                     (*debugIter)->printTree( 2, RMInit::dbgOut, QtNode::QT_DIRECT_CHILDS ); )

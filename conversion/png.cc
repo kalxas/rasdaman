@@ -49,6 +49,7 @@ rasdaman GmbH.
 #include "png.h"
 
 #include "debug.hh"
+#include "raslib/rmdebug.hh"
 #include "../common/src/logging/easylogging++.hh"
 
 #include "conversion/png.hh"

@@ -37,6 +37,7 @@ using namespace std;
 #include "storagemgr/sstoragelayout.hh"
 #include "servercomm/httpserver.hh"
 
+#include "debug/debug.hh"
 #include "../common/src/logging/easylogging++.hh"
 
 Configuration configuration;

@@ -810,7 +810,7 @@ ServerComm::removeObjFromColl( unsigned long callingClientId,
             if (obj.get_kind() == r_Error::r_Error_ObjectUnknown)
             {
                 RMDBGIF(2, RMDebug::module_servercomm, "ServerComm",
-                    LERROR << "Error: collection not found.");
+                    LERROR << "Error: collection not found.";);
                 returnValue = 2;
             }
             else
@@ -1414,7 +1414,7 @@ ServerComm::startInsertPersMDD( unsigned long  callingClientId,
                 catch (r_Error& err)
                 {
                     RMDBGIF(2, RMDebug::module_servercomm, "ServerComm",
-                        LFATAL << "Error: while creating persistent tile: " << err.get_errorno() << ": " << err.what() << std::endl;)
+                        LFATAL << "Error: while creating persistent tile: " << err.get_errorno() << ": " << err.what();)
                     context->release(); //!!!
                     throw;
                 }

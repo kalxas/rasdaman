@@ -223,11 +223,11 @@ void
 MDDObj::insertTile(shared_ptr<Tile> newTile)
 {
     std::vector <r_Minterval> layoutDoms = myStorageLayout->getLayout(newTile->getDomain());
-    RMDBGIF(10, RMDebug::module_mddmgr, "printlayoutdoms", \
-            LTRACE << "storage layout returned the following domains"; \
-            for (std::vector <r_Minterval>::iterator domit = layoutDoms.begin(); domit != layoutDoms.end(); domit++) \
-            LTRACE << *domit; \
-            LTRACE << "end of storage layout domains");
+    RMDBGIF(10, RMDebug::module_mddmgr, "printlayoutdoms",
+            LTRACE << "storage layout returned the following domains";
+            for (std::vector <r_Minterval>::iterator domit = layoutDoms.begin(); domit != layoutDoms.end(); domit++)
+            LTRACE << *domit;
+            LTRACE << "end of storage layout domains";);
 
     shared_ptr<Tile> tile;
     shared_ptr<Tile> tile2;

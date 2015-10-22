@@ -322,7 +322,7 @@ QtUnaryInduce::computeUnaryOp( QtScalarData* operand, const BaseType* resultBase
 
 
     RMDBGIF( 4, RMDebug::module_qlparser, "QtUnaryInduce", \
-             LTRCE << "Result value "; \
+             LTRACE << "Result value "; \
              resultBaseType->printCell( RMInit::dbgOut, resultBuffer ); \
            )
 

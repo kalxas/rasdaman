@@ -277,9 +277,9 @@ QtConversion::evaluate( QtDataList* inputList )
         free( typeStructure );
         typeStructure = NULL;
         LTRACE << "evalutate() - no tile available to convert.";
-        RMDBGIF(2, RMDebug::module_qlparser, "QtConversion", \
-                LTRACE << "Cell base type for conversion: "; \
-                baseSchema->print_status( RMInit::dbgOut ); \ )
+        RMDBGIF(2, RMDebug::module_qlparser, "QtConversion",
+                LTRACE << "Cell base type for conversion: ";
+                baseSchema->print_status( RMInit::dbgOut ); )
 
         //
         // real conversion
@@ -445,8 +445,8 @@ QtConversion::evaluate( QtDataList* inputList )
 
             dataStreamType.setType( mddBaseType );
             RMDBGIF(4, RMDebug::module_qlparser, "QtConversion",
-                LDEBUG << " QtConversion::evaluate() for conversion " << conversionType << " real result is "; \
-                dataStreamType.printStatus(RMInit::logOut); \)
+                LDEBUG << " QtConversion::evaluate() for conversion " << conversionType << " real result is ";
+                dataStreamType.printStatus(RMInit::logOut); )
         }
 
         long convResultSize = static_cast<long>(convResult.destInterv.cell_count()) * static_cast<long>(myType->getSize());
@@ -615,9 +615,9 @@ QtConversion::checkType( QtTypeTuple* typeTuple )
         if(conversionType>QT_TODEM)
         {
             RMDBGIF(4, RMDebug::module_qlparser, "QtConversion",
-                LINFO << "QtConversion::checkType() for conversion " \
-                               << conversionType << " assume the result "; \
-                dataStreamType.printStatus(RMInit::logOut); \)
+                LINFO << "QtConversion::checkType() for conversion "
+                               << conversionType << " assume the result ";
+                dataStreamType.printStatus(RMInit::logOut); )
         }
     }
     else
