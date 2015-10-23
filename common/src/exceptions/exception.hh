@@ -33,14 +33,9 @@ namespace common
  * Exception inherits all its memebers from std::exception.
  * All exceptions defined in rasdaman should inherit from Exception.
  */
-class Exception : public std::exception
+class Exception : public std::runtime_error
 {
 public:
-    /**
-     * @brief Exception Constructs the exception with an empty explanatory message.
-     */
-    Exception();
-
     /**
      * @brief Exception Constructs the exception with an explanatory message given by whatArg.
      * @param whatArg Explanatory message that can be retrieved through the what() method.

@@ -27,18 +27,10 @@ namespace rascontrol
 {
 
 InvalidRasctrlCommandException::InvalidRasctrlCommandException()
-{
-    //TODO:Ticket #1006
-}
-
-InvalidRasctrlCommandException::InvalidRasctrlCommandException(const std::string &command)
-{
-
-}
+    :common::Exception("The given rascontrol command is invalid.")
+{}
 
 InvalidRasctrlCommandException::~InvalidRasctrlCommandException()
-{
-
-}
+{}
 
 }

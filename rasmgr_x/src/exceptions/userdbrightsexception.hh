@@ -35,7 +35,7 @@ class UserDbRightsException:public common::RuntimeException
 {
 public:
     /**
-     * @brief UserRightsException
+     * @brief UserDbRightsException
      * @param userName The name of the user that tried to access the database to which he does not have rights.
      * @param databaseName The name of the database.
      */

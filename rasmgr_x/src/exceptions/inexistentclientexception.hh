@@ -28,7 +28,7 @@
 namespace rasmgr
 {
 /**
- * @brief The InvalidClientException class defines a type of object to be thrown as exception.
+ * @brief The InexistentClientException class defines a type of object to be thrown as exception.
  * It reports errors that arise because a user tried to operate on the properties of a client object
  * that is not defined.
  */

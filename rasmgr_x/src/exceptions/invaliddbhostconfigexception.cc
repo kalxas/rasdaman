@@ -26,13 +26,10 @@ namespace rasmgr
 {
 
 InvalidDbHostConfigException::InvalidDbHostConfigException(const std::string &configuration)
-{
-
-}
+    :common::Exception("The following database host configuration is invalid:"+configuration)
+{}
 
 InvalidDbHostConfigException::~InvalidDbHostConfigException()
-{
-
-}
+{}
 
 }

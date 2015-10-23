@@ -24,7 +24,7 @@
 #ifndef RASCONTROL_X_SRC_INVALIDRASCTRLCOMMANDEXCEPTION_HH
 #define RASCONTROL_X_SRC_INVALIDRASCTRLCOMMANDEXCEPTION_HH
 
-#include "../../common/src/exceptions/exception.hh"
+#include "../../common/src/exceptions/rasexceptions.hh"
 
 namespace rascontrol
 {
@@ -32,7 +32,6 @@ class InvalidRasctrlCommandException:public common::Exception
 {
 public:
     InvalidRasctrlCommandException();
-    InvalidRasctrlCommandException(const std::string& command);
 
     virtual ~InvalidRasctrlCommandException();
 };

@@ -25,13 +25,7 @@ rasdaman GmbH.
 
 namespace common
 {
-Exception::Exception()
-    :std::exception()
-{
-    //TODO:Ticket #1006
-}
-
-Exception::Exception(const std::string &whatArg)
+Exception::Exception(const std::string &whatArg):std::runtime_error(whatArg)
 {}
 
 Exception::~Exception()
