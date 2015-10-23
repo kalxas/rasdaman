@@ -396,16 +396,16 @@ TypeFactory::deleteStructType(const char* typeName)
             DBObjectId toKill(resultType->getOId());
             toKill->setPersistent(false);
             toKill->setCached(false);
-            LTRACE << "will be deleted from db";
+            LINFO << "base type: " << typeName << " will be deleted from db";
         }
         else
         {
-            LTRACE << "will not be deleted from db";
+            LINFO << "base type: " << typeName <<  " cannot be deleted: instance existing";
         }
     }
     else
     {
-        LTRACE << "is not in map";
+        LINFO << "base type: " << typeName << " cannot be deleted: not existing";
     }
 }
 
@@ -448,21 +448,21 @@ TypeFactory::deleteMDDType(const char* typeName)
                 DBObjectId toKill(resultType->getOId());
                 toKill->setPersistent(false);
                 toKill->setCached(false);
-                LTRACE << "will be deleted from db";
+                LINFO << "MDD type: " << typeName << " will be deleted from db";
             }
             else
             {
-                LTRACE << "will not be deleted from db";
+                LINFO << "MDD type: " << typeName << " cannot be deleted: instance existing";
             }
         }
         else
         {
-            LTRACE << "will not be deleted from db";
+            LINFO << "MDD type: " << typeName << " cannot be deleted: instance existing";
         }
     }
     else
     {
-        LTRACE <<  "TypeFactory", "is not in map";
+        LINFO << "MDD type: " << typeName << " cannot be deleted: not existing";
     }
 }
 
@@ -490,16 +490,16 @@ TypeFactory::deleteSetType(const char* typeName)
             DBObjectId toKill(resultType->getOId());
             toKill->setPersistent(false);
             toKill->setCached(false);
-            LTRACE << "will be deleted from db";
+            LINFO << "set type: " << typeName << " will be deleted from db";
         }
         else
         {
-            LTRACE << "will not be deleted from db";
+            LINFO << "set type: " << typeName <<" cannot be deleted: instance existing";
         }
     }
     else
     {
-        LTRACE << "is not in map";
+        LINFO << "set type: " << typeName << " cannot be deleted: not existing";
     }
 }
 
@@ -710,5 +710,3 @@ TypeFactory::createMDDIter()
 
     return TypeIterator<MDDType>(theMDDTypes);
 }
-
-
