@@ -252,7 +252,7 @@ r_Convertor::get_internal_type(const r_Type* tp, bool fullTypes) throw(r_Error)
         while (iter != st->defines_attribute_end())
         {
             ++bands;
-            if (!(*iter).type_of().type_id() == r_Type::CHAR || bands > 3)
+            if ((*iter).type_of().type_id() != r_Type::CHAR || bands > 3)
             {
                 return ctype_struct;
             }

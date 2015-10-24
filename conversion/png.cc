@@ -296,7 +296,7 @@ r_convDesc &r_Conv_PNG::convertTo( const char *options ) throw(r_Error)
             while (iter != st->defines_attribute_end())
             {
                 ++bands;
-                if (!(*iter).type_of().type_id() == r_Type::CHAR)
+                if ((*iter).type_of().type_id() != r_Type::CHAR)
                 {
                     LFATAL << "Error: the PNG convertor expects bands of type char";
                     throw r_Error(r_Error::r_Error_General);
@@ -309,7 +309,7 @@ r_convDesc &r_Conv_PNG::convertTo( const char *options ) throw(r_Error)
                 throw r_Error(r_Error::r_Error_General);
             }
         }
-        
+
         spp = 4;
         bps = 8;
         pixelAdd = 4*height;
