@@ -54,9 +54,9 @@ EXEC SQL define STRING_MAXLEN 255;
     failOnError(c, sqliteConn); \
 }
 #define DROP_TABLE(table_name) \
-    UPDATE_QUERY("DROP TABLE IF EXISTS "table_name);
+    UPDATE_QUERY("DROP TABLE IF EXISTS "#table_name);
 #define DROP_VIEW(view_name) \
-    UPDATE_QUERY("DROP VIEW IF EXISTS "view_name);
+    UPDATE_QUERY("DROP VIEW IF EXISTS "#view_name);
 
 #endif
 
