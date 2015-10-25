@@ -33,7 +33,6 @@ static const char rcsiddirix[] = "@(#)dirix, SDirIndexLogic: $Id: sdirindexlogic
 
 #include "config.h"
 #include <iostream>
-#include "raslib/rmdebug.hh"
 #include "indexmgr/sdirindexlogic.hh"
 #include "keyobject.hh"
 #include "indexds.hh"
@@ -271,7 +270,7 @@ SDirIndexLogic::intersect(const IndexDS* ixDS, const r_Minterval& searchInter, K
     // avoid exceptions from r_Minterval
     if (!searchInter.intersects_with(currDom))
     {
-        RMDBGEXIT(4, RMDebug::module_indexmgr, "SDirIndexLogic", "intersect(" << searchInter << ") search interval does not intersect wit current domain " << currDom);
+        LTRACE << "intersect(" << searchInter << ") search interval does not intersect wit current domain " << currDom;
     }
     else
     {

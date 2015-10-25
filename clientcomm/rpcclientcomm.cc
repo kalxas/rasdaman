@@ -88,7 +88,6 @@ extern "C"
 #include "rasodmg/tiling.hh"
 
 #include "raslib/minterval.hh"
-#include "raslib/rmdebug.hh"
 #include "raslib/rminit.hh"
 #include "raslib/primitivetype.hh"
 #include "raslib/complextype.hh"
@@ -461,10 +460,11 @@ throw( r_Error )
                     }
                     while( rpcStatusPtr == 0 );
                     rpcStatus = *rpcStatusPtr;
-                    RMDBGIF(20, RMDebug::module_clientcomm, "WAITAFTERSENDTILE", \
-                            LTRACE << "Waiting 10 sec after send tile\n"; \
-                            sleep(10); \
-                            LTRACE << "Continue now\n"; );
+#ifdef DEBUG
+                    LTRACE << "Waiting 10 sec after send tile";
+                    sleep(10);
+                    LTRACE << "Continue now";
+#endif
                     setRPCInactive();
 
                     // free rpcMarray structure (rpcMarray->data.confarray_val is freed somewhere else)
@@ -760,10 +760,11 @@ throw( r_Error )
                     }
                     while( rpcStatusPtr == 0 );
                     rpcStatus = *rpcStatusPtr;
-                    RMDBGIF(20, RMDebug::module_clientcomm, "WAITAFTERSENDTILE", \
-                            LTRACE << "Waiting 10 sec after send tile\n"; \
-                            sleep(10); \
-                            LTRACE << "Continue now\n"; );
+#ifdef DEBUG
+                    LTRACE << "Waiting 10 sec after send tile";
+                    sleep(10);
+                    LTRACE << "Continue now";
+#endif
                     setRPCInactive();
 
                     // free rpcMarray structure (rpcMarray->data.confarray_val is freed somewhere else)
@@ -1550,11 +1551,11 @@ throw( r_Error )
     mddResult = mdd;
 
     setRPCActive();
-    RMDBGIF(20, RMDebug::module_clientcomm, "WAITENDTRANSFERSTART", \
-            LTRACE << "Waiting 100 sec before end transfer\n"; \
-            sleep(100); \
-            LTRACE << "Continue now\n"; );
-
+#ifdef DEBUG
+    LTRACE << "Waiting 100 sec before end transfer";
+    sleep(100);
+    LTRACE << "Continue now";
+#endif
     if(binding_h == NULL)
     {
         LFATAL << "RpcClientComm::getMDDByOId(oid) ERROR: CONNECTION TO SERVER ALREADY CLOSED";
@@ -1580,10 +1581,11 @@ throw( r_Error )
     }
     while( rpcStatusPtr == 0 );
     rpcStatus = *rpcStatusPtr;
-    RMDBGIF(20, RMDebug::module_clientcomm, "WAITENDTRANSFEREND", \
-            LTRACE << "Waiting 100 sec after end transfer\n"; \
-            sleep(100); \
-            LTRACE << "Continue now\n"; );
+#ifdef DEBUG
+    LTRACE << "Waiting 100 sec after end transfer";
+    sleep(100);
+    LTRACE << "Continue now";
+#endif
     setRPCInactive();
 
     return mddResult;
@@ -2237,11 +2239,11 @@ RpcClientComm::executeOpenTA( unsigned short readOnly )
     while( rpcStatusPtr == 0 );
 
     rpcStatus = *rpcStatusPtr;
-
-    RMDBGIF(20, RMDebug::module_tools, "WAITRECEIVEDTILE", \
-            LTRACE << "Waiting 100 sec after receive tile\n"; \
-            sleep(100); \
-            LTRACE << "Continue now\n"; );
+#ifdef DEBUG
+    LTRACE << "Waiting 100 sec after receive tile";
+    sleep(100);
+    LTRACE << "Continue now";
+#endif
     setRPCInactive();
 
     /* not necessary with V5
@@ -3002,8 +3004,6 @@ throw( r_Error )
     // now the transfer structure of rpcgetnextmdd can be freed
     XDRFREE(GetMDDRes, thisResult);
 
-    //RMDBGOUTFLUSH( 2, "domain " << mddDomain << " ... " )
-
     // Variables needed for tile transfer
     GetTileRes* tileRes=0;
     unsigned short  mddDim = mddDomain.dimension();  // we assume that each tile has the same dimensionality as the MDD
@@ -3044,10 +3044,11 @@ throw( r_Error )
             rpcRetryCounter++;
         }
         while( tileRes == 0 );
-        RMDBGIF(20, RMDebug::module_tools, "WAITRECEIVEDTILE", \
-                LTRACE << "Waiting 100 sec after receive tile\n"; \
-                sleep(100); \
-                LTRACE << "Continue now\n"; );
+#ifdef DEBUG
+        LTRACE << "Waiting 100 sec after receive tile";
+        sleep(100);
+        LTRACE << "Continue now";
+#endif
         setRPCInactive();
 
 
@@ -3223,7 +3224,7 @@ int RpcClientComm::concatArrayData( const char *source, unsigned long srcSize, c
         // allocate a little extra if we have to extend
         newSize = newSize + newSize / 16;
 
-//    RMDBGOUT( 1, "RpcClientComm::concatArrayData(): need to extend from " << destSize << " to " << newSize );
+//    LTRACE << "RpcClientComm::concatArrayData(): need to extend from " << destSize << " to " << newSize;
 
         if ((newArray = new char[newSize]) == NULL)
             return -1;

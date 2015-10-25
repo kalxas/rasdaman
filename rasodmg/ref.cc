@@ -36,7 +36,6 @@ static const char rcsidref[] = "@(#)rasodmg, r_Ref: $Id: ref.cc,v 1.28 2002/08/2
 #include "rasodmg/database.hh"
 #include "rasodmg/ref.hh"
 
-#include "raslib/rmdebug.hh"
 
 #ifdef __VISUALC__
 #include <sstrea.h>
@@ -46,6 +45,9 @@ static const char rcsidref[] = "@(#)rasodmg, r_Ref: $Id: ref.cc,v 1.28 2002/08/2
 
 #include "rasodmg/transaction.hh"
 #include "clientcomm/clientcomm.hh"
+
+#include "../common/src/logging/easylogging++.hh"
+
 
 // forward declaration needed because of EARLY_TEMPLATE
 class r_Transaction;
@@ -57,14 +59,14 @@ class r_Transaction;
 r_Ref_Any::r_Ref_Any()
     : memptr(0), oid()
 {
-    RMDBGONCE(4, RMDebug::module_rasodmg, "r_Ref_Any", "r_Ref_Any()")
+    LTRACE << "r_Ref_Any", "r_Ref_Any()";
 }
 
 
 
 r_Ref_Any::r_Ref_Any( const r_Ref_Any& obj )
 {
-    RMDBGONCE(4, RMDebug::module_rasodmg, "r_Ref_Any", "r_Ref_Any( const r_Ref_Any& )")
+    LTRACE << "r_Ref_Any( const r_Ref_Any& )";
     memptr       = obj.memptr;
     oid          = obj.oid;
 }
@@ -74,7 +76,7 @@ r_Ref_Any::r_Ref_Any( const r_Ref_Any& obj )
 r_Ref_Any::r_Ref_Any( const r_OId& initOId )
     : memptr(0)
 {
-    RMDBGONCE(4, RMDebug::module_rasodmg, "r_Ref_Any", "r_Ref_Any( const r_OId& )")
+    LTRACE << "r_Ref_Any( const r_OId& )";
     oid = initOId;
 }
 
@@ -83,7 +85,7 @@ r_Ref_Any::r_Ref_Any( const r_OId& initOId )
 r_Ref_Any::r_Ref_Any( r_Object* ptr )
     : memptr( ptr ), oid()
 {
-    RMDBGONCE(4, RMDebug::module_rasodmg, "r_Ref_Any", "r_Ref_Any( r_Object* )")
+    LTRACE << "r_Ref_Any( r_Object* )";
 }
 
 
@@ -91,21 +93,21 @@ r_Ref_Any::r_Ref_Any( r_Object* ptr )
 r_Ref_Any::r_Ref_Any( void* ptr )
     : memptr( ptr ), oid()
 {
-    RMDBGONCE(4, RMDebug::module_rasodmg, "r_Ref_Any", "r_Ref_Any( void* )")
+    LTRACE << "r_Ref_Any( void* )";
 }
 
 
 r_Ref_Any::r_Ref_Any( const r_OId &initOId, r_Object* ptr )
     : memptr( ptr ), oid( initOId )
 {
-    RMDBGONCE(4, RMDebug::module_rasodmg, "r_Ref_Any", "r_Ref_Any( const r_OId &oid, const r_Object* )")
+    LTRACE << "r_Ref_Any( const r_OId &oid, const r_Object* )";
 }
 
 
 
 r_Ref_Any::~r_Ref_Any()
 {
-    RMDBGONCE(4, RMDebug::module_rasodmg, "r_Ref_Any", "~r_Ref_Any()")
+    LTRACE << "~r_Ref_Any()";
 
     // object should not be delete from databse when reference destructor is called
     //  if( memptr ){
@@ -141,7 +143,7 @@ r_Ref_Any::operator=( r_Object* ptr )
 void
 r_Ref_Any::destroy()
 {
-    RMDBGONCE(4, RMDebug::module_rasodmg, "r_Ref_Any", "destroy()")
+    LTRACE << "destroy()";
 
     if( memptr && !oid.is_valid() )
     {
@@ -154,7 +156,7 @@ r_Ref_Any::destroy()
 void
 r_Ref_Any::delete_object()
 {
-    RMDBGONCE(4, RMDebug::module_rasodmg, "r_Ref_Any", "delete_object()")
+    LTRACE << "delete_object()";
 
     if( memptr )
     {
@@ -247,7 +249,7 @@ r_Ref_Any::is_null() const
 int
 r_Ref_Any::operator==( const r_Ref_Any& ref ) const
 {
-    RMDBGONCE(4, RMDebug::module_rasodmg, "r_Ref_Any", "operator==( const r_Ref_Any& )")
+    LTRACE << "operator==( const r_Ref_Any& )";
     return // both refs are not valid or ...
         ( is_null() && ref.is_null() ) ||
         // both oids are valid and the same or ...
@@ -261,7 +263,7 @@ r_Ref_Any::operator==( const r_Ref_Any& ref ) const
 int
 r_Ref_Any::operator!=( const r_Ref_Any& ref ) const
 {
-    RMDBGONCE(4, RMDebug::module_rasodmg, "r_Ref_Any", "operator!=( const r_Ref_Any& )")
+    LTRACE << "operator!=( const r_Ref_Any& )";
     return !operator==( ref );
 }
 
@@ -270,7 +272,7 @@ r_Ref_Any::operator!=( const r_Ref_Any& ref ) const
 int
 r_Ref_Any::operator==( const r_Object* ptr ) const
 {
-    RMDBGONCE(4, RMDebug::module_rasodmg, "r_Ref_Any", "operator==( const r_Object* )")
+    LTRACE << "operator==( const r_Object* )";
     return memptr == static_cast<void*>(const_cast<r_Object*>(ptr));
 }
 
@@ -279,7 +281,7 @@ r_Ref_Any::operator==( const r_Object* ptr ) const
 int
 r_Ref_Any::operator!=( const r_Object* ptr ) const
 {
-    RMDBGONCE(4, RMDebug::module_rasodmg, "r_Ref_Any", "operator!=( const r_Object* )")
+    LTRACE << "operator!=( const r_Object* )";
     return !operator==( ptr );
 }
 
@@ -300,7 +302,7 @@ template<class T>
 r_Ref<T>::r_Ref()
     : memptr(0), oid()
 {
-    RMDBGONCE(4, RMDebug::module_rasodmg, "r_Ref", "r_Ref()")
+    LTRACE << "r_Ref()";
 }
 
 
@@ -308,7 +310,7 @@ r_Ref<T>::r_Ref()
 template<class T>
 r_Ref<T>::r_Ref( const r_Ref<T>& obj )
 {
-    RMDBGONCE(4, RMDebug::module_rasodmg, "r_Ref", "r_Ref( const r_Ref<T>& )")
+    LTRACE << "r_Ref( const r_Ref<T>& )";
     memptr       = obj.memptr;
     oid          = obj.oid;
 }
@@ -319,7 +321,7 @@ template<class T>
 r_Ref<T>::r_Ref( const r_OId& initOId )
     : memptr(0)
 {
-    RMDBGONCE(4, RMDebug::module_rasodmg, "r_Ref", "r_Ref( const r_OId& )")
+    LTRACE << "r_Ref( const r_OId& )";
     oid = initOId;
 }
 
@@ -328,7 +330,7 @@ r_Ref<T>::r_Ref( const r_OId& initOId )
 template<class T>
 r_Ref<T>::r_Ref( const r_Ref_Any& obj )
 {
-    RMDBGONCE(4, RMDebug::module_rasodmg, "r_Ref", "r_Ref( const r_Ref_Any& )")
+    LTRACE << "r_Ref( const r_Ref_Any& )";
 
     memptr    = static_cast<T*>(obj.get_memory_ptr());
     oid       = obj.get_oid();
@@ -340,7 +342,7 @@ template<class T>
 r_Ref<T>::r_Ref( T* newPtr )
     : memptr( newPtr ), oid()
 {
-    RMDBGONCE(4, RMDebug::module_rasodmg, "r_Ref", "r_Ref( const T* )")
+    LTRACE << "r_Ref( const T* )";
 }
 
 
@@ -349,7 +351,7 @@ template<class T>
 r_Ref<T>::r_Ref( const r_OId &initOId, T* newPtr )
     : memptr( newPtr ), oid( initOId )
 {
-    RMDBGONCE(4, RMDebug::module_rasodmg, "r_Ref", "r_Ref( const r_OId &oid, const T* )")
+    LTRACE << "r_Ref( const r_OId &oid, const T* )";
 }
 
 
@@ -357,7 +359,7 @@ r_Ref<T>::r_Ref( const r_OId &initOId, T* newPtr )
 template<class T>
 r_Ref<T>::~r_Ref()
 {
-    RMDBGONCE(4, RMDebug::module_rasodmg, "r_Ref", "~r_Ref()")
+    LTRACE << "~r_Ref()";
 
     // object should not be delete from databse when reference destructor is called
     //  if( memptr ){
@@ -371,7 +373,7 @@ r_Ref<T>::~r_Ref()
 template<class T>
 r_Ref<T>::operator r_Ref_Any() const
 {
-    RMDBGONCE(4, RMDebug::module_rasodmg, "r_Ref", "operator r_Ref_Any()")
+    LTRACE << "operator r_Ref_Any()";
     return r_Ref_Any( oid, (r_Object *)memptr );
 }
 
@@ -380,7 +382,7 @@ r_Ref<T>::operator r_Ref_Any() const
 template<class T>
 r_Ref<T>::operator const r_Ref_Any() const
 {
-  RMDBGONCE(4, RMDebug::module_rasodmg, "r_Ref", "operator const r_Ref_Any()")
+  LTRACE << "operator const r_Ref_Any()";
   return r_Ref_Any( oid, memptr );
 }
 */
@@ -438,7 +440,7 @@ template<class T>
 const T&
 r_Ref<T>::operator*() const throw( r_Error )
 {
-    RMDBGONCE(4, RMDebug::module_rasodmg, "r_Ref", "operator*()")
+    LTRACE << "operator*()";
     if( !memptr )
         load_object();
 
@@ -456,7 +458,7 @@ template<class T>
 T&
 r_Ref<T>::operator*() throw( r_Error )
 {
-    RMDBGONCE(4, RMDebug::module_rasodmg, "r_Ref", "operator*()")
+    LTRACE << "operator*()";
     if( !memptr )
         load_object();
 
@@ -475,7 +477,7 @@ template<class T>
 const T*
 r_Ref<T>::operator->() const throw( r_Error )
 {
-    RMDBGONCE(4, RMDebug::module_rasodmg, "r_Ref", "operator->()")
+    LTRACE << "operator->()";
     if( !memptr )
         load_object();
 
@@ -492,7 +494,7 @@ template<class T>
 T*
 r_Ref<T>::operator->() throw( r_Error )
 {
-    RMDBGONCE(4, RMDebug::module_rasodmg, "r_Ref", "operator->()")
+    LTRACE << "operator->()";
     if( !memptr )
         load_object();
 
@@ -511,7 +513,7 @@ template<class T>
 const T*
 r_Ref<T>::ptr() const throw( r_Error )
 {
-    RMDBGONCE(4, RMDebug::module_rasodmg, "r_Ref", "ptr()")
+    LTRACE << "ptr()";
     if( !memptr )
         load_object();
 
@@ -523,7 +525,7 @@ template<class T>
 T*
 r_Ref<T>::ptr() throw( r_Error )
 {
-    RMDBGONCE(4, RMDebug::module_rasodmg, "r_Ref", "ptr()")
+    LTRACE << "ptr()";
     if( !memptr )
         load_object();
 
@@ -554,7 +556,7 @@ template<class T>
 int
 r_Ref<T>::operator==( const r_Ref<T>& refR ) const
 {
-    RMDBGONCE(4, RMDebug::module_rasodmg, "r_Ref", "operator==( const r_Ref<T>& )")
+    LTRACE << "operator==( const r_Ref<T>& )";
     return // both refs are not valid or ...
         ( is_null() && refR.is_null() ) ||
         // both oids are valid and the same or ...
@@ -569,7 +571,7 @@ template<class T>
 int
 r_Ref<T>::operator!=( const r_Ref<T>& refR ) const
 {
-    RMDBGONCE(4, RMDebug::module_rasodmg, "r_Ref", "operator!=( const r_Ref<T>& )")
+    LTRACE << "operator!=( const r_Ref<T>& )";
     return !operator==( refR );
 }
 
@@ -579,7 +581,7 @@ template<class T>
 int
 r_Ref<T>::operator==( const T* newPtr ) const
 {
-    RMDBGONCE(4, RMDebug::module_rasodmg, "r_Ref", "operator==( const T* )")
+    LTRACE << "operator==( const T* )";
     return memptr == newPtr;
 }
 
@@ -589,7 +591,7 @@ template<class T>
 int
 r_Ref<T>::operator!=( const T* newPtr ) const
 {
-    RMDBGONCE(4, RMDebug::module_rasodmg, "r_Ref", "operator!=( const T* )")
+    LTRACE << "operator!=( const T* )";
     return !operator==( newPtr );
 }
 
@@ -598,7 +600,7 @@ template<class T>
 void
 r_Ref<T>::destroy()
 {
-    RMDBGONCE(4, RMDebug::module_rasodmg, "r_Ref", "destroy()")
+    LTRACE << "destroy()";
 
     if( memptr && !oid.is_valid() )
     {
@@ -613,7 +615,7 @@ template<class T>
 void
 r_Ref<T>::delete_object()
 {
-    RMDBGONCE(4, RMDebug::module_rasodmg, "r_Ref", "delete_object()")
+    LTRACE << "delete_object()";
 
     if( memptr )
     {

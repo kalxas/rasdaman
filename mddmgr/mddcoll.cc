@@ -41,7 +41,6 @@ rasdaman GmbH.
 #include "mddobj.hh"
 #include "relmddif/dbmddobj.hh"
 #include "reladminif/objectbroker.hh"
-#include "raslib/rmdebug.hh"
 #include "reladminif/oidif.hh"
 #include "relcatalogif/collectiontype.hh"   // from base catalogif DBMS interface module
 #include "reladminif/databaseif.hh"
@@ -118,16 +117,19 @@ MDDColl::getEOId(EOId& pEOId) const
 void
 MDDColl::insert(const MDDObj* newObj)
 {
-    RMDBGIF(0, RMDebug::module_mddmgr, "MDDColl", if (newObj == 0) \
-{
-    \
-    LTRACE << "MDDColl::insert(const MDDObj*) assertion failed"; \
-    throw r_Error(MDD_NOT_VALID); \
-    })
+#ifdef DEBUG
+    if (newObj == 0)
+    {
+        LFATAL << "MDDColl::insert(const MDDObj*) assertion failed";
+        throw r_Error(MDD_NOT_VALID);
+    }
+#endif
     LTRACE << "insert(" << (r_Ptr)newObj << ")";
     dbColl->insert(newObj->getDBMDDObjId());
     insertIntoCache(newObj);
-    RMDBGIF(2, RMDebug::module_mddmgr, "MDDColl", dbColl->printStatus(0, RMInit::dbgOut);)
+#ifdef DEBUG
+    dbColl->printStatus(0, RMInit::dbgOut);
+#endif
 }
 
 void
@@ -254,12 +256,13 @@ MDDColl::removeFromCache(const PersMDDObj* objToRemove)
         (*i).second = NULL;
         delete persMDDObjToRemove;
         mddCache.erase(i);
-        RMDBGIF(0, RMDebug::module_mddmgr, "MDDColl", \
-            if (mddCache.find(objIdVoidAddress) != mddCache.end()) \
-                { \
-                LTRACE << "MDDColl::removeMDDObjfromCache() object multiple times in cache"; \
-                throw r_Error(MDD_EXISTS_MULTIPLE_TIMES); \
-                })
+#ifdef DEBUG
+        if (mddCache.find(objIdVoidAddress) != mddCache.end())
+        {
+            LFATAL << "MDDColl::removeMDDObjfromCache() object multiple times in cache";
+            throw r_Error(MDD_EXISTS_MULTIPLE_TIMES);
+        }
+#endif
         }
     else    {
         LTRACE << "removeMDDObjfromCache(" << objToRemove << ") not in collection";

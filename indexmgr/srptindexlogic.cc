@@ -23,7 +23,6 @@ rasdaman GmbH.
 
 #include "config.h"
 #include "indexmgr/srptindexlogic.hh"
-#include "raslib/rmdebug.hh"
 #include "tilemgr/tile.hh"
 #include "raslib/point.hh"
 #include "indexmgr/sdirindexlogic.hh"
@@ -480,12 +479,13 @@ SRPTIndexLogic::splitLeaf(	HierIndexDS*		pd1,
 			SDirIndexLogic::insertObject(pd2, obj, sl);
 			}
 //sanity check 
-RMDBGIF(0, RMDebug::module_indexmgr, "SRPTIndexLogic", \
-		if (!nd1.intersects_with(cd) && !nd2.intersects_with(cd)) \
-			{ \
-			LFATAL << "SRPTIndexLogic::splitLeaf() the entry does not intersect with any node: node 1 " << nd1 << " node 2 " << nd2 << " entry " << cd; \
-			throw r_Error(TILE_NOT_INSERTED_INTO_INDEX); \
-			} )
+#ifdef DEBUG
+                if (!nd1.intersects_with(cd) && !nd2.intersects_with(cd))
+                        {
+                        LFATAL << "SRPTIndexLogic::splitLeaf() the entry does not intersect with any node: node 1 " << nd1 << " node 2 " << nd2 << " entry " << cd;
+                        throw r_Error(TILE_NOT_INSERTED_INTO_INDEX);
+                        }
+#endif
 		}
 	pd1->setAssignedDomain(nd1);
 	pd2->setAssignedDomain(nd2);
@@ -1069,7 +1069,7 @@ SRPTIndexLogic::containPointQuery(	const r_Point&	searchPoint,
 	HierIndexDS* intersectedNode = NULL;
 	if (!ix)
 		{
-		RMDBGEXIT(4, RMDebug::module_indexmgr, "SRPTIndexLogic", "containPointQuery(" << searchPoint << ", Node, result) node is NULL");
+		LTRACE << "containPointQuery(" << searchPoint << ", Node, result) node is NULL";
 		}
 	else	{	
 		if (ix->isLeaf())
@@ -1085,10 +1085,10 @@ SRPTIndexLogic::containPointQuery(	const r_Point&	searchPoint,
 			}
 		if (result.isInitialised())
 			{
-			RMDBGEXIT(4, RMDebug::module_indexmgr, "SRPTIndexLogic", "containPointQuery(" << searchPoint << ", " << OId(ix->getIdentifier()) << ")" << result);
+			LTRACE << "containPointQuery(" << searchPoint << ", " << OId(ix->getIdentifier()) << ")" << result;
 			}
 		else	{
-			RMDBGEXIT(4, RMDebug::module_indexmgr, "SRPTIndexLogic", "containPointQuery(" << searchPoint << ", " << OId(ix->getIdentifier()) << ") nothing found");
+			LTRACE << "containPointQuery(" << searchPoint << ", " << OId(ix->getIdentifier()) << ") nothing found";
 			}
 		}
 	}

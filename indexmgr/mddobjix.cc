@@ -37,7 +37,6 @@ static const char rcsid[] = "@(#)mddobjix, MDDObjIx: $Id: mddobjix.cc,v 1.30 200
 #include <math.h>
 
 #include "indexmgr/mddobjix.hh"
-#include "raslib/rmdebug.hh"
 #include "tilemgr/tile.hh"
 #include "indexmgr/srptindexlogic.hh"
 #include "indexmgr/sdirindexlogic.hh"
@@ -334,30 +333,25 @@ MDDObjIx::intersect(const r_Minterval& searchInter) const
             if (isPersistent())
             {
 //this checks if there are double tiles in the result
-                RMDBGIF(1, RMDebug::module_indexmgr, "MDDObjIx", \
-                        DomainMap t; \
-                        DomainMap::iterator it; \
-                        for (i = 0; i < resSize; i++) \
+#ifdef DEBUG
+    DomainMap t;
+    DomainMap::iterator it;
+    for (i = 0; i < resSize; i++)
+    {
+        DomainPair p(resultKeys[i].getObject().getOId(), resultKeys[i].getDomain());
+        if ((it = t.find(p.first)) != t.end())
+        {
+            LTRACE << "intersect(" << searchInter <<
+            ") received double tile: " << resultKeys[i];
+            for (unsigned int i = 0; i < resultKeys.size(); i++)
             {
-                \
-                DomainPair p(resultKeys[i].getObject().getOId(), \
-                resultKeys[i].getDomain()); \
-                    if ((it = t.find(p.first)) != t.end()) \
-                    {
-                        \
-                        LTRACE << "intersect(" << searchInter << \
-                        ") received double tile: " << \
-                        resultKeys[i]; \
-                        for (unsigned int i = 0; i < resultKeys.size(); i++) \
-                        {
-                            \
-                            LTRACE << resultKeys[i]; \
-                        } \
-                        throw r_Error(TILE_MULTIPLE_TIMES_RETRIEVED); \
-                    } \
-                    t.insert(p); \
-                } \
-                       );
+                LTRACE << resultKeys[i];
+            }
+            throw r_Error(TILE_MULTIPLE_TIMES_RETRIEVED);
+        }
+        t.insert(p);
+    }
+#endif
                 for (i = 0; i < resSize; i++)
                 {
                     LTRACE << "received entry " << resultKeys[i];
@@ -468,28 +462,24 @@ MDDObjIx::getTiles() const
         if (isPersistent())
         {
 //this checks if there are double tiles in the result
-            RMDBGIF(1, RMDebug::module_indexmgr, "MDDObjIx", \
-                    DomainMap tmap; \
-                    DomainMap::iterator it; \
-                    for (int cnt = 0; cnt < resSize; cnt++) \
-        {
-            \
-            DomainPair p(resultKeys[cnt].getObject().getOId(), \
-            resultKeys[cnt].getDomain()); \
-                if ((it = tmap.find(p.first)) != tmap.end()) \
+#ifdef DEBUG
+            DomainMap tmap;
+            DomainMap::iterator it;
+            for (int cnt = 0; cnt < resSize; cnt++)
+            {
+                DomainPair p(resultKeys[cnt].getObject().getOId(), resultKeys[cnt].getDomain());
+                if ((it = tmap.find(p.first)) != tmap.end())
                 {
-                    \
-                    LTRACE << "getTiles() received double tile: " << resultKeys[cnt]; \
-                    for (int cnt = 0; cnt < resultKeys.size(); cnt++) \
+                    LTRACE << "getTiles() received double tile: " << resultKeys[cnt];
+                    for (int cnt = 0; cnt < resultKeys.size(); cnt++)
                     {
-                        \
-                        LTRACE << resultKeys[cnt]; \
-                    } \
-                    throw r_Error(TILE_MULTIPLE_TIMES_RETRIEVED ); \
-                } \
-                tmap.insert(p); \
-            } \
-                   );
+                        LTRACE << resultKeys[cnt];
+                    }
+                    throw r_Error(TILE_MULTIPLE_TIMES_RETRIEVED );
+                }
+                tmap.insert(p);
+            }
+#endif
             for (unsigned int i = 0; i < resSize; i++)
             {
                 result->push_back(shared_ptr<Tile>(

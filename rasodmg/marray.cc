@@ -128,7 +128,6 @@ template<class T>
 r_Marray<T>::r_Marray( const r_Marray<T> &obj ) throw(r_Error)
     : r_GMarray( obj )
 {
-    RMDBCLASS( "r_Marray<T>", "r_Marray<T>( const r_Marray<T>& )", "rasodmg", __FILE__, __LINE__ )
 }
 
 

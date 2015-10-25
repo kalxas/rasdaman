@@ -61,8 +61,6 @@ rasdaman GmbH.
 #define __EXECUTABLE__
 #endif
 
-#include "raslib/rmdebug.hh"
-
 #include "rviewApp.hh"
 #include "rviewOSection.hh"
 #include "rviewTypes.hh"
@@ -719,17 +717,13 @@ int rviewOSectionImage::performPartition(void)
     numPartitions = part - partition;
 
     // sorting isn't done here because it depends on the exact current perspective view.
-    RMDBGIF(4, RMDebug::module_applications, "rviewOSection", \
-            for (i=0; i<numPartitions; i++)
-{
-    \
-    RMInit::dbgFileOut  << i << ": " << partition[i].grav.z << ' ';
-        \
+#ifdef DEBUG
+    for (i=0; i<numPartitions; i++)
+    {
+        LDEBUG  << i << ": " << partition[i].grav.z << ' ';
         outputGeomData(&(partition[i].gr[j]));
-        \
-    }; \
-    RMInit::dbgFileOut  << endl ;
-           );
+    }
+#endif
     // done; the first entry in partitions is the remotest
     return 0;
 }

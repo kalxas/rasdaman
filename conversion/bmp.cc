@@ -39,7 +39,6 @@ rasdaman GmbH.
 #include <string.h>
 #include <new>
 
-#include "raslib/rmdebug.hh"
 #include "raslib/parseparams.hh"
 #include "conversion/bmp.hh"
 #include "conversion/memfs.hh"
@@ -539,14 +538,14 @@ r_convDesc &r_Conv_BMP::convertFrom(__attribute__ ((unused)) const char *options
 
     width = ihead.width;
     height = ihead.height;
-
-    RMDBGIF(4, RMDebug::module_conversion, "r_Conv_BMP", \
-            LTRACE << "File: type " << std::hex << fhead.type << ", size " << std::dec << fhead.size; \
-            LTRACE << ", rsv0 " << fhead.res0 << ", rsv1 " << fhead.res1 << ", offs " << fhead.offset; \
-            LTRACE << "Info: size " << ihead.size << ", width " << ihead.width << ", height " << ihead.height; \
-            LTRACE << ", planes " << ihead.planes << ", bits " << ihead.bitCount << ", comp " << ihead.compression; \
-            LTRACE << ", sizeImg " << ihead.sizeImage << ", xpels " << ihead.xpels << ", ypels " << ihead.ypels; \
-            LTRACE << ", clrUsed " << ihead.clrUsed << ", clrImp " << ihead.clrImportant; )
+#ifdef DEBUG
+    LTRACE << "File: type " << std::hex << fhead.type << ", size " << std::dec << fhead.size;
+    LTRACE << ", rsv0 " << fhead.res0 << ", rsv1 " << fhead.res1 << ", offs " << fhead.offset;
+    LTRACE << "Info: size " << ihead.size << ", width " << ihead.width << ", height " << ihead.height;
+    LTRACE << ", planes " << ihead.planes << ", bits " << ihead.bitCount << ", comp " << ihead.compression;
+    LTRACE << ", sizeImg " << ihead.sizeImage << ", xpels " << ihead.xpels << ", ypels " << ihead.ypels;
+    LTRACE << ", clrUsed " << ihead.clrUsed << ", clrImp " << ihead.clrImportant;
+#endif
 
     palette = (const rgb_quad_t*)(desc.src + BMPFILEHEADERSIZE + ihead.size);
     paletteIsGrey = 0;

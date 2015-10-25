@@ -48,7 +48,6 @@ static const char rcsid[] = "@(#)persmddobj, PersMDDObj: $Id: mddobj.cc,v 1.26 2
 #include "tilemgr/tile.hh"
 #include "relcatalogif/mdddomaintype.hh"
 #include "raslib/mddtypes.hh"
-#include "raslib/rmdebug.hh"
 #include "indexmgr/mddobjix.hh"
 #include "../common/src/logging/easylogging++.hh"
 
@@ -223,11 +222,12 @@ void
 MDDObj::insertTile(shared_ptr<Tile> newTile)
 {
     std::vector <r_Minterval> layoutDoms = myStorageLayout->getLayout(newTile->getDomain());
-    RMDBGIF(10, RMDebug::module_mddmgr, "printlayoutdoms",
-            LTRACE << "storage layout returned the following domains";
-            for (std::vector <r_Minterval>::iterator domit = layoutDoms.begin(); domit != layoutDoms.end(); domit++)
-            LTRACE << *domit;
-            LTRACE << "end of storage layout domains";);
+#ifdef DEBUG
+    LTRACE << "storage layout returned the following domains";
+    for (std::vector <r_Minterval>::iterator domit = layoutDoms.begin(); domit != layoutDoms.end(); domit++)
+        LTRACE << *domit;
+    LTRACE << "end of storage layout domains";
+#endif
 
     shared_ptr<Tile> tile;
     shared_ptr<Tile> tile2;
@@ -320,20 +320,16 @@ std::vector< shared_ptr<Tile> >*
 MDDObj::intersect(const r_Minterval& searchInter) const
 {
     std::vector<shared_ptr<Tile> >* retval = myMDDIndex->intersect(searchInter);
-    RMDBGIF(10, RMDebug::module_mddmgr, "printtiles", \
-            if (retval) \
-{
-    \
-    int t = RManDebug; \
-    RManDebug = 0; \
-    for (std::vector< shared_ptr<Tile> >::iterator it = retval->begin(); it != retval->end(); it++) \
+#ifdef DEBUG
+    if (retval)
+    {
+        for (std::vector< shared_ptr<Tile> >::iterator it = retval->begin(); it != retval->end(); it++)
         {
-            \
-            LTRACE << "FOUND " << (*it)->getDomain() << " "; \
-            (*it)->printStatus(0, RMInit::dbgOut); \
-        } \
-        RManDebug = t; \
-    })
+            LTRACE << "FOUND " << (*it)->getDomain() << " ";
+            (*it)->printStatus(0, RMInit::dbgOut);
+        }
+    }
+#endif
     return retval;
 }
 
