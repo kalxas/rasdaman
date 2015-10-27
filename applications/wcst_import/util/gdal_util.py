@@ -15,10 +15,11 @@ class GDALGmlUtil:
         as gdallib is known to be problematic in imports
         :param str gdal_file_path: the file path to the gdal supported file
         """
+	# GDAL want filename in utf8 or filename with spaces could not open.
         import osgeo.gdal as gdal
 
         self.gdal_file_path = gdal_file_path
-        self.gdal_dataset = gdal.Open(self.gdal_file_path)
+        self.gdal_dataset = gdal.Open(self.gdal_file_path.encode('utf8'))
         if self.gdal_dataset is None:
             raise RuntimeException("The file at path " + gdal_file_path + " is not a valid GDAL decodable file.")
 

@@ -9,7 +9,8 @@ from session import Session
 from util.crs_util import CRSUtil
 from util.gdal_util import GDALGmlUtil
 from util.log import log
-
+from util.gdal_validator import  GDALValidator
+from config_manager import ConfigManager
 
 class Recipe(BaseRecipe):
     def __init__(self, session):
@@ -21,6 +22,10 @@ class Recipe(BaseRecipe):
         super(Recipe, self).__init__(session)
         self.options = session.get_recipe()['options']
         self.importer = None
+
+        validator = GDALValidator(self.session.files)
+        if  ConfigManager.skip == True:
+            self.session.files = validator.get_valid_files()
 
     def validate(self):
         """
