@@ -85,8 +85,6 @@ QtIterator::getChilds( QtChildType flag )
     list<QtNode*>::iterator it; //default
     QtNode::QtNodeList::iterator iter;
 
-	LTRACE << "qlparser";
-
     // allocate resultList
     resultList = new QtNodeList();
 
@@ -116,7 +114,6 @@ QtIterator::getChilds( QtChildType flag )
 void
 QtIterator::open()
 {
-	LTRACE << "qlparser";
     startTimer("QtIterator");
 
     if( inputs )
@@ -132,7 +129,6 @@ QtIterator::open()
 void
 QtIterator::close()
 {
-	LTRACE << "qlparser";
     if( inputs )
     {
         QtONCStreamList::iterator i;

@@ -67,7 +67,6 @@ QtMintervalOp::QtMintervalOp( QtOperationList* opList )
 QtData*
 QtMintervalOp::evaluate( QtDataList* inputList )
 {
-	LTRACE << "qlparser";
     startTimer("QtMintervalOp");
 
     QtData*     returnValue = NULL;
@@ -191,8 +190,6 @@ QtMintervalOp::printAlgebraicExpression( ostream& s )
 const QtTypeElement&
 QtMintervalOp::checkType( QtTypeTuple* typeTuple )
 {
-	LTRACE << "qlparser";
-
     dataStreamType.setDataType( QT_TYPE_UNKNOWN );
 
     QtOperationList::iterator iter;

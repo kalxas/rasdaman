@@ -81,7 +81,6 @@ QtVariable::~QtVariable()
 bool
 QtVariable::equalMeaning( QtNode* node )
 {
-	LTRACE << "qlparser";
     bool result = false;
 
     if( nodeType == node->getNodeType() )
@@ -139,7 +138,6 @@ QtVariable::getAreaType()
 void
 QtVariable::optimizeLoad( QtTrimList* trimList )
 {
-	LTRACE << "qlparser";
     if( !trimList->empty() )
     {
         // get the highest specified dimension
@@ -191,7 +189,6 @@ QtVariable::optimizeLoad( QtTrimList* trimList )
 QtData*
 QtVariable::evaluate( QtDataList* inputList ) throw (ParseInfo)
 {
-	LTRACE << "qlparser";
     startTimer("QtVariable");
 
     vector<QtData*>::iterator i; //default
@@ -393,7 +390,6 @@ QtVariable::printAlgebraicExpression( ostream& s )
 const QtTypeElement&
 QtVariable::checkType( QtTypeTuple* typeTuple ) throw (ParseInfo)
 {
-	LTRACE << "qlparser";
     dataStreamType.setDataType( QT_TYPE_UNKNOWN );
 
     if( typeTuple )

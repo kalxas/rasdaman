@@ -71,7 +71,6 @@ QtDomainOperation::QtDomainOperation( QtOperation* mintOp )
     : mintervalOp( mintOp ),
       dynamicMintervalExpression( true )
 {
-	LTRACE << "qlparser";
     if( mintervalOp ) mintervalOp->setParent( this );
 }
 
@@ -81,7 +80,6 @@ QtDomainOperation::QtDomainOperation( r_Minterval domainNew, const vector<bool>*
     : mintervalOp(0),
       dynamicMintervalExpression( false )
 {
-	LTRACE << "qlparser";
     // make a copy
     vector<bool>* trimFlags  = new vector<bool>( *newTrimFlags );
     mintervalOp = new QtConst( new QtMintervalData( domainNew, trimFlags ) );
@@ -92,7 +90,6 @@ QtDomainOperation::QtDomainOperation( r_Minterval domainNew, const vector<bool>*
 
 QtDomainOperation::~QtDomainOperation()
 {
-	LTRACE << "qlparser";
     if( mintervalOp )
     {
         delete mintervalOp;
@@ -105,7 +102,6 @@ QtDomainOperation::~QtDomainOperation()
 QtNode::QtNodeList*
 QtDomainOperation::getChilds( QtChildType flag )
 {
-	LTRACE << "qlparser";
     QtNodeList* resultList=NULL;
 
     resultList = QtUnaryOperation::getChilds( flag );
@@ -139,7 +135,6 @@ QtDomainOperation::getChilds( QtChildType flag )
 bool
 QtDomainOperation::equalMeaning( QtNode* node )
 {
-	LTRACE << "qlparser";
     bool result = false;
 
     if( nodeType == node->getNodeType() )
@@ -189,7 +184,6 @@ QtDomainOperation::setInput( QtOperation* inputOld, QtOperation* inputNew )
 void
 QtDomainOperation::optimizeLoad( QtTrimList* trimList )
 {
-	LTRACE << "qlparser";
     // test, if there is already a specification for that dimension
     bool trimming = false;
 
@@ -271,7 +265,6 @@ QtDomainOperation::optimizeLoad( QtTrimList* trimList )
 QtData*
 QtDomainOperation::evaluate( QtDataList* inputList )
 {
-	LTRACE << "qlparser";
     startTimer("QtDomainOperation");
 
     QtData* returnValue = NULL;
@@ -899,7 +892,6 @@ QtDomainOperation::printAlgebraicExpression( ostream& s )
 const QtTypeElement&
 QtDomainOperation::checkType( QtTypeTuple* typeTuple )
 {
-	LTRACE << "qlparser";
     dataStreamType.setDataType( QT_TYPE_UNKNOWN );
 
     //

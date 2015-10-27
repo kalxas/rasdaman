@@ -66,7 +66,6 @@ QtPointOp::QtPointOp( QtOperationList* opList )
 QtData*
 QtPointOp::evaluate( QtDataList* inputList )
 {
-	LTRACE << "qlparser";
     startTimer("QtPointOp");
 
     QtData*     returnValue = NULL;
@@ -174,7 +173,6 @@ QtPointOp::printAlgebraicExpression( std::ostream& s )
 const QtTypeElement&
 QtPointOp::checkType( QtTypeTuple* typeTuple )
 {
-	LTRACE << "qlparser";
     dataStreamType.setDataType( QT_TYPE_UNKNOWN );
 
     QtOperationList::iterator iter;

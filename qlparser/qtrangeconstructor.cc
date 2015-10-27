@@ -69,7 +69,6 @@ QtRangeConstructor::QtRangeConstructor(QtOperationList *opList)
 bool
 QtRangeConstructor::equalMeaning(QtNode *node)
 {
-	LTRACE << "qlparser";
     bool result = false;
 
     if (nodeType == node->getNodeType())
@@ -123,7 +122,6 @@ QtRangeConstructor::simplify()
 QtData *
 QtRangeConstructor::evaluate(QtDataList *inputList)
 {
-	LTRACE << "qlparser";
     QtData *returnValue = NULL;
     QtDataList *operandList = NULL;
 
@@ -375,7 +373,6 @@ QtRangeConstructor::printAlgebraicExpression(ostream &s)
 const QtTypeElement &
 QtRangeConstructor::checkType(QtTypeTuple *typeTuple)
 {
-	LTRACE << "qlparser";
     dataStreamType.setDataType(QT_TYPE_UNKNOWN);
 
     complexLit = true;

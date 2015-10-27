@@ -97,8 +97,6 @@ QtNaryOperation::~QtNaryOperation()
 void
 QtNaryOperation::simplify()
 {
-	LTRACE << "qlparser";
-
     // In order to work bottom up, first inspect the descendants
     QtNode::simplify();
 
@@ -152,8 +150,6 @@ QtNaryOperation::simplify()
 bool
 QtNaryOperation::equalMeaning( QtNode* node )
 {
-	LTRACE << "qlparser";
-
     bool result;
     result=false;
 
@@ -190,8 +186,6 @@ QtNaryOperation::equalMeaning( QtNode* node )
 QtNode::QtNodeList*
 QtNaryOperation::getChilds( QtChildType flag )
 {
-	LTRACE << "qlparser";
-
     QtNodeList* resultList=NULL;
     QtNodeList* subList=NULL;
 
@@ -223,8 +217,6 @@ QtNaryOperation::getChilds( QtChildType flag )
 bool
 QtNaryOperation::getOperands( QtDataList* inputList, QtDataList* &operandList )
 {
-	LTRACE << "qlparser";
-
     bool success = (operationList != 0);
 
     // Test, if all operands are available.
@@ -341,8 +333,6 @@ QtNaryOperation::getAreaType()
 void
 QtNaryOperation::optimizeLoad( QtTrimList* trimList )
 {
-	LTRACE << "qlparser";
-
     // delete trimList
     // release( trimList->begin(), trimList->end() );
     for( QtNode::QtTrimList::iterator iter=trimList->begin(); iter!=trimList->end(); iter++ )

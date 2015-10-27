@@ -69,8 +69,6 @@ QtBinaryInduce::QtBinaryInduce( QtOperation* initInput1, QtOperation* initInput2
 QtData*
 QtBinaryInduce::computeOp( QtData* operand1, QtData* operand2 )
 {
-	LTRACE << "qlparser";
-
     QtData* returnValue = NULL;
 
     if     ( operand1->getDataType() == QT_MDD &&
@@ -140,8 +138,6 @@ QtBinaryInduce::computeOp( QtData* operand1, QtData* operand2 )
 QtData*
 QtBinaryInduce::computeUnaryMDDOp( QtMDD* operand1, QtScalarData* operand2, const BaseType* resultBaseType, int scalarPos )
 {
-	LTRACE << "qlparser";
-
     QtData* returnValue = NULL;
 
     // get the MDD object
@@ -256,8 +252,6 @@ QtBinaryInduce::computeUnaryMDDOp( QtMDD* operand1, QtScalarData* operand2, cons
 QtData*
 QtBinaryInduce::computeBinaryMDDOp( QtMDD* operand1, QtMDD* operand2, const BaseType* resultBaseType, BinaryOp* myOp )
 {
-	LTRACE << "qlparser";
-
     QtData* returnValue = NULL;
     // get the MDD objects
     MDDObj* op1 = operand1->getMDDObject();
@@ -411,8 +405,6 @@ QtBinaryInduce::computeBinaryMDDOp( QtMDD* operand1, QtMDD* operand2, const Base
 QtData*
 QtBinaryInduce::computeBinaryOp( QtScalarData* operand1, QtScalarData* operand2, const BaseType* resultBaseType )
 {
-	LTRACE << "qlparser";
-
     QtScalarData* scalarDataObj = NULL;
     r_Minterval* nullValues = operand1->getNullValues();  // FIXME use also operand2
 
@@ -476,7 +468,6 @@ QtBinaryInduce::evaluate( QtDataList* inputList )
 const QtTypeElement&
 QtBinaryInduce::checkType( QtTypeTuple* typeTuple )
 {
-	LTRACE << "qlparser";
     dataStreamType.setDataType( QT_TYPE_UNKNOWN );
 
     // check operand branches
@@ -611,8 +602,6 @@ QtPlus::QtPlus( QtOperation* initInput1, QtOperation* initInput2 )
 QtOperation*
 QtPlus::getUniqueOrder( const QtNode::QtNodeType ID )
 {
-	LTRACE << "qlparser";
-
     QtOperation* returnValue = NULL;
 
     if( nodeType == ID )
@@ -812,8 +801,6 @@ QtMult::QtMult( QtOperation* initInput1, QtOperation* initInput2 )
 QtOperation*
 QtMult::getUniqueOrder( const QtNode::QtNodeType ID )
 {
-	LTRACE << "qlparser";
-
     QtOperation* returnValue = NULL;
 
     if( nodeType == ID )

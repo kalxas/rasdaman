@@ -89,7 +89,6 @@ QtCondenseOp::~QtCondenseOp()
 QtNode::QtNodeList*
 QtCondenseOp::getChilds( QtChildType flag )
 {
-	LTRACE << "qlparser";
     QtNodeList* resultList;
     resultList = QtBinaryOperation::getChilds( flag );
     if( condOp )
@@ -118,7 +117,6 @@ QtCondenseOp::getChilds( QtChildType flag )
 bool
 QtCondenseOp::equalMeaning( QtNode* node )
 {
-	LTRACE << "qlparser";
     bool result = false;
 
     if( nodeType == node->getNodeType() )
@@ -179,7 +177,6 @@ QtCondenseOp::setInput( QtOperation* inputOld, QtOperation* inputNew )
 void
 QtCondenseOp::optimizeLoad( QtTrimList* trimList )
 {
-	LTRACE << "qlparser";
     // delete the trimList and optimize subtrees
 
     // release( trimList->begin(), trimList->end() );
@@ -229,7 +226,6 @@ QtCondenseOp::isCommutative() const
 QtData*
 QtCondenseOp::evaluate( QtDataList* inputList )
 {
-	LTRACE << "qlparser";
     startTimer("QtCondenseOp");
 
     QtData* returnValue = NULL;
@@ -403,7 +399,6 @@ QtCondenseOp::printAlgebraicExpression( ostream& s )
 const QtTypeElement&
 QtCondenseOp::checkType( QtTypeTuple* typeTuple )
 {
-	LTRACE << "qlparser";
     dataStreamType.setDataType( QT_TYPE_UNKNOWN );
 
     // check operand branches

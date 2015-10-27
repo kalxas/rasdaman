@@ -107,8 +107,6 @@ QtCondense::optimizeLoad( QtTrimList* trimList )
 QtData*
 QtCondense::computeFullCondense( QtDataList* inputList, r_Minterval& areaOp )
 {
-	LTRACE << "qlparser";
-
     QtScalarData* returnValue = NULL;
 
     // get the operand
@@ -227,7 +225,6 @@ QtCondense::computeFullCondense( QtDataList* inputList, r_Minterval& areaOp )
 const QtTypeElement&
 QtCondense::checkType( QtTypeTuple* typeTuple )
 {
-	LTRACE << "qlparser";
     dataStreamType.setDataType( QT_TYPE_UNKNOWN );
 
     // check operand branches
@@ -336,7 +333,6 @@ QtSome::QtSome( QtOperation* inputNew )
 QtData*
 QtSome::evaluate( QtDataList* inputList )
 {
-	LTRACE << "qlparser";
     startTimer("Qt");
 
     QtData* returnValue = NULL;
@@ -454,7 +450,6 @@ QtAll::QtAll( QtOperation* inputNew )
 QtData*
 QtAll::evaluate( QtDataList* inputList )
 {
-	LTRACE << "qlparser";
     startTimer("QtAll");
 
     QtData* returnValue = NULL;
@@ -569,7 +564,6 @@ QtCountCells::QtCountCells( QtOperation* inputNew )
 QtData*
 QtCountCells::evaluate( QtDataList* inputList )
 {
-	LTRACE << "qlparser";
     startTimer("QtCountCells");
     r_Minterval dummyint;
     QtData* returnValue = QtCondense::computeFullCondense( inputList, dummyint );
@@ -598,7 +592,6 @@ QtAddCells::QtAddCells( QtOperation* inputNew )
 QtData*
 QtAddCells::evaluate( QtDataList* inputList )
 {
-	LTRACE << "qlparser";
     startTimer("QtAddCells");
     r_Minterval dummyint;
 
@@ -628,7 +621,6 @@ QtAvgCells::QtAvgCells( QtOperation* inputNew )
 QtData*
 QtAvgCells::evaluate( QtDataList* inputList )
 {
-	LTRACE << "qlparser";
     startTimer("QtAvgCells");
 
     // domain for condensing operation
@@ -710,7 +702,6 @@ QtMinCells::QtMinCells( QtOperation* inputNew )
 QtData*
 QtMinCells::evaluate( QtDataList* inputList )
 {
-	LTRACE << "qlparser";
     startTimer("QtMinCells");
     r_Minterval dummyint;
 
@@ -741,7 +732,6 @@ QtMaxCells::QtMaxCells( QtOperation* inputNew )
 QtData*
 QtMaxCells::evaluate( QtDataList* inputList )
 {
-	LTRACE << "qlparser";
     startTimer("QtMaxCells");
     r_Minterval dummyint;
 

@@ -78,8 +78,6 @@ QtConst::~QtConst()
 bool
 QtConst::equalMeaning( QtNode* node )
 {
-	LTRACE << "qlparser";
-
     bool result = false;
 
     if( nodeType == node->getNodeType() )
@@ -118,8 +116,6 @@ QtConst::getAreaType()
 void
 QtConst::optimizeLoad( QtTrimList* trimList )
 {
-	LTRACE << "qlparser";
-
     if( trimList )
     {
         if( trimList->size() )
@@ -162,7 +158,6 @@ QtConst::optimizeLoad( QtTrimList* trimList )
 QtData*
 QtConst::evaluate( QtDataList* /*inputList*/ )
 {
-//    LTRACE << "qlparser";
     startTimer("QtConst");
 
     QtData* returnValue = NULL;
@@ -240,8 +235,6 @@ QtConst::printAlgebraicExpression( ostream& s )
 const QtTypeElement&
 QtConst::checkType( __attribute__ ((unused)) QtTypeTuple* typeTuple )
 {
-	LTRACE << "qlparser";
-
     dataStreamType.setDataType( QT_TYPE_UNKNOWN );
 
     if( dataObj )

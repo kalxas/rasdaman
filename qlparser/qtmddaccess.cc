@@ -88,7 +88,6 @@ QtMDDAccess::~QtMDDAccess()
 void
 QtMDDAccess::open()
 {
-	LTRACE << "qlparser";
     startTimer("QtMDDAccess");
 
     // delete an existing iterator
@@ -112,7 +111,6 @@ QtMDDAccess::open()
 QtNode::QtDataList*
 QtMDDAccess::next()
 {
-	LTRACE << "qlparser";
     resumeTimer();
 
     QtDataList* returnValue = NULL;
@@ -181,7 +179,6 @@ QtMDDAccess::next()
 void
 QtMDDAccess::close()
 {
-	LTRACE << "qlparser";
     // delete the mdd iterator
     if( mddIter )
     {
@@ -225,7 +222,6 @@ QtMDDAccess::printAlgebraicExpression( ostream& s )
 const QtTypeTuple&
 QtMDDAccess::checkType()
 {
-	LTRACE << "qlparser";
     dataStreamType = QtTypeTuple(0);
 
     //

@@ -106,7 +106,6 @@ QtJoinIterator::printAlgebraicExpression( ostream& s )
 void
 QtJoinIterator::open()
 {
-	LTRACE << "qlparser";
     startTimer("QtJoinIterator");
 
     QtIterator::open();
@@ -167,7 +166,6 @@ QtJoinIterator::open()
 QtNode::QtDataList*
 QtJoinIterator::next()
 {
-	LTRACE << "qlparser";
     resumeTimer();
 
     QtDataList* returnValue = NULL;
@@ -275,7 +273,6 @@ QtJoinIterator::next()
 void
 QtJoinIterator::close()
 {
-	LTRACE << "qlparser";
     if( actualTupel )
     {
         // first delete still existing data carriers
@@ -295,8 +292,6 @@ QtJoinIterator::close()
 void
 QtJoinIterator::reset()
 {
-	LTRACE << "qlparser";
-
     // reset the input streams
     QtIterator::reset();
 
@@ -338,8 +333,6 @@ QtJoinIterator::reset()
 const QtTypeTuple&
 QtJoinIterator::checkType()
 {
-	LTRACE << "qlparser";
-
     getInputTypeTuple( dataStreamType );
 
     return dataStreamType;

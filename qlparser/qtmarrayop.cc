@@ -73,8 +73,6 @@ QtMarrayOp::QtMarrayOp( const string &initIteratorName, QtOperation* mintervalEx
 void
 QtMarrayOp::optimizeLoad( QtTrimList* trimList )
 {
-	LTRACE << "qlparser";
-
     // delete the trimList and optimize subtrees
 
     // release( trimList->begin(), trimList->end() );
@@ -102,7 +100,6 @@ QtMarrayOp::isCommutative() const
 QtData*
 QtMarrayOp::evaluate( QtDataList* inputList )
 {
-	LTRACE << "qlparser";
     startTimer("QtMarrayOp");
 
     QtData* returnValue = NULL;
@@ -270,8 +267,6 @@ QtMarrayOp::printAlgebraicExpression( ostream& s )
 const QtTypeElement&
 QtMarrayOp::checkType( QtTypeTuple* typeTuple )
 {
-	LTRACE << "qlparser";
-
     dataStreamType.setDataType( QT_TYPE_UNKNOWN );
 
     // check operand branches

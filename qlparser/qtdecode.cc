@@ -77,7 +77,6 @@ QtUnaryOperation(newInput), format(formatArg)
 
 QtData* QtDecode::evaluate(QtDataList* inputList) throw (r_Error)
 {
-	LTRACE << "qlparser";
 	startTimer("QtDecode");
 
 	QtData* operand = NULL;
@@ -216,7 +215,6 @@ void QtDecode::initGdalParamas(char* params)
 
 const QtTypeElement& QtDecode::checkType(QtTypeTuple* typeTuple)
 {
-	LTRACE << "qlparser";
     dataStreamType.setDataType(QT_TYPE_UNKNOWN);
 
 	// check operand branches

@@ -112,7 +112,6 @@ QtInsert::~QtInsert()
 QtData*
 QtInsert::evaluate()
 {
-	LTRACE << "qlparser";
     startTimer("QtInsert");
       
     // allocate a new oid within the current db
@@ -500,8 +499,6 @@ QtInsert::getSource()
 void
 QtInsert::checkType()
 {
-	LTRACE << "qlparser";
-
     // check operand branches
     if (source)
     {

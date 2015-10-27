@@ -90,7 +90,6 @@ QtShift::isCommutative() const
 QtData*
 QtShift::evaluate( QtDataList* inputList )
 {
-	LTRACE << "qlparser";
     startTimer("QtShift");
 
     QtData* returnValue = NULL;
@@ -214,7 +213,6 @@ QtShift::printAlgebraicExpression( ostream& s )
 void
 QtShift::optimizeLoad( QtTrimList* trimList )
 {
-	LTRACE << "qlparser";
     QtNode::QtTrimList *list1=NULL, *list2=NULL;
 
     if( input1 && input2 )
@@ -332,7 +330,6 @@ QtShift::optimizeLoad( QtTrimList* trimList )
 const QtTypeElement&
 QtShift::checkType( QtTypeTuple* typeTuple )
 {
-	LTRACE << "qlparser";
     dataStreamType.setDataType( QT_TYPE_UNKNOWN );
 
     // check operand branches
@@ -392,7 +389,6 @@ QtExtend::isCommutative() const
 QtData*
 QtExtend::evaluate( QtDataList* inputList )
 {
-	LTRACE << "qlparser";
     startTimer("QtExtend");
 
     QtData* returnValue = NULL; // operation result
@@ -662,8 +658,6 @@ QtExtend::printAlgebraicExpression( ostream& s )
 void
 QtExtend::optimizeLoad( QtTrimList* trimList )
 {
-	LTRACE << "qlparser";
-
     QtNode::QtTrimList *list1=NULL, *list2=NULL;
 
     if( input1 && input2 )
@@ -773,8 +767,6 @@ QtExtend::optimizeLoad( QtTrimList* trimList )
 const QtTypeElement&
 QtExtend::checkType( QtTypeTuple* typeTuple )
 {
-	LTRACE << "qlparser";
-
     dataStreamType.setDataType( QT_TYPE_UNKNOWN );
 
     // check operand branches
@@ -839,7 +831,6 @@ inline double FLOOR(double a)
 QtData*
 QtScale::evaluate( QtDataList* inputList )
 {
-	LTRACE << "qlparser";
     startTimer("QtScale");
 
     QtData* returnValue = NULL;
@@ -1110,8 +1101,6 @@ QtScale::printAlgebraicExpression( ostream& s )
 void
 QtScale::optimizeLoad( QtTrimList* trimList )
 {
-	LTRACE << "qlparser";
-
     // Don't forward the load domain to the underlying node,
     // as the domain of the input is not known at this step, and thus
     // we can't calculate which part of it will be actually used.
@@ -1133,8 +1122,6 @@ QtScale::optimizeLoad( QtTrimList* trimList )
 const QtTypeElement&
 QtScale::checkType( QtTypeTuple* typeTuple )
 {
-	LTRACE << "qlparser";
-
     dataStreamType.setDataType( QT_TYPE_UNKNOWN );
 
     // check operand branches

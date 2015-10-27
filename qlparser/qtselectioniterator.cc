@@ -244,7 +244,6 @@ QtSelectionIterator::next()
 const QtTypeTuple&
 QtSelectionIterator::checkType()
 {
-	LTRACE << "qlparser";
     // concatenate types of inputs
     getInputTypeTuple( dataStreamType );
 

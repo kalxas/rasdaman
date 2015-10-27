@@ -89,7 +89,6 @@ QtUnaryOperation::getSpelling()
 void
 QtUnaryOperation::simplify()
 {
-	LTRACE << "qlparser";
     // In order to work bottom up, first inspect the descendants
     QtNode::simplify();
 
@@ -125,7 +124,6 @@ QtUnaryOperation::simplify()
 bool
 QtUnaryOperation::equalMeaning( QtNode* node )
 {
-	LTRACE << "qlparser";
     bool result = false;
 
     if( getNodeType() == node->getNodeType() )
@@ -143,7 +141,6 @@ QtUnaryOperation::equalMeaning( QtNode* node )
 QtNode::QtNodeList*
 QtUnaryOperation::getChilds( QtChildType flag )
 {
-	LTRACE << "qlparser";
     QtNodeList* resultList=NULL;
 
     if( flag == QT_DIRECT_CHILDS )
@@ -169,7 +166,6 @@ QtUnaryOperation::getAreaType()
 void
 QtUnaryOperation::optimizeLoad( QtTrimList* trimList )
 {
-	LTRACE << "qlparser";
     // by default, pass load domain to the input
     if( input )
         input->optimizeLoad( trimList );

@@ -109,7 +109,6 @@ QtMddCfgOp::~QtMddCfgOp()
 void
 QtMddCfgOp::optimizeLoad( QtTrimList* trimList )
 {
-	LTRACE << "qlparser";
     // by default, pass load domain to the input
     if( input )
         input->optimizeLoad( trimList );

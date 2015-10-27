@@ -62,8 +62,6 @@ QtConcat::QtConcat( QtOperationList* opList, unsigned int dim )
 bool
 QtConcat::equalMeaning( QtNode* node )
 {
-	LTRACE << "qlparser";
-
     bool result = false;
 
     if( nodeType == node->getNodeType() )
@@ -125,8 +123,6 @@ QtConcat::simplify()
 QtData*
 QtConcat::evaluate( QtDataList* inputList )
 {
-	LTRACE << "qlparser";
-
     QtData* returnValue = NULL;
     QtDataList* operandList = NULL;
     
@@ -368,8 +364,6 @@ QtConcat::printAlgebraicExpression( ostream& s )
 const QtTypeElement&
 QtConcat::checkType(QtTypeTuple* typeTuple)
 {
-	LTRACE << "qlparser";
-
     dataStreamType.setDataType(QT_TYPE_UNKNOWN);
 
     QtTypeElement inputType;

@@ -66,7 +66,6 @@ QtDelete::~QtDelete()
 QtData*
 QtDelete::evaluate()
 {
-	LTRACE << "qlparser";
     startTimer("QtDelete");
 
     QtNode::QtDataList* nextTupel=NULL;
@@ -232,7 +231,6 @@ QtDelete::getStreamInput()
 void
 QtDelete::checkType()
 {
-	LTRACE << "qlparser";
     // check operand branches
     if( input )
     {

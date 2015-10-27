@@ -96,7 +96,6 @@ QueryTree::~QueryTree()
 void
 QueryTree::checkSemantics()
 {
-	LTRACE << "qlparser";
     if (!rootNode)
         return;
 

@@ -80,8 +80,6 @@ QtOperationIterator::~QtOperationIterator()
 QtNode::QtNodeList*
 QtOperationIterator::getChilds( QtChildType flag )
 {
-	LTRACE << "qlparser";
-
     QtNodeList* resultList=NULL;
     QtNodeList* subList=NULL;
 
@@ -201,7 +199,6 @@ QtOperationIterator::printAlgebraicExpression( ostream& s )
 QtNode::QtDataList*
 QtOperationIterator::next()
 {
-	LTRACE << "qlparser";
     resumeTimer();
 
     QtDataList* returnValue = NULL;
@@ -279,8 +276,6 @@ QtOperationIterator::next()
 const QtTypeTuple&
 QtOperationIterator::checkType()
 {
-	LTRACE << "qlparser";
-
     dataStreamType = QtTypeTuple();
 
     QtTypeTuple inputTypeTuple;

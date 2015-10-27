@@ -55,7 +55,6 @@ QtIntervalLoOp::QtIntervalLoOp( QtOperation* newInput )
 QtData*
 QtIntervalLoOp::evaluate( QtDataList* inputList )
 {
-	LTRACE << "qlparser";
     startTimer("QtIntervalLoOp");
 
     QtData* returnValue = NULL;
@@ -140,7 +139,6 @@ QtIntervalLoOp::printAlgebraicExpression( std::ostream& s )
 const QtTypeElement&
 QtIntervalLoOp::checkType( QtTypeTuple* typeTuple )
 {
-	LTRACE << "qlparser";
     dataStreamType.setDataType( QT_TYPE_UNKNOWN );
 
     // check operand branches
@@ -180,7 +178,6 @@ QtIntervalHiOp::QtIntervalHiOp( QtOperation* newInput )
 QtData*
 QtIntervalHiOp::evaluate( QtDataList* inputList )
 {
-	LTRACE << "qlparser";
     startTimer("QtIntervalHiOp");
 
     QtData* returnValue = NULL;
@@ -264,7 +261,6 @@ QtIntervalHiOp::printAlgebraicExpression( std::ostream& s )
 const QtTypeElement&
 QtIntervalHiOp::checkType( QtTypeTuple* typeTuple )
 {
-	LTRACE << "qlparser";
     dataStreamType.setDataType( QT_TYPE_UNKNOWN );
 
     // check operand branches
@@ -304,7 +300,6 @@ QtSDom::QtSDom( QtOperation* newInput )
 QtData*
 QtSDom::evaluate( QtDataList* inputList )
 {
-	LTRACE << "qlparser";
     startTimer("QtSDom");
 
     QtData* returnValue = NULL;
@@ -351,7 +346,6 @@ QtSDom::evaluate( QtDataList* inputList )
 void
 QtSDom::optimizeLoad( QtTrimList* trimList )
 {
-	LTRACE << "qlparser";
     // reset trimList because optimization enters a new MDD area
 
     // delete list
@@ -398,7 +392,6 @@ QtSDom::printAlgebraicExpression( std::ostream& s )
 const QtTypeElement&
 QtSDom::checkType( QtTypeTuple* typeTuple )
 {
-	LTRACE << "qlparser";
     dataStreamType.setDataType( QT_TYPE_UNKNOWN );
 
     // check operand branches

@@ -98,8 +98,6 @@ QtBinaryOperation::~QtBinaryOperation()
 void
 QtBinaryOperation::simplify()
 {
-	LTRACE << "qlparser";
-
     // In order to work bottom up, first inspect the descendants
     QtNode::simplify();
 
@@ -137,8 +135,6 @@ QtBinaryOperation::simplify()
 bool
 QtBinaryOperation::equalMeaning( QtNode* node )
 {
-	LTRACE << "qlparser";
-
     bool result = false;
 
     // are the nodes of the same type?
@@ -170,8 +166,6 @@ QtBinaryOperation::equalMeaning( QtNode* node )
 QtNode::QtNodeList*
 QtBinaryOperation::getChilds( QtChildType flag )
 {
-	LTRACE << "qlparser";
-
     QtNodeList* resultList = new QtNodeList();
 
     if ( flag == QT_LEAF_NODES || flag == QT_ALL_NODES )
@@ -212,8 +206,6 @@ QtBinaryOperation::getChilds( QtChildType flag )
 bool
 QtBinaryOperation::getOperands( QtDataList* inputList, QtData* &operand1, QtData* &operand2 )
 {
-	LTRACE << "qlparser";
-
     bool success = false;
 
     // get the operands
@@ -271,8 +263,6 @@ QtBinaryOperation::getOperands( QtDataList* inputList, QtData* &operand1, QtData
 bool
 QtBinaryOperation::getOperand( QtDataList* inputList, QtData* &operand, int number )
 {
-	LTRACE << "qlparser";
-
     bool success = false;
 
     // get the operand
@@ -362,8 +352,6 @@ QtBinaryOperation::getAreaType()
 void
 QtBinaryOperation::optimizeLoad( QtTrimList* trimList )
 {
-	LTRACE << "qlparser";
-
     QtNode::QtTrimList *list1=NULL;
     QtNode::QtTrimList *list2=NULL;
 

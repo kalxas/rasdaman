@@ -192,7 +192,6 @@ constructBaseType( const r_Type *type )
 QtData*
 QtConversion::evaluate( QtDataList* inputList )
 {
-	LTRACE << "qlparser";
     startTimer("QtConversion");
 
     QtData* returnValue = NULL;
@@ -589,8 +588,6 @@ QtConversion::printAlgebraicExpression( ostream& s )
 const QtTypeElement&
 QtConversion::checkType( QtTypeTuple* typeTuple )
 {
-	LTRACE << "qlparser";
-
     dataStreamType.setDataType( QT_TYPE_UNKNOWN );
 
     // check operand branches

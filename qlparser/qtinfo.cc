@@ -59,14 +59,12 @@ QtInfo::QtInfo( QtVariable* newInput )
     : QtUnaryOperation( newInput ),
       printTiles( 0 )
 {
-    LTRACE << "qlparser";
 }
 
 QtInfo::QtInfo( QtVariable* newInput, const char* paramsStr )
     : QtUnaryOperation( newInput ),
       printTiles( 0 )
 {
-	LTRACE << "qlparser";
     r_Parse_Params* params = new r_Parse_Params();
     params->add("printtiles", &printTiles, r_Parse_Params::param_type_int);
     
@@ -83,7 +81,6 @@ QtInfo::QtInfo( QtVariable* newInput, const char* paramsStr )
 QtData*
 QtInfo::evaluate( QtDataList* inputList )
 {
-	LTRACE << "qlparser";
     startTimer("QtInfo");
 
     QtData* returnValue = NULL;
@@ -287,8 +284,6 @@ QtInfo::printAlgebraicExpression( std::ostream& s )
 const QtTypeElement&
 QtInfo::checkType( QtTypeTuple* typeTuple )
 {
-	LTRACE << "qlparser";
-
     dataStreamType.setDataType( QT_TYPE_UNKNOWN );
 
     // check operand branches

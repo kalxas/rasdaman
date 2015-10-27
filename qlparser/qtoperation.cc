@@ -94,8 +94,6 @@ QtOperation::optimizeLoad( QtTrimList* trimList )
 const QtTypeElement&
 QtOperation::checkType( __attribute__ ((unused)) QtTypeTuple* typeTuple )
 {
-	LTRACE << "qlparser";
-
     dataStreamType.setDataType( QT_TYPE_UNKNOWN );
 
     return dataStreamType;

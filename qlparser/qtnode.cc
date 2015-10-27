@@ -211,8 +211,6 @@ QtNode::subtype( enum QtNodeType a, enum QtNodeType b )
 QtNode::QtNodeList*
 QtNode::getChilds( QtChildType flag )
 {
-	LTRACE << "qlparser";
-
     // Default definition is used for all leaf nodes.
 
     // Algorithm:
@@ -238,8 +236,6 @@ QtNode::getChilds( QtChildType flag )
 QtNode::QtNodeList*
 QtNode::getChild( const QtNodeType node, QtChildType flag )
 {
-	LTRACE << "qlparser";
-
     QtNodeList* resultList=NULL;
     QtNodeList::iterator iter;
 
@@ -277,8 +273,6 @@ QtNode::getAreaType()
 void
 QtNode::simplify()
 {
-	LTRACE << "qlparser";
-
     // Default method for all classes that have no implementation.
     // Method is used bottom up.
 

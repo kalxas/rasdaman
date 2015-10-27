@@ -583,8 +583,6 @@ void QtBit::printAlgebraicExpression(ostream& s)
 
 const QtTypeElement& QtBit::checkType(QtTypeTuple* typeTuple)
 {
-	LTRACE << "qlparser";
-
     dataStreamType.setDataType(QT_TYPE_UNKNOWN);
 
     // check operand branches

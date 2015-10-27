@@ -121,7 +121,6 @@ QtData*
 QtUnaryInduce::computeUnaryMDDOp( QtMDD* operand, const BaseType* resultBaseType,
                                   Ops::OpType operation, unsigned int operandOffset, double param )
 {
-	LTRACE << "qlparser";
     QtData* returnValue = NULL;
 
     // get the MDD object
@@ -263,7 +262,6 @@ QtData*
 QtUnaryInduce::computeUnaryOp( QtScalarData* operand, const BaseType* resultBaseType,
                                Ops::OpType operation, unsigned int operandOffset, double param )
 {
-	LTRACE << "qlparser";
     QtScalarData* scalarDataObj = NULL;
     r_Minterval* nullValues = operand->getNullValues();
 
@@ -400,7 +398,6 @@ QtNot::printAlgebraicExpression( ostream& s )
 const QtTypeElement&
 QtNot::checkType( QtTypeTuple* typeTuple )
 {
-	LTRACE << "qlparser";
     dataStreamType.setDataType( QT_TYPE_UNKNOWN );
 
     // check operand branches
@@ -537,7 +534,6 @@ QtDot::getSpelling()
 QtData*
 QtDot::evaluate( QtDataList* inputList )
 {
-	LTRACE << "qlparser";
     startTimer("QtDot");
 
     QtData* returnValue = NULL;
@@ -698,7 +694,6 @@ QtDot::printAlgebraicExpression( ostream& s )
 const QtTypeElement&
 QtDot::checkType( QtTypeTuple* typeTuple )
 {
-	LTRACE << "qlparser";
     dataStreamType.setDataType( QT_TYPE_UNKNOWN );
 
     // check operand branches
@@ -894,7 +889,6 @@ void QtCast::printAlgebraicExpression(ostream& s)
 
 const QtTypeElement& QtCast::checkType(QtTypeTuple* typeTuple)
 {
-	LTRACE << "qlparser";
     dataStreamType.setDataType( QT_TYPE_UNKNOWN );
 
     // check operand branches
@@ -1012,7 +1006,6 @@ void QtRealPartOp::printAlgebraicExpression(ostream& s)
 
 const QtTypeElement& QtRealPartOp::checkType(QtTypeTuple* typeTuple)
 {
-	LTRACE << "qlparser";
     dataStreamType.setDataType( QT_TYPE_UNKNOWN );
 
     // check operand branches

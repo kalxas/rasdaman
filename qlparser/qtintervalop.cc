@@ -273,8 +273,6 @@ QtIntervalOp::printAlgebraicExpression( ostream& s )
 const QtTypeElement&
 QtIntervalOp::checkType( QtTypeTuple* typeTuple )
 {
-	LTRACE << "qlparser";
-
     dataStreamType.setDataType( QT_TYPE_UNKNOWN );
 
     // check operand branches

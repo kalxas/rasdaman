@@ -393,7 +393,6 @@ QtCaseOp::evaluateInducedOp(QtDataList* inputList) {
  */
 QtData*
 QtCaseOp::evaluate(QtDataList* inputList) {
-	LTRACE << "qlparser";
     startTimer("QtCaseOp");
     if (this->inducedCase) {
         return this->evaluateInducedOp(inputList);
@@ -542,7 +541,6 @@ QtCaseOp::checkTypeInducedOp(QtTypeTuple* typeTuple) {
  */
 const QtTypeElement&
 QtCaseOp::checkType(QtTypeTuple* typeTuple) {
-	LTRACE << "qlparser";
     dataStreamType.setDataType(QT_TYPE_UNKNOWN);
     if ((*(operationList->begin()))->checkType(typeTuple).getDataType() == QT_MDD) {
         this->inducedCase = true;

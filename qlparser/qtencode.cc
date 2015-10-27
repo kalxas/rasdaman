@@ -106,7 +106,6 @@ QtEncode::~QtEncode()
 
 QtData* QtEncode::evaluate(QtDataList* inputList) throw (r_Error)
 {
-	LTRACE << "qlparser";
     startTimer("QtEncode");
 
     QtData* returnValue = NULL;
@@ -151,7 +150,6 @@ QtData* QtEncode::evaluate(QtDataList* inputList) throw (r_Error)
 
 QtData* QtEncode::evaluateMDD(QtMDD* qtMDD) throw (r_Error)
 {
-		LTRACE << "qlparser";
     QtData* returnValue    = NULL;
     MDDObj* currentMDDObj  = qtMDD->getMDDObject();
 
@@ -338,7 +336,6 @@ QtEncode::printTree(int tab, ostream& s, QtChildType mode)
 
 GDALDataset* QtEncode::convertTileToDataset(Tile* tile, int nBands, r_Type* bandType)
 {
-	LTRACE << "qlparser";
     r_Bytes   typeSize = (static_cast<r_Primitive_Type*>(bandType))->size();
     bool  isNotBoolean = (static_cast<r_Primitive_Type*>(bandType))->type_id() != r_Type::BOOL;
     r_Minterval domain = tile->getDomain();
@@ -518,7 +515,6 @@ QtEncode::getAreaType()
 const QtTypeElement&
 QtEncode::checkType(QtTypeTuple* typeTuple)
 {
-	LTRACE << "qlparser";
     if (builtinConvertor)
         return builtinConvertor->checkType(typeTuple);
 

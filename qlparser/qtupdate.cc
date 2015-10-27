@@ -106,7 +106,6 @@ QtUpdate::~QtUpdate()
 QtData*
 QtUpdate::evaluate()
 {
-	LTRACE << "qlparser";
     startTimer("QtUpdate");
 
     // Test, if all necessary operands are available.
@@ -624,7 +623,6 @@ QtUpdate::checkDomainCompatibility(QtNode::QtDataList* nextTupel, QtData* target
 QtNode::QtNodeList*
 QtUpdate::getChilds( QtChildType flag )
 {
-	LTRACE << "qlparser";
     QtNodeList* resultList=NULL;
 
     // allocate resultList
@@ -810,7 +808,6 @@ QtUpdate::getInput()
 void
 QtUpdate::checkType()
 {
-	LTRACE << "qlparser";
     // check operand branches
     if( updateTarget && input )
     {

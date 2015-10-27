@@ -68,16 +68,15 @@ void QtAbs::printAlgebraicExpression(ostream& s) {
 }
 
 const QtTypeElement& QtAbs::checkType(QtTypeTuple* typeTuple) {
-	LTRACE << "qlparser";
 	dataStreamType.setDataType( QT_TYPE_UNKNOWN );
 	// check operand branches
 	if(input) {
 	// get input types
 	const QtTypeElement& inputType = input->checkType( typeTuple );
-	RMDBGIF( 4, RMDebug::module_qlparser, "AutoGen", \
-		LTRACE << "Operand: "; \
-		inputType.printStatus( RMInit::dbgOut ); \
-	)
+#ifdef DEBUG
+        LTRACE << "Operand: ";
+        inputType.printStatus( RMInit::dbgOut );
+#endif
 	if(inputType.getDataType() == QT_MDD) {
 	const BaseType* baseType = (static_cast<MDDBaseType*>(const_cast<Type*>(inputType.getType())))->getBaseType();
 	BaseType* resultBaseType = const_cast<BaseType*>(Ops::getResultType( Ops::OP_ABS, baseType ));
@@ -147,16 +146,15 @@ void QtSqrt::printAlgebraicExpression(ostream& s) {
 }
 
 const QtTypeElement& QtSqrt::checkType(QtTypeTuple* typeTuple) {
-	LTRACE << "qlparser";
 	dataStreamType.setDataType( QT_TYPE_UNKNOWN );
 	// check operand branches
 	if(input) {
 	// get input types
 	const QtTypeElement& inputType = input->checkType( typeTuple );
-	RMDBGIF( 4, RMDebug::module_qlparser, "AutoGen", \
-		LTRACE << "Operand: "; \
-		inputType.printStatus( RMInit::dbgOut ); \
-	)
+#ifdef DEBUG
+        LTRACE << "Operand: ";
+        inputType.printStatus( RMInit::dbgOut );
+#endif
 	if(inputType.getDataType() == QT_MDD) {
 	const BaseType* baseType = (static_cast<MDDBaseType*>(const_cast<Type*>(inputType.getType())))->getBaseType();
 	BaseType* resultBaseType = const_cast<BaseType*>(Ops::getResultType( Ops::OP_SQRT, baseType ));
@@ -226,16 +224,15 @@ void QtExp::printAlgebraicExpression(ostream& s) {
 }
 
 const QtTypeElement& QtExp::checkType(QtTypeTuple* typeTuple) {
-	LTRACE << "qlparser";
 	dataStreamType.setDataType( QT_TYPE_UNKNOWN );
 	// check operand branches
 	if(input) {
 	// get input types
 	const QtTypeElement& inputType = input->checkType( typeTuple );
-	RMDBGIF( 4, RMDebug::module_qlparser, "AutoGen", \
-		LTRACE << "Operand: "; \
-		inputType.printStatus( RMInit::dbgOut ); \
-	)
+#ifdef DEBUG
+        LTRACE << "Operand: ";
+        inputType.printStatus( RMInit::dbgOut );
+#endif
 	if(inputType.getDataType() == QT_MDD) {
 	const BaseType* baseType = (static_cast<MDDBaseType*>(const_cast<Type*>(inputType.getType())))->getBaseType();
 	BaseType* resultBaseType = const_cast<BaseType*>(Ops::getResultType( Ops::OP_EXP, baseType ));
@@ -312,17 +309,16 @@ void QtPow::printAlgebraicExpression(ostream& s)
 
 const QtTypeElement& QtPow::checkType(QtTypeTuple* typeTuple)
 {
-	LTRACE << "qlparser";
     dataStreamType.setDataType(QT_TYPE_UNKNOWN);
     // check operand branches
     if (input)
     {
         // get input types
         const QtTypeElement& inputType = input->checkType(typeTuple);
-        RMDBGIF(4, RMDebug::module_qlparser, "AutoGen", \
-		LTRACE << "Operand: "; \
-		inputType.printStatus(RMInit::dbgOut); \
-        );
+#ifdef DEBUG
+        LTRACE << "Operand: ";
+        inputType.printStatus( RMInit::dbgOut );
+#endif
         if (inputType.getDataType() == QT_MDD)
         {
             const BaseType* baseType = (static_cast<MDDBaseType*>(const_cast<Type*>(inputType.getType())))->getBaseType();
@@ -397,16 +393,15 @@ void QtLog::printAlgebraicExpression(ostream& s) {
 }
 
 const QtTypeElement& QtLog::checkType(QtTypeTuple* typeTuple) {
-	LTRACE << "qlparser";
 	dataStreamType.setDataType( QT_TYPE_UNKNOWN );
 	// check operand branches
 	if(input) {
 	// get input types
 	const QtTypeElement& inputType = input->checkType( typeTuple );
-	RMDBGIF( 4, RMDebug::module_qlparser, "AutoGen", \
-		LTRACE << "Operand: "; \
-		inputType.printStatus( RMInit::dbgOut ); \
-	)
+#ifdef DEBUG
+        LTRACE << "Operand: ";
+        inputType.printStatus( RMInit::dbgOut );
+#endif
 	if(inputType.getDataType() == QT_MDD) {
 	const BaseType* baseType = (static_cast<MDDBaseType*>(const_cast<Type*>(inputType.getType())))->getBaseType();
 	BaseType* resultBaseType = const_cast<BaseType*>(Ops::getResultType( Ops::OP_LOG, baseType ));
@@ -476,16 +471,15 @@ void QtLn::printAlgebraicExpression(ostream& s) {
 }
 
 const QtTypeElement& QtLn::checkType(QtTypeTuple* typeTuple) {
-	LTRACE << "qlparser";
 	dataStreamType.setDataType( QT_TYPE_UNKNOWN );
 	// check operand branches
 	if(input) {
 	// get input types
 	const QtTypeElement& inputType = input->checkType( typeTuple );
-	RMDBGIF( 4, RMDebug::module_qlparser, "AutoGen", \
-		LTRACE << "Operand: "; \
-		inputType.printStatus( RMInit::dbgOut ); \
-	)
+#ifdef DEBUG
+        LTRACE << "Operand: ";
+        inputType.printStatus( RMInit::dbgOut );
+#endif
 	if(inputType.getDataType() == QT_MDD) {
 	const BaseType* baseType = (static_cast<MDDBaseType*>(const_cast<Type*>(inputType.getType())))->getBaseType();
 	BaseType* resultBaseType = const_cast<BaseType*>(Ops::getResultType( Ops::OP_LN, baseType ));
@@ -555,16 +549,15 @@ void QtSin::printAlgebraicExpression(ostream& s) {
 }
 
 const QtTypeElement& QtSin::checkType(QtTypeTuple* typeTuple) {
-	LTRACE << "qlparser";
 	dataStreamType.setDataType( QT_TYPE_UNKNOWN );
 	// check operand branches
 	if(input) {
 	// get input types
 	const QtTypeElement& inputType = input->checkType( typeTuple );
-	RMDBGIF( 4, RMDebug::module_qlparser, "AutoGen", \
-		LTRACE << "Operand: "; \
-		inputType.printStatus( RMInit::dbgOut ); \
-	)
+#ifdef DEBUG
+        LTRACE << "Operand: ";
+        inputType.printStatus( RMInit::dbgOut );
+#endif
 	if(inputType.getDataType() == QT_MDD) {
 	const BaseType* baseType = (static_cast<MDDBaseType*>(const_cast<Type*>(inputType.getType())))->getBaseType();
 	BaseType* resultBaseType = const_cast<BaseType*>(Ops::getResultType( Ops::OP_SIN, baseType ));
@@ -634,16 +627,15 @@ void QtCos::printAlgebraicExpression(ostream& s) {
 }
 
 const QtTypeElement& QtCos::checkType(QtTypeTuple* typeTuple) {
-	LTRACE << "qlparser";
 	dataStreamType.setDataType( QT_TYPE_UNKNOWN );
 	// check operand branches
 	if(input) {
 	// get input types
 	const QtTypeElement& inputType = input->checkType( typeTuple );
-	RMDBGIF( 4, RMDebug::module_qlparser, "AutoGen", \
-		LTRACE << "Operand: "; \
-		inputType.printStatus( RMInit::dbgOut ); \
-	)
+#ifdef DEBUG
+        LTRACE << "Operand: ";
+        inputType.printStatus( RMInit::dbgOut );
+#endif
 	if(inputType.getDataType() == QT_MDD) {
 	const BaseType* baseType = (static_cast<MDDBaseType*>(const_cast<Type*>(inputType.getType())))->getBaseType();
 	BaseType* resultBaseType = const_cast<BaseType*>(Ops::getResultType( Ops::OP_COS, baseType ));
@@ -713,16 +705,15 @@ void QtTan::printAlgebraicExpression(ostream& s) {
 }
 
 const QtTypeElement& QtTan::checkType(QtTypeTuple* typeTuple) {
-	LTRACE << "qlparser";
 	dataStreamType.setDataType( QT_TYPE_UNKNOWN );
 	// check operand branches
 	if(input) {
 	// get input types
 	const QtTypeElement& inputType = input->checkType( typeTuple );
-	RMDBGIF( 4, RMDebug::module_qlparser, "AutoGen", \
-		LTRACE << "Operand: "; \
-		inputType.printStatus( RMInit::dbgOut ); \
-	)
+#ifdef DEBUG
+        LTRACE << "Operand: ";
+        inputType.printStatus( RMInit::dbgOut );
+#endif
 	if(inputType.getDataType() == QT_MDD) {
 	const BaseType* baseType = (static_cast<MDDBaseType*>(const_cast<Type*>(inputType.getType())))->getBaseType();
 	BaseType* resultBaseType = const_cast<BaseType*>(Ops::getResultType( Ops::OP_TAN, baseType ));
@@ -792,16 +783,15 @@ void QtSinh::printAlgebraicExpression(ostream& s) {
 }
 
 const QtTypeElement& QtSinh::checkType(QtTypeTuple* typeTuple) {
-	LTRACE << "qlparser";
 	dataStreamType.setDataType( QT_TYPE_UNKNOWN );
 	// check operand branches
 	if(input) {
 	// get input types
 	const QtTypeElement& inputType = input->checkType( typeTuple );
-	RMDBGIF( 4, RMDebug::module_qlparser, "AutoGen", \
-		LTRACE << "Operand: "; \
-		inputType.printStatus( RMInit::dbgOut ); \
-	)
+#ifdef DEBUG
+        LTRACE << "Operand: ";
+        inputType.printStatus( RMInit::dbgOut );
+#endif
 	if(inputType.getDataType() == QT_MDD) {
 	const BaseType* baseType = (static_cast<MDDBaseType*>(const_cast<Type*>(inputType.getType())))->getBaseType();
 	BaseType* resultBaseType = const_cast<BaseType*>(Ops::getResultType( Ops::OP_SINH, baseType ));
@@ -871,16 +861,15 @@ void QtCosh::printAlgebraicExpression(ostream& s) {
 }
 
 const QtTypeElement& QtCosh::checkType(QtTypeTuple* typeTuple) {
-	LTRACE << "qlparser";
 	dataStreamType.setDataType( QT_TYPE_UNKNOWN );
 	// check operand branches
 	if(input) {
 	// get input types
 	const QtTypeElement& inputType = input->checkType( typeTuple );
-	RMDBGIF( 4, RMDebug::module_qlparser, "AutoGen", \
-		LTRACE << "Operand: "; \
-		inputType.printStatus( RMInit::dbgOut ); \
-	)
+#ifdef DEBUG
+        LTRACE << "Operand: ";
+        inputType.printStatus( RMInit::dbgOut );
+#endif
 	if(inputType.getDataType() == QT_MDD) {
 	const BaseType* baseType = (static_cast<MDDBaseType*>(const_cast<Type*>(inputType.getType())))->getBaseType();
 	BaseType* resultBaseType = const_cast<BaseType*>(Ops::getResultType( Ops::OP_COSH, baseType ));
@@ -950,16 +939,15 @@ void QtTanh::printAlgebraicExpression(ostream& s) {
 }
 
 const QtTypeElement& QtTanh::checkType(QtTypeTuple* typeTuple) {
-	LTRACE << "qlparser";
 	dataStreamType.setDataType( QT_TYPE_UNKNOWN );
 	// check operand branches
 	if(input) {
 	// get input types
 	const QtTypeElement& inputType = input->checkType( typeTuple );
-	RMDBGIF( 4, RMDebug::module_qlparser, "AutoGen", \
-		LTRACE << "Operand: "; \
-		inputType.printStatus( RMInit::dbgOut ); \
-	)
+#ifdef DEBUG
+        LTRACE << "Operand: ";
+        inputType.printStatus( RMInit::dbgOut );
+#endif
 	if(inputType.getDataType() == QT_MDD) {
 	const BaseType* baseType = (static_cast<MDDBaseType*>(const_cast<Type*>(inputType.getType())))->getBaseType();
 	BaseType* resultBaseType = const_cast<BaseType*>(Ops::getResultType( Ops::OP_TANH, baseType ));
@@ -1029,16 +1017,15 @@ void QtArcsin::printAlgebraicExpression(ostream& s) {
 }
 
 const QtTypeElement& QtArcsin::checkType(QtTypeTuple* typeTuple) {
-	LTRACE << "qlparser";
 	dataStreamType.setDataType( QT_TYPE_UNKNOWN );
 	// check operand branches
 	if(input) {
 	// get input types
 	const QtTypeElement& inputType = input->checkType( typeTuple );
-	RMDBGIF( 4, RMDebug::module_qlparser, "AutoGen", \
-		LTRACE << "Operand: "; \
-		inputType.printStatus( RMInit::dbgOut ); \
-	)
+#ifdef DEBUG
+        LTRACE << "Operand: ";
+        inputType.printStatus( RMInit::dbgOut );
+#endif
 	if(inputType.getDataType() == QT_MDD) {
 	const BaseType* baseType = (static_cast<MDDBaseType*>(const_cast<Type*>(inputType.getType())))->getBaseType();
 	BaseType* resultBaseType = const_cast<BaseType*>(Ops::getResultType( Ops::OP_ARCSIN, baseType ));
@@ -1107,16 +1094,15 @@ void QtArccos::printAlgebraicExpression(ostream& s) {
 }
 
 const QtTypeElement& QtArccos::checkType(QtTypeTuple* typeTuple) {
-	LTRACE << "qlparser";
 	dataStreamType.setDataType( QT_TYPE_UNKNOWN );
 	// check operand branches
 	if(input) {
 	// get input types
 	const QtTypeElement& inputType = input->checkType( typeTuple );
-	RMDBGIF( 4, RMDebug::module_qlparser, "AutoGen", \
-		LTRACE << "Operand: "; \
-		inputType.printStatus( RMInit::dbgOut ); \
-	)
+#ifdef DEBUG
+        LTRACE << "Operand: ";
+        inputType.printStatus( RMInit::dbgOut );
+#endif
 	if(inputType.getDataType() == QT_MDD) {
 	const BaseType* baseType = (static_cast<MDDBaseType*>(const_cast<Type*>(inputType.getType())))->getBaseType();
 	BaseType* resultBaseType = const_cast<BaseType*>(Ops::getResultType( Ops::OP_ARCCOS, baseType ));
@@ -1186,17 +1172,16 @@ void QtArctan::printAlgebraicExpression(ostream& s) {
 }
 
 const QtTypeElement& QtArctan::checkType(QtTypeTuple* typeTuple) {
-	LTRACE << "qlparser";
 	dataStreamType.setDataType( QT_TYPE_UNKNOWN );
 	// check operand branches
 	if(input) 
         {
 	// get input types
 	const QtTypeElement& inputType = input->checkType( typeTuple );
-	RMDBGIF( 4, RMDebug::module_qlparser, "AutoGen", \
-		LTRACE << "Operand: "; \
-		inputType.printStatus( RMInit::dbgOut ); \
-	)
+#ifdef DEBUG
+        LTRACE << "Operand: ";
+        inputType.printStatus( RMInit::dbgOut );
+#endif
 	if(inputType.getDataType() == QT_MDD) {
 	const BaseType* baseType = (static_cast<MDDBaseType*>(const_cast<Type*>(inputType.getType())))->getBaseType();
 	BaseType* resultBaseType = const_cast<BaseType*>(Ops::getResultType( Ops::OP_ARCTAN, baseType ));

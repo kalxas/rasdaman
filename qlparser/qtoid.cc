@@ -50,7 +50,6 @@ const QtNode::QtNodeType QtOId::nodeType = QtNode::QT_OID;
 QtOId::QtOId( QtVariable* newInput )
     : QtUnaryOperation( newInput )
 {
-	LTRACE << "qlparser";
 }
 
 
@@ -58,7 +57,6 @@ QtOId::QtOId( QtVariable* newInput )
 QtData*
 QtOId::evaluate( QtDataList* inputList )
 {
-	LTRACE << "qlparser";
     startTimer("QtOid");
 
     QtData* returnValue = NULL;
@@ -158,8 +156,6 @@ QtOId::printAlgebraicExpression( std::ostream& s )
 const QtTypeElement&
 QtOId::checkType( QtTypeTuple* typeTuple )
 {
-	LTRACE << "qlparser";
-
     dataStreamType.setDataType( QT_TYPE_UNKNOWN );
 
     // check operand branches
