@@ -74,7 +74,6 @@ extern "C" int gethostname(char *name, int namelen);
 
 #include <rpc/pmap_clnt.h>
 
-#include "raslib/rmdebug.hh"
 #include "debug.hh"
 #include "raslib/rminit.hh"
 #include "raslib/error.hh"
@@ -185,8 +184,9 @@ ServerComm::openDB( unsigned long callingClientId,
                     const char* userName )
 {
     unsigned short returnValue=0;
-    RMDBGIF(4, RMDebug::module_servercomm, "ServerComm",
-        LINFO << "Request: 'open DB', name = " << dbName << "'..."; )
+#ifdef DEBUG
+    LINFO << "Request: 'open DB', name = " << dbName << "'...";
+#endif
 
     ClientTblElt* context = getClientContext( callingClientId );
 
@@ -231,8 +231,9 @@ ServerComm::openDB( unsigned long callingClientId,
             delete[] context->userName;
             context->userName = new char[strlen( userName )+1];
             strcpy( context->userName, userName );
-
-            RMDBGIF(4, RMDebug::module_servercomm, "ServerComm", LINFO << MSG_OK;)
+#ifdef DEBUG
+            LINFO << MSG_OK;
+#endif
         }
 
         context->release();
@@ -262,8 +263,9 @@ ServerComm::closeDB( unsigned long callingClientId )
 {
     unsigned short returnValue;
 
-    RMDBGIF(4, RMDebug::module_servercomm, "ServerComm",
-        LINFO << "Request: 'close DB'...";)
+#ifdef DEBUG
+    LINFO << "Request: 'close DB'...";)
+#endif
 
     ClientTblElt* context = getClientContext( callingClientId );
 
@@ -297,7 +299,9 @@ ServerComm::closeDB( unsigned long callingClientId )
         purify_new_leaks();
 #endif
 
-        RMDBGIF(4, RMDebug::module_servercomm, "ServerComm", LINFO << MSG_OK;)
+#ifdef DEBUG
+    LINFO << MSG_OK;
+#endif
     }
     else
     {
@@ -319,8 +323,9 @@ ServerComm::createDB( char* name )
 
     // FIXME: what about client id? -- PB 2005-aug-27
 
-    RMDBGIF(4, RMDebug::module_servercomm, "ServerComm",
-        LINFO << "Request: 'create DB', name = " << name << "'...";)
+#ifdef DEBUG
+    LINFO << "Request: 'create DB', name = " << name << "'...";
+#endif
 
     DatabaseIf* tempDbIf = new DatabaseIf;
 
@@ -328,12 +333,15 @@ ServerComm::createDB( char* name )
     try
     {
         tempDbIf->createDB( name, dbSchema );
-        RMDBGIF(4, RMDebug::module_servercomm, "ServerComm", LINFO << MSG_OK;)
+#ifdef DEBUG
+    LINFO << MSG_OK;
+#endif
     }
     catch(r_Error& myErr)
     {
-        RMDBGIF(2, RMDebug::module_servercomm, "ServerComm",
-        LERROR << "Error: exception " << myErr.get_errorno() << ": " << myErr.what();)
+#ifdef DEBUG
+        LERROR << "Error: exception " << myErr.get_errorno() << ": " << myErr.what();
+#endif
     }
     catch(std::bad_alloc)
     {
@@ -365,8 +373,9 @@ ServerComm::destroyDB( char* name )
 
     unsigned short returnValue = 0;
 
-    RMDBGIF(4, RMDebug::module_servercomm, "ServerComm",
-        LINFO << "Request: 'destroy DB', name = " << name << "'...";)
+#ifdef DEBUG
+    LINFO << "Request: 'destroy DB', name = " << name << "'...";
+#endif
 
     DatabaseIf* tempDbIf = new DatabaseIf;
 
@@ -382,7 +391,9 @@ ServerComm::destroyDB( char* name )
 
     delete tempDbIf;
 
-    RMDBGIF(4, RMDebug::module_servercomm, "ServerComm", LINFO << MSG_OK;)
+#ifdef DEBUG
+    LINFO << MSG_OK;
+#endif
 
     return returnValue;
 }
@@ -398,8 +409,9 @@ ServerComm::beginTA( unsigned long callingClientId,
 {
     unsigned short returnValue;
 
-    RMDBGIF(4, RMDebug::module_servercomm, "ServerComm",
-        LINFO << "Request: 'begin TA', mode = " << ( readOnly ? "read" : "write" ) << "...";)
+#ifdef DEBUG
+    LINFO << "Request: 'begin TA', mode = " << ( readOnly ? "read" : "write" ) << "...";
+#endif
 
     ClientTblElt* context = getClientContext( callingClientId );
 
@@ -427,12 +439,15 @@ ServerComm::beginTA( unsigned long callingClientId,
         {
             // start the transaction
             context->transaction.begin( &(context->database), readOnly );
-            RMDBGIF(4, RMDebug::module_servercomm, "ServerComm", LINFO << MSG_OK;)
+#ifdef DEBUG
+            LINFO << MSG_OK;
+#endif
         }
         catch(r_Error& err)
         {
-            RMDBGIF(2, RMDebug::module_servercomm, "ServerComm",
-                LFATAL << "Error: exception " << err.get_errorno() << ": " << err.what(); )
+#ifdef DEBUG
+            LFATAL << "Error: exception " << err.get_errorno() << ": " << err.what();
+#endif
             context->release();
             throw;
         }
@@ -458,7 +473,9 @@ ServerComm::commitTA( unsigned long callingClientId )
 
     ClientTblElt* context = getClientContext( callingClientId );
 
-    RMDBGIF(4, RMDebug::module_servercomm, "ServerComm", LINFO << "Request: 'commit TA'...";)
+#ifdef DEBUG
+    LINFO << "Request: 'commit TA'...";
+#endif
 
     if( context != 0 )
     {
@@ -491,7 +508,9 @@ ServerComm::commitTA( unsigned long callingClientId )
 
         context->release();
 
-        RMDBGIF(4, RMDebug::module_servercomm, "ServerComm", LINFO << MSG_OK;)
+#ifdef DEBUG
+        LINFO << MSG_OK;
+#endif
     }
     else
     {
@@ -518,7 +537,9 @@ ServerComm::abortTA( unsigned long callingClientId )
 {
     unsigned short returnValue;
 
-    RMDBGIF(4, RMDebug::module_servercomm, "ServerComm",LINFO << "Request: 'abort TA'...";)
+#ifdef DEBUG
+    LINFO << "Request: 'abort TA'...";
+#endif
 
     ClientTblElt* context = getClientContext( callingClientId );
 
@@ -542,7 +563,9 @@ ServerComm::abortTA( unsigned long callingClientId )
 
         context->release();
 
-        RMDBGIF(4, RMDebug::module_servercomm, "ServerComm", LINFO << MSG_OK;)
+#ifdef DEBUG
+        LINFO << MSG_OK;
+#endif
     }
     else
     {
@@ -569,13 +592,15 @@ ServerComm::abortTA( unsigned long callingClientId )
 bool
 ServerComm::isTAOpen( __attribute__ ((unused)) unsigned long callingClientId )
 {
-    RMDBGIF(4, RMDebug::module_servercomm, "ServerComm",
-        LINFO << "Request: 'is TA open'...";)
+#ifdef DEBUG
+        LINFO << "Request: 'is TA open'...";
+#endif
 
     bool returnValue = transactionActive;
 
-    RMDBGIF(4, RMDebug::module_servercomm, "ServerComm",
-        LINFO << MSG_OK << (transactionActive?"yes.":"no.");)
+#ifdef DEBUG
+    LINFO << MSG_OK << (transactionActive?"yes.":"no.");
+#endif
 
     return returnValue;
 }
@@ -618,14 +643,16 @@ ServerComm::insertColl( unsigned long callingClientId,
             {
                 if (obj.get_kind() == r_Error::r_Error_NameNotUnique)
                 {
-                    RMDBGIF(2, RMDebug::module_servercomm, "ServerComm",
-                        LERROR << "Error: collection exists already.";);
+#ifdef DEBUG
+                    LERROR << "Error: collection exists already.";
+#endif
                     returnValue = 3;
                 }
                 else
                 {
-                    RMDBGIF(2, RMDebug::module_servercomm, "ServerComm",
-                        LERROR << "Error: cannot create collection: " << obj.get_errorno() << " " << obj.what(););
+#ifdef DEBUG
+                    LERROR << "Error: cannot create collection: " << obj.get_errorno() << " " << obj.what();
+#endif
                     //this should be another code...
                     returnValue = 3;
                 }
@@ -809,14 +836,16 @@ ServerComm::removeObjFromColl( unsigned long callingClientId,
             // collection name invalid
             if (obj.get_kind() == r_Error::r_Error_ObjectUnknown)
             {
-                RMDBGIF(2, RMDebug::module_servercomm, "ServerComm",
-                    LERROR << "Error: collection not found.";);
+#ifdef DEBUG
+                LERROR << "Error: collection not found.";
+#endif
                 returnValue = 2;
             }
             else
             {
-                RMDBGIF(2, RMDebug::module_servercomm, "ServerComm",
-                    LERROR << "Error " << obj.get_errorno() << ": " << obj.what(); )
+#ifdef DEBUG
+                LERROR << "Error " << obj.get_errorno() << ": " << obj.what();
+#endif
                 // there should be another return code
                 returnValue = 2;
             }
@@ -927,8 +956,9 @@ ServerComm::insertMDD( unsigned long  callingClientId,
                 }
                 catch (r_Error& err)
                 {
-                    RMDBGIF(2, RMDebug::module_servercomm, "ServerComm",
-                        LERROR << "Error " << err.get_errorno() << ": " << err.what();)
+#ifdef DEBUG
+                    LERROR << "Error " << err.get_errorno() << ": " << err.what();
+#endif
                     returnValue = 5;
                     context->release(); //!!!
                     throw;
@@ -947,14 +977,15 @@ ServerComm::insertMDD( unsigned long  callingClientId,
 
                 r_Minterval   domain( rpcMarray->domain );
 
-                RMDBGIF(4, RMDebug::module_servercomm, "ServerComm", \
-                        char* collTypeStructure = collection->getCollectionType()->getTypeStructure(); \
-                        char* mddTypeStructure  = mddType->getTypeStructure(); \
-                        LTRACE << "Collection type structure.: " << collTypeStructure << "\n" \
-                        << "MDD type structure........: " << mddTypeStructure << "\n" \
-                        << "MDD domain................: " << domain; \
-                        free( collTypeStructure ); \
-                        free( mddTypeStructure ); )
+#ifdef DEBUG
+                char* collTypeStructure = collection->getCollectionType()->getTypeStructure();
+                char* mddTypeStructure  = mddType->getTypeStructure();
+                LTRACE << "Collection type structure.: " << collTypeStructure << "\n"
+                       << "MDD type structure........: " << mddTypeStructure << "\n"
+                       << "MDD domain................: " << domain;
+                free( collTypeStructure );
+                free( mddTypeStructure );
+#endif
 
                 if( !mddType->compatibleWithDomain( &domain ) )
                 {
@@ -1022,8 +1053,9 @@ ServerComm::insertMDD( unsigned long  callingClientId,
                 }
                 catch (r_Error& obj)
                 {
-                    RMDBGIF(2, RMDebug::module_servercomm, "ServerComm",
-                        LERROR << "Error " << obj.get_errorno() << ": " << obj.what();)
+#ifdef DEBUG
+                    LERROR << "Error " << obj.get_errorno() << ": " << obj.what();
+#endif
                     context->release(); //!!!
                     throw;
                 }
@@ -1331,8 +1363,9 @@ ServerComm::startInsertPersMDD( unsigned long  callingClientId,
                 }
                 catch (r_Error& obj)
                 {
-                    RMDBGIF(2, RMDebug::module_servercomm, "ServerComm",
-                        LFATAL << "Error " << obj.get_errorno() << ": " << obj.what();)
+#ifdef DEBUG
+                    LFATAL << "Error " << obj.get_errorno() << ": " << obj.what();
+#endif
                     context->release(); //!!!
                     throw;
                 }
@@ -1355,15 +1388,15 @@ ServerComm::startInsertPersMDD( unsigned long  callingClientId,
                 //
                 // check MDD and collection type for compatibility
                 //
-
-                RMDBGIF(4, RMDebug::module_servercomm, "ServerComm", \
-                        char* collTypeStructure = context->transferColl->getCollectionType()->getTypeStructure(); \
-                        char* mddTypeStructure  = mddType->getTypeStructure(); \
-                        LTRACE << "Collection type structure.: " << collTypeStructure << "\n" \
-                        << "MDD type structure........: " << mddTypeStructure << "\n" \
-                        << "MDD domain................: " << domain; \
-                        free( collTypeStructure ); \
-                        free( mddTypeStructure ); )
+#ifdef DEBUG
+                char* collTypeStructure = context->transferColl->getCollectionType()->getTypeStructure();
+                char* mddTypeStructure  = mddType->getTypeStructure();
+                LTRACE << "Collection type structure.: " << collTypeStructure << "\n"
+                       << "MDD type structure........: " << mddTypeStructure << "\n"
+                       << "MDD domain................: " << domain;
+                free( collTypeStructure );
+                free( mddTypeStructure );
+#endif
 
                 if( !mddType->compatibleWithDomain( &domain ) )
                 {
@@ -1413,8 +1446,9 @@ ServerComm::startInsertPersMDD( unsigned long  callingClientId,
                 }
                 catch (r_Error& err)
                 {
-                    RMDBGIF(2, RMDebug::module_servercomm, "ServerComm",
-                        LFATAL << "Error: while creating persistent tile: " << err.get_errorno() << ": " << err.what();)
+#ifdef DEBUG
+                    LFATAL << "Error: while creating persistent tile: " << err.get_errorno() << ": " << err.what();
+#endif
                     context->release(); //!!!
                     throw;
                 }
@@ -1544,16 +1578,16 @@ ServerComm::executeQuery( unsigned long callingClientId,
         {
             try
             {
-                RMDBGIF(1, RMDebug::module_servercomm, "ServerComm::executeQuery", \
-                        qtree->printTree( 2, RMInit::logOut);
-                       );
+#ifdef DEBUG
+                qtree->printTree( 2, RMInit::logOut);
+#endif
 
                 LINFO << "checking semantics...";
                 qtree->checkSemantics();
 
-                RMDBGIF(1, RMDebug::module_servercomm, "ServerComm::executeQuery", \
-                        qtree->printTree( 2, RMInit::logOut );
-                       );
+#ifdef DEBUG
+                qtree->printTree( 2, RMInit::logOut );
+#endif
 
 #ifdef RMANBENCHMARK
                 if( RManBenchmark > 0 )
@@ -1604,8 +1638,9 @@ ServerComm::executeQuery( unsigned long callingClientId,
             }
             catch( r_Error& myErr )
             {
-                RMDBGIF(2, RMDebug::module_servercomm, "ServerComm",
-                    LERROR << "Error: " << myErr.get_errorno() << " " << myErr.what();)
+#ifdef DEBUG
+                LERROR << "Error: " << myErr.get_errorno() << " " << myErr.what();
+#endif
 
                 // release data
                 context->releaseTransferStructures();
@@ -1942,8 +1977,9 @@ ServerComm::endInsertMDD( unsigned long callingClientId,
 {
     unsigned short returnValue = 0;
 
-    RMDBGIF(4, RMDebug::module_servercomm, "ServerComm",
-        LINFO << "Request: 'end insert MDD'...";)
+#ifdef DEBUG
+    LINFO << "Request: 'end insert MDD'...";
+#endif
 
     ClientTblElt* context = getClientContext( callingClientId );
 
@@ -1974,7 +2010,9 @@ ServerComm::endInsertMDD( unsigned long callingClientId,
             // of MDD objects will be used as constants for executeUpdate().
         }
 
-        RMDBGIF(4, RMDebug::module_servercomm, "ServerComm", LINFO << MSG_OK;)
+#ifdef DEBUG
+        LINFO << MSG_OK;
+#endif
 
         context->release();
     }
@@ -2058,17 +2096,17 @@ ServerComm::executeUpdate( unsigned long callingClientId,
         {
             try
             {
-                RMDBGIF(1, RMDebug::module_servercomm, "ServerComm::executeUpdate", \
-                        qtree->printTree( 2, RMInit::logOut );
-                       );
+#ifdef DEBUG
+                qtree->printTree( 2, RMInit::logOut );
+#endif
 
                 LINFO << "checking semantics...";
 
                 qtree->checkSemantics();
 
-                RMDBGIF(1, RMDebug::module_servercomm, "ServerComm::executeUpdate", \
-                        qtree->printTree( 2, RMInit::logOut );
-                       );
+#ifdef DEBUG
+                qtree->printTree( 2, RMInit::logOut );
+#endif
 
 #ifdef RMANBENCHMARK
                 if( RManBenchmark > 0 )
@@ -2104,8 +2142,9 @@ ServerComm::executeUpdate( unsigned long callingClientId,
             {
                 context->releaseTransferStructures();
                 context->release();
-                RMDBGIF(2, RMDebug::module_servercomm, "ServerComm",
-                    LFATAL << "Error: " << err.get_errorno() << " " << err.what();)
+#ifdef DEBUG
+                LFATAL << "Error: " << err.get_errorno() << " " << err.what();
+#endif
                 throw;
             }
         }
@@ -2246,17 +2285,17 @@ ServerComm::executeInsert ( unsigned long callingClientId,
         {
             try
             {
-                RMDBGIF(1, RMDebug::module_servercomm, "ServerComm::executeUpdateReturn", \
-                        qtree->printTree( 2, RMInit::logOut );
-                       );
+#ifdef DEBUG
+                qtree->printTree( 2, RMInit::logOut );
+#endif
 
                 LINFO << "checking semantics...";
 
                 qtree->checkSemantics();
 
-                RMDBGIF(1, RMDebug::module_servercomm, "ServerComm::executeUpdateReturn", \
-                        qtree->printTree( 2, RMInit::logOut );
-                       );
+#ifdef DEBUG
+                qtree->printTree( 2, RMInit::logOut );
+#endif
 
 #ifdef RMANBENCHMARK
                 if( RManBenchmark > 0 )
@@ -2286,8 +2325,9 @@ ServerComm::executeInsert ( unsigned long callingClientId,
             {
                 context->releaseTransferStructures();
                 context->release();
-                RMDBGIF(2, RMDebug::module_servercomm, "ServerComm",
-                    LFATAL << "Error: " << err.get_errorno() << " " << err.what();)
+#ifdef DEBUG
+                LFATAL << "Error: " << err.get_errorno() << " " << err.what();
+#endif
                 throw;
             }
 
@@ -2472,8 +2512,9 @@ ServerComm::getCollByName( unsigned long callingClientId,
         }
         catch (r_Error& err)
         {
-            RMDBGIF(2, RMDebug::module_servercomm, "ServerComm",
-                LFATAL << "Error " << err.get_errorno() << " " << err.what();)
+#ifdef DEBUG
+            LFATAL << "Error " << err.get_errorno() << " " << err.what();
+#endif
             context->release(); //!!!
             throw;
         }
@@ -2584,8 +2625,9 @@ ServerComm::getCollByOId( unsigned long callingClientId,
             }
             catch (r_Error& err)
             {
-                RMDBGIF(2, RMDebug::module_servercomm, "ServerComm",
-                    LFATAL << "Error " << err.get_errorno() << " " << err.what();)
+#ifdef DEBUG
+                LFATAL << "Error " << err.get_errorno() << " " << err.what();
+#endif
                 throw;
             }
             catch(...)  // not found (?)
@@ -2715,8 +2757,9 @@ ServerComm::getCollOIdsByName( unsigned long callingClientId,
         catch (r_Error& err)
         {
             LTRACE << "caught exception";
-            RMDBGIF(2, RMDebug::module_servercomm, "ServerComm",
-               LERROR << "Error " << err.get_errorno() << ": " << err.what();)
+#ifdef DEBUG
+            LERROR << "Error " << err.get_errorno() << ": " << err.what();
+#endif
             returnValue = 2;  // collection name invalid
         }
         catch(...)
@@ -2850,8 +2893,9 @@ ServerComm::getCollOIdsByOId( unsigned long callingClientId,
             }
             catch (r_Error& err)
             {
-                RMDBGIF(2, RMDebug::module_servercomm, "ServerComm",
-                    LERROR << "Error " << err.get_errorno() << ": " << err.what();)
+#ifdef DEBUG
+                LERROR << "Error " << err.get_errorno() << ": " << err.what();
+#endif
                 returnValue = 2;  // collection name invalid
                 if (err.get_kind() != r_Error::r_Error_RefNull)
                     throw;
@@ -2961,8 +3005,9 @@ ServerComm::getNextMDD( unsigned long   callingClientId,
                         r_OId           &oid,
                         unsigned short  &currentFormat     )
 {
-    RMDBGIF(4, RMDebug::module_servercomm, "ServerComm",
-        LINFO << "Request (continuing): 'get next MDD'...";)
+#ifdef DEBUG
+        LINFO << "Request (continuing): 'get next MDD'...";
+#endif
 
     unsigned short returnValue = 0;
 
@@ -3115,8 +3160,9 @@ ServerComm::getNextMDD( unsigned long   callingClientId,
 
                 if( context->transTiles->size() > 0 )
                 {
-                    RMDBGIF(4, RMDebug::module_servercomm, "ServerComm",
-                        LINFO << MSG_OK << ", " << context->transTiles->size() << " more tile(s)";)
+#ifdef DEBUG
+                    LINFO << MSG_OK << ", " << context->transTiles->size() << " more tile(s)";
+#endif
                 }
                 else   // context->transTiles->size() == 0
                 {
@@ -3132,8 +3178,9 @@ ServerComm::getNextMDD( unsigned long   callingClientId,
                 if( context->transferDataIter && *(context->transferDataIter) == context->transferData->end() )
                 {
                     returnValue = 1;  // nothing left in the collection
-                    RMDBGIF(4, RMDebug::module_servercomm, "ServerComm",
-                        LINFO << MSG_OK << ", no more tiles.";)
+#ifdef DEBUG
+                    LINFO << MSG_OK << ", no more tiles.";
+#endif
                     context->releaseTransferStructures();
                 }
                 else
@@ -3157,8 +3204,9 @@ ServerComm::getNextMDD( unsigned long   callingClientId,
         }
         catch( r_Error& myErr )
         {
-            RMDBGIF(2, RMDebug::module_servercomm, "ServerComm",
-                LFATAL << "Error: (kind " << myErr.get_kind() << ", errno " << myErr.get_errorno() << ") " << myErr.what();)
+#ifdef DEBUG
+            LFATAL << "Error: (kind " << myErr.get_kind() << ", errno " << myErr.get_errorno() << ") " << myErr.what();
+#endif
             throw;
         }
         catch(std::bad_alloc)
@@ -3258,8 +3306,9 @@ ServerComm::getNextElement( unsigned long   callingClientId,
                             char*           &buffer,
                             unsigned int    &bufferSize)
 {
-    RMDBGIF(4, RMDebug::module_servercomm, "ServerComm",
-        LINFO << "Request (continuing): 'get next element'...";)
+#ifdef DEBUG
+    LINFO << "Request (continuing): 'get next element'...";
+#endif
 
     unsigned short returnValue = 0;
 
@@ -3339,7 +3388,9 @@ ServerComm::getNextElement( unsigned long   callingClientId,
                         //  if((context->clientId == 1) && (strcmp(context->clientIdText, ServerComm::HTTPCLIENT) == 0) &&  (serverEndian != r_Endian::r_Endian_Big))
                         if( (strcmp(context->clientIdText, ServerComm::HTTPCLIENT) == 0) && (serverEndian != r_Endian::r_Endian_Big))
                         {
-                            RMDBGIF(4, RMDebug::module_servercomm, "ServerComm", LINFO << "changing endianness...";)
+#ifdef DEBUG
+                            LINFO << "changing endianness...";
+#endif
                             // calling client is a http-client(java -> always BigEndian) and server has LittleEndian
                             switch(scalarDataObj->getDataType())
                             {
@@ -3421,8 +3472,9 @@ ServerComm::getNextElement( unsigned long   callingClientId,
             }
             catch (r_Error& err)
             {
-                RMDBGIF(2, RMDebug::module_servercomm, "ServerComm",
-                    LFATAL << "Error: exception (kind " << err.get_kind() << ", errno " << err.get_errorno() << ") " << err.what();)
+#ifdef DEBUG
+                LFATAL << "Error: exception (kind " << err.get_kind() << ", errno " << err.get_errorno() << ") " << err.what();
+#endif
                 throw;
             }
 
@@ -3432,12 +3484,16 @@ ServerComm::getNextElement( unsigned long   callingClientId,
             if( *(context->transferDataIter) != context->transferData->end() )
             {
                 returnValue = 0;
-                RMDBGIF(4, RMDebug::module_servercomm, "ServerComm", LINFO << MSG_OK << ", some more tile(s) left.";)
+#ifdef DEBUG
+                LINFO << MSG_OK << ", some more tile(s) left.";
+#endif
             }
             else
             {
                 returnValue = 1;
-                RMDBGIF(4, RMDebug::module_servercomm, "ServerComm", LINFO << MSG_OK << ", no more tiles.";)
+#ifdef DEBUG
+                LINFO << MSG_OK << ", no more tiles.";
+#endif
             }
         }
         else
@@ -3480,8 +3536,9 @@ ServerComm::getMDDByOId( unsigned long   callingClientId,
                          char*           &typeStructure,
                          unsigned short  &currentFormat   )
 {
-    RMDBGIF(4, RMDebug::module_servercomm, "ServerComm",
-        LINFO << "Request: 'get MDD by OId', oid = " << oid << "...";)
+#ifdef DEBUG
+    LINFO << "Request: 'get MDD by OId', oid = " << oid << "...";
+#endif
 
     unsigned short returnValue = 0;
 
@@ -3511,8 +3568,9 @@ ServerComm::getMDDByOId( unsigned long   callingClientId,
             }
             catch (r_Error& err)
             {
-                RMDBGIF(2, RMDebug::module_servercomm, "ServerComm",
-                    LFATAL << "Error: (kind " << err.get_kind() << ", errno " << err.get_errorno() << ") " << err.what();)
+#ifdef DEBUG
+                LFATAL << "Error: (kind " << err.get_kind() << ", errno " << err.get_errorno() << ") " << err.what();
+#endif
                 context->release();
                 throw;
             }
@@ -3590,8 +3648,9 @@ ServerComm::getMDDByOId( unsigned long   callingClientId,
 
                 if( context->transTiles->size() > 0 )
                 {
-                    RMDBGIF(4, RMDebug::module_servercomm, "ServerComm",
-                        LINFO << MSG_OK << ", got " << context->transTiles->size() << " tile(s).";)
+#ifdef DEBUG
+                    LINFO << MSG_OK << ", got " << context->transTiles->size() << " tile(s).";
+#endif
                 }
                 else   // context->transTiles->size() == 0
                 {
@@ -3630,8 +3689,9 @@ unsigned short
 ServerComm::getNextTile( unsigned long   callingClientId,
                          RPCMarray**     rpcMarray )
 {
-    RMDBGIF(4, RMDebug::module_servercomm, "ServerComm",
-        LINFO << "Request (continuing): 'get next tile',...";)
+#ifdef DEBUG
+    LINFO << "Request (continuing): 'get next tile',...";
+#endif
 
     unsigned long  transOffset = 0;
     unsigned long  transSize = 0;
@@ -3768,9 +3828,10 @@ ServerComm::getNextTile( unsigned long   callingClientId,
                     if( *(context->transferDataIter) != context->transferData->end() )
                     {
                         returnValue = 1;
+#ifdef DEBUG
                         LDEBUG << " some MDDs left...";
-                        RMDBGIF(4, RMDebug::module_servercomm, "ServerComm",
-                            LINFO << MSG_OK << ", some MDD(s) left.";)
+                        LINFO << MSG_OK << ", some MDD(s) left.";
+#endif
                     }
                     else
                     {
@@ -3781,15 +3842,17 @@ ServerComm::getNextTile( unsigned long   callingClientId,
                         // context->releaseTransferStructures();
 
                         returnValue = 0;
-                        RMDBGIF(4, RMDebug::module_servercomm, "ServerComm",
-                            LINFO << MSG_OK << ", all MDDs fetched.";)
+#ifdef DEBUG
+                        LINFO << MSG_OK << ", all MDDs fetched.";
+#endif
                     }
                 }
                 else
                 {
                     returnValue = 0;
-                    RMDBGIF(4, RMDebug::module_servercomm, "ServerComm",
-                        LINFO << MSG_OK << ", MDD transfer complete.";)
+#ifdef DEBUG
+                    LINFO << MSG_OK << ", MDD transfer complete.";
+#endif
                 }
 
                 if ((context->totalTransferedSize != context->totalRawSize) && (context->totalRawSize != 0))
@@ -3801,14 +3864,16 @@ ServerComm::getNextTile( unsigned long   callingClientId,
             {
                 if( statusValue == 1 )   // at least one block in actual tile is left
                 {
-                    RMDBGIF(4, RMDebug::module_servercomm, "ServerComm",
-                        LINFO << MSG_OK << ", some block(s) left.";)
+#ifdef DEBUG
+                    LINFO << MSG_OK << ", some block(s) left.";
+#endif
                     returnValue = 3;
                 }
                 else  // tiles left in actual MDD
                 {
-                    RMDBGIF(4, RMDebug::module_servercomm, "ServerComm",
-                        LINFO << MSG_OK << ", some tile(s) left.";)
+#ifdef DEBUG
+                    LINFO << MSG_OK << ", some tile(s) left.";
+#endif
                     returnValue = 2;
                 }
             }
@@ -3837,8 +3902,9 @@ ServerComm::endTransfer( unsigned long client )
 {
     unsigned short returnValue = 0;
 
-    RMDBGIF(4, RMDebug::module_servercomm, "ServerComm",
-        LINFO << "Client " << client << " called: endTransfer...";)
+#ifdef DEBUG
+    LINFO << "Client " << client << " called: endTransfer...";
+#endif
 
     ClientTblElt* context = getClientContext( client );
 
@@ -3865,7 +3931,9 @@ ServerComm::endTransfer( unsigned long client )
 
         context->release();
 
-        RMDBGIF(4, RMDebug::module_servercomm, "ServerComm", LINFO << MSG_OK;)
+#ifdef DEBUG
+        LINFO << MSG_OK;
+#endif
     }
     else
     {
@@ -3886,8 +3954,9 @@ ServerComm::aliveSignal( unsigned long client )
 {
     unsigned short returnValue = 0;
 
-    RMDBGIF(4, RMDebug::module_servercomm, "ServerComm",
-        LINFO << "Client " << client << " called: endTransfer...";)
+#ifdef DEBUG
+    LINFO << "Client " << client << " called: endTransfer...";
+#endif
 
     ClientTblElt* context = getClientContext( client );
 
@@ -3900,8 +3969,9 @@ ServerComm::aliveSignal( unsigned long client )
 
         context->release();
 
-        RMDBGIF(4, RMDebug::module_servercomm, "ServerComm",
-            LINFO << MSG_OK;)
+#ifdef DEBUG
+        LINFO << MSG_OK;
+#endif
     }
     else
     {
@@ -4059,8 +4129,9 @@ ServerComm::setTransferMode( unsigned long callingClientId,
                              unsigned short format,
                              const char* formatParams )
 {
-    RMDBGIF(4, RMDebug::module_servercomm, "ServerComm",
-        LINFO << "Request: 'set transfer mode', format = '" << format << "', params = '" << formatParams << "'...";)
+#ifdef DEBUG
+    LINFO << "Request: 'set transfer mode', format = '" << format << "', params = '" << formatParams << "'...";
+#endif
 
     unsigned short retval = 1;
 
@@ -4085,7 +4156,9 @@ ServerComm::setTransferMode( unsigned long callingClientId,
         }
         context->transferFormat = fmt;
 
-        RMDBGIF(4, RMDebug::module_servercomm, "ServerComm", LINFO << MSG_OK;)
+#ifdef DEBUG
+        LINFO << MSG_OK;
+#endif
         retval = 0;
 
         context->release();
@@ -4106,8 +4179,9 @@ ServerComm::setStorageMode( unsigned long callingClientId,
                             __attribute__ ((unused)) unsigned short format,
                             const char* formatParams )
 {
-    RMDBGIF(4, RMDebug::module_servercomm, "ServerComm",
-        LINFO << "Request: 'set storage mode', format = " << format << ", params = " << formatParams << "...";)
+#ifdef DEBUG
+    LINFO << "Request: 'set storage mode', format = " << format << ", params = " << formatParams << "...";
+#endif
 
     unsigned short retval = 1;
 
@@ -4129,7 +4203,9 @@ ServerComm::setStorageMode( unsigned long callingClientId,
         }
         context->storageFormat = fmt;
 
-        RMDBGIF(4, RMDebug::module_servercomm, "ServerComm", LINFO << MSG_OK;)
+#ifdef DEBUG
+        LINFO << MSG_OK;
+#endif
         retval = 0;
 
         context->release();

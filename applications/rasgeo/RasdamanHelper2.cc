@@ -63,12 +63,10 @@
 #define ctx "RasdamanHelper2::"
 
 #ifdef BUILD_RASSUPPORT
-#undef SET_OUTPUT
 #undef ctx
 
 #include "nmlog.h"
 // 'redirect' debug output to LUMASS macros
-#define SET_OUTPUT(a)
 #define ctx "RasdamanHelper2"
 #else
 // include rasdaman debug macros

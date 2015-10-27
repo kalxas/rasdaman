@@ -426,10 +426,10 @@ StorageLayout::calcRegLayout(const r_Minterval& tileDomain) const
         }
     }
 
-    RMDBGIF(5, RMDebug::module_storagemgr, "StorageLayout", \
-            for (std::vector< r_Minterval >::iterator i = retval.begin(); i != retval.end(); i++) \
-                LTRACE << *i; \
-           );
+#ifdef DEBUG
+    for (std::vector< r_Minterval >::iterator i = retval.begin(); i != retval.end(); i++)
+        LTRACE << *i;
+#endif
     return retval;
 }
 

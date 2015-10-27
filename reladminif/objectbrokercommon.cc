@@ -26,7 +26,6 @@ rasdaman GmbH.
 #include <cstring>
 #include <cstdlib>
 
-#include "raslib/rmdebug.hh"
 #include "raslib/minterval.hh"
 #include "objectbroker.hh"
 #include "dbnamedobject.hh"
@@ -186,13 +185,13 @@ ObjectBroker::init()
     ObjectBroker::theComplex2 = new ComplexType2();
 
     DBObject* atomicTypes[] = {theComplex2, theComplex1, theFloat, theDouble, theOctet, theShort, theLong, theUShort, theBool, theChar, theULong};
-    RMDBGIF(0, RMDebug::module_adminif, "ObjectBroker", \
-            if (sizeof(atomicTypes)/sizeof(DBObject*) != TypeFactory::MaxBuiltInId) \
-{
-    \
-    LFATAL << "ObjectBroker::init() not all atomic types were added!"; \
-    exit(1); \
-    } )
+#ifdef DEBUG
+    if (sizeof(atomicTypes)/sizeof(DBObject*) != TypeFactory::MaxBuiltInId)
+    {
+        LFATAL << "ObjectBroker::init() not all atomic types were added!";
+        exit(1);
+    }
+#endif
     for (unsigned int a = 0; a < sizeof(atomicTypes)/sizeof(DBObject*); a++)
     {
         DBObjectPPair myPair(atomicTypes[a]->getOId(), atomicTypes[a]);

@@ -38,7 +38,6 @@ rasdaman GmbH.
 #include <stdlib.h>
 #include "reladminif/sqlerror.hh"
 #include "reladminif/externs.h"
-#include "raslib/rmdebug.hh"
 #include "reladminif/objectbroker.hh"
 #include "raslib/error.hh"
 #include "../common/src/logging/easylogging++.hh"
@@ -382,13 +381,13 @@ StructType::getOffset(const char* elemName) const
             break;
         }
     }
-    RMDBGIF(0, RMDebug::module_catalogif, "StructType", \
-            if (found == false) \
-{
-    \
-    LFATAL << "ERROR in StructType::getOffset(" << elemName << ") name not found " << getName() << " " << myOId  << " retval " << retval; \
-        throw r_Error(STRUCTTYPE_ELEMENT_UNKNOWN); \
-    } )
+#ifdef DEBUG
+    if (found == false)
+    {
+        LFATAL << "ERROR in StructType::getOffset(" << elemName << ") name not found " << getName() << " " << myOId  << " retval " << retval;
+        throw r_Error(STRUCTTYPE_ELEMENT_UNKNOWN);
+    }
+#endif
 
     return retval;
     // should raise exception!
@@ -400,7 +399,9 @@ StructType::getOffset(unsigned int num) const
     if (num >= numElems)
     {
         LTRACE << "ERROR in StructType::getOffset(" << num << ") offset out of bounds " << getName() << " retval " << 0;
-        RMDBGIF(0, RMDebug::module_catalogif, "StructType", throw r_Error(STRUCTTYPE_ELEMENT_OUT_OF_BOUNDS); )
+#ifdef DEBUG
+        throw r_Error(STRUCTTYPE_ELEMENT_OUT_OF_BOUNDS);
+#endif
         return 0;
     }
     return elementOffsets[num];
@@ -420,13 +421,13 @@ StructType::getElemType(const char* elemName) const
             break;
         }
     }
-    RMDBGIF(0, RMDebug::module_catalogif, "StructType", \
-            if (retval == 0) \
-{
-    \
-    LFATAL << "ERROR in StructType::getElemType(" << elemName << ") name not found " << getName() << " " << myOId  << " retval " << retval; \
-        throw r_Error(STRUCTTYPE_ELEMENT_UNKNOWN); \
-    } )
+#ifdef DEBUG
+    if (retval == 0)
+    {
+        LFATAL << "ERROR in StructType::getElemType(" << elemName << ") name not found " << getName() << " " << myOId  << " retval " << retval;
+        throw r_Error(STRUCTTYPE_ELEMENT_UNKNOWN);
+    }
+#endif
     return retval;
 }
 
@@ -436,7 +437,9 @@ StructType::getElemType(unsigned int num) const
     if(!(num < numElems))
     {
         LTRACE << "ERROR in StructType::getElemType(" << num << ") offset out of bounds " << getName() << " retval " << 0;
-        RMDBGIF(0, RMDebug::module_catalogif, "StructType", throw r_Error(STRUCTTYPE_ELEMENT_OUT_OF_BOUNDS); )
+#ifdef DEBUG
+        throw r_Error(STRUCTTYPE_ELEMENT_OUT_OF_BOUNDS);
+#endif
         return 0;
     }
     return elements[num];
@@ -448,7 +451,9 @@ StructType::getElemName(unsigned int num) const
     if(!(num < numElems))
     {
         LTRACE << "ERROR in StructType::getElemName(" << num << ") offset out of bounds " << getName() << " retval " << 0;
-        RMDBGIF(0, RMDebug::module_catalogif, "StructType", throw r_Error(STRUCTTYPE_ELEMENT_OUT_OF_BOUNDS); )
+#ifdef DEBUG
+        throw r_Error(STRUCTTYPE_ELEMENT_OUT_OF_BOUNDS);
+#endif
         return 0;
     }
     return elementNames[num];

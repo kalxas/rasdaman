@@ -40,7 +40,6 @@ static const char rcsid[] = "@(#)blobif,BLOBTile: $Id: inlinetile.cc,v 1.5 2002/
 #include <iostream>
 
 #include "inlinetile.hh"
-#include "raslib/rmdebug.hh"
 #include "reladminif/externs.h"
 #include "raslib/error.hh"
 #include "reladminif/objectbroker.hh"
@@ -249,7 +248,10 @@ InlineTile::insertInMemBlock(char* thecontents)
     memcpy(thecontents, cells, size * sizeof(char));
     thecontents = thecontents + size * sizeof(char);
     LTRACE << "OId " << myOId << " size " << size << " DataFormat " << dataFormat;
-    RMDBGIF(20, RMDebug::module_blobif, "InlineTile", for (int i = 0; i < size; i++) LTRACE << (unsigned int)(cells[i]) << " ";)
+#ifdef DEBUG
+    for (int i = 0; i < size; i++)
+        LTRACE << (unsigned int)(cells[i]) << " ";
+#endif
         DBObject::updateInDb();
     return thecontents;
 }

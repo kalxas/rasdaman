@@ -37,7 +37,6 @@ rasdaman GmbH.
 static const char rcsid[] = "@(#)blobif,DBTile: $Id: dbtile.cc,v 1.12 2005/09/03 20:41:40 rasdev Exp $";
 
 #include "dbtile.hh"
-#include "raslib/rmdebug.hh"
 #include "reladminif/externs.h"
 #include "reladminif/sqlerror.hh"
 #include "raslib/error.hh"
@@ -312,8 +311,11 @@ DBTile::printStatus(unsigned int level, std::ostream& stream) const
 {
     DBObject::printStatus(level, stream);
     stream << " r_Data_Format " << dataFormat << " size " << size << " ";
-    RMDBGIF(20, RMDebug::module_blobif, "DBTile", for (int a = 0; a < size; a++)\
-            stream << " " << (int)(cells[a]); stream << endl;)
+#ifdef DEBUG
+    for (int a = 0; a < size; a++)
+        stream << " " << (int)(cells[a]);
+    stream << endl;
+#endif
     }
 
 std::ostream&
@@ -325,8 +327,11 @@ operator << (std::ostream& stream, DBTile& b)
     stream << "\t\tSize\t\t:" << b.size << endl;
     stream << "\t\tModified\t:" << static_cast<int>(b._isModified) << endl;
     stream << "\t\tCells\t\t:";
-    RMDBGIF(20, RMDebug::module_blobif, "DBTile", for (int a = 0; a < b.size; a++)\
-            stream << " " << (int)(b.cells[a]); stream << endl;)
+#ifdef DEBUG
+    for (int a = 0; a < b.size; a++)
+            stream << " " << (int)(b.cells[a]);
+    stream << endl;
+#endif
         return stream;
 }
 

@@ -29,7 +29,6 @@ rasdaman GmbH.
 
 #include "debug/debug.hh"
 
-#include "raslib/rmdebug.hh"
 #include "catalogmgr/typefactory.hh"
 #include "relcatalogif/alltypes.hh"
 
@@ -535,13 +534,13 @@ void Parse_alias::insertData() const throw( r_Equery_execution_failed )
     }
     LDEBUG << "got type " << name;
 
-    RMDBGIF(5, RMDebug::module_rasdl, "Parse_alias", \
+#ifdef DEBUG
     {
-        \
-        char* typeStructure = catType->getTypeStructure(); \
-        LTRACE << "Name " << catType->getTypeName() << ", structure " << typeStructure; \
-        free( typeStructure ); typeStructure = NULL; \
-    } )
+        char* typeStructure = catType->getTypeStructure();
+        LTRACE << "Name " << catType->getTypeName() << ", structure " << typeStructure;
+        free( typeStructure ); typeStructure = NULL;
+    }
+#endif
 
     switch( catType->getType() )
     {
@@ -890,13 +889,13 @@ Parse_MDD::getType( const char* typeName ) const
 
     const BaseType* catBaseType = static_cast<BaseType*>(const_cast<CType*>(base_type->getType()));
 
-    RMDBGIF(4, RMDebug::module_rasdl, "Parse_MDD", \
+#ifdef DEBUG
     {
-        \
-        char* typeStructure = catBaseType->getTypeStructure(); \
-        LTRACE << "  Base type name " << catBaseType->getTypeName() << ", structure " << typeStructure; \
-        free( typeStructure ); typeStructure = NULL; \
-    } )
+        char* typeStructure = catBaseType->getTypeStructure();
+        LTRACE << "  Base type name " << catBaseType->getTypeName() << ", structure " << typeStructure;
+        free( typeStructure ); typeStructure = NULL;
+    }
+#endif
 
     LTRACE << "type name " << typeName << ", base typIe name " << catBaseType->getTypeName();
 
@@ -964,13 +963,13 @@ Parse_set::getType( const char* typeName ) const
         // Error: Type reference not found..
         throw( r_Equery_execution_failed( 902, static_cast<unsigned int>(base_type->symbol->where.line), static_cast<unsigned int>(base_type->symbol->where.column), base_type->name ) );
 
-    RMDBGIF(5, RMDebug::module_rasdl, "Parse_set", \
+#ifdef DEBUG
     {
-        \
-        char* typeStructure = catBaseType->getTypeStructure(); \
-        LTRACE << "  Name " << catBaseType->getTypeName() << ", structure " << typeStructure; \
-        free( typeStructure ); typeStructure = NULL; \
-    })
+        char* typeStructure = catBaseType->getTypeStructure();
+        LTRACE << "  Name " << catBaseType->getTypeName() << ", structure " << typeStructure;
+        free( typeStructure ); typeStructure = NULL;
+    }
+#endif
 
     LTRACE << "type name " << typeName << ", base type name " << baseTypeName;
 

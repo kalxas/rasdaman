@@ -66,7 +66,7 @@ ServerHost::ServerHost()
     valid=false;
     startedServers=0;
     isuseLocalHost=true;
-    LDEBUG << "ServerHost::ServerHost(): hostName=" << this->hostName << ", netwName=" << this->netwName << ", listenPort=" << this->listenPort << ", isinternal=" << this->isinternal << ", valid=" << valid;
+    //LDEBUG << "ServerHost::ServerHost(): hostName=" << this->hostName << ", netwName=" << this->netwName << ", listenPort=" << this->listenPort << ", isinternal=" << this->isinternal << ", valid=" << valid;
 }
 
 ServerHost::~ServerHost()
@@ -341,7 +341,7 @@ void  ServerHost::changeListenPort(int newListenPort)
 //**********************************************************************
 HostManager::HostManager()
 {
-    LDEBUG << "HostManager::HostManager()";
+    //LDEBUG << "HostManager::HostManager()";
 }
 
 HostManager::~HostManager()
