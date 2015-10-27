@@ -33,7 +33,6 @@ rasdaman GmbH.
 static const char rcsid[] = "@(#)qlparser, QtUnaryInduce: $Id: qtunaryinduce.cc,v 1.47 2002/08/19 11:13:27 coman Exp $";
 
 #include "config.h"
-#include "raslib/rmdebug.hh"
 
 #include "qlparser/qtunaryinduce.hh"
 #include "qlparser/qtmdd.hh"
@@ -271,10 +270,10 @@ QtUnaryInduce::computeUnaryOp( QtScalarData* operand, const BaseType* resultBase
     // allocate memory for the result
     char* resultBuffer = new char[ resultBaseType->getSize() ];
 
-    RMDBGIF( 4, RMDebug::module_qlparser, "QtUnaryInduce", \
-             LTRACE << "Operand value "; \
-             operand->getValueType()->printCell( RMInit::dbgOut, operand->getValueBuffer() ); \
-           )
+#ifdef DEBUG
+        LTRACE << "Operand value ";
+        operand->getValueType()->printCell( RMInit::dbgOut, operand->getValueBuffer() );
+#endif
 
     UnaryOp* myOp = NULL;
 
@@ -320,11 +319,10 @@ QtUnaryInduce::computeUnaryOp( QtScalarData* operand, const BaseType* resultBase
     }
 
 
-
-    RMDBGIF( 4, RMDebug::module_qlparser, "QtUnaryInduce", \
-             LTRACE << "Result value "; \
-             resultBaseType->printCell( RMInit::dbgOut, resultBuffer ); \
-           )
+#ifdef DEBUG
+        LTRACE << "Result value ";
+        resultBaseType->printCell( RMInit::dbgOut, resultBuffer );
+#endif
 
     if( resultBaseType->getType() == STRUCT )
         scalarDataObj = new QtComplexData();
@@ -412,10 +410,10 @@ QtNot::checkType( QtTypeTuple* typeTuple )
         // get input types
         const QtTypeElement& inputType = input->checkType( typeTuple );
 
-        RMDBGIF( 4, RMDebug::module_qlparser, "QtNot", \
-                 LTRACE << "Operand: "; \
-                 inputType.printStatus( RMInit::dbgOut ); \
-               )
+#ifdef DEBUG
+        LTRACE << "Operand: ";
+        inputType.printStatus( RMInit::dbgOut );
+#endif
 
         if( inputType.getDataType() == QT_MDD )
         {
@@ -586,15 +584,15 @@ QtDot::evaluate( QtDataList* inputList )
             else
                 operandOffset = operandType->getOffset( static_cast<unsigned int>(elementNo) );
 
-            RMDBGIF( 1, RMDebug::module_qlparser, "QtUnaryInduce", \
-                     char* typeStructure = operandType->getTypeStructure();  \
-                     LTRACE << "Operand base type   " << operandType->getTypeName() << ", structure " << typeStructure; \
-                     free( typeStructure ); typeStructure=NULL; \
-                     LTRACE << "Operand base offset " << operandOffset; \
-                     typeStructure = resultCellType->getTypeStructure();   \
-                     LTRACE << "Result base type    " << resultCellType->getTypeName() << ", structure " << typeStructure; \
-                     free( typeStructure ); typeStructure=NULL; \
-                   )
+#ifdef DEBUG
+            char* typeStructure = operandType->getTypeStructure();
+            LTRACE << "Operand base type   " << operandType->getTypeName() << ", structure " << typeStructure;
+            free( typeStructure ); typeStructure=NULL;
+            LTRACE << "Operand base offset " << operandOffset;
+            typeStructure = resultCellType->getTypeStructure();
+            LTRACE << "Result base type    " << resultCellType->getTypeName() << ", structure " << typeStructure;
+            free( typeStructure ); typeStructure=NULL;
+#endif
 
             returnValue = computeUnaryMDDOp( mdd, resultCellType, Ops::OP_IDENTITY, operandOffset );
         }
@@ -637,16 +635,15 @@ QtDot::evaluate( QtDataList* inputList )
             else
                 operandOffset = operandType->getOffset( static_cast<unsigned int>(elementNo) );
 
-            RMDBGIF( 1, RMDebug::module_qlparser, "QtUnaryInduce", \
-                     char* typeStructure = operandType->getTypeStructure();  \
-                     LTRACE << "Operand scalar type   " << operandType->getTypeName() << ", structure " << typeStructure; \
-                     free( typeStructure ); typeStructure=NULL; \
-                     LTRACE << "Operand scalar offset " << operandOffset; \
-                     typeStructure = resultCellType->getTypeStructure();  \
-                     LTRACE << "Result scalar type    " << resultCellType->getTypeName() << ", structure " << typeStructure;  \
-                     free( typeStructure ); typeStructure=NULL; \
-                   )
-
+#ifdef DEBUG
+            char* typeStructure = operandType->getTypeStructure();
+            LTRACE << "Operand scalar type   " << operandType->getTypeName() << ", structure " << typeStructure;
+            free( typeStructure ); typeStructure=NULL;
+            LTRACE << "Operand scalar offset " << operandOffset;
+            typeStructure = resultCellType->getTypeStructure();
+            LTRACE << "Result scalar type    " << resultCellType->getTypeName() << ", structure " << typeStructure;
+                     free( typeStructure ); typeStructure=NULL;
+#endif
             returnValue = computeUnaryOp( scalar, resultCellType, Ops::OP_IDENTITY, operandOffset );
         }
         else
@@ -711,10 +708,10 @@ QtDot::checkType( QtTypeTuple* typeTuple )
         // get input types
         const QtTypeElement& inputType = input->checkType( typeTuple );
 
-        RMDBGIF( 4, RMDebug::module_qlparser, "QtDot", \
-                 LTRACE << "Operand: "; \
-                 inputType.printStatus( RMInit::dbgOut ); \
-               )
+#ifdef DEBUG
+        LTRACE << "Operand: ";
+        inputType.printStatus( RMInit::dbgOut );
+#endif
 
         if( inputType.getDataType() == QT_MDD )
         {
@@ -906,10 +903,10 @@ const QtTypeElement& QtCast::checkType(QtTypeTuple* typeTuple)
 
         // get input types
         const QtTypeElement& inputType = input->checkType( typeTuple );
-        RMDBGIF( 4, RMDebug::module_qlparser, "QtCast", \
-                 LTRACE << "Operand: "; \
-                 inputType.printStatus( RMInit::dbgOut ); \
-               )
+#ifdef DEBUG
+        LTRACE << "Operand: ";
+        inputType.printStatus( RMInit::dbgOut );
+#endif
 
         if(inputType.getDataType() == QT_MDD)
         {
@@ -1024,10 +1021,10 @@ const QtTypeElement& QtRealPartOp::checkType(QtTypeTuple* typeTuple)
 
         // get input types
         const QtTypeElement& inputType = input->checkType( typeTuple );
-        RMDBGIF( 1, RMDebug::module_qlparser, "QtRealPartOp", \
-                 LTRACE << "Operand: "; \
-                 inputType.printStatus( RMInit::dbgOut ); \
-               )
+#ifdef DEBUG
+        LTRACE << "Operand: ";
+        inputType.printStatus( RMInit::dbgOut );
+#endif
 
         if(inputType.getDataType() == QT_MDD)
         {
@@ -1120,10 +1117,10 @@ const QtTypeElement& QtImaginarPartOp::checkType(QtTypeTuple* typeTuple)
         // get input types
         const QtTypeElement& inputType = input->checkType( typeTuple );
 
-        RMDBGIF( 4, RMDebug::module_qlparser, "QtImaginarPartOp", \
-                 LTRACE << "Operand: "; \
-                 inputType.printStatus( RMInit::dbgOut ); \
-               )
+#ifdef DEBUG
+        LTRACE << "Operand: ";
+        inputType.printStatus( RMInit::dbgOut );
+#endif
 
         if(inputType.getDataType() == QT_MDD)
         {

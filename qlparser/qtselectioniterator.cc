@@ -33,7 +33,6 @@ rasdaman GmbH.
 static const char rcsid[] = "@(#)qlparser, QtSelectionIterator: $Id: qtselectioniterator.cc,v 1.24 2001/08/07 12:00:12 barbat Exp $";
 
 #include "config.h"
-#include "raslib/rmdebug.hh"
 
 #include "qlparser/qtselectioniterator.hh"
 #include "qlparser/qtatomicdata.hh"
@@ -82,12 +81,12 @@ QtSelectionIterator::getChilds( QtChildType flag )
 
     resultList = QtIterator::getChilds( flag );
 
-    RMDBGIF( 4, RMDebug::module_qlparser, "QtSelectionIterator", \
-             LTRACE << "1. childs from stream subtree "; \
-             list<QtNode*>::iterator debugIter; \
-             for( debugIter=resultList->begin(); debugIter!=resultList->end(); debugIter++ ) \
-             (*debugIter)->printTree( 2, RMInit::dbgOut, QtNode::QT_DIRECT_CHILDS ); \
-           )
+#ifdef DEBUG
+    LTRACE << "1. childs from stream subtree ";
+    list<QtNode*>::iterator debugIter;
+    for( debugIter=resultList->begin(); debugIter!=resultList->end(); debugIter++ )
+        (*debugIter)->printTree( 2, RMInit::dbgOut, QtNode::QT_DIRECT_CHILDS );
+#endif
 
         if( conditionTree )
         {
@@ -95,31 +94,28 @@ QtSelectionIterator::getChilds( QtChildType flag )
             {
                 subList = conditionTree->getChilds( flag );
 
-                RMDBGIF( 4, RMDebug::module_qlparser, "QtSelectionIterator", \
-                         LTRACE << "2. childs from operation subtree (without direct childs) "; \
-                         list<QtNode*>::iterator debugIter; \
-                         for( debugIter=subList->begin(); debugIter!=subList->end(); debugIter++ ) \
-                         (*debugIter)->printTree( 2, RMInit::dbgOut, QtNode::QT_DIRECT_CHILDS ); \
-                       )
+#ifdef DEBUG
+                LTRACE << "2. childs from operation subtree (without direct childs) ";
+                list<QtNode*>::iterator debugIter;
+                for( debugIter=subList->begin(); debugIter!=subList->end(); debugIter++ )
+                    (*debugIter)->printTree( 2, RMInit::dbgOut, QtNode::QT_DIRECT_CHILDS );
+#endif
 
                     // remove all elements in subList and insert them at the beginning in resultList
                     resultList->splice( resultList->begin(), *subList );
 
-                RMDBGIF( 4, RMDebug::module_qlparser, "QtSelectionIterator", \
-                         LTRACE << "3. merge of the lists ";  \
-                         list<QtNode*>::iterator debugIter; \
-                         for( debugIter=resultList->begin(); debugIter!=resultList->end(); debugIter++ ) \
-                         (*debugIter)->printTree( 2, RMInit::dbgOut, QtNode::QT_DIRECT_CHILDS ); \
-                       )
+#ifdef DEBUG
+                LTRACE << "3. merge of the lists ";
+                list<QtNode*>::iterator debugIter;
+                for( debugIter=resultList->begin(); debugIter!=resultList->end(); debugIter++ )
+                    (*debugIter)->printTree( 2, RMInit::dbgOut, QtNode::QT_DIRECT_CHILDS );
 
 
-                    RMDBGIF( 4, RMDebug::module_qlparser, "QtSelectionIterator", \
-                             LTRACE << "4. old list (must be empty)"; \
-                             list<QtNode*>::iterator debugIter; \
-                             for( debugIter=subList->begin(); debugIter!=subList->end(); debugIter++ ) \
-                             (*debugIter)->printTree( 2, RMInit::dbgOut, QtNode::QT_DIRECT_CHILDS ); \
-                           )
-
+                LTRACE << "4. old list (must be empty)";
+                list<QtNode*>::iterator debugIter;
+                for( debugIter=subList->begin(); debugIter!=subList->end(); debugIter++ )
+                    (*debugIter)->printTree( 2, RMInit::dbgOut, QtNode::QT_DIRECT_CHILDS );
+#endif
                         // delete temporary subList
                         delete subList;
                 subList=NULL;
@@ -129,13 +125,12 @@ QtSelectionIterator::getChilds( QtChildType flag )
             if( flag == QT_DIRECT_CHILDS || flag == QT_ALL_NODES )
                 resultList->push_back( conditionTree );
 
-            RMDBGIF( 4, RMDebug::module_qlparser, "QtSelectionIterator",
-                     LTRACE << "4. current child list including direct childs "; \
-                     list<QtNode*>::iterator debugIter; \
-                     for( debugIter=resultList->begin(); debugIter!=resultList->end(); debugIter++ ) \
-                     (*debugIter)->printTree( 2, RMInit::dbgOut, QtNode::QT_DIRECT_CHILDS ); \
-                   )
-
+#ifdef DEBUG
+            LTRACE << "4. current child list including direct childs ";
+            list<QtNode*>::iterator debugIter;
+            for( debugIter=resultList->begin(); debugIter!=resultList->end(); debugIter++ )
+                (*debugIter)->printTree( 2, RMInit::dbgOut, QtNode::QT_DIRECT_CHILDS );
+#endif
             };
 
     return resultList;

@@ -33,7 +33,6 @@ rasdaman GmbH.
 static const char rcsid[] = "@(#)qlparser, QtConversion: $Header: /home/rasdev/CVS-repository/rasdaman/qlparser/qtconversion.cc,v 1.36 2003/12/27 20:51:28 rasdev Exp $";
 
 #include "config.h"
-#include "raslib/rmdebug.hh"
 #include "raslib/basetype.hh"
 #include "raslib/structuretype.hh"
 #include "conversion/convertor.hh"
@@ -249,14 +248,14 @@ QtConversion::evaluate( QtDataList* inputList )
             }
             else
             {
-                LTRACE << "evalutate() - no tile available to convert.";
+                LTRACE << "evaluate() - no tile available to convert.";
                 return operand;
             }
 
             // check the number of tiles
             if( !tiles->size() )
             {
-                LTRACE << "evalutate() - no tile available to convert.";
+                LTRACE << "evaluate() - no tile available to convert.";
                 return operand;
             }
 
@@ -276,10 +275,11 @@ QtConversion::evaluate( QtDataList* inputList )
 
         free( typeStructure );
         typeStructure = NULL;
-        LTRACE << "evalutate() - no tile available to convert.";
-        RMDBGIF(2, RMDebug::module_qlparser, "QtConversion",
-                LTRACE << "Cell base type for conversion: ";
-                baseSchema->print_status( RMInit::dbgOut ); )
+        LTRACE << "evaluate() - no tile available to convert.";
+#ifdef DEBUG
+        LTRACE << "Cell base type for conversion: ";
+        baseSchema->print_status( RMInit::dbgOut );
+#endif
 
         //
         // real conversion
@@ -388,12 +388,12 @@ QtConversion::evaluate( QtDataList* inputList )
             convertor = r_Convertor_Factory::create(convType, sourceTile->getContents(), tileDomain, baseSchema);
             if(conversionType < QT_FROMTIFF)
             {
-                LTRACE << "evalutate() - convertor " << convType << " converting to " << convFormat << "...";
+                LTRACE << "evaluate() - convertor " << convType << " converting to " << convFormat << "...";
                 convResult = convertor->convertTo(paramStr);
             }
             else
             {
-                LTRACE << "evalutate() - convertor " << convType << " converting from " << convFormat << "...";
+                LTRACE << "evaluate() - convertor " << convType << " converting from " << convFormat << "...";
                 convResult = convertor->convertFrom(paramStr);
             }
         }
@@ -444,10 +444,11 @@ QtConversion::evaluate( QtDataList* inputList )
             TypeFactory::addTempType( mddBaseType );
 
             dataStreamType.setType( mddBaseType );
-            RMDBGIF(4, RMDebug::module_qlparser, "QtConversion",
-                LDEBUG << " QtConversion::evaluate() for conversion " << conversionType << " real result is ";
+#ifdef DEBUG
+            LDEBUG << " QtConversion::evaluate() for conversion " << conversionType << " real result is ";
 
-                dataStreamType.printStatus(RMInit::logOut);)
+            dataStreamType.printStatus(RMInit::logOut);
+#endif
         }
 
         long convResultSize = static_cast<long>(convResult.destInterv.cell_count()) * static_cast<long>(myType->getSize());
@@ -615,10 +616,11 @@ QtConversion::checkType( QtTypeTuple* typeTuple )
 
         if(conversionType>QT_TODEM)
         {
-            RMDBGIF(4, RMDebug::module_qlparser, "QtConversion",
-                LINFO << "QtConversion::checkType() for conversion "
-                               << conversionType << " assume the result ";
-                dataStreamType.printStatus(RMInit::logOut); )
+#ifdef DEBUG
+            LINFO << "QtConversion::checkType() for conversion "
+                           << conversionType << " assume the result ";
+            dataStreamType.printStatus(RMInit::logOut);
+#endif
         }
     }
     else

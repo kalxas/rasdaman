@@ -23,7 +23,6 @@ rasdaman GmbH.
 #include "qlparser/gdalincludes.hh"
 
 #include "config.h"
-#include "raslib/rmdebug.hh"
 #include "debug.hh"
 #include "../common/src/logging/easylogging++.hh"
 #include <float.h>
@@ -532,11 +531,12 @@ QtEncode::checkType(QtTypeTuple* typeTuple)
         // get input types
         const QtTypeElement& inputType = input->checkType(typeTuple);
 
-        RMDBGIF(3, RMDebug::module_qlparser, "QtEncode",
-                LTRACE << "Class..: QtEncode";
-                LTRACE << "Operand: ";
+#ifdef DEBUG
+        LTRACE << "Class..: QtEncode";
+        LTRACE << "Operand: ";
 
-                inputType.printStatus(RMInit::dbgOut);)
+        inputType.printStatus(RMInit::dbgOut);
+#endif
 
         if (inputType.getDataType() != QT_MDD)
         {

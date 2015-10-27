@@ -249,15 +249,15 @@ QtUpdate::evaluateTupel(QtNode::QtDataList* nextTupel)
             targetDomain = (static_cast<QtMintervalData*>(targetDomainData))->getMintervalData();
     }
 
-    RMDBGIF(1, RMDebug::module_qlparser, "QtUpdate", \
-                         if (targetDomainData) \
-                            LINFO << "  target MDD, domain " << targetDomain; \
-                         else  \
-                            LINFO  << "  target MDD"; \
-                         targetMDD->printStatus(RMInit::logOut); \
-                         LINFO  << "  source MDD, domain " << sourceMDDDomain; \
-                         sourceMDD->printStatus(RMInit::logOut); \
-           );
+#ifdef DEBUG
+        if (targetDomainData)
+           LINFO << "  target MDD, domain " << targetDomain;
+        else
+           LINFO  << "  target MDD";
+        targetMDD->printStatus(RMInit::logOut);
+        LINFO  << "  source MDD, domain " << sourceMDDDomain;
+        sourceMDD->printStatus(RMInit::logOut);
+#endif
 
     // 1st update strategy:
     //
@@ -300,18 +300,18 @@ QtUpdate::evaluateTupel(QtNode::QtDataList* nextTupel)
     vector<Tile*>* sourceTiles = new vector<Tile*>;
     for (vector< boost::shared_ptr<Tile> >::iterator it = srcTilePtrs->begin(); it != srcTilePtrs->end(); ++it)
         sourceTiles->push_back(it->get());
-    
-    RMDBGIF(1, RMDebug::module_qlparser, "QtUpdate", \
-                        if (sourceTiles) \
-                        { \
-                            LDEBUG << "  there are " << sourceTiles->size() << " source tiles"; \
-                            vector<Tile*>::iterator sourceTilesIterator; \
-                            for (sourceTilesIterator = sourceTiles->begin(); sourceTilesIterator != sourceTiles->end(); sourceTilesIterator++) \
-                                LDEBUG << "    tile domain: " << (*sourceTilesIterator)->getDomain(); \
-                        } \
-                        else \
-                            LDEBUG << "  there are no source tiles"; \
-    );
+
+#ifdef DEBUG
+    if (sourceTiles)
+    {
+        LDEBUG << "  there are " << sourceTiles->size() << " source tiles";
+        vector<Tile*>::iterator sourceTilesIterator;
+        for (sourceTilesIterator = sourceTiles->begin(); sourceTilesIterator != sourceTiles->end(); sourceTilesIterator++)
+            LDEBUG << "    tile domain: " << (*sourceTilesIterator)->getDomain();
+    }
+    else
+        LDEBUG << "  there are no source tiles";
+#endif
 
     //
     // get all target tiles in the relevant area

@@ -33,7 +33,6 @@ rasdaman GmbH.
 static const char rcsid[] = "@(#)qlparser, QtCondense: $Header: /home/rasdev/CVS-repository/rasdaman/qlparser/qtcondense.cc,v 1.47 2005/09/03 20:17:55 rasdev Exp $";
 
 #include "config.h"
-#include "raslib/rmdebug.hh"
 #include "debug.hh"
 
 #include "qlparser/qtcondense.hh"
@@ -212,12 +211,12 @@ QtCondense::computeFullCondense( QtDataList* inputList, r_Minterval& areaOp )
         LDEBUG << "computeFullCondense-e\n";
         // delete old operand
         operand->deleteRef();
+#ifdef DEBUG
+        LTRACE << "opType of QtCondense::computeFullCondense(): " << opType;
+        LTRACE <<         "Result.....................................: ";
 
-    RMDBGIF(3, RMDebug::module_qlparser, "QtCondense",
-            LTRACE << "opType of QtCondense::computeFullCondense(): " << opType;
-            LTRACE <<         "Result.....................................: ";
-
-            returnValue->printStatus( RMInit::dbgOut );)
+        returnValue->printStatus( RMInit::dbgOut );
+#endif
     }
 
     return returnValue;
@@ -237,12 +236,12 @@ QtCondense::checkType( QtTypeTuple* typeTuple )
 
         // get input types
         const QtTypeElement& inputType = input->checkType( typeTuple );
+#ifdef DEBUG
+        LTRACE << "Class..: " << getClassName();
+        LTRACE << "Operand: ";
 
-        RMDBGIF(3, RMDebug::module_qlparser, "QtCondense",
-                LTRACE << "Class..: " << getClassName();
-                LTRACE << "Operand: ";
-
-                inputType.printStatus( RMInit::dbgOut );)
+        inputType.printStatus( RMInit::dbgOut );
+#endif
 
         if( inputType.getDataType() != QT_MDD )
         {
@@ -658,10 +657,11 @@ QtAvgCells::evaluate( QtDataList* inputList )
 
     constType->makeFromCULong( constBuffer, &constValue );
 
-    RMDBGIF(3, RMDebug::module_qlparser, "QtCondense",
-            LTRACE <<         "Number of cells....: ";
+#ifdef DEBUG
+    LTRACE <<         "Number of cells....: ";
 
-            constType->printCell( RMInit::dbgOut, constBuffer );)
+    constType->printCell( RMInit::dbgOut, constBuffer );)
+#endif
 
     Ops::execBinaryConstOp( Ops::OP_DIV, resultType,
                             scalarDataCond->getValueType(),   constType,
@@ -681,10 +681,11 @@ QtAvgCells::evaluate( QtDataList* inputList )
     scalarDataResult->setValueType  ( resultType );
     scalarDataResult->setValueBuffer( resultBuffer );
 
-    RMDBGIF(3, RMDebug::module_qlparser, "QtCondense",
-            LTRACE << "Result.............: ";
+#ifdef DEBUG
+    LTRACE << "Result.............: ";
 
-            scalarDataResult->printStatus( RMInit::dbgOut );)
+    scalarDataResult->printStatus( RMInit::dbgOut );
+#endif
 
     stopTimer();
     return scalarDataResult;

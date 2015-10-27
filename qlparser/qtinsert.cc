@@ -185,14 +185,15 @@ QtInsert::evaluate()
         const MDDType *targetMDDType = persColl->getCollectionType()->getMDDType();
 
         int cellSize;
-        RMDBGIF(3, RMDebug::module_qlparser, "QtInsert",  \
-                char* collTypeStructure = persColl->getCollectionType()->getTypeStructure();  \
-                char* mddTypeStructure = sourceObj->getMDDBaseType()->getTypeStructure();  \
-                LTRACE << "Collection type structure.: " << collTypeStructure << "\n" \
-                << "MDD type structure........: " << mddTypeStructure << "\n" \
-                << "MDD domain................: " << sourceObj->getDefinitionDomain();  \
-                free(collTypeStructure); collTypeStructure = NULL;  \
-                free(mddTypeStructure); mddTypeStructure = NULL;)
+#ifdef DEBUG
+        char* collTypeStructure = persColl->getCollectionType()->getTypeStructure();
+        char* mddTypeStructure = sourceObj->getMDDBaseType()->getTypeStructure();
+        LTRACE << "Collection type structure.: " << collTypeStructure << "\n"
+               << "MDD type structure........: " << mddTypeStructure << "\n"
+               << "MDD domain................: " << sourceObj->getDefinitionDomain();
+        free(collTypeStructure); collTypeStructure = NULL;
+        free(mddTypeStructure); mddTypeStructure = NULL;
+#endif
         cellSize = static_cast<int>(sourceObj->getMDDBaseType()->getBaseType()->getSize());
         
         // bug fix: "insert into" found claimed non-existing type mismatch -- PB 2003-aug-25, based on fix by K.Hahn
@@ -261,8 +262,9 @@ QtInsert::evaluate()
 #endif
         // cast to external format
         myoid = static_cast<long long>(oid);
-        RMDBGIF(3, RMDebug::module_qlparser, "QtInsert",  \
-            LINFO << "QtInsert::evaluate() - allocated oid:" << myoid << " counter:" << oid.getCounter();)
+#ifdef DEBUG
+        LINFO << "QtInsert::evaluate() - allocated oid:" << myoid << " counter:" << oid.getCounter();
+#endif
             // get all tiles
             vector<boost::shared_ptr<Tile> >* sourceTiles = sourceObj->getTiles();
 
@@ -420,8 +422,9 @@ QtInsert::evaluate()
     stopTimer();
 
    // return the generated OID
-   RMDBGIF(3, RMDebug::module_qlparser, "QtInsert",
-     LINFO << "QtInsert::evaluate() - returning oid:" << myoid;)
+#ifdef DEBUG
+    LINFO << "QtInsert::evaluate() - returning oid:" << myoid;
+#endif
    returnValue = new QtAtomicData( static_cast<r_Long>(myoid), static_cast<unsigned short>(sizeof(r_Long)) );
    return returnValue;
 }

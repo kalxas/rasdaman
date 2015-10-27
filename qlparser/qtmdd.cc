@@ -44,8 +44,6 @@ static const char rcsid[] = "@(#)qlparser, QtMDD: $Header: /home/rasdev/CVS-repo
 #include "mddmgr/mddcoll.hh"
 #include "catalogmgr/typefactory.hh"
 
-#include "raslib/rmdebug.hh"
-
 #include "relcatalogif/mdddimensiontype.hh"
 
 #include <iostream>
@@ -330,11 +328,12 @@ QtMDD::printStatus( ostream& stream ) const
 
     QtData::printStatus( stream );
 
-    RMDBGIF(3, RMDebug::module_qlparser, "QtMDD", mddObject->printStatus(0, stream); )
+#ifdef DEBUG
+    mddObject->printStatus(0, stream);
 
-    RMDBGIF(30, RMDebug::module_qlparser, "QtMDD", \
-            vector< boost::shared_ptr<Tile> >* vec = mddObject->getTiles(); \
-            for( int i = 0; i<vec->size(); i++ ) \
-            ((*vec)[i])->printStatus(); \
-            delete vec; vec=NULL; )
+    vector< boost::shared_ptr<Tile> >* vec = mddObject->getTiles();
+    for( int i = 0; i<vec->size(); i++ )
+        ((*vec)[i])->printStatus();
+    delete vec; vec=NULL;
+#endif
     }

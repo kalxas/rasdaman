@@ -33,7 +33,6 @@ rasdaman GmbH.
 static const char rcsid[] = "@(#)qlparser, QtBinaryInduce: $Id: qtbinaryinduce.cc,v 1.47 2003/12/27 20:39:35 rasdev Exp $";
 
 #include "config.h"
-#include "raslib/rmdebug.hh"
 #include "debug.hh"
 
 #include "qlparser/qtbinaryinduce.hh"
@@ -198,28 +197,26 @@ QtBinaryInduce::computeUnaryMDDOp( QtMDD* operand1, QtScalarData* operand2, cons
         // carry out operation on the relevant area of the tiles
         //
 
-        RMDBGIF( 4, RMDebug::module_qlparser, "QtScale", \
-                 char* typeStructure = resTile->getType()->getTypeStructure(); \
-                 LTRACE << "  result tile, area " << intersectDom << \
-                              ", type " << resTile->getType()->getTypeName() << \
-                              ", structure " << typeStructure;  \
-                 free( typeStructure ); typeStructure=NULL; \
-                 \
-                 typeStructure = (*tileIt)->getType()->getTypeStructure(); \
-                 LTRACE << "  operand1 tile, area " << intersectDom << \
-                              ", type " << (*tileIt)->getType()->getTypeName() << \
-                              ", structure " << typeStructure; \
-                 free( typeStructure ); typeStructure=NULL; \
+#ifdef DEBUG
+        char* typeStructure = resTile->getType()->getTypeStructure();
+        LTRACE << "  result tile, area " << intersectDom <<
+                     ", type " << resTile->getType()->getTypeName() <<
+                     ", structure " << typeStructure;
+        free( typeStructure ); typeStructure=NULL;
+        typeStructure = (*tileIt)->getType()->getTypeStructure();
+        LTRACE << "  operand1 tile, area " << intersectDom <<
+                     ", type " << (*tileIt)->getType()->getTypeName() <<
+                     ", structure " << typeStructure;
+        free( typeStructure ); typeStructure=NULL;
 
-                 typeStructure = constBaseType->getTypeStructure(); \
-                 LTRACE << "  constant type " << constBaseType->getTypeName() << \
-                              ", structure " << typeStructure << \
-                              ", value "; \
-                 free( typeStructure ); typeStructure=NULL; \
-                 \
-                 for( int x=0; x<constBaseType->getSize(); x++ ) \
-                 LTRACE << hex << (int)(constValue[x]); \
-               )
+        typeStructure = constBaseType->getTypeStructure();
+        LTRACE << "  constant type " << constBaseType->getTypeName() <<
+                     ", structure " << typeStructure <<
+                     ", value ";
+        free( typeStructure ); typeStructure=NULL;
+        for( int x=0; x<constBaseType->getSize(); x++ )
+            LTRACE << hex << (int)(constValue[x]);
+#endif
 
         try
         {
@@ -490,16 +487,13 @@ QtBinaryInduce::checkType( QtTypeTuple* typeTuple )
         const QtTypeElement& inputType1 = input1->checkType( typeTuple );
         const QtTypeElement& inputType2 = input2->checkType( typeTuple );
 
-        RMDBGIF( 1, RMDebug::module_qlparser, "QtBinaryInduce", \
-                 LTRACE << "Operand 1: "; \
-                 inputType1.printStatus( RMInit::dbgOut ); \
-                 \
-                 LTRACE << "Operand 2: "; \
-                 inputType2.printStatus( RMInit::dbgOut ); \
-                 \
-                 LTRACE << "Operation            " << opType; \
-               )
-
+#ifdef DEBUG
+        LTRACE << "Operand 1: ";
+        inputType1.printStatus( RMInit::dbgOut );
+        LTRACE << "Operand 2: ";
+        inputType2.printStatus( RMInit::dbgOut );
+        LTRACE << "Operation            " << opType;
+#endif
         if( inputType1.getDataType() == QT_MDD &&
                 inputType2.getDataType() == QT_MDD    )
         {

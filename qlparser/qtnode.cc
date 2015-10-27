@@ -600,8 +600,9 @@ QtTypeElement::setDataType( const QtDataType newDataType )
 
     case QT_MDD:
     case QT_COMPLEX:
-        RMDBGIF(4, RMDebug::module_qlparser, "QtNode",
-            LINFO << "QtTypeElement::setDataType() - MDD and complex types need to be specified further.";)
+#ifdef DEBUG
+        LINFO << "QtTypeElement::setDataType() - MDD and complex types need to be specified further.";
+#endif
         break;
 
     case QT_STRING:
