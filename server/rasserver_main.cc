@@ -124,11 +124,17 @@ ServerComm* server = NULL;
 void
 crash_handler( int sig, siginfo_t* info, void * ucontext);
 
+/**
+ * Invoked on SIGUSR1 signal, this handler prints the stack trace and then kills
+ * the server process with SIGKILL. This is used in crash testing of rasserver.
+ */
+void
+test_handler( int sig, siginfo_t* info, void * ucontext);
+
 
 
 void
 crash_handler(__attribute__ ((unused)) int sig, __attribute__ ((unused)) siginfo_t* info, void * ucontext) {
-
   print_stacktrace(ucontext);
   if (TileCache::cacheLimit > 0)
   {
@@ -142,11 +148,20 @@ crash_handler(__attribute__ ((unused)) int sig, __attribute__ ((unused)) siginfo
   exit(SEGFAULT_EXIT_CODE);
 }
 
+void
+test_handler(__attribute__ ((unused)) int sig, __attribute__ ((unused)) siginfo_t* info, void * ucontext) {
+  LINFO << "test handler caught signal SIGUSR1";
+  print_stacktrace(ucontext);
+  LINFO << "killing rasserver with SIGKILL.";
+  raise(SIGKILL);
+}
+
 _INITIALIZE_EASYLOGGINGPP
 
 int main ( int argc, char** argv )
 {
     installSigSegvHandler(crash_handler);
+    installSigHandler(test_handler, SIGUSR1);
 
     SET_OUTPUT( true );     // enable debug output, if compiled so
 

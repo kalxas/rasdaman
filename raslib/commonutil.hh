@@ -44,6 +44,9 @@ void print_stacktrace(void *ucontext);
 void
 installSigSegvHandler(void (*cleanUpHandler)(int, siginfo_t* , void* ));
 
+void
+installSigHandler(void (*cleanUpHandler)(int, siginfo_t* , void* ), int signal);
+
 
 /* This structure mirrors the one found in /usr/include/asm/ucontext.h
 	defined here because /include/asm might not always be the path*/

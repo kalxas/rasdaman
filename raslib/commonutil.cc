@@ -141,10 +141,13 @@ void print_stacktrace(void *ucontext) {
   free(messages);
 }
 
-
 void
 installSigSegvHandler(void (*cleanUpHandler)(int, siginfo_t* , void* ) ){
+    installSigHandler(cleanUpHandler, SIGSEGV);
+}
 
+void
+installSigHandler(void (*cleanUpHandler)(int, siginfo_t* , void* ), int signal ){
     struct sigaction sigact;
 
     //setup the handling function
@@ -155,17 +158,13 @@ installSigSegvHandler(void (*cleanUpHandler)(int, siginfo_t* , void* ) ){
     sigemptyset(&sigact.sa_mask);
 
 
-    int retVal = sigaction(SIGSEGV , &sigact, (struct sigaction *)NULL);
+    int retVal = sigaction(signal , &sigact, (struct sigaction *)NULL);
 
     if(retVal != 0)
     {
-      LERROR << "Installing SIGSEGV handler failed. ";
+      LERROR << "Installing handler for signal " << signal << " failed. ";
     }
-
 }
-
-
-
 
 void* getFaultAddress(sig_ucontext_t * uc)
 {
