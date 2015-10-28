@@ -650,9 +650,8 @@ QtAvgCells::evaluate( QtDataList* inputList )
     constType->makeFromCULong( constBuffer, &constValue );
 
 #ifdef DEBUG
-    LTRACE <<         "Number of cells....: ";
-
-    constType->printCell( RMInit::dbgOut, constBuffer );)
+    LTRACE << "Number of cells....: ";
+    constType->printCell( RMInit::dbgOut, constBuffer );
 #endif
 
     Ops::execBinaryConstOp( Ops::OP_DIV, resultType,
@@ -675,7 +674,6 @@ QtAvgCells::evaluate( QtDataList* inputList )
 
 #ifdef DEBUG
     LTRACE << "Result.............: ";
-
     scalarDataResult->printStatus( RMInit::dbgOut );
 #endif
 

@@ -264,7 +264,7 @@ ServerComm::closeDB( unsigned long callingClientId )
     unsigned short returnValue;
 
 #ifdef DEBUG
-    LINFO << "Request: 'close DB'...";)
+    LDEBUG << "Request: 'close DB'...";
 #endif
 
     ClientTblElt* context = getClientContext( callingClientId );
