@@ -452,7 +452,7 @@ void RasnetClientComm::insertMDD(const char *collName, r_GMarray *mar) throw (r_
 
 r_Ref_Any RasnetClientComm::getMDDByOId(const r_OId &oid) throw (r_Error)
 {
-    LERROR << "Internal error: RasnetClientComm::getMDDByOId() not implemented, returning empty r_Ref_Any().";
+    LDEBUG << "Internal error: RasnetClientComm::getMDDByOId() not implemented, returning empty r_Ref_Any().";
     return r_Ref_Any();
 }
 
@@ -582,9 +582,11 @@ void RasnetClientComm::executeQuery(const r_OQL_Query &query, r_Set<r_Ref_Any> &
     case 1:
         getElementCollection( result );
         break;
-        //case 2:  nothing
+        case 2:
+        // Status 2 - empty result. Should not be treated as default.
+        break;
     default:
-        LERROR << "Internal error: RasnetClientComm::executeQuery(): illegal status value " << status;
+        LDEBUG << "Internal error: RasnetClientComm::executeQuery(): illegal status value " << status;
     }
 
 }
@@ -616,9 +618,11 @@ void RasnetClientComm::executeQuery(const r_OQL_Query &query, r_Set<r_Ref_Any> &
     case 1:
         getElementCollection( result );
         break;
-        // case 2:  nothing, should not be error?
+        case 2:
+        // empty result, should not be treated as default case
+        break;
     default:
-        LERROR << "Internal error: RasnetClientComm::executeQuery(): illegal status value " << status;
+        LDEBUG << "Internal error: RasnetClientComm::executeQuery(): illegal status value " << status;
     }
 
 }
