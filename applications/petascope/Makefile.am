@@ -15,7 +15,7 @@
 # You should have received a copy of the GNU General Public License
 # along with rasdaman community.  If not, see <http://www.gnu.org/licenses/>.
 #
-# Copyright 2003, 2004, 2005, 2006, 2007, 2008, 2009 Peter Baumann /
+# Copyright 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015 Peter Baumann /
 # rasdaman GmbH.
 #
 # For more information please see <http://www.rasdaman.org>
@@ -57,7 +57,6 @@ NAME      = rasdaman
 WAR_NAME  = $(NAME).war
 WAR       = $(DIST)/$(WAR_NAME)
 
-#BangPH
 JETTY	  = jetty
 
 APIDOCS   = $(BUILD)/apidocs
@@ -175,16 +174,31 @@ javadoc: $(all_javas)
 	$(JAVADOC) $(JDFLAGS) @$<
 
 # copy WAR to TOMCAT
-# BANGPH, COPY ALL THESE SUPPORTING FILES WITH JETTY.JAR TO $wardir folder
+# B: copy jetty.jar, rasdaman.war, def.war to $wardir folder
+# Open $(SETTINGS_FILE): petascope.properties file in ~petascope/src/main/resources to $RMANHOME/etc/
+# Set java_server=external if --with-java-server=external or java_server=embedded if --with-java-server=embedded or not set.
+# Finally, copy $(SETTINGS_FILE) file petascope.properties in ~petascope/src/main/resources to $RMANHOME/etc/
 .PHONY: install
 install: war service
 	$(MKDIR) $(DESTDIR)$(wardir)
 	$(CP) $(WAR) $(DESTDIR)$(wardir)
-if JAVA_SERVER_EMBEDDED
 	javac -cp $(JETTY)/jetty.jar $(JETTY)/start_petascope.java 	# Now build start_petascope.java and copy all files in Jetty folder to wardir
-	echo  'COPY FILE JETTY TO WAR FOLDER:' . $(CP) $(JETTY)/* $(DESTDIR)$(wardir)		# Now copy Jetty folder to wardir
+	echo  'Copy embedded Petascope files to "wardir" folder:' . $(CP) $(JETTY)/* $(DESTDIR)$(wardir)  # Now copy Jetty folder to wardir
 	$(CP) $(JETTY)/* $(DESTDIR)$(wardir)
-endif
+	echo "JAVA SERVER = "$(JAVA_SERVER)
+	if [ $(JAVA_SERVER) == external ]; then \
+		echo 'Update java_server=external Petascope in petascope.properties'; \
+		sed -i 's|java_server=embedded|java_server=external|g'	$(SETTINGS_FILE); \
+		sed -i 's|start_embedded_petascope=true|start_embedded_petascope=false|g' $(SETTINGS_FILE); \
+	else \
+		echo 'Update java_server=embedded Petascope in petascope.properties'; \
+		sed -i 's|java_server=external|java_server=embedded|g'	$(SETTINGS_FILE); \
+		sed -i 's|start_embedded_petascope=false|start_embedded_petascope=true|g' $(SETTINGS_FILE); \
+	fi;
+# B: Comment from line: 235
+# If user's petascope.properties file has no option 'java_server' or 'start_embedded_petascope', it will be added automatically.
+# If user's petascope.properties has option 'java_server' then it will update to 'embedded/external' based on user's configuration.  (./configure --with-java-server=embedded/external)
+# [ -z "`grep -m 1 -h "java_server" "$$NEWCONF"`" ]; need to use -z "grep " to avoid  "too many arguments error".
 if GENERATE_DOCS
 	$(MKDIR) -p $(DESTDIR)$(pkgdatadir)/$(APIFOLDER)
 	$(CP) $(APIDOCS)/* $(DESTDIR)$(pkgdatadir)/$(APIFOLDER)
@@ -219,15 +233,24 @@ endif
 			echo "$@ will not overwrite existing $$NEWCONF"; \
 		fi; \
 	else \
-		$(MKDIR_P) $(DESTDIR)$(sysconfdir); \
-		echo " $(INSTALL_DATA) $(SETTINGS_FILE) $$NEWCONF"; \
-		$(INSTALL_DATA) $(SETTINGS_FILE) $$NEWCONF; \
-		if test -n $$SQLITE; then \
-			sed -i 's|jdbc:sqlite:petascopedb|jdbc:sqlite:'$(filedatadir)'/petascopedb|g' $$NEWCONF; \
-		fi; \
-		if test -n $$HSQLDB; then \
-			sed -i 's|jdbc:hsqldb:file:petascopedb|jdbc:hsqldb:file:'$(filedatadir)'/petascope/petascopedb|g' $$NEWCONF; \
-		fi; \
+		echo "$@ will not overwrite existing $$NEWCONF";\
+	fi; \
+	if [ -z "`grep -m 1 -h "java_server" "$$NEWCONF"`" ]; then \
+		echo 'Adding new parameter java_server in petascope.properties file for the first time user upgrades to new version'; \
+		printf '\n# parameter:   java_server \n# purpose: Allowing user to start Petascope with embedded (Jetty) or external (Tomcat) (use ./configure --with-java-server=embedded/external). \n# description: User could set to external Petascope or embedded Petascope. When setting to "embedded", user could start embedded Petascope after starting Rasdaman in script start_rasdaman.sh.  \n# need to adapt: yes (depend on user environment), normally is external. \njava_server=external \n' >> $$NEWCONF; \
+	fi; \
+	if [ -z "`grep -m 1 -h "start_embedded_petascope=" "$$NEWCONF"`" ]; then \
+		echo 'Adding new parameter start_embedded_petascope in petascope.properties file for the first time user upgrades to new version'; \
+		printf '\n# parameter:	start_emdedded_petascope \n# purpose: Allowing user to start embedded Petascope after excute start_rasdaman.sh. \n# description: User could enable or disable Petascope with: permanent by configuration:"true/false" or temporary enable/disable when running script start_rasdaman.sh (example: "start_rasdaman.sh --stop-embedded-petascope" or "start_rasdaman --start-embedded-petascope"). \n# need to adapt: yes (depend on user environment), normally is false. \nstart_embedded_petascope=false \n' >> $$NEWCONF;\
+	fi;\
+	if [ $(JAVA_SERVER) == external ]; then \
+		echo 'Updating java_server=external Petascope';\
+		sed -i 's|java_server=embedded|java_server=external|g'	$$NEWCONF; \
+		sed -i 's|start_embedded_petascope=true|start_embedded_petascope=false|g'   $$NEWCONF; \
+	else \
+		echo 'Updating java_server=embedded Petascope';\
+		sed -i 's|java_server=external|java_server=embedded|g'	$$NEWCONF; \
+		sed -i 's|start_embedded_petascope=false|start_embedded_petascope=true|g'   $$NEWCONF; \
 	fi; \
 	if test -f $(DESTDIR)$(sysconfdir)/log4j.properties; then \
 		echo "$@ will not overwrite existing $(DESTDIR)$(sysconfdir)/log4j.properties"; \

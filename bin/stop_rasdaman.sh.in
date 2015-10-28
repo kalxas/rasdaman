@@ -15,7 +15,7 @@
 # You should have received a copy of the GNU General Public License
 # along with rasdaman community.  If not, see <http://www.gnu.org/licenses/>.
 #
-# Copyright 2003, 2004, 2005, 2006, 2007, 2008, 2009 Peter Baumann /
+# Copyright 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015 Peter Baumann /
 # rasdaman GmbH.
 #
 # For more information please see <http://www.rasdaman.org>
@@ -57,14 +57,16 @@ PETASCOPEDB_PGSQL=postgresql
 PETASCOPEDB_HSQLDB=hsqldb
 PETASCOPEDB_SQLITE=sqlite
 
-# Java server mode (embedded/external)
-JAVA_SERVER=@java_server@
-JAVA_SERVER_EMBEDDED=embedded
-JAVA_SERVER_EXTERNAL=external
+# JETTY JAR
+JETTY_JAR=jetty.jar
 
 # --- END CONSTANTS -------------------------------------------------
 
 # --- ACTION --------------------------------------------------------
+
+echo -e
+echo '----------------Checking stopping Rasdaman Servers----------------';
+echo -e
 
 echo $MYNAME: terminating all rasdaman servers
 
@@ -90,10 +92,14 @@ done
 # give rasserver processes time to disappear
 sleep $WAIT_FOR_CHILDREN
 
-# finally shut down thes server manager
+# finally shut down the server manager
 echo -n "terminating rasdaman server manager(s)..."
 @bindir@rascontrol -e -q -x down host -all
 echo "done."
+
+echo -n
+echo -e
+
 
 # if HSQLDB is used for petascope, stop HSQLDB server here
 if [ "$PETASCOPEDB" == "$PETASCOPEDB_HSQLDB" ]; then
@@ -105,21 +111,31 @@ if [ "$PETASCOPEDB" == "$PETASCOPEDB_HSQLDB" ]; then
   echo "done."
 fi
 
-# --- stop jetty ----------------------------------------------------
+# --- B: Terminate Embedded Petascope if it is running ----------------------------------------------------
 
-if [ "$JAVA_SERVER" == "$JAVA_SERVER_EMBEDDED" ]; then
+# get the pid of lasted embedded Jetty with Petascope (only 1 process is allowed to run in background)
+# the [] is trick to avoid grep's pid is chosen instead of running Jetty.
+pid=$(ps -ef | grep '[r]asdaman/war/jetty.jar' | awk '{print $2; exit}')
 
-  # get the pid ID of lasted Jetty with Petascope to kill (make sure only 1 process is run background), the [] is trick to avoid grep process id is chosen.
-  pid=`ps -ef | grep '[r]asdaman/war/jetty.jar' | awk '{print $2; exit}'`
+if [[ ! -z "$pid" ]]; then # pid is not empty then need to terminate running embedded Petascope
+   echo -e
+   echo '----------------Checking stopping embedded Petascope at PID = "'$pid'"----';
+   echo -e
+   kill -9 $pid;
+   # get the pid of lasted embedded Jetty with Petascope (only 1 process is allowed to run in background)
+   # the [] is trick to avoid grep's pid is chosen instead of running Jetty.
+   repid=$(ps -ef | grep '[r]asdaman/war/'$JETTY_JAR | awk '{print $2; exit}')
 
-  # pid is empty then an exception when not start_rasdaman first
-  if [[ -n "$pid" ]]; then
-     # pid exist, now kill it.
-     kill $pid
-     echo 'petascope has been terminated successfully.'
-  fi
-
+   if [[ ! -z "$redpid" ]]; then # redpid is not empty then need to have an error
+       echo $MYNAME: 'Terminate embedded Petascope unsuccessfully. Please kill PID: "'$repid'" manually..Done.'
+   else
+       echo $MYNAME: 'Terminate embedded Petascope successfully...Done.'
+   fi
 fi
+
+echo -n
+echo -n
+
 # --- END ACTION ----------------------------------------------------
 
 
