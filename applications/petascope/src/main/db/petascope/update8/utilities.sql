@@ -14,7 +14,7 @@
 -- You should have received a copy of the GNU General Public License
 -- along with rasdaman community.  If not, see <http://www.gnu.org/licenses/>.
 --
--- Copyright 2003, 2004, 2005, 2006, 2007, 2008, 2009 Peter Baumann /
+-- Copyright 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015 Peter Baumann /
 -- rasdaman GmbH.
 --
 -- For more information please see <http://www.rasdaman.org>
@@ -80,13 +80,15 @@ CREATE OR REPLACE FUNCTION select_field (
         _qry          text;
         _result_value ALIAS FOR $0;
     BEGIN
-        _qry := 'SELECT ' || quote_ident(selected_field) ||
-                 ' FROM ' || quote_ident(selected_table) ||
-                      ' ' || where_clause;
-        RAISE DEBUG '%: %', ME, _qry;
+       _qry := format('SELECT %I FROM %I %I ',
+                  quote_ident(selected_field), quote_ident(selected_table), quote_ident(where_clause));
 
-        EXECUTE _qry INTO STRICT _result_value;
-        RETURN  _result_value;
+       RAISE DEBUG '%: %', ME, _qry;
+
+       EXECUTE _qry
+       INTO  _result_value;
+
+       RETURN  _result_value;
     END;
 $$ LANGUAGE plpgsql;
 
