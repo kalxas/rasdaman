@@ -55,7 +55,6 @@ using namespace std;
 // will be included in the resulting .c file
 //#include "blobtile.cc"
 #include "blobtile.hh"
-#include "raslib/rmdebug.hh"
 #include "reladminif/objectbroker.hh"
 #include "reladminif/dbref.hh"
 #include "reladminif/sqlerror.hh"
@@ -353,8 +352,11 @@ BLOBTile::readFromDb() throw (r_Error)
             TileCache::insert( blobOid, value );
         }
     }
-    RMDBGIF(20, RMDebug::module_blobif, "BLOBTileOutput", for (int a = 0; a < size; a++)\
-            LTRACE << " " << hex << (int)(cells[a]); LTRACE << dec;)
+#ifdef DEBUG
+    for (int a = 0; a < size; a++)
+        LTRACE << " " << hex << (int)(cells[a]);
+    LTRACE << dec;
+#endif
 
     DBObject::readFromDb();
 
