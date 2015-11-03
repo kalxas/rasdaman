@@ -453,15 +453,16 @@ if test "$enable_rasnet" = "yes"; then
     )
     AS_IF([test "${GRPCCPPPLUGIN}" == "no"], [AC_MSG_ERROR([grpc cpp plugin not found. Please install protobuf-compiler or specify the binary path using --with-grpc-cpp-plugin if it was not installed on the default path.])])
 
-    # GRPC Java PLUGIN compiler.
-    AC_ARG_WITH([grpc-java-plugin],
-        [AS_HELP_STRING([--with-grpc-java-plugin=/path/of/grpcjavaplugin],
-                        [Location of the grpc java plugin. Defaults to looking on path.])],
-        [GRPCJAVAPLUGIN="$withval"],
-        [AS_IF([test "x${GRPCJAVAPLUGIN}" == "x"], [AC_PATH_PROG([GRPCJAVAPLUGIN], [protoc-gen-grpc-java], [no])])]
-    )
-    AS_IF([test "${GRPCJAVAPLUGIN}" == "no"], [AC_MSG_ERROR([grpc java plugin not found. Please install it or specify the binary path using --with-grpc-java-plugin if it was not installed on the default path.])])
-
+    if test "$disable_java" = "no"; then
+        # GRPC Java PLUGIN compiler.
+        AC_ARG_WITH([grpc-java-plugin],
+            [AS_HELP_STRING([--with-grpc-java-plugin=/path/of/grpcjavaplugin],
+                            [Location of the grpc java plugin. Defaults to looking on path.])],
+            [GRPCJAVAPLUGIN="$withval"],
+            [AS_IF([test "x${GRPCJAVAPLUGIN}" == "x"], [AC_PATH_PROG([GRPCJAVAPLUGIN], [protoc-gen-grpc-java], [no])])]
+        )
+        AS_IF([test "${GRPCJAVAPLUGIN}" == "no"], [AC_MSG_ERROR([grpc java plugin not found. Please install it or specify the binary path using --with-grpc-java-plugin if it was not installed on the default path.])])
+    fi
 fi
 ### End - Check for rasnet ###
 
