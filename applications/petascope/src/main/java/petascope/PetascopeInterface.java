@@ -657,11 +657,16 @@ public class PetascopeInterface extends HttpServlet {
                 multi.endResponse();
                 multi.finish();
             } else if (res.isProcessCoverage()) {
-                MultipartResponse multi = new MultipartResponse(response);
-                multi.startResponse(res.getMimeType());
-                IOUtils.write(res.getData(), os);
-                multi.endResponse();
-                multi.finish();
+                try {
+                    response.setContentType(res.getMimeType());
+                    IOUtils.write(res.getData(), os);
+                }
+                catch (IOException e) {
+                    throw new WCSException(ExceptionCode.IOConnectionError, e.getMessage(), e);
+                }
+                finally {
+                    IOUtils.closeQuietly(os);
+		}
             } else {
                 try {
                     if (res.getMimeType() != null) {
@@ -676,10 +681,7 @@ public class PetascopeInterface extends HttpServlet {
                         IOUtils.write(res.getData(), os);
                     }
                 } finally {
-                    if (os != null) {
-                        os.flush();
-                        os.close();
-                    }
+		    IOUtils.closeQuietly(os);
                 }
             }
         } catch (WCSException e) {
