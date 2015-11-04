@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en" ng-app="wcsClient">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="description" content="The rasdaman WCS client">
+        <meta name="author" content="rasdaman GmbH">
+
+        <title>WCS Client</title>
+
+        <!-- Bootstrap Core CSS -->
+        <link href="assets/components/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet">
+        <link href="assets/components/angular-bootstrap/ui-bootstrap-csp.css" rel="stylesheet">
+        <link href="assets/components/jquery-ui/themes/smoothness/jquery-ui.min.css" rel="stylesheet">
+        <link href="assets/libs/code-prettify/prettify.css" rel="stylesheet">
+        <link rel="stylesheet" href="assets/components/angular-ui-notification/dist/angular-ui-notification.min.css">
+        <link href="assets/components/codemirror/lib/codemirror.css" rel="stylesheet">
+        <link href="assets/components/codemirror/theme/eclipse.css" rel="stylesheet">
+
+
+        <link href="assets/css/custom.css" rel="stylesheet">
+
+        <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+        <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+        <!--[if lt IE 9]>
+        <script src="assets/components/html5shiv/dist/html5shiv.min.js"></script>
+        <script src="assets/components/respond/dest/respond.min.js"></script>
+        <![endif]-->
+
+    </head>
+    <body>
+        <div class="container" ng-controller="rasdaman.MainController">
+            <div class="row">
+                <div class="col-sm-12">
+                    <uib-tabset justified="true">
+                        <uib-tab ng-repeat="tab in Tabs" heading="{{tab.Heading}}" active="tab.Active"
+                                 disable="tab.Disabled">
+                            <div ui-view="{{tab.View}}"></div>
+                        </uib-tab>
+                    </uib-tabset>
+                </div>
+            </div>
+        </div>
+    </body>
+
+
+    <!--Prettify-->
+    <script src="assets/libs/code-prettify/prettify.js"></script>
+    <script src="assets/components/codemirror/lib/codemirror.js"></script>
+    <script src="assets/components/codemirror/mode/xquery/xquery.js"></script>
+    <script src="assets/components/xmlToJSON.js/lib/xmlToJSON.js"></script>
+    <script src="assets/components/jquery/dist/jquery.min.js"></script>
+    <script src="assets/components/jquery-ui/jquery-ui.min.js"></script>
+    <script src="assets/components/bootstrap/dist/js/bootstrap.min.js"></script>
+    <script src="http://code.highcharts.com/highcharts.src.js"></script>
+
+
+    <script src="assets/components/angular/angular.min.js"></script>
+    <script src="assets/components/angular-sanitize/angular-sanitize.min.js"></script>
+    <script src="assets/components/angular-route/angular-route.min.js"></script>
+    <script src="assets/components/angular-animate/angular-animate.min.js"></script>
+    <script src="assets/components/angular-bootstrap/ui-bootstrap-tpls.min.js"></script>
+    <script src="assets/components/angular-smart-table/dist/smart-table.min.js"></script>
+    <script src="assets/components/angular-ui-router/release/angular-ui-router.min.js"></script>
+    <script src="assets/components/angular-ui-notification/dist/angular-ui-notification.min.js"></script>
+    <script src="assets/components/highcharts-ng/dist/highcharts-ng.min.js"></script>
+    <script src="assets/components/angular-scroll-glue/src/scrollglue.js"></script>
+
+    <script src="assets/components/angular-ui-codemirror/ui-codemirror.min.js"></script>
+    <script src="main.js"></script>
+
+</html>

@@ -1,0 +1,111 @@
+<div class="row top15 row-centered">
+    <style>
+        #queryInput .CodeMirror {
+            height: 100px;
+            border: 1px solid #bbb;
+            border-radius: 3px;
+            background: #fff;
+        }
+
+        #output {
+            /*bottom: 0;*/
+            /*top: 0;*/
+            height: 450px;
+            max-height: 550px;
+            overflow-y: scroll;
+            overflow-wrap: break-word;
+            background: #fff;
+            /*border-radius: 10px;*/
+            /*padding: 2px;*/
+        }
+    </style>
+    <div class="col-sm-11 col-centered">
+        <div class="row">
+            <div id="output" class="col-sm-12" scroll-glue>
+                <div class="row">
+                    <span class="label label-info">you@wcps>Status</span> Welcome to the interactive WCPS console. Type
+                                                                          your
+                                                                          query in the textbox below and press Execute
+                                                                          to test it.<br/> If you want to pipe the
+                                                                          output of the query to a widget just add the
+                                                                          name of the widget in
+                                                                          front of the query like this:
+                    <span class="label label-success">widget>>query</span> (e.g.
+                    <span class="label label-success">diagram>>for x in...</span>).
+                    <br/> You can also add parameters to the widget, i.e.
+                <span class="label label-success">
+                    diagram(type=area)>>for x in ...
+                </span>
+                    <br/>
+
+                    <p>
+                        Have fun!
+                    </p>
+                </div>
+
+                <div class="row" ng-repeat="datum in EditorData">
+                    <div class="col-sm-12" ng-switch="getEditorDataType(datum)">
+                        <div class="row" ng-switch-when="0">
+                            <p>
+                                <span class="label label-info">you@wcps>:</span>
+                                Executing Query.
+                                <span class="label label-warning">{{datum.PassedSeconds}} seconds</span>
+                                passed. Please wait...
+                            </p>
+                        </div>
+                        <div class="row" ng-switch-when="1">
+                            <p>
+                                <span class="label label-info">you@wcps>:</span>
+                                {{datum.Query}}
+                                <br/>
+                                <span class="label label-info">Result:</span>
+                                <br/>
+                                {{datum.Data}}
+                            </p>
+                        </div>
+                        <div class="row" ng-switch-when="2">
+                            <p>
+                                <span class="label label-info">you@wcps>:</span>
+                                {{datum.Query}}
+                                <br/>
+                                <span class="label label-info">Result:</span>
+                                <br/>
+                                <img class="img-responsive"
+                                     ng-src="{{'data:'+datum.ImageType+';base64,'+datum.Base64ImageData}}"/>
+                            </p>
+                        </div>
+                        <div class="row row-centered" ng-switch-when="3">
+                            <div class="col-sm-11 col-centered">
+                                <highchart config="datum.DiagramData"></highchart>
+                            </div>
+                        </div>
+                        <div class="row" ng-switch-default>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row top10">
+            <div class="col-sm-11">
+                <div id="queryInput" ui-codemirror="EditorOptions" ng-model="Query"></div>
+            </div>
+            <div class="col-sm-1">
+                <button ng-click="executeQuery()" class="btn btn-primary">
+                    Execute
+                </button>
+            </div>
+        </div>
+        <div class="row top5">
+            <div class="col-sm-4">
+                <div class="input-group">
+                    <span class="input-group-addon">Example</span>
+                    <select class="form-control" ng-options="query.Query as query.Title for query in AvailableQueries"
+                            ng-model="SelectedQuery">
+                    </select>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

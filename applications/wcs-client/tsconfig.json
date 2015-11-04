@@ -1,0 +1,12 @@
+{
+  "compilerOptions": {
+    "noImplicitAny": false,
+    "removeComments": true,
+    "preserveConstEnums": true,
+    "outFile": "app/main.js",
+    "sourceMap": true
+  },
+  "exclude": [
+    "node_modules"
+  ]
+}

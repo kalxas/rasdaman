@@ -1,0 +1,69 @@
+─ angular-ui-codemirror@0.3.0
+│  └─ licenses: MIT
+├─ angular-ui-router@0.2.15
+│  └─ licenses
+│     └─ 0: MIT*
+├─ codemirror@undefined
+│  └─ licenses
+│     └─ 0: MIT*
+├─ jquery@2.1.4
+│  └─ licenses
+│     └─ 0: MIT
+├─ angular-bootstrap@0.14.3
+│  ├─ licenses
+│  │  └─ 0: MIT
+│  └─ repository: git+https://github.com/angular-ui/bootstrap
+├─ angular-animate@1.4.7
+│  ├─ licenses
+│  │  └─ 0: MIT
+│  └─ repository: git+https://github.com/angular/angular.js
+├─ angular-route@1.4.7
+│  ├─ licenses
+│  │  └─ 0: MIT
+│  └─ repository: git+https://github.com/angular/angular.js
+├─ angular@1.4.7
+│  ├─ licenses
+│  │  └─ 0: MIT
+│  └─ repository: git+https://github.com/angular/angular.js
+├─ angular-smart-table@2.1.4
+│  ├─ licenses
+│  │  └─ 0: MIT
+│  ├─ homepage: https://github.com/lorenzofox3/Smart-Table
+│  └─ repository: git+https://github.com/lorenzofox3/Smart-Table
+├─ angular-sanitize@1.4.7
+│  ├─ licenses
+│  │  └─ 0: MIT
+│  └─ repository: git+https://github.com/angular/angular.js
+├─ angular-scroll-glue@2.0.6
+│  ├─ licenses
+│  │  └─ 0: MIT
+│  └─ homepage: https://github.com/Luegg/angularjs-scroll-glue
+├─ bootstrap@3.3.5
+│  ├─ licenses
+│  │  └─ 0: MIT
+│  ├─ homepage: http://getbootstrap.com
+│  └─ repository: git+https://github.com/twbs/bootstrap
+├─ angular-ui-notification@0.0.12
+│  ├─ licenses
+│  │  └─ 0: MIT
+│  ├─ repository: git+https://github.com/alexcrack/angular-ui-notification
+│  └─ homepage: https://github.com/alexcrack/angular-ui-notification
+├─ html5shiv@3.7.3
+│  ├─ licenses: MIT
+│  └─ repository: git+https://github.com/aFarkas/html5shiv
+├─ highcharts-ng@0.0.11
+│  ├─ licenses
+│  │  └─ 0: MIT
+│  └─ repository: git+https://github.com/pablojim/highcharts-ng
+├─ jquery-ui@1.11.4
+│  ├─ licenses
+│  │  └─ 0: MIT
+│  └─ repository: https://github.com/jquery/jquery-ui
+├─ xmlToJSON.js@1.3.2
+│  ├─ licenses
+│  │  └─ 0: MIT
+│  └─ repository: git+https://github.com/metatribal/xmlToJSON
+└─ respond@1.4.2
+   ├─ licenses
+   │  └─ 0: MIT
+   └─ repository: git+https://github.com/scottjehl/Respond

@@ -1,0 +1,14 @@
+.DS_Store
+.idea
+
+app/assets/components
+app/assets/typings
+app/main.js
+app/main.js.map
+app/src/**/*.js
+app/src/**/*.js.map
+
+
+node_modules
+
+!app/src/external/**/*.js

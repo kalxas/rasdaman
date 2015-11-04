@@ -1,0 +1,150 @@
+<div class="row top15 row-centered">
+    <div class="col-sm-11 col-centered">
+        <div class="row">
+            <div class="col-sm-12 col-centered">
+                <p>You have selected the coverage with ID:
+                    <span class="important-text">{{CoverageDescription.CoverageId}} </span>
+                </p>
+            </div>
+        </div>
+        <div class="row">
+            <uib-accordion class="col-sm-12" close-others="false">
+                <uib-accordion-group class="row" is-open="GetCoverageTabStates.IsCoreOpen">
+                    <uib-accordion-heading>
+                        Core <i class="pull-right glyphicon"
+                                ng-class="{'glyphicon-chevron-down': GetCoverageTabStates.IsCoreOpen, 'glyphicon-chevron-right': !GetCoverageTabStates.IsCoreOpen}"></i>
+                    </uib-accordion-heading>
+                    <div class="row">
+                        <div class="col-sm-12 col-centered">
+                            <div class="row">
+                                <div class="col-sm-3">
+                                    <label for="select-coverage-format">
+                                        Select coverage format:
+                                    </label>
+                                </div>
+                                <div class="col-sm-9">
+                                    <select id="select-coverage-format"
+                                            ng-model="Core.SelectedCoverageFormat"
+                                            ng-options="format for format in StateInformation.ServerCapabilities.ServiceMetadata.FormatSupported">\
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-sm-3">
+                                    <label for="multipart-format">Multipart:</label>
+                                </div>
+                                <div class="col-sm-9 display-value">
+                                    <input id="multipart-format"
+                                           type="checkbox"
+                                           ng-model="Core.IsMultiPartFormat"/>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-sm-12 col-centered">
+                            <div class="row top7"
+                                 ng-repeat="axisLabel in CoverageDescription.BoundedBy.Envelope.AxisLabels">
+                                <div class="col-sm-12">
+                                    <div class="row">
+                                        <div class="col-sm-12">
+                                            Subset coverage along axis
+                    <span class="important-text">
+                        {{axisLabel}}
+                    </span>
+                                            with domain extent from
+                                            <span class="important-text"> {{CoverageDescription.BoundedBy.Envelope.LowerCorner.Values[$index]}} {{CoverageDescription.BoundedBy.Envelope.UomLabels[$index]}}</span>
+                                            to
+                                            <span class="important-text">{{CoverageDescription.BoundedBy.Envelope.UpperCorner.Values[$index]}}  {{CoverageDescription.BoundedBy.Envelope.UomLabels[$index]}}</span>
+                                            by:
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <ul class="bullet-less">
+                                            <li class="top5">
+                                                <input type="radio" ng-model="Core.IsTrimSelected[$index]"
+                                                       ng-value="true">
+                                                trimming
+                                        <span>from
+                                        <input type="number"
+                                               string-to-number-converter
+                                               ng-model="Core.Trims[$index].TrimLow"
+                                               ng-disabled="!Core.IsTrimSelected[$index]">
+                                            <span class="important-text">
+                                                {{CoverageDescription.BoundedBy.Envelope.UomLabels[$index]}}
+                                            </span>
+                                            to
+                                            <input type="number"
+                                                   string-to-number-converter
+                                                   ng-model="Core.Trims[$index].TrimHigh"
+                                                   ng-disabled="!Core.IsTrimSelected[$index]">
+                                            <span class="important-text">
+                                                {{CoverageDescription.BoundedBy.Envelope.UomLabels[$index]}}
+                                            </span>
+                                        </span>
+                                            </li>
+                                            <li class="top5">
+                                                <input type="radio" ng-model="Core.IsTrimSelected[$index]"
+                                                       ng-value="false">
+                                                slicing
+                                        <span>
+                                        at
+                                        <input type="number"
+                                               string-to-number-converter
+                                               ng-model="Core.Slices[$index].SlicePoint"
+                                               ng-disabled="Core.IsTrimSelected[$index]">
+                                        <span class="important-text">
+                                            {{CoverageDescription.BoundedBy.Envelope.UomLabels[$index]}}
+                                        </span>
+                                        </span>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+
+                </uib-accordion-group>
+                <uib-accordion-group class="row" ng-if="GetCoverageTabStates.IsRangeSubsettingSupported"
+                                     is-open="GetCoverageTabStates.IsRangeSubsettingOpen">
+                    <uib-accordion-heading>
+                        Range Subsetting Extension
+                        <i class="pull-right glyphicon"
+                           ng-class="{'glyphicon-chevron-down': GetCoverageTabStates.IsRangeSubsettingOpen, 'glyphicon-chevron-right': !GetCoverageTabStates.IsRangeSubsettingOpen}"></i>
+                    </uib-accordion-heading>
+                    <div range-subsetting-extension ng-model="RangeSubsettingExtension">
+
+                    </div>
+                </uib-accordion-group>
+
+                <uib-accordion-group class="row" ng-if="GetCoverageTabStates.IsScalingSupported"
+                                     is-open="GetCoverageTabStates.IsScalingOpen">
+                    <uib-accordion-heading>
+                        Scaling Extension
+                        <i class="pull-right glyphicon"
+                           ng-class="{'glyphicon-chevron-down': GetCoverageTabStates.IsScalingOpen, 'glyphicon-chevron-right': !GetCoverageTabStates.IsScalingOpen}"></i>
+                    </uib-accordion-heading>
+                    <div scaling-extension ng-model="ScalingExtension">
+                    </div>
+                </uib-accordion-group>
+
+                <uib-accordion-group class="row" ng-if="GetCoverageTabStates.IsInterpolationSupported"
+                                     is-open="GetCoverageTabStates.IsInterpolationOpen">
+                    <uib-accordion-heading>
+                        Interpolation Extension
+                        <i class="pull-right glyphicon"
+                           ng-class="{'glyphicon-chevron-down': GetCoverageTabStates.IsInterpolationOpen, 'glyphicon-chevron-right': !GetCoverageTabStates.IsInterpolationOpen}"></i>
+                    </uib-accordion-heading>
+                    <div interpolation-extension ng-model="InterpolationExtension">
+                    </div>
+                </uib-accordion-group>
+            </uib-accordion>
+        </div>
+        <div class="row">
+            <button class="btn btn-default" ng-click="getCoverage()">Download Coverage</button>
+        </div>
+    </div>
+</div>

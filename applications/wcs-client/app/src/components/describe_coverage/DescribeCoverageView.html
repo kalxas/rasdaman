@@ -1,0 +1,77 @@
+<div class="row top15 row-centered">
+    <div class="col-sm-11 col-centered">
+        <div class="row row-centered">
+            <div class="col-sm-12 input-group input-group-lg">
+                            <span class="input-group-addon">
+                                <span class="glyphicon glyphicon-globe"></span>
+                            </span>
+                <input type="text"
+                       autocomplete
+                       ng-model="SelectedCoverageId"
+                       class="form-control"
+                       source="AvailableCoverageIds"
+                       placeholder="Input coverage ID or part of it"/>
+                           <span class="input-group-btn">
+                <button class="btn btn-default"
+                        type="button"
+                        ng-disabled="!isCoverageIdValid()"
+                        ng-click="describeCoverage()">
+                    Describe Coverage
+                </button>
+            </span>
+            </div>
+        </div>
+
+        <div class="row top15" ng-repeat="CoverageDescription in CoverageDescriptions.CoverageDescription">
+            <div class="col-sm-12">
+                <p>Coverage <span class="important-text">{{CoverageDescription.CoverageId}} </span>
+                   is of type <span
+                            class="important-text"> {{CoverageDescription.ServiceParameters.CoverageSubtype}}</span>
+                   with <span class="important-text">{{CoverageDescription.BoundedBy.Envelope.SrsDimension}}</span>
+                   axes:
+                </p>
+
+                <ul ng-repeat="axisLabel in CoverageDescription.BoundedBy.Envelope.AxisLabels">
+                    <li>
+                    <span class="important-text">
+                        {{axisLabel}}
+                    </span>
+                    <span ng-show="CoverageDescription.BoundedBy.Envelope.AxisLabels.length == CoverageDescription.BoundedBy.Envelope.UomLabels.length">
+                        (measured in <span class="important-text"> {{CoverageDescription.BoundedBy.Envelope.UomLabels[$index]}}</span> )
+                    </span>
+                        with domain extent from <span class="important-text"> {{CoverageDescription.BoundedBy.Envelope.LowerCorner.Values[$index]}}</span>
+                        to <span class="important-text">{{CoverageDescription.BoundedBy.Envelope.UpperCorner.Values[$index]}}</span>.
+                    </li>
+                </ul>
+
+                <p>with range type:</p>
+                <ul ng-repeat="field in CoverageDescription.RangeType.DataRecord.Field">
+                    <li>
+                        <span class="important-text">{{field.Name}}</span>
+                        measured in <span class="important-text">{{field.Quantity.Uom.Code}}</span>
+                    </li>
+                </ul>
+                <p>with native format:<span
+                        class="important-text">{{CoverageDescription.ServiceParameters.NativeFormat}}</span></p>
+                <p>with Coordinate Reference System: <span class="important-text">{{CoverageDescription.BoundedBy.Envelope.SrsName}}</span></p>
+            </div>
+        </div>
+
+        <div class="row top15" ng-show="CoverageDescriptionsDocument.Value">
+            <uib-accordion close-others="false">
+                <uib-accordion-group is-open="IsCoverageDescriptionsDocumentOpen">
+                    <uib-accordion-heading>
+                        GML coverage descriptions document <i class="pull-right glyphicon"
+                                                              ng-class="{'glyphicon-chevron-down': IsCoverageDescriptionsDocumentOpen,
+'glyphicon-chevron-right': !IsCoverageDescriptionsDocumentOpen}"></i>
+                    </uib-accordion-heading>
+
+                    <ras-pretty-print class="xml-display" code="CoverageDescriptionsDocument.Value"></ras-pretty-print>
+                </uib-accordion-group>
+
+            </uib-accordion>
+        </div>
+
+    </div>
+
+</div>
