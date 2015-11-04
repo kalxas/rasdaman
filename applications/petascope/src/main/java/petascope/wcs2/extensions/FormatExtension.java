@@ -42,6 +42,7 @@ public interface FormatExtension extends  Extension {
     String MIME_XML = "text/xml";
     String MIME_TIFF = "image/tiff";
     String MIME_JP2 = "image/jp2";
+    String MIME_PNG = "image/png";
     String MIME_NETCDF = "application/netcdf";
 
     // GDAL drivers
