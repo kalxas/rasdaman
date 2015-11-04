@@ -44,7 +44,7 @@ namespace rasserver
 using boost::shared_ptr;
 using boost::scoped_ptr;
 
-RasnetServer::RasnetServer(Configuration configuration):
+RasnetServer::RasnetServer(const Configuration& configuration):
     isRunning(false),
     configuration(configuration)
 {

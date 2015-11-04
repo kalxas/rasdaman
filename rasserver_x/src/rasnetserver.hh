@@ -46,12 +46,12 @@ namespace rasserver
 class RasnetServer
 {
 public:
-    RasnetServer(Configuration configuration);
+    RasnetServer(const Configuration& configuration);
     void startRasnetServer();
 
 private:
     bool isRunning;
-    Configuration& configuration;
+    Configuration configuration;
 
     std::unique_ptr<grpc::Server> server;
     boost::shared_ptr<rasnet::service::RasServerService::Service> rasserverService;
