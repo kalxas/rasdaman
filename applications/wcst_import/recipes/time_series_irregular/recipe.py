@@ -1,3 +1,27 @@
+"""
+ *
+ * This file is part of rasdaman community.
+ *
+ * Rasdaman community is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Rasdaman community is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU  General Public License for more details.
+ *
+ * You should have received a copy of the GNU  General Public License
+ * along with rasdaman community.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ * Copyright 2003 - 2015 Peter Baumann / rasdaman GmbH.
+ *
+ * For more information please see <http://www.rasdaman.org>
+ * or contact Peter Baumann via <baumann@rasdaman.com>.
+ *
+"""
+
 import re
 
 from master.helper.gdal_axis_filler import GdalAxisFiller
@@ -15,8 +39,9 @@ from util.gdal_util import GDALGmlUtil
 from util.log import log
 from master.helper.time_gdal_tuple import TimeFileTuple
 from util.time_util import DateTimeUtil
-from util.gdal_validator import  GDALValidator
+from util.gdal_validator import GDALValidator
 from config_manager import ConfigManager
+
 
 class Recipe(BaseRecipe):
     def __init__(self, session):
@@ -28,8 +53,8 @@ class Recipe(BaseRecipe):
         self.options = session.get_recipe()['options']
         self.importer = None
 
-	validator = GDALValidator(self.session.files)
-        if  ConfigManager.skip == True:
+        validator = GDALValidator(self.session.files)
+        if ConfigManager.skip:
             self.session.files = validator.get_valid_files()
 
     def validate(self):
@@ -144,7 +169,8 @@ class Recipe(BaseRecipe):
         :param list[AxisSubset] subsets: the axis subsets for the tpair
         """
         for i in range(0, len(subsets)):
-            if subsets[i].coverage_axis.axis.crs_axis is not None and subsets[i].coverage_axis.axis.crs_axis.is_future():
+            if subsets[i].coverage_axis.axis.crs_axis is not None and subsets[
+                i].coverage_axis.axis.crs_axis.is_future():
                 subsets[i].coverage_axis.axis = IrregularAxis(subsets[i].coverage_axis.axis.label,
                                                               subsets[i].coverage_axis.axis.uomLabel,
                                                               subsets[i].coverage_axis.axis.low,
