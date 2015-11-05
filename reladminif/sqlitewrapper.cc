@@ -121,6 +121,7 @@ void SQLiteQuery::bindBlob(char* param, int size)
 
 void SQLiteQuery::execute(int fail)
 {
+    LDEBUG << "SQL query: " << query;
     sqlite3_busy_timeout(sqliteConn, SQLITE_BUSY_TIMEOUT);
     sqlite3_step(stmt);
     if (fail) {

@@ -101,7 +101,7 @@ warnOnError(const char *stmt, sqlite3 *sqliteConn) throw (r_Error)
 {
     if (is_error(sqliteConn))
     {
-        LERROR << "SQL query failed: " << stmt;
-        LERROR << "Database warning, code: " << error_code << ", message: " << error_message;
+        LWARNING << "SQL query failed: " << stmt;
+        LWARNING << "Database warning, code: " << error_code << ", message: " << error_message;
     }
 }

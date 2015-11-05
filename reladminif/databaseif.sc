@@ -116,13 +116,15 @@ DatabaseIf::createDB(__attribute__ ((unused)) const char* dbName,
 
         connect();
 
-        SQLiteQuery checkTable("SELECT name FROM sqlite_master WHERE type='table' AND name='RAS_COUNTERS'");
-        if (checkTable.nextRow())
         {
-            LFATAL << "Database exists already.";
-            checkTable.finalize();
-            disconnect();
-            throw r_Error( 832 );
+          SQLiteQuery checkTable("SELECT name FROM sqlite_master WHERE type='table' AND name='RAS_COUNTERS'");
+          if (checkTable.nextRow())
+          {
+              LFATAL << "Database exists already.";
+              checkTable.finalize();
+              disconnect();
+              throw r_Error( 832 );
+          }
         }
 
         // --- start table/index creation ------------------------------
