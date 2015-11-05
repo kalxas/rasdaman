@@ -233,7 +233,8 @@ endif
 			echo "$@ will not overwrite existing $$NEWCONF"; \
 		fi; \
 	else \
-		echo "$@ will not overwrite existing $$NEWCONF";\
+		echo '$@ is copying petascope.properties to '$(DESTDIR)$(sysconfdir); \
+		cp $(SETTINGS_FILE) $$NEWCONF; \
 	fi; \
 	if [ -z "`grep -m 1 -h "java_server" "$$NEWCONF"`" ]; then \
 		echo 'Adding new parameter java_server in petascope.properties file for the first time user upgrades to new version'; \
