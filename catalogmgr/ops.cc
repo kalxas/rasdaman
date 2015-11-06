@@ -1772,15 +1772,27 @@ OpMODCULong::operator()( char* res, const char* op1, const char* op2 )
     r_ULong longOp2 = 0;
     r_ULong longRes = 0;
 
+    op1Type->convertToCULong(op1 + op1Off, &longOp1);
     op2Type->convertToCULong(op2 + op2Off, &longOp2);
 
-    if(longOp2 == 0)
+    if (isNull(longOp1))
     {
-        throw DIVISION_BY_ZERO;
+        longRes = longOp1;
+    }
+    else if (isNull(longOp2))
+    {
+        longRes = longOp2;
     }
     else
     {
-        longRes = *(op1Type->convertToCULong(op1 + op1Off, &longOp1)) % longOp2;
+        if(longOp2 == 0)
+        {
+            throw DIVISION_BY_ZERO;
+        }
+        else
+        {
+            longRes = longOp1 % longOp2;
+        }
     }
 
     resType->makeFromCULong( res + resOff, &longRes);
@@ -2234,15 +2246,27 @@ OpMODCLong::operator()( char* res, const char* op1, const char* op2 )
     r_Long longOp2 = 0;
     r_Long longRes = 0;
 
-    op2Type->convertToCLong(op2, &longOp2);
+    op1Type->convertToCLong(op1 + op1Off, &longOp1);
+    op2Type->convertToCLong(op2 + op2Off, &longOp2);
 
-    if(longOp2 == 0)
+    if (isNull(longOp1))
     {
-        throw DIVISION_BY_ZERO;
+        longRes = longOp1;
+    }
+    else if (isNull(longOp2))
+    {
+        longRes = longOp2;
     }
     else
     {
-        longRes = *(op1Type->convertToCLong(op1 + op1Off, &longOp1)) % longOp2;
+        if(longOp2 == 0)
+        {
+            throw DIVISION_BY_ZERO;
+        }
+        else
+        {
+            longRes = longOp1 % longOp2;
+        }
     }
 
     resType->makeFromCLong( res + resOff, &longRes);
@@ -4368,14 +4392,25 @@ OpMODChar::OpMODChar( const BaseType* newResType, const BaseType* newOp1Type,
 void
 OpMODChar::operator()( char* res, const char* op1, const char* op2 )
 {
-    if(*(unsigned char*)(const_cast<char*>(op2) + op2Off) == 0)
+    if(isNull(*(unsigned char*)(const_cast<char*>(op1) + op1Off)))
     {
-        throw DIVISION_BY_ZERO;
+        *(unsigned char*)(res + resOff) = *(unsigned char*)(const_cast<char*>(op1) + op1Off);
+    }
+    else if(isNull(*(unsigned char*)(const_cast<char*>(op2) + op2Off)))
+    {
+        *(unsigned char*)(res + resOff) = *(unsigned char*)(const_cast<char*>(op2) + op2Off);
     }
     else
     {
-        *(unsigned char*)(res + resOff) = *(unsigned char*)(const_cast<char*>(op1) + op1Off) %
-                                          *(unsigned char*)(const_cast<char*>(op2) + op2Off);
+        if(*(unsigned char*)(const_cast<char*>(op2) + op2Off) == 0)
+        {
+            throw DIVISION_BY_ZERO;
+        }
+        else
+        {
+            *(unsigned char*)(res + resOff) = *(unsigned char*)(const_cast<char*>(op1) + op1Off) %
+                                              *(unsigned char*)(const_cast<char*>(op2) + op2Off);
+        }
     }
 }
 
