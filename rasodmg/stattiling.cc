@@ -39,13 +39,13 @@ rasdaman GmbH.
 #include "rasodmg/interesttiling.hh"
 #include "rasodmg/alignedtiling.hh"
 #include "rasodmg/stattiling.hh"
-#include "raslib/rminit.hh"
-#include "raslib/rmdebug.hh"
 
 #include <assert.h>
 #include <string.h>
 #include <math.h>
 #include <cstdlib>
+
+#include "../common/src/logging/easylogging++.hh"
 
 // Uncoment the _VISUALIZE_2D_DECOMP_ line to generate ppm files the
 // visualization of the domain decomposition done by the algoritm
@@ -71,7 +71,7 @@ r_Stat_Tiling::r_Stat_Tiling(const char* encoded) throw (r_Error)
 {
     if(!encoded)
     {
-        RMInit::logOut << "r_Stat_Tiling::r_Stat_Tiling(" << (encoded?encoded: "NULL") << ")" << endl;
+        LFATAL << "r_Stat_Tiling::r_Stat_Tiling(" << (encoded?encoded: "NULL") << ")";
         throw r_Error(TILINGPARAMETERNOTCORRECT);
     }
 
@@ -95,7 +95,7 @@ r_Stat_Tiling::r_Stat_Tiling(const char* encoded) throw (r_Error)
     pRes=strstr(pTemp,TCOLON);
     if(!pRes)
     {
-        RMInit::logOut << "r_Stat_Tiling::r_Stat_Tiling(" << encoded << "): Error decoding tile dimension from \"" << pTemp << "\"." << endl;
+        LFATAL << "r_Stat_Tiling::r_Stat_Tiling(" << encoded << "): Error decoding tile dimension from \"" << pTemp << "\".";
         throw r_Error(TILINGPARAMETERNOTCORRECT);
     }
 
@@ -108,7 +108,7 @@ r_Stat_Tiling::r_Stat_Tiling(const char* encoded) throw (r_Error)
     tileD=strtol(pToConvert, (char**)NULL, DefaultBase);
     if (!tileD)
     {
-        RMInit::logOut << "r_Stat_Tiling::r_Stat_Tiling(" << encoded << "): Error decoding tile dimension from \"" << pToConvert << "\", is not a number." << endl;
+        LFATAL << "r_Stat_Tiling::r_Stat_Tiling(" << encoded << "): Error decoding tile dimension from \"" << pToConvert << "\", is not a number.";
         delete[] pToConvert;
         throw r_Error(TILINGPARAMETERNOTCORRECT);
     }
@@ -119,7 +119,7 @@ r_Stat_Tiling::r_Stat_Tiling(const char* encoded) throw (r_Error)
         pRes++;
     else
     {
-        RMInit::logOut << "r_Stat_Tiling::r_Stat_Tiling(" << encoded << "): Error decoding access information from \"" << pStart << "\", end of stream." << endl;
+        LFATAL << "r_Stat_Tiling::r_Stat_Tiling(" << encoded << "): Error decoding access information from \"" << pStart << "\", end of stream.";
         throw r_Error(TILINGPARAMETERNOTCORRECT);
     }
 
@@ -128,7 +128,7 @@ r_Stat_Tiling::r_Stat_Tiling(const char* encoded) throw (r_Error)
     pRes=strstr(pTemp, TCOLON);
     if(!pRes)
     {
-        RMInit::logOut << "r_Stat_Tiling::r_Stat_Tiling(" << encoded << "): Error decoding access information from \"" << pTemp << "\"." << endl;
+        LFATAL << "r_Stat_Tiling::r_Stat_Tiling(" << encoded << "): Error decoding access information from \"" << pTemp << "\".";
         throw r_Error(TILINGPARAMETERNOTCORRECT);
     }
 
@@ -149,7 +149,7 @@ r_Stat_Tiling::r_Stat_Tiling(const char* encoded) throw (r_Error)
         pInRes=strstr(pToConvert, RSQRBRA);
         if(!pInRes)
         {
-            RMInit::logOut << "r_Stat_Tiling::r_Stat_Tiling(" << encoded << "): Error decoding access information from \"" << pToConvert << "\"." << endl;
+            LFATAL << "r_Stat_Tiling::r_Stat_Tiling(" << encoded << "): Error decoding access information from \"" << pToConvert << "\".";
             delete[] pToConvert;
             throw r_Error(TILINGPARAMETERNOTCORRECT);
         }
@@ -166,8 +166,8 @@ r_Stat_Tiling::r_Stat_Tiling(const char* encoded) throw (r_Error)
         }
         catch(r_Error &err)
         {
-            RMInit::logOut << "r_Stat_Tiling::r_Stat_Tiling(" << encoded << "): Error decoding access interval \"" << pInToConvert << "\" from \"" << pToConvert << "\"." << endl;
-            RMInit::logOut << "Error " << err.get_errorno() << " : " << err.what() << endl;
+            LFATAL << "r_Stat_Tiling::r_Stat_Tiling(" << encoded << "): Error decoding access interval \"" << pInToConvert << "\" from \"" << pToConvert << "\".";
+            LFATAL << "Error " << err.get_errorno() << " : " << err.what();
             delete[] pInToConvert;
             delete[] pToConvert;
             throw r_Error(TILINGPARAMETERNOTCORRECT);
@@ -177,7 +177,7 @@ r_Stat_Tiling::r_Stat_Tiling(const char* encoded) throw (r_Error)
         pInRes=strstr(pInRes, TCOMMA);
         if(!pInRes)
         {
-            RMInit::logOut << "r_Stat_Tiling::r_Stat_Tiling(" << encoded << "): Error decoding access times \"" << pInRes << "\" from acess information \"" << pToConvert << "\", not specified." << endl;
+            LFATAL << "r_Stat_Tiling::r_Stat_Tiling(" << encoded << "): Error decoding access times \"" << pInRes << "\" from acess information \"" << pToConvert << "\", not specified.";
             delete[] pInToConvert;
             delete[] pToConvert;
             throw r_Error(TILINGPARAMETERNOTCORRECT);
@@ -186,7 +186,7 @@ r_Stat_Tiling::r_Stat_Tiling(const char* encoded) throw (r_Error)
             pInRes++;
         else
         {
-            RMInit::logOut << "r_Stat_Tiling::r_Stat_Tiling(" << encoded << "): Error decoding access times \"" << pInRes << "\" from acess information \"" << pToConvert << "\", not specified." << endl;
+            LFATAL << "r_Stat_Tiling::r_Stat_Tiling(" << encoded << "): Error decoding access times \"" << pInRes << "\" from acess information \"" << pToConvert << "\", not specified.";
             delete[] pInToConvert;
             delete[] pToConvert;
             throw r_Error(TILINGPARAMETERNOTCORRECT);
@@ -194,7 +194,7 @@ r_Stat_Tiling::r_Stat_Tiling(const char* encoded) throw (r_Error)
         accessTimes=strtol(pInRes, (char**)NULL, DefaultBase);
         if(!accessTimes)
         {
-            RMInit::logOut << "r_Stat_Tiling::r_Stat_Tiling(" << encoded << "): Error decoding access times \"" << pInRes << "\" from acess information \"" << pToConvert << "\", not a number." << endl;
+            LFATAL << "r_Stat_Tiling::r_Stat_Tiling(" << encoded << "): Error decoding access times \"" << pInRes << "\" from acess information \"" << pToConvert << "\", not a number.";
             delete[] pInToConvert;
             delete[] pToConvert;
             throw r_Error(TILINGPARAMETERNOTCORRECT);
@@ -212,7 +212,7 @@ r_Stat_Tiling::r_Stat_Tiling(const char* encoded) throw (r_Error)
             pRes++;
         else
         {
-            RMInit::logOut << "r_Stat_Tiling::r_Stat_Tiling(" << encoded << "): Error decoding access informations, end of stream." << endl;
+            LFATAL << "r_Stat_Tiling::r_Stat_Tiling(" << encoded << "): Error decoding access informations, end of stream.";
             throw r_Error(TILINGPARAMETERNOTCORRECT);
         }
 
@@ -223,7 +223,7 @@ r_Stat_Tiling::r_Stat_Tiling(const char* encoded) throw (r_Error)
 
     if(vectAccessInfo.empty())
     {
-        RMInit::logOut << "r_Stat_Tiling::r_Stat_Tiling(" << encoded << "): Error decoding access informations, no access informations specified." << endl;
+        LFATAL << "r_Stat_Tiling::r_Stat_Tiling(" << encoded << "): Error decoding access informations, no access informations specified.";
         throw r_Error(TILINGPARAMETERNOTCORRECT);
     }
 
@@ -236,7 +236,7 @@ r_Stat_Tiling::r_Stat_Tiling(const char* encoded) throw (r_Error)
     borderTH = static_cast<r_Area>(strtol(pToConvert, (char**)NULL, DefaultBase));
     if (!borderTH)
     {
-        RMInit::logOut << "r_Stat_Tiling::r_Stat_Tiling(" << encoded << "): Error decoding border threshold \"" << pToConvert << "\"." << endl;
+        LFATAL << "r_Stat_Tiling::r_Stat_Tiling(" << encoded << "): Error decoding border threshold \"" << pToConvert << "\".";
         delete[] pToConvert;
         throw r_Error(TILINGPARAMETERNOTCORRECT);
     }
@@ -247,7 +247,7 @@ r_Stat_Tiling::r_Stat_Tiling(const char* encoded) throw (r_Error)
         pRes++;
     else
     {
-        RMInit::logOut << "r_Stat_Tiling::r_Stat_Tiling(" << encoded << "): Error decoding interesting threshold, end of stream." << endl;
+        LFATAL << "r_Stat_Tiling::r_Stat_Tiling(" << encoded << "): Error decoding interesting threshold, end of stream.";
         throw r_Error(TILINGPARAMETERNOTCORRECT);
     }
 
@@ -256,7 +256,7 @@ r_Stat_Tiling::r_Stat_Tiling(const char* encoded) throw (r_Error)
     pRes=strstr(pTemp,TCOLON);
     if(!pRes)
     {
-        RMInit::logOut << "r_Stat_Tiling::r_Stat_Tiling(" << encoded << "): Error decoding interesting threshold." << endl;
+        LFATAL << "r_Stat_Tiling::r_Stat_Tiling(" << encoded << "): Error decoding interesting threshold.";
         throw r_Error(TILINGPARAMETERNOTCORRECT);
     }
 
@@ -269,20 +269,20 @@ r_Stat_Tiling::r_Stat_Tiling(const char* encoded) throw (r_Error)
     interestTH=strtod(pToConvert, (char**)NULL);
     if (!interestTH)
     {
-        RMInit::logOut << "r_Stat_Tiling::r_Stat_Tiling(" << encoded << "): Error decoding interesting threshold \"" << pToConvert << "\"." << endl;
+        LFATAL << "r_Stat_Tiling::r_Stat_Tiling(" << encoded << "): Error decoding interesting threshold \"" << pToConvert << "\".";
         delete[] pToConvert;
         throw r_Error(TILINGPARAMETERNOTCORRECT);
     }
     if (interestTH < 0.)
     {
-        RMInit::logOut << "r_Stat_Tiling::r_Stat_Tiling(" << encoded << "): Error decoding interesting threshold \"" << pToConvert << "\", negative number." << endl;
+        LFATAL << "r_Stat_Tiling::r_Stat_Tiling(" << encoded << "): Error decoding interesting threshold \"" << pToConvert << "\", negative number.";
         delete[] pToConvert;
         throw r_Error(TILINGPARAMETERNOTCORRECT);
     }
 
     if (interestTH > 1.)
     {
-        RMInit::logOut << "r_Stat_Tiling::r_Stat_Tiling(" << encoded << "): Error decoding interesting threshold \"" << pToConvert << "\", not in [0,1] interval." << endl;
+        LFATAL << "r_Stat_Tiling::r_Stat_Tiling(" << encoded << "): Error decoding interesting threshold \"" << pToConvert << "\", not in [0,1] interval.";
         delete[] pToConvert;
         throw r_Error(TILINGPARAMETERNOTCORRECT);
     }
@@ -293,7 +293,7 @@ r_Stat_Tiling::r_Stat_Tiling(const char* encoded) throw (r_Error)
         pRes++;
     else
     {
-        RMInit::logOut << "r_Stat_Tiling::r_Stat_Tiling(" << encoded << "): Error decoding tile size, end of stream." << endl;
+        LFATAL << "r_Stat_Tiling::r_Stat_Tiling(" << encoded << "): Error decoding tile size, end of stream.";
         throw r_Error(TILINGPARAMETERNOTCORRECT);
     }
 
@@ -302,12 +302,12 @@ r_Stat_Tiling::r_Stat_Tiling(const char* encoded) throw (r_Error)
     tileS=strtol(pTemp, (char**)NULL, DefaultBase);
     if (!tileS)
     {
-        RMInit::logOut << "r_Stat_Tiling::r_Stat_Tiling(" << encoded << "): Error decoding tile size \"" << pToConvert << "\", not a number." << endl;
+        LFATAL << "r_Stat_Tiling::r_Stat_Tiling(" << encoded << "): Error decoding tile size \"" << pToConvert << "\", not a number.";
         throw r_Error(TILINGPARAMETERNOTCORRECT);
     }
     if (tileS < 0.)
     {
-        RMInit::logOut << "r_Stat_Tiling::r_Stat_Tiling(" << encoded << "): Error decoding tile size \"" << pToConvert << "\", negative number." << endl;
+        LFATAL << "r_Stat_Tiling::r_Stat_Tiling(" << encoded << "): Error decoding tile size \"" << pToConvert << "\", negative number.";
         throw r_Error(TILINGPARAMETERNOTCORRECT);
     }
 
@@ -325,10 +325,9 @@ r_Stat_Tiling::r_Stat_Tiling(r_Dimension dim, const std::vector<r_Access>& stat_
         border_thr(border_threshold),
         stat_info(stat_info2)
 {
-    RMDBGENTER(1, RMDebug::module_rasodmg, "r_Stat_Tiling", "Filtering accesses... ");
     // Filter accesses all areas have the same dimension if successfull else exception
     filter(stat_info);
-    RMDBGMIDDLE(1, RMDebug::module_rasodmg, "r_Stat_Tiling", "done\n");
+    LTRACE << "done\n";
     std::vector<r_Access>::iterator areas_it = stat_info.begin();
     // Count total accesses
     r_ULong total_accesses = 0;
@@ -339,16 +338,16 @@ r_Stat_Tiling::r_Stat_Tiling(r_Dimension dim, const std::vector<r_Access>& stat_
     {
         if ((*areas_it).get_pattern().dimension() != dim)
         {
-            RMInit::logOut << "r_Stat_Tiling::r_Stat_Tiling(" << dim << ", " << &stat_info
+            LFATAL << "r_Stat_Tiling::r_Stat_Tiling(" << dim << ", " << &stat_info
                            << ", " << ts << ", " << border_threshold << ", " << interesting_threshold
                            << ") dimension (" << dim << ") does not match dimension of access patterns ("
-                           << (*areas_it).get_pattern().dimension() << ")" << endl;
+                           << (*areas_it).get_pattern().dimension() << ")";
             throw r_Edim_mismatch(dim, (*areas_it).get_pattern().dimension());
         }
         total_accesses += (*areas_it).get_times();
     }
 
-    RMDBGMIDDLE(1, RMDebug::module_rasodmg, "r_Stat_Tiling", "Defining interest areas... ");
+    LTRACE << "Defining interest areas... ";
 
     // Mininum number of accesses for being interesting
     r_ULong critical_accesses = static_cast<r_ULong>(interesting_thr*total_accesses);
@@ -361,8 +360,6 @@ r_Stat_Tiling::r_Stat_Tiling(r_Dimension dim, const std::vector<r_Access>& stat_
             iareas.push_back(areas_it->get_pattern());           // count this area in
         }
     }
-
-    RMDBGEXIT(1, RMDebug::module_rasodmg, "r_Stat_Tiling", "Defining interest areas... done\n");
 }
 
 r_Stat_Tiling::~r_Stat_Tiling()
@@ -474,12 +471,12 @@ r_Stat_Tiling::compute_tiles(const r_Minterval& domain, r_Bytes typelen) const t
     r_Dimension num_dims = domain.dimension();                   // Dimensionality of dom
     if (domain.dimension() != dimension)
     {
-        RMInit::logOut << "r_Stat_Tiling::compute_tiles(" << domain << ", " << typelen << ") dimension (" << dimension << ") does not match dimension of object to tile (" << num_dims << ")" << endl;
+        LFATAL << "r_Stat_Tiling::compute_tiles(" << domain << ", " << typelen << ") dimension (" << dimension << ") does not match dimension of object to tile (" << num_dims << ")";
         throw r_Edim_mismatch(dimension, num_dims);
     }
     if (typelen > tile_size)
     {
-        RMInit::logOut << "r_Stat_Tiling::compute_tiles(" << domain << ", " << typelen << ") tile size (" << tile_size << ") is smaller than type length (" << typelen << ")" << endl;
+        LFATAL << "r_Stat_Tiling::compute_tiles(" << domain << ", " << typelen << ") tile size (" << tile_size << ") is smaller than type length (" << typelen << ")";
         throw r_Error(TILESIZETOOSMALL);
     }
 #ifdef _VISUALIZE_2D_DECOMP_                           // User wants a visual 
@@ -504,17 +501,12 @@ r_Stat_Tiling::compute_tiles(const r_Minterval& domain, r_Bytes typelen) const t
     {
         // Perform regular tiling
 
-        RMDBGENTER(1, RMDebug::module_rasodmg, "r_Stat_Tiling", "Regular tiling...");
-
         result = r_Size_Tiling::compute_tiles(domain, typelen);
-
-        RMDBGEXIT(1, RMDebug::module_rasodmg, "r_Stat_Tiling", "done\n");
     }
     else                                                 // We have interest areas
     {
         // Use interest areas for tiling the domain
 
-        RMDBGENTER(1, RMDebug::module_rasodmg, "r_Stat_Tiling", "Statistic tiling...\n");
         r_Interest_Tiling* tiling=NULL;
 
         try
@@ -529,8 +521,6 @@ r_Stat_Tiling::compute_tiles(const r_Minterval& domain, r_Bytes typelen) const t
                 delete tiling;
             throw;
         }
-
-        RMDBGEXIT(1, RMDebug::module_rasodmg, "r_Stat_Tiling", "done\n");
     }
 
     // *** End of the main algorithm
@@ -605,7 +595,7 @@ bool r_Access::is_near(const r_Access& other, r_ULong border_threshold) const th
     r_Dimension num_dims = interval.dimension();
     if (num_dims != b.dimension())
     {
-        RMInit::logOut << "r_Access::is_near(" << other << ", " << border_threshold << ") parameter 1 does not match my dimension (" << num_dims << ")" << endl;
+        LFATAL << "r_Access::is_near(" << other << ", " << border_threshold << ") parameter 1 does not match my dimension (" << num_dims << ")";
         throw r_Edim_mismatch(num_dims, b.dimension());
     }
     bool the_same = true;

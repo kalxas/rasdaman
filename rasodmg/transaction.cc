@@ -44,9 +44,10 @@ static const char rcsid[] = "@(#)rasodmg, r_Transaction: $Id: transaction.cc,v 1
 #include "rasodmg/transaction.hh"
 #include "rasodmg/database.hh"
 
-#include "raslib/rmdebug.hh"
 #include "raslib/scalar.hh"
 #include "clientcomm/clientcomm.hh"
+
+#include "../common/src/logging/easylogging++.hh"
 
 #ifdef __VISUALC__
 #ifdef TRANSACTION_NOT_SET
@@ -116,7 +117,7 @@ r_Transaction::commit() throw( r_Error )
     }
     else
     {
-        RMInit::logOut << std::endl << "Commit Log:" << std::endl;
+        LDEBUG << "Commit Log:";
 
         //
         // Commit list of r_Object references.
@@ -128,42 +129,42 @@ r_Transaction::commit() throw( r_Error )
         {
             if( (*iter)->get_oid().is_valid() )
             {
-                RMInit::logOut << "  Object " << (*iter)->get_oid() << "  " << std::flush;
+                LDEBUG << "  Object " << (*iter)->get_oid() << "  ";
 
                 switch( (*iter)->get_status() )
                 {
                 case r_Object::deleted:
-                    RMInit::logOut << "state DELETED,  deleting ... " << std::flush;
+                    LDEBUG << "state DELETED,  deleting ... ";
                     (*iter)->r_Object::delete_obj_from_db();
-                    RMInit::logOut << "OK" << std::endl;
+                    LDEBUG << "OK";
                     break;
 
                 case r_Object::created:
-                    RMInit::logOut << "state CREATED,  writing  ... " << std::flush;
+                    LDEBUG << "state CREATED,  writing  ... ";
                     (*iter)->insert_obj_into_db();
-                    RMInit::logOut << "OK" << std::endl;
+                    LDEBUG << "OK";
                     break;
 
                 case r_Object::modified:
-                    RMInit::logOut << "state MODIFIED, modifying ... " << std::endl;
+                    LDEBUG << "state MODIFIED, modifying ... ";
                     (*iter)->update_obj_in_db();
                     break;
 
                 case r_Object::read:
-                    RMInit::logOut << "state READ,     OK" << std::endl;
+                    LDEBUG << "state READ,     OK";
                     break;
 
                 case r_Object::transient:
-                    RMInit::logOut << "state TRANSIENT,     OK" << std::endl;
+                    LDEBUG << "state TRANSIENT,     OK";
                     break;
 
                 default:
-                    RMInit::logOut << "state UNKNOWN" << std::endl;
+                    LERROR << "state UNKNOWN";
                     break;
                 }
             }
             else
-                RMInit::logOut << "  Object with no oid, state TRANSIENT query result" << std::endl;
+                LDEBUG << "  Object with no oid, state TRANSIENT query result";
         }
 
         // Don't do the r_deactivate() in the first loop because if a collection is not
@@ -189,32 +190,32 @@ r_Transaction::commit() throw( r_Error )
 
         for( iter2.reset(); iter2.not_done(); iter2++ )
         {
-            RMInit::logOut << "  Value " << std::flush;
+            LDEBUG << "  Value ";
 
             switch( (*iter2)->type )
             {
             case POINT:
-                RMInit::logOut << "transient Point DELETED" << std::endl;
+                LDEBUG << "transient Point DELETED";
                 delete (static_cast<r_Point*>((*iter2)->ref));
                 break;
 
             case SINTERVAL:
-                RMInit::logOut << "transient Sinterval DELETED" << std::endl;
+                LDEBUG << "transient Sinterval DELETED";
                 delete (static_cast<r_Sinterval*>((*iter2)->ref));
                 break;
 
             case MINTERVAL:
-                RMInit::logOut << "transient Minterval DELETED" << std::endl;
+                LDEBUG << "transient Minterval DELETED";
                 delete (static_cast<r_Minterval*>((*iter2)->ref));
                 break;
 
             case OID:
-                RMInit::logOut << "transient OId DELETED" << std::endl;
+                LDEBUG << "transient OId DELETED";
                 delete (static_cast<r_OId*>((*iter2)->ref));
                 break;
 
             default:
-                RMInit::logOut << "transient Scalar DELETED" << std::endl;
+                LDEBUG << "transient Scalar DELETED";
                 delete (static_cast<r_Scalar*>((*iter2)->ref));
                 break;
             }
@@ -248,7 +249,7 @@ r_Transaction::abort()
     }
     else
     {
-        RMInit::logOut << std::endl << "Abort Log:" << std::endl;
+        LDEBUG << "Abort Log:";
 
         //
         // Abort list of r_Object references.
@@ -258,7 +259,7 @@ r_Transaction::abort()
 
         for( iter.reset(); iter.not_done(); iter++ )
         {
-            RMInit::logOut << "  Object DELETED" << std::endl;
+            LDEBUG << "  Object DELETED";
 
             if( !(*iter)->test_status( r_Object::deleted ) )
                 (*iter)->r_deactivate();
@@ -281,27 +282,27 @@ r_Transaction::abort()
             switch( (*iter2)->type )
             {
             case POINT:
-                RMInit::logOut << "  Transient Point DELETED" << std::endl;
+                LDEBUG << "  Transient Point DELETED";
                 delete (static_cast<r_Point*>((*iter2)->ref));
                 break;
 
             case SINTERVAL:
-                RMInit::logOut << "  Transient Sinterval DELETED" << std::endl;
+                LDEBUG << "  Transient Sinterval DELETED";
                 delete (static_cast<r_Sinterval*>((*iter2)->ref));
                 break;
 
             case MINTERVAL:
-                RMInit::logOut << "  Transient Minterval DELETED" << std::endl;
+                LDEBUG << "  Transient Minterval DELETED";
                 delete (static_cast<r_Minterval*>((*iter2)->ref));
                 break;
 
             case OID:
-                RMInit::logOut << "  Transient OId DELETED" << std::endl;
+                LDEBUG << "  Transient OId DELETED";
                 delete (static_cast<r_OId*>((*iter2)->ref));
                 break;
 
             default:
-                RMInit::logOut << "  Transient Scalar DELETED" << std::endl;
+                LDEBUG << "  Transient Scalar DELETED";
                 delete (static_cast<r_Scalar*>((*iter2)->ref));
                 break;
             }
@@ -318,7 +319,7 @@ r_Transaction::abort()
 //      r_Database::actual_database->communication->abortTA();
             r_Database::actual_database->getComm()->abortTA();
         else
-            RMInit::logOut << "  Database was already closed.  Please abort every transaction before closing the database.  Please also check for any try/catches with a close database but without transaction abort." << std::endl;
+            LDEBUG << "  Database was already closed.  Please abort every transaction before closing the database.  Please also check for any try/catches with a close database but without transaction abort.";
 
         ta_state = inactive;
         actual_transaction = 0;
@@ -344,13 +345,13 @@ r_Transaction::load_object( const r_OId& oid )
     if( found )
     {
         // return reference of loaded object
-        RMDBGONCE(4, RMDebug::module_rasodmg, "r_Transaction", "load_object( oid ) - object already loaded")
+        LTRACE << "load_object( oid ) - object already loaded";
         return *iter;
     }
     else
     {
         // load object and return reference
-        RMDBGONCE(4, RMDebug::module_rasodmg, "r_Transaction", "load_object( oid ) - load object")
+        LTRACE << "load_object( oid ) - load object";
         return r_Database::actual_database->lookup_object( oid );
     }
 }
