@@ -224,7 +224,7 @@ DatabaseIf::checkCompatibility() throw (r_Error)
         if (SQLCODE == SQLNODATAFOUND)
         {
             LERROR << "The Database is incompatible with the current RasServer./n" \
-                           << "Database has no entry for the current platform./n"l \
+                           << "Database has no entry for the current platform./n" \
                            << "You are using rasserver:/n" \
                            << "\tversion	" << RMANVERSION <<"\n" \
                            << "\tschema	" << RASSCHEMAVERSION << "\n" \
@@ -278,7 +278,7 @@ DatabaseIf::checkCompatibility() throw (r_Error)
                            << "\tversion	" << rasver1 << "\n" \
                            << "\tschema	" << schemaver1 << "\n" \
                            << "\tplatform " << arch1 << "\n\n" \
-                           << "You are using rasserver:" << "\n"l \
+                           << "You are using rasserver:" << "\n" \
                            << "\tversion	" << RMANVERSION << "\n" \
                            << "\tschema	" << RASSCHEMAVERSION << "\n" \
                            << "\tplatform " << RASARCHITECTURE << "\n" \
