@@ -84,8 +84,6 @@ JETTY_JAR=jetty.jar
 
 # --- ACTION --------------------------------------------------------
 
-echo '----------------Checking starting Rasdaman Servers----------------';
-echo -e
 echo $MYNAME: starting rasdaman server complex...
 
 # --- start rasmgr: -------------------------------------------------
@@ -167,10 +165,6 @@ javaServer=$(echo $javaServer | sed -e 's/^[ \t]*//') #trim leading spaces
 
 if [ "$javaServer" == "$JAVA_SERVER_EMBEDDED" ]; then
 
-	echo -e
-	echo '----------------Checking starting embedded Petascope--------------';
-	echo -e
-
 	# 1. Check if user wants to start or stop petascope "manually" when execute start_rasdaman.sh with parameter --start-embedded-petascope or --stop--embedded-petascope
 
 	# normally if user does not add on of these arguments, need to check the configuration in petascope.properties
@@ -204,7 +198,6 @@ if [ "$javaServer" == "$JAVA_SERVER_EMBEDDED" ]; then
 
 		   isPortUsed=$(netstat -anpp 2>/dev/null | grep $portJetty | awk '{print $6}') # check if port is open or not, 2>/dev/null to clean the warning: 'you must be root when using netstat'
 
-		   echo -e
 		   if [[  "$isPortUsed" =~ 'LISTEN' ]]; then # If port is used (LISTEN) then could not use this port
 			echo $MYNAME: 'Starting embedded Petascope failed, conflicts with port number: "'$portJetty'"';
 			echo 'Please change port (jetty_port=) in file: '$installPath'etc/petascope.properties'
@@ -220,7 +213,6 @@ if [ "$javaServer" == "$JAVA_SERVER_EMBEDDED" ]; then
 			pid=$(ps -ef | grep '[r]asdaman/war/'$JETTY_JAR | awk '{print $2; exit}')
 
 			if [[ ! -z "$pid" ]]; then # check if pid is empty or not
-			    echo -e
 			    echo $MYNAME: 'PID of lasted embedded Petascope = "'$pid'"' # success
 			    echo 'Starting embedded Petascope successful. Done.'
 			else
@@ -261,7 +253,6 @@ fi
 
 echo -e
 echo $MYNAME: done.
-echo -e
 exit $RC_OK
 
 # --- END ACTION ----------------------------------------------------

@@ -65,8 +65,6 @@ JETTY_JAR=jetty.jar
 # --- ACTION --------------------------------------------------------
 
 echo -e
-echo '----------------Checking stopping Rasdaman Servers----------------';
-echo -e
 
 echo $MYNAME: terminating all rasdaman servers
 
@@ -97,8 +95,6 @@ echo -n "terminating rasdaman server manager(s)..."
 @bindir@rascontrol -e -q -x down host -all
 echo "done."
 
-echo -n
-echo -e
 
 
 # if HSQLDB is used for petascope, stop HSQLDB server here
@@ -112,15 +108,12 @@ if [ "$PETASCOPEDB" == "$PETASCOPEDB_HSQLDB" ]; then
 fi
 
 # --- B: Terminate Embedded Petascope if it is running ----------------------------------------------------
-
+echo -e
 # get the pid of lasted embedded Jetty with Petascope (only 1 process is allowed to run in background)
 # the [] is trick to avoid grep's pid is chosen instead of running Jetty.
 pid=$(ps -ef | grep '[r]asdaman/war/jetty.jar' | awk '{print $2; exit}')
 
 if [[ ! -z "$pid" ]]; then # pid is not empty then need to terminate running embedded Petascope
-   echo -e
-   echo '----------------Checking stopping embedded Petascope at PID = "'$pid'"----';
-   echo -e
    kill -9 $pid;
    # get the pid of lasted embedded Jetty with Petascope (only 1 process is allowed to run in background)
    # the [] is trick to avoid grep's pid is chosen instead of running Jetty.
@@ -133,8 +126,6 @@ if [[ ! -z "$pid" ]]; then # pid is not empty then need to terminate running emb
    fi
 fi
 
-echo -n
-echo -n
 
 # --- END ACTION ----------------------------------------------------
 

@@ -1963,7 +1963,7 @@ void RasControl::downRasHosts()
         }
         //now the master
         masterCommunicator.shouldExit();
-        sprintf(answBuffer,"All hosts are down, bye");
+        sprintf(answBuffer,"All hosts are down.");
         return;
     }
 
