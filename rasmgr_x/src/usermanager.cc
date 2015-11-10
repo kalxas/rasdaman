@@ -185,7 +185,7 @@ void UserManager::saveUserInformation()
     char authFileName[PATH_MAX];
 
     //This checks if the path to the RASMGR_AUTH_FILE is longer thant the maximum file path.
-    int pathLen = snprintf ( authFileName, PATH_MAX, "%s/%s", getenv ( "HOME" ), RASMGR_AUTH_FILE );
+    int pathLen = snprintf ( authFileName, PATH_MAX, "%s/%s", CONFDIR, RASMGR_AUTH_FILE );
     if ( pathLen >= PATH_MAX )
     {
         authFileName[PATH_MAX-1] = '\0';    // force-terminate string before printing
@@ -224,7 +224,7 @@ void UserManager::loadUserInformation()
     bool success=true;
 
     //This checks if the path to the RASMGR_AUTH_FILE is longer thant the maximum file path.
-    int pathLen = snprintf ( authFileName, PATH_MAX, "%s/%s", getenv ( "HOME" ), RASMGR_AUTH_FILE );
+    int pathLen = snprintf ( authFileName, PATH_MAX, "%s/%s", CONFDIR, RASMGR_AUTH_FILE );
     if ( pathLen >= PATH_MAX )
     {
         authFileName[PATH_MAX-1] = '\0';    // force-terminate string before printing
