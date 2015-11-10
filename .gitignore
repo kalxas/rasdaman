@@ -76,6 +76,8 @@ web.xml
 applications/raswct/bin
 glassfish-web.xml
 java/dist/
+java/src/org/rasdaman/rasnet/message
+java/src/org/rasdaman/rasnet/service
 web.xml
 fillpyramid
 initpyramid

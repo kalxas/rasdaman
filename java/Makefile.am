@@ -131,3 +131,7 @@ clean:
 wps:
   
 jar: all
+
+if RMANRASNET
+    SUBDIRS=../rasnet
+endif
