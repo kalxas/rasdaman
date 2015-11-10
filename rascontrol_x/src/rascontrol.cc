@@ -134,7 +134,7 @@ void RasControl::startInteractiveMode()
     }
     catch(std::exception& ex)
     {
-        std::cerr<<ex.what();
+        std::cerr<<"Failed to connect to rasmgr. Reason:"<<ex.what();
     }
     catch(...)
     {
@@ -230,7 +230,7 @@ void RasControl::startBatchMode()
     }
     catch(std::exception& ex)
     {
-        std::cerr<<ex.what();
+        std::cerr<<"Failed to connect to rasmgr. Reason:"<<ex.what();
     }
     catch(...)
     {

@@ -190,6 +190,8 @@ private:
     boost::shared_ptr<::rasnet::service::RasServerService::Stub> getService();
     std::string getStartProcessCommand();
 
+    void configureClientContext(grpc::ClientContext& context);
+
     //TODO-AT: remove this
     const char* getCapability(const char *serverName,const char *databaseName, const UserDatabaseRights& rights);
     int messageDigest(const char *input,char *output,const char *mdName);

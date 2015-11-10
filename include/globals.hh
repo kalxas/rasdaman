@@ -84,5 +84,8 @@ rasdaman GmbH.
 /// client timeout [secs]
 #define CLIENT_TIMEOUT      300
 
+///  The number of milliseconds a server has to reply to a service request.
+#define SERVICE_CALL_TIMEOUT 5000
+
 #endif // GLOBALS_HH
 

@@ -124,6 +124,8 @@ private:
     void startRasServerKeepAlive();
     void stopRasServerKeepAlive();
 
+    void configureClientContext(grpc::ClientContext& context);
+
     void clientRasServerKeepAliveRunner();
     /* END: KEEP ALIVE */
 

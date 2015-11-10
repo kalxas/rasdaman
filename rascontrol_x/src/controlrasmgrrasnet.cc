@@ -87,7 +87,11 @@ std::string ControlRasMgrRasnet::processCommand(const std::string& command)
     request.set_password_hash(password);
     request.set_command(command);
 
+    std::chrono::system_clock::time_point deadline = std::chrono::system_clock::now() + std::chrono::milliseconds(SERVICE_CALL_TIMEOUT);
+
     ClientContext context;
+    context.set_deadline(deadline);
+
     Status status = this->rasmgrService->ExecuteCommand( &context, request, &response);
 
     if(!status.ok())

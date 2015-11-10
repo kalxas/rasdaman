@@ -25,6 +25,7 @@ rasdaman GmbH.
 #include <iostream>
 
 #include <grpc++/grpc++.h>
+#include <chrono>
 
 #include "../../rasnet/messages/rasmgr_rassrvr_service.grpc.pb.h"
 
@@ -33,6 +34,7 @@ rasdaman GmbH.
 #include "../../rasnetprotocol/rasnetservercomm.hh"
 
 #include "../../server/rasserver_entry.hh"
+#include "../../include/globals.hh"
 
 #include "clientmanager.hh"
 
@@ -92,7 +94,11 @@ void RasnetServer::registerServerWithRasmgr()
     ::rasnet::service::RegisterServerReq request;
     request.set_serverid(configuration.getNewServerId());
 
+    std::chrono::system_clock::time_point deadline = std::chrono::system_clock::now() + std::chrono::milliseconds(SERVICE_CALL_TIMEOUT);
+
     grpc::ClientContext context;
+    context.set_deadline(deadline);
+
     grpc::Status status = rasmgrRasserverService.RegisterServer(&context, request, &response);
 
     if(!status.ok())

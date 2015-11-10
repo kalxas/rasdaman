@@ -27,12 +27,14 @@
 #include <cstring>
 #include <iostream>
 #include <stdexcept>
+#include <chrono>
 
 #include <boost/lexical_cast.hpp>
 
 #include <grpc++/grpc++.h>
 #include <grpc++/security/credentials.h>
 
+#include "../../include/globals.hh"
 #include "../../common/src/exceptions/rasexceptions.hh"
 
 #include "../../common/src/grpc/grpcutils.hh"
@@ -43,6 +45,7 @@
 
 #include "exceptions/rasmgrexceptions.hh"
 
+#include "constants.hh"
 #include "serverrasnet.hh"
 #include "rasmgrconfig.hh"
 #include "userdatabaserights.hh"
@@ -210,7 +213,10 @@ bool ServerRasNet::isAlive()
 
         if(isProcessAlive)
         {
+            // Set timeout for API
             ClientContext context;
+            this->configureClientContext(context);
+
             ServerStatusReq request = ServerStatusReq::default_instance();
             ServerStatusRepl reply;
 
@@ -235,6 +241,8 @@ bool ServerRasNet::isClientAlive(const std::string& clientId)
     if(this->started)
     {
         ClientContext context;
+        this->configureClientContext(context);
+
         ClientStatusRepl response;
         ClientStatusReq request;
 
@@ -259,6 +267,8 @@ void ServerRasNet::allocateClientSession(const std::string& clientId,
         const UserDatabaseRights& dbRights)
 {
     ClientContext context;
+    this->configureClientContext(context);
+
     AllocateClientReq request;
     Void response;
     DatabaseRights* rights = new DatabaseRights;
@@ -303,6 +313,8 @@ void ServerRasNet::allocateClientSession(const std::string& clientId,
 void ServerRasNet::deallocateClientSession(const std::string& clientId, const std::string& sessionId)
 {
     ClientContext context;
+    this->configureClientContext(context);
+
     Void response;
     DeallocateClientReq request;
 
@@ -366,6 +378,8 @@ void ServerRasNet::stop(KillLevel level)
         if(isAlive)
         {
             ClientContext context;
+            this->configureClientContext(context);
+
             CloseServerReq request;
             Void response;
 
@@ -446,6 +460,8 @@ boost::uint32_t ServerRasNet::getClientQueueSize()
 {
     //Query the server's status and use that to report
     ClientContext context;
+    this->configureClientContext(context);
+
     ServerStatusReq request = ServerStatusReq::default_instance();
     ServerStatusRepl reply;
 
@@ -491,6 +507,12 @@ std::string ServerRasNet::getStartProcessCommand()
     ss<<"--connect"<<" "<<this->dbHost->getConnectString()<<" ";
     ss<<"--rasnet";
     return ss.str();
+}
+
+void ServerRasNet::configureClientContext(grpc::ClientContext &context)
+{
+    std::chrono::system_clock::time_point deadline = std::chrono::system_clock::now() + std::chrono::milliseconds(SERVICE_CALL_TIMEOUT);
+    context.set_deadline(deadline);
 }
 
 const char *ServerRasNet::getCapability(const char *serverName, const char *databaseName, const UserDatabaseRights& rights)

@@ -172,12 +172,15 @@ int RasnetClientComm::connectClient(string userName, string passwordHash)
     connectReq.set_username(userName);
     connectReq.set_passwordhash(passwordHash);
 
-    grpc::ClientContext context;
+    ClientContext context;
+    this->configureClientContext(context);
+
     grpc::Status status = this->getRasMgrService()->Connect(&context, connectReq, &connectRepl);
 
     if (!status.ok())
     {
-        throw r_Error(r_Error::r_Error_AccesDenied, INCORRECT_USER_PASSWORD);
+        handleError(status.error_message());
+        //Fthrow r_Error(r_Error::r_Error_AccesDenied, INCORRECT_USER_PASSWORD);
     }
 
     this->clientId = connectRepl.clientid();
@@ -197,7 +200,9 @@ int RasnetClientComm::disconnectClient()
 
     disconnectReq.set_clientuuid(this->clientUUID);
 
-    grpc::ClientContext context;
+    ClientContext context;
+    this->configureClientContext(context);
+
     grpc::Status status = this->getRasMgrService()->Disconnect(&context, disconnectReq, &disconnectRepl);
     this->closeRasmgrService();
 
@@ -220,7 +225,9 @@ int RasnetClientComm::openDB(const char *database)
     openDatabaseReq.set_clientuuid(this->clientUUID.c_str());
     openDatabaseReq.set_databasename(database);
 
-    grpc::ClientContext openDbContext;
+    ClientContext openDbContext;
+    this->configureClientContext(openDbContext);
+
     grpc::Status openDbStatus = this->getRasMgrService()->OpenDb(&openDbContext, openDatabaseReq, &openDatabaseRepl);
 
     //stop sending keep alive messages to rasmgr
@@ -243,6 +250,8 @@ int RasnetClientComm::openDB(const char *database)
     openServerDatabaseReq.set_database_name(database);
 
     grpc::ClientContext openServerDbContext;
+    this->configureClientContext(openServerDbContext);
+
     grpc::Status openServerDbStatus = this->getRasServerService()->OpenServerDatabase(&openServerDbContext, openServerDatabaseReq, &openServerDatabaseRepl);
 
     if (!openServerDbStatus.ok())
@@ -270,6 +279,8 @@ int RasnetClientComm::closeDB()
     closeDbReq.set_dbsessionid(this->sessionId);
 
     grpc::ClientContext closeServerDbContext;
+    this->configureClientContext(closeServerDbContext);
+
     grpc::Status closeServerDbStatus = this->getRasServerService()->CloseServerDatabase(&closeServerDbContext, closeServerDatabaseReq, &closeDatabaseRepl);
     if(!closeServerDbStatus.ok())
     {
@@ -277,6 +288,8 @@ int RasnetClientComm::closeDB()
     }
 
     grpc::ClientContext closeDbContext;
+    this->configureClientContext(closeDbContext);
+
     grpc::Status closeDbStatus = this->getRasMgrService()->CloseDb(&closeDbContext, closeDbReq, &closeDatabaseRepl);
     if(!closeDbStatus.ok())
     {
@@ -319,6 +332,8 @@ int RasnetClientComm::openTA(unsigned short readOnly) throw (r_Error)
     beginTransactionReq.set_client_id(this->clientId);
 
     grpc::ClientContext context;
+    this->configureClientContext(context);
+
     grpc::Status beginTransationStatus = this->getRasServerService()->BeginTransaction(&context, beginTransactionReq, &beginTransactionRepl);
     if (!beginTransationStatus.ok())
     {
@@ -339,6 +354,8 @@ int RasnetClientComm::commitTA() throw (r_Error)
     commitTransactionReq.set_client_id(this->clientId);
 
     grpc::ClientContext context;
+    this->configureClientContext(context);
+
     grpc::Status commitStatus = this->getRasServerService()->CommitTransaction(&context, commitTransactionReq, &commitTransactionRepl);
     if (!commitStatus.ok())
     {
@@ -356,6 +373,8 @@ int RasnetClientComm::abortTA()
     abortTransactionReq.set_client_id(this->clientId);
 
     grpc::ClientContext context;
+    this->configureClientContext(context);
+
     grpc::Status abortTransactionStatus = this->getRasServerService()->AbortTransaction(&context, abortTransactionReq, &AbortTransactionRepl);
     if (!abortTransactionStatus.ok())
     {
@@ -469,6 +488,8 @@ void RasnetClientComm::insertColl(const char *collName, const char *typeName, co
     insertCollectionReq.set_oid(oid.get_string_representation());
 
     grpc::ClientContext context;
+    this->configureClientContext(context);
+
     grpc::Status insertStatus = this->getRasServerService()->InsertCollection(&context, insertCollectionReq, &insertCollectionRepl);
     if (!insertStatus .ok())
     {
@@ -491,6 +512,8 @@ void RasnetClientComm::deleteCollByName(const char *collName) throw (r_Error)
     deleteCollectionByNameReq.set_collection_name(collName);
 
     grpc::ClientContext context;
+    this->configureClientContext(context);
+
     grpc::Status deleteCollectionStatus = this->getRasServerService()->DeleteCollectionByName(&context, deleteCollectionByNameReq, &deleteCollectionByNameRepl);
     if (!deleteCollectionStatus.ok())
     {
@@ -511,6 +534,8 @@ void RasnetClientComm::deleteObjByOId(const r_OId &oid) throw (r_Error)
     deleteCollectionByOidReq.set_oid(oid.get_string_representation());
 
     grpc::ClientContext context;
+    this->configureClientContext(context);
+
     grpc::Status deleteCollectionStatus = this->getRasServerService()->DeleteCollectionByOid(&context, deleteCollectionByOidReq, &deleteCollectionByOidRepl);
     if (!deleteCollectionStatus.ok())
     {
@@ -532,6 +557,8 @@ void RasnetClientComm::removeObjFromColl(const char *name, const r_OId &oid) thr
     removeObjectFromCollectionReq.set_oid(oid.get_string_representation());
 
     grpc::ClientContext context;
+    this->configureClientContext(context);
+
     grpc::Status removeObjectStatus = this->getRasServerService()->RemoveObjectFromCollection(&context, removeObjectFromCollectionReq, &removeObjectFromCollectionRepl);
     if (!removeObjectStatus.ok())
     {
@@ -636,6 +663,8 @@ r_OId RasnetClientComm::getNewOId(unsigned short objType) throw (r_Error)
     getNewOidReq.set_object_type(objType);
 
     grpc::ClientContext context;
+    this->configureClientContext(context);
+
     grpc::Status getOidStatus = this->getRasServerService()->GetNewOid(&context, getNewOidReq, &getNewOidRepl);
     if (!getOidStatus.ok())
     {
@@ -655,6 +684,8 @@ unsigned short RasnetClientComm::getObjectType(const r_OId &oid) throw (r_Error)
     getObjectTypeReq.set_oid(oid.get_string_representation());
 
     grpc::ClientContext context;
+    this->configureClientContext(context);
+
     grpc::Status getObjectTypeStatus = this->getRasServerService()->GetObjectType(&context, getObjectTypeReq, &getObjectTypeRepl);
     if (!getObjectTypeStatus.ok())
     {
@@ -678,6 +709,8 @@ char* RasnetClientComm::getTypeStructure(const char *typeName, r_Type_Type typeT
     getTypeStructureReq.set_type_type(typeType);
 
     grpc::ClientContext context;
+    this->configureClientContext(context);
+
     grpc::Status getTypesStructuresStatus = this
                                             ->getRasServerService()
                                             ->GetTypeStructure(&context, getTypeStructureReq, &getTypeStructureRepl);
@@ -815,6 +848,8 @@ int RasnetClientComm::executeStartInsertPersMDD(const char *collName, r_GMarray 
     startInsertMDDReq.set_oid(mar->get_oid().get_string_representation());
 
     grpc::ClientContext context;
+    this->configureClientContext(context);
+
     grpc::Status startInsertStatus = this->getRasServerService()->StartInsertMDD(&context, startInsertMDDReq, &startInsertMDDRepl);
     if (!startInsertStatus.ok())
     {
@@ -839,6 +874,8 @@ int RasnetClientComm::executeInsertTile(bool persistent, RPCMarray *tile)
     insertTileReq.set_data_length(tile->data.confarray_len);
 
     grpc::ClientContext context;
+    this->configureClientContext(context);
+
     grpc::Status insertTileStatus = this->getRasServerService()->InsertTile(&context, insertTileReq, &insertTileRepl);
     if (!insertTileStatus.ok())
     {
@@ -857,6 +894,8 @@ void RasnetClientComm::executeEndInsertMDD(bool persistent)
     endInsertMDDReq.set_persistent(persistent);
 
     grpc::ClientContext context;
+    this->configureClientContext(context);
+
     grpc::Status endInsertMDDStatus = this->getRasServerService()->EndInsertMDD(&context, endInsertMDDReq, &endInsertMDDRepl);
     if (!endInsertMDDStatus.ok())
     {
@@ -914,6 +953,8 @@ int RasnetClientComm::executeEndTransfer()
     endTransferReq.set_client_id(this->clientId);
 
     grpc::ClientContext context;
+    this->configureClientContext(context);
+
     grpc::Status endTransferStatus = this->getRasServerService()->EndTransfer(&context, endTransferReq, &endTransferRepl);
     if (!endTransferStatus.ok())
     {
@@ -931,6 +972,8 @@ GetMDDRes* RasnetClientComm::executeGetNextMDD()
     getNextMDDReq.set_client_id(this->clientId);
 
     grpc::ClientContext context;
+    this->configureClientContext(context);
+
     grpc::Status getNextMDD = this->getRasServerService()->GetNextMDD(&context, getNextMDDReq, &getNextMDDRepl);
     if (!getNextMDD.ok())
     {
@@ -1122,6 +1165,8 @@ GetTileRes* RasnetClientComm::executeGetNextTile()
     getNextTileReq.set_client_id(this->clientId);
 
     grpc::ClientContext context;
+    this->configureClientContext(context);
+
     grpc::Status getNextTileStatus = this->getRasServerService()->GetNextTile(&context, getNextTileReq, &getNextTileRepl);
     if (!getNextTileStatus.ok())
     {
@@ -1228,6 +1273,8 @@ r_Ref_Any RasnetClientComm::executeGetCollByNameOrOId(const char *collName, cons
     }
 
     grpc::ClientContext context;
+    this->configureClientContext(context);
+
     grpc::Status rasServerStatus = this->getRasServerService()->GetCollectionByNameOrOid(&context, getCollectionByNameOrOidReq, &getCollectionByNameOrOidRepl);
     if (!rasServerStatus.ok())
     {
@@ -1271,6 +1318,8 @@ r_Ref_Any RasnetClientComm::executeGetCollOIdsByNameOrOId(const char *collName, 
     }
 
     grpc::ClientContext context;
+    this->configureClientContext(context);
+
     grpc::Status getCollOidsStatus = this->getRasServerService()->GetCollOidsByNameOrOid(&context, getCollOidsByNameOrOidReq, &getCollOidsByNameOrOidRepl);
     if (!getCollOidsStatus.ok())
     {
@@ -1404,6 +1453,8 @@ int RasnetClientComm::executeStartInsertTransMDD(r_GMarray *mdd)
     startInsertTransMDDReq.set_type_name(mdd->get_type_name());
 
     grpc::ClientContext context;
+    this->configureClientContext(context);
+
     grpc::Status startInsertTransMDDStatus = this->getRasServerService()->StartInsertTransMDD(&context, startInsertTransMDDReq, &startInsertTransMDDRepl);
     if (!startInsertTransMDDStatus.ok())
     {
@@ -1420,6 +1471,8 @@ int RasnetClientComm::executeInitUpdate()
 
     initUpdateReq.set_client_id(this->clientId);
     grpc::ClientContext context;
+    this->configureClientContext(context);
+
     grpc::Status initUpdataStatus = this->getRasServerService()->InitUpdate(&context, initUpdateReq, &initUpdateRepl);
     if (!initUpdataStatus.ok())
     {
@@ -1439,6 +1492,8 @@ int RasnetClientComm::executeExecuteQuery(const char *query, r_Set<r_Ref_Any> &r
     executeQueryReq.set_query(query);
 
     grpc::ClientContext context;
+    this->configureClientContext(context);
+
     grpc::Status executeQueryStatus = this->getRasServerService()->ExecuteQuery(&context, executeQueryReq, &executeQueryRepl);
     if (!executeQueryStatus.ok())
     {
@@ -1476,6 +1531,7 @@ GetElementRes* RasnetClientComm::executeGetNextElement()
     getNextElementReq.set_client_id(this->clientId);
 
     grpc::ClientContext context;
+    this->configureClientContext(context);
     grpc::Status getNextElementStatus = this->getRasServerService()->GetNextElement(&context, getNextElementReq, &getNextElementRepl);
     if (!getNextElementStatus.ok())
     {
@@ -1614,6 +1670,7 @@ int RasnetClientComm::executeExecuteUpdateQuery(const char *query) throw( r_Erro
     executeUpdateQueryReq.set_query(query);
 
     grpc::ClientContext context;
+    this->configureClientContext(context);
     grpc::Status executeUpdateQueryStatus = this->getRasServerService()->ExecuteUpdateQuery(&context, executeUpdateQueryReq, &executeUpdateQueryRepl);
     if (!executeUpdateQueryStatus.ok())
     {
@@ -1654,6 +1711,7 @@ int  RasnetClientComm::executeExecuteUpdateQuery(const char *query, r_Set< r_Ref
     executeInsertQueryReq.set_query(query);
 
     grpc::ClientContext context;
+    this->configureClientContext(context);
     grpc::Status executeInsertStatus = this->getRasServerService()->ExecuteInsertQuery(&context, executeInsertQueryReq, &executeInsertQueryRepl);
     if (!executeInsertStatus.ok())
     {
@@ -1695,6 +1753,7 @@ int RasnetClientComm::executeSetFormat(bool lTransferFormat, r_Data_Format forma
     setFormatReq.set_format_params(formatParams);
 
     grpc::ClientContext context;
+    this->configureClientContext(context);
     grpc::Status setFormatStatus = this->getRasServerService()->SetFormat(&context, setFormatReq, &setFormatRepl);
     if (!setFormatStatus.ok())
     {
@@ -1913,6 +1972,7 @@ void RasnetClientComm::clientRasMgrKeepAliveRunner()
                 keepAliveReq.set_clientuuid(this->clientUUID);
 
                 grpc::ClientContext context;
+                this->configureClientContext(context);
                 grpc::Status keepAliveStatus = this->getRasMgrService()->KeepAlive(&context, keepAliveReq, &keepAliveRepl);
                 if (!keepAliveStatus.ok())
                 {
@@ -1987,6 +2047,12 @@ void RasnetClientComm::stopRasServerKeepAlive()
     }
 }
 
+void RasnetClientComm::configureClientContext(grpc::ClientContext &context)
+{
+    std::chrono::system_clock::time_point deadline = std::chrono::system_clock::now() + std::chrono::milliseconds(SERVICE_CALL_TIMEOUT);
+    context.set_deadline(deadline);
+}
+
 void RasnetClientComm::clientRasServerKeepAliveRunner()
 {
     boost::posix_time::time_duration timeToSleepFor = boost::posix_time::milliseconds(this->keepAliveTimeout);
@@ -2007,6 +2073,7 @@ void RasnetClientComm::clientRasServerKeepAliveRunner()
                 keepAliveReq.set_session_id(this->sessionId);
 
                 grpc::ClientContext context;
+                this->configureClientContext(context);
                 grpc::Status keepAliveStatus = this->getRasServerService()->KeepAlive(&context, keepAliveReq, &keepAliveRepl);
                 if (!keepAliveStatus.ok())
                 {
