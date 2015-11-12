@@ -60,6 +60,7 @@ import petascope.wcs2.parsers.wcst.UpdateCoverageRequest;
 import java.io.File;
 import java.io.IOException;
 import java.math.BigDecimal;
+import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.*;
 import java.util.logging.Level;
@@ -107,6 +108,7 @@ public class UpdateCoverageHandler extends AbstractRequestHandler<UpdateCoverage
             validator.validate();
 
             //handle subset coefficients if necessary
+            //the transaction is not commited unless everything goes well.
             handleSubsetCoefficients(currentCoverage, request.getSubsets());
 
             //handle cell values
@@ -122,7 +124,12 @@ public class UpdateCoverageHandler extends AbstractRequestHandler<UpdateCoverage
                 //tuple list given explicitly
                 String values = getReplacementValuesFromTupleList(inputCoverage, rangeSet, request.getPixelDataType());
                 updater = new RasdamanValuesUpdater(affectedCollectionName, affectedCollectionOid, affectedDomain, values, shiftDomain);
-                updater.update();
+                try {
+                    updater.update();
+                } catch (RasdamanException e){
+                    this.meta.abortAndClose();
+                    throw e;
+                }
             } else {
                 //tuple list given as file
                 //retrieve the file, if needed
@@ -141,18 +148,30 @@ public class UpdateCoverageHandler extends AbstractRequestHandler<UpdateCoverage
                 }
                 String mimetype = GMLParserUtil.parseMimeType(rangeSet);
                 updater = new RasdamanFileUpdater(affectedCollectionName, affectedCollectionOid, affectedDomain, valuesFile, mimetype, shiftDomain);
-                updater.update();
+                try {
+                    updater.update();
+                } catch (RasdamanException e){
+                    this.meta.abortAndClose();
+                    throw e;
+                }
+
                 //delete the file
                 if (!isLocal) {
                     valuesFile.delete();
                 }
             }
+
+            //All went well, commit the metadata transaction, if there were any metadata changes.
+            this.meta.commitAndClose();
         } catch (IOException e) {
             Logger.getLogger(UpdateCoverageHandler.class.getName()).log(Level.SEVERE, null, e);
             throw new WCSTCoverageNotFound();
         } catch (ParsingException e) {
-            Logger.getLogger(InsertCoverageHandler.class.getName()).log(Level.SEVERE, null, e);
+            Logger.getLogger(UpdateCoverageHandler.class.getName()).log(Level.SEVERE, null, e);
             throw new WCSTInvalidXML(e.getMessage());
+        } catch (SQLException e) {
+            Logger.getLogger(UpdateCoverageHandler.class.getName()).log(Level.SEVERE, null, e);
+            throw new PetascopeException(ExceptionCode.InternalSqlError);
         }
 
         return new Response("");

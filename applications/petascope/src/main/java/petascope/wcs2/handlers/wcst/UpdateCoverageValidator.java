@@ -107,7 +107,7 @@ public class UpdateCoverageValidator {
      */
     private void validateRangeType(CoverageMetadata currentCoverage, CoverageMetadata inputCoverage, List<Pair<String, String>> rangeComponents) throws WCSTRangeFieldNumberMismatchException, WCSTRangeFieldNameMismatchException {
         //in case no range components are indicated, the range type must match
-        if(rangeComponents.isEmpty()){
+        if(rangeComponents == null || rangeComponents.isEmpty()){
             //check if the coverages have the same number of bands
             if(currentCoverage.getNumberOfBands() != inputCoverage.getNumberOfBands()){
                 log.error("The number of bands (swe:field elements) of target coverage (found " + currentCoverage.getNumberOfBands() + " ) " +

@@ -23,6 +23,7 @@
 package petascope.wcs2.handlers.wcst;
 
 import java.math.BigInteger;
+import java.sql.SQLException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import petascope.core.CoverageMetadata;
@@ -48,7 +49,7 @@ public class DeleteCoverageHandler extends AbstractRequestHandler<DeleteCoverage
         super(meta);
     }
 
-    public Response handle(DeleteCoverageRequest request) throws PetascopeException, WCSException, SecoreException {
+    public Response handle(DeleteCoverageRequest request) throws PetascopeException, SecoreException {
         String[] coverageIds = request.getCoverageId().split(COVERAGE_IDS_SEPARATOR);
         //check that all the ids exist
         for(String coverageId : coverageIds){
@@ -56,11 +57,26 @@ public class DeleteCoverageHandler extends AbstractRequestHandler<DeleteCoverage
         }
         //delete all of them
         for(String coverageId : coverageIds){
-            //delete metadata
-            CoverageMetadata coverage = meta.read(coverageId);
-            meta.delete(coverage, true);
-            //delete array
-            deleteFromRasdaman(coverage);
+            CoverageMetadata coverage = this.meta.read(coverageId);
+            try {
+                //delete metadata
+                this.meta.delete(coverage);
+                //delete the rasdaman coverage
+                try {
+                    deleteFromRasdaman(coverage);
+                } catch (RasdamanException e){
+                    //rollback the metadata transaction
+                    this.meta.abortAndClose();
+                    throw e;
+                }
+
+                //all went well, commit
+                this.meta.commitAndClose();
+
+            } catch (SQLException e) {
+                Logger.getLogger(DeleteCoverageHandler.class.getName()).log(Level.SEVERE, null, e);
+                throw new PetascopeException(ExceptionCode.InternalSqlError);
+            }
         }
         return new Response("");
     }
@@ -71,13 +87,9 @@ public class DeleteCoverageHandler extends AbstractRequestHandler<DeleteCoverage
         }
     }
 
-    private void deleteFromRasdaman(CoverageMetadata coverage){
+    private void deleteFromRasdaman(CoverageMetadata coverage) throws RasdamanException {
         Pair<BigInteger, String> collection = coverage.getRasdamanCollection();
-        try {
-            RasUtil.deleteFromRasdaman(collection.fst, collection.snd);
-        } catch (RasdamanException ex) {
-            Logger.getLogger(DeleteCoverageHandler.class.getName()).log(Level.SEVERE, null, ex);
-        }
+        RasUtil.deleteFromRasdaman(collection.fst, collection.snd);
     }
 
     private final static String COVERAGE_IDS_SEPARATOR = ",";

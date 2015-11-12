@@ -91,7 +91,7 @@ public class ConfigManager {
     public static boolean METADATA_HSQLDB = false;
 
     // rasdaman connection settings
-    public static String RASDAMAN_SERVER = "'localhost";
+    public static String RASDAMAN_SERVER = "localhost";
     public static String RASDAMAN_PORT = "7001";
     public static String RASDAMAN_URL = "http://" + RASDAMAN_SERVER + ":" + RASDAMAN_PORT;
     public static String RASDAMAN_DATABASE = "RASBASE";

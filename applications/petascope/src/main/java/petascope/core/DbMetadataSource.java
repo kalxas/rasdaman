@@ -1541,6 +1541,15 @@ public class DbMetadataSource implements IMetadataSource {
 
     }
 
+    /**
+     * Updates an axis coefficient for an irregular axis. The transaction is NOT commited. It has to be manually commited
+     * after the method is called, to allow other actions to be grouped.
+     * @param gridAxisId
+     * @param coefficient
+     * @param coefficientOrder
+     * @return the connection object.
+     * @throws SQLException
+     */
     public void updateAxisCoefficient(int gridAxisId, BigDecimal coefficient, int coefficientOrder) throws SQLException {
         PreparedStatement s = null;
         Savepoint savePoint = conn.setSavepoint();
@@ -1564,8 +1573,6 @@ public class DbMetadataSource implements IMetadataSource {
                 insertCoeff.setInt(3, coefficientOrder);
                 log.info("Executing prepared statement: " + insertCoeff.toString());
                 insertCoeff.executeUpdate();
-                //commit the insertion
-                conn.commit();
             }
         }
         catch(SQLException e){
@@ -1950,12 +1957,12 @@ public class DbMetadataSource implements IMetadataSource {
     }
 
     /**
-     * Delete a coverage from the database.
+     * Delete a coverage from the database. The transaction is not committed.
      * @param meta
-     * @param commit
      * @throws PetascopeException
      */
-    public void delete(CoverageMetadata meta, boolean commit) throws PetascopeException {
+    public void delete(CoverageMetadata meta) throws PetascopeException, SQLException {
+        ensureConnection();
         String coverageName = meta.getCoverageName();
         if (existsCoverageName(coverageName) == false) {
             throw new PetascopeException(ExceptionCode.ResourceError,
@@ -1977,10 +1984,6 @@ public class DbMetadataSource implements IMetadataSource {
             log.trace("Affected rows: " + count);
             s.close();
             s = null;
-
-            if (commit) {
-                commitAndClose();
-            }
         } catch (SQLException e) {
             throw new PetascopeException(ExceptionCode.InternalSqlError,
                     "Failed deleting coverage with id " + coverageName);
