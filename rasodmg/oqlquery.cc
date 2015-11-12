@@ -405,9 +405,11 @@ r_OQL_Query::is_retrieval_query() const
         // convert string to upper case
         std::string upperCaseQueryString(parameterizedQueryString);
         std::transform(upperCaseQueryString.begin(), upperCaseQueryString.end(), upperCaseQueryString.begin(), ::toupper);
+        upperCaseQueryString.erase(upperCaseQueryString.begin(),
+                                   std::find_if(upperCaseQueryString.begin(), upperCaseQueryString.end(), std::not1(std::ptr_fun<int, int>(std::isspace))));
         
         // it is retrieval if it's a SELECT but not SELECT INTO expression
-        returnValue = upperCaseQueryString.find("SELECT ") != std::string::npos &&
+        returnValue = upperCaseQueryString.find("SELECT ") == 0 &&
                       upperCaseQueryString.find(" INTO ") == std::string::npos;
     }
 
@@ -425,9 +427,11 @@ r_OQL_Query::is_insert_query() const
         // convert string to upper case
         std::string upperCaseQueryString(parameterizedQueryString);
         std::transform(upperCaseQueryString.begin(), upperCaseQueryString.end(), upperCaseQueryString.begin(), ::toupper);
+        upperCaseQueryString.erase(upperCaseQueryString.begin(),
+                                   std::find_if(upperCaseQueryString.begin(), upperCaseQueryString.end(), std::not1(std::ptr_fun<int, int>(std::isspace))));
 
         // it is insert if it's an INSERT expression
-        returnValue = upperCaseQueryString.find("INSERT ") != std::string::npos;
+        returnValue = upperCaseQueryString.find("INSERT ") == 0;
     }
 
     return returnValue;

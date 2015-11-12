@@ -209,6 +209,48 @@ else
 	NUM_FAIL=$(($NUM_FAIL + 1))
 fi
 
+TEST_COLLECTION=test_insert
+drop_colls $TEST_COLLECTION
+logn "create collection $TEST_COLLECTION... "
+$RASQL --quiet -q "create collection $TEST_COLLECTION GreySet"
+if [ $? -eq 0 ]; then
+	echo ok.
+	NUM_SUC=$(($NUM_SUC + 1))
+else
+	echo failed.
+	NUM_FAIL=$(($NUM_FAIL + 1))
+fi
+logn "dropping collection $TEST_COLLECTION... "
+$RASQL --quiet -q "drop collection $TEST_COLLECTION"
+if [ $? -eq 0 ]; then
+	echo ok.
+	NUM_SUC=$(($NUM_SUC + 1))
+else
+	echo failed.
+	NUM_FAIL=$(($NUM_FAIL + 1))
+fi
+
+TEST_COLLECTION=test_select
+drop_colls $TEST_COLLECTION
+logn "create collection $TEST_COLLECTION... "
+$RASQL --quiet -q "create collection $TEST_COLLECTION GreySet"
+if [ $? -eq 0 ]; then
+	echo ok.
+	NUM_SUC=$(($NUM_SUC + 1))
+else
+	echo failed.
+	NUM_FAIL=$(($NUM_FAIL + 1))
+fi
+logn "dropping collection $TEST_COLLECTION... "
+$RASQL --quiet -q "drop collection $TEST_COLLECTION"
+if [ $? -eq 0 ]; then
+	echo ok.
+	NUM_SUC=$(($NUM_SUC + 1))
+else
+	echo failed.
+	NUM_FAIL=$(($NUM_FAIL + 1))
+fi
+
 
 # ------------------------------------------------------------------------------
 # test summary
