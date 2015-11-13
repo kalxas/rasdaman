@@ -27,11 +27,12 @@
 module rasdaman {
     export class DiagramWCPSResult extends WCPSQueryResult {
         public DiagramData:any;
+        public DiagramOptions:any;
 
         public constructor(command:WCPSCommand, data:string) {
             super(command);
 
-            var diagramType = "line";
+            var diagramType = "lineChart";
             if (command.WidgetConfiguration.Parameters && command.WidgetConfiguration.Parameters.type) {
                 diagramType = command.WidgetConfiguration.Parameters.type;
             }
@@ -39,16 +40,47 @@ module rasdaman {
             //line
             //column
             //area
-            this.DiagramData = {
-                options: {
-                    chart: {
-                        type: diagramType
+            this.DiagramOptions = {
+                chart: {
+                    type: diagramType,
+                    height: 300,
+                    clipEdge: true,
+                    showValues: true,
+                    x: function (d) {
+                        return d.x;
+                    },
+                    y: function (d) {
+                        return d.y;
+                    },
+                    transitionDuration: 500,
+                    xAxis: {
+                        axisLabel: 'X',
+                        showMaxMin: false
+                    },
+                    yAxis: {
+                        axisLabel: 'Y',
+                        //orient: "bottom",
+                        showMaxMin: false,
+                        axisLabelDistance: -20
                     }
-                },
-                series: [{
-                    data: JSON.parse("[" + data.substr(1, data.length - 2) + "]")
-                }],
+                }
             };
+
+
+            var rawData:number[] = JSON.parse("[" + data.substr(1, data.length - 2) + "]");
+            var processedValues = [];
+            for (var i = 0; i < rawData.length; ++i) {
+                processedValues.push({
+                    x: i,
+                    y: rawData[i]
+                });
+            }
+
+            this.DiagramData = [
+                {
+                    values: processedValues
+                }
+            ];
         }
     }
 }

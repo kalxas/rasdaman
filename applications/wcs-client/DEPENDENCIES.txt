@@ -51,10 +51,6 @@
 ├─ html5shiv@3.7.3
 │  ├─ licenses: MIT
 │  └─ repository: git+https://github.com/aFarkas/html5shiv
-├─ highcharts-ng@0.0.11
-│  ├─ licenses
-│  │  └─ 0: MIT
-│  └─ repository: git+https://github.com/pablojim/highcharts-ng
 ├─ jquery-ui@1.11.4
 │  ├─ licenses
 │  │  └─ 0: MIT

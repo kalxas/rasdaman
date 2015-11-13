@@ -64,29 +64,28 @@ module rasdaman {
                 //Create capabilities request
                 var capabilitiesRequest = new wcs.GetCapabilities();
 
-                //Retrieve capabilities
                 wcsService.getServerCapabilities(capabilitiesRequest)
                     .then((response:rasdaman.common.Response<wcs.Capabilities>)=> {
-                        //Success handler
-                        $scope.CapabilitiesDocument = response.Document;
-                        $scope.Capabilities = response.Value;
+                            //Success handler
+                            $scope.CapabilitiesDocument = response.Document;
+                            $scope.Capabilities = response.Value;
 
-                        $scope.IsAvailableCoveragesOpen = true;
-                        $scope.IsServiceIdentificationOpen = true;
-                        $scope.IsServiceProviderOpen = true;
-                    },
-                    (...args:any[])=> {
-                        //Success handler
-                        $scope.CapabilitiesDocument = null;
-                        $scope.Capabilities = null;
+                            $scope.IsAvailableCoveragesOpen = true;
+                            $scope.IsServiceIdentificationOpen = true;
+                            $scope.IsServiceProviderOpen = true;
+                        },
+                        (...args:any[])=> {
+                            //Success handler
+                            $scope.CapabilitiesDocument = null;
+                            $scope.Capabilities = null;
 
-                        $scope.IsAvailableCoveragesOpen = false;
-                        $scope.IsServiceIdentificationOpen = false;
-                        $scope.IsServiceProviderOpen = false;
+                            $scope.IsAvailableCoveragesOpen = false;
+                            $scope.IsServiceIdentificationOpen = false;
+                            $scope.IsServiceProviderOpen = false;
 
-                        alertService.error("Failed to retrieve the capabilities of the server located at:" + this.settings.WCSEndpoint + ". Check the log for additional information.");
-                        $log.error(args);
-                    })
+                            alertService.error("Failed to retrieve the capabilities of the server located at:" + this.settings.WCSEndpoint + ". Check the log for additional information.");
+                            $log.error(args);
+                        })
                     .finally(()=> {
                         $scope.StateInformation.ServerCapabilities = $scope.Capabilities;
                     });

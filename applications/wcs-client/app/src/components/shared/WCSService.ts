@@ -43,12 +43,15 @@ module rasdaman {
             var requestUrl = this.settings.WCSEndpoint + "?" + request.toKVP();
             this.$http.get(requestUrl)
                 .then(function (data:any) {
-                    var doc = new rasdaman.common.ResponseDocument(data.data, rasdaman.common.ResponseDocumentType.XML);
-                    var serializedResponse = self.serializedObjectFactory.getSerializedObject(doc);
-                    var capabilities = new wcs.Capabilities(serializedResponse);
-                    var response = new rasdaman.common.Response<wcs.Capabilities>(doc, capabilities);
-
-                    result.resolve(response);
+                    try {
+                        var doc = new rasdaman.common.ResponseDocument(data.data, rasdaman.common.ResponseDocumentType.XML);
+                        var serializedResponse = self.serializedObjectFactory.getSerializedObject(doc);
+                        var capabilities = new wcs.Capabilities(serializedResponse);
+                        var response = new rasdaman.common.Response<wcs.Capabilities>(doc, capabilities);
+                        result.resolve(response);
+                    } catch (err) {
+                        result.reject(err);
+                    }
                 }, function (error) {
                     result.reject(error);
                 });
@@ -63,12 +66,16 @@ module rasdaman {
             var requestUrl = this.settings.WCSEndpoint + "?" + request.toKVP();
             this.$http.get(requestUrl)
                 .then(function (data:any) {
-                    var doc = new rasdaman.common.ResponseDocument(data.data, rasdaman.common.ResponseDocumentType.XML);
-                    var serializedResponse = self.serializedObjectFactory.getSerializedObject(doc);
-                    var capabilities = new wcs.CoverageDescriptions(serializedResponse);
-                    var response = new rasdaman.common.Response<wcs.CoverageDescriptions>(doc, capabilities);
+                    try {
+                        var doc = new rasdaman.common.ResponseDocument(data.data, rasdaman.common.ResponseDocumentType.XML);
+                        var serializedResponse = self.serializedObjectFactory.getSerializedObject(doc);
+                        var capabilities = new wcs.CoverageDescriptions(serializedResponse);
+                        var response = new rasdaman.common.Response<wcs.CoverageDescriptions>(doc, capabilities);
 
-                    result.resolve(response);
+                        result.resolve(response);
+                    } catch (err) {
+                        result.reject(err);
+                    }
                 }, function (error) {
                     result.reject(error);
                 });

@@ -25,31 +25,62 @@
 
 module rasdaman.common {
 
-    declare function prettyPrint(callBack:any, htmlElement:HTMLElement):string;
+    /**
+     * @param sourceCodeHtml {string} The HTML to pretty print.
+     * @param opt_langExtension {string} The language name to use.
+     *     Typically, a filename extension like 'cpp' or 'java'.
+     * @param opt_numberLines {number|boolean} True to number lines,
+     *     or the 1-indexed number of the first line in sourceCodeHtml.
+     */
+    declare function prettyPrintOne(sourceCodeHtml:string, opt_langExtension:string, opt_numberLines:boolean):string;
+
+    function escapeXml(unsafe) {
+        return unsafe.replace(/[<>&'"]/g, function (c) {
+            switch (c) {
+                case '<':
+                    return '&lt;';
+                case '>':
+                    return '&gt;';
+                case '&':
+                    return '&amp;';
+                case '\'':
+                    return '&apos;';
+                case '"':
+                    return '&quot;';
+            }
+        });
+    }
 
     /**
      * Directive that allows to pretty print XML code. This can be extended with support for multiple languages if the need arises.
      * @returns {{restrict: string, scope: {code: string}, template: string, link: (function(any, JQuery, any): undefined)}}
      * @constructor
      */
-    export function PrettyPrint():angular.IDirective {
+    export function PrettyPrint($sanitize, $sce:angular.ISCEService):angular.IDirective {
+
         return {
-            restrict: "E",
+            restrict: 'EC',
             scope: {
-                code: "="
+                data: "="
             },
-            template: '<?prettify lang=xml?><pre class="prettyprint">{{code}}<pre>',
-            link: function ($scope:any, element:JQuery, attributes:any) {
-                $scope.$watch("code", (newValue:any, oldValue:any)=> {
-                    //Optimize this and remove the timeout.
-                    if (newValue) {
-                        window.setTimeout(()=> {
-                            prettyPrint(()=> {
-                            }, element.get(0));
-                        }, 500);
+
+            templateUrl: "src/common/directives/pretty-print/PrettyPrintTemplate.html",
+            link: function (scope:any, element:JQuery, attrs:any) {
+                scope.$watch("data", (newData:PrettyPrintObject, oldValue:PrettyPrintObject)=> {
+                    //Only update the document if the value changes.
+                    if (newData && newData.Value) {
+                        var escapedHtml = prettyPrintOne(escapeXml(newData.Value), newData.Type, true);
+                        scope.document = $sce.trustAsHtml(escapedHtml);
                     }
-                });
+                }, true);
             }
         };
+    }
+
+    PrettyPrint.$inject = ["$sanitize", "$sce"];
+
+    export interface PrettyPrintObject {
+        Value:string;
+        Type:string;
     }
 }

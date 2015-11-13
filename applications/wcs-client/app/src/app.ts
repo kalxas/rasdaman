@@ -92,8 +92,8 @@ module rasdaman {
             "ui.router",
             "ui-notification",
             "ui.codemirror",
-            "highcharts-ng",
-            "luegg.directives"])
+            "luegg.directives",
+            "nvd3"])
         .config(AngularConfig)
         .service("rasdaman.SettingsService", rasdaman.SettingsService)
         .service("rasdaman.common.SerializedObjectFactory", rasdaman.common.SerializedObjectFactory)

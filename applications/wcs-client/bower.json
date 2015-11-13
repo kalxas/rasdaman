@@ -20,7 +20,7 @@
     "angular-ui-router": "~0.2.15",
     "angular-ui-notification": "~0.0.14",
     "angular-ui-codemirror": "~0.3.0",
-    "highcharts-ng": "~0.0.11",
-    "angular-scroll-glue": "~2.0.6"
+    "angular-scroll-glue": "~2.0.6",
+    "angular-nvd3": "~1.0.2"
   }
 }

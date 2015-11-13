@@ -16,7 +16,7 @@
             </div>
         </div>
 
-        <div class="row top15">
+        <div class="row top15" ng-if="Capabilities">
             <uib-accordion close-others="false">
                 <uib-accordion-group is-open="IsAvailableCoveragesOpen">
                     <uib-accordion-heading>
@@ -272,13 +272,15 @@
 
                 </uib-accordion-group>
 
-                <uib-accordion-group is-open="IsCapabilitiesDocumentOpen">
+                <uib-accordion-group is-open="IsCapabilitiesDocumentOpen"  ng-show="CapabilitiesDocument.Value">
                     <uib-accordion-heading>
                         GML server Capabilities document <i class="pull-right glyphicon"
                                                             ng-class="{'glyphicon-chevron-down': IsCapabilitiesDocumentOpen, 'glyphicon-chevron-right': !IsCapabilitiesDocumentOpen}"></i>
                     </uib-accordion-heading>
 
-                    <ras-pretty-print class="xml-display" code="CapabilitiesDocument.Value"></ras-pretty-print>
+                    <ras-pretty-print data="{Value:CapabilitiesDocument.Value, Type:'xml'}">
+
+                    </ras-pretty-print>
                 </uib-accordion-group>
 
             </uib-accordion>

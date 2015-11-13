@@ -34,7 +34,7 @@
                     <span class="label label-success">diagram>>for x in...</span>).
                     <br/> You can also add parameters to the widget, i.e.
                 <span class="label label-success">
-                    diagram(type=area)>>for x in ...
+                    diagram(type=multiBarChart)>>for x in ...
                 </span>
                     <br/>
 
@@ -76,7 +76,7 @@
                         </div>
                         <div class="row row-centered" ng-switch-when="3">
                             <div class="col-sm-11 col-centered">
-                                <highchart config="datum.DiagramData"></highchart>
+                                <nvd3 options="datum.DiagramOptions" data="datum.DiagramData"></nvd3>
                             </div>
                         </div>
                         <div class="row" ng-switch-default>

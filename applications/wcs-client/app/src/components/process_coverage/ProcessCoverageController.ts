@@ -20,7 +20,7 @@
  * For more information please see <http://www.rasdaman.org>
  * or contact Peter Baumann via <baumann@rasdaman.com>.
  */
-
+///<reference path="../../../assets/typings/tsd.d.ts"/>
 ///<reference path="WCPSCommand.ts"/>
 ///<reference path="WCPSResultFactory.ts"/>
 
@@ -127,51 +127,55 @@ module rasdaman {
                     Query: ''
                 },
                 {
-                    Title: 'Most basic query',
-                    Query: 'for c in (AvgLandTemp) return 1'
-                },
-                {
-                    Title: 'Selecting a single value',
-                    Query: 'for c in ( AvgLandTemp ) return encode(c[Lat(53.08), Long(8.80), ansi("2014-07")], "csv")'
-                },
-                {
-                    Title: '3D->1D subset',
-                    Query: 'diagram>>for c in ( AvgLandTemp ) return encode(c[Lat(53.08), Long(8.80), ansi("2014-01":"2014-12")], "csv")'
-                },
-                {
-                    Title: '3D->2D subset',
-                    Query: 'image>>for c in ( AvgLandTemp ) return encode(c[ansi("2014-07")], "png")'
-                },
-                {
-                    Title: 'Celsius to Kelvin',
-                    Query: 'diagram>>for c in ( AvgLandTemp ) return encode(c[Lat(53.08), Long(8.80), ansi("2014-01":"2014-12")] + 273.15, "csv")'
-                },
-                {
-                    Title: 'Min',
-                    Query: 'for c in (AvgLandTemp) return encode(min(c[Lat(53.08), Long(8.80), ansi("2014-01":"2014-12")]), "csv")'
-                },
-                {
-                    Title: 'Max',
-                    Query: 'for c in (AvgLandTemp) return encode(max(c[Lat(53.08), Long(8.80), ansi("2014-01":"2014-12")]), "csv")'
-                },
-                {
-                    Title: 'Avg',
-                    Query: 'for c in (AvgLandTemp) return encode(avg(c[Lat(53.08), Long(8.80), ansi("2014-01":"2014-12")]), "csv")'
-                },
-                {
-                    Title: 'When is temp more than 15?',
-                    Query: 'for c in (AvgLandTemp) return encode(count(c[Lat(53.08), Long(8.80), ansi("2014-01":"2014-12")] > 15), "csv")'
-                },
-                {
-                    Title: 'On-the-fly colloring (switch)',
-                    Query: 'image>>for c in ( AvgLandTemp ) return encode(switch \n' +
-                    ' case c[ansi("2014-07"), Lat(35:75), Long(-20:40)] = 99999 \n return {red: 255; green: 255; blue: 255} \n' +
-                    ' case 18 > c[ansi("2014-07"), Lat(35:75), Long(-20:40)] \n  return {red: 0; green: 0; blue: 255} \n' +
-                    ' case 23 > c[ansi("2014-07"), Lat(35:75), Long(-20:40)] \n return {red: 255; green: 255; blue: 0} \n' +
-                    ' case 30 > c[ansi("2014-07"), Lat(35:75), Long(-20:40)]  \n return {red: 255; green: 140; blue: 0} \n' +
-                    ' default return {red: 255; green: 0; blue: 0} ' +
-                    ' , "png")'
-                },
+                    Title: 'Encode as PNG',
+                    Query: 'for c in (mean_summer_airtemp) return encode(c, "png")'
+                }
+                //{
+                //    Title: 'Most basic query',
+                //    Query: 'for c in (AvgLandTemp) return 1'
+                //},
+                //{
+                //    Title: 'Selecting a single value',
+                //    Query: 'for c in ( AvgLandTemp ) return encode(c[Lat(53.08), Long(8.80), ansi("2014-07")], "csv")'
+                //},
+                //{
+                //    Title: '3D->1D subset',
+                //    Query: 'diagram>>for c in ( AvgLandTemp ) return encode(c[Lat(53.08), Long(8.80), ansi("2014-01":"2014-12")], "csv")'
+                //},
+                //{
+                //    Title: '3D->2D subset',
+                //    Query: 'image>>for c in ( AvgLandTemp ) return encode(c[ansi("2014-07")], "png")'
+                //},
+                //{
+                //    Title: 'Celsius to Kelvin',
+                //    Query: 'diagram>>for c in ( AvgLandTemp ) return encode(c[Lat(53.08), Long(8.80), ansi("2014-01":"2014-12")] + 273.15, "csv")'
+                //},
+                //{
+                //    Title: 'Min',
+                //    Query: 'for c in (AvgLandTemp) return encode(min(c[Lat(53.08), Long(8.80), ansi("2014-01":"2014-12")]), "csv")'
+                //},
+                //{
+                //    Title: 'Max',
+                //    Query: 'for c in (AvgLandTemp) return encode(max(c[Lat(53.08), Long(8.80), ansi("2014-01":"2014-12")]), "csv")'
+                //},
+                //{
+                //    Title: 'Avg',
+                //    Query: 'for c in (AvgLandTemp) return encode(avg(c[Lat(53.08), Long(8.80), ansi("2014-01":"2014-12")]), "csv")'
+                //},
+                //{
+                //    Title: 'When is temp more than 15?',
+                //    Query: 'for c in (AvgLandTemp) return encode(count(c[Lat(53.08), Long(8.80), ansi("2014-01":"2014-12")] > 15), "csv")'
+                //},
+                //{
+                //    Title: 'On-the-fly colloring (switch)',
+                //    Query: 'image>>for c in ( AvgLandTemp ) return encode(switch \n' +
+                //    ' case c[ansi("2014-07"), Lat(35:75), Long(-20:40)] = 99999 \n return {red: 255; green: 255; blue: 255} \n' +
+                //    ' case 18 > c[ansi("2014-07"), Lat(35:75), Long(-20:40)] \n  return {red: 0; green: 0; blue: 255} \n' +
+                //    ' case 23 > c[ansi("2014-07"), Lat(35:75), Long(-20:40)] \n return {red: 255; green: 255; blue: 0} \n' +
+                //    ' case 30 > c[ansi("2014-07"), Lat(35:75), Long(-20:40)]  \n return {red: 255; green: 140; blue: 0} \n' +
+                //    ' default return {red: 255; green: 0; blue: 0} ' +
+                //    ' , "png")'
+                //},
                 //{
                 //    Title: 'Coverage constructor',
                 //    Query: 'image>>for c in ( AvgLandTemp ) return encode(coverage myCoverage over $p x(0:100), $q y(0:100) values $p+$q, "png")'

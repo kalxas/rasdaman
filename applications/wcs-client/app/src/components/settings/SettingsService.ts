@@ -27,8 +27,10 @@ module rasdaman {
     export class SettingsService {
         public WCSEndpoint:string;
 
-        public constructor() {
-            this.WCSEndpoint = "http://flanche.net:9090/rasdaman/ows";
+        public static $inject = ["$window"];
+
+        public constructor($window:angular.IWindowService) {
+            this.WCSEndpoint = $window.location.origin+"/rasdaman/ows";
         }
     }
 }
