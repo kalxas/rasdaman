@@ -64,6 +64,17 @@ const boost::int32_t CLIENT_MANAGER_CLEANUP_INTERVAL = 3000;
  * @brief MAX_CONTROL_COMMAND_LENGTH Maximum length of a command from rascontrol.
  */
 const boost::uint32_t MAX_CONTROL_COMMAND_LENGTH = 1024;
+
+/**
+ * @brief INTERVAL_BETWEEN_GET_SERVER Number of milliseconds between two consecutive attempts to get a free server for a client.
+ * It should be greater or equal to the SERVER_MANAGER_CLEANUP_INTERVAL to allow the ServerManager to start new servers.
+ */
+const boost::uint32_t INTERVAL_BETWEEN_GET_SERVER = 2 * SERVER_MANAGER_CLEANUP_INTERVAL;
+
+/**
+ * @brief MAX_GET_SERVER_RETRIES The number of times an attempt to get a free server for a client will be made.
+ */
+const boost::uint32_t MAX_GET_SERVER_RETRIES = 3;
 }
 
 #endif // RASMGR_X_SRC_CONSTANTS_HH

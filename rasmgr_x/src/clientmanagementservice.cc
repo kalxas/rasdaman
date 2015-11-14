@@ -34,6 +34,7 @@
 
 #include "clientmanager.hh"
 #include "servermanager.hh"
+#include "constants.hh"
 
 #include "clientcredentials.hh"
 #include "clientmanagementservice.hh"
@@ -148,36 +149,51 @@ grpc::Status ClientManagementService::OpenDb(grpc::ServerContext *context, const
 
     try
     {
-        /**
-         * 1. Lock access to this section.
-         * 2. Get a free server
-         * 3. Add the session to the client manager.
-         * 4. Assign the client to the server.
-         * 5. Fill the response to the client with the server's identity
-         */
         shared_ptr<Server> server;
         string out_sessionId;
         string clientId = request->clientuuid();
         string dbName = request->databasename();
 
-        unique_lock<mutex> lock(this->assignServerMutex);
+        boost::uint32_t attemptsLeft = MAX_GET_SERVER_RETRIES;
+        boost::posix_time::time_duration intervalBetweenAttempts = boost::posix_time::milliseconds(INTERVAL_BETWEEN_GET_SERVER);
 
-        //Try to get a free server that contains the requested database
-        if(this->serverManager->tryGetFreeServer(dbName, server))
+        /**
+         * 1. Try for a fixed number of times to acquire a server.
+         *    If there is no server available, unlock access to this section and sleep for a given timeout.
+         * 2. Add the session to the client manager.
+         * 3. Fill the response to the client with the server's identity
+         */
+        while(attemptsLeft>=1)
         {
-            //Open a session for the client.
-            this->clientManager->openClientDbSession(clientId, dbName, server, out_sessionId);
+            unique_lock<mutex> lock(this->assignServerMutex);
 
-            response->set_dbsessionid(out_sessionId);
-            response->set_serverhostname(server->getHostName());
-            response->set_port(server->getPort());
-        }
-        else
-        {
-            //Fail if there is no available server.
-            status = GrpcUtils::convertExceptionToStatus("There is no available server for the client.");
-        }
+            //Try to get a free server that contains the requested database
+            if(this->serverManager->tryGetFreeServer(dbName, server))
+            {
+                //Open a session for the client.
+                this->clientManager->openClientDbSession(clientId, dbName, server, out_sessionId);
 
+                response->set_dbsessionid(out_sessionId);
+                response->set_serverhostname(server->getHostName());
+                response->set_port(server->getPort());
+
+                break;
+            }
+            else if(attemptsLeft>1)
+            {
+                // If there are still attempts left, unlock access to this region and sleep
+                lock.unlock();
+                boost::this_thread::sleep(intervalBetweenAttempts);
+                lock.lock();
+            }
+            else
+            {
+                //Fail if there is no available server and the number of attempts was exceeded
+                status = GrpcUtils::convertExceptionToStatus("There is no available server for the client.");
+            }
+
+            attemptsLeft--;
+        }
     }
     catch(std::exception& ex)
     {
