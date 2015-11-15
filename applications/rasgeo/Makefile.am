@@ -27,11 +27,13 @@
 # COMMENTS:
 #
 ##################################################################
-
 AM_CXXFLAGS=@CLIENTCXXFLAGS@ @BASEDBCXXFLAGS@ @GDAL_CXXFLAGS@
 AM_LDFLAGS=@CLIENTLDFLAGS@
 
+
+if  ENABLE_JAVA
 bin_PROGRAMS=rasimport raserase
+
 rasimport_SOURCES= rasimport.cc rasimport.hh RasdamanConnector.cc RasdamanHelper2.cc rasgeo_template_inst.hh RasdamanConnector.hh RasdamanHelper2.hh ../../debug/debug-clt.hh
 rasimport_LDADD = ../../rasodmg/librasodmg.a ../../clientcomm/libclientcomm.a \
               ../../raslib/libraslib.a \
@@ -56,9 +58,19 @@ endif
 
 SUBDIRS= ../../rasodmg ../../clientcomm \
          ../../raslib ../../conversion ../../commline ../../network
-         
-connectfile:
-	if [ ! -d $(HOME)/.rasdaman ]; then \
-		mkdir $(HOME)/.rasdaman; \
+endif
+
+if ENABLE_JAVA
+   ALLOW_INSTALL = TRUE
+else
+   ALLOW_INSTALL = FALSE
+endif
+
+install:
+	if [ $(ALLOW_INSTALL) = TRUE ] ; then \
+		mkdir -p $(HOME)/.rasdaman; \
+		if [ ! -f $(HOME)/.rasdaman/rasconnect ]; then \
+			cp rasconnect $(HOME)/.rasdaman/; \
+			echo "rasimport configuration file installed successfully in $(HOME)/.rasdaman/rasconnect"; \
+		fi; \
 	fi
-	cp rasconnect $(HOME)/.rasdaman/

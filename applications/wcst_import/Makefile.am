@@ -30,15 +30,26 @@ INSTALL_DIR = $(DESTDIR)$(datadir)/rasdaman/wcst_import
 PYTHON_SCRIPT = $(datadir)/rasdaman/wcst_import/wcst_import.py
 BIN_DIR = $(DESTDIR)$(bindir)
 
-all:
-	sed -e 's|WCST_IMPORT_PY_SCRIPT|$(PYTHON_SCRIPT)|g' wcst_import.sh.in > wcst_import.sh
-	chmod +x wcst_import.sh
-	@echo "Build Process sucessfully. You can now install the application by running $ make install"
+# B: if --disable-java is false then allow to compile source code
+if ENABLE_JAVA
+   ALLOW_INSTALL = TRUE
+else
+   ALLOW_INSTALL = FALSE
+endif
 
+all:
+	if [ $(ALLOW_INSTALL) = TRUE ] ; then \
+		sed -e 's|WCST_IMPORT_PY_SCRIPT|$(PYTHON_SCRIPT)|g' wcst_import.sh.in > wcst_import.sh ; \
+		chmod +x wcst_import.sh ; \
+		echo "Build Process sucessfully. You can now install the application by running $ make install"; \
+	fi
 install:
-	$(MKDIR) -p $(INSTALL_DIR)
-	$(CP) * $(INSTALL_DIR)
-	$(CP) wcst_import.sh $(BIN_DIR)
+	if [ $(ALLOW_INSTALL) = TRUE ] ; then \
+		$(MKDIR) -p $(INSTALL_DIR); \
+		$(CP) * $(INSTALL_DIR); \
+		$(CP) wcst_import.sh $(BIN_DIR); \
+		echo "Install Process sucessfully."; \
+	fi
 
 uninstall:
 	@$(RM) $(INSTALL_DIR)
