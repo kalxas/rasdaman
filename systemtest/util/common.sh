@@ -99,17 +99,17 @@ FIXED=0
 
 function log()
 {
-  echo "$PROG: $*"
+  echo "$PROG: $*" | tee -a $LOG
 }
 
 function loge()
 {
-  echo "$*"
+  echo "$*" | tee -a $LOG
 }
 
 function logn()
 {
-  echo -n "$PROG: $*"
+  echo -n "$PROG: $*" | tee -a $LOG
 }
 
 function feedback()
@@ -121,10 +121,20 @@ function feedback()
   fi
 }
 
+function check()
+{
+  if [ $? -ne 0 ]; then
+    echo "$PROG: failed, exiting." | tee -a $LOG
+    exit $RC_ERROR
+  else
+    loge ok.
+  fi
+}
+
 function error()
 {
-  echo "$PROG: $*"
-  echo "$PROG: exiting."
+  echo "$PROG: $*" | tee -a $LOG
+  echo "$PROG: exiting." | tee -a $LOG
   exit $RC_ERROR
 }
 
@@ -140,15 +150,26 @@ if [ -n "$SCRIPT_DIR" ]; then
 
   rm -f "$FAILED"
 
-  # all output that goes to stdout is redirected to log too
-  exec >  >(tee -a $LOG)
-  exec 2> >(tee -a $LOG >&2)
-
   NOW=`date`
   log "starting test at $NOW"
   log ""
 fi
 
+#
+# manage timing, in ms
+#
+start_timer()
+{
+  timer_start=$(date +%s%N)
+}
+stop_timer()
+{
+  timer_stop=$(date +%s%N)
+}
+get_time()
+{
+  echo "scale=3; ($timer_stop - $timer_start) / 1000000.0" | bc
+}
 
 # ------------------------------------------------------------------------------
 # dependency checks
@@ -627,9 +648,12 @@ function run_test()
 function restart_rasdaman()
 {
   logn "restarting rasdaman... "
-  $STOP_RAS > /dev/null 2>&1
-  sleep 2
+  if [ $(pgrep rasmgr) ]; then
+    $STOP_RAS > /dev/null 2>&1
+    sleep 0.2 || sleep 1
+  fi
   $START_RAS > /dev/null 2>&1
+  sleep 0.2 || sleep 1
   loge ok.
 }
 

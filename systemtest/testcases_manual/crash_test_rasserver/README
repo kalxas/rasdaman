@@ -1,0 +1,37 @@
+= Summary =
+
+This is a test suite for crash testing of rasdaman. The main goal is to catch
+potential database corruption in case of sudden server crashes, whether from
+internal causes (e.g. segfaults), or external factors like power outage. This
+can only occur in case of write queries, so it makes sense to only test
+create / insert / update and delete statements here.
+
+= How-to =
+
+To run the test simply execute ./test.sh. Make sure RMANHOME is properly set to
+point to the rasdaman installation dir. The script establishes its own
+RASBASE in /tmp/rasdb, so original data is not touched. For this to work
+rasmgr.conf is updated (original config is restored at the end, but it is
+recommended to create a backup) and rasdaman is restarted automatically.
+Needless to say, never run this script on a production rasdaman.
+
+The test script tests rasql queries in the queries directory. To add a new
+query for testing copy the query.template into a new queryN.sh, which must have
+the functions already present, even if empty.
+
+First, all queries are executed in order to collect statistics and record
+checksums of the RASBASEs they generate (queries_metrics directory). This is
+later used to determine a random crash interval and compare database states in
+order to discover potential inconsistencies.
+
+Afterwards in an infinite loop:
+1. a random query file is selected and loaded into test.sh
+2. pre_query is executed to establish the data needed for the test query
+3. run_query is executed in a background process; after a random amount of time
+   has passed, the rasdaman server is killed with a SIGUSR1 signal
+4. rasserver catches this signal, prints the stacktrace in the logs which could
+   be useful in analysing bugs, and kills itself with a SIGKILL, in order to
+   emulate a crash
+5. rasdaman is restarted and RASBASE is compared to the expected state; in case
+   they don't match, the logs and RASBASE are saved in bugs/bug.query_id.XXXXXXX
+6. RASBASE is recreated clean for every query

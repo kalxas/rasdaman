@@ -164,3 +164,7 @@ Makefile.am.user
 config.guess
 config.sub
 config.h.in
+
+core
+systemtest/testcases_manual/crash_test_rasserver/queries_metrics
+systemtest/testcases_manual/crash_test_rasserver/bugs

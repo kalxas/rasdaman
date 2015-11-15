@@ -81,6 +81,17 @@ function check_coll()
   $RASQL -q 'select r from RAS_COLLECTIONNAMES as r' --out string | egrep "\b$coll_name\b" > /dev/null
 }
 
+# ------------------------------------------------------------------------------
+# check if collection is empty
+# arg 1: collection name
+# return 0 if empty, 1 otherwise
+#
+function is_coll_empty()
+{
+  local coll_name="$1"
+  $RASQL -q "select oid(r) from $coll_name as r" --out string | egrep "\bQuery result collection has 0 element\b" > /dev/null
+}
+
 
 # ------------------------------------------------------------------------------
 # check user-defined types, if not present testdata/types.dl is read by rasdl.
