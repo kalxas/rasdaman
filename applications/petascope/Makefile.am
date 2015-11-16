@@ -60,8 +60,9 @@ WAR       = $(DIST)/$(WAR_NAME)
 JETTY	  = jetty
 
 APIDOCS   = $(BUILD)/apidocs
-WCS_CLIENT = ../wcs-client/app/
 STATIC_WEB_FOLDER = static
+WCS_CLIENT_SRC = ../wcs-client/app/*
+WCS_CLIENT_DEST = $(WEB)/$(STATIC_WEB_FOLDER)/wcs-client/
 
 SERVICE_FILENAME=wms_service.properties
 SERVICE_SRC_FILE=src/main/resources/wms/wms_service.properties
@@ -154,8 +155,8 @@ compileit: $(all_javas) $(GEN_DOCS)
 	$(SED) 's|@confdir@|$(DESTDIR)$(sysconfdir)/|g' $(SRC_WEB)/WEB-INF/web.xml.in > $(SRC_WEB)/WEB-INF/web.xml
 	$(CP) $(SRC_WEB)/* $(WEB)
 	$(CP) templates xml $(WEB)
-	$(MKDIR) $(WEB)/$(STATIC_WEB_FOLDER)
-	$(CP) $(WCS_CLIENT) $(WEB)/$(STATIC_WEB_FOLDER)/wcs-client
+	$(MKDIR) $(WCS_CLIENT_DEST)
+	$(CP) $(WCS_CLIENT_SRC) $(WCS_CLIENT_DEST)
 	$(MKDIR) $(WEB)/WEB-INF/lib
 	test -f ../../java/dist/rasj.jar || make -C ../../java
 	$(CP) $(JJARS_PATHS) $(WEB)/WEB-INF/lib
