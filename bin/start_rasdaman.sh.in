@@ -26,35 +26,35 @@
 # start_rasdaman.sh - start rasdaman server complex
 #
 # SYNTAX
-#	start_rasdaman.sh [servers...]
+#    start_rasdaman.sh [servers...]
 #
 # DESCRIPTION
-#	This script starts rasdaman.
-#	Which rasdaman servers are started depends on the 'server' name(s) provided:
-#	* If no server name is provided then the environment variable $RASSERVERS is
-#	  inspected to obtain a list of servers to be started. If $RASSERVERS is not
-#	  set, then all rasdaman servers defined will be attempted to start.
-#	* If at least one parameter is provided then all parameters 
-#	  will be treated as a server name which is tried to be started.
+#    This script starts rasdaman.
+#    Which rasdaman servers are started depends on the 'server' name(s) provided:
+#    * If no server name is provided then the environment variable $RASSERVERS is
+#      inspected to obtain a list of servers to be started. If $RASSERVERS is not
+#      set, then all rasdaman servers defined will be attempted to start.
+#    * If at least one parameter is provided then all parameters
+#      will be treated as a server name which is tried to be started.
 #
-#	One possible reason while not all servers may come up is that more servers
-#	might be defined than your licence model allows to run in parallel.
+#    One possible reason while not all servers may come up is that more servers
+#    might be defined than your licence model allows to run in parallel.
 #
-#	To log in to the server, the external variable $RASLOGIN is expected to hold
-#	an ID string (see rasdaman manual). If not found, a desperate last attempt is 
-#	made to login as rasadmin/rasadmin. If this fails, no servers are started at all.
+#    To log in to the server, the external variable $RASLOGIN is expected to hold
+#    an ID string (see rasdaman manual). If not found, a desperate last attempt is
+#    made to login as rasadmin/rasadmin. If this fails, no servers are started at all.
 #
 # PRECONDITIONS
-#	- need to have a rasdaman admin login either from $RASLOGIN or as rasadmin/rasadmin
-#	- need to run with an effective user id that allows to write into log/
-#	- need to have a valid rasdaman installation
+#    - need to have a rasdaman admin login either from $RASLOGIN or as rasadmin/rasadmin
+#    - need to run with an effective user id that allows to write into log/
+#    - need to have a valid rasdaman installation
 #
 # RETURN CODES
-	RC_OK=0		# everything went fine
-	RC_ERROR=1	# something went wrong
+RC_OK=0        # everything went fine
+RC_ERROR=1    # something went wrong
 
 # --- CONSTANTS -----------------------------------------------------
-echo -e
+
 # sleep time to let rasmgr establish before spawning servers
 WAIT_FOR_CHILDREN=5
 
@@ -94,8 +94,15 @@ cd @logdir@
 # check if we can actually write anything here
 if [ ! -w . ]
 then
-  echo "$MYNAME: User $USER has no write permissions in @logdir@, rasdaman cannot be started." >&2
-  exit $RC_ERROR
+    echo "$MYNAME: User $USER has no write permissions in @logdir@, rasdaman cannot be started." >&2
+    exit $RC_ERROR
+fi
+
+# check if rasmgr exists
+if [ ! -f @bindir@rasmgr ];
+then
+    echo "$MYNAME: rasmgr does not exist in "@bindir@", rasdaman cannot be started."
+    exit $RC_ERROR
 fi
 
 # clear previous log file
@@ -113,148 +120,147 @@ sleep $WAIT_FOR_CHILDREN
 # these servers will be started:
 if [ $1 ]
 then
-	# parameters provided, take them as server names
-	# B: check if parameter's name does not start with -- then it is the server name
-	SERVERS=""
-	for var in "$@"
-	do
-	    if [[ "$var" != *"--"* ]]; then
-		# this is server name so add to SERVERS
-		SERVERS+="$var"' ';
-	        #echo $var
-	    fi
-	done
+    # parameters provided, take them as server names
+    # B: check if parameter's name does not start with -- then it is the server name
+    SERVERS=""
+    for var in "$@"
+    do
+        if [[ "$var" != *"--"* ]]; then
+        # this is server name so add to SERVERS
+        SERVERS+="$var"' ';
+            #echo $var
+        fi
+    done
 
 else
-	if [ "$RASSERVERS" ]; then
-		SERVERS=$RASSERVERS
-	else
-		SERVERS=""
-	fi
+    if [ "$RASSERVERS" ]; then
+        SERVERS=$RASSERVERS
+    else
+        SERVERS=""
+    fi
 fi
 
 # determine rascontrol login
 if [ -z "$RASLOGIN" ]; then
-	export RASLOGIN=rasadmin:d293a15562d3e70b6fdc5ee452eaed40
+    export RASLOGIN=rasadmin:d293a15562d3e70b6fdc5ee452eaed40
 fi
 
 # ...then spawn server workers
 if [ "$SERVERS" ]; then
-	for SRV in $SERVERS
-	do
-		echo -n $MYNAME: starting server $SRV...
-		@bindir@rascontrol -e -q -x up srv $SRV || exit $!
-	done
+    for SRV in $SERVERS
+    do
+        echo -n $MYNAME: starting server $SRV...
+        @bindir@rascontrol -e -q -x up srv $SRV || exit $!
+    done
 else
-	echo $MYNAME: starting all rasdaman servers...
-	@bindir@rascontrol -e -q -x up srv -all || exit $!
+    echo $MYNAME: starting all rasdaman servers...
+    @bindir@rascontrol -e -q -x up srv -all || exit $!
 fi
 
 
 #---------------------------------------------------
-echo -e
+
 #echo '----------------End Checking start Rasdaman Servers----------------'
 
 # B: Embedded - Petascope
 configPath=@sysconfdir@; # /home/rasdaman/install/etc ($RMANHOME)
 installPath=$(echo ${configPath:0:-3}) # Get substring before '/etc' in file path (default is /home/rasdaman/install)
-petascopePath=$installPath'/share/rasdaman/war/' # Embedded Jetty and Petascope directory: /home/rasdaman/install/share/rasdaman/war/
+petascopePath=$installPath'/share/rasdaman/war/' # Embedded Jetty and petascope directory: /home/rasdaman/install/share/rasdaman/war/
 petascopePropertiesFile=$installPath'etc/petascope.properties'
 
+# check if --disable-jave is off
 if [ -f "$petascopePropertiesFile" ]; then
 
-	javaServer=$(cat "$petascopePropertiesFile" | grep 'java_server'  | awk -F "=" '{print $2}');  # check if java-server is embedded/external
-	javaServer=$(echo $javaServer | sed -e 's/^[ \t]*//')
+    # check if java-server is embedded/external
+    javaServer=$(cat "$petascopePropertiesFile" | grep 'java_server'  | awk -F "=" '{print $2}');
+    javaServer=$(echo $javaServer | sed -e 's/^[ \t]*//')
 
-	if [ "$javaServer" == "$JAVA_SERVER_EMBEDDED" ]; then
+    # check if java-server is embedded
+    if [ "$javaServer" == "$JAVA_SERVER_EMBEDDED" ]; then
 
-		# 1. Check if user wants to start or stop petascope "manually" when execute start_rasdaman.sh with parameter --start-embedded-petascope or --stop--embedded-petascope
+        # 1. Check if user wants to start or stop petascope "manually" when execute start_rasdaman.sh with parameter --start-embedded-petascope or --stop--embedded-petascope
 
-		# normally if user does not add on of these arguments, need to check the configuration in petascope.properties
-		startPetascope=$(cat "$petascopePropertiesFile" | grep "$START_EMBEDDED_PETASCOPE"  | awk -F "=" '{print $2}');
-		startPetascope=$(echo $startPetascope | sed -e 's/^[ \t]*//')
+        # normally if user does not add on of these arguments, need to check the configuration in petascope.properties
+        startPetascope=$(cat "$petascopePropertiesFile" | grep "$START_EMBEDDED_PETASCOPE"  | awk -F "=" '{print $2}');
+        startPetascope=$(echo $startPetascope | sed -e 's/^[ \t]*//')
 
-		# 2. User wants to start or stop petascope "manually" then iterate the inputs to get this kind of argument (ignores server names)
-		for var in "$@"
-		do
-		    if [ "$var" == "--start-embedded-petascope" ]; then
-			startPetascope=true;
-		    elif [ "$var" == "--stop-embedded-petascope" ]; then
-			startPetascope=false;
-		    fi
-		done
+        # 2. User wants to start or stop petascope "manually" then iterate the inputs to get this kind of argument (ignores server names)
+        for var in "$@"
+        do
+            if [ "$var" == "--start-embedded-petascope" ]; then
+                startPetascope=true;
+            elif [ "$var" == "--stop-embedded-petascope" ]; then
+                startPetascope=false;
+            fi
+        done
 
-		# 3. Check value of startPetascope: if it is true then start embedded Petascope
-		if [ "$startPetascope" = true ]; then
+        # 3. Check value of startPetascope: if it is true then start embedded petascope
+        if [ "$startPetascope" = true ]; then
 
-			# get the pid of lasted embedded Jetty with Petascope (only 1 process is allowed to run in background)
-			# the [] is trick to avoid grep's pid is chosen instead of running Jetty.
+            # get the pid of last embedded Jetty with petascope (only 1 process is allowed to run in background)
+            # the [] is trick to avoid grep's pid is chosen instead of running Jetty.
 
-			pid=$(ps -ef | grep '[r]asdaman/war/'$JETTY_JAR | awk '{print $2; exit}')
+            pid=$(ps -ef | grep '[r]asdaman/war/'$JETTY_JAR | awk '{print $2; exit}')
 
-			if [[ -z "$pid" ]]; then # pid is empty then could start Jetty
-			   echo $MYNAME: 'Embedded Petascope is starting.....'
+            # check pid of Jetty, if it is empty then could start Jetty
+            if [[ -z "$pid" ]]; then
+                echo $MYNAME: 'embedded petascope is starting.....'
 
-			   # First, check if port of Jetty is not used by other applications.
-			   portJetty=$(cat "$petascopePropertiesFile" | grep 'jetty_port'  | awk -F "=" '{print $2}')
-			   portJetty=$(echo $portJetty | sed -e 's/^[ \t]*//')
+                # First, check if port of Jetty is not used by other applications.
+                portJetty=$(cat "$petascopePropertiesFile" | grep 'jetty_port'  | awk -F "=" '{print $2}')
+                portJetty=$(echo $portJetty | sed -e 's/^[ \t]*//')
 
-			   isPortUsed=$(netstat -anpp 2>/dev/null | grep "$portJetty" | awk '{print $6}') # check if port is open or not, 2>/dev/null to clean the warning: 'you must be root when using netstat'
+                # check if port is open or not, 2>/dev/null to clean the warning: 'you must be root when using netstat'
+                isPortUsed=$(netstat -anpp 2>/dev/null | grep "$portJetty" | awk '{print $6}')
 
-			   if [[  "$isPortUsed" =~ 'LISTEN' ]]; then # If port is used (LISTEN) then could not use this port
-				echo $MYNAME: 'Starting embedded Petascope failed, conflicts with port number: "'$portJetty'"';
-				echo 'Please change port (jetty_port=) in file: '"$petascopePropertiesFile"
-			   else
-				echo $MYNAME: 'Starting embedded Petascope with port number: "'$portJetty'"';
+                # If port is used (LISTEN) then could not use this port
+                if [[  "$isPortUsed" =~ 'LISTEN' ]]; then
+                    echo $MYNAME: 'starting embedded petascope failed, conflicts with port number: "'$portJetty'"';
+                    echo 'Please change port (jetty_port=) in file: '"$petascopePropertiesFile"
+                else
+                    echo $MYNAME: 'starting embedded petascope with port number: "'$portJetty'"';
 
-				# Running Jetty-Petascope as background processs and write log file to jetty."portJetty".log in install folder (i.e. $RMANHOME/log)
-				java -cp "$petascopePath$JETTY_JAR"':'$petascopePath start_petascope "$installPath" > "$installPath"'/log/jetty.'"$portJetty"'.log' 2>&1 &
+                    # Running Jetty-petascope as background processs and write log file to jetty."portJetty".log in install folder (i.e. $RMANHOME/log)
+                    java -cp "$petascopePath$JETTY_JAR"':'$petascopePath start_petascope "$installPath" > "$installPath"'/log/jetty.'"$portJetty"'.log' 2>&1 &
 
-				# Check if Jetty has started successful
-				# get the pid of lasted embedded Jetty with Petascope (only 1 process is allowed to run in background)
-				# the [] is trick to avoid grep's pid is chosen instead of running Jetty.
-				pid=$(ps -ef | grep '[r]asdaman/war/'$JETTY_JAR | awk '{print $2; exit}')
+                    # Check if Jetty has started successful
+                    # get the pid of last embedded Jetty with petascope (only 1 process is allowed to run in background)
+                    # the [] is trick to avoid grep's pid is chosen instead of running Jetty.
+                    pid=$(ps -ef | grep '[r]asdaman/war/'$JETTY_JAR | awk '{print $2; exit}')
 
-				if [[ ! -z "$pid" ]]; then # check if pid is empty or not
-				    echo $MYNAME: 'PID of lasted embedded Petascope = "'$pid'"' # success
-				    echo 'Starting embedded Petascope successful. Done.'
-				else
-				    echo $MYNAME: 'Start embedded Petascope unsuccessful. Is Jetty running? Hint: ps -ef | grep "jetty". ' # fail
-				fi
-
-			   fi; # end checking port has opened
-			else # end checking if Jetty is running
-			   echo $MYNAME: 'Pid ID of lasted embedded Petascope = "'$pid'"'
-			fi
-
-		else # check startPetascope is false
-			echo $MYNAME: "Petascope will not be started."
-		fi
-		#fi
-
-		echo -n
-
-
-	fi; # end checking java-server is embedded
+                    # check if petascope is running
+                    if [[ ! -z "$pid" ]]; then
+                        echo $MYNAME: 'pid of last embedded petascope: "'$pid'". Done.' # success
+                    else
+                        echo $MYNAME: 'start embedded petascope unsuccessful. Is Jetty running? Hint: ps -ef | grep "jetty". ' # fail
+                    fi # end checking if petascope is running
+                fi # end checking port has opened
+            else # petascope is running
+                echo $MYNAME: 'pid of last embedded petascope = "'$pid'"'
+            fi # end checking if petascope is running
+        else # check startPetascope is false
+            echo $MYNAME: "petascope will not be started."
+        fi # end checking startPetascope is true
+    fi; # end checking java-server is embedded
 fi; # end checking --disable-java is off
 
 #---------------------------------------------------
 
 # if HSQLDB is used for petascope, start HSQLDB server here
 if [ "$PETASCOPEDB" == "$PETASCOPEDB_HSQLDB" ]; then
-  metadata_url=$(grep metadata_url @sysconfdir@/petascope.properties | awk -F "=" '{print $2}' | tr -d '\n')
-  db_name=$(basename "$metadata_url")
-  db_file=$(echo "$metadata_url" | awk -F ":" '{ print $NF; }')
-  echo -n $MYNAME: starting petascope...
-  nohup java -cp @libdir@/hsqldb.jar org.hsqldb.server.Server --database.0 file:$db_file --dbname.0 $db_name > @logdir@/hsqldb.log 2>&1 &
-  if [ $? -eq 0 ]; then
-    echo done.
-  else
-    echo "failed, see @logdir@/hsqldb.log for more details."
-  fi
+    metadata_url=$(grep metadata_url @sysconfdir@/petascope.properties | awk -F "=" '{print $2}' | tr -d '\n')
+    db_name=$(basename "$metadata_url")
+    db_file=$(echo "$metadata_url" | awk -F ":" '{ print $NF; }')
+    echo -n $MYNAME: starting petascope...
+    nohup java -cp @libdir@/hsqldb.jar org.hsqldb.server.Server --database.0 file:$db_file --dbname.0 $db_name > @logdir@/hsqldb.log 2>&1 &
+    if [ $? -eq 0 ]; then
+        echo done.
+    else
+        echo "failed, see @logdir@/hsqldb.log for more details."
+    fi
 fi
 
-echo -e
+
 echo $MYNAME: done.
 exit $RC_OK
 

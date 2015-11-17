@@ -28,20 +28,20 @@
 #       stop_rasdaman.sh
 #
 # DESCRIPTION
-#       This script terminates rasdaman.
-#	First, all server processes are terminated. Then, the server
-#	manager (rasmgr) is shut down.
-#       To log in to the server, the external variable $RASLOGIN is expected to hold
-#       an ID string (see rasdaman manual). If not found, a desperate last attempt is
-#       made to login as rasadmin/rasadmin. If this fails, no servers are stopped at all.
+#    This script terminates rasdaman.
+#    First, all server processes are terminated. Then, the server
+#    manager (rasmgr) is shut down.
+#    To log in to the server, the external variable $RASLOGIN is expected to hold
+#    an ID string (see rasdaman manual). If not found, a desperate last attempt is
+#    made to login as rasadmin/rasadmin. If this fails, no servers are stopped at all.
 #
 # BE CAREFUL
-#	By terminating rasdaman, all open transactions are aborted,
-#	and their contents will be irretrievably lost!
+#    By terminating rasdaman, all open transactions are aborted,
+#    and their contents will be irretrievably lost!
 #
 # PRECONDITIONS
-#       - need to have a rasdaman admin login either from $RASLOGIN or as rasadmin/rasadmin
-#	- no open transactions or databases, they will be killed and transactions aborted
+#    - need to have a rasdaman admin login either from $RASLOGIN or as rasadmin/rasadmin
+#    - no open transactions or databases, they will be killed and transactions aborted
 #
 
 # --- CONSTANTS -----------------------------------------------------
@@ -64,14 +64,13 @@ JETTY_JAR=jetty.jar
 
 # --- ACTION --------------------------------------------------------
 
-echo -e
 
 echo $MYNAME: terminating all rasdaman servers
 
 # --- stop rasdaman servers: ---------------------------------------
 
 if [ -z "$RASLOGIN" ]; then
-	export RASLOGIN=rasadmin:d293a15562d3e70b6fdc5ee452eaed40
+    export RASLOGIN=rasadmin:d293a15562d3e70b6fdc5ee452eaed40
 fi
 
 # determine a list of all currently running servers
@@ -80,9 +79,9 @@ ALLSERVERS=`@bindir@rascontrol -e -q -x list srv | awk '{ if (\$6 == "UP") print
 # ...and shut down all of them, forcefully (!); any open transaction will be lost
 for SRV in $ALLSERVERS
 do
-	echo -n $MYNAME: terminating server $SRV...
-	@bindir@rascontrol -e -q -x down srv $SRV -kill
-	echo "done."
+    echo -n $MYNAME: terminating server $SRV...
+    @bindir@rascontrol -e -q -x down srv $SRV -kill
+    echo "done."
 done
 
 # --- stop rasmgr: -------------------------------------------------
@@ -99,31 +98,31 @@ echo "done."
 
 # if HSQLDB is used for petascope, stop HSQLDB server here
 if [ "$PETASCOPEDB" == "$PETASCOPEDB_HSQLDB" ]; then
-  metadata_url=$(grep metadata_url @sysconfdir@/petascope.properties | awk -F "=" '{print $2}' | tr -d '\n')
-  db_name=$(basename "$metadata_url")
-  db_file=$(echo "$metadata_url" | awk -F ":" '{ print $NF; }')
-  echo -n "$MYNAME: terminating petascope database..."
-  kill $(pgrep -f org.hsqldb.server.Server)
-  echo "done."
+    metadata_url=$(grep metadata_url @sysconfdir@/petascope.properties | awk -F "=" '{print $2}' | tr -d '\n')
+    db_name=$(basename "$metadata_url")
+    db_file=$(echo "$metadata_url" | awk -F ":" '{ print $NF; }')
+    echo -n "$MYNAME: terminating petascope database..."
+    kill $(pgrep -f org.hsqldb.server.Server)
+    echo "done."
 fi
 
 # --- B: Terminate Embedded Petascope if it is running ----------------------------------------------------
-echo -e
+
 # get the pid of lasted embedded Jetty with Petascope (only 1 process is allowed to run in background)
 # the [] is trick to avoid grep's pid is chosen instead of running Jetty.
 pid=$(ps -ef | grep '[r]asdaman/war/jetty.jar' | awk '{print $2; exit}')
 
 if [[ ! -z "$pid" ]]; then # pid is not empty then need to terminate running embedded Petascope
-   kill -9 $pid;
-   # get the pid of lasted embedded Jetty with Petascope (only 1 process is allowed to run in background)
-   # the [] is trick to avoid grep's pid is chosen instead of running Jetty.
-   repid=$(ps -ef | grep '[r]asdaman/war/'$JETTY_JAR | awk '{print $2; exit}')
+    kill -9 $pid;
+    # get the pid of lasted embedded Jetty with Petascope (only 1 process is allowed to run in background)
+    # the [] is trick to avoid grep's pid is chosen instead of running Jetty.
+    repid=$(ps -ef | grep '[r]asdaman/war/'$JETTY_JAR | awk '{print $2; exit}')
 
-   if [[ ! -z "$redpid" ]]; then # redpid is not empty then need to have an error
-       echo $MYNAME: 'Terminate embedded Petascope unsuccessfully. Please kill PID: "'$repid'" manually..Done.'
-   else
-       echo $MYNAME: 'Terminate embedded Petascope successfully...Done.'
-   fi
+    if [[ ! -z "$redpid" ]]; then # redpid is not empty then need to have an error
+        echo $MYNAME: 'terminate embedded petascope unsuccessfully. Please kill PID: "'$repid'" manually..Done.'
+    else
+        echo $MYNAME: 'terminating embedded petascope successfully...Done.'
+    fi
 fi
 
 
