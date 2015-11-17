@@ -1,0 +1,1 @@
+service=WCS&version=2.0.1&request=GetCoverage&coverageId=irr_cube_2&subset=ansi(148654)&scalefactor=2.0&format=image/png

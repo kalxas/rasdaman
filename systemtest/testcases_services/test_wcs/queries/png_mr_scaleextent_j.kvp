@@ -1,0 +1,1 @@
+service=WCS&version=2.0.1&request=GetCoverage&coverageId=mr&scaleextent=j(16:34)&format=image/png

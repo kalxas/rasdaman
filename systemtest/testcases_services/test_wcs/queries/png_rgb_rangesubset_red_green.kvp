@@ -1,0 +1,1 @@
+service=WCS&version=2.0.1&request=GetCoverage&coverageId=rgb&rangesubset=red:green&format=image/png

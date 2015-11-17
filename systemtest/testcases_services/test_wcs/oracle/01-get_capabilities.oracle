@@ -7,7 +7,6 @@
     <ows:ServiceTypeVersion>2.0.1</ows:ServiceTypeVersion>
     <ows:Profile>http://www.opengis.net/spec/WCS_coverage-encoding_jpeg2000/1.0/</ows:Profile>
     <ows:Profile>http://www.opengis.net/spec/WCS_protocol-binding_get-rest/1.0/conf/get-rest</ows:Profile>
-    <ows:Profile>http://www.opengis.net/spec/png/1.0/</ows:Profile>
     <ows:Profile>http://www.opengis.net/spec/WCS_service-extension_processing/2.0/conf/processing</ows:Profile>
     <ows:Profile>http://www.opengis.net/spec/GMLCOV/1.0/conf/gml-coverage</ows:Profile>
     <ows:Profile>http://www.opengis.net/spec/WCS_protocol-binding_post-xml/1.0</ows:Profile>
@@ -17,6 +16,7 @@
     <ows:Profile>http://www.opengis.net/spec/WCS_service-extension_transaction/2.0/conf/insert+delete</ows:Profile>
     <ows:Profile>http://www.opengis.net/spec/WCPS/1.0/conf/wcps-core</ows:Profile>
     <ows:Profile>http://www.opengis.net/spec/GMLJP2/2.0/</ows:Profile>
+    <ows:Profile>http://www.w3.org/TR/PNG/</ows:Profile>
     <ows:Profile>http://www.opengis.net/spec/WCS_protocol-binding_get-kvp/1.0/conf/get-kvp</ows:Profile>
     <ows:Profile>http://www.opengis.net/spec/WCS_service-extension_scaling/1.0/conf/scaling</ows:Profile>
     <ows:Profile>http://www.opengis.net/spec/GMLCOV/1.0/conf/gml</ows:Profile>

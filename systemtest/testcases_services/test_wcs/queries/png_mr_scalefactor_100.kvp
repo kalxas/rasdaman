@@ -1,0 +1,1 @@
+service=WCS&version=2.0.1&request=GetCoverage&coverageId=mr&scalefactor=100&interpolation=http://www.opengis.net/def/interpolation/OGC/0/nearest-neighbor&format=image/png

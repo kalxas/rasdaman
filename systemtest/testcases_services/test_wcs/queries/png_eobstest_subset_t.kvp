@@ -1,0 +1,1 @@
+service=WCS&version=2.0.1&request=GetCoverage&coverageId=eobstest&subset=t,CRS:1(1)&format=image/png
