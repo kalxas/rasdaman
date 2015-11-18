@@ -234,63 +234,13 @@ $PSQL $SINGLE_TRANSACTION -f "$UPGRADE_SCRIPTS_DIR/$POPULATE_SQL" > /dev/null 2>
 check_ret $?
 echo "ok."
 
-
-# Enabling PostGIS and creating Multipoint schema
-        POSTGIS_SQL='postgis.sql'
-    SPATIAL_REF_SQL='spatial_ref_sys.sql'
-POSTGIS_REQ_VERSION=2
- GEOM_COLUMNS_TABLE='geometry_columns'
- #
- logn "looking for $POSTGIS_SQL and $SPATIAL_REF_SQL files (multipoint support) ..."
-     POSTGIS_SQL_PATH=$( locate -b '\'"${POSTGIS_SQL}"     2>/dev/null | head -n 1 )
- SPATIAL_REF_SQL_PATH=$( locate -b '\'"${SPATIAL_REF_SQL}" 2>/dev/null | head -n 1 )
-echo " Ok."
-# is postgis.sql installed?
-if [ -z "$POSTGIS_SQL_PATH" -o ! -f "$POSTGIS_SQL_PATH" ]
-then
-    log "WARNING: PostGIS (postgis.sql) not found. Multipoint support will not be installed."
-else
-    # version >= 2.0 ?
-    POSTGIS_VERSION=$( grep "INSTALL VERSION" "$POSTGIS_SQL_PATH" | awk '{ print $4; }' | tr -d "'" )
-    log "detected PostGIS version: $POSTGIS_VERSION"
-    if [ "${POSTGIS_VERSION%%\.*}" -lt "$POSTGIS_REQ_VERSION" ]
-    then
-        log "WARNING: PostGIS version $POSTGIS_REQ_VERSION is required, multipoint support will not be installed."
-    else
-        # install postgis extension
-        if [ "$PSQL_VERSION_M" -ge 9 -a "$PSQL_VERSION_m" -ge 1 ]
-        then
-            # Postgresql >= 9.1  -> use CREATE EXTENSION
-            logn "Creating 'postgis' extension in the $PS_DB..."
-            $PSQL -c 'CREATE EXTENSION IF NOT EXISTS postgis' > /dev/null
-            check_ret $?
-            echo "ok."
-        else
-            # Postgresql <  9.1  -> use psql
-            if [ -n "$POSTGIS_SQL_PATH" -a -n "$SPATIAL_REF_SQL_PATH" ]
-            then
-                log "using \`\`${POSTGIS_SQL_PATH}'' and \`\`${SPATIAL_REF_SQL_PATH}''."
-                logn "installing PostGIS in $PS_DB ... "
-                $PSQL -c "SELECT * FROM $GEOM_COLUMNS_TABLE LIMIT 1;" > /dev/null 2>&1
-                if [ $? -ne 0 ]
-                then
-                    $PSQL -f "$POSTGIS_SQL_PATH"     -v ON_ERROR_STOP=1 > /dev/null # do not use SINGLE_TRANSACTION opt here (it is self-wrapped)
-                    $PSQL -f "$SPATIAL_REF_SQL_PATH" -v ON_ERROR_STOP=1 > /dev/null #
-                    echo "ok."
-                else
-                    log "PostGIS seems already enabled in $PS_DB (table $GEOM_COLUMNS_TABLE detected)."
-                fi
-            else
-                log "WARNING: $POSTGIS_SQL and/or $SPATIAL_REF_SQL not found, please install PostGIS (>= ${POSTGIS_REQ_VERSION}.0) and retry."
-                log "in case of fresh installations of PostGIS, please update the locate database and retry (\`\`man updatedb'')"
-            fi
-        fi
-        # add tables for multipoint
-        logn "adding tables for multipoint coverages support ... "
-        $PSQL $SINGLE_TRANSACTION -f "$UPGRADE_SCRIPTS_DIR/$SCHEMA_MULTIPOINT" > /dev/null 2>&1
-        check_ret $?
-        echo "ok."
-    fi
+# User want to enable Multipoint support (UPDATE_WITH_POSTGIS is exported from update_petascopedb.sh)
+if [ $UPDATE_WITH_POSTGIS ]; then
+    # add tables for multipoint
+    logn "adding tables for multipoint coverages support ... "
+    $PSQL $SINGLE_TRANSACTION -f "$UPGRADE_SCRIPTS_DIR/$SCHEMA_MULTIPOINT" > /dev/null 2>&1
+    check_ret $?
+    echo "ok."
 fi
 
 

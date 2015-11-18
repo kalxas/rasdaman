@@ -52,11 +52,14 @@ PROG=$( basename $0 )
 REVERT_ARG='--revert'
 CLEANUP_ARG='--cleanup'
 HELP_ARG='--help'
+WITH_POSTGIS='--with-postgis'
 
 # synopsis message
 USAGE="
-    usage: $PROG [$REVERT_ARG] [$CLEANUP_ARG] [$HELP_ARG]
+    usage: $PROG [$WITH_POSTGIS] [$REVERT_ARG] [$CLEANUP_ARG] [$HELP_ARG]
     where:
+    $WITH_POSTGIS
+        Enable PostGIS functionality ( Multipoint support) in petascopedb
     $REVERT_ARG
         Restore tables to a pre-upgrade backed-up schema (ps_pre_updateX).
     $CLEANUP_ARG
@@ -76,6 +79,9 @@ SETTINGS=@sysconfdir@/petascope.properties
 
 # petascope updateN.* scripts
 export SCRIPT_DIR=@pkgdatadir@/petascope
+
+# --with-postgis
+export POSTGIS_SCHEMA_FILE="$SCRIPT_DIR"'/update8/schema_multipoint.sql'
 
 export LIB_DIR=@libdir@
 
@@ -216,6 +222,7 @@ set_dbupdate() {
   $PSQL -c "UPDATE $PS_DBUPDATES SET $DBUPDATES_UPDATE = $counter" > /dev/null 2>&1
   log "updated database to update $(( $counter-1 ))"
 }
+
 check_postgres() {
   which psql > /dev/null || error "PostgreSQL missing, please add psql to the PATH."
   pgrep postgres > /dev/null
@@ -223,6 +230,107 @@ check_postgres() {
     pgrep postmaster > /dev/null || error "The PostgreSQL service is not started."
   fi
 }
+
+
+#
+# create db if not present
+#
+create_db(){
+    psql -U $PS_USER -p $PS_PORT --list 2>&1 | egrep "\b$PS_DB\b" > /dev/null
+    if [ $? -ne 0 ]; then
+        logn "no petascope database found, creating... "
+        $CREATEDB $PS_DB > /dev/null
+        feedback
+    fi
+}
+
+strip_single_quote() {
+  filepath="$1"
+  temp="${filepath%\'}"
+  temp="${temp#\'}"
+  echo $temp
+}
+
+#
+# with_postgis
+# check postgis has been installed correctly in system
+# NOTE: it is up to user to install postgis by their own
+update_with_postgis() {
+
+    # check postgis version
+    POSTGIS_REQ_VERSION=2
+
+    # Postgresql >= 9.1  -> use CREATE EXTENSION
+    if [ "$PSQL_VERSION_M" -ge 9 -a "$PSQL_VERSION_m" -ge 1 ];  then
+        # Postgresql >= 9.1  -> use CREATE EXTENSION
+        logn "Checking 'postgis' extension version >= 2.0.0 in the $PS_DB... "
+        $PSQL -c 'CREATE EXTENSION IF NOT EXISTS postgis' > /dev/null
+        error=$?
+        if [ $error -ne 0 ] ; then
+            error "FAILED: could not create extension postgis in $PS_DB. Please fix the error or reinstall PostGIS (>= ${POSTGIS_REQ_VERSION}.0) and retry. "
+        fi
+
+        # Now check postgis version (if version >= 2.0 then accept)
+        version=$($PSQL -c 'SELECT postgis_full_version();' | grep 'POSTGIS=' |  cut -c11-11)
+
+        if [ $version -lt $POSTGIS_REQ_VERSION ]; then
+            check=false
+            log "Detected PostGIS version 1.x.x. Done."
+            error "FAILED: PostGIS version $POSTGIS_REQ_VERSION is required, multipoint support will not be installed."
+        else
+            logn "Detected PostGIS version >= $POSTGIS_REQ_VERSION.0. Done."
+            echo -e
+            logn "PostGIS has been installed in $PS_DB. Done."
+        fi
+    else
+        # Postgresql <  9.1  -> use psql
+        POSTGIS_SQL='postgis.sql'
+        SPATIAL_REF_SQL='spatial_ref_sys.sql'
+
+        # check that PostGIS has been created in $PS_DB
+        GEOM_COLUMNS_TABLE='geometry_columns'
+
+        logn "Checking PostGIS in $PS_DB on PostgreSQL with version < 9.1)"
+        $PSQL -c "SELECT * FROM $GEOM_COLUMNS_TABLE LIMIT 1;" > /dev/null 2>&1
+
+        # check if PostGIS has been created before
+        if [ $? -eq 0 ]; then
+            log "PostGIS seems already enabled in $PS_DB (table $GEOM_COLUMNS_TABLE detected). Done."
+        elif [ $? -ne 0 ]; then
+            echo -e
+            logn "please find the $POSTGIS_SQL and $SPATIAL_REF_SQL in your system and provide the file paths."
+            echo -e
+            logn "HINT: you can run 'find / -name FILENAME -print -quit' to get the file path if it exists in your system"
+            echo -e
+            logn "Example: /usr/share/postgresql/8.4/contrib/postgis.sql"
+            echo -e
+
+            read -e -p "$PROG: Please type path to $POSTGIS_SQL: " POSTGIS_SQL_PATH
+            # strip the single ' if user copy filepath instead of typing
+            POSTGIS_SQL_PATH=$(strip_single_quote $POSTGIS_SQL_PATH)
+            if [ ! -e "$POSTGIS_SQL_PATH" ]; then
+                error "FAILED: $POSTGIS_SQL not found in $POSTGIS_SQL_PATH. Please retry again."
+            fi
+
+            read -e -p "$PROG: Please type path to $SPATIAL_REF_SQL: " SPATIAL_REF_SQL_PATH
+            # strip the single ' if user copy filepath instead of typing
+            SPATIAL_REF_SQL_PATH=$(strip_single_quote $SPATIAL_REF_SQL_PATH)
+            if [ ! -e "$SPATIAL_REF_SQL_PATH" ]; then
+                error "FAILED: $SPATIAL_REF_SQL not found in $SPATIAL_REF_SQL_PATH. Please retry again."
+            fi
+
+            #createlang -d $PS_DB plpgsql # must have or postgis.sql (from 2.0) cannot execute
+            $PSQL -f "$POSTGIS_SQL_PATH"     -v ON_ERROR_STOP=1 > /dev/null # do not use SINGLE_TRANSACTION opt here (it is self-wrapped)
+            $PSQL -f "$SPATIAL_REF_SQL_PATH" -v ON_ERROR_STOP=1 > /dev/null #
+            echo "Done."
+        fi # end check PostGIS created
+    fi  # end check PostgreSQL version
+
+    echo -e
+    # Everything is ok, then export a variable for update8.sh can execute Multipoint schema.sql
+    export UPDATE_WITH_POSTGIS=TRUE
+}
+
 
 #
 # revert/cleanup
@@ -302,8 +410,10 @@ check_paths
 #
 PS_USER=`grep metadata_user "$SETTINGS" | awk -F "=" '{print $2}'`
 PS_USER="${PS_USER#"${PS_USER%%[![:space:]]*}"}"
+
 PS_PASS=`grep metadata_pass "$SETTINGS" | awk -F "=" '{print $2}'`
 PS_PASS="${PS_PASS#"${PS_PASS%%[![:space:]]*}"}"
+
 PS_DB=`grep metadata_url "$SETTINGS" | awk -F "/" '{print $4}' | tr -d '\n'`
 PS_PORT=`grep metadata_url "$SETTINGS" | awk -F ":|/" '{print $6}' | tr -d '\n'`
 
@@ -338,6 +448,23 @@ log "  port: $PS_PORT"
 log "  db: $PS_DB"
 
 check_postgres
+create_db # call function create_db
+
+# Get PostgreSQL version
+PSQL_VERSION="$( $PSQL --version | head -n 1 | awk '{ print $3 }' )"
+PSQL_VERSION_M="$( echo "$PSQL_VERSION" | awk -F '.' '{ print $1 }' )"
+PSQL_VERSION_m="$( echo "$PSQL_VERSION" | awk -F '.' '{ print $2 }' )"
+
+
+#
+# some updates are written in PL/pgSQL, so install the extension in postgres
+#
+createlang plpgsql -U $PS_USER -p $PS_PORT $PS_DB > /dev/null 2>&1
+rc=$?
+if [ $rc -ne 0 -a $rc -ne 2 ]
+then
+  error "failed creating PL/pgSQL extension in PostgreSQL, please install it first on your system."
+fi
 
 
 #
@@ -347,6 +474,9 @@ check_args_number $#
 while [ $# -gt 0 ]
 do
   case "$1" in
+  $WITH_POSTGIS)
+      update_with_postgis # check postgis exist and add postgis extenstion to petascopedb
+      ;;
   $REVERT_ARG)
       revert_schema
       exit $CODE_OK
@@ -363,34 +493,12 @@ do
 done
 
 #
-# create db if not present
-#
-psql -U $PS_USER -p $PS_PORT --list 2>&1 | egrep "\b$PS_DB\b" > /dev/null
-if [ $? -ne 0 ]
-then
-  logn "no petascope database found, creating... "
-  $CREATEDB $PS_DB > /dev/null
-  feedback
-fi
-
-
-#
-# some updates are written in PL/pgSQL, so install the extension in postgres
-#
-createlang plpgsql -U $PS_USER -p $PS_PORT $PS_DB > /dev/null 2>&1
-rc=$?
-if [ $rc -ne 0 -a $rc -ne 2 ]
-then
-  error "failed creating PL/pgSQL extension in PostgreSQL, please install it first on your system."
-fi
-
-
-#
 # insert the database updates (if present)
 #
 
 # determine the update number
 $PSQL -c "SELECT * FROM $PS_DBUPDATES" > /dev/null 2>&1
+
 if [ $? -ne 0 ]
 then
     # no relations in the database: create from scratch
@@ -439,7 +547,7 @@ do
     if [ "$ret" -ne 0 ]; then
         echo "FAILED (return value $ret)."
         error_found=1
-	break # So that ps_dbupdates is updated to its partial update anyway.
+        break # So that ps_dbupdates is updated to its partial update anyway.
     else
         echo ok.
     fi
