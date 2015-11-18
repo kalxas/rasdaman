@@ -24,6 +24,7 @@
 
 #include "../../common/src/logging/easylogging++.hh"
 #include "../../common/src/crypto/crypto.hh"
+#include "../../common/src/logging/loggingutils.hh"
 
 #include "../../config.h"
 #include "../../version.h"
@@ -56,6 +57,8 @@ int main(int argc, char** argv)
     defaultConf.setToDefault();
     easyloggingpp::Loggers::reconfigureAllLoggers(defaultConf);
     easyloggingpp::Loggers::disableAll();
+
+    common::LoggingUtils::redirectGRPCLogToEasyLogging();
 
     rascontrol::RasControlConfig config;
     rascontrol::UserCredentials userCredentials;

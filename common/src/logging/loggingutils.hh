@@ -14,28 +14,25 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with rasdaman community.  If not, see <http://www.gnu.org/licenses/>.
  *
- * Copyright 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014 Peter Baumann / rasdaman GmbH.
+ * Copyright 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015 Peter Baumann / rasdaman GmbH.
  *
  * For more information please see <http://www.rasdaman.org>
  * or contact Peter Baumann via <baumann@rasdaman.com>.
  */
 
-#include <boost/cstdint.hpp>
-
-#include "../../src/unittest/gtest.h"
-#include "../../src/grpc/grpcutils.hh"
+#ifndef COMMON_SRC_LOGGING_LOGGINGUTILS_HH
+#define COMMON_SRC_LOGGING_LOGGINGUTILS_HH
 
 namespace common
 {
-namespace test
+class LoggingUtils
 {
+public:
+    /**
+     * @brief redirectGRPCLogToEasyLogging Redirect the GRPC log to use the Easylogging library.
+     */
+    static void redirectGRPCLogToEasyLogging();
+};
+}
 
-TEST(GrpcUtilsTest, AddressToStringTest)
-{
-    std::string host="localhost";
-    boost::uint32_t port = 5002;
-
-    ASSERT_EQ("localhost:5002", GrpcUtils::convertAddressToString(host, port));
-}
-}
-}
+#endif // COMMON_SRC_LOGGING_LOGGINGUTILS_HH

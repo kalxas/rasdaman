@@ -20,22 +20,11 @@
  * or contact Peter Baumann via <baumann@rasdaman.com>.
  */
 
-#include <boost/cstdint.hpp>
+package org.rasdaman.rasnet.util;
 
-#include "../../src/unittest/gtest.h"
-#include "../../src/grpc/grpcutils.hh"
-
-namespace common
-{
-namespace test
-{
-
-TEST(GrpcUtilsTest, AddressToStringTest)
-{
-    std::string host="localhost";
-    boost::uint32_t port = 5002;
-
-    ASSERT_EQ("localhost:5002", GrpcUtils::convertAddressToString(host, port));
-}
-}
+public class Constants {
+    /**
+     * The number of milliseconds a server has to reply to a service request before being declared dead.
+     */
+    public static final int SERVICE_CALL_TIMEOUT = 5000;
 }

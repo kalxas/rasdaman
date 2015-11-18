@@ -26,11 +26,15 @@
 #include <string>
 
 #include <boost/cstdint.hpp>
+#include <boost/shared_ptr.hpp>
 
 #include <grpc++/grpc++.h>
 
+#include "messages/healthservice.grpc.pb.h"
+
 namespace common
 {
+
 /**
  * @brief The GrpcUtils class Functions that can be used to easily setup GRPC connections.
  */
@@ -43,7 +47,7 @@ public:
      * @param port
      * @return String of the format host:port
      */
-    static std::string convertAddressToString(const std::string& host, boost::uint32_t port);
+    static std::string constructAddressString(const std::string& host, boost::uint32_t port);
 
     /**
      * @brief convertExceptionToStatus Convert a given a std::exception object or one of its subclasses to a grpc::Status
@@ -66,6 +70,16 @@ public:
      * @param status The error_message must contained a string representation of an ErrorMessage.F
      */
     static void convertStatusToExceptionAndThrow(const grpc::Status& status);
+
+
+    /**
+     * @brief isServerAlive Utility function used to check if the server is alive.
+     * @param healthService Initialized HealthService::Stub connected to the server.
+     * @param timeoutMilliseconds The number of milliseconds for which the client will wait for
+     * a reply from the server before declaring it unresponsive and returning false.
+     * @return TRUE if the server responds with a valid message within the given timeout, FALSE otherwise.
+     */
+    static bool isServerAlive(const boost::shared_ptr<HealthService::Stub>& healthService, boost::uint32_t timeoutMilliseconds);
 };
 
 }

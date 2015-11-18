@@ -39,6 +39,7 @@
 #include <grpc++/grpc++.h>
 
 #include "../../rasnet/messages/rassrvr_rasmgr_service.grpc.pb.h"
+#include "../../common/src/grpc/messages/healthservice.grpc.pb.h"
 
 #include "databasehost.hh"
 
@@ -171,25 +172,28 @@ private:
 
     boost::uint32_t sessionNo;
 
-    //!!!! DO NOT USE THESE DIRECTLY
     boost::shared_ptr<::rasnet::service::RasServerService::Stub> service; /*! Service stub used to communicate with the RasServer process */
-    bool initializedService; /*! Flag used to indicate if the service was initialized */
-    boost::shared_mutex serviceMtx;
+
+
+    boost::shared_mutex sessionMtx; /*!Mutex used for making the object thread safe */
+    std::set<std::pair<std::string, std::string> > sessionList;
+
     /**
      * Get the number of clients the RasServer process currently has.
      * @return
      */
     uint32_t getClientQueueSize();
 
-    boost::shared_mutex sessionMtx; /*!Mutex used for making the object thread safe */
-    std::set<std::pair<std::string, std::string> > sessionList;
-
     /**
-     * @return Initialized shared_ptr to the RasServerService.
+     * @brief getStartProcessCommand Get the command that will be used to start a server process.
+     * @return
      */
-    boost::shared_ptr<::rasnet::service::RasServerService::Stub> getService();
     std::string getStartProcessCommand();
 
+    /**
+     * @brief configureClientContext Configure the client context for calls to the server.
+     * @param context
+     */
     void configureClientContext(grpc::ClientContext& context);
 
     //TODO-AT: remove this

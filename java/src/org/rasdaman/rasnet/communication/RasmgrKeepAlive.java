@@ -25,6 +25,7 @@ package org.rasdaman.rasnet.communication;
 import io.grpc.StatusRuntimeException;
 import org.rasdaman.rasnet.service.RasMgrClientServiceGrpc;
 import org.rasdaman.rasnet.service.RasmgrClientService;
+import org.rasdaman.rasnet.util.Constants;
 import org.rasdaman.rasnet.util.GrpcUtils;
 import rasj.global.Debug;
 
@@ -142,7 +143,8 @@ public class RasmgrKeepAlive {
                                 .build();
 
                         //If this throws an exception, let it fail.
-                        rasmgrService.keepAlive(keepAliveReq);
+                        rasmgrService.withDeadlineAfter(Constants.SERVICE_CALL_TIMEOUT, TimeUnit.MILLISECONDS)
+                                .keepAlive(keepAliveReq);
                     }
                 }
             } catch (InterruptedException ex) {

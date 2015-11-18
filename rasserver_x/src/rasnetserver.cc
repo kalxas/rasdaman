@@ -31,6 +31,7 @@ rasdaman GmbH.
 
 #include "../../common/src/logging/easylogging++.hh"
 #include "../../common/src/grpc/grpcutils.hh"
+#include "../../common/src/exceptions/rasexceptions.hh"
 #include "../../rasnetprotocol/rasnetservercomm.hh"
 
 #include "../../server/rasserver_entry.hh"
@@ -45,6 +46,10 @@ namespace rasserver
 
 using boost::shared_ptr;
 using boost::scoped_ptr;
+using common::ConnectionFailedException;
+using common::GrpcUtils;
+using common::HealthServiceImpl;
+
 
 RasnetServer::RasnetServer(const Configuration& configuration):
     isRunning(false),
@@ -54,25 +59,28 @@ RasnetServer::RasnetServer(const Configuration& configuration):
 
     rasserverService.reset(new RasServerServiceImpl(clientManager));
     clientServerService.reset(new RasnetServerComm(clientManager));
+    healthServiceImpl.reset(new HealthServiceImpl());
 }
 
 
 void RasnetServer::startRasnetServer()
 {
-    //std::cout<<"Serving on " << this->configuration.;
-    std::string serverAddress = common::GrpcUtils::convertAddressToString("0.0.0.0",  boost::uint32_t(configuration.getListenPort()));
+    std::string serverAddress = GrpcUtils::constructAddressString("0.0.0.0",  boost::uint32_t(configuration.getListenPort()));
 
     grpc::ServerBuilder builder;
     // Listen on the given address without any authentication mechanism.
     builder.AddListeningPort(serverAddress, grpc::InsecureServerCredentials());
     builder.RegisterService(rasserverService.get());
     builder.RegisterService(clientServerService.get());
+    builder.RegisterService(healthServiceImpl.get());
 
     RasServerEntry &rasserver = RasServerEntry::getInstance();
     rasserver.compat_connectToDBMS();
 
     this->isRunning = true;
     // Finally assemble the server.
+
+    LDEBUG<<"Starting server on:"<<serverAddress;
     this->server = builder.BuildAndStart();
 
     // Register the server
@@ -85,20 +93,22 @@ void RasnetServer::startRasnetServer()
 
 void RasnetServer::registerServerWithRasmgr()
 {
-    std::string rasmgrAddress = common::GrpcUtils::convertAddressToString(configuration.getRasmgrHost(), boost::uint32_t( configuration.getRasmgrPort()));;
-    std::shared_ptr<grpc::Channel> channel( grpc::CreateChannel(rasmgrAddress, grpc::InsecureCredentials()));
+    std::string rasmgrAddress = GrpcUtils::constructAddressString(configuration.getRasmgrHost(), boost::uint32_t( configuration.getRasmgrPort()));;
+    std::shared_ptr<grpc::Channel> channel( grpc::CreateChannel(rasmgrAddress, grpc::InsecureChannelCredentials()));
 
     ::rasnet::service::RasMgrRasServerService::Stub rasmgrRasserverService(channel);
+    boost::shared_ptr<common::HealthService::Stub> healthService(new common::HealthService::Stub(channel));
 
     ::rasnet::service::Void response;
     ::rasnet::service::RegisterServerReq request;
     request.set_serverid(configuration.getNewServerId());
 
-    std::chrono::system_clock::time_point deadline = std::chrono::system_clock::now() + std::chrono::milliseconds(SERVICE_CALL_TIMEOUT);
+    if(!GrpcUtils::isServerAlive(healthService, SERVICE_CALL_TIMEOUT))
+    {
+        throw ConnectionFailedException("rasserver failed to connect to rasmgr.");
+    }
 
     grpc::ClientContext context;
-    context.set_deadline(deadline);
-
     grpc::Status status = rasmgrRasserverService.RegisterServer(&context, request, &response);
 
     if(!status.ok())

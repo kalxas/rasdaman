@@ -84,6 +84,7 @@ using rasnet::service::RasServerService;
 
 #define RASEXECUTABLE BINDIR"rasserver"
 
+
 ServerRasNet::ServerRasNet(const ServerConfig &config)
 {
     this->hostName = config.getHostName();
@@ -94,10 +95,13 @@ ServerRasNet::ServerRasNet(const ServerConfig &config)
 
     this->registered = false;
     this->started = false;
-    this->initializedService = false;
     this->allocatedClientsNo = 0;
     this->processId = -1;
     this->sessionNo = 0;
+
+    // Initialize the service
+    std::string serverAddress = GrpcUtils::constructAddressString(this->hostName, boost::uint32_t(this->port));
+    this->service.reset(new ::rasnet::service::RasServerService::Stub(grpc::CreateChannel(serverAddress, grpc::InsecureChannelCredentials())));
 }
 
 ServerRasNet::~ServerRasNet()
@@ -111,7 +115,7 @@ ServerRasNet::~ServerRasNet()
     this->sessionList.clear();
 
     //Wait for the process to finish
-    if(!this->started)
+    if(this->started)
     {
         LWARNING<<"The server process is running."
                 <<"Waiting for the process will cause this thread to block.";
@@ -204,24 +208,25 @@ bool ServerRasNet::isAlive()
     unique_lock<shared_mutex> lock(this->stateMtx);
     if(this->started)
     {
-        //In case the process has died, remove it from the process table
+        //Remove the process fromt he process table if it has died.
         int status;
         waitpid(this->processId, &status, WNOHANG);
 
-        //Check if the process is alive.
+        //Check if the process is still running
         bool isProcessAlive = (kill(this->processId, 0)==0);
 
+        // If the process is alive and the server is responding.
         if(isProcessAlive)
         {
+            ServerStatusReq request = ServerStatusReq::default_instance();
+            ServerStatusRepl reply;
+
             // Set timeout for API
             ClientContext context;
             this->configureClientContext(context);
 
-            ServerStatusReq request = ServerStatusReq::default_instance();
-            ServerStatusRepl reply;
-
             LDEBUG<<"Check if server:"<<this->serverId<<" is alive";
-            Status callStatus = this->getService()->GetServerStatus(&context, request, &reply);
+            Status callStatus = this->service->GetServerStatus(&context, request, &reply);
 
             //If the communication has not failed, the server is alive
             result= callStatus.ok();
@@ -238,17 +243,18 @@ bool ServerRasNet::isClientAlive(const std::string& clientId)
     bool result=false;
 
     unique_lock<shared_mutex> lock(this->stateMtx);
+    // The server must be started and responding to messages
     if(this->started)
     {
-        ClientContext context;
-        this->configureClientContext(context);
-
         ClientStatusRepl response;
         ClientStatusReq request;
 
         request.set_clientid(clientId);
 
-        Status status = this->getService()->GetClientStatus(&context, request, &response);
+        ClientContext context;
+        this->configureClientContext(context);
+
+        Status status = this->service->GetClientStatus(&context, request, &response);
 
         if(!status.ok())
         {
@@ -266,17 +272,15 @@ void ServerRasNet::allocateClientSession(const std::string& clientId,
         const std::string& dbName,
         const UserDatabaseRights& dbRights)
 {
-    ClientContext context;
-    this->configureClientContext(context);
-
-    AllocateClientReq request;
-    Void response;
-    DatabaseRights* rights = new DatabaseRights;
-
+    // Check if the server is responding to requests before trying to assign it a new client.
     if(!this->isAvailable())
     {
         throw common::RuntimeException("The server cannot accept any new clients.");
     }
+
+    AllocateClientReq request;
+    Void response;
+    DatabaseRights* rights = new DatabaseRights;
 
     rights->set_read(dbRights.hasReadAccess());
     rights->set_write(dbRights.hasWriteAccess());
@@ -286,7 +290,10 @@ void ServerRasNet::allocateClientSession(const std::string& clientId,
     request.set_clientid(clientId);
     request.set_sessionid(sessionId);
 
-    Status status = this->getService()->AllocateClient(&context, request, &response);
+    ClientContext context;
+    this->configureClientContext(context);
+
+    Status status = this->service->AllocateClient(&context, request, &response);
 
     if(!status.ok())
     {
@@ -312,15 +319,7 @@ void ServerRasNet::allocateClientSession(const std::string& clientId,
 
 void ServerRasNet::deallocateClientSession(const std::string& clientId, const std::string& sessionId)
 {
-    ClientContext context;
-    this->configureClientContext(context);
-
-    Void response;
-    DeallocateClientReq request;
-
-    request.set_clientid(clientId);
-    request.set_sessionid(sessionId);
-
+    // Remove the client session from rasmgr objects.
     //Decrease the session count
     this->dbHost->removeClientSessionFromDB(clientId, sessionId);
 
@@ -334,7 +333,16 @@ void ServerRasNet::deallocateClientSession(const std::string& clientId, const st
         this->allocatedClientsNo--;
     }
 
-    Status status = this->getService()->DeallocateClient(&context, request, &response);
+    // Check if the server is alive
+    Void response;
+    DeallocateClientReq request;
+
+    request.set_clientid(clientId);
+    request.set_sessionid(sessionId);
+
+    ClientContext context;
+    this->configureClientContext(context);
+    Status status = this->service->DeallocateClient(&context, request, &response);
 
     if(!status.ok())
     {
@@ -374,19 +382,20 @@ void ServerRasNet::stop(KillLevel level)
 
     if(signal==0)
     {
+        //Check if the process is alive and responding to requests
         bool isAlive = (kill(this->processId, signal)==0);
+
         if(isAlive)
         {
-            ClientContext context;
-            this->configureClientContext(context);
-
             CloseServerReq request;
             Void response;
 
             request.set_serverid(this->serverId.c_str());
 
             //If the request fails, we assume that the server was stopped
-            this->getService()->Close(&context, request, &response);
+            ClientContext context;
+            this->configureClientContext(context);
+            this->service->Close(&context, request, &response);
         }
     }
     else
@@ -458,14 +467,13 @@ string ServerRasNet::getServerId() const
 
 boost::uint32_t ServerRasNet::getClientQueueSize()
 {
-    //Query the server's status and use that to report
-    ClientContext context;
-    this->configureClientContext(context);
-
     ServerStatusReq request = ServerStatusReq::default_instance();
     ServerStatusRepl reply;
 
-    Status status = this->getService()->GetServerStatus(&context, request, &reply);
+    ClientContext context;
+    this->configureClientContext(context);
+
+    Status status = this->service->GetServerStatus(&context, request, &reply);
 
     if(!status.ok())
     {
@@ -475,22 +483,6 @@ boost::uint32_t ServerRasNet::getClientQueueSize()
     {
         return (reply.clientqueuesize());
     }
-}
-
-boost::shared_ptr<::rasnet::service::RasServerService::Stub> ServerRasNet::getService()
-{
-    unique_lock<shared_mutex> lock(this->serviceMtx);
-    if(!this->initializedService)
-    {
-        std::string serverAddress = common::GrpcUtils::convertAddressToString(this->hostName, this->port);
-        std::shared_ptr<Channel> channel( grpc::CreateChannel(serverAddress, grpc::InsecureCredentials()));
-
-        this->service.reset(new ::rasnet::service::RasServerService::Stub(channel));
-
-        this->initializedService = true;
-    }
-
-    return this->service;
 }
 
 std::string ServerRasNet::getStartProcessCommand()
@@ -511,13 +503,14 @@ std::string ServerRasNet::getStartProcessCommand()
 
 void ServerRasNet::configureClientContext(grpc::ClientContext &context)
 {
-    std::chrono::system_clock::time_point deadline = std::chrono::system_clock::now() + std::chrono::milliseconds(SERVICE_CALL_TIMEOUT);
+    // The server should be able to reply to any call within this window.
+    std::chrono::system_clock::time_point deadline = std::chrono::system_clock::now() + std::chrono::milliseconds(SERVER_CALL_TIMEOUT);
+
     context.set_deadline(deadline);
 }
 
 const char *ServerRasNet::getCapability(const char *serverName, const char *databaseName, const UserDatabaseRights& rights)
 {
-
     //Format of Capability (no brackets())
     //$I(userID)$E(effectivRights)$B(databaseName)$T(timeout)$N(serverName)$D(messageDigest)$K
 
@@ -549,7 +542,6 @@ const char *ServerRasNet::getCapability(const char *serverName, const char *data
 
 int ServerRasNet::messageDigest(const char *input, char *output, const char *mdName)
 {
-
     EVP_MD_CTX mdctx;
     const EVP_MD *md;
     unsigned int md_len, i;
@@ -574,7 +566,6 @@ int ServerRasNet::messageDigest(const char *input, char *output, const char *mdN
 
 const char *ServerRasNet::convertDatabRights(const UserDatabaseRights &dbRights)
 {
-
     static char buffer[20];
     char R= (dbRights.hasReadAccess())  ? 'R':'.';
     char W= (dbRights.hasWriteAccess()) ? 'W':'.';

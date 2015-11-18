@@ -57,10 +57,11 @@ ControlRasMgrRasnet::ControlRasMgrRasnet(const UserCredentials& userCredentials,
 {
     try
     {
-        string serverAddress = common::GrpcUtils::convertAddressToString(config.getRasMgrHost(), config.getRasMgrPort());
-        std::shared_ptr<Channel> channel( grpc::CreateChannel(serverAddress, grpc::InsecureCredentials()));
+        string serverAddress = common::GrpcUtils::constructAddressString(config.getRasMgrHost(), config.getRasMgrPort());
+        std::shared_ptr<Channel> channel( grpc::CreateChannel(serverAddress, grpc::InsecureChannelCredentials()));
 
-        this->rasmgrService = RasMgrRasCtrlService::NewStub(channel);
+        this->rasmgrService.reset(new RasMgrRasCtrlService::Stub(channel));
+        this->healthService.reset(new common::HealthService::Stub(channel));
     }
     catch(std::exception& ex)
     {
@@ -87,11 +88,12 @@ std::string ControlRasMgrRasnet::processCommand(const std::string& command)
     request.set_password_hash(password);
     request.set_command(command);
 
-    std::chrono::system_clock::time_point deadline = std::chrono::system_clock::now() + std::chrono::milliseconds(SERVICE_CALL_TIMEOUT);
+    if(!common::GrpcUtils::isServerAlive(this->healthService, SERVICE_CALL_TIMEOUT))
+    {
+        throw common::ConnectionFailedException();
+    }
 
     ClientContext context;
-    context.set_deadline(deadline);
-
     Status status = this->rasmgrService->ExecuteCommand( &context, request, &response);
 
     if(!status.ok())
@@ -106,5 +108,4 @@ std::string ControlRasMgrRasnet::processCommand(const std::string& command)
 
     return responseMessage;
 }
-
 } /* namespace rascontrol */

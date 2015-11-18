@@ -21,6 +21,7 @@
  */
 
 #include <iostream>
+#include <google/protobuf/stubs/common.h>
 #include "../src/unittest/gtest.h"
 #include "../src/logging/easylogging++.hh"
 
@@ -37,5 +38,9 @@ int main(int argc, char **argv)
     easyloggingpp::Loggers::reconfigureAllLoggers(defaultConf);
     ::testing::InitGoogleTest(&argc, argv);
 
-    return RUN_ALL_TESTS();
+    int testResults = RUN_ALL_TESTS();
+
+    google::protobuf::ShutdownProtobufLibrary();
+
+    return testResults;
 }

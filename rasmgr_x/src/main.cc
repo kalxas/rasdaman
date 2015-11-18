@@ -32,6 +32,7 @@
 
 #include "../../common/src/logging/easylogging++.hh"
 #include "../../common/src/crypto/crypto.hh"
+#include "../../common/src/logging/loggingutils.hh"
 
 #include "configuration.hh"
 #include "rasmanager.hh"
@@ -59,6 +60,8 @@ int main ( int argc, char** argv )
     easyloggingpp::Loggers::reconfigureAllLoggers ( defaultConf );
 
     Configuration config;
+
+    common::LoggingUtils::redirectGRPCLogToEasyLogging();
 
     installSignalHandlers();
 

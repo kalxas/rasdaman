@@ -26,8 +26,11 @@ import com.google.protobuf.InvalidProtocolBufferException;
 import io.grpc.Status;
 import org.odmg.ODMGRuntimeException;
 import org.rasdaman.rasnet.service.Error;
+import org.rasdaman.rasnet.service.HealthServiceGrpc;
+import rasj.global.Debug;
 
 import java.nio.charset.Charset;
+import java.util.concurrent.TimeUnit;
 
 public class GrpcUtils {
     private static RuntimeException convertStatusToGenericException(Status status) {
@@ -79,5 +82,27 @@ public class GrpcUtils {
         } else {
             return new RuntimeException("Invalid exception message received.");
         }
+    }
+
+    /**
+     * Utility function used to check if the server is alive.
+     * @param healthService Initialized HealthServiceGrpc.HealthServiceBlockingStub connected to the server.
+     * @param timeoutMilliseconds The number of milliseconds for which the client will wait for
+     * a reply from the server before declaring it unresponsive and returning false.
+     * @return  TRUE if the server responds with a valid message within the given timeout, FALSE otherwise.
+     */
+    public static boolean isServerAlive(HealthServiceGrpc.HealthServiceBlockingStub healthService, int timeoutMilliseconds){
+        boolean isAlive = false;
+        org.rasdaman.rasnet.service.Healthservice.HealthCheckRequest request = org.rasdaman.rasnet.service.Healthservice.HealthCheckRequest.newBuilder().build();
+
+        try {
+            healthService.withDeadlineAfter(timeoutMilliseconds, TimeUnit.MILLISECONDS).check(request);
+            isAlive = true;
+        }catch (Exception ex){
+            Debug.talkWarning(ex.getStackTrace().toString());
+            Debug.talkWarning(ex.getLocalizedMessage());
+        }
+
+        return isAlive;
     }
 }

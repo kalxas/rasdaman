@@ -21,15 +21,28 @@
  */
 
 #include <stdexcept>
+#include <chrono>
+#include <cstring>
+
+#include <grpc/support/log.h>
+
 #include "../exceptions/rasexceptions.hh"
 
+#include "messages/healthservice.grpc.pb.h"
 #include "messages/error.pb.h"
+
 #include "grpcutils.hh"
 
 namespace common
 {
 
-std::string GrpcUtils::convertAddressToString(const std::string &host, boost::uint32_t port)
+using std::string;
+using grpc::Status;
+using std::chrono::system_clock;
+using std::chrono::milliseconds;
+
+
+std::string GrpcUtils::constructAddressString(const std::string &host, boost::uint32_t port)
 {
     return host+":"+std::to_string(port);
 }
@@ -43,7 +56,7 @@ grpc::Status GrpcUtils::convertExceptionToStatus(std::exception &exception)
     errorMessage.set_type(ErrorMessage::STL);
     errorMessage.set_error_text(exception.what());
 
-    grpc::Status status(grpc::StatusCode::UNKNOWN, errorMessage.SerializeAsString());
+    Status status(grpc::StatusCode::UNKNOWN, errorMessage.SerializeAsString());
 
     return status;
 }
@@ -56,7 +69,7 @@ grpc::Status GrpcUtils::convertExceptionToStatus(const std::string &errorMessage
     message.set_type(ErrorMessage::UNKNOWN);
     message.set_error_text(errorMessage);
 
-    grpc::Status status(grpc::StatusCode::UNKNOWN, message.SerializeAsString());
+    Status status(grpc::StatusCode::UNKNOWN, message.SerializeAsString());
 
     return status;
 }
@@ -108,4 +121,20 @@ void GrpcUtils::convertStatusToExceptionAndThrow(const grpc::Status &status)
         throw ConnectionFailedException(status.error_message());
     }
 }
+
+bool GrpcUtils::isServerAlive(const boost::shared_ptr<HealthService::Stub> &healthService, uint32_t timeoutMilliseconds)
+{
+    common::HealthCheckRequest request;
+    common::HealthCheckResponse response;
+
+    system_clock::time_point deadline = system_clock::now() + milliseconds(timeoutMilliseconds);
+
+    grpc::ClientContext context;
+    context.set_deadline(deadline);
+
+    grpc::Status status = healthService->Check(&context,request, &response);
+
+    return status.ok() && response.status()==common::HealthCheckResponse::SERVING;
+}
+
 }

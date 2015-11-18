@@ -31,6 +31,7 @@ rasdaman GmbH.
 
 #include <boost/thread.hpp>
 
+#include "../../common/src/grpc/healthserviceimpl.hh"
 #include "../../server/rasserver_config.hh"
 #include "../../rasnetprotocol/rasnetservercomm.hh"
 
@@ -56,6 +57,7 @@ private:
     std::unique_ptr<grpc::Server> server;
     boost::shared_ptr<rasnet::service::RasServerService::Service> rasserverService;
     boost::shared_ptr<rasnet::service::ClientRassrvrService::Service> clientServerService;
+    boost::shared_ptr<common::HealthServiceImpl> healthServiceImpl;
 
     void registerServerWithRasmgr();
 };

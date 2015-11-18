@@ -75,6 +75,12 @@ const boost::uint32_t INTERVAL_BETWEEN_GET_SERVER = 2 * SERVER_MANAGER_CLEANUP_I
  * @brief MAX_GET_SERVER_RETRIES The number of times an attempt to get a free server for a client will be made.
  */
 const boost::uint32_t MAX_GET_SERVER_RETRIES = 3;
+
+/**
+ * @brief SERVER_CALL_TIMEOUT The number of milliseconds after which a server that has not replied to health check is declared dead.
+ * A server is always running on the same machine as the rasmgr so it should be able to reply to a request immediately.
+ */
+const boost::int32_t SERVER_CALL_TIMEOUT = 3000;
 }
 
 #endif // RASMGR_X_SRC_CONSTANTS_HH

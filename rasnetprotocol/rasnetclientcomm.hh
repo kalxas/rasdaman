@@ -34,6 +34,7 @@ rasdaman GmbH.
 
 #include "../rasnet/messages/rasmgr_client_service.grpc.pb.h"
 #include "../rasnet/messages/client_rassrvr_service.grpc.pb.h"
+#include "../common/src/grpc/messages/healthservice.grpc.pb.h"
 
 #include "../clientcomm/clientcomm.hh"
 #include "../clientcomm/rpcif.h"
@@ -93,13 +94,15 @@ public:
     int  getTimeoutInterval();
 
 private:
-    ::boost::shared_ptr<rasnet::service::ClientRassrvrService::Stub> rasserverService; /*! Service stub used to communicate with the RasServer process */
+    boost::shared_ptr<rasnet::service::ClientRassrvrService::Stub> rasserverService; /*! Service stub used to communicate with the RasServer process */
     bool initializedRasServerService; /*! Flag used to indicate if the service was initialized */
-    ::boost::shared_mutex rasServerServiceMtx;
+    boost::shared_mutex rasServerServiceMtx;
+    boost::shared_ptr<common::HealthService::Stub> rasserverHealthService;
 
-    ::boost::shared_ptr<rasnet::service::RasMgrClientService::Stub> rasmgrService; /*! Service stub used to communicate with the RasServer process */
+    boost::shared_ptr<rasnet::service::RasMgrClientService::Stub> rasmgrService; /*! Service stub used to communicate with the RasServer process */
     bool initializedRasMgrService; /*! Flag used to indicate if the service was initialized */
-    ::boost::shared_mutex rasMgrServiceMtx;
+    boost::shared_mutex rasMgrServiceMtx;
+    boost::shared_ptr<common::HealthService::Stub> rasmgrHealthService;
 
     /* START: KEEP ALIVE */
     int64_t keepAliveTimeout;
@@ -124,13 +127,14 @@ private:
     void startRasServerKeepAlive();
     void stopRasServerKeepAlive();
 
-    void configureClientContext(grpc::ClientContext& context);
-
     void clientRasServerKeepAliveRunner();
     /* END: KEEP ALIVE */
 
     ::boost::shared_ptr<rasnet::service::ClientRassrvrService::Stub> getRasServerService();
     ::boost::shared_ptr<rasnet::service::RasMgrClientService::Stub> getRasMgrService();
+
+    void initRasserverService();
+    void initRasmgrService();
     void closeRasserverService();
     void closeRasmgrService();
 
@@ -156,6 +160,7 @@ private:
     std::string rasmgrHost;
 
     static void handleError(std::string error);
+    static void handleConnectionFailure();
     static void handleStatusCode(int status, std::string method) throw (r_Error);
 
     int executeStartInsertPersMDD(const char* collName, r_GMarray* mar);

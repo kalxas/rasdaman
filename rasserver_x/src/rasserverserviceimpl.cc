@@ -21,10 +21,12 @@ rasdaman GmbH.
 * or contact Peter Baumann via <baumann@rasdaman.com>.
 */
 
+#include "../../common/src/logging/easylogging++.hh"
 #include "clientmanager.hh"
 
 #include "rasserverserviceimpl.hh"
 #include "server/rasserver_entry.hh"
+
 namespace rasserver
 {
 RasServerServiceImpl::RasServerServiceImpl(::boost::shared_ptr<rasserver::ClientManager> clientManager)
@@ -35,16 +37,21 @@ RasServerServiceImpl::RasServerServiceImpl(::boost::shared_ptr<rasserver::Client
 
 grpc::Status rasserver::RasServerServiceImpl::AllocateClient(grpc::ServerContext *context, const rasnet::service::AllocateClientReq *request, rasnet::service::Void *response)
 {
+    grpc::Status result = grpc::Status::OK;
+
+    LDEBUG<<"Allocating client with data:"<<request->SerializeAsString();
+
     if(!clientManager->allocateClient(request->clientid(), request->sessionid()))
     {
-        //TODO:Error handling
-        //controller->SetFailed("Client already in list");
+        result = grpc::Status(grpc::StatusCode::ALREADY_EXISTS, "The client is already allocated to this server");
     }
     else
     {
         RasServerEntry& rasServerEntry = RasServerEntry::getInstance();
         rasServerEntry.compat_connectNewClient(request->capabilities().c_str());
     }
+
+    LDEBUG<<"Allocated client with data:"<<request->SerializeAsString();
 
     return grpc::Status::OK;
 }
@@ -61,11 +68,14 @@ grpc::Status rasserver::RasServerServiceImpl::DeallocateClient(grpc::ServerConte
 grpc::Status rasserver::RasServerServiceImpl::Close(grpc::ServerContext *context, const rasnet::service::CloseServerReq *request, rasnet::service::Void *response)
 {
     //TODO: Implement a clean exit
+    LDEBUG<<"Closing server.";
     exit(EXIT_SUCCESS);
 }
 
 grpc::Status rasserver::RasServerServiceImpl::GetClientStatus(grpc::ServerContext *context, const rasnet::service::ClientStatusReq *request, rasnet::service::ClientStatusRepl *response)
 {
+    LDEBUG<<"Starting GetClientStatus of client:"<<request->SerializeAsString();
+
     if (this->clientManager->isAlive(request->clientid()))
     {
         response->set_status(rasnet::service::ClientStatusRepl_Status_ALIVE);
@@ -75,11 +85,14 @@ grpc::Status rasserver::RasServerServiceImpl::GetClientStatus(grpc::ServerContex
         response->set_status(rasnet::service::ClientStatusRepl_Status_DEAD);
     }
 
+    LDEBUG<<"Finish GetClientStatus of client:"<<request->SerializeAsString();
+
     return grpc::Status::OK;
 }
 
 grpc::Status rasserver::RasServerServiceImpl::GetServerStatus(grpc::ServerContext *context, const rasnet::service::ServerStatusReq *request, rasnet::service::ServerStatusRepl *response)
 {
+    LDEBUG<<"GetServerStatus";
     response->set_clientqueuesize(this->clientManager->getClientQueueSize());
     return grpc::Status::OK;
 }

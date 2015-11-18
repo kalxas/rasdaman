@@ -533,6 +533,7 @@ void ServerGroupImpl::removeDeadServers()
                 if(!(*runningToErase)->isAlive())
                 {
                     LDEBUG<<"Removed dead server with id:"<<(*runningToErase)->getServerId();
+                    (*runningToErase)->stop(KILL);
                     this->availablePorts.insert((*runningToErase)->getPort());
                     this->runningServers.erase(runningToErase);
                 }

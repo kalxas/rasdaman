@@ -28,6 +28,7 @@
 #include "../../include/globals.hh"
 #include "../../common/src/crypto/crypto.hh"
 #include "../../common/src/grpc/grpcutils.hh"
+#include "../../common/src/grpc/healthserviceimpl.hh"
 #include "../../common/src/logging/easylogging++.hh"
 #include "../../rasnet/messages/rasmgr_rasctrl_service.grpc.pb.h"
 #include "../../rasnet/messages/rasmgr_rassrvr_service.grpc.pb.h"
@@ -97,8 +98,11 @@ void RasManager::start()
     boost::shared_ptr<rasnet::service::RasMgrRasServerService::Service> serverManagementService ( new rasmgr::ServerManagementService ( serverManager ) );
     boost::shared_ptr<rasnet::service::RasMgrRasCtrlService::Service> rasctrlService ( new rasmgr::ControlService ( commandExecutor ) );
     boost::shared_ptr<rasnet::service::RasMgrClientService::Service> clientService ( new rasmgr::ClientManagementService ( clientManager, serverManager ) );
+    //The health service will only be used to report on the health of the server.
+    boost::shared_ptr<common::HealthServiceImpl> healthService(new common::HealthServiceImpl());
 
-    std::string serverAddress = common::GrpcUtils::convertAddressToString(DEFAULT_HOSTNAME,  this->port);
+
+    std::string serverAddress = common::GrpcUtils::constructAddressString(DEFAULT_HOSTNAME,  this->port);
     //GreeterServiceImpl service;
 
     grpc::ServerBuilder builder;
@@ -110,6 +114,7 @@ void RasManager::start()
     builder.RegisterService(clientService.get());
     builder.RegisterService(serverManagementService.get());
     builder.RegisterService(rasctrlService.get());
+    builder.RegisterService(healthService.get());
 
     this->running = true;
     // Finally assemble the server.

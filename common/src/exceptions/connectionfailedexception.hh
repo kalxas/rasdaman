@@ -35,6 +35,8 @@ namespace common
 class ConnectionFailedException : public RuntimeException
 {
 public:
+    ConnectionFailedException();
+
     ConnectionFailedException(const std::string& reason);
 
     virtual ~ConnectionFailedException();

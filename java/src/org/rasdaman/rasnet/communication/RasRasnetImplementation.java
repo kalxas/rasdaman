@@ -30,8 +30,10 @@ import io.grpc.netty.NettyChannelBuilder;
 import org.odmg.*;
 import org.rasdaman.rasnet.service.ClientRasServerService.*;
 import org.rasdaman.rasnet.service.ClientRassrvrServiceGrpc;
+import org.rasdaman.rasnet.service.HealthServiceGrpc;
 import org.rasdaman.rasnet.service.RasMgrClientServiceGrpc;
 import org.rasdaman.rasnet.service.RasmgrClientService.*;
+import org.rasdaman.rasnet.util.Constants;
 import org.rasdaman.rasnet.util.DigestUtils;
 import org.rasdaman.rasnet.util.GrpcUtils;
 import rasj.*;
@@ -49,6 +51,8 @@ public class RasRasnetImplementation implements RasImplementationInterface, RasC
 
     private RasMgrClientServiceGrpc.RasMgrClientServiceBlockingStub rasmgService;
     private ClientRassrvrServiceGrpc.ClientRassrvrServiceBlockingStub rasServerService;
+    private HealthServiceGrpc.HealthServiceBlockingStub rasmgrHealthService;
+    private HealthServiceGrpc.HealthServiceBlockingStub rasserverHealthService;
     private ManagedChannel rasmgrServiceChannel;
     private ManagedChannel rasServerServiceChannel;
 
@@ -419,20 +423,37 @@ public class RasRasnetImplementation implements RasImplementationInterface, RasC
         }
     }
 
-    private synchronized RasMgrClientServiceGrpc.RasMgrClientServiceBlockingStub getRasmgService() {
+    private synchronized void initRasmgrServices(){
         if (this.rasmgService == null) {
-
             this.rasmgrServiceChannel = NettyChannelBuilder.forAddress(this.rasMgrHost, this.rasMgrPort).usePlaintext(true).build();
             this.rasmgService = RasMgrClientServiceGrpc.newBlockingStub(this.rasmgrServiceChannel);
+            this.rasmgrHealthService =  HealthServiceGrpc.newBlockingStub(this.rasmgrServiceChannel);
+        }
+    }
+
+    private RasMgrClientServiceGrpc.RasMgrClientServiceBlockingStub getRasmgService() {
+        this.initRasmgrServices();
+
+        if(!GrpcUtils.isServerAlive(rasserverHealthService, Constants.SERVICE_CALL_TIMEOUT)){
+            throw new RasConnectionFailedException(MANAGER_CONN_FAILED, "");
         }
 
         return rasmgService;
     }
 
-    private synchronized ClientRassrvrServiceGrpc.ClientRassrvrServiceBlockingStub getRasServerService() {
+    private synchronized void initRasserverServices(){
         if (this.rasServerService == null) {
             this.rasServerServiceChannel = NettyChannelBuilder.forAddress(this.rasServerHost, this.rasServerPort).usePlaintext(true).build();
             this.rasServerService = ClientRassrvrServiceGrpc.newBlockingStub(this.rasServerServiceChannel);
+            this.rasserverHealthService = HealthServiceGrpc.newBlockingStub(this.rasServerServiceChannel);
+        }
+    }
+
+    private synchronized ClientRassrvrServiceGrpc.ClientRassrvrServiceBlockingStub getRasServerService() {
+        this.initRasserverServices();
+
+        if(!GrpcUtils.isServerAlive(rasserverHealthService, Constants.SERVICE_CALL_TIMEOUT)){
+            throw new RasConnectionFailedException(MANAGER_CONN_FAILED, "");
         }
 
         return this.rasServerService;
