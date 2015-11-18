@@ -107,7 +107,7 @@ r_Ref_Any::r_Ref_Any( const r_OId &initOId, r_Object* ptr )
 
 r_Ref_Any::~r_Ref_Any()
 {
-    LTRACE << "~r_Ref_Any()";
+    //LTRACE << "~r_Ref_Any()";
 
     // object should not be delete from databse when reference destructor is called
     //  if( memptr ){
@@ -359,7 +359,7 @@ r_Ref<T>::r_Ref( const r_OId &initOId, T* newPtr )
 template<class T>
 r_Ref<T>::~r_Ref()
 {
-    LTRACE << "~r_Ref()";
+    //LTRACE << "~r_Ref()";
 
     // object should not be delete from databse when reference destructor is called
     //  if( memptr ){

@@ -208,6 +208,7 @@ typedef enum
 #define HELP_DEBUG  "generate diagnostic output"
 
 #include "common/src/logging/easylogging++.hh"
+_INITIALIZE_EASYLOGGINGPP
 
 // global variables and default settings
 // -------------------------------------
@@ -1010,8 +1011,6 @@ crash_handler (__attribute__ ((unused)) int sig, __attribute__ ((unused)) siginf
     exit(SEGFAULT_EXIT_CODE);
 }
 
-_INITIALIZE_EASYLOGGINGPP
-
 /*
  * returns 0 on success, -1 on error
  */
@@ -1022,10 +1021,6 @@ int main(int argc, char** argv)
     defaultConf.setToDefault();
     defaultConf.set(easyloggingpp::Level::All,
             easyloggingpp::ConfigurationType::Format, "%datetime [%level] %log");
-    defaultConf.set(easyloggingpp::Level::Info,
-            easyloggingpp::ConfigurationType::Format, "%datetime  [%level] %log");
-    defaultConf.set(easyloggingpp::Level::Warning,
-            easyloggingpp::ConfigurationType::Format, "%datetime  [%level] %log");
     defaultConf.set(easyloggingpp::Level::All,
             easyloggingpp::ConfigurationType::ToFile, "false");
     defaultConf.set(easyloggingpp::Level::All,
@@ -1035,8 +1030,7 @@ int main(int argc, char** argv)
     defaultConf.set(easyloggingpp::Level::Trace,
             easyloggingpp::ConfigurationType::Enabled, "false");
     easyloggingpp::Loggers::reconfigureAllLoggers(defaultConf);
-    defaultConf.clear();
-
+    //defaultConf.clear();
 
     SET_OUTPUT( false );        // inhibit unconditional debug output, await cmd line evaluation
 
