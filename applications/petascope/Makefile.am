@@ -200,6 +200,7 @@ install: war service
 # If user's petascope.properties file has no option 'java_server' or 'start_embedded_petascope', it will be added automatically.
 # If user's petascope.properties has option 'java_server' then it will update to 'embedded/external' based on user's configuration.  (./configure --with-java-server=embedded/external)
 # [ -z "`grep -m 1 -h "java_server" "$$NEWCONF"`" ]; need to use -z "grep " to avoid  "too many arguments error".
+# ---- From line 212, in any case, run scrip update_properties with input is old and new files (petascope.properties and log4j.properties)
 if GENERATE_DOCS
 	$(MKDIR) -p $(DESTDIR)$(pkgdatadir)/$(APIFOLDER)
 	$(CP) $(APIDOCS)/* $(DESTDIR)$(pkgdatadir)/$(APIFOLDER)
@@ -208,62 +209,28 @@ if PETASCOPEDB_HSQLDB
 	$(CP) lib/sqltool.jar lib/hsqldb.jar $(DESTDIR)$(libdir)
 	$(MKDIR) -p $(filedatadir)/petascope
 endif
-	NEWCONF=$(DESTDIR)$(sysconfdir)/petascope.properties; \
-	if test -f $$NEWCONF; then \
-		echo "$@ existing $$NEWCONF"; \
-		grep 'secore_urls' $$NEWCONF > /dev/null 2>&1; \
-		if test $$? -ne 0; then \
-			echo "$@ found a pre 9.0 petascope.properties, migrating to 9.0 format..."; \
-			OLDCONF=$(DESTDIR)$(sysconfdir)/petascope.properties.bak.pre9.0; \
-			echo "$@ moving old configuration to $$OLDCONF"; \
-			mv $(DESTDIR)$(sysconfdir)/petascope.properties $$OLDCONF; \
-			echo " $(INSTALL_DATA) $(SETTINGS_FILE) $$NEWCONF"; \
-			$(INSTALL_DATA) $(SETTINGS_FILE) $$NEWCONF; \
-			for p in metadata_driver metadata_url metadata_user metadata_pass rasdaman_url rasdaman_user rasdaman_pass rasdaman_admin_user rasdaman_admin_pass rasdaman_retry_attempts rasdaman_retry_timeout; do \
-			  pg=`grep "$$p=" $$OLDCONF`; \
-			  echo "$@ updating parameter $$p to original value: $$pg"; \
-			  if test -n "$$pg"; then \
-			    sed -i 's|'$$p'=.*|'$$pg'|g' $$NEWCONF; \
-			  fi; \
-			done; \
-			if test -n "$$SQLITE"; then \
-				sed -i 's|jdbc:sqlite:petascopedb|jdbc:sqlite:'$(filedatadir)'/petascopedb|g' $$NEWCONF; \
-			fi; \
-			echo "$@ 9.0 petascope configuration installed at $$NEWCONF, please edit and adapt."; \
-		else \
-			echo "$@ will not overwrite existing $$NEWCONF"; \
+	OLD_CONF=$(DESTDIR)$(sysconfdir)/petascope.properties; \
+	NEW_CONF=$(SETTINGS_FILE); \
+	OLD_LOG4JCONF=$(DESTDIR)$(sysconfdir)/log4j.properties; \
+	NEW_LOG4JCONF=src/main/resources/log4j.properties; \
+	sed -i "s|GENERATED_rasdaman_bin_path|$(bindir)/|g" $(SETTINGS_FILE); \
+	if test -f $$OLD_CONF; then \
+		echo "$@ is updating petascope.properties: $$OLD_CONF from $$NEW_CONF"; \
+		./update_properties.sh $$OLD_CONF $$NEW_CONF; \
+		if test -n "$$SQLITE"; then \
+			sed -i 's|jdbc:sqlite:petascopedb|jdbc:sqlite:'$(filedatadir)'/petascopedb|g' $$NEWCONF; \
 		fi; \
 	else \
-		echo '$@ is copying petascope.properties to '$(DESTDIR)$(sysconfdir); \
-		cp $(SETTINGS_FILE) $$NEWCONF; \
+		echo "$@ is copying petascope.properties: $$NEW_CONF to $$OLD_CONF"; \
+		cp $$NEW_CONF $$OLD_CONF ; \
 	fi; \
-	if [ -z "`grep -m 1 -h "java_server" "$$NEWCONF"`" ]; then \
-		echo 'Adding new parameter java_server in petascope.properties file for the first time user upgrades to new version'; \
-		printf '\n# parameter:   java_server \n# purpose: Allowing user to start Petascope with embedded (Jetty) or external (Tomcat) (use ./configure --with-java-server=embedded/external). \n# description: User could set to external Petascope or embedded Petascope. When setting to "embedded", user could start embedded Petascope after starting Rasdaman in script start_rasdaman.sh.  \n# need to adapt: yes (depend on user environment), normally is external. \njava_server=external \n' >> $$NEWCONF; \
-	fi; \
-	if [ -z "`grep -m 1 -h "start_embedded_petascope=" "$$NEWCONF"`" ]; then \
-		echo 'Adding new parameter start_embedded_petascope in petascope.properties file for the first time user upgrades to new version'; \
-		printf '\n# parameter:	start_emdedded_petascope \n# purpose: Allowing user to start embedded Petascope after excute start_rasdaman.sh. \n# description: User could enable or disable Petascope with: permanent by configuration:"true/false" or temporary enable/disable when running script start_rasdaman.sh (example: "start_rasdaman.sh --stop-embedded-petascope" or "start_rasdaman --start-embedded-petascope"). \n# need to adapt: yes (depend on user environment), normally is false. \nstart_embedded_petascope=false \n' >> $$NEWCONF;\
-	fi;\
-	if [ $(JAVA_SERVER) == external ]; then \
-		echo 'Updating java_server=external Petascope';\
-		sed -i 's|java_server=embedded|java_server=external|g'	$$NEWCONF; \
-		sed -i 's|start_embedded_petascope=true|start_embedded_petascope=false|g'   $$NEWCONF; \
+	echo -e; \
+	if test -f $$OLD_LOG4JCONF; then \
+		echo "$@ will not update log4j.properties in $$OLD_LOG4JCONF. Done."; \
 	else \
-		echo 'Updating java_server=embedded Petascope';\
-		sed -i 's|java_server=external|java_server=embedded|g'	$$NEWCONF; \
-		sed -i 's|start_embedded_petascope=false|start_embedded_petascope=true|g'   $$NEWCONF; \
-	fi; \
-	if test -f $(DESTDIR)$(sysconfdir)/log4j.properties; then \
-		echo "$@ will not overwrite existing $(DESTDIR)$(sysconfdir)/log4j.properties"; \
-	else \
-		$(MKDIR_P) $(DESTDIR)$(sysconfdir); \
-		echo " $(INSTALL_DATA) src/main/resources/log4j.properties $(DESTDIR)$(sysconfdir)/log4j.properties"; \
-		$(INSTALL_DATA) src/main/resources/log4j.properties $(DESTDIR)$(sysconfdir)/log4j.properties; \
+		echo "$@ is copying log4j.properties: $$NEW_LOG4JCONF to $$OLD_LOG4JCONF"; \
+		cp $$NEW_LOG4JCONF $$OLD_LOG4JCONF; \
 	fi;
-
-	sed -i "s|GENERATED_rasdaman_bin_path|$(bindir)/|g" $(DESTDIR)$(sysconfdir)/petascope.properties;
-
 # run any JUnit tests
 .PHONY: test
 test:

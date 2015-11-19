@@ -1,0 +1,130 @@
+# ---------------------------------------------------------------------
+# settings.properties
+#
+# PetaScope configuration file
+#
+# Important note:
+# Parameters marked "yes" in item "need to adapt" MUST be configured
+# to meaningful values during installation, they CAN NOT be used as is!
+# ---------------------------------------------------------------------
+
+# parameter:     metadata_driver
+# purpose:       name of DBMS driver to be loaded
+# need to adapt: no
+metadata_driver=org.postgresql.Driver #OLD_DIFF
+
+# parameter:     metadata_url
+# purpose:       JDBC URL of database serving PetaScope metadata
+#		 recommendation: use default values on a default Postgresql
+#		 installation, and DB name petascopedb
+# need to adapt: yes
+metadata_url=jdbc:postgresql://localhost:5432/petascopedb
+# parameter:     metadata_user
+# purpose:       DBMS login under which servlet has r/w access
+#                to PetaScope metadata;
+#                	recommendation: establish a dedicated user
+# need to adapt: yes
+metadata_user=petauser #OLD_DIFF
+
+# parameter:     metadata_pass
+# purpose:       password for DBMS login, as above
+# need to adapt: yes
+metadata_pass=petapasswd #OLD_DIFF
+
+# parameter:     rasdaman_url
+# purpose:       URL of rasdaman database serving PetaScope raster data
+# need to adapt: yes
+rasdaman_url=http://localhost:7001 #OLD_DIFF
+
+# parameter:     rasdaman_database
+# purpose:       name of rasdaman database serving PetaScope raster data
+#                recommendation: use rasdaman standard name, RASBASE
+# need to adapt: no
+rasdaman_database=RASBASE_DATA #OLD_DIFF
+
+# parameter:     rasdaman_user
+# purpose:       username to access rasdaman
+# need to adapt: yes
+rasdaman_user=rasguest
+
+# parameter:     rasdaman_pass
+# purpose:       password to access rasdaman
+# need to adapt: yes
+rasdaman_pass=rasguest
+
+# parameter:     rasdaman_admin_user
+# purpose:       admin username to access rasdaman
+# need to adapt: yes
+rasdaman_admin_user=rasadmin
+
+# parameter:     rasdaman_rasadmin_pass
+# purpose:       admin password to access rasdaman
+# need to adapt: yes
+rasdaman_admin_pass=rasadmin
+
+# parameter:	 rasdaman_retry_attempts
+# purpose:	 maximum re-connect attempts to a rasdaman server in case a connection fails.
+# need to adapt: no
+rasdaman_retry_attempts=5
+
+# parameter:	 rasdaman_retry_timeout
+# purpose:	 wait time in seconds between re-connect attempts to a rasdaman server
+# need to adapt: no
+rasdaman_retry_timeout=10
+
+# parameter:     rasdaman_bin_path
+# purpose:       path to rasdaman binaries
+# need to adapt: no
+rasdaman_bin_path=/home/rasdaman/install/bin/
+
+# parameter:	xml_validation
+# purpose:      If set to `true', input XML requests will be validated against OGC WCS schema definitions.
+#               (!) The very first WCS request after Petascope deployment will take around 1-2 mins to load the schemas (!)
+#               Set the parameter to `false' if no input validation is required (default).
+# need to adapt: yes
+xml_validation=false
+
+# parameter:     secore_urls
+# purpose:       SECORE URLs to be used by Petascope.
+# description:   comma-separated list of SECORE endpoints, relevance order.
+# need to adapt: yes
+secore_urls=http://localhost:8080/def
+
+# parameter:     secore_versions
+# purpose:       versions of SECORE's resolvers (grep "VERSION_M.*=" <rasdaman_src>/applications/secore/secore-core/src/ -r)
+# need to adapt: yes
+secore_versions=0.1.0
+
+# parameter:     metadata_in_covsummary
+# purpose:       OWS metadata in the coverage summaries of the capabilities document can be disabled here (true/false).
+# description:   This kind of metadata can be added either manually in ps_extra_metadata table or through rasimport `--metadata' argument.
+#                Due to the fast growth in the capabilities document if each coverage includes an ows:Metadata element, here you
+#                can tell Petascope to ignore such elements.
+# need to adapt: yes
+metadata_in_covsummary=false
+
+# parameter:     bbox_in_covsummary
+# purpose:       true/false switch for enabling/disabling the insertion of wcs:BoundingBox elements in every wcs:CoverageSummary (capabilities document).
+# description:   The WCS capabilities document can be used at different levels, depending on the specific service.
+#                This parameter (along with other *_in_covsummary parameters) let you fine-tune the amount of information
+#                that Petascope should put inside of every wcs:CoverageSummary element. The more the number of coverages offered by
+#                A service, the more painful can the response time get damaged by having this param set to true (an RasQL sdom request is called).
+# need to adapt: yes
+bbox_in_covsummary=false
+
+# parameter:     description_in_covsummary
+# purpose:       true/false switch for enabling/disabling the insertion of (optionally inserted) [ows] Title/Abstract/Keywords
+#                in wcs:CoverageSummary elements of the capabilities document.
+# description:   As for other *_in_covsummary parameters, this one lets you fine-tune the coverage summaries in the capabilities document.
+#                Though they can be useful for having a richer catalog of coverages directly from WCS, you can always turn off
+#                the insertion of already inserted descriptions (petascopedb::ps_descriptions) by setting this to false.
+# need to adapt: yes
+description_in_covsummary=false
+
+# parameter:     petascope_servlet_url
+# purpose:       service endpoint can be set here.
+# description:   This property is used by WCS GetCapabilities() response <ows:HTTP> element to give the service endpoint.
+#                Leave it null in case you want Petascope to declare the service URL based on the first request it receives after deploy.
+#                Set this parameter to your public service URL in case you are using a proxy.
+# need to adapt: no
+petascope_servlet_url=
