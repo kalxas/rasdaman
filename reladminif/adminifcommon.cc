@@ -102,7 +102,7 @@ AdminIf::setCurrentDatabaseIf(DatabaseIf* db)
 }
 
 AdminIf*
-AdminIf::instance()
+AdminIf::instance(bool createDb)
 {
     AdminIf* retval=NULL;
 
@@ -114,7 +114,7 @@ AdminIf::instance()
     }
     if(!myInstance)
     {
-        myInstance = new AdminIf();
+        myInstance = new AdminIf(createDb);
     }
     if(validConnection)
         retval=myInstance;

@@ -88,9 +88,10 @@ closeDbConnection();
 class AdminIf
 {
 public:
-    static AdminIf* instance();
+    static AdminIf* instance(bool createDb = false);
     /*@Doc:
-    satic function used to access instance of AdminIf and start session.
+    static function used to access instance of AdminIf and start session.
+    createDb should be true only for rasdl when it is executed to create RASBASE.
     */
 
     static DatabaseIf* getCurrentDatabaseIf();
@@ -139,13 +140,11 @@ public:
     */
 
 protected:
-    AdminIf() throw (r_Error);
+    AdminIf(bool createDb = false) throw (r_Error);
     /*@Doc:
-    constructor, can not be used from outside.
-    initializes the objectbroker
-    does a CONNECT,  when successful sets validConnection to true else false,
-    then a ROLLBACK WORK RELEASE
-    throws exception if connection fails
+    constructor, can not be used from outside; initializes the objectbroker and checks
+    validity of RAS_COUNTERs.
+    createDb should be true only for rasdl when it is executed to create RASBASE.
     */
 
 private:

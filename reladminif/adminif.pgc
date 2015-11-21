@@ -53,7 +53,7 @@ extern char globalDbPasswd[255];
 
 const char AdminIf::dbmsName[SYSTEMNAME_MAXLEN]="PostgreSQL";
 
-AdminIf::AdminIf() throw (r_Error)
+AdminIf::AdminIf(bool createDb) throw (r_Error)
 {
     EXEC SQL BEGIN DECLARE SECTION;
         char    id[STRING_MAXLEN];

@@ -230,7 +230,7 @@ bool        printToFile = false;
 void printNames();
 void printHeader( const char* headerFileName2 );
 void disconnectDB( bool commitTa );
-void connectDB( const char* baseName2, bool openDb, bool openTa ) throw (r_Error, RasdlError);
+void connectDB( const char* baseName2, bool openDb, bool openTa, bool createDb = false ) throw (r_Error, RasdlError);
 bool isCommand( const char *command, const char *key);
 bool readRasmgrConf();
 void parseParams(int argc, char* argv[]) throw (r_Error, RasdlError);
@@ -401,9 +401,9 @@ disconnectDB( bool commitTa )
 }
 
 void
-connectDB( const char* baseName2, bool openDb, bool openTa ) throw (r_Error, RasdlError)
+connectDB( const char* baseName2, bool openDb, bool openTa, bool createDb ) throw (r_Error, RasdlError)
 {
-    admin = AdminIf::instance();
+    admin = AdminIf::instance(createDb);
     if( !admin )
     {
         LDEBUG << "cannot create adminIf instance";
@@ -802,7 +802,7 @@ main( int argc, char* argv[] )
             if( strcasecmp(dbVolume,"") )
                 cout << " on volume " << dbVolume;
             cout << "..." << flush;
-            connectDB( baseName, false, false );
+            connectDB( baseName, false, false, true );
             db = new DatabaseIf();
             if( !strlen(dbVolume) )
                 db->createDB( baseName, dbSchema, dbVolume );
