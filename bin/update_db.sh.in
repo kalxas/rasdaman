@@ -15,8 +15,7 @@
 # You should have received a copy of the GNU General Public License
 # along with rasdaman community.  If not, see <http://www.gnu.org/licenses/>.
 #
-# Copyright 2003, 2004, 2005, 2006, 2007, 2008, 2009 Peter Baumann /
-# rasdaman GmbH.
+# Copyright 2003 - 2015 Peter Baumann / rasdaman GmbH.
 #
 # For more information please see <http://www.rasdaman.org>
 # or contact Peter Baumann via <baumann@rasdaman.com>.
@@ -40,21 +39,21 @@
 #  2) User running the script must have write access in PostgreSQL
 #  3) share/rasdaman/db_updates should contain the SQL update scripts
 
-PROG=`basename $0`
+PROG=$(basename $0)
 
-RC_OK=0
-RC_ERROR=255
+export RC_OK=0
+export RC_ERROR=255
 
 # updateN.sql scripts
 SCRIPT_DIR=@pkgdatadir@/db_updates
 
 # table storing the current database update number
-RAS_DBUPDATE=ras_dbupdates
-DB_TYPE=rc
+export RAS_DBUPDATE=ras_dbupdates
+export DB_TYPE=rc
 
-BASEDBMS=@basedbms@
-BASEDBMS_SQLITE=sqlite
-BASEDBMS_PGSQL=pgsql
+export BASEDBMS=@basedbms@
+export BASEDBMS_SQLITE=sqlite
+export BASEDBMS_PGSQL=pgsql
 
 export DBCONN=@dbconn@
 
@@ -85,6 +84,11 @@ feedback() {
     echo ok.
   fi
 }
+
+export -f log
+export -f logn
+export -f error
+export -f feedback
 
 #
 # checks
@@ -211,10 +215,20 @@ else
   #
   # commands
   #
-  SQLITE="sqlite3 $DBCONN"
+  export SQLITE="sqlite3 $DBCONN"
 
   # print some info
   log "sqlite database to update: $DBCONN"
+
+  # determine file data dir
+  if [ -z "$RASDATA" ]; then
+    export RASDATA="@filedatadir@"
+    [ -n "$RASDATA" ] || error "please export RASDATA to point to the rasdaman data directory"
+  fi
+  [ -d "$RASDATA" ] || error "rasdaman data directory not found: $RASDATA"
+  [ -w "$RASDATA" -a -x "$RASDATA" ] || error "no write permissions to the rasdaman data directory: $RASDATA"
+
+  log "rasdaman data directory: $RASDATA"
 
   check_sqlite
 
@@ -256,13 +270,13 @@ else
     if [ -f "$SCRIPT_DIR/update${counter}-sqlite.sql" ]; then
       $SQLITE < "$SCRIPT_DIR/update${counter}-sqlite.sql" > last.log 2>&1
     else
-      $SCRIPT_DIR/update${counter}-sqlite.sh > last.log 2>&1
+      bash "$SCRIPT_DIR/update${counter}-sqlite.sh"
     fi
     # Check if the update was successful
     ret=$?
     if [ "$ret" -ne 0 ]; then
         echo "FAILED (return value $ret)."
-        echo "Error: "$(cat last.log)
+        [ -f "last.log" ] && echo "Error: "$(cat last.log)
         break # So that ps_dbupdates is updated to its partial update anyway.
       else
         echo ok.

@@ -34,6 +34,7 @@ rasdaman GmbH.
 
 using namespace std;
 
+
 class Test
 {
 public:
@@ -91,6 +92,7 @@ private:
         << "First string : " << a << " ." << endl \
         << "Second string: " << b << " ." << endl \
         << "In file " << __FILE__ << " at line " << __LINE__ << endl
+
 #define RUN_TEST(method) \
     {LOG << "Running " << #method << endl; \
     Test::test_result_ = true; \
@@ -105,7 +107,8 @@ private:
     } else { \
         LOG << "Test " << #method << " passed!" <<endl;\
         Test::tests_passed_ ++; \
-    }}
+    } \
+    LOG << endl; }
 
 #define TEST_SUMMARY() \
   LOG << "Run " << Test::tests_run_ << " tests" << endl; \

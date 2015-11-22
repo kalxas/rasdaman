@@ -88,6 +88,11 @@ export WGET="wget"
 export WGET_CODE_SERVER_ERROR=8 # See https://www.gnu.org/software/wget/manual/html_node/Exit-Status.html
 export GDALINFO="gdalinfo -noct -checksum"
 
+# filestorage
+export DB_DIR="/tmp/rasdb"
+export RASDATA="$DB_DIR"
+export LOG_DIR="$RMANHOME/log"
+export RASMGR_CONF="$RMANHOME/etc/rasmgr.conf"
 
 # ------------------------------------------------------------------------------
 # logging
@@ -97,22 +102,22 @@ OLDLOG="$LOG.save"
 FAILED="$SCRIPT_DIR/failed_cases"
 FIXED=0
 
-function log()
+log()
 {
   echo "$PROG: $*" | tee -a $LOG
 }
 
-function loge()
+loge()
 {
   echo "$*" | tee -a $LOG
 }
 
-function logn()
+logn()
 {
   echo -n "$PROG: $*" | tee -a $LOG
 }
 
-function feedback()
+feedback()
 {
   if [ $? -ne 0 ]; then
     loge failed.
@@ -121,7 +126,7 @@ function feedback()
   fi
 }
 
-function check()
+check()
 {
   if [ $? -ne 0 ]; then
     echo "$PROG: failed, exiting." | tee -a $LOG
@@ -131,7 +136,7 @@ function check()
   fi
 }
 
-function error()
+error()
 {
   echo "$PROG: $*" | tee -a $LOG
   echo "$PROG: exiting." | tee -a $LOG
@@ -174,7 +179,7 @@ get_time()
 # ------------------------------------------------------------------------------
 # dependency checks
 #
-function check_rasdaman()
+check_rasdaman()
 {
   which rasmgr > /dev/null
   if [ $? -ne 0 ]; then
@@ -190,7 +195,7 @@ function check_rasdaman()
   fi
 }
 
-function check_postgres()
+check_postgres()
 {
   which psql > /dev/null
   if [ $? -ne 0 ]; then
@@ -202,7 +207,7 @@ function check_postgres()
   fi
 }
 
-function check_wget()
+check_wget()
 {
   which wget > /dev/null
   if [ $? -ne 0 ]; then
@@ -210,7 +215,7 @@ function check_wget()
   fi
 }
 
-function check_secore()
+check_secore()
 {
   $WGET -q "${SECORE_URL}/crs" -O /dev/null
   if [ $? -ne 0 ]; then
@@ -220,7 +225,7 @@ function check_secore()
   return 0
 }
 
-function check_netcdf()
+check_netcdf()
 {
   which ncdump > /dev/null
   if [ $? -ne 0 ]; then
@@ -228,7 +233,7 @@ function check_netcdf()
   fi
 }
 
-function check_gdal()
+check_gdal()
 {
   which gdal_translate > /dev/null
   if [ $? -ne 0 ]; then
@@ -241,7 +246,7 @@ function check_gdal()
 # return
 #   0 - if GDAL version is >= <major>.<minor>
 #   1 - otherwise
-function check_gdal_version()
+check_gdal_version()
 {
   GDAL_VERSION="$( $GDALINFO --version | awk -F ' |,' '{ print $2 }' | grep -o -e '[0-9]\+.[0-9]\+' )" # M.m version
   GDAL_VERSION_MAJOR=$(echo $GDAL_VERSION | awk -F '.' '{ print $1; }')
@@ -249,11 +254,18 @@ function check_gdal_version()
   [[ $GDAL_VERSION_MAJOR -gt 1 || ( $GDAL_VERSION_MAJOR -eq $1 && $GDAL_VERSION_MINOR -ge $2 ) ]] && echo 0 || echo 1
 }
 
+check_filestorage_dependencies()
+{
+  [ -f "$RMANHOME/bin/rasdl" ] || error "rasdl not found, RMANHOME not defined properly?"
+  [ -f "$RASMGR_CONF" ] || error "$RASMGR_CONF not found, RMANHOME not defined properly?"
+  [ $(which sqlite3) ] || error "sqlite3 not found, please install."
+}
+
 
 # ------------------------------------------------------------------------------
 # print test summary
 #
-function print_summary()
+print_summary()
 {
   if [ $NUM_TOTAL -eq 0 ]; then
     NUM_TOTAL=$(($NUM_FAIL + $NUM_SUC))
@@ -287,7 +299,7 @@ function print_summary()
 # arg 2: actual result
 # arg 3: message to print
 #
-function check_result()
+check_result()
 {
   exp="$1"
   res="$2"
@@ -304,7 +316,7 @@ function check_result()
   fi
 }
 
-function check()
+check()
 {
   if [ $? -ne 0 ]; then
     loge failed.
@@ -321,7 +333,7 @@ function check()
 # failed/successfull tests.
 # In case of the open tests TEST SKIPPED is printed instead of TEST FAILED.
 #
-function update_result()
+update_result()
 {
   local rc=$?
 
@@ -375,7 +387,7 @@ function update_result()
 # - $custom_script - bash script to be executed for special comparison of result
 #                    to oracle.
 #
-function run_rasql_test()
+run_rasql_test()
 {
   rm -f "$out"
   local QUERY=`cat $f`
@@ -402,7 +414,7 @@ function run_rasql_test()
 #
 # Remove URLs and some prefixes which might break a tests during oracle comparison
 #
-function prepare_xml_file()
+prepare_xml_file()
 {
   xml_file="${1}"
   logn "Preparing XML file $xml_file for oracle comparison... "
@@ -426,7 +438,7 @@ function prepare_xml_file()
 #  $SVC_NAME - service name, e.g. wcps, wcs, etc.
 #  $f        - test file
 #
-function run_test()
+run_test()
 {
   if [ ! -f "$f" ]; then
     error "test case not found: $f"
@@ -645,7 +657,7 @@ function run_test()
 # rasdaman administration
 #
 
-function restart_rasdaman()
+restart_rasdaman()
 {
   logn "restarting rasdaman... "
   if [ $(pgrep rasmgr) ]; then
@@ -655,6 +667,55 @@ function restart_rasdaman()
   $START_RAS > /dev/null 2>&1
   sleep 0.2 || sleep 1
   loge ok.
+}
+
+# ------------------------------------------------------------------------------
+#
+# server/config management for using local SQLite / file storage database
+#
+get_backup_rasmgr_conf()
+{
+  BACKUP_RASMGR_CONF=$(mktemp -u "$RASMGR_CONF.XXXXXXX")
+  while [ -f "$BACKUP_RASMGR_CONF" ]; do
+    BACKUP_RASMGR_CONF=$(mktemp -u "$RASMGR_CONF.XXXXXXX")
+  done
+}
+prepare_configuration()
+{
+  get_backup_rasmgr_conf
+  logn "backing up $RASMGR_CONF to $BACKUP_RASMGR_CONF... "
+  cp "$RASMGR_CONF" "$BACKUP_RASMGR_CONF"
+  check
+  logn "updating connect string in $RASMGR_CONF to $DB_DIR/RASBASE... "
+  sed -i 's|connect .*|connect '$DB_DIR'/RASBASE|g' "$RASMGR_CONF"
+  check
+}
+restore_configuration()
+{
+  if [ -n "$BACKUP_RASMGR_CONF" -a -f "$BACKUP_RASMGR_CONF" ]; then
+    logn "restoring $RASMGR_CONF from $BACKUP_RASMGR_CONF... "
+    cp "$BACKUP_RASMGR_CONF" "$RASMGR_CONF"
+    feedback
+    rm -f "$BACKUP_RASMGR_CONF"
+  fi
+}
+
+recreate_rasbase()
+{
+  rm -rf "$DB_DIR"; mkdir -p "$DB_DIR"
+  rm -rf "$LOG_DIR"/*
+  logn "recreating RASBASE... "
+  rasdl -c --connect "$DB_DIR/RASBASE" > /dev/null && rasdl --connect "$DB_DIR/RASBASE" -r "$RMANHOME/share/rasdaman/examples/rasdl/basictypes.dl" -i > /dev/null
+  check
+  restart_rasdaman
+}
+# ------------------------------------------------------------------------------
+
+# print the server pid (single rasserver should be running, otherwise wrong pid might be determined)
+get_server_pid()
+{
+  local -r server_pid=$(ps aux | grep 'bin/rasserver' | grep -v grep | awk '{ print $2; }' | head -n 1)
+  [ -n "$server_pid" ] && echo "$server_pid"
 }
 
 #

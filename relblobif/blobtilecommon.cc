@@ -59,30 +59,17 @@ rasdaman GmbH.
 // defined in rasserver.cc
 extern char globalConnectId[256];
 
+const long long BLOBTile::NO_TILE_FOUND;
 bool BLOBTile::fileStorageInitialized = false;
+BlobFileStorage* BLOBTile::fileStorage = NULL;
 
-SimpleFileStorage BLOBTile::fileStorage = BLOBTile::initFileStorage();
-
-SimpleFileStorage
-BLOBTile::initFileStorage()
+void BLOBTile::initFileStorage()
 {
-    const char *path = getenv("RASDATA");
-    if (path == NULL || strcmp(path, "") == 0)
+    if (!BLOBTile::fileStorageInitialized)
     {
-#ifdef FILEDATADIR
-        path = FILEDATADIR;
-#endif
-        if (path == NULL || strcmp(path, "") == 0)
-        {
-            path = "/tmp";
-        }
+        BLOBTile::fileStorage = new BlobFileStorage();
+        BLOBTile::fileStorageInitialized = true;
     }
-    mkdir(path, S_IRWXU + S_IRGRP + S_IXGRP + S_IROTH + S_IXOTH); // create if not exist, rwxr-xr-x
-    SimpleFileStorage fileStorage = SimpleFileStorage(path);
-
-    BLOBTile::fileStorageInitialized = true;
-
-    return fileStorage;
 }
 
 BLOBTile::BLOBTile(r_Data_Format dataformat)
@@ -90,8 +77,6 @@ BLOBTile::BLOBTile(r_Data_Format dataformat)
 {
     LTRACE << "BLOBTile(" << dataformat << ")";
     objecttype = OId::BLOBOID;
-    if (!fileStorageInitialized)
-        fileStorage = initFileStorage();
 }
 
 /*************************************************************
@@ -110,8 +95,6 @@ BLOBTile::BLOBTile(r_Bytes newSize, char c, r_Data_Format dataformat)
 {
     LTRACE << "BLOBTile(" << newSize << ", data, " << dataformat << ")";
     objecttype = OId::BLOBOID;
-    if (!fileStorageInitialized)
-        fileStorage = initFileStorage();
 }
 
 
@@ -135,8 +118,6 @@ BLOBTile::BLOBTile(r_Bytes newSize, r_Bytes patSize, const char* pat, r_Data_For
 {
     LTRACE << "BLOBTile(" << newSize << ", " << patSize << ", pattern, " << dataformat << ")";
     objecttype = OId::BLOBOID;
-    if (!fileStorageInitialized)
-        fileStorage = initFileStorage();
 }
 
 /*************************************************************
@@ -157,8 +138,6 @@ BLOBTile::BLOBTile(r_Bytes newSize, const char* newCells, r_Data_Format dataform
 {
     LTRACE << "BLOBTile(" << size << ", data, " << dataformat << ")";
     objecttype = OId::BLOBOID;
-    if (!fileStorageInitialized)
-        fileStorage = initFileStorage();
 }
 
 BLOBTile::BLOBTile(r_Bytes newSize, const char* newCells, r_Data_Format dataformat, const OId& id)
@@ -172,16 +151,12 @@ BLOBTile::BLOBTile(r_Bytes newSize, const char* newCells, r_Data_Format dataform
     _isPersistent = true;
     _isModified = true;
     ObjectBroker::registerDBObject(this);
-    if (!fileStorageInitialized)
-        fileStorage = initFileStorage();
 }
 
 BLOBTile::BLOBTile(const OId& id) throw (r_Error)
     :   DBTile(id)
 {
     readFromDb();
-    if (!fileStorageInitialized)
-        fileStorage = initFileStorage();
 }
 
 BLOBTile::BLOBTile(const OId& id, r_Bytes newSize, r_Data_Format newFmt)
@@ -197,15 +172,10 @@ BLOBTile::BLOBTile(const OId& id, r_Bytes newSize, r_Data_Format newFmt)
     cells = static_cast<char*>(mymalloc(size * sizeof(char)));
     memset(cells, 0, size);
     ObjectBroker::registerDBObject(this);
-    if (!fileStorageInitialized)
-        fileStorage = initFileStorage();
 }
 
 BLOBTile::~BLOBTile()
 {
     validate();
 }
-
-char*   BLOBTile::BLOBBuffer = NULL;
-r_Bytes BLOBTile::BLOBBufferLength = 131072;
 

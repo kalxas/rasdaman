@@ -166,5 +166,7 @@ config.sub
 config.h.in
 
 core
-systemtest/testcases_manual/crash_test_rasserver/queries_metrics
-systemtest/testcases_manual/crash_test_rasserver/bugs
+systemtest/testcases_manual/test_crash_rasserver/queries_metrics
+systemtest/testcases_manual/test_crash_rasserver/bugs
+test_filestorage
+test_tilecache

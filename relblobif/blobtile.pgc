@@ -808,3 +808,9 @@ void BLOBTile::writeCachedToDb(CacheValue* value)
     
     delete value;
 }
+
+long long
+BLOBTile::getAnyTileOid()
+{
+    return NO_TILE_FOUND;
+}

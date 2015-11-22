@@ -47,7 +47,7 @@ librelblobif_a_SOURCES= blobtile.hh \
                         dbtile.cc dbtile.hh inlinetile.cc inlinetile.hh \
                         blobtilecommon.cc tileid.hh tilecache.cc tilecache.hh \
                         tilecachevalue.cc tilecachevalue.hh \
-                        simplefilestorage.cc simplefilestorage.hh filestorageexception.hh ifilestorage.hh
+                        blobfilestorage.cc blobfilestorage.hh
 
 
 EXTRA_librelblobif_a_SOURCES=blobtile.pgc 

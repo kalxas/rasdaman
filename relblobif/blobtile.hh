@@ -44,7 +44,7 @@ class r_Error;
 #include "tilecache.hh"
 #include "tilecachevalue.hh"
 #include "raslib/mddtypes.hh"
-#include "simplefilestorage.hh"
+#include "blobfilestorage.hh"
 
 //@ManMemo: Module: {\bf relblobif}.
 
@@ -129,20 +129,17 @@ public:
     static void kill(const OId& target, unsigned int range = 0);
     /*@Doc:
     delete a blobtile without loading it first into memory.
-    is used by the indexes.
+    used by the indexes.
     delete the blobtile and range consecutive tiles.
     */
 
-    static r_Bytes BLOBBufferLength;
+    static long long getAnyTileOid();
     /*@Doc:
-    info on the length of the BLOBBuffer
-    */
-    static void useFileStorage(bool enable);
-    /*@Doc:
-     enable/disable file storage support
+    return any tile oid present in ras_tiles; this is used to determine if
+    the old file tile organization is used or the new nested organization.
     */
 
-    static bool fileStorageInitialized;
+    static const long long NO_TILE_FOUND = -1;
 
 protected:
 
@@ -172,23 +169,10 @@ protected:
     */
 
 private:
-    static char* BLOBBuffer;
-    /*@Doc:
-    for writing into the DB.  currently not needed by oracle.
-    */
-    static bool enableFileStorage;
-    /*@Doc:
-     enable storing BLOBs as files
-    */
 
-    static bool mixedStorageSupport;
-    /*@Doc:
-     support for mixed db/file blob storage?
-    */
-
-    static SimpleFileStorage initFileStorage();
-    static bool checkMixedStorageSupport();
-    static SimpleFileStorage fileStorage;
+    static BlobFileStorage* fileStorage;
+    static void initFileStorage();
+    static bool fileStorageInitialized;
     
     friend class TileCache;
 };

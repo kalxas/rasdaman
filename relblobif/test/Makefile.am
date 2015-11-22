@@ -29,15 +29,19 @@
 ##################################################################
 
 AM_CXXFLAGS=@CLIENTCXXFLAGS@ @BASEDBCXXFLAGS@
-AM_LDFLAGS=@CLIENTLDFLAGS@
+AM_LDFLAGS=
 
+if BASEDB_SQLITE
+check_PROGRAMS=test_filestorage
+test_filestorage_SOURCES= test_filestorage.cc testing.cc
+endif
+
+if BASEDB_PGSQL
 check_PROGRAMS=test_tilecache
-test_tilecache_SOURCES= test_tilecache.cc testing.cc testing.hh ../../mymalloc/mymalloc_cln.cc ../../mymalloc/mymalloc_cln.h \
-		  ../../debug/debug-clt.hh ../../debug/debug.hh ../../debug/debug-srv.hh \
-                  ../../include/bool.h ../../include/globals.hh ../../include/rasdaman.hh \
-                  ../../include/stdexcept.h
+test_tilecache_SOURCES= test_tilecache.cc testing.cc testing.hh
+endif
 
-test_tilecache_LDADD= ../../rasodmg/librasodmg.a ../../clientcomm/libclientcomm.a \
+LDADD= ../../rasodmg/librasodmg.a ../../clientcomm/libclientcomm.a \
               ../../raslib/libraslib.a \
               ../../conversion/libconversion.a ../../commline/libcommline.a \
               ../../network/libnetwork.a ../../relcatalogif/librelcatalogif.a \
@@ -49,5 +53,9 @@ test_tilecache_LDADD= ../../rasodmg/librasodmg.a ../../clientcomm/libclientcomm.
               ../../relcatalogif/librelcatalogif.a ../../servercomm/libservercomm.a \
                ../../mddmgr/libmddmgr.a ../../relmddif/librelmddif.a \
                ../../indexmgr/libindexmgr.a ../../qlparser/libqlparser.a ../../conversion/libconversion.a \
-               ../../catalogmgr/libcatalogmgr.a \
-               ../../raslib/libraslib.a ../../tilemgr/libtilemgr.a @GDAL_LDFLAGS@ @CLIENTLDFLAGS@ @BASEDBLDFLAGS@
+               ../../catalogmgr/libcatalogmgr.a ../../lockmgr/liblockmanager.a \
+               ../../raslib/libraslib.a ../../tilemgr/libtilemgr.a ../../server/rasserver_config.o ../../commline/cmlparser.o ../../reladminif/libreladminif.a @GDAL_LDFLAGS@ @CLIENTLDFLAGS@ @BASEDBLDFLAGS@
+
+if RMANRASNET
+    LDADD += ../../rasserver_x/src/librasnetserver.a ../../rasnetprotocol/librasnetprotocol.a ../../rasnet/librasnet.a ../../common/src/libcommon.a @GRPC_LIBS@ @GPR_LIBS@ @GRPCPP_LIBS@  @PROTOBUF_LIBS@ @BOOST_LDFLAGS@ -lboost_thread -lboost_regex -lboost_program_options -lboost_system
+endif

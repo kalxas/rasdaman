@@ -25,13 +25,14 @@ rasdaman GmbH.
 #include "version.h"
 #include <cstdlib>
 
+#ifdef EARLY_TEMPLATE
 #define __EXECUTABLE__
 #define DEBUG_MAIN
 
-#include "applications/directql/template_inst.hh"
-#include "raslib/template_inst.hh"
+#include "../../applications/directql/template_inst.hh"
+#include "../../raslib/template_inst.hh"
+#endif
 
-#include "debug/debug-clt.hh"
 #include "relblobif/blobtile.hh"
 #include "relblobif/tilecache.hh"
 #include "reladminif/oidif.hh"
@@ -39,9 +40,15 @@ rasdaman GmbH.
 #include "reladminif/databaseif.hh"
 #include "reladminif/transactionif.hh"
 #include "servercomm/servercomm.hh"
+#include "commline/cmlparser.hh"
 #include "testing.h"
 
+#include "../../common/src/logging/easylogging++.hh"
+
 using namespace std;
+
+#define DEBUG_MAIN
+#include "debug-clt.hh"
 
 // define external vars
 char globalConnectId[256] = "RASBASE";
@@ -69,6 +76,8 @@ bool udfEnabled = true;
 // cache limit that triggers cache readjustment
 #define CACHE_LIMIT_READJUST 400
 
+_INITIALIZE_EASYLOGGINGPP
+
 /*
  * Global variables
  */
@@ -81,9 +90,6 @@ ExecuteUpdateRes result;
 
 void prepareRun()
 {
-    RMInit::logOut.rdbuf(cout.rdbuf());
-    RMInit::dbgOut.rdbuf(cout.rdbuf());
-    
     server = new ServerComm(RASSERVER_TIMEOUT, RASSERVER_MGMT_INTERVAL, RASSERVER_PORT, RASMGR_HOST, RASMGR_PORT, RASSERVER_NAME);
     db.open(globalConnectId);
 
@@ -114,6 +120,22 @@ void finishRun()
 
 int main(int argc, char **argv)
 {
+    //Logging configuration: to standard output, LDEBUG and LTRACE are not enabled
+    easyloggingpp::Configurations defaultConf;
+    defaultConf.setToDefault();
+    defaultConf.set(easyloggingpp::Level::All,
+            easyloggingpp::ConfigurationType::Format, "%datetime [%level] %log");
+    defaultConf.set(easyloggingpp::Level::All,
+            easyloggingpp::ConfigurationType::ToFile, "false");
+    defaultConf.set(easyloggingpp::Level::All,
+            easyloggingpp::ConfigurationType::ToStandardOutput, "true");
+    defaultConf.set(easyloggingpp::Level::Debug,
+                    easyloggingpp::ConfigurationType::Enabled, "false");
+    defaultConf.set(easyloggingpp::Level::Trace,
+                    easyloggingpp::ConfigurationType::Enabled, "false");
+    easyloggingpp::Loggers::reconfigureAllLoggers(defaultConf);
+    defaultConf.clear();
+
     TileCache::cacheLimit = CACHE_LIMIT_READJUST;
 
     prepareRun();

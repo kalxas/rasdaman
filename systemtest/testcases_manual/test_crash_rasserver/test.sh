@@ -48,74 +48,17 @@ set -e
 
 # ------------------------------------------------------------------------------
 
-readonly DB_DIR="/tmp/rasdb"
-export RASDATA="$DB_DIR"
+
 readonly QUERY_DIR="$SCRIPT_DIR/queries"
 readonly QUERY_METRICS_DIR="$SCRIPT_DIR/queries_metrics"
-readonly LOG_DIR="$RMANHOME/log"
 readonly BUG_DIR="$SCRIPT_DIR/bugs"
-readonly RASMGR_CONF="$RMANHOME/etc/rasmgr.conf"
-
 readonly KILL_SIGNAL="USR1"
-
 readonly QUERY_COUNT=$(ls "$QUERY_DIR"/*.sh | wc -l)
 
 
 # ------------------------------------------------------------------------------
 # functions
 #
-
-#
-# server/config management
-#
-check_dependencies()
-{
-  [ -f "$RMANHOME/bin/rasdl" ] || error "rasdl not found, RMANHOME not defined properly?"
-  [ -f "$RASMGR_CONF" ] || error "$RASMGR_CONF not found, RMANHOME not defined properly?"
-  [ $(which sqlite3) ] || error "sqlite3 not found, please install."
-}
-get_backup_rasmgr_conf()
-{
-  BACKUP_RASMGR_CONF=$(mktemp -u "$RASMGR_CONF.XXXXXXX")
-  while [ -f "$BACKUP_RASMGR_CONF" ]; do
-    BACKUP_RASMGR_CONF=$(mktemp -u "$RASMGR_CONF.XXXXXXX")
-  done
-}
-prepare_configuration()
-{
-  get_backup_rasmgr_conf
-  logn "backing up $RASMGR_CONF to $BACKUP_RASMGR_CONF... "
-  cp "$RASMGR_CONF" "$BACKUP_RASMGR_CONF"
-  check
-  logn "updating connect string in $RASMGR_CONF to $DB_DIR/RASBASE... "
-  sed -i 's|connect .*|connect '$DB_DIR'/RASBASE|g' "$RASMGR_CONF"
-  check
-}
-restore_configuration()
-{
-  if [ -n "$BACKUP_RASMGR_CONF" -a -f "$BACKUP_RASMGR_CONF" ]; then
-    logn "restoring $RASMGR_CONF from $BACKUP_RASMGR_CONF... "
-    cp "$BACKUP_RASMGR_CONF" "$RASMGR_CONF"
-    feedback
-    rm -f "$BACKUP_RASMGR_CONF"
-  fi
-}
-
-recreate_rasbase()
-{
-  rm -rf "$DB_DIR"; mkdir -p "$DB_DIR"
-  rm -rf "$LOG_DIR"/*
-  logn "recreating RASBASE... "
-  rasdl -c --connect "$DB_DIR/RASBASE" > /dev/null && rasdl --connect "$DB_DIR/RASBASE" -r "$RMANHOME/share/rasdaman/examples/rasdl/basictypes.dl" -i > /dev/null
-  check
-  restart_rasdaman
-}
-# print the server pid (single rasserver should be running, otherwise wrong pid might be determined)
-get_server_pid()
-{
-  local -r server_pid=$(ps aux | grep 'bin/rasserver' | grep -v grep | awk '{ print $2; }' | head -n 1)
-  [ -n "$server_pid" ] && echo "$server_pid"
-}
 
 #
 # query metrics get/setters, persistently managed accross test runs in $QUERY_METRICS_DIR
@@ -224,11 +167,10 @@ archive_logs()
   cp -r "$LOG_DIR" "$log_archive_dir"
   cp -r "$DB_DIR" "$log_archive_dir"/"$q_id".sh.curr_db
   sqlite3 "$log_archive_dir"/"$q_id".sh.curr_db/RASBASE .dump > "$log_archive_dir"/"$q_id".sh.curr_db/RASBASE.sql
-  rm -f "$log_archive_dir"/"$q_id".sh.curr_db/RASBASE
   cp -r "$QUERY_METRICS_DIR"/"$q_id".sh.pre_db "$log_archive_dir"
   cp -r "$QUERY_METRICS_DIR"/"$q_id".sh.post_db "$log_archive_dir"
-  diff "$log_archive_dir"/"$q_id".sh.curr_db "$log_archive_dir"/"$q_id".sh.pre_db > "$log_archive_dir"/"$q_id".sh.pre_db.diff || true
-  diff "$log_archive_dir"/"$q_id".sh.curr_db "$log_archive_dir"/"$q_id".sh.post_db > "$log_archive_dir"/"$q_id".sh.post_db.diff || true
+  diff -x RASBASE -x RASBASE-journal "$log_archive_dir"/"$q_id".sh.curr_db "$log_archive_dir"/"$q_id".sh.pre_db > "$log_archive_dir"/"$q_id".sh.pre_db.diff || true
+  diff -x RASBASE -x RASBASE-journal "$log_archive_dir"/"$q_id".sh.curr_db "$log_archive_dir"/"$q_id".sh.post_db > "$log_archive_dir"/"$q_id".sh.post_db.diff || true
   log "  captured logs in $log_archive_dir"
 }
 
@@ -270,7 +212,7 @@ trap '_print_errors "${LINENO}" "${BASH_SOURCE}"' ERR
 # start test
 #
 
-check_dependencies
+check_filestorage_dependencies
 prepare_configuration
 record_query_metrics
 

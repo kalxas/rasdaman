@@ -24,7 +24,7 @@ rasdaman GmbH.
 #include <sys/time.h>
 #include <unistd.h>
 #include <time.h>
-#include "testing.h">
+#include "testing.h"
 
 bool Test::test_result_ = 0;
 int Test::tests_run_ = 0;
@@ -53,6 +53,7 @@ double Test::stopTimer()
 
 int Test::getResult()
 {
+    LOG << endl;
     LOG << tests_passed_ << "/" << tests_run_ << " tests passed!" << endl;
     return (tests_passed_ != tests_run_);
 }

@@ -196,6 +196,10 @@
 714^E^Admin error: Failed opening blob file for reading; check the server log for more details.
 715^E^Admin error: Failed reading data from blob file on disk; check the server log for more details.
 716^E^Admin error: Failed deleting blob file from disk; check the server log for more details.
+717^E^Admin error: File storage data directory not writable; check the server log for more details.
+718^E^Admin error: Failed opening blob file for updating; check the server log for more details.
+719^E^Admin error: Failed I/O operation on blob file; check the server log for more details.
+720^E^Admin error: Empty blob file found; check the server log for more details.
 #
 # 80x errors for RasManager problems
 #
