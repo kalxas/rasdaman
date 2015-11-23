@@ -194,6 +194,9 @@ class Importer:
         # For the first slice we need to import a single point, which will then be updated with the real data
         axes_map = OrderedDict()
         for axis, grid_axis in self.coverage.get_insert_axes().iteritems():
+            if axis.coefficient is not None:
+                # Get the first coefficient in irregular coverage  to create a initial slice
+                axis.coefficient = axis.coefficient[0]
             axes_map[axis] = GridAxis(grid_axis.order, grid_axis.label, grid_axis.resolution, 0, 0)
         metadata_provider = MetadataProvider(self.coverage.coverage_id, axes_map,
                                              self.coverage.range_fields, self.coverage.crs)
