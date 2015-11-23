@@ -92,13 +92,13 @@ module rasdaman {
                                 var max = $scope.CoverageDescription.BoundedBy.Envelope.UpperCorner.Values[i];
 
                                 if ($scope.Core.IsTrimSelected[i]) {
-                                    if ($scope.Core.Slices[i].SlicePoint != "" + Math.round((min + max) / 2)) {
-                                        dimensionSubset.push($scope.Core.Slices[i]);
+                                    if ($scope.Core.Trims[i].TrimLow != min.toString()
+                                        && $scope.Core.Trims[i].TrimHigh != max.toString()) {
+                                        dimensionSubset.push($scope.Core.Trims[i]);
                                     }
                                 } else {
-                                    if ($scope.Core.Trims[i].TrimLow != min + ""
-                                        && $scope.Core.Trims[i].TrimHigh != max + "") {
-                                        dimensionSubset.push($scope.Core.Trims[i]);
+                                    if ($scope.Core.Slices[i].SlicePoint != Math.round((min + max) / 2).toString()) {
+                                        dimensionSubset.push($scope.Core.Slices[i]);
                                     }
                                 }
                             }
@@ -124,21 +124,15 @@ module rasdaman {
         }
 
         private static isRangeSubsettingSupported(serverCapabilities:wcs.Capabilities):boolean {
-            var rangeSubsettingUri = "http://www.opengis.net/spec/WCS_service-extension_range-subsetting/1.0/conf/record-subsetting";
-
-            return serverCapabilities.ServiceIdentification.Profile.indexOf(rangeSubsettingUri) != -1;
+            return serverCapabilities.ServiceIdentification.Profile.indexOf( Constants.RANGE_SUBSETTING_EXT_URI) != -1;
         }
 
         private static isScalingSupported(serverCapabilities:wcs.Capabilities):boolean {
-            var scalingUri = "http://www.opengis.net/spec/WCS_service-extension_scaling/1.0/conf/scaling";
-
-            return serverCapabilities.ServiceIdentification.Profile.indexOf(scalingUri) != -1;
+            return serverCapabilities.ServiceIdentification.Profile.indexOf(Constants.SCALING_EXT_URI) != -1;
         }
 
         private static isInterpolationSupported(serverCapabilities:wcs.Capabilities):boolean {
-            var interpolationUri = "http://www.opengis.net/spec/WCS_service-extension_interpolation/1.0/conf/interpolation";
-
-            return serverCapabilities.ServiceIdentification.Profile.indexOf(interpolationUri) != -1;
+            return serverCapabilities.ServiceIdentification.Profile.indexOf(Constants.INTERPOLATION_EXT_URI) != -1;
         }
     }
 

@@ -980,6 +980,9 @@ var rasdaman;
         Constants.APP_NAME = "wcsClient";
         Constants.PROCESSING_EXT_URI = "http://www.opengis.net/spec/WCS_service-extension_processing/2.0/conf/processing";
         Constants.TRANSACTION_EXT_URI = "http://www.opengis.net/spec/WCS_service-extension_transaction/2.0/conf/insert+delete";
+        Constants.RANGE_SUBSETTING_EXT_URI = "http://www.opengis.net/spec/WCS_service-extension_range-subsetting/1.0/conf/record-subsetting";
+        Constants.SCALING_EXT_URI = "http://www.opengis.net/spec/WCS_service-extension_scaling/1.0/conf/scaling";
+        Constants.INTERPOLATION_EXT_URI = "http://www.opengis.net/spec/WCS_service-extension_interpolation/1.0/conf/interpolation";
         return Constants;
     })();
     rasdaman.Constants = Constants;
@@ -5108,14 +5111,14 @@ var rasdaman;
                             var min = $scope.CoverageDescription.BoundedBy.Envelope.LowerCorner.Values[i];
                             var max = $scope.CoverageDescription.BoundedBy.Envelope.UpperCorner.Values[i];
                             if ($scope.Core.IsTrimSelected[i]) {
-                                if ($scope.Core.Slices[i].SlicePoint != "" + Math.round((min + max) / 2)) {
-                                    dimensionSubset.push($scope.Core.Slices[i]);
+                                if ($scope.Core.Trims[i].TrimLow != min.toString()
+                                    && $scope.Core.Trims[i].TrimHigh != max.toString()) {
+                                    dimensionSubset.push($scope.Core.Trims[i]);
                                 }
                             }
                             else {
-                                if ($scope.Core.Trims[i].TrimLow != min + ""
-                                    && $scope.Core.Trims[i].TrimHigh != max + "") {
-                                    dimensionSubset.push($scope.Core.Trims[i]);
+                                if ($scope.Core.Slices[i].SlicePoint != Math.round((min + max) / 2).toString()) {
+                                    dimensionSubset.push($scope.Core.Slices[i]);
                                 }
                             }
                         }
@@ -5139,16 +5142,13 @@ var rasdaman;
             });
         }
         GetCoverageController.isRangeSubsettingSupported = function (serverCapabilities) {
-            var rangeSubsettingUri = "http://www.opengis.net/spec/WCS_service-extension_range-subsetting/1.0/conf/record-subsetting";
-            return serverCapabilities.ServiceIdentification.Profile.indexOf(rangeSubsettingUri) != -1;
+            return serverCapabilities.ServiceIdentification.Profile.indexOf(rasdaman.Constants.RANGE_SUBSETTING_EXT_URI) != -1;
         };
         GetCoverageController.isScalingSupported = function (serverCapabilities) {
-            var scalingUri = "http://www.opengis.net/spec/WCS_service-extension_scaling/1.0/conf/scaling";
-            return serverCapabilities.ServiceIdentification.Profile.indexOf(scalingUri) != -1;
+            return serverCapabilities.ServiceIdentification.Profile.indexOf(rasdaman.Constants.SCALING_EXT_URI) != -1;
         };
         GetCoverageController.isInterpolationSupported = function (serverCapabilities) {
-            var interpolationUri = "http://www.opengis.net/spec/WCS_service-extension_interpolation/1.0/conf/interpolation";
-            return serverCapabilities.ServiceIdentification.Profile.indexOf(interpolationUri) != -1;
+            return serverCapabilities.ServiceIdentification.Profile.indexOf(rasdaman.Constants.INTERPOLATION_EXT_URI) != -1;
         };
         GetCoverageController.$inject = [
             "$scope",
