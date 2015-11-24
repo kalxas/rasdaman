@@ -44,6 +44,7 @@ rasdaman GmbH.
 #include <string.h>
 #include "conversion/memfs.hh"
 
+#include "../common/src/logging/easylogging++.hh"
 
 /* can't use RMDBGOUT because this is C, not C++ */
 const int MEMFSDBGLEVEL = 4;
@@ -62,8 +63,7 @@ int memfs_ensure(thandle_t handle, toff_t off)
 #ifdef RMANDEBUG
     if (RManDebug >= MEMFSDBGLEVEL)
     {
-        printf("memfs_ensure: %d\n", off);
-        fflush(stdout);
+        LTRACE << "memfs_ensure: " << off;
     }
 #endif
     /* Do we have to allocate a bigger mam? */
@@ -82,8 +82,7 @@ int memfs_ensure(thandle_t handle, toff_t off)
 #ifdef RMANDEBUG
         if (RManDebug >= MEMFSDBGLEVEL)
         {
-            printf("memfs_ensure: growing mam from %d to %d\n", memFS->mamSize, mamSize2);
-            fflush(stdout);
+            LTRACE << "memfs_ensure: growing mam from " << memFS->mamSize << " to " << mamSize2;
         }
 #endif
         if ((mam2 = static_cast<char **>(mymalloc(static_cast<size_t>(mamSize2) * sizeof(char*)))) == NULL)
@@ -128,8 +127,7 @@ int memfs_initfs(thandle_t handle)
 #ifdef RMANDEBUG
     if (RManDebug >= MEMFSDBGLEVEL)
     {
-        printf("memfs_initfs\n");
-        fflush(stdout);
+        LTRACE << "memfs_initfs";
     }
 #endif
     memFS->pos = 0;
@@ -157,8 +155,7 @@ void memfs_killfs(thandle_t handle)
 #ifdef RMANDEBUG
     if (RManDebug >= MEMFSDBGLEVEL)
     {
-        printf("memfs_killfs\n");
-        fflush(stdout);
+        LTRACE << "memfs_killfs";
     }
 #endif
     for (i=0; i < memFS->mamSize; i++)
@@ -178,8 +175,7 @@ void memfs_newfile(thandle_t handle)
 #ifdef RMANDEBUG
     if (RManDebug >= MEMFSDBGLEVEL)
     {
-        printf("memfs_newfile\n");
-        fflush(stdout);
+        LTRACE << "memfs_newfile\n";
     }
 #endif
     memFS->pos = 0;
@@ -198,8 +194,7 @@ tsize_t memfs_read(thandle_t handle, tdata_t mem, tsize_t size)
 #ifdef RMANDEBUG
     if (RManDebug >= MEMFSDBGLEVEL)
     {
-        printf("memfs_read: (%d, left: %d)\n", todo, memFS->high);
-        fflush(stdout);
+        LTRACE << "memfs_read: ( " << todo <<", left: "<< memFS->high <<")";
     }
 #endif
     if (todo > size) todo = size;
@@ -232,8 +227,7 @@ tsize_t memfs_write(thandle_t handle, tdata_t mem, tsize_t size)
 #ifdef RMANDEBUG
     if (RManDebug >= MEMFSDBGLEVEL)
     {
-        printf("memfs_write (%d)\n",size);
-        fflush(stdout);
+        LTRACE << "memfs_write (" << size << ")";
     }
 #endif
     while (size > 0)
@@ -282,8 +276,7 @@ toff_t memfs_seek(thandle_t handle, toff_t offset, int mode)
 #ifdef RMANDEBUG
     if (RManDebug >= MEMFSDBGLEVEL)
     {
-        printf("memfs_seek: Set pos to %d\n", memFS->pos);
-        fflush(stdout);
+        LTRACE << "memfs_seek: Set pos to " << memFS->pos;
     }
 #endif
     return static_cast<toff_t>(memFS->pos);
@@ -295,8 +288,7 @@ int memfs_close(__attribute__ ((unused)) thandle_t handle)
 #ifdef RMANDEBUG
     if (RManDebug >= MEMFSDBGLEVEL)
     {
-        printf("memfs_close:\n");
-        fflush(stdout);
+        LTRACE << "memfs_close:";
     }
 #endif
     return 1; /* = success? */
@@ -308,8 +300,7 @@ toff_t memfs_size(thandle_t handle)
 #ifdef RMANDEBUG
     if (RManDebug >= MEMFSDBGLEVEL)
     {
-        printf("memfs_size:\n");
-        fflush(stdout);
+        LTRACE << "memfs_size:";
     }
 #endif
     return static_cast<toff_t>(((static_cast<memFSContext *>(handle))->high));
@@ -321,8 +312,7 @@ int memfs_map(__attribute__ ((unused)) thandle_t handle, __attribute__ ((unused)
 #ifdef RMANDEBUG
     if (RManDebug >= MEMFSDBGLEVEL)
     {
-        printf("memfs_map: %p, %d\n", *memp, *top);
-        fflush(stdout);
+        LTRACE << "memfs_map: " << *memp << ", " << *top;
     }
 #endif
     return 0;
@@ -334,8 +324,7 @@ void memfs_unmap(__attribute__ ((unused)) thandle_t handle, __attribute__ ((unus
 #ifdef RMANDEBUG
     if (RManDebug >= MEMFSDBGLEVEL)
     {
-        printf("memfs_unmap: %p, %d\n", mem, to);
-        fflush(stdout);
+        LTRACE << "memfs_unmap: " << mem << ", " << to;
     }
 #endif
 }
@@ -353,8 +342,7 @@ void memfs_chunk_initfs(thandle_t handle, char *src, r_Long size)
 #ifdef RMANDEBUG
     if (RManDebug >= MEMFSDBGLEVEL)
     {
-        printf("memfs_chunk_initfs: %p, %d\n", src, size);
-        fflush(stdout);
+        LTRACE << "memfs_chunk_initfs: " << src << ", " << size;
     }
 #endif
     memFS->pos = 0;
@@ -372,8 +360,7 @@ tsize_t memfs_chunk_read(thandle_t handle, tdata_t mem, tsize_t size)
 #ifdef RMANDEBUG
     if (RManDebug >= MEMFSDBGLEVEL)
     {
-        printf("memfs_chunk_read: %d (left %d)\n", size, todo);
-        fflush(stdout);
+        LTRACE << "memfs_chunk_read: " << size << " (left " << todo;
     }
 #endif
     if (todo > size) todo = size;
@@ -410,8 +397,7 @@ toff_t memfs_chunk_seek(thandle_t handle, toff_t offset, int mode)
 #ifdef RMANDEBUG
     if (RManDebug >= MEMFSDBGLEVEL)
     {
-        printf("memfs_chunk_seek: Position to %d\n", memFS->pos);
-        fflush(stdout);
+        LTRACE << "memfs_chunk_seek: Position to " << memFS->pos;
     }
 #endif
     return static_cast<toff_t>(memFS->pos);
@@ -423,8 +409,7 @@ int memfs_chunk_close(__attribute__ ((unused)) thandle_t handle)
 #ifdef RMANDEBUG
     if (RManDebug >= MEMFSDBGLEVEL)
     {
-        printf("memfs_chunk_close:\n");
-        fflush(stdout);
+        LTRACE << "memfs_chunk_close:";
     }
 #endif
     return 1;
@@ -436,8 +421,7 @@ toff_t memfs_chunk_size(thandle_t handle)
 #ifdef RMANDEBUG
     if (RManDebug >= MEMFSDBGLEVEL)
     {
-        printf("memfs_chunk_size:\n");
-        fflush(stdout);
+        LTRACE << "memfs_chunk_size:";
     }
 #endif
     return static_cast<toff_t>(((static_cast<memFSContext *>(handle))->high));
@@ -453,8 +437,7 @@ int memfs_chunk_map(thandle_t handle, tdata_t *memp, toff_t *top)
 #ifdef RMANDEBUG
     if (RManDebug >= MEMFSDBGLEVEL)
     {
-        printf("memfs_chunk_map:\n");
-        fflush(stdout);
+        LTRACE << "memfs_chunk_map:";
     }
 #endif
     *memp = static_cast<tdata_t>(memFS->chunk);
@@ -467,8 +450,7 @@ void memfs_chunk_unmap(__attribute__ ((unused)) thandle_t handle, __attribute__ 
 #ifdef RMANDEBUG
     if (RManDebug >= MEMFSDBGLEVEL)
     {
-        printf("memfs_chunk_unmap: %p, %d\n", mem, to);
-        fflush(stdout);
+        LTRACE << "memfs_chunk_unmap: " << mem << ", " << to;
     }
 #endif
 }

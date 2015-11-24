@@ -38,12 +38,12 @@ rasdaman GmbH.
 
 #include "config.h"
 #include "version.h"
+#undef DEBUG
 #define DEBUG
 #define DEBUG_MAIN
 #include "debug/debug.hh"
 #include "globals.hh"
 
-#include "config.h"
 
 //#ifndef RMANVERSION
 //#error "Please specify RMANVERSION variable!"

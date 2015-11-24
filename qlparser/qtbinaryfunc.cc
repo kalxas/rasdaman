@@ -985,7 +985,7 @@ QtScale::evaluate( QtDataList* inputList )
 
 #ifdef RMANDEBUG
     LTRACE << "Scale vector          : ";
-    for( int i=0; i<scaleVector.size(); i++ )
+    for( unsigned int i=0; i<scaleVector.size(); i++ )
     {
         LTRACE << scaleVector[i] << ",";
     }

@@ -334,23 +334,23 @@ MDDObjIx::intersect(const r_Minterval& searchInter) const
             {
 //this checks if there are double tiles in the result
 #ifdef DEBUG
-    DomainMap t;
-    DomainMap::iterator it;
-    for (i = 0; i < resSize; i++)
-    {
-        DomainPair p(resultKeys[i].getObject().getOId(), resultKeys[i].getDomain());
-        if ((it = t.find(p.first)) != t.end())
-        {
-            LTRACE << "intersect(" << searchInter <<
-            ") received double tile: " << resultKeys[i];
-            for (unsigned int i = 0; i < resultKeys.size(); i++)
-            {
-                LTRACE << resultKeys[i];
-            }
-            throw r_Error(TILE_MULTIPLE_TIMES_RETRIEVED);
-        }
-        t.insert(p);
-    }
+                DomainMap t;
+                DomainMap::iterator it;
+                for (i = 0; i < resSize; i++)
+                {
+                    DomainPair p(resultKeys[i].getObject().getOId(), resultKeys[i].getDomain());
+                    if ((it = t.find(p.first)) != t.end())
+                    {
+                        LTRACE << "intersect(" << searchInter <<
+                        ") received double tile: " << resultKeys[i];
+                        for (unsigned int j = 0; j < resultKeys.size(); j++)
+                        {
+                            LTRACE << resultKeys[j];
+                        }
+                        throw r_Error(TILE_MULTIPLE_TIMES_RETRIEVED);
+                    }
+                    t.insert(p);
+                }
 #endif
                 for (i = 0; i < resSize; i++)
                 {
@@ -465,15 +465,15 @@ MDDObjIx::getTiles() const
 #ifdef DEBUG
             DomainMap tmap;
             DomainMap::iterator it;
-            for (int cnt = 0; cnt < resSize; cnt++)
+            for (unsigned int cnt = 0; cnt < resSize; cnt++)
             {
                 DomainPair p(resultKeys[cnt].getObject().getOId(), resultKeys[cnt].getDomain());
                 if ((it = tmap.find(p.first)) != tmap.end())
                 {
                     LTRACE << "getTiles() received double tile: " << resultKeys[cnt];
-                    for (int cnt = 0; cnt < resultKeys.size(); cnt++)
+                    for (unsigned int j = 0; j < resultKeys.size(); j++)
                     {
-                        LTRACE << resultKeys[cnt];
+                        LTRACE << resultKeys[j];
                     }
                     throw r_Error(TILE_MULTIPLE_TIMES_RETRIEVED );
                 }

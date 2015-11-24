@@ -332,8 +332,8 @@ QtMDD::printStatus( ostream& stream ) const
     mddObject->printStatus(0, stream);
 
     vector< boost::shared_ptr<Tile> >* vec = mddObject->getTiles();
-    for( int i = 0; i<vec->size(); i++ )
+    for( unsigned int i = 0; i<vec->size(); i++ )
         ((*vec)[i])->printStatus();
     delete vec; vec=NULL;
 #endif
-    }
+}

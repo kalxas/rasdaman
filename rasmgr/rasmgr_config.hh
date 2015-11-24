@@ -132,11 +132,13 @@ private:
     //interface program
     CommandLineParser    &cmlInter;
     CommandLineParameter &cmlHelp, &cmlHostName, &cmlPort, &cmlPollFrequ;
-    CommandLineParameter &cmlName, &cmlQuiet, &cmlLog;
+    CommandLineParameter &cmlName, &cmlQuiet;
 
 #ifdef RMANDEBUG
     CommandLineParameter &cmlTest, &cmlDSup, &cmlRandTest, &cmlRth, &cmlMultiWT;
 #endif
+
+    CommandLineParameter &cmlLog;
 
     // logging variables
     bool        logToStdOut;

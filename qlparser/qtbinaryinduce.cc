@@ -210,7 +210,7 @@ QtBinaryInduce::computeUnaryMDDOp( QtMDD* operand1, QtScalarData* operand2, cons
                      ", structure " << typeStructure <<
                      ", value ";
         free( typeStructure ); typeStructure=NULL;
-        for( int x=0; x<constBaseType->getSize(); x++ )
+        for( unsigned int x=0; x<constBaseType->getSize(); x++ )
             LTRACE << hex << (int)(constValue[x]);
 #endif
 
