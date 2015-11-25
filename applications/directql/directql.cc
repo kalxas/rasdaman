@@ -110,6 +110,9 @@ using namespace std;
 #include "mymalloc/mymalloc.h"
 #include "raslib/mddtypes.hh"
 
+#include "globals.hh"
+
+#include "raslib/log_config.hh"
 #include "../../common/src/logging/easylogging++.hh"
 
 #ifdef __VISUALC__
@@ -1116,25 +1119,9 @@ _INITIALIZE_EASYLOGGINGPP
  */
 int main(int argc, char** argv)
 {
-    //Logging configuration: to standard output, LDEBUG and LTRACE are not enabled
-    easyloggingpp::Configurations defaultConf;
-    defaultConf.setToDefault();
-    defaultConf.set(easyloggingpp::Level::All,
-            easyloggingpp::ConfigurationType::Format, "%datetime [%level] %log");
-    defaultConf.set(easyloggingpp::Level::Info,
-            easyloggingpp::ConfigurationType::Format, "%datetime  [%level] %log");
-    defaultConf.set(easyloggingpp::Level::Warning,
-            easyloggingpp::ConfigurationType::Format, "%datetime  [%level] %log");
-    defaultConf.set(easyloggingpp::Level::All,
-            easyloggingpp::ConfigurationType::ToFile, "false");
-    defaultConf.set(easyloggingpp::Level::All,
-            easyloggingpp::ConfigurationType::ToStandardOutput, "true");
-    defaultConf.set(easyloggingpp::Level::Debug,
-                    easyloggingpp::ConfigurationType::Enabled, "false");
-    defaultConf.set(easyloggingpp::Level::Trace,
-                    easyloggingpp::ConfigurationType::Enabled, "false");
-    easyloggingpp::Loggers::reconfigureAllLoggers(defaultConf);
-    defaultConf.clear();
+    // Default logging configuration
+    LogConfiguration defaultConf(CONFDIR, CLIENT_LOG_CONF);
+    defaultConf.configClientLogging();
 
     SET_OUTPUT(false); // inhibit unconditional debug output, await cmd line evaluation
 

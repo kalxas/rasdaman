@@ -38,6 +38,7 @@ using namespace std;
 #include "servercomm/httpserver.hh"
 
 #include "debug/debug.hh"
+#include "raslib/log_config.hh"
 #include "../common/src/logging/easylogging++.hh"
 #include "debug.hh"
 
@@ -235,23 +236,10 @@ Configuration::initLogFiles()
         logToStdOut = false;
     }
 
-    //Default logging configuration
-    easyloggingpp::Configurations defaultConf;
-    defaultConf.setToDefault();
-    defaultConf.set(easyloggingpp::Level::All,
-            easyloggingpp::ConfigurationType::Format, "%datetime [%level] %log");
-    defaultConf.set(easyloggingpp::Level::Info,
-            easyloggingpp::ConfigurationType::Format, "%datetime  [%level] %log");
-    defaultConf.set(easyloggingpp::Level::Warning,
-            easyloggingpp::ConfigurationType::Format, "%datetime  [%level] %log");
-    defaultConf.set(easyloggingpp::Level::All ,
-            easyloggingpp::ConfigurationType::Filename, logFileName);
-    defaultConf.set(easyloggingpp::Level::Debug,
-            easyloggingpp::ConfigurationType::Enabled, "false");
-    defaultConf.set(easyloggingpp::Level::Trace,
-            easyloggingpp::ConfigurationType::Enabled, "false");
-    easyloggingpp::Loggers::reconfigureAllLoggers(defaultConf);
-    defaultConf.clear();
+
+    // Default logging configuration
+    LogConfiguration defaultConf(CONFDIR, SERVER_LOG_CONF);
+    defaultConf.configServerLogging(logFileName);
 
     if( logToStdOut == true)
     {

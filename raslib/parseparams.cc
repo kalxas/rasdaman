@@ -73,8 +73,9 @@ r_Parse_Params::~r_Parse_Params( void )
 
 int r_Parse_Params::add( const char *key, void *store, parse_param_type type )
 {
-
+#ifdef DEBUG
     LTRACE << "add('" << (key?key:"NULL") << "', " << (store?store:"NULL") << "," << type << ")";
+#endif
 
     if (number >= maxnum)
     {

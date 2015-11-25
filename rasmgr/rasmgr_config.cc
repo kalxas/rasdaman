@@ -62,6 +62,7 @@ using namespace std;
 #include "raslib/rminit.hh"
 #include "debug/debug-srv.hh"
 
+#include "raslib/log_config.hh"
 #include "../common/src/logging/easylogging++.hh"
 
 extern bool hostCmp( const char *h1, const char *h2);
@@ -488,24 +489,9 @@ void Configuration::initLogFiles()
         logFileName = makeLogFileName(LOG_SUFFIX);
         logToStdOut = false;
     }
-
-    //Default logging configuration
-    easyloggingpp::Configurations defaultConf;
-    defaultConf.setToDefault();
-    defaultConf.set(easyloggingpp::Level::All,
-            easyloggingpp::ConfigurationType::Format, "%datetime [%level] %log");
-    defaultConf.set(easyloggingpp::Level::Info,
-            easyloggingpp::ConfigurationType::Format, "%datetime  [%level] %log");
-    defaultConf.set(easyloggingpp::Level::Warning,
-            easyloggingpp::ConfigurationType::Format, "%datetime  [%level] %log");
-    defaultConf.set(easyloggingpp::Level::All ,
-            easyloggingpp::ConfigurationType::Filename, logFileName);
-    defaultConf.set(easyloggingpp::Level::Debug,
-            easyloggingpp::ConfigurationType::Enabled, "false");
-    defaultConf.set(easyloggingpp::Level::Trace,
-            easyloggingpp::ConfigurationType::Enabled, "false");
-    easyloggingpp::Loggers::reconfigureAllLoggers(defaultConf);
-    defaultConf.clear();
+    // Default logging configuration
+    LogConfiguration defaultConf(CONFDIR, SERVER_LOG_CONF);
+    defaultConf.configServerLogging(logFileName);
 
     cout << "rasmgr log file is: " << logFileName << endl;
 

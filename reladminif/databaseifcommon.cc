@@ -199,7 +199,6 @@ DatabaseIf::DatabaseIf()
         connected(false)
 
 {
-    LTRACE << "DatabaseIf()";
 }
 
 const char*

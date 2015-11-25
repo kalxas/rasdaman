@@ -38,6 +38,7 @@
 #define DEBUG_MAIN
 #include "debug-clt.hh"
 
+#include "raslib/log_config.hh"
 #include "common/src/logging/easylogging++.hh"
 
 using namespace std;
@@ -80,25 +81,9 @@ crash_handler (__attribute__ ((unused))int sig, __attribute__ ((unused))siginfo_
 
 int main(int argc, char** argv)
 {
-    //TODO-GM: find another way to do this
-    easyloggingpp::Configurations defaultConf;
-    defaultConf.setToDefault();
-    defaultConf.set(easyloggingpp::Level::All,
-            easyloggingpp::ConfigurationType::Format, "%datetime [%level] %log");
-    defaultConf.set(easyloggingpp::Level::Info,
-            easyloggingpp::ConfigurationType::Format, "%datetime  [%level] %log");
-    defaultConf.set(easyloggingpp::Level::Warning,
-            easyloggingpp::ConfigurationType::Format, "%datetime  [%level] %log");
-    defaultConf.set(easyloggingpp::Level::All,
-            easyloggingpp::ConfigurationType::ToFile, "false");
-    defaultConf.set(easyloggingpp::Level::All,
-            easyloggingpp::ConfigurationType::ToStandardOutput, "true");
-    defaultConf.set(easyloggingpp::Level::Debug,
-                    easyloggingpp::ConfigurationType::Enabled, "false");
-    defaultConf.set(easyloggingpp::Level::Trace,
-                    easyloggingpp::ConfigurationType::Enabled, "false");
-    easyloggingpp::Loggers::reconfigureAllLoggers(defaultConf);
-    defaultConf.clear();
+    // Default logging configuration
+    LogConfiguration defaultConf(CONFDIR, CLIENT_LOG_CONF);
+    defaultConf.configClientLogging();
 
     //install SIGSEGV signal handler
     installSigSegvHandler(crash_handler);

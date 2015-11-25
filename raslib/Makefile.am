@@ -34,7 +34,7 @@ AM_LDFLAGS=@CLIENTLDFLAGS@
 lib_LIBRARIES=libraslib.a
 libraslib_a_SOURCES= sinterval.hh dlist.hh point.hh minterval.hh error.hh \
                      rmdebug.hh rminit.hh metaobject.hh type.hh marraytype.hh \
-                     basetype.hh primitivetype.hh sintervaltype.hh \
+                     basetype.hh primitivetype.hh log_config.hh sintervaltype.hh \
                      collectiontype.hh property.hh attribute.hh mintervaltype.hh \
                      pointtype.hh oidtype.hh structuretype.hh itertype.hh \
                      oid.hh scalar.hh primitive.hh structure.hh miter.hh mddtypes.hh \
@@ -42,7 +42,7 @@ libraslib_a_SOURCES= sinterval.hh dlist.hh point.hh minterval.hh error.hh \
                      endian.hh flatbasetype.hh complex.hh complextype.hh shhopt.h \
                      sinterval.cc dlist.cc point.cc minterval.cc error.cc \
                      rmdebug.cc rminit.cc metaobject.cc type.cc marraytype.cc \
-                     basetype.cc primitivetype.cc sintervaltype.cc \
+                     basetype.cc primitivetype.cc log_config.cc sintervaltype.cc \
                      collectiontype.cc property.cc attribute.cc mintervaltype.cc \
                      pointtype.cc oidtype.cc structuretype.cc itertype.cc \
                      oid.cc scalar.cc primitive.cc structure.cc mddtypes.cc \

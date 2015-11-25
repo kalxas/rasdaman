@@ -40,12 +40,14 @@ endif
 
 rascontrol_SOURCES=rascontrol.cc rascontrol_class.cc rascontrol.hh \
                    ../rasmgr/ras_crypto.cc ../rasmgr/ras_crypto.hh \
+                   ../raslib/log_config.cc ../raslib/log_config.hh \
                    rasmgr_utils_conf.cc rasmgr_utils_conf.hh \
                    rasmgr_utils_comm.cc rasmgr_utils_comm.hh 
 rascontrol_LDADD = ../network/libnetwork.a ../commline/libcommline.a
 
 raspasswd_SOURCES=raspasswd.cc raspasswd.hh \
                   ../rasmgr/ras_crypto.cc ../rasmgr/ras_crypto.hh \
+                   ../raslib/log_config.cc ../raslib/log_config.hh \
                   rasmgr_utils_comm.cc rasmgr_utils_comm.hh \
                   rasmgr_utils_conf.cc rasmgr_utils_conf.hh
 raspasswd_LDADD = ../network/libnetwork.a ../commline/libcommline.a                  

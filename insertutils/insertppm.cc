@@ -78,12 +78,15 @@ using namespace std;
 #include "raslib/odmgtypes.hh"
 #include "raslib/error.hh"
 
+#include "globals.hh"
+
 // this is for inhouse debug macros; not needed for standalone compilation
 #if defined(RMANDEBUG) || defined(DEBUG)
 #define DEBUG_MAIN
 #include "debug.hh"
 #endif
 
+#include "raslib/log_config.hh"
 #include "common/src/logging/easylogging++.hh"
 
 extern "C" {
@@ -125,6 +128,7 @@ typedef struct
 
 // --- default values --------------------------------------------
 #define DEFAULT_TYPE    "color"
+#undef DEFAULT_PORT
 #define DEFAULT_PORT    "7001"
 #define DEFAULT_HOST    "localhost"
 #define DEFAULT_USER    "rasguest"
@@ -481,27 +485,9 @@ _INITIALIZE_EASYLOGGINGPP
 int
 main( int argc, char** argv )
 {
-    //TODO-GM: find a better way to do this
-
-    easyloggingpp::Configurations defaultConf;
-    defaultConf.setToDefault();
-    defaultConf.set(easyloggingpp::Level::All,
-            easyloggingpp::ConfigurationType::Format, "%datetime [%level] %log");
-    defaultConf.set(easyloggingpp::Level::Info,
-            easyloggingpp::ConfigurationType::Format, "%datetime  [%level] %log");
-    defaultConf.set(easyloggingpp::Level::Warning,
-            easyloggingpp::ConfigurationType::Format, "%datetime  [%level] %log");
-    defaultConf.set(easyloggingpp::Level::All,
-            easyloggingpp::ConfigurationType::ToFile, "false");
-    defaultConf.set(easyloggingpp::Level::All,
-            easyloggingpp::ConfigurationType::ToStandardOutput, "true");
-    defaultConf.set(easyloggingpp::Level::Debug,
-            easyloggingpp::ConfigurationType::Enabled, "false");
-    defaultConf.set(easyloggingpp::Level::Trace,
-            easyloggingpp::ConfigurationType::Enabled, "false");
-    easyloggingpp::Loggers::reconfigureAllLoggers(defaultConf);
-    defaultConf.clear();
-
+    // Default logging configuration
+    LogConfiguration defaultConf(CONFDIR, CLIENT_LOG_CONF);
+    defaultConf.configClientLogging();
 
     const char   *prog = argv[0];               // our name
     int           retval = EXIT_OK;             // program exit code

@@ -73,4 +73,18 @@ install-data-hook: rasmgr.conf
 		$(MKDIR_P) $(DESTDIR)$(sysconfdir); \
 		echo " $(INSTALL_DATA) rasmgr.conf $(DESTDIR)$(sysconfdir)/rasmgr.conf"; \
 		$(INSTALL_DATA) rasmgr.conf $(DESTDIR)$(sysconfdir)/rasmgr.conf; \
+	fi; \
+	if test -f $(DESTDIR)$(sysconfdir)/log-server.conf; then \
+		echo "$@ will not overwrite existing $(DESTDIR)$(sysconfdir)/log-server.conf"; \
+	else \
+		$(MKDIR_P) $(DESTDIR)$(sysconfdir); \
+		echo " $(INSTALL_DATA) log-server.conf $(DESTDIR)$(sysconfdir)/log-server.conf"; \
+		$(INSTALL_DATA) log-server.conf $(DESTDIR)$(sysconfdir)/log-server.conf; \
+	fi; \
+	if test -f $(DESTDIR)$(sysconfdir)/log-client.conf; then \
+		echo "$@ will not overwrite existing $(DESTDIR)$(sysconfdir)/log-client.conf"; \
+	else \
+		$(MKDIR_P) $(DESTDIR)$(sysconfdir); \
+		echo " $(INSTALL_DATA) log-client.conf $(DESTDIR)$(sysconfdir)/log-client.conf"; \
+		$(INSTALL_DATA) log-client.conf $(DESTDIR)$(sysconfdir)/log-client.conf; \
 	fi;

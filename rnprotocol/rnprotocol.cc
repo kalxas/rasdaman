@@ -618,7 +618,7 @@ bool RnpProtocolDecoder::testIntegrity() const throw()
 // the counting seems to differ from the protocol specs;
 // to avoid log flooding we disable it for the moment being -- PB 2005-aug-28
 #ifdef RMANDEBUG
-            LWARNING << "Communication warning: puzzled by message: parameter count too small, found extra parameter(s). (this message can be ignored)";
+            LTRACE << "Communication warning: puzzled by message: parameter count too small, found extra parameter(s). (this message can be ignored)";
 #endif
         }
 
