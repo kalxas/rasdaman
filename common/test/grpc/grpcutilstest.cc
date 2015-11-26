@@ -35,7 +35,7 @@ TEST(GrpcUtilsTest, AddressToStringTest)
     std::string host="localhost";
     boost::uint32_t port = 5002;
 
-    ASSERT_EQ("localhost:5002", GrpcUtils::convertAddressToString(host, port));
+    ASSERT_EQ("localhost:5002", GrpcUtils::constructAddressString(host, port));
 }
 }
 }
