@@ -5,8 +5,8 @@
 %global tomcat tomcat6
 %endif
 Name:           rasdaman
-Version:        9.1.0
-Release:        2%{?dist}
+Version:        9.2.0
+Release:        0%{?dist}
 Summary:        rasdaman - Raster Data Manager
 
 Group:          Applications/Databases
@@ -280,6 +280,8 @@ fi
 %{_bindir}/update_db.sh
 %{_bindir}/wcst_import.sh
 %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/rasdaman/rasmgr.conf
+%config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/rasdaman/log-server.conf
+%config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/rasdaman/log-client.conf
 %{_localstatedir}/log/rasdaman/empty
 %{_datadir}/rasdaman/errtxts*
 %{_datadir}/rasdaman/db_updates
@@ -348,6 +350,10 @@ fi
 %{_datadir}/rasdaman/raswct
 
 %changelog
+
+* Thu Nov 26  2015 Dimitar Misev <misev@rasdaman.com> - 9.2.0-0
+
+ - Add logging configuration files
 
 * Fri Jul 13  2015 Dimitar Misev <misev@rasdaman.com> - 9.1.0-2
 

@@ -3,7 +3,7 @@
 
 AC_PREREQ(2.61)
 # CAVEAT: in the following two lines keep version numbers in sync!
-AC_INIT(Rasdaman, 9.1.0, baumann@rasdaman.com)
+AC_INIT(Rasdaman, 9.2.0, baumann@rasdaman.com)
 AM_INIT_AUTOMAKE([1.9 tar-pax subdir-objects -Wno-portability])
 
 AC_PREFIX_DEFAULT(/usr/local/rasdaman)

@@ -63,7 +63,7 @@ dist_log_DATA=empty
 #
 BUILT_SOURCES = version
 version:
-	version=`((which git > /dev/null 2>&1 && git describe --tags HEAD | sed 's/-[0-9]*-/-/1') || echo v9.0.0)`; \
+	version=`((which git > /dev/null 2>&1 && git describe --tags HEAD | sed 's/-[0-9]*-/-/1') || echo v9.2.0)`; \
 	echo '#define RMANVERSION "'$$version'"' > version.h.tmp
 	echo '#define GCCVERSION "'`$(CC) --version | head -n 1`'"' >> version.h.tmp
 	echo '#define GCCTARGET "'`$(CC) -v 2>&1 | grep Target: | sed 's/Target: //'`'"' >> version.h.tmp
