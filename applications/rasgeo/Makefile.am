@@ -66,7 +66,7 @@ else
    ALLOW_INSTALL = FALSE
 endif
 
-nstall-data-hook:
+install-data-hook:
 	if [ $(ALLOW_INSTALL) = TRUE ] ; then \
 		mkdir -p $(HOME)/.rasdaman; \
 		if [ ! -f $(HOME)/.rasdaman/rasconnect ]; then \
