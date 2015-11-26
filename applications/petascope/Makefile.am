@@ -192,9 +192,8 @@ install: war service
 		echo 'Update java_server=embedded Petascope in petascope.properties'; \
 		sed -i 's|java_server=external|java_server=embedded|g'	$(SETTINGS_FILE); \
 		sed -i 's|start_embedded_petascope=false|start_embedded_petascope=true|g' $(SETTINGS_FILE); \
-		javac -cp $(JETTY)/jetty.jar $(JETTY)/start_petascope.java \
-		echo  'Copy embedded Petascope files to "wardir" folder:' . $(CP) $(JETTY)/* $(DESTDIR)$(wardir) \
-		$(CP) $(JETTY)/* $(DESTDIR)$(wardir) \
+		javac -cp $(JETTY)/jetty.jar $(JETTY)/start_petascope.java; \
+		$(CP) $(JETTY)/* $(DESTDIR)$(wardir); \
 	fi;
 # B: Comment from line: 235
 # If user's petascope.properties file has no option 'java_server' or 'start_embedded_petascope', it will be added automatically.
