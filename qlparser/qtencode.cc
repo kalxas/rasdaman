@@ -375,8 +375,9 @@ GDALDataset* QtEncode::convertTileToDataset(Tile* tile, int nBands, r_Type* band
         LFATAL << "QtEncode::convertTileToDataset - Error: Could not allocate memory. ";
         throw r_Error(r_Error::r_Error_MemoryAllocation);
     }
-    LTRACE << "convertTileToDataset() - Allocated " << (typeSize * height * width) << " bytes for the dataset";
-
+#ifdef DEBUG
+    LTRACE << "convertTileToDataset() - Allocated " << (static_cast<int>(typeSize) * height * width) << " bytes for the dataset";
+#endif
     // for all bands, convert data from column-major form (from Rasdaman) to row-major form (GDAL)
     // and then write the data to GDAL datasets
     for (int band = 0; band < nBands; band++)

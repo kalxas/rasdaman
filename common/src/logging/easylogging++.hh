@@ -1733,8 +1733,8 @@ public:
         clear();
     }
 
-    inline void setDefault(const T& default_) {
-        this->default_ = default_;
+    inline void setDefault(const T& defaultOption_) {
+        this->default_ = defaultOption_;
     }
 
     inline std::size_t size(void) const {
