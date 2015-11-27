@@ -442,7 +442,8 @@ if test "$enable_rasnet" = "yes"; then
                         [PROTOC="$withval"],
         [AS_IF([test "x${PROTOC}" == "x"], [AC_PATH_PROG([PROTOC], [protoc], [no])])]
     )
-    AS_IF([test "${PROTOC}" == "no"], [AC_MSG_ERROR([ProtoBuf compiler "protoc" not found. Please install protobuf-compiler or specify the binary path using --with-protoc if it was not installed on the default path.])])
+
+    AC_CHECK_FILE("${PROTOC}", [] ,[AC_MSG_ERROR([ProtoBuf compiler "protoc" not found. Please install protobuf-compiler or specify the binary path using --with-protoc if it was not installed on the default path.])])
 
     # GRPC CPP PLUGIN compiler.
     AC_ARG_WITH([grpc_cpp_plugin],
@@ -451,7 +452,7 @@ if test "$enable_rasnet" = "yes"; then
         [GRPCCPPPLUGIN="$withval"],
         [AS_IF([test "x${GRPCCPPPLUGIN}" == "x"], [AC_PATH_PROG([GRPCCPPPLUGIN], [grpc_cpp_plugin], [no])])]
     )
-    AS_IF([test "${GRPCCPPPLUGIN}" == "no"], [AC_MSG_ERROR([grpc cpp plugin not found. Please install protobuf-compiler or specify the binary path using --with-grpc-cpp-plugin if it was not installed on the default path.])])
+    AC_CHECK_FILE("${GRPCCPPPLUGIN}", [] ,[AC_MSG_ERROR([grpc cpp plugin not found. Please install it or specify the binary path using --with-grpc-cpp-plugin if it was not installed on the default path.])])
 
     if test "$disable_java" = "no"; then
         # GRPC Java PLUGIN compiler.
@@ -461,7 +462,7 @@ if test "$enable_rasnet" = "yes"; then
             [GRPCJAVAPLUGIN="$withval"],
             [AS_IF([test "x${GRPCJAVAPLUGIN}" == "x"], [AC_PATH_PROG([GRPCJAVAPLUGIN], [protoc-gen-grpc-java], [no])])]
         )
-        AS_IF([test "${GRPCJAVAPLUGIN}" == "no"], [AC_MSG_ERROR([grpc java plugin not found. Please install it or specify the binary path using --with-grpc-java-plugin if it was not installed on the default path.])])
+        AC_CHECK_FILE("${GRPCJAVAPLUGIN}", [] ,[AC_MSG_ERROR([grpc java plugin not found. Please install it or specify the binary path using --with-grpc-java-plugin if it was not installed on the default path.])])
     fi
 fi
 ### End - Check for rasnet ###
