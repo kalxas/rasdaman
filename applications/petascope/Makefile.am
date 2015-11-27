@@ -68,14 +68,17 @@ SERVICE_FILENAME=wms_service.properties
 SERVICE_SRC_FILE=src/main/resources/wms/wms_service.properties
 
 if PETASCOPEDB_PGSQL
-  SETTINGS_FILE = src/main/resources/petascope.properties
+  SETTINGS_FILE = src/main/resources/petascope.properties.in
+  SETTINGS_FILE_EDIT = src/main/resources/petascope.properties
 endif
 if PETASCOPEDB_SQLITE
-  SETTINGS_FILE = src/main/resources/petascope_sqlite.properties
+  SETTINGS_FILE = src/main/resources/petascope_sqlite.properties.in
+  SETTINGS_FILE_EDIT = src/main/resources/petascope_sqlite.properties
   SQLITE=1
 endif
 if PETASCOPEDB_HSQLDB
-  SETTINGS_FILE = src/main/resources/petascope_hsqldb.properties
+  SETTINGS_FILE = src/main/resources/petascope_hsqldb.properties.in
+  SETTINGS_FILE_EDIT = src/main/resources/petascope_hsqldb.propertiess
   HSQLDB=1
 endif
 
@@ -181,21 +184,23 @@ javadoc: $(all_javas)
 # Finally, copy $(SETTINGS_FILE) file petascope.properties in ~petascope/src/main/resources to $RMANHOME/etc/
 .PHONY: install
 install: war service
+	echo "Recreate petascope properties temporary setting file...";
+	$(CP) $(SETTINGS_FILE) $(SETTINGS_FILE_EDIT);
+	echo "Done.";
 	$(MKDIR) $(DESTDIR)$(wardir)
 	$(CP) $(WAR) $(DESTDIR)$(wardir)
 	echo "JAVA SERVER = "$(JAVA_SERVER)
 	if [ $(JAVA_SERVER) == external ]; then \
-		echo 'Update java_server=external Petascope in petascope.properties'; \
-		sed -i 's|java_server=embedded|java_server=external|g'	$(SETTINGS_FILE); \
-		sed -i 's|start_embedded_petascope=true|start_embedded_petascope=false|g' $(SETTINGS_FILE); \
+		echo 'Update java_server=external Petascope in petascope properties file'; \
+		sed -i 's|java_server=embedded|java_server=external|g'	$(SETTINGS_FILE_EDIT); \
+		sed -i 's|start_embedded_petascope=true|start_embedded_petascope=false|g' $(SETTINGS_FILE_EDIT); \
 	else \
-		echo 'Update java_server=embedded Petascope in petascope.properties'; \
-		sed -i 's|java_server=external|java_server=embedded|g'	$(SETTINGS_FILE); \
-		sed -i 's|start_embedded_petascope=false|start_embedded_petascope=true|g' $(SETTINGS_FILE); \
+		echo 'Update java_server=embedded Petascope in petascope properties file'; \
+		sed -i 's|java_server=external|java_server=embedded|g'	$(SETTINGS_FILE_EDIT); \
+		sed -i 's|start_embedded_petascope=false|start_embedded_petascope=true|g' $(SETTINGS_FILE_EDIT); \
 		javac -cp $(JETTY)/jetty.jar $(JETTY)/start_petascope.java; \
 		$(CP) $(JETTY)/* $(DESTDIR)$(wardir); \
 	fi;
-# B: Comment from line: 235
 # If user's petascope.properties file has no option 'java_server' or 'start_embedded_petascope', it will be added automatically.
 # If user's petascope.properties has option 'java_server' then it will update to 'embedded/external' based on user's configuration.  (./configure --with-java-server=embedded/external)
 # [ -z "`grep -m 1 -h "java_server" "$$NEWCONF"`" ]; need to use -z "grep " to avoid  "too many arguments error".
@@ -209,10 +214,10 @@ if PETASCOPEDB_HSQLDB
 	$(MKDIR) -p $(filedatadir)/petascope
 endif
 	OLD_CONF=$(DESTDIR)$(sysconfdir)/petascope.properties; \
-	NEW_CONF=$(SETTINGS_FILE); \
+	NEW_CONF=$(SETTINGS_FILE_EDIT); \
 	OLD_LOG4JCONF=$(DESTDIR)$(sysconfdir)/log4j.properties; \
 	NEW_LOG4JCONF=src/main/resources/log4j.properties; \
-	sed -i "s|GENERATED_rasdaman_bin_path|$(bindir)/|g" $(SETTINGS_FILE); \
+	sed -i "s|GENERATED_rasdaman_bin_path|$(bindir)/|g" $(SETTINGS_FILE_EDIT); \
 	if test -f $$OLD_CONF; then \
 		echo "$@ is updating petascope.properties: $$OLD_CONF from $$NEW_CONF"; \
 		./update_properties.sh $$OLD_CONF $$NEW_CONF; \
