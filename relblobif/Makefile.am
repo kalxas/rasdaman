@@ -46,8 +46,15 @@ lib_LIBRARIES=librelblobif.a
 librelblobif_a_SOURCES= blobtile.hh \
                         dbtile.cc dbtile.hh inlinetile.cc inlinetile.hh \
                         blobtilecommon.cc tileid.hh tilecache.cc tilecache.hh \
-                        tilecachevalue.cc tilecachevalue.hh \
-                        blobfilestorage.cc blobfilestorage.hh
+                        tilecachevalue.cc tilecachevalue.hh
+
+if BASEDB_SQLITE
+librelblobif_a_SOURCES+=blobfs.cc blobfs.hh \
+                        dirwrapper.cc dirwrapper.hh \
+                        blobfstransaction.cc blobfstransaction.hh \
+                        blobfstransactionlock.cc blobfstransactionlock.hh \
+                        blobfile.cc blobfile.hh lockfile.cc lockfile.hh
+endif
 
 
 EXTRA_librelblobif_a_SOURCES=blobtile.pgc 

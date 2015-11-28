@@ -44,7 +44,7 @@ class r_Error;
 #include "tilecache.hh"
 #include "tilecachevalue.hh"
 #include "raslib/mddtypes.hh"
-#include "blobfilestorage.hh"
+#include "blobfs.hh"
 
 //@ManMemo: Module: {\bf relblobif}.
 
@@ -170,10 +170,6 @@ protected:
 
 private:
 
-    static BlobFileStorage* fileStorage;
-    static void initFileStorage();
-    static bool fileStorageInitialized;
-    
     friend class TileCache;
 };
 

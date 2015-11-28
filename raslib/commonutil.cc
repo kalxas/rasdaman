@@ -23,8 +23,6 @@
 #include "config.h"
 
 #include <signal.h>
-#include <execinfo.h>
-#include <cxxabi.h>
 #include <cstring>
 #include <cstdlib>
 #include <cstdio>

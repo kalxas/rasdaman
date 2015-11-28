@@ -113,6 +113,11 @@ echo -n "$PROG: rasdaman dictionary initialization...\c"
 # - check if user has rights to create SQLite database
 if [ "$BASEDBMS" == "$BASEDBMS_SQLITE" ]; then
   datadir=$(dirname "@dbconn@")
+  if [ ! -d "$datadir" ]
+  then
+    echo "$MYNAME: Filestorage directory $datadir does not exist, rasdaman database cannot be created." >&2
+    exit $RC_ERROR
+  fi
   if [ ! -w "$datadir" ]
   then
     echo "$MYNAME: User $USER has no write permissions in $datadir, rasdaman database cannot be created." >&2

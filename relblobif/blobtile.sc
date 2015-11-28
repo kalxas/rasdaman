@@ -41,17 +41,17 @@ rasdaman GmbH.
 #include "reladminif/sqlerror.hh"
 #include "inlinetile.hh"
 #include "tilecache.hh"
+#include "blobfs.hh"
 
 #include "../common/src/logging/easylogging++.hh"
 
 using namespace std;
+using blobfs::BlobFS;
+using blobfs::BlobData;
 
 void
 BLOBTile::updateInDb() throw (r_Error)
 {
-    if (!fileStorageInitialized)
-        initFileStorage();
-
     long long blobOid = myOId.getCounter();
     LTRACE << "updating tile with id " << blobOid;
 
@@ -72,7 +72,8 @@ BLOBTile::updateInDb() throw (r_Error)
     }
     else
     {
-        fileStorage->update(cells, size, blobOid);
+        BlobData blob(blobOid, size, cells);
+        BlobFS::getInstance().update(blob);
     }
 
     DBObject::updateInDb();
@@ -81,9 +82,6 @@ BLOBTile::updateInDb() throw (r_Error)
 void
 BLOBTile::insertInDb() throw (r_Error)
 {
-    if (!fileStorageInitialized)
-        initFileStorage();
-
     long long blobOid = myOId.getCounter();
     LTRACE << "inserting tile with id " << blobOid;
 
@@ -96,7 +94,10 @@ BLOBTile::insertInDb() throw (r_Error)
     checkQuery.finalize();
 
     SQLiteQuery::executeWithParams("INSERT INTO RAS_TILES ( BlobId, DataFormat ) VALUES  ( %lld, %d )", blobOid, dataFormat);
-    fileStorage->insert(cells, size, blobOid);
+
+    BlobData blob(blobOid, size, cells);
+    BlobFS::getInstance().insert(blob);
+
     if (TileCache::cacheLimit > 0)
     {
         CacheValue* value = new CacheValue(cells, size, true, myOId, blobOid, this);
@@ -110,9 +111,6 @@ BLOBTile::insertInDb() throw (r_Error)
 void
 BLOBTile::deleteFromDb() throw (r_Error)
 {
-    if (!fileStorageInitialized)
-        initFileStorage();
-
     long long blobOid = myOId.getCounter();
     LTRACE << "deleting tile with id " << blobOid;
 
@@ -125,7 +123,8 @@ BLOBTile::deleteFromDb() throw (r_Error)
     checkQuery.finalize();
 
     SQLiteQuery::executeWithParams("DELETE FROM RAS_TILES WHERE BlobId = %lld", blobOid);
-    fileStorage->remove(blobOid);
+    BlobData blob(blobOid);
+    BlobFS::getInstance().remove(blob);
     if (TileCache::cacheLimit > 0)
     {
         TileCache::removeKey(myOId);
@@ -140,9 +139,6 @@ BLOBTile::deleteFromDb() throw (r_Error)
 void
 BLOBTile::kill(const OId& target, unsigned int range)
 {
-    if (!fileStorageInitialized)
-        initFileStorage();
-
     if (range == 0) // single tuple
     {
         DBObject* targetobj = ObjectBroker::isInMemory(target);
@@ -163,7 +159,8 @@ BLOBTile::kill(const OId& target, unsigned int range)
         checkQuery.finalize();
 
         SQLiteQuery::executeWithParams("DELETE FROM RAS_TILES WHERE BlobId = %lld", blobOid);
-        fileStorage->remove(blobOid);
+        BlobData blob(blobOid);
+        BlobFS::getInstance().remove(blob);
         if (TileCache::cacheLimit > 0)
         {
             TileCache::removeKey(blobOid);
@@ -191,7 +188,8 @@ BLOBTile::kill(const OId& target, unsigned int range)
         while (query.nextRow())
         {
             blobOid = query.nextColumnLong();
-            fileStorage->remove(blobOid);
+            BlobData blob(blobOid);
+            BlobFS::getInstance().remove(blob);
             if (TileCache::cacheLimit > 0)
             {
                 TileCache::removeKey(blobOid);
@@ -206,6 +204,7 @@ long long
 BLOBTile::getAnyTileOid()
 {
     long long ret = NO_TILE_FOUND;
+
     SQLiteQuery checkTable("SELECT name FROM sqlite_master WHERE type='table' AND name='RAS_TILES'");
     if (checkTable.nextRow())
     {
@@ -225,9 +224,6 @@ BLOBTile::getAnyTileOid()
 void
 BLOBTile::readFromDb() throw (r_Error)
 {
-    if (!fileStorageInitialized)
-        initFileStorage();
-
 #ifdef RMANBENCHMARK
     DBObject::readTimer.resume();
 #endif
@@ -262,7 +258,11 @@ BLOBTile::readFromDb() throw (r_Error)
     }
     else
     {
-        fileStorage->retrieve(blobOid, &cells, &size);
+        BlobData blob(blobOid, size, cells);
+        BlobFS::getInstance().select(blob);
+        size = blob.size;
+        cells = blob.data;
+
         if (TileCache::cacheLimit > 0)
         {
             CacheValue* value = new CacheValue(cells, size, false, myOId, blobOid, this, dataFormat);
@@ -286,17 +286,11 @@ BLOBTile::readFromDb() throw (r_Error)
 
 void BLOBTile::writeCachedToDb(CacheValue* value)
 {
-    if (!fileStorageInitialized)
-        initFileStorage();
-
     if (value && value->isUpdate())
     {
-        long long blobOid = -1;
-        r_Bytes size = value->getSize();
-        char* cells = value->getData();
-        OId myOId = value->getOId();
-        blobOid = value->getBlobOid();
-        fileStorage->update(cells, size, myOId.getCounter());
+        long long blobOid = value->getBlobOid();
+        BlobData blob(value->getOId().getCounter(), value->getSize(), value->getData());
+        BlobFS::getInstance().update(blob);
     }
 
     delete value;

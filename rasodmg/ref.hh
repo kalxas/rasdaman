@@ -35,6 +35,7 @@ rasdaman GmbH.
 
 #include "raslib/error.hh"
 #include "raslib/oid.hh"
+#include "raslib/scalar.hh"
 
 class r_Object;
 class r_Point;

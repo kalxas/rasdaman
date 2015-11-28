@@ -31,6 +31,7 @@ rasdaman GmbH.
 #define TESTING_H__
 
 #include <iostream>
+#include <string>
 
 using namespace std;
 
@@ -45,6 +46,7 @@ public:
     static int getResult();
     static void startTimer();
     static double stopTimer();
+    static string charPtrToString(char* ptr, unsigned int size);
 private:
     static int timer_sec_, timer_usec_;
 };
@@ -91,6 +93,13 @@ private:
         LOG << "Expected equality but found otherwise" <<endl \
         << "First string : " << a << " ." << endl \
         << "Second string: " << b << " ." << endl \
+        << "In file " << __FILE__ << " at line " << __LINE__ << endl
+
+#define EXPECT_EQ_MEM(a,b,size) \
+    if (memcmp((a),(b),(size)) != 0) Test::test_result_ = false, \
+        LOG << "Expected equality but found otherwise" <<endl \
+        << "First string : " << Test::charPtrToString(a, size) << " ." << endl \
+        << "Second string: " << Test::charPtrToString(b, size) << " ." << endl \
         << "In file " << __FILE__ << " at line " << __LINE__ << endl
 
 #define RUN_TEST(method) \

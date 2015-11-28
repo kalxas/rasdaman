@@ -230,6 +230,16 @@ else
 
   log "rasdaman data directory: $RASDATA"
 
+  # determine file data dir
+  if [ -z "$RASDATA" ]; then
+    export RASDATA="@filedatadir@"
+    [ -n "$RASDATA" ] || error "please export RASDATA to point to the rasdaman data directory"
+  fi
+  [ -d "$RASDATA" ] || error "rasdaman data directory not found: $RASDATA"
+  [ -w "$RASDATA" -a -x "$RASDATA" ] || error "no write permissions to the rasdaman data directory: $RASDATA"
+
+  log "rasdaman data directory: $RASDATA"
+
   check_sqlite
 
   #

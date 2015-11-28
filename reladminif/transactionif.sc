@@ -45,7 +45,10 @@ rasdaman GmbH.
 #include "objectbroker.hh"
 #include "databaseif.hh"
 #include "dbobject.hh"
+#include "relblobif/blobfs.hh"
 #include "../common/src/logging/easylogging++.hh"
+
+using blobfs::BlobFS;
 
 void
 TransactionIf::begin( bool readOnly ) throw ( r_Error )
@@ -89,7 +92,19 @@ TransactionIf::commit() throw (  r_Error  )
     OId::deinitialize();
     AdminIf::setReadOnlyTA(isReadOnly);
 
-    SQLiteQuery::execute("COMMIT TRANSACTION");
+    try
+    {
+        BlobFS::getInstance().preRasbaseCommit();
+        SQLiteQuery::execute("COMMIT TRANSACTION");
+    }
+    catch (r_Error& err)
+    {
+        abort();
+        throw err;
+    }
+
+    BlobFS::getInstance().postRasbaseCommit();
+
     if (lastBase)
     {
         lastBase->baseDBMSClose();
@@ -116,8 +131,11 @@ TransactionIf::abort()
     AdminIf::setReadOnlyTA(false);
 
     SQLiteQuery::execute("ROLLBACK TRANSACTION");
+    BlobFS::getInstance().postRasbaseAbort();
     if(lastBase)
+    {
         lastBase->baseDBMSClose();
+    }
 
 #ifdef RMANBENCHMARK
     DBObject::readTimer.stop();

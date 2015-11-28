@@ -43,6 +43,8 @@ SCRIPT_DIR="$( cd -P "$( dirname "$SOURCE" )" && pwd )"
 
 . "$SCRIPT_DIR"/../../util/common.sh
 
+export RASDATA="$DB_DIR"
+
 set -u
 set -e
 
@@ -67,7 +69,7 @@ get_db_checksum()
 {
   pushd "$DB_DIR" > /dev/null
   sqlite3 RASBASE .dump > db.sql
-  md5sum $(ls -I RASBASE -I RASBASE-journal) | md5sum | awk '{ print $1; }'
+  md5sum $(find . -type f | egrep -v '(RASBASE$|RASBASE-journal|insert\.|remove\.|update\.)'  | tr '\n' ' ') | md5sum | awk '{ print $1; }'
   rm -f db.sql
   popd > /dev/null
 }
@@ -213,7 +215,7 @@ trap '_print_errors "${LINENO}" "${BASH_SOURCE}"' ERR
 #
 
 check_filestorage_dependencies
-prepare_configuration
+prepare_configuration 1
 record_query_metrics
 
 while [ true ]; do
@@ -242,7 +244,7 @@ while [ true ]; do
 
   curr_db_checksum=$(get_db_checksum "$DB_DIR")
   if [ "$curr_db_checksum" != "$query_pre_db_checksum" ]; then
-    archive_logs "$query_file_name"
+    archive_logs "$QUERY_DIR/$query_file_name"
     error "current db size $curr_db_checksum doesn't match recorded pre-query db size $query_pre_db_checksum (dir $DB_DIR)."
   fi
 
@@ -253,6 +255,7 @@ while [ true ]; do
   sleep 0.3
 
   restart_rasdaman
+  sleep 0.3
 
   curr_db_checksum=$(get_db_checksum "$DB_DIR")
   if [ "$curr_db_checksum" != "$query_pre_db_checksum" -a "$curr_db_checksum" != "$query_post_db_checksum" ]; then

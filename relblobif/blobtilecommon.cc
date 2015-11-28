@@ -60,17 +60,6 @@ rasdaman GmbH.
 extern char globalConnectId[256];
 
 const long long BLOBTile::NO_TILE_FOUND;
-bool BLOBTile::fileStorageInitialized = false;
-BlobFileStorage* BLOBTile::fileStorage = NULL;
-
-void BLOBTile::initFileStorage()
-{
-    if (!BLOBTile::fileStorageInitialized)
-    {
-        BLOBTile::fileStorage = new BlobFileStorage();
-        BLOBTile::fileStorageInitialized = true;
-    }
-}
 
 BLOBTile::BLOBTile(r_Data_Format dataformat)
     :   DBTile(dataformat)

@@ -168,5 +168,9 @@ config.h.in
 core
 systemtest/testcases_manual/test_crash_rasserver/queries_metrics
 systemtest/testcases_manual/test_crash_rasserver/bugs
-test_filestorage
 test_tilecache
+test_blobfile
+test_blobfs
+test_blobfstransaction
+test_blobfstransactionlock
+*.log

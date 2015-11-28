@@ -90,7 +90,6 @@ export GDALINFO="gdalinfo -noct -checksum"
 
 # filestorage
 export DB_DIR="/tmp/rasdb"
-export RASDATA="$DB_DIR"
 export LOG_DIR="$RMANHOME/log"
 export RASMGR_CONF="$RMANHOME/etc/rasmgr.conf"
 
@@ -682,13 +681,22 @@ get_backup_rasmgr_conf()
 }
 prepare_configuration()
 {
+  local server_no="$1"
+  [ -n "$server_no" ] || server_no=1
   get_backup_rasmgr_conf
   logn "backing up $RASMGR_CONF to $BACKUP_RASMGR_CONF... "
   cp "$RASMGR_CONF" "$BACKUP_RASMGR_CONF"
   check
   logn "updating connect string in $RASMGR_CONF to $DB_DIR/RASBASE... "
-  sed -i 's|connect .*|connect '$DB_DIR'/RASBASE|g' "$RASMGR_CONF"
-  check
+  echo "define dbh rasdaman_host -connect $DB_DIR/RASBASE" > "$RASMGR_CONF"
+  echo "define db RASBASE -dbh rasdaman_host" >> "$RASMGR_CONF"
+  echo "" >> "$RASMGR_CONF"
+  for i in $(seq 1 "$server_no"); do
+    local port=$(($i + 1))
+    echo "define srv N$i -host blade -type n -port 700$port -dbh rasdaman_host" >> "$RASMGR_CONF"
+    echo "change srv N$i -countdown 200000 -autorestart on -xp --timeout 300000" >> "$RASMGR_CONF"
+    echo "" >> "$RASMGR_CONF"
+  done
 }
 restore_configuration()
 {

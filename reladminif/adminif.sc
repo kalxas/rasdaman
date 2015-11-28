@@ -42,7 +42,10 @@ rasdaman GmbH.
 
 #include "adminif.hh"
 #include "objectbroker.hh"
+#include "relblobif/blobfs.hh"
 #include "../common/src/logging/easylogging++.hh"
+
+using blobfs::BlobFS;
 
 extern char globalConnectId[PATH_MAX];
 
@@ -163,6 +166,8 @@ AdminIf::AdminIf(bool createDb) throw (r_Error)
         }
         checkTable.finalize();
     }
+
+    BlobFS::getInstance();
 
     closeDbConnection();
 

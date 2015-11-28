@@ -24,6 +24,8 @@ rasdaman GmbH.
 #include <sys/time.h>
 #include <unistd.h>
 #include <time.h>
+#include <stdlib.h>
+#include <string.h>
 #include "testing.h"
 
 bool Test::test_result_ = 0;
@@ -56,4 +58,14 @@ int Test::getResult()
     LOG << endl;
     LOG << tests_passed_ << "/" << tests_run_ << " tests passed!" << endl;
     return (tests_passed_ != tests_run_);
+}
+
+string Test::charPtrToString(char* ptr, unsigned int size)
+{
+    char* res = (char*) malloc(size + 1);
+    memcpy(res, ptr, size);
+    res[size+1] = '\0';
+    string ret(res);
+    free(res);
+    return string(res);
 }

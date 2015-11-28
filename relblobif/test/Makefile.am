@@ -28,17 +28,22 @@
 #
 ##################################################################
 
-AM_CXXFLAGS=@CLIENTCXXFLAGS@ @BASEDBCXXFLAGS@
+AM_CXXFLAGS=@CLIENTCXXFLAGS@ @BASEDBCXXFLAGS@ -Wno-write-strings
 AM_LDFLAGS=
 
 if BASEDB_SQLITE
-check_PROGRAMS=test_filestorage
-test_filestorage_SOURCES= test_filestorage.cc testing.cc
+TESTS=test_blobfstransactionlock test_blobfstransaction test_blobfs test_blobfile
+
+check_PROGRAMS=test_blobfs test_blobfstransactionlock test_blobfstransaction test_blobfile
+test_blobfs_SOURCES= test_blobfs.cc
+test_blobfstransaction_SOURCES= test_blobfstransaction.cc
+test_blobfstransactionlock_SOURCES= test_blobfstransactionlock.cc
+test_blobfile_SOURCES= test_blobfile.cc
 endif
 
 if BASEDB_PGSQL
 check_PROGRAMS=test_tilecache
-test_tilecache_SOURCES= test_tilecache.cc testing.cc testing.hh
+test_tilecache_SOURCES= test_tilecache.cc testing.cc testing.h
 endif
 
 LDADD= ../../rasodmg/librasodmg.a ../../clientcomm/libclientcomm.a \
@@ -54,7 +59,8 @@ LDADD= ../../rasodmg/librasodmg.a ../../clientcomm/libclientcomm.a \
                ../../mddmgr/libmddmgr.a ../../relmddif/librelmddif.a \
                ../../indexmgr/libindexmgr.a ../../qlparser/libqlparser.a ../../conversion/libconversion.a \
                ../../catalogmgr/libcatalogmgr.a ../../lockmgr/liblockmanager.a \
-               ../../raslib/libraslib.a ../../tilemgr/libtilemgr.a ../../server/rasserver_config.o ../../commline/cmlparser.o ../../reladminif/libreladminif.a @GDAL_LDFLAGS@ @CLIENTLDFLAGS@ @BASEDBLDFLAGS@
+               ../../raslib/libraslib.a ../../tilemgr/libtilemgr.a ../../server/rasserver_config.o \
+               ../../commline/cmlparser.o ../../reladminif/libreladminif.a testing.o @GDAL_LDFLAGS@ @CLIENTLDFLAGS@ @BASEDBLDFLAGS@
 
 if RMANRASNET
     LDADD += ../../rasserver_x/src/librasnetserver.a ../../rasnetprotocol/librasnetprotocol.a ../../rasnet/librasnet.a ../../common/src/libcommon.a @GRPC_LIBS@ @GPR_LIBS@ @GRPCPP_LIBS@  @PROTOBUF_LIBS@ @BOOST_LDFLAGS@ -lboost_thread -lboost_regex -lboost_program_options -lboost_system
