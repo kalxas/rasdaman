@@ -1,3 +1,23 @@
+# This file is part of rasdaman community.
+#
+# Rasdaman community is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# Rasdaman community is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with rasdaman community.  If not, see <http://www.gnu.org/licenses/>.
+#
+# Copyright 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015 Peter Baumann /
+# rasdaman GmbH.
+#
+# For more information please see <http://www.rasdaman.org>
+# or contact Peter Baumann via <baumann@rasdaman.com>.
 # ---------------------------------------------------------------------
 # settings.properties
 #
@@ -15,14 +35,14 @@ metadata_driver=org.sqlite.JDBC
 
 # parameter:     metadata_url
 # purpose:       JDBC URL of database serving PetaScope metadata
-#		 recommendation: use default values on a default Postgresql
-#		 installation, and DB name petascopedb
+#                recommendation: use default values on a default Postgresql
+#                installation, and DB name petascopedb
 # need to adapt: yes
 metadata_url=jdbc:sqlite:petascopedb
 # parameter:     metadata_user
 # purpose:       DBMS login under which servlet has r/w access
 #                to PetaScope metadata;
-#                	recommendation: establish a dedicated user
+#                recommendation: establish a dedicated user
 # need to adapt: yes
 metadata_user=petauser
 
@@ -62,20 +82,20 @@ rasdaman_admin_user=rasadmin
 # need to adapt: yes
 rasdaman_admin_pass=rasadmin
 
-# parameter:	 rasdaman_retry_attempts
-# purpose:	 maximum re-connect attempts to a rasdaman server in case a connection fails.
+# parameter:     rasdaman_retry_attempts
+# purpose:       maximum re-connect attempts to a rasdaman server in case a connection fails.
 # need to adapt: no
 rasdaman_retry_attempts=5
 
-# parameter:	 rasdaman_retry_timeout
-# purpose:	 wait time in seconds between re-connect attempts to a rasdaman server
+# parameter:     rasdaman_retry_timeout
+# purpose:       wait time in seconds between re-connect attempts to a rasdaman server
 # need to adapt: no
 rasdaman_retry_timeout=10
 
-# parameter:	xml_validation
-# purpose:      If set to `true', input XML requests will be validated against OGC WCS schema definitions.
-#               (!) The very first WCS request after Petascope deployment will take around 1-2 mins to load the schemas (!)
-#               Set the parameter to `false' if no input validation is required (default).
+# parameter:     xml_validation
+# purpose:       If set to `true', input XML requests will be validated against OGC WCS schema definitions.
+#                (!) The very first WCS request after Petascope deployment will take around 1-2 mins to load the schemas (!)
+#                Set the parameter to `false' if no input validation is required (default).
 # need to adapt: yes
 xml_validation=false
 
@@ -123,3 +143,31 @@ description_in_covsummary=false
 #                Set this parameter to your public service URL in case you are using a proxy.
 # need to adapt: no
 petascope_servlet_url=
+
+# parameter:     jetty_port
+# purpose:       Change port of jetty when user want to start_rasdaman
+# description:   Avoid conflict with another Web server like exist Jetty, Tomcat,....
+# need to adapt: yes (depend on user environment)
+jetty_port=8080
+
+# parameter:     jetty_extracted_path
+# purpose:       Change path of extracted_jetty when user start_rasdaman
+# description:   User could choose which path (directory) to start embedded petascope
+# need to adapt: no (depend on user want to extract jetty to another folder). Default is "RASDAMAN_INSALL"/share/rasdaman/war/jetty_tmp
+jetty_extracted_path=
+
+# parameter:     java_server
+# purpose:       Allowing user to start Petascope with embedded (Jetty) or external (Tomcat)
+#                (use ./configure --with-java-server=embedded/external).
+# description:   User could set to external (Tomcat - Petascope) or embedded (Jetty - Petascope).
+#                When setting to "embedded", user could start embedded Petascope after starting Rasdaman in script start_rasdaman.sh.
+# need to adapt: yes (depend on user environment), normally is external.
+java_server=external
+
+# parameter:     start_emdedded_petascope
+# purpose:       Allowing user to start embedded Jetty - Petascope after excute start_rasdaman.sh.
+# description:   User could enable or disable Jetty - Petascope with: permanent by configuration:"true/false" or temporary enable/disable
+#                when running script start_rasdaman.sh
+#                (example: "start_rasdaman.sh --stop-embedded-petascope" or "start_rasdaman --start-embedded-petascope").
+# need to adapt:  yes (depend on user environment), normally is false.
+start_embedded_petascope=false

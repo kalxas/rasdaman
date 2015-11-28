@@ -43,7 +43,7 @@ if GENERATE_DOCS
 endif
 
 # Location of trees.
-SRC	  = src/main
+SRC       = src/main
 SRC_MAIN  = $(SRC)/java
 SRC_RES   = $(SRC)/resources
 WMS_MES   = $(SRC_RES)/wms-messages
@@ -57,7 +57,7 @@ NAME      = rasdaman
 WAR_NAME  = $(NAME).war
 WAR       = $(DIST)/$(WAR_NAME)
 
-JETTY	  = jetty
+JETTY     = jetty
 
 APIDOCS   = $(BUILD)/apidocs
 STATIC_WEB_FOLDER = static
@@ -99,7 +99,7 @@ JJARS_PATHS = lib/gt9.jar lib/ormlite-core-4.48.jar lib/ormlite-jdbc-4.48.jar  l
 
 JFLAGS    = -sourcepath $(SRC_MAIN) \
                -d $(CLASSES)        \
-               -cp $(JJARS_CP)	    \
+               -cp $(JJARS_CP)      \
                -source 1.5
 
 JVMFLAGS  = -ea                     \
@@ -111,8 +111,8 @@ JAR       = jar
 JARFLAGS  = cf
 
 JAVADOC   = javadoc
-JDFLAGS   = -sourcepath $(SRC_MAIN)  \
-            -d $(APIDOCS)	     \
+JDFLAGS   = -sourcepath $(SRC_MAIN) \
+            -d $(APIDOCS)           \
             -source 1.5 -classpath $(JJARS_CP)
 
 # ------------------------------------------------------------------------------
@@ -192,11 +192,11 @@ install: war service
 	echo "JAVA SERVER = "$(JAVA_SERVER)
 	if [ $(JAVA_SERVER) == external ]; then \
 		echo 'Update java_server=external Petascope in petascope properties file'; \
-		sed -i 's|java_server=embedded|java_server=external|g'	$(SETTINGS_FILE_EDIT); \
+		sed -i 's|java_server=embedded|java_server=external|g' $(SETTINGS_FILE_EDIT); \
 		sed -i 's|start_embedded_petascope=true|start_embedded_petascope=false|g' $(SETTINGS_FILE_EDIT); \
 	else \
 		echo 'Update java_server=embedded Petascope in petascope properties file'; \
-		sed -i 's|java_server=external|java_server=embedded|g'	$(SETTINGS_FILE_EDIT); \
+		sed -i 's|java_server=external|java_server=embedded|g' $(SETTINGS_FILE_EDIT); \
 		sed -i 's|start_embedded_petascope=false|start_embedded_petascope=true|g' $(SETTINGS_FILE_EDIT); \
 		javac -cp $(JETTY)/jetty.jar $(JETTY)/start_petascope.java; \
 		$(CP) $(JETTY)/* $(DESTDIR)$(wardir); \
@@ -274,7 +274,7 @@ wps: jar
 
 .PHONY: all
 all: war
-	
+
 EXTRA_DIST = \
 	build.xml \
 	INSTALL \
