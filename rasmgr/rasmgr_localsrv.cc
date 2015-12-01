@@ -41,6 +41,7 @@ using namespace std;
 #include "rasmgr_master.hh"
 #include "rasmgr_srv.hh"
 #include <signal.h>
+#include <unistd.h>
 #include <time.h>
 
 #ifdef __APPLE__
@@ -264,7 +265,11 @@ bool LocalServerManager::killServer(const char *serverName)
 
             // try graceful termination first
             int killResult = kill(iter->getPID(),SIGTERM);
+
+            // force kill just in case after 30ms
+            usleep(30000);
             killResult = kill(iter->getPID(),SIGKILL);
+
             if (killResult == -1)
             {
                 LERROR << "Error: " << strerror(errno);
