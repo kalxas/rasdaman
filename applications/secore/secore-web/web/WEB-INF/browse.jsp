@@ -32,12 +32,34 @@
 <%@page import="secore.util.Constants" %>
 <%@page import="secore.util.Pair"%>
 <%@page import="secore.util.XMLUtil"%>
-<%@page import="com.sun.xml.internal.ws.util.xml.XmlUtil"%>
 <%@page import="secore.util.StringUtil"%>
 <%@page import="secore.util.SecoreUtil"%>
 <%@page import="secore.util.SecoreException"%>
 <%@page import="java.util.Comparator"%>
 <!DOCTYPE html>
+<script>
+
+  function checkTextEmpty(e) {
+    var text = "";
+    if (e.name === "Save")
+    {
+      text = document.gmlform.changedef.value.trim();
+    }
+    else if (e.name === "Add")
+    {
+      text = document.gmlform.adddef.value.trim();
+    }
+
+    if (!text || 0 === text.length)
+    {
+      alert("Definition can not be blank.");
+      return false;
+    }
+    return true;
+  }
+</script>
+
+
 <html>  
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
@@ -49,7 +71,7 @@
     <%
       out.println("<span style=\"font-size:large;\">"
           + "<a href='" + StringUtil.SERVLET_CONTEXT + "/" + Constants.INDEX_FILE + "'>Index</a></span>");
-    // Future work: assure a smooth transition between URNs and URLs for the new identifiers
+      // Future work: assure a smooth transition between URNs and URLs for the new identifiers
       String url = (String) request.getAttribute("url");
 
       String up = url.substring(0, url.lastIndexOf(Constants.REST_SEPARATOR, url.length() - 2));
@@ -59,18 +81,59 @@
       }
 
       out.println("<br/><span style=\"font-size:large;\">Nodes at prefix: " + url + "</span>");
-      out.println("<br/><span style=\"font-size:large;\"><a href='" + url + 
-          Constants.ADMIN_FILE + Constants.FRAGMENT_SEPARATOR
+      out.println("<br/><span style=\"font-size:large;\"><a href='" + url
+          + Constants.ADMIN_FILE + Constants.QUERY_SEPARATOR
           + "add=true'>Add new definition?</a></span><br/><hr/>");
-
+      out.println("<br/><span style='color:red;'>Note: you can only add or remove 'user defined entries'.</span><br/><br/>");
 
       // Handle changed GML deffinitions
       String mod = request.getParameter("changedef");
       if (null != mod) {
         if (!mod.equals(Constants.EMPTY)) {
           String newUrl = StringUtil.getElementValue(mod, Constants.IDENTIFIER_LABEL);
-          SecoreUtil.updateDef(mod, newUrl);
-          out.println("<br/><span style=\"font-size:large;\">The database has been updated.</span><br/>");
+
+          if (newUrl == null) {
+            // need to validate GML in next version
+            out.println("<span style=\"font-size:large; color:red;\">Definition is not valid. The database remains unchanged.</span><br/><br/>");
+          } else {
+            // assum definition is valid then check it does exist in DB.
+            // Should check newUrl does exist in userDictionary or GmlDictionary or does not exist in both (return error)
+            String retUser = Constants.EMPTY;
+            String retEPSG = Constants.EMPTY;
+            String db = Constants.EMPTY; // to updateQuery with right DB
+
+            retUser = SecoreUtil.queryDef(newUrl, true, true, false);
+            // If it is exist in userDictionary then it should not be in GmlDictionary
+            if (!retUser.equals(Constants.EMPTY_XML)) {
+              db = DbManager.USER_DB;
+            } else // try to check it is exist in EPSG
+            {
+              retEPSG = SecoreUtil.queryDef(newUrl, true, false, true);
+              if (!retEPSG.equals(Constants.EMPTY_XML)) {
+                db = DbManager.EPSG_DB;
+              }
+            }
+
+            // If identifier does not exist in User, Gml Dictionary then it is not valid to update
+            if (db.equals(Constants.EMPTY)) {
+              out.println("<span style=\"font-size:large; color:red;\">GML identifier does not exist in "
+                  + DbManager.USER_DB + " or " + DbManager.EPSG_DB + " dictionaries. The database remains unchanged.</span><br/><br/>");
+            } else {
+              String error = Constants.EMPTY;
+              // NOTE: If definition does exist in User Dictionary then go and update normally (only change anything inside User Dictionary)
+              if (db.equals(DbManager.USER_DB)) {
+                error = SecoreUtil.updateDef(mod, newUrl, db);
+              } else {
+                // If definition does exist in Gml Dictionary but not in User Dictionary then *have to* add it (don't update to Gml Dictionary)
+                error = SecoreUtil.insertDef(mod, newUrl);
+              }
+              if (error.equals(Constants.EMPTY)) {
+                out.println("<span style=\"font-size:large; color:green;\">The database has been updated.</span><br/><br/>");
+              } else {
+                out.println("<span style=\"font-size:large; color:red;\">Error: " + error + " when update, see log file for more detail. The database remains unchanged.</span><br/><br/>");
+              }
+            } // end check GML Identifier exist in User or Gml Dictionaries
+          } // end check newURL is null
         } else {
           out.println("<br/><span style=\"font-size:large;\"><span style=\"color:red\">"
               + "Empty definition submitted. The database remains unchanged.<span></span><br/>");
@@ -81,8 +144,12 @@
       String newd = request.getParameter("adddef");
       if (null != newd) {
         if (!newd.equals(Constants.EMPTY)) {
-          SecoreUtil.insertDef(newd, url);
-          out.println("<br/><span style=\"font-size:large;\">The database has been updated.</span><br/>");
+          String error = SecoreUtil.insertDef(newd, url);
+          if (error.equals(Constants.EMPTY)) {
+            out.println("<span style=\"font-size:large; color:green;\">The database has been updated.</span><br/><br/>");
+          } else {
+            out.println("<span style=\"font-size:large; color:red;\">Error: " + error + " when insert, see log file for more detail. The database remains unchanged.</span><br/><br/>");
+          }
         } else {
           out.println("<br/><span style=\"font-size:large;\"><span style=\"color:red\">"
               + "Empty definition submitted. The database remains unchanged.<span></span><br/>");
@@ -95,18 +162,24 @@
     %>
     <span style="font-size:large;">Add a new GML definition in the space below:</span><br/>
     <form action="<%=url + Constants.ADMIN_FILE%>" method="post" name="gmlform">
-      <textarea cols="150" rows="20" name="adddef" wrap="virtual"></textarea><br/>
-      <input type="submit" name="Add" value="Add" />
+      <textarea cols="150" rows="35" name="adddef" wrap="virtual"></textarea><br/>
+      <input type="submit" name="Add" onclick="return checkTextEmpty(this)" value="Add" />
     </form>
     <%
     } else {
       // Handles removal of definitions
       String todel = request.getParameter("delete");
       if (null != todel) {
-        SecoreUtil.deleteDef(url, todel);
+        String error = SecoreUtil.deleteDef(url, todel);
+
+        if (error.equals(Constants.EMPTY)) {
+          out.println("<span style=\"font-size:large; color:green;\">The database has been updated.</span><br/><br/>");
+        } else {
+          out.println("<span style=\"font-size:large; color:red;\">Error: " + error + " when delete, see log file for more detail. The database remains unchanged.</span><br/><br/>");
+        }
       }
 
-      // Query for the list
+      // Query for the list of all definitions by category
       String result = SecoreUtil.queryDef(url, false, true, true);
 
       // Query for individual GML definitions
@@ -115,8 +188,8 @@
     %>
     <span style="font-size:large;">The definition below will be replaced by your submission:</span><br/>
     <form action="<%=url + Constants.ADMIN_FILE%>" method="post" name="gmlform">
-      <textarea cols="150" rows="20" name="changedef" wrap="virtual"><%out.print(result);%></textarea><br/>
-      <input type="submit" name="Save" value="Save" />
+      <textarea cols="150" rows="35" id="changedef" name="changedef" wrap="virtual"><%out.print(result);%></textarea><br/>
+      <input type="submit" onclick="return checkTextEmpty(this)" name="Save" value="Save" />
     </form>
     <%
     } else {
@@ -127,8 +200,8 @@
     %>
     <span style="font-size:large;">The definition below will be replaced by your submission:</span><br/>
     <form action="<%=url + Constants.ADMIN_FILE%>" method="post" name="gmlform">
-      <textarea cols="150" rows="20" name="changedef" wrap="virtual"><%out.print(result);%></textarea><br/>
-      <input type="submit" name="Save" value="Save" />
+      <textarea cols="150" rows="35" id="changedef" name="changedef" wrap="virtual"><%out.print(result);%></textarea><br/>
+      <input type="submit" onclick="return checkTextEmpty(this)" name="Save" value="Save" />
     </form>
     <%
     } else {
@@ -138,10 +211,10 @@
         // Display the list in a table
         for (Pair<String, Boolean> p : res) {
           String l = p.fst;
-          String remove = "";
+          String remove = Constants.EMPTY;
           if (p.snd) {
             // only allow removal of user definitions
-            remove = "<td><a href='" + Constants.ADMIN_FILE + Constants.FRAGMENT_SEPARATOR + "delete=" + l
+            remove = "<td><a href='" + Constants.ADMIN_FILE + Constants.QUERY_SEPARATOR + "delete=" + l
                 + "' onclick='javascript:return confirm(\"Do you really want to delete the node " + l
                 + " and all entries under the path " + url + l + "?\")'>Remove</a>"
                 + "</td>";

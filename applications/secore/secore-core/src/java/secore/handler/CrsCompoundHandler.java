@@ -68,7 +68,7 @@ public class CrsCompoundHandler extends AbstractHandler {
         if (component.key == null || !String.valueOf(i).equals(component.key)) {
           throw new SecoreException(ExceptionCode.InvalidParameterValue,
               "Invalid " + getOperation() + " request, expected number " + i
-              + " as key for parameter, but but was " + component.key);
+              + " as key for parameter, but was " + component.key);
         }
         String res = null;
         ResolveRequest req = (ResolveRequest) component.val;

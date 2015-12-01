@@ -21,6 +21,8 @@
  */
 package secore.util;
 
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import secore.req.ResolveRequest;
 import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
@@ -50,27 +52,28 @@ import static secore.util.Constants.*;
 public class StringUtil {
 
   private static Logger log = LoggerFactory.getLogger(StringUtil.class);
-  
+
   public static String SERVLET_CONTEXT = "/def";
   public static String SERVICE_URI = Config.getInstance().getServiceUrl();
   public static boolean SERVICE_URI_SET = false;
   // this URI is changed by the servlet during the first request.
-  
+
   public static String START_DIGIT_REGEXP = "^\\d+=.+";
-  
+
   private static final ScriptEngineManager engineManager;
   private static final ScriptEngine engine;
-  
+
   static {
     engineManager = new ScriptEngineManager();
     engine = engineManager.getEngineByName(JAVA_SCRIPT_ENGINE);
   }
-  
+
   /**
    * Evaluate a JavaScript expression
+   *
    * @param expr JavaScript expression
    * @return the value of the expression as string
-   * @throws ScriptException 
+   * @throws ScriptException
    */
   public static String evaluate(String expr) throws ScriptException {
     log.trace("Evaluating expression: " + expr);
@@ -81,7 +84,9 @@ public class StringUtil {
     return null;
   }
 
-  /** URL-decode a string, if needed */
+  /**
+   * URL-decode a string, if needed
+   */
   public static String urldecode(String encodedText) {
     if (encodedText == null) {
       return null;
@@ -95,7 +100,7 @@ public class StringUtil {
     }
     return decoded;
   }
-  
+
   public static boolean isUrn(String s) {
     return s != null && s.startsWith(URN_PREFIX);
   }
@@ -119,7 +124,7 @@ public class StringUtil {
     }
     return s;
   }
-  
+
   public static String removeDuplicateDef(String s) {
     int ind = s.indexOf(SERVLET_CONTEXT);
     return s.substring(0, ind) + s.substring(ind + SERVLET_CONTEXT.length());
@@ -141,21 +146,21 @@ public class StringUtil {
     } else if (s.startsWith(LOCAL_URI)) {
       ret = LOCAL_URI;
     } else if (!s.startsWith(HTTP_PREFIX)) {
-      ret = "";
+      ret = Constants.EMPTY;
     }
     ret = wrapUri(ret);
     return ret;
   }
 
   /**
-   * Only supports simple definition URNs. No support for compund or parameterized
-   * URNs.
-   * 
+   * Only supports simple definition URNs. No support for compund or
+   * parameterized URNs.
+   *
    * @param uri a URN to be converted into a URI
    */
   public static String convertUrnToUrl(String uri) {
     String ret = getServiceUri(uri);
-    
+
     uri = StringUtil.stripDef(uri);
     String[] values = uri.split(URN_SEPARATOR);
     for (String value : values) {
@@ -168,18 +173,20 @@ public class StringUtil {
     }
     return ret;
   }
-  
+
   /**
-   * Joins strings of an array in a specified range (within the size of the array) and with a specified separator.
-   * @param array     Array of Strings
-   * @param start     Lower bound of the range
-   * @param end       Upper bound of the range
+   * Joins strings of an array in a specified range (within the size of the
+   * array) and with a specified separator.
+   *
+   * @param array Array of Strings
+   * @param start Lower bound of the range
+   * @param end Upper bound of the range
    * @param separator The separator String
-   * @return          The joined String
+   * @return The joined String
    */
   public static String join(String[] array, int start, int end, String separator) {
     String joined = "";
-    for (int i = Math.max(start, 0);  i < Math.min(end, array.length); i++) {
+    for (int i = Math.max(start, 0); i < Math.min(end, array.length); i++) {
       joined += (joined.isEmpty() ? "" : separator) + array[i];
     }
     return joined;
@@ -187,6 +194,7 @@ public class StringUtil {
 
   /**
    * Get the text content of an element in given xml.
+   *
    * @param xml xml
    * @param elname element name
    * @return the text content of elname
@@ -203,6 +211,7 @@ public class StringUtil {
 
   /**
    * Replace the value of an element in given xml with replacement.
+   *
    * @param xml xml
    * @param elname element name
    * @param replacement new element value
@@ -222,6 +231,7 @@ public class StringUtil {
 
   /**
    * Get the root element name of the given xml document.
+   *
    * @param xml an XML document
    * @return the root name, or null in case of an error
    */
@@ -288,20 +298,20 @@ public class StringUtil {
     }
     return l;
   }
-  
+
   /**
    * Replace all URNs in s with URLs in REST format.
-   * 
+   *
    * @param s a GML definition
    * @return the definition with the fixed links
    */
   public static String fixLinks(String s) {
     return fixLinks(s, Config.getInstance().getServiceUrl());
   }
-  
+
   /**
    * Replace all URNs in s with URLs in REST format, given a service URI.
-   * 
+   *
    * @param s a GML definition
    * @return the definition with the fixed links
    */
@@ -318,22 +328,22 @@ public class StringUtil {
     }
     return ret;
   }
-  
+
   /**
-   * Replace all URNs in s with URLs in REST format, given a service URI.
-   * Also replace { and } with {{ and }}, so that a def can be properly inserted
-   * in the XML database.
-   * 
+   * Replace all URNs in s with URLs in REST format, given a service URI. Also
+   * replace { and } with {{ and }}, so that a def can be properly inserted in
+   * the XML database.
+   *
    * @param s a GML definition
    * @return the definition with the fixed links and curly braces
    */
   public static String fixDef(String s, String serviceUri) {
     return fixLinks(s, serviceUri).replaceAll("\\{", "{{").replaceAll("\\}", "}}");
   }
-  
+
   /**
    * @return the GML namespace used in the underlying database
-   * @throws SecoreException 
+   * @throws SecoreException
    */
   public static String getGmlNamespace() {
 //    String ret = EMPTY;
@@ -358,7 +368,7 @@ public class StringUtil {
 //    return ret;
     return GML_NAMESPACES[1];
   }
-  
+
   /**
    * @param s string
    * @return the original s without any colon at the end
@@ -369,13 +379,13 @@ public class StringUtil {
     }
     return s;
   }
-  
+
   public static boolean emptyQueryResult(String result) {
-    return result == null 
-        || result.equals(EMPTY_XML) 
+    return result == null
+        || result.equals(EMPTY_XML)
         || result.replaceAll("[\\n\\r]", "").equals(EMPTY);
   }
-  
+
   /**
    * @return uri with / appended if it's not already.
    */
@@ -385,7 +395,7 @@ public class StringUtil {
     }
     return uri;
   }
-  
+
   /**
    * @return uri with the last '/' removed.
    */
@@ -428,5 +438,17 @@ public class StringUtil {
       }
     }
     return ret;
+  }
+
+  /**
+   * Write stack trace error to log file instead of throw error
+   *
+   * @param method (add, update, delete)
+   * @param e (Exception)
+   */
+  public static void printStackTraceWhenEditDB(String method, Throwable e) {
+    StringWriter sw = new StringWriter();
+    e.printStackTrace(new PrintWriter(sw));
+    log.debug("Error when " + method + " definition by BaseX: " + sw.toString());
   }
 }

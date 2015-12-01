@@ -119,6 +119,13 @@ public class BaseX implements Database {
     }
   }
 
+  /**
+   * Query query with DB Name
+   * @param query Xquery
+   * @param databaseName DatabaseName
+   * @return String
+   * @throws SecoreException
+   */
   private String query(String query, String databaseName) throws SecoreException {
     try {
       long start = System.currentTimeMillis();
@@ -126,12 +133,13 @@ public class BaseX implements Database {
       String ret = null;
       boolean user = DbManager.USER_DB.equals(databaseName);
       boolean cached = false;
+
       if (DbManager.cacheContains(query, user)) {
         Pair<String, Boolean> tmp = DbManager.getCached(query);
         ret = tmp.fst;
         cached = true;
       } else {
-        ret = new XQuery(query).execute(context);
+        ret = new XQuery(query).execute(context); // error here when update with empty value in query
       }
       long end = System.currentTimeMillis();
       if (!StringUtil.emptyQueryResult(ret)) {
@@ -149,6 +157,12 @@ public class BaseX implements Database {
     }
   }
 
+  /**
+   * Query User or Gml Dictionaries
+   * @param query XQuery
+   * @return String
+   * @throws SecoreException
+   */
   public String query(String query) throws SecoreException {
     log.trace("Executing query");
     String ret = null;
@@ -159,13 +173,35 @@ public class BaseX implements Database {
     return ret;
   }
 
-  public String updateQuery(String query) throws SecoreException {
+  /**
+   * UpdateQuery to add the right DBName
+   *
+   * @param query String XQuery with "COLLECTION_NAME"
+   * @param db String DBName
+   * @return String != "" if error
+   * @throws SecoreException
+   */
+  public String updateQuery(String query, String db) throws SecoreException {
     log.trace("Executing update query");
     query = StringUtil.fixLinks(query, StringUtil.SERVICE_URI);
-    String ret = queryUser(query);
+
+    // in here should check if identifier is existing in GmlDictionary or UserDictionary then update query correspond with DB name
+    String ret = Constants.EMPTY;
+    if (db.equals(DbManager.USER_DB)) {
+      ret = queryUser(query);
+    } else if (db.equals(DbManager.EPSG_DB)) {
+      ret = queryEpsg(query);
+    }
     return ret;
   }
 
+  /**
+   * If query EPSG database then update query with "Gml"
+   *
+   * @param query String XQuery need to update
+   * @return String query
+   * @throws SecoreException
+   */
   public String queryEpsg(String query) throws SecoreException {
     String ret = null;
     if (query == null) {
@@ -177,6 +213,13 @@ public class BaseX implements Database {
     return ret;
   }
 
+  /**
+   * If query User database then update query with "userdb"
+   *
+   * @param query String XQuery need to update
+   * @return String != "" if error
+   * @throws SecoreException
+   */
   public String queryUser(String query) throws SecoreException {
     String ret = null;
     if (query == null) {

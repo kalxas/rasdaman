@@ -57,8 +57,9 @@ public interface Database {
   /**
    * Submit query that updates the database
    * @param query XQuery query
+   * @param db DBManager name
    * @return a the result as a string
    * @throws Exception in case of an error in the query evaluation
    */
-  String updateQuery(String query) throws SecoreException;
+  String updateQuery(String query, String db) throws SecoreException;
 }

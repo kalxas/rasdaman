@@ -4,6 +4,8 @@
  */
 package secore.util;
 
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.util.Comparator;
 import java.util.Set;
 import java.util.TreeSet;
@@ -20,19 +22,28 @@ import static secore.util.Constants.*;
 public class SecoreUtil {
 
   private static Logger log = LoggerFactory.getLogger(SecoreUtil.class);
-  
+
   public static String USER_FLAG_KEY = "__USER__";
   public static String USER_FLAG = "1";
   public static String EPSG_FLAG = "0";
 
-  public static void insertDef(String newd, String id) throws SecoreException {
+  /**
+   * Insert new definition to User Dictionary (NOTE: always insert to User)
+   * @param newd String new definition to insert
+   * @param id String identifier to insert
+   * @return String != "" if error
+   * @throws SecoreException
+   */
+  public static String insertDef(String newd, String id) throws SecoreException {
     log.trace("Insert definition with identifier: " + id);
-    
+
     newd = StringUtil.fixDef(newd, StringUtil.SERVICE_URI);
     String newdId = StringUtil.getElementValue(newd, IDENTIFIER_LABEL);
     if (newdId != null) {
       id = newdId;
     }
+
+    String error = Constants.EMPTY;
 
     String result = queryDef(id, true, true, false);
     if (StringUtil.emptyQueryResult(result)) {
@@ -42,22 +53,46 @@ public class SecoreUtil {
           + newd
           + "</dictionaryEntry> into $x";
       DbManager.clearCache();
-      DbManager.getInstance().getDb().updateQuery(query);
+      try {
+        DbManager.getInstance().getDb().updateQuery(query, DbManager.USER_DB); // Only allow user to add in userdb
+      } catch (Exception e) {
+        StringUtil.printStackTraceWhenEditDB("adding", e);
+        error = e.getMessage();
+      }
     } else {
-      updateDef(newd, id);
+      // If user try to insert but with same identifier then update definition
+      error = updateDef(newd, id, DbManager.USER_DB); // Only allow user to add in userdb
     }
+    return error;
   }
 
-  public static void updateDef(String mod, String id) throws SecoreException {
+  /**
+   * Update definition in User or Gml dictionaries by identifier isnide DB
+   * (User, Gml)
+   *
+   * @param mod String "new definition"
+   * @param id String "identifier"
+   * @param db String "DB name"
+   * @return error != "" if can not update
+   * @throws SecoreException
+   */
+  public static String updateDef(String mod, String id, String db) throws SecoreException {
     log.trace("Update definition with identifier: " + id);
-    
     mod = StringUtil.fixDef(mod, StringUtil.SERVICE_URI);
     id = StringUtil.removeLastColon(id);
     String query = "declare namespace gml = \"" + NAMESPACE_GML + "\";" + NEW_LINE
         + "let $x := collection('" + COLLECTION_NAME + "')//gml:identifier[text() = '" + id + "']/.." + NEW_LINE
         + "return replace node $x with " + mod;
+
+    String error = Constants.EMPTY;
     DbManager.clearCache();
-    DbManager.getInstance().getDb().updateQuery(query);
+    try {
+      DbManager.getInstance().getDb().updateQuery(query, db);
+    } catch (Exception e) {
+      StringUtil.printStackTraceWhenEditDB("updating", e);
+      error = e.getMessage();
+    }
+    return error;
   }
 
   /**
@@ -96,11 +131,13 @@ public class SecoreUtil {
   public static String queryDef(String id, boolean equality, boolean user, boolean epsg, String elname) throws SecoreException {
     log.trace("Query definition with identifier: " + id);
     id = StringUtil.unwrapUri(id);
-    
+
     String query = null;
     if (equality) {
+      // A bug with contains is def/crs/EPSG/0/2000 will returns also (epsg-crs-20004, epsg-crs-20005,..) then it cannot update so change to ends-with
+      // http://www.xqueryfunctions.com/xq/fn_ends-with.html
       query = "declare namespace gml = \"" + NAMESPACE_GML + "\";" + NEW_LINE
-          + "let $d := collection('" + COLLECTION_NAME + "')//gml:identifier[contains(.,'" + id + "')]/.." + NEW_LINE
+          + "let $d := collection('" + COLLECTION_NAME + "')//gml:identifier[ends-with(.,'" + id + "')]/.." + NEW_LINE
           + "return" + NEW_LINE
           + " if (exists($d)) then $d" + NEW_LINE
           + " else <empty/>";
@@ -121,7 +158,7 @@ public class SecoreUtil {
     if (user && epsg) {
       String userRes = DbManager.getInstance().getDb().queryUser(query.replace(USER_FLAG_KEY, USER_FLAG));
       String epsgRes = DbManager.getInstance().getDb().queryEpsg(query.replace(USER_FLAG_KEY, EPSG_FLAG));
-      String ret = "";
+      String ret = Constants.EMPTY;
       if (!StringUtil.emptyQueryResult(userRes)) {
         ret += userRes;
       }
@@ -141,21 +178,42 @@ public class SecoreUtil {
     }
   }
 
-  public static void deleteDef(String id, String todel) throws SecoreException {
+  /**
+   * Delete definition (NOTE: only delete from User DB)
+   * @param id String identifier to delete
+   * @param todel String
+   * @return String
+   * @throws SecoreException
+   */
+  public static String deleteDef(String id, String todel) throws SecoreException {
     log.trace("Delete definition with identifier: " + id);
-    
+
     if (todel.equals(ZERO)) {
       todel = EMPTY;
     }
-    String query =
-          "declare namespace gml = \"" + NAMESPACE_GML + "\";" + NEW_LINE
+    String query
+        = "declare namespace gml = \"" + NAMESPACE_GML + "\";" + NEW_LINE
         + "for $x in collection('" + COLLECTION_NAME + "')//gml:identifier[text() = '" + id + todel + "']/.. "
         + "union doc('" + COLLECTION_NAME + "')//gml:identifier[contains(.,'" + id + todel + "')]/.." + NEW_LINE
         + "return delete node $x";
-    DbManager.getInstance().getDb().updateQuery(query);
-    DbManager.clearCache();
+
+    String error = Constants.EMPTY;
+    try {
+      DbManager.getInstance().getDb().updateQuery(query, DbManager.USER_DB); // only allow to delete inside "userdb"
+      DbManager.clearCache();
+    } catch (Exception e) {
+      StringUtil.printStackTraceWhenEditDB("deleting", e);
+      error = e.getMessage();
+    }
+    return error;
   }
 
+  /**
+   * Sort Element (URI of entries)
+   * @param url
+   * @param result
+   * @return Set
+   */
   public static Set<Pair<String, Boolean>> sortElements(String url, String result) {
     url = StringUtil.wrapUri(url);
     log.debug("sortElements: " + url);
@@ -165,7 +223,7 @@ public class SecoreUtil {
       public int compare(Pair<String, Boolean> o1, Pair<String, Boolean> o2) {
         try {
           return Integer.parseInt(o1.fst.replaceAll("[\n\r]", ""))
-               - Integer.parseInt(o2.fst.replaceAll("[\n\r]", ""));
+              - Integer.parseInt(o2.fst.replaceAll("[\n\r]", ""));
         } catch (Exception ex) {
           return o1.fst.compareTo(o2.fst);
         }
@@ -180,7 +238,7 @@ public class SecoreUtil {
         user = USER_FLAG.equals(pair[1].replaceAll("[\n\r]", ""));
       } catch (Exception ex) {
       }
-      
+
       if (!id.isEmpty()) {
         id = StringUtil.wrapUri(id);
         String tmp = id;
@@ -199,7 +257,7 @@ public class SecoreUtil {
             continue;
           }
         }
-        
+
         Pair<String, Boolean> epsgEntry = Pair.of(tmp, false);
         Pair<String, Boolean> userEntry = Pair.of(tmp, true);
         if (user) {
