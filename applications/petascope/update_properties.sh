@@ -109,6 +109,14 @@ if [ ! -f "$NEW" ]; then
 fi
 echo -e
 
+#2.3 Check if NEW and OLD file are the same (no need to create a backup and do anything else)
+cmp --quiet "$NEW" "$OLD"
+if [[ $? -eq 0 ]]; then
+   log "The existing configuration is already up to date."
+   ok
+fi
+echo "Done."
+
 # --------------------------------------------
 #3 Backup the OLD file by renaming to OLD.bak
 logn "Backing up your old configuration file to $OLD_BAK... "
