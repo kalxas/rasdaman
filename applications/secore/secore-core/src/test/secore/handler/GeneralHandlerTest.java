@@ -79,7 +79,7 @@ public class GeneralHandlerTest extends BaseTest {
           + "return insert node <dictionaryEntry xmlns=\"" + Constants.NAMESPACE_GML + "\">"
           + getData("4326_newdef.xml")
           + "</dictionaryEntry> into $x";
-    DbManager.getInstance().getDb().updateQuery(query);
+    DbManager.getInstance().getDb().updateQuery(query, DbManager.USER_DB);
     
     String uri = "local/crs/EPSG/0/43260";
     ResolveRequest request = new ResolveRequest(uri);
@@ -101,7 +101,7 @@ public class GeneralHandlerTest extends BaseTest {
     String query = "declare namespace gml = \"" + Constants.NAMESPACE_GML + "\";" + Constants.NEW_LINE
           + "for $x in collection('" + Constants.COLLECTION_NAME + "')//gml:identifier[contains(text(), '"+ url +"')]/.." + Constants.NEW_LINE
           + "return delete node $x";
-    DbManager.getInstance().getDb().updateQuery(query);
+    DbManager.getInstance().getDb().updateQuery(query, DbManager.USER_DB);
     DbManager.clearCache();
     
     String uri = "local/crs/EPSG/0/43260";
@@ -145,7 +145,7 @@ public class GeneralHandlerTest extends BaseTest {
           + "return insert node <dictionaryEntry xmlns=\"" + Constants.NAMESPACE_GML + "\">"
           + getData("ImageCRS_newdef.xml")
           + "</dictionaryEntry> into $x";
-    DbManager.getInstance().getDb().updateQuery(query);
+    DbManager.getInstance().getDb().updateQuery(query, DbManager.USER_DB);
     
     String uri = "local/crs/OGC/0.1/Image2D";
     ResolveRequest request = new ResolveRequest(uri);

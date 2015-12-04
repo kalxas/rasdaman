@@ -1,0 +1,1787 @@
+<?xml version="1.0" encoding="utf-8"?>
+<xs:schema elementFormDefault="qualified" targetNamespace="http://www.isotc211.org/2005/gmx"
+    version="0.1" xmlns:gco="http://www.isotc211.org/2005/gco"
+    xmlns:gmd="http://www.isotc211.org/2005/gmd" xmlns:gml="http://www.opengis.net/gml/3.2"
+    xmlns:gmx="http://www.isotc211.org/2005/gmx" xmlns:xlink="http://www.w3.org/1999/xlink"
+    xmlns:xs="http://www.w3.org/2001/XMLSchema">
+    <!-- ================================= Annotation ================================ -->
+    <xs:annotation>
+        <xs:documentation>This file was generated from ISO TC/211 UML class diagrams == 03-18-2005
+            11:12:17 ====== </xs:documentation>
+    </xs:annotation>
+    <!-- ================================== Imports ================================== -->
+    <xs:import namespace="http://www.isotc211.org/2005/gmd" schemaLocation="../gmd/gmd-20070417.xsd"/>
+    <xs:import namespace="http://www.isotc211.org/2005/gco" schemaLocation="../gco/gco-20070417.xsd"/>
+    <xs:import namespace="http://www.opengis.net/gml/3.2"
+        schemaLocation="../../../../gml/3.2.1/gml-3.2.1.xsd"/>
+    <xs:import namespace="http://www.w3.org/1999/xlink"
+        schemaLocation="../../../../w3c/xlink/1.1/w3c-xlink-1.1.xsd"/>
+    <!-- ================================= Annotation ================================ -->
+    <xs:annotation>
+        <xs:documentation>This file was generated from ISO TC/211 UML class diagrams == 04-27-2005
+            17:15:30 ====== </xs:documentation>
+    </xs:annotation>
+    <!-- ================================== Imports ================================== -->
+    <!-- ================================= Annotation ================================ -->
+    <xs:annotation>
+        <xs:documentation>This file was generated from ISO TC/211 UML class diagrams == 04-27-2005
+            17:16:11 ====== Handcrafted</xs:documentation>
+    </xs:annotation>
+    <!-- ================================== Imports ================================== -->
+    <!-- ================================= Annotation ================================ -->
+    <xs:annotation>
+        <xs:documentation>This file was generated from ISO TC/211 UML class diagrams == 03-15-2005
+            09:15:02 ====== </xs:documentation>
+    </xs:annotation>
+    <!-- ================================== Imports ================================== -->
+    <!-- ########################################################################### -->
+    <!-- ########################################################################### -->
+    <!-- ================================== Classes ================================= -->
+    <!-- ........................................................................ -->
+    <!-- ........................................................................ -->
+    <xs:complexType name="UnitDefinition_PropertyType">
+        <xs:sequence minOccurs="0">
+            <xs:element ref="gml:UnitDefinition"/>
+        </xs:sequence>
+        <xs:attributeGroup ref="gco:ObjectReference"/>
+        <xs:attribute ref="gco:nilReason"/>
+    </xs:complexType>
+    <!-- =========================================================================== -->
+    <!-- ........................................................................ -->
+    <!-- ........................................................................ -->
+    <xs:complexType name="BaseUnit_PropertyType">
+        <xs:sequence minOccurs="0">
+            <xs:element ref="gml:BaseUnit"/>
+        </xs:sequence>
+        <xs:attributeGroup ref="gco:ObjectReference"/>
+        <xs:attribute ref="gco:nilReason"/>
+    </xs:complexType>
+    <!-- =========================================================================== -->
+    <!-- ........................................................................ -->
+    <!-- ........................................................................ -->
+    <xs:complexType name="DerivedUnit_PropertyType">
+        <xs:sequence minOccurs="0">
+            <xs:element ref="gml:DerivedUnit"/>
+        </xs:sequence>
+        <xs:attributeGroup ref="gco:ObjectReference"/>
+        <xs:attribute ref="gco:nilReason"/>
+    </xs:complexType>
+    <!-- =========================================================================== -->
+    <!-- ........................................................................ -->
+    <!-- ........................................................................ -->
+    <xs:complexType name="ConventionalUnit_PropertyType">
+        <xs:sequence minOccurs="0">
+            <xs:element ref="gml:ConventionalUnit"/>
+        </xs:sequence>
+        <xs:attributeGroup ref="gco:ObjectReference"/>
+        <xs:attribute ref="gco:nilReason"/>
+    </xs:complexType>
+    <!-- =========================================================================== -->
+    <xs:complexType name="ML_BaseUnit_Type">
+        <xs:complexContent>
+            <xs:extension base="gml:BaseUnitType">
+                <xs:sequence>
+                    <xs:element form="qualified" maxOccurs="unbounded" name="alternativeExpression"
+                        type="gmx:UomAlternativeExpression_PropertyType"/>
+                </xs:sequence>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+    <!-- ........................................................................ -->
+    <xs:element name="ML_BaseUnit" substitutionGroup="gml:BaseUnit" type="gmx:ML_BaseUnit_Type"/>
+    <!-- ........................................................................ -->
+    <xs:complexType name="ML_BaseUnit_PropertyType">
+        <xs:sequence minOccurs="0">
+            <xs:element ref="gmx:ML_BaseUnit"/>
+        </xs:sequence>
+        <xs:attributeGroup ref="gco:ObjectReference"/>
+        <xs:attribute ref="gco:nilReason"/>
+    </xs:complexType>
+    <!-- =========================================================================== -->
+    <xs:complexType name="ML_DerivedUnit_Type">
+        <xs:complexContent>
+            <xs:extension base="gml:DerivedUnitType">
+                <xs:sequence>
+                    <xs:element form="qualified" maxOccurs="unbounded" name="alternativeExpression"
+                        type="gmx:UomAlternativeExpression_PropertyType"/>
+                </xs:sequence>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+    <!-- ........................................................................ -->
+    <xs:element name="ML_DerivedUnit" substitutionGroup="gml:DerivedUnit"
+        type="gmx:ML_DerivedUnit_Type"/>
+    <!-- ........................................................................ -->
+    <xs:complexType name="ML_DerivedUnit_PropertyType">
+        <xs:sequence minOccurs="0">
+            <xs:element ref="gmx:ML_DerivedUnit"/>
+        </xs:sequence>
+        <xs:attributeGroup ref="gco:ObjectReference"/>
+        <xs:attribute ref="gco:nilReason"/>
+    </xs:complexType>
+    <!-- =========================================================================== -->
+    <xs:complexType name="ML_ConventionalUnit_Type">
+        <xs:complexContent>
+            <xs:extension base="gml:ConventionalUnitType">
+                <xs:sequence>
+                    <xs:element form="qualified" maxOccurs="unbounded" name="alternativeExpression"
+                        type="gmx:UomAlternativeExpression_PropertyType"/>
+                </xs:sequence>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+    <!-- ........................................................................ -->
+    <xs:element name="ML_ConventionalUnit" substitutionGroup="gml:ConventionalUnit"
+        type="gmx:ML_ConventionalUnit_Type"/>
+    <!-- ........................................................................ -->
+    <xs:complexType name="ML_ConventionalUnit_PropertyType">
+        <xs:sequence minOccurs="0">
+            <xs:element ref="gmx:ML_ConventionalUnit"/>
+        </xs:sequence>
+        <xs:attributeGroup ref="gco:ObjectReference"/>
+        <xs:attribute ref="gco:nilReason"/>
+    </xs:complexType>
+    <!-- =========================================================================== -->
+    <xs:complexType name="ML_UnitDefinition_Type">
+        <xs:complexContent>
+            <xs:extension base="gml:UnitDefinitionType">
+                <xs:sequence>
+                    <xs:element form="qualified" maxOccurs="unbounded" name="alternativeExpression"
+                        type="gmx:UomAlternativeExpression_PropertyType"/>
+                </xs:sequence>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+    <!-- ........................................................................ -->
+    <xs:element name="ML_UnitDefinition" substitutionGroup="gml:UnitDefinition"
+        type="gmx:ML_UnitDefinition_Type"/>
+    <!-- ........................................................................ -->
+    <xs:complexType name="ML_UnitDefinition_PropertyType">
+        <xs:sequence minOccurs="0">
+            <xs:element ref="gmx:ML_UnitDefinition"/>
+        </xs:sequence>
+        <xs:attributeGroup ref="gco:ObjectReference"/>
+        <xs:attribute ref="gco:nilReason"/>
+    </xs:complexType>
+    <!-- =========================================================================== -->
+    <!-- =========================================================================== -->
+    <!--===================== Alternative Expresssion type ===============================-->
+    <xs:complexType name="UomAlternativeExpression_Type">
+        <xs:annotation>
+            <xs:documentation>XML attributes contraints: - 1) Id is mandatory - 2) codeSpace (type
+                xsd:anyURI) is mandatory</xs:documentation>
+        </xs:annotation>
+        <xs:complexContent>
+            <xs:extension base="gml:UnitDefinitionType">
+                <xs:sequence>
+                    <xs:element form="qualified" name="locale" type="gmd:PT_Locale_PropertyType"/>
+                </xs:sequence>
+                <xs:attribute name="codeSpace" type="xs:anyURI" use="required"/>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+    <!-- ........................................................................ -->
+    <xs:element name="UomAlternativeExpression" type="gmx:UomAlternativeExpression_Type"/>
+    <!-- ........................................................................ -->
+    <xs:complexType name="UomAlternativeExpression_PropertyType">
+        <xs:sequence minOccurs="0">
+            <xs:element ref="gmx:UomAlternativeExpression"/>
+        </xs:sequence>
+        <xs:attributeGroup ref="gco:ObjectReference"/>
+        <xs:attribute ref="gco:nilReason"/>
+    </xs:complexType>
+    <!-- =========================================================================== -->
+    <!-- =========================================================================== -->
+    <!-- === End of file === -->
+    <!-- ================================= Annotation ================================ -->
+    <xs:annotation>
+        <xs:documentation>This file was generated from ISO TC/211 UML class diagrams == 03-15-2005
+            09:14:50 ====== </xs:documentation>
+    </xs:annotation>
+    <!-- ================================== Imports ================================== -->
+    <!-- ########################################################################### -->
+    <!-- ########################################################################### -->
+    <!-- ================================== Classes ================================= -->
+    <!-- ........................................................................ -->
+    <!-- ........................................................................ -->
+    <xs:complexType name="CT_CodelistValue_PropertyType">
+        <xs:sequence minOccurs="0">
+            <xs:element ref="gmx:CodeDefinition"/>
+        </xs:sequence>
+        <xs:attributeGroup ref="gco:ObjectReference"/>
+        <xs:attribute ref="gco:nilReason"/>
+    </xs:complexType>
+    <!-- =========================================================================== -->
+    <!-- ........................................................................ -->
+    <!-- ........................................................................ -->
+    <xs:complexType name="CT_Codelist_PropertyType">
+        <xs:sequence minOccurs="0">
+            <xs:element ref="gmx:CodeListDictionary"/>
+        </xs:sequence>
+        <xs:attributeGroup ref="gco:ObjectReference"/>
+        <xs:attribute ref="gco:nilReason"/>
+    </xs:complexType>
+    <!-- =========================================================================== -->
+    <xs:complexType name="CodeDefinition_Type">
+        <xs:complexContent>
+            <xs:extension base="gml:DefinitionType"/>
+        </xs:complexContent>
+    </xs:complexType>
+    <!-- ........................................................................ -->
+    <xs:element name="CodeDefinition" substitutionGroup="gml:Definition"
+        type="gmx:CodeDefinition_Type"/>
+    <!-- ........................................................................ -->
+    <xs:complexType name="CodeDefinition_PropertyType">
+        <xs:sequence minOccurs="0">
+            <xs:element ref="gmx:CodeDefinition"/>
+        </xs:sequence>
+        <xs:attributeGroup ref="gco:ObjectReference"/>
+        <xs:attribute ref="gco:nilReason"/>
+    </xs:complexType>
+    <!-- =========================================================================== -->
+    <xs:complexType name="CodeListDictionary_Type">
+        <xs:annotation>
+            <xs:documentation>Constraints: - 1) metadataProperty.card = 0 - 2) dictionaryEntry.card
+                = 0</xs:documentation>
+        </xs:annotation>
+        <xs:complexContent>
+            <xs:extension base="gml:DictionaryType">
+                <xs:sequence>
+                    <xs:element form="qualified" maxOccurs="unbounded" name="codeEntry"
+                        type="gmx:CodeDefinition_PropertyType"/>
+                </xs:sequence>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+    <!-- ........................................................................ -->
+    <xs:element name="CodeListDictionary" substitutionGroup="gml:Dictionary"
+        type="gmx:CodeListDictionary_Type"/>
+    <!-- ........................................................................ -->
+    <xs:complexType name="CodeListDictionary_PropertyType">
+        <xs:sequence minOccurs="0">
+            <xs:element ref="gmx:CodeListDictionary"/>
+        </xs:sequence>
+        <xs:attributeGroup ref="gco:ObjectReference"/>
+        <xs:attribute ref="gco:nilReason"/>
+    </xs:complexType>
+    <!-- =========================================================================== -->
+    <xs:complexType name="ML_CodeDefinition_Type">
+        <xs:complexContent>
+            <xs:extension base="gmx:CodeDefinition_Type">
+                <xs:sequence>
+                    <xs:element form="qualified" maxOccurs="unbounded" name="alternativeExpression"
+                        type="gmx:CodeAlternativeExpression_PropertyType"/>
+                </xs:sequence>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+    <!-- ........................................................................ -->
+    <xs:element name="ML_CodeDefinition" substitutionGroup="gmx:CodeDefinition"
+        type="gmx:ML_CodeDefinition_Type"/>
+    <!-- ........................................................................ -->
+    <xs:complexType name="ML_CodeDefinition_PropertyType">
+        <xs:sequence minOccurs="0">
+            <xs:element ref="gmx:ML_CodeDefinition"/>
+        </xs:sequence>
+        <xs:attributeGroup ref="gco:ObjectReference"/>
+        <xs:attribute ref="gco:nilReason"/>
+    </xs:complexType>
+    <!-- =========================================================================== -->
+    <xs:complexType name="ML_CodeListDictionary_Type">
+        <xs:annotation>
+            <xs:documentation>Constraint: codeEntry.type = ML_CodeListDefinition</xs:documentation>
+        </xs:annotation>
+        <xs:complexContent>
+            <xs:extension base="gmx:CodeListDictionary_Type">
+                <xs:sequence>
+                    <xs:element form="qualified" maxOccurs="unbounded" name="alternativeExpression"
+                        type="gmx:ClAlternativeExpression_PropertyType"/>
+                </xs:sequence>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+    <!-- ........................................................................ -->
+    <xs:element name="ML_CodeListDictionary" substitutionGroup="gmx:CodeListDictionary"
+        type="gmx:ML_CodeListDictionary_Type"/>
+    <!-- ........................................................................ -->
+    <xs:complexType name="ML_CodeListDictionary_PropertyType">
+        <xs:sequence minOccurs="0">
+            <xs:element ref="gmx:ML_CodeListDictionary"/>
+        </xs:sequence>
+        <xs:attributeGroup ref="gco:ObjectReference"/>
+        <xs:attribute ref="gco:nilReason"/>
+    </xs:complexType>
+    <!-- =========================================================================== -->
+    <!-- =========================================================================== -->
+    <!--===================== Alternative Expresssion type ===============================-->
+    <xs:complexType name="ClAlternativeExpression_Type">
+        <xs:annotation>
+            <xs:documentation>XML attributes contraints: - 1) Id is mandatory - 2) codeSpace (type
+                xsd:anyURI) is mandatory</xs:documentation>
+        </xs:annotation>
+        <xs:complexContent>
+            <xs:extension base="gml:DefinitionType">
+                <xs:sequence>
+                    <xs:element form="qualified" name="locale" type="gmd:PT_Locale_PropertyType"/>
+                </xs:sequence>
+                <xs:attribute name="codeSpace" type="xs:anyURI" use="required"/>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+    <!-- ........................................................................ -->
+    <xs:element name="ClAlternativeExpression" type="gmx:ClAlternativeExpression_Type"/>
+    <!-- ........................................................................ -->
+    <xs:complexType name="ClAlternativeExpression_PropertyType">
+        <xs:sequence minOccurs="0">
+            <xs:element ref="gmx:ClAlternativeExpression"/>
+        </xs:sequence>
+        <xs:attributeGroup ref="gco:ObjectReference"/>
+        <xs:attribute ref="gco:nilReason"/>
+    </xs:complexType>
+    <!-- =========================================================================== -->
+    <!-- =========================================================================== -->
+    <xs:complexType name="CodeAlternativeExpression_Type">
+        <xs:annotation>
+            <xs:documentation>XML attributes contraints: - 1) Id is mandatory - 2) codeSpace (type
+                xsd:anyURI) is mandatory</xs:documentation>
+        </xs:annotation>
+        <xs:complexContent>
+            <xs:extension base="gml:DefinitionType">
+                <xs:sequence>
+                    <xs:element form="qualified" minOccurs="0" name="locale"
+                        type="gmd:PT_Locale_PropertyType"/>
+                </xs:sequence>
+                <xs:attribute name="codeSpace" type="xs:anyURI" use="required"/>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+    <!-- ........................................................................ -->
+    <xs:element name="CodeAlternativeExpression" type="gmx:CodeAlternativeExpression_Type"/>
+    <!-- ........................................................................ -->
+    <xs:complexType name="CodeAlternativeExpression_PropertyType">
+        <xs:sequence minOccurs="0">
+            <xs:element ref="gmx:CodeAlternativeExpression"/>
+        </xs:sequence>
+        <xs:attributeGroup ref="gco:ObjectReference"/>
+        <xs:attribute ref="gco:nilReason"/>
+    </xs:complexType>
+    <!-- =========================================================================== -->
+    <!--===End Of File===-->
+    <!-- ================================= Annotation ================================ -->
+    <xs:annotation>
+        <xs:documentation>This file was generated from ISO TC/211 UML class diagrams == 03-15-2005
+            09:15:11 ====== </xs:documentation>
+    </xs:annotation>
+    <!-- ================================== Imports ================================== -->
+    <!-- ########################################################################### -->
+    <!-- ########################################################################### -->
+    <!-- ================================== Classes ================================= -->
+    <!-- ........................................................................ -->
+    <!-- ........................................................................ -->
+    <xs:complexType name="CT_CRS_PropertyType">
+        <xs:sequence minOccurs="0">
+            <xs:element ref="gml:AbstractCRS"/>
+        </xs:sequence>
+        <xs:attributeGroup ref="gco:ObjectReference"/>
+        <xs:attribute ref="gco:nilReason"/>
+    </xs:complexType>
+    <!-- =========================================================================== -->
+    <!-- ........................................................................ -->
+    <!-- ........................................................................ -->
+    <xs:complexType name="CT_CoordinateSystem_PropertyType">
+        <xs:sequence minOccurs="0">
+            <xs:element ref="gml:AbstractCoordinateSystem"/>
+        </xs:sequence>
+        <xs:attributeGroup ref="gco:ObjectReference"/>
+        <xs:attribute ref="gco:nilReason"/>
+    </xs:complexType>
+    <!-- =========================================================================== -->
+    <!-- ........................................................................ -->
+    <!-- ........................................................................ -->
+    <xs:complexType name="CT_CoordinateSystemAxis_PropertyType">
+        <xs:sequence minOccurs="0">
+            <xs:element ref="gml:CoordinateSystemAxis"/>
+        </xs:sequence>
+        <xs:attributeGroup ref="gco:ObjectReference"/>
+        <xs:attribute ref="gco:nilReason"/>
+    </xs:complexType>
+    <!-- =========================================================================== -->
+    <!-- ........................................................................ -->
+    <!-- ........................................................................ -->
+    <xs:complexType name="CT_Datum_PropertyType">
+        <xs:sequence minOccurs="0">
+            <xs:element ref="gml:AbstractDatum"/>
+        </xs:sequence>
+        <xs:attributeGroup ref="gco:ObjectReference"/>
+        <xs:attribute ref="gco:nilReason"/>
+    </xs:complexType>
+    <!-- =========================================================================== -->
+    <!-- ........................................................................ -->
+    <!-- ........................................................................ -->
+    <xs:complexType name="CT_Ellipsoid_PropertyType">
+        <xs:sequence minOccurs="0">
+            <xs:element ref="gml:Ellipsoid"/>
+        </xs:sequence>
+        <xs:attributeGroup ref="gco:ObjectReference"/>
+        <xs:attribute ref="gco:nilReason"/>
+    </xs:complexType>
+    <!-- =========================================================================== -->
+    <!-- ........................................................................ -->
+    <!-- ........................................................................ -->
+    <xs:complexType name="CT_PrimeMeridian_PropertyType">
+        <xs:sequence minOccurs="0">
+            <xs:element ref="gml:PrimeMeridian"/>
+        </xs:sequence>
+        <xs:attributeGroup ref="gco:ObjectReference"/>
+        <xs:attribute ref="gco:nilReason"/>
+    </xs:complexType>
+    <!-- =========================================================================== -->
+    <!-- ........................................................................ -->
+    <!-- ........................................................................ -->
+    <xs:complexType name="CT_Operation_PropertyType">
+        <xs:sequence minOccurs="0">
+            <xs:element ref="gml:AbstractCoordinateOperation"/>
+        </xs:sequence>
+        <xs:attributeGroup ref="gco:ObjectReference"/>
+        <xs:attribute ref="gco:nilReason"/>
+    </xs:complexType>
+    <!-- =========================================================================== -->
+    <!-- ........................................................................ -->
+    <!-- ........................................................................ -->
+    <xs:complexType name="CT_OperationMethod_PropertyType">
+        <xs:sequence minOccurs="0">
+            <xs:element ref="gml:OperationMethod"/>
+        </xs:sequence>
+        <xs:attributeGroup ref="gco:ObjectReference"/>
+        <xs:attribute ref="gco:nilReason"/>
+    </xs:complexType>
+    <!-- =========================================================================== -->
+    <!-- ........................................................................ -->
+    <!-- ........................................................................ -->
+    <xs:complexType name="CT_OperationParameters_PropertyType">
+        <xs:sequence minOccurs="0">
+            <xs:element ref="gml:AbstractGeneralOperationParameter"/>
+        </xs:sequence>
+        <xs:attributeGroup ref="gco:ObjectReference"/>
+        <xs:attribute ref="gco:nilReason"/>
+    </xs:complexType>
+    <!--============================= Multilingual types ===============================-->
+    <!--============================== GML extensions ===============================-->
+    <!--================ GML XSchema: coordinateReferenceSystems.xsd ==================-->
+    <xs:complexType name="ML_CompoundCRS_Type">
+        <xs:complexContent>
+            <xs:extension base="gml:CompoundCRSType">
+                <xs:sequence>
+                    <xs:element form="qualified" maxOccurs="unbounded" name="alternativeExpression"
+                        type="gmx:CrsAlt_PropertyType"/>
+                </xs:sequence>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+    <!-- ........................................................................ -->
+    <xs:element name="ML_CompoundCRS" substitutionGroup="gml:CompoundCRS"
+        type="gmx:ML_CompoundCRS_Type"/>
+    <!-- ........................................................................ -->
+    <xs:complexType name="ML_CompoundCRS_PropertyType">
+        <xs:sequence minOccurs="0">
+            <xs:element ref="gmx:ML_CompoundCRS"/>
+        </xs:sequence>
+        <xs:attributeGroup ref="gco:ObjectReference"/>
+        <xs:attribute ref="gco:nilReason"/>
+    </xs:complexType>
+    <!-- =========================================================================== -->
+    <!--### gml:GeocentricCRS and gml:GeographicCRS were deprecated in 19136 DIS and replaced with gml:GeodeticCRS ###-->
+    <!--<xs:complexType name="ML_GeocentricCRS_Type">
+		<xs:complexContent>
+			<xs:extension base="gml:GeocentricCRSType">
+				<xs:sequence>
+					<xs:element name="alternativeExpression" type="gmx:CrsAlt_PropertyType" maxOccurs="unbounded"/>
+				</xs:sequence>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>-->
+    <!-- ........................................................................ -->
+    <!--<xs:element name="ML_GeocentricCRS" type="gmx:ML_GeocentricCRS_Type" substitutionGroup="gml:GeocentricCRS"/>-->
+    <!-- ........................................................................ -->
+    <!--<xs:complexType name="ML_GeocentricCRS_PropertyType">
+		<xs:sequence>
+			<xs:element ref="gmx:ML_GeocentricCRS" minOccurs="0"/>
+		</xs:sequence>
+		<xs:attributeGroup ref="gco:ObjectReference"/>
+		<xs:attribute ref="gco:nilReason"/>
+	</xs:complexType>-->
+    <!-- =========================================================================== -->
+    <!--### gml:GeocentricCRS and gml:GeographicCRS were deprecated in 19136 DIS and replaced with gml:GeodeticCRS ###-->
+    <!--<xs:complexType name="ML_GeographicCRS_Type">
+		<xs:complexContent>
+			<xs:extension base="gml:GeographicCRSType">
+				<xs:sequence>
+					<xs:element name="alternativeExpression" type="gmx:CrsAlt_PropertyType" maxOccurs="unbounded"/>
+				</xs:sequence>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>-->
+    <!-- ........................................................................ -->
+    <!--<xs:element name="ML_GeographicCRS" type="gmx:ML_GeographicCRS_Type" substitutionGroup="gml:GeographicCRS"/>-->
+    <!-- ........................................................................ -->
+    <!--<xs:complexType name="ML_GeographicCRS_PropertyType">
+		<xs:sequence>
+			<xs:element ref="gmx:ML_GeographicCRS" minOccurs="0"/>
+		</xs:sequence>
+		<xs:attributeGroup ref="gco:ObjectReference"/>
+		<xs:attribute ref="gco:nilReason"/>
+	</xs:complexType>-->
+    <!-- =========================================================================== -->
+    <xs:complexType name="ML_GeodeticCRS_Type">
+        <xs:complexContent>
+            <xs:extension base="gml:GeodeticCRSType">
+                <xs:sequence>
+                    <xs:element form="qualified" maxOccurs="unbounded" name="alternativeExpression"
+                        type="gmx:CrsAlt_PropertyType"/>
+                </xs:sequence>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+    <!-- ........................................................................ -->
+    <xs:element name="ML_GeodeticCRS" substitutionGroup="gml:GeodeticCRS"
+        type="gmx:ML_GeodeticCRS_Type"/>
+    <!-- ........................................................................ -->
+    <xs:complexType name="ML_GeodeticCRS_PropertyType">
+        <xs:sequence minOccurs="0">
+            <xs:element ref="gmx:ML_GeodeticCRS"/>
+        </xs:sequence>
+        <xs:attributeGroup ref="gco:ObjectReference"/>
+        <xs:attribute ref="gco:nilReason"/>
+    </xs:complexType>
+    <!-- =========================================================================== -->
+    <xs:complexType name="ML_EngineeringCRS_Type">
+        <xs:complexContent>
+            <xs:extension base="gml:EngineeringCRSType">
+                <xs:sequence>
+                    <xs:element form="qualified" maxOccurs="unbounded" name="alternativeExpression"
+                        type="gmx:CrsAlt_PropertyType"/>
+                </xs:sequence>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+    <!-- ........................................................................ -->
+    <xs:element name="ML_EngineeringCRS" substitutionGroup="gml:EngineeringCRS"
+        type="gmx:ML_EngineeringCRS_Type"/>
+    <!-- ........................................................................ -->
+    <xs:complexType name="ML_EngineeringCRS_PropertyType">
+        <xs:sequence minOccurs="0">
+            <xs:element ref="gmx:ML_EngineeringCRS"/>
+        </xs:sequence>
+        <xs:attributeGroup ref="gco:ObjectReference"/>
+        <xs:attribute ref="gco:nilReason"/>
+    </xs:complexType>
+    <!-- =========================================================================== -->
+    <xs:complexType name="ML_VerticalCRS_Type">
+        <xs:complexContent>
+            <xs:extension base="gml:VerticalCRSType">
+                <xs:sequence>
+                    <xs:element form="qualified" maxOccurs="unbounded" name="alternativeExpression"
+                        type="gmx:CrsAlt_PropertyType"/>
+                </xs:sequence>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+    <!-- ........................................................................ -->
+    <xs:element name="ML_VerticalCRS" substitutionGroup="gml:VerticalCRS"
+        type="gmx:ML_VerticalCRS_Type"/>
+    <!-- ........................................................................ -->
+    <xs:complexType name="ML_VerticalCRS_PropertyType">
+        <xs:sequence minOccurs="0">
+            <xs:element ref="gmx:ML_VerticalCRS"/>
+        </xs:sequence>
+        <xs:attributeGroup ref="gco:ObjectReference"/>
+        <xs:attribute ref="gco:nilReason"/>
+    </xs:complexType>
+    <!-- =========================================================================== -->
+    <xs:complexType name="ML_TemporalCRS_Type">
+        <xs:complexContent>
+            <xs:extension base="gml:TemporalCRSType">
+                <xs:sequence>
+                    <xs:element form="qualified" maxOccurs="unbounded" name="alternativeExpression"
+                        type="gmx:CrsAlt_PropertyType"/>
+                </xs:sequence>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+    <!-- ........................................................................ -->
+    <xs:element name="ML_TemporalCRS" substitutionGroup="gml:TemporalCRS"
+        type="gmx:ML_TemporalCRS_Type"/>
+    <!-- ........................................................................ -->
+    <xs:complexType name="ML_TemporalCRS_PropertyType">
+        <xs:sequence minOccurs="0">
+            <xs:element ref="gmx:ML_TemporalCRS"/>
+        </xs:sequence>
+        <xs:attributeGroup ref="gco:ObjectReference"/>
+        <xs:attribute ref="gco:nilReason"/>
+    </xs:complexType>
+    <!-- =========================================================================== -->
+    <xs:complexType name="ML_ImageCRS_Type">
+        <xs:complexContent>
+            <xs:extension base="gml:ImageCRSType">
+                <xs:sequence>
+                    <xs:element form="qualified" maxOccurs="unbounded" name="alternativeExpression"
+                        type="gmx:CrsAlt_PropertyType"/>
+                </xs:sequence>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+    <!-- ........................................................................ -->
+    <xs:element name="ML_ImageCRS" substitutionGroup="gml:ImageCRS" type="gmx:ML_ImageCRS_Type"/>
+    <!-- ........................................................................ -->
+    <xs:complexType name="ML_ImageCRS_PropertyType">
+        <xs:sequence minOccurs="0">
+            <xs:element ref="gmx:ML_ImageCRS"/>
+        </xs:sequence>
+        <xs:attributeGroup ref="gco:ObjectReference"/>
+        <xs:attribute ref="gco:nilReason"/>
+    </xs:complexType>
+    <!-- =========================================================================== -->
+    <xs:complexType name="ML_ProjectedCRS_Type">
+        <xs:complexContent>
+            <xs:extension base="gml:ProjectedCRSType">
+                <xs:sequence>
+                    <xs:element form="qualified" maxOccurs="unbounded" name="alternativeExpression"
+                        type="gmx:CrsAlt_PropertyType"/>
+                </xs:sequence>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+    <!-- ........................................................................ -->
+    <xs:element name="ML_ProjectedCRS" substitutionGroup="gml:ProjectedCRS"
+        type="gmx:ML_ProjectedCRS_Type"/>
+    <!-- ........................................................................ -->
+    <xs:complexType name="ML_ProjectedCRS_PropertyType">
+        <xs:sequence minOccurs="0">
+            <xs:element ref="gmx:ML_ProjectedCRS"/>
+        </xs:sequence>
+        <xs:attributeGroup ref="gco:ObjectReference"/>
+        <xs:attribute ref="gco:nilReason"/>
+    </xs:complexType>
+    <!-- =========================================================================== -->
+    <xs:complexType name="ML_DerivedCRS_Type">
+        <xs:complexContent>
+            <xs:extension base="gml:DerivedCRSType">
+                <xs:sequence>
+                    <xs:element form="qualified" maxOccurs="unbounded" name="alternativeExpression"
+                        type="gmx:CrsAlt_PropertyType"/>
+                </xs:sequence>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+    <!-- ........................................................................ -->
+    <xs:element name="ML_DerivedCRS" substitutionGroup="gml:DerivedCRS"
+        type="gmx:ML_DerivedCRS_Type"/>
+    <!-- ........................................................................ -->
+    <xs:complexType name="ML_DerivedCRS_PropertyType">
+        <xs:sequence minOccurs="0">
+            <xs:element ref="gmx:ML_DerivedCRS"/>
+        </xs:sequence>
+        <xs:attributeGroup ref="gco:ObjectReference"/>
+        <xs:attribute ref="gco:nilReason"/>
+    </xs:complexType>
+    <!-- =========================================================================== -->
+    <!--====================== GML XSchema: coordinateSystems.xsd =====================-->
+    <xs:complexType name="ML_CoordinateSystemAxis_Type">
+        <xs:complexContent>
+            <xs:extension base="gml:CoordinateSystemAxisType">
+                <xs:sequence>
+                    <xs:element form="qualified" maxOccurs="unbounded" name="alternativeExpression"
+                        type="gmx:CoordinateSystemAxisAlt_PropertyType"/>
+                </xs:sequence>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+    <!-- ........................................................................ -->
+    <xs:element name="ML_CoordinateSystemAxis" substitutionGroup="gml:CoordinateSystemAxis"
+        type="gmx:ML_CoordinateSystemAxis_Type"/>
+    <!-- ........................................................................ -->
+    <xs:complexType name="ML_CoordinateSystemAxis_PropertyType">
+        <xs:sequence minOccurs="0">
+            <xs:element ref="gmx:ML_CoordinateSystemAxis"/>
+        </xs:sequence>
+        <xs:attributeGroup ref="gco:ObjectReference"/>
+        <xs:attribute ref="gco:nilReason"/>
+    </xs:complexType>
+    <!-- =========================================================================== -->
+    <xs:complexType name="ML_EllipsoidalCS_Type">
+        <xs:complexContent>
+            <xs:extension base="gml:EllipsoidalCSType">
+                <xs:sequence>
+                    <xs:element form="qualified" maxOccurs="unbounded" name="alternativeExpression"
+                        type="gmx:CoordinateSystemAlt_PropertyType"/>
+                </xs:sequence>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+    <!-- ........................................................................ -->
+    <xs:element name="ML_EllipsoidalCS" substitutionGroup="gml:EllipsoidalCS"
+        type="gmx:ML_EllipsoidalCS_Type"/>
+    <!-- ........................................................................ -->
+    <xs:complexType name="ML_EllipsoidalCS_PropertyType">
+        <xs:sequence minOccurs="0">
+            <xs:element ref="gmx:ML_EllipsoidalCS"/>
+        </xs:sequence>
+        <xs:attributeGroup ref="gco:ObjectReference"/>
+        <xs:attribute ref="gco:nilReason"/>
+    </xs:complexType>
+    <!-- =========================================================================== -->
+    <xs:complexType name="ML_CartesianCS_Type">
+        <xs:complexContent>
+            <xs:extension base="gml:CartesianCSType">
+                <xs:sequence>
+                    <xs:element form="qualified" maxOccurs="unbounded" name="alternativeExpression"
+                        type="gmx:CoordinateSystemAlt_PropertyType"/>
+                </xs:sequence>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+    <!-- ........................................................................ -->
+    <xs:element name="ML_CartesianCS" substitutionGroup="gml:CartesianCS"
+        type="gmx:ML_CartesianCS_Type"/>
+    <!-- ........................................................................ -->
+    <xs:complexType name="ML_CartesianCS_PropertyType">
+        <xs:sequence minOccurs="0">
+            <xs:element ref="gmx:ML_CartesianCS"/>
+        </xs:sequence>
+        <xs:attributeGroup ref="gco:ObjectReference"/>
+        <xs:attribute ref="gco:nilReason"/>
+    </xs:complexType>
+    <!-- =========================================================================== -->
+    <xs:complexType name="ML_AffineCS_Type">
+        <xs:complexContent>
+            <xs:extension base="gml:AffineCSType">
+                <xs:sequence>
+                    <xs:element form="qualified" maxOccurs="unbounded" name="alternativeExpression"
+                        type="gmx:CoordinateSystemAlt_PropertyType"/>
+                </xs:sequence>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+    <!-- ........................................................................ -->
+    <xs:element name="ML_AffineCS" substitutionGroup="gml:AffineCS" type="gmx:ML_AffineCS_Type"/>
+    <!-- ........................................................................ -->
+    <xs:complexType name="ML_AffineCS_PropertyType">
+        <xs:sequence minOccurs="0">
+            <xs:element ref="gmx:ML_AffineCS"/>
+        </xs:sequence>
+        <xs:attributeGroup ref="gco:ObjectReference"/>
+        <xs:attribute ref="gco:nilReason"/>
+    </xs:complexType>
+    <!-- =========================================================================== -->
+    <xs:complexType name="ML_UserDefinedCS_Type">
+        <xs:complexContent>
+            <xs:extension base="gml:UserDefinedCSType">
+                <xs:sequence>
+                    <xs:element form="qualified" maxOccurs="unbounded" name="alternativeExpression"
+                        type="gmx:CoordinateSystemAlt_PropertyType"/>
+                </xs:sequence>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+    <!-- ........................................................................ -->
+    <xs:element name="ML_UserDefinedCS" substitutionGroup="gml:UserDefinedCS"
+        type="gmx:ML_UserDefinedCS_Type"/>
+    <!-- ........................................................................ -->
+    <xs:complexType name="ML_UserDefinedCS_PropertyType">
+        <xs:sequence minOccurs="0">
+            <xs:element ref="gmx:ML_UserDefinedCS"/>
+        </xs:sequence>
+        <xs:attributeGroup ref="gco:ObjectReference"/>
+        <xs:attribute ref="gco:nilReason"/>
+    </xs:complexType>
+    <!-- =========================================================================== -->
+    <xs:complexType name="ML_VerticalCS_Type">
+        <xs:complexContent>
+            <xs:extension base="gml:VerticalCSType">
+                <xs:sequence>
+                    <xs:element form="qualified" maxOccurs="unbounded" name="alternativeExpression"
+                        type="gmx:CoordinateSystemAlt_PropertyType"/>
+                </xs:sequence>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+    <!-- ........................................................................ -->
+    <xs:element name="ML_VerticalCS" substitutionGroup="gml:VerticalCS"
+        type="gmx:ML_VerticalCS_Type"/>
+    <!-- ........................................................................ -->
+    <xs:complexType name="ML_VerticalCS_PropertyType">
+        <xs:sequence minOccurs="0">
+            <xs:element ref="gmx:ML_VerticalCS"/>
+        </xs:sequence>
+        <xs:attributeGroup ref="gco:ObjectReference"/>
+        <xs:attribute ref="gco:nilReason"/>
+    </xs:complexType>
+    <!-- =========================================================================== -->
+    <xs:complexType name="ML_TimeCS_Type">
+        <xs:complexContent>
+            <xs:extension base="gml:TimeCSType">
+                <xs:sequence>
+                    <xs:element form="qualified" maxOccurs="unbounded" name="alternativeExpression"
+                        type="gmx:CoordinateSystemAlt_PropertyType"/>
+                </xs:sequence>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+    <!-- ........................................................................ -->
+    <xs:element name="ML_TimeCS" substitutionGroup="gml:TimeCS" type="gmx:ML_TimeCS_Type"/>
+    <!-- ........................................................................ -->
+    <xs:complexType name="ML_TimeCS_PropertyType">
+        <xs:sequence minOccurs="0">
+            <xs:element ref="gmx:ML_TimeCS"/>
+        </xs:sequence>
+        <xs:attributeGroup ref="gco:ObjectReference"/>
+        <xs:attribute ref="gco:nilReason"/>
+    </xs:complexType>
+    <!-- =========================================================================== -->
+    <xs:complexType name="ML_CylindricalCS_Type">
+        <xs:complexContent>
+            <xs:extension base="gml:CylindricalCSType">
+                <xs:sequence>
+                    <xs:element form="qualified" maxOccurs="unbounded" name="alternativeExpression"
+                        type="gmx:CoordinateSystemAlt_PropertyType"/>
+                </xs:sequence>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+    <!-- ........................................................................ -->
+    <xs:element name="ML_CylindricalCS" substitutionGroup="gml:CylindricalCS"
+        type="gmx:ML_CylindricalCS_Type"/>
+    <!-- ........................................................................ -->
+    <xs:complexType name="ML_CylindricalCS_PropertyType">
+        <xs:sequence minOccurs="0">
+            <xs:element ref="gmx:ML_CylindricalCS"/>
+        </xs:sequence>
+        <xs:attributeGroup ref="gco:ObjectReference"/>
+        <xs:attribute ref="gco:nilReason"/>
+    </xs:complexType>
+    <!-- =========================================================================== -->
+    <xs:complexType name="ML_SphericalCS_Type">
+        <xs:complexContent>
+            <xs:extension base="gml:SphericalCSType">
+                <xs:sequence>
+                    <xs:element form="qualified" maxOccurs="unbounded" name="alternativeExpression"
+                        type="gmx:CoordinateSystemAlt_PropertyType"/>
+                </xs:sequence>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+    <!-- ........................................................................ -->
+    <xs:element name="ML_SphericalCS" substitutionGroup="gml:SphericalCS"
+        type="gmx:ML_SphericalCS_Type"/>
+    <!-- ........................................................................ -->
+    <xs:complexType name="ML_SphericalCS_PropertyType">
+        <xs:sequence minOccurs="0">
+            <xs:element ref="gmx:ML_SphericalCS"/>
+        </xs:sequence>
+        <xs:attributeGroup ref="gco:ObjectReference"/>
+        <xs:attribute ref="gco:nilReason"/>
+    </xs:complexType>
+    <!-- =========================================================================== -->
+    <xs:complexType name="ML_PolarCS_Type">
+        <xs:complexContent>
+            <xs:extension base="gml:PolarCSType">
+                <xs:sequence>
+                    <xs:element form="qualified" maxOccurs="unbounded" name="alternativeExpression"
+                        type="gmx:CoordinateSystemAlt_PropertyType"/>
+                </xs:sequence>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+    <!-- ........................................................................ -->
+    <xs:element name="ML_PolarCS" substitutionGroup="gml:PolarCS" type="gmx:ML_PolarCS_Type"/>
+    <!-- ........................................................................ -->
+    <xs:complexType name="ML_PolarCS_PropertyType">
+        <xs:sequence minOccurs="0">
+            <xs:element ref="gmx:ML_PolarCS"/>
+        </xs:sequence>
+        <xs:attributeGroup ref="gco:ObjectReference"/>
+        <xs:attribute ref="gco:nilReason"/>
+    </xs:complexType>
+    <!-- =========================================================================== -->
+    <xs:complexType name="ML_LinearCS_Type">
+        <xs:complexContent>
+            <xs:extension base="gml:LinearCSType">
+                <xs:sequence>
+                    <xs:element form="qualified" maxOccurs="unbounded" name="alternativeExpression"
+                        type="gmx:CoordinateSystemAlt_PropertyType"/>
+                </xs:sequence>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+    <!-- ........................................................................ -->
+    <xs:element name="ML_LinearCS" substitutionGroup="gml:LinearCS" type="gmx:ML_LinearCS_Type"/>
+    <!-- ........................................................................ -->
+    <xs:complexType name="ML_LinearCS_PropertyType">
+        <xs:sequence minOccurs="0">
+            <xs:element ref="gmx:ML_LinearCS"/>
+        </xs:sequence>
+        <xs:attributeGroup ref="gco:ObjectReference"/>
+        <xs:attribute ref="gco:nilReason"/>
+    </xs:complexType>
+    <!-- =========================================================================== -->
+    <!--========================== GML XSchema: datums.xsd ===========================-->
+    <xs:complexType name="ML_Ellipsoid_Type">
+        <xs:complexContent>
+            <xs:extension base="gml:EllipsoidType">
+                <xs:sequence>
+                    <xs:element form="qualified" maxOccurs="unbounded" name="alternativeExpression"
+                        type="gmx:EllipsoidAlt_PropertyType"/>
+                </xs:sequence>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+    <!-- ........................................................................ -->
+    <xs:element name="ML_Ellipsoid" substitutionGroup="gml:Ellipsoid" type="gmx:ML_Ellipsoid_Type"/>
+    <!-- ........................................................................ -->
+    <xs:complexType name="ML_Ellipsoid_PropertyType">
+        <xs:sequence minOccurs="0">
+            <xs:element ref="gmx:ML_Ellipsoid"/>
+        </xs:sequence>
+        <xs:attributeGroup ref="gco:ObjectReference"/>
+        <xs:attribute ref="gco:nilReason"/>
+    </xs:complexType>
+    <!-- =========================================================================== -->
+    <xs:complexType name="ML_PrimeMeridian_Type">
+        <xs:complexContent>
+            <xs:extension base="gml:PrimeMeridianType">
+                <xs:sequence>
+                    <xs:element form="qualified" maxOccurs="unbounded" name="alternativeExpression"
+                        type="gmx:PrimeMeridianAlt_PropertyType"/>
+                </xs:sequence>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+    <!-- ........................................................................ -->
+    <xs:element name="ML_PrimeMeridian" substitutionGroup="gml:PrimeMeridian"
+        type="gmx:ML_PrimeMeridian_Type"/>
+    <!-- ........................................................................ -->
+    <xs:complexType name="ML_PrimeMeridian_PropertyType">
+        <xs:sequence minOccurs="0">
+            <xs:element ref="gmx:ML_PrimeMeridian"/>
+        </xs:sequence>
+        <xs:attributeGroup ref="gco:ObjectReference"/>
+        <xs:attribute ref="gco:nilReason"/>
+    </xs:complexType>
+    <!-- =========================================================================== -->
+    <xs:complexType name="ML_TemporalDatum_Type">
+        <xs:complexContent>
+            <xs:extension base="gml:TemporalDatumType">
+                <xs:sequence>
+                    <xs:element form="qualified" maxOccurs="unbounded" name="alternativeExpression"
+                        type="gmx:DatumAlt_PropertyType"/>
+                </xs:sequence>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+    <!-- ........................................................................ -->
+    <xs:element name="ML_TemporalDatum" substitutionGroup="gml:TemporalDatum"
+        type="gmx:ML_TemporalDatum_Type"/>
+    <!-- ........................................................................ -->
+    <xs:complexType name="ML_TemporalDatum_PropertyType">
+        <xs:sequence minOccurs="0">
+            <xs:element ref="gmx:ML_TemporalDatum"/>
+        </xs:sequence>
+        <xs:attributeGroup ref="gco:ObjectReference"/>
+        <xs:attribute ref="gco:nilReason"/>
+    </xs:complexType>
+    <!-- =========================================================================== -->
+    <xs:complexType name="ML_VerticalDatum_Type">
+        <xs:complexContent>
+            <xs:extension base="gml:VerticalDatumType">
+                <xs:sequence>
+                    <xs:element form="qualified" maxOccurs="unbounded" name="alternativeExpression"
+                        type="gmx:DatumAlt_PropertyType"/>
+                </xs:sequence>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+    <!-- ........................................................................ -->
+    <xs:element name="ML_VerticalDatum" substitutionGroup="gml:VerticalDatum"
+        type="gmx:ML_VerticalDatum_Type"/>
+    <!-- ........................................................................ -->
+    <xs:complexType name="ML_VerticalDatum_PropertyType">
+        <xs:sequence minOccurs="0">
+            <xs:element ref="gmx:ML_VerticalDatum"/>
+        </xs:sequence>
+        <xs:attributeGroup ref="gco:ObjectReference"/>
+        <xs:attribute ref="gco:nilReason"/>
+    </xs:complexType>
+    <!-- =========================================================================== -->
+    <xs:complexType name="ML_ImageDatum_Type">
+        <xs:complexContent>
+            <xs:extension base="gml:ImageDatumType">
+                <xs:sequence>
+                    <xs:element form="qualified" maxOccurs="unbounded" name="alternativeExpression"
+                        type="gmx:DatumAlt_PropertyType"/>
+                </xs:sequence>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+    <!-- ........................................................................ -->
+    <xs:element name="ML_ImageDatum" substitutionGroup="gml:ImageDatum"
+        type="gmx:ML_ImageDatum_Type"/>
+    <!-- ........................................................................ -->
+    <xs:complexType name="ML_ImageDatum_PropertyType">
+        <xs:sequence minOccurs="0">
+            <xs:element ref="gmx:ML_ImageDatum"/>
+        </xs:sequence>
+        <xs:attributeGroup ref="gco:ObjectReference"/>
+        <xs:attribute ref="gco:nilReason"/>
+    </xs:complexType>
+    <!-- =========================================================================== -->
+    <xs:complexType name="ML_EngineeringDatum_Type">
+        <xs:complexContent>
+            <xs:extension base="gml:EngineeringDatumType">
+                <xs:sequence>
+                    <xs:element form="qualified" maxOccurs="unbounded" name="alternativeExpression"
+                        type="gmx:DatumAlt_PropertyType"/>
+                </xs:sequence>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+    <!-- ........................................................................ -->
+    <xs:element name="ML_EngineeringDatum" substitutionGroup="gml:EngineeringDatum"
+        type="gmx:ML_EngineeringDatum_Type"/>
+    <!-- ........................................................................ -->
+    <xs:complexType name="ML_EngineeringDatum_PropertyType">
+        <xs:sequence minOccurs="0">
+            <xs:element ref="gmx:ML_EngineeringDatum"/>
+        </xs:sequence>
+        <xs:attributeGroup ref="gco:ObjectReference"/>
+        <xs:attribute ref="gco:nilReason"/>
+    </xs:complexType>
+    <!-- =========================================================================== -->
+    <xs:complexType name="ML_GeodeticDatum_Type">
+        <xs:complexContent>
+            <xs:extension base="gml:GeodeticDatumType">
+                <xs:sequence>
+                    <xs:element form="qualified" maxOccurs="unbounded" name="alternativeExpression"
+                        type="gmx:DatumAlt_PropertyType"/>
+                </xs:sequence>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+    <!-- ........................................................................ -->
+    <xs:element name="ML_GeodeticDatum" substitutionGroup="gml:GeodeticDatum"
+        type="gmx:ML_GeodeticDatum_Type"/>
+    <!-- ........................................................................ -->
+    <xs:complexType name="ML_GeodeticDatum_PropertyType">
+        <xs:sequence minOccurs="0">
+            <xs:element ref="gmx:ML_GeodeticDatum"/>
+        </xs:sequence>
+        <xs:attributeGroup ref="gco:ObjectReference"/>
+        <xs:attribute ref="gco:nilReason"/>
+    </xs:complexType>
+    <!-- =========================================================================== -->
+    <!--==================== GML XSchema: coordinateOperations.xsd ======================-->
+    <xs:complexType name="ML_ConcatenatedOperation_Type">
+        <xs:complexContent>
+            <xs:extension base="gml:ConcatenatedOperationType">
+                <xs:sequence>
+                    <xs:element form="qualified" maxOccurs="unbounded" name="alternativeExpression"
+                        type="gmx:OperationAlt_PropertyType"/>
+                </xs:sequence>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+    <!-- ........................................................................ -->
+    <xs:element name="ML_ConcatenatedOperation" substitutionGroup="gml:ConcatenatedOperation"
+        type="gmx:ML_ConcatenatedOperation_Type"/>
+    <!-- ........................................................................ -->
+    <xs:complexType name="ML_ConcatenatedOperation_PropertyType">
+        <xs:sequence minOccurs="0">
+            <xs:element ref="gmx:ML_ConcatenatedOperation"/>
+        </xs:sequence>
+        <xs:attributeGroup ref="gco:ObjectReference"/>
+        <xs:attribute ref="gco:nilReason"/>
+    </xs:complexType>
+    <!-- =========================================================================== -->
+    <xs:complexType name="ML_PassThroughOperation_Type">
+        <xs:complexContent>
+            <xs:extension base="gml:PassThroughOperationType">
+                <xs:sequence>
+                    <xs:element form="qualified" maxOccurs="unbounded" name="alternativeExpression"
+                        type="gmx:OperationAlt_PropertyType"/>
+                </xs:sequence>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+    <!-- ........................................................................ -->
+    <xs:element name="ML_PassThroughOperation" substitutionGroup="gml:PassThroughOperation"
+        type="gmx:ML_PassThroughOperation_Type"/>
+    <!-- ........................................................................ -->
+    <xs:complexType name="ML_PassThroughOperation_PropertyType">
+        <xs:sequence minOccurs="0">
+            <xs:element ref="gmx:ML_PassThroughOperation"/>
+        </xs:sequence>
+        <xs:attributeGroup ref="gco:ObjectReference"/>
+        <xs:attribute ref="gco:nilReason"/>
+    </xs:complexType>
+    <!-- =========================================================================== -->
+    <xs:complexType name="ML_Transformation_Type">
+        <xs:complexContent>
+            <xs:extension base="gml:TransformationType">
+                <xs:sequence>
+                    <xs:element form="qualified" maxOccurs="unbounded" name="alternativeExpression"
+                        type="gmx:OperationAlt_PropertyType"/>
+                </xs:sequence>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+    <!-- ........................................................................ -->
+    <xs:element name="ML_Transformation" substitutionGroup="gml:Transformation"
+        type="gmx:ML_Transformation_Type"/>
+    <!-- ........................................................................ -->
+    <xs:complexType name="ML_Transformation_PropertyType">
+        <xs:sequence minOccurs="0">
+            <xs:element ref="gmx:ML_Transformation"/>
+        </xs:sequence>
+        <xs:attributeGroup ref="gco:ObjectReference"/>
+        <xs:attribute ref="gco:nilReason"/>
+    </xs:complexType>
+    <!-- =========================================================================== -->
+    <xs:complexType name="ML_Conversion_Type">
+        <xs:complexContent>
+            <xs:extension base="gml:ConversionType">
+                <xs:sequence>
+                    <xs:element form="qualified" maxOccurs="unbounded" name="alternativeExpression"
+                        type="gmx:OperationAlt_PropertyType"/>
+                </xs:sequence>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+    <!-- ........................................................................ -->
+    <xs:element name="ML_Conversion" substitutionGroup="gml:Conversion"
+        type="gmx:ML_Conversion_Type"/>
+    <!-- ........................................................................ -->
+    <xs:complexType name="ML_Conversion_PropertyType">
+        <xs:sequence minOccurs="0">
+            <xs:element ref="gmx:ML_Conversion"/>
+        </xs:sequence>
+        <xs:attributeGroup ref="gco:ObjectReference"/>
+        <xs:attribute ref="gco:nilReason"/>
+    </xs:complexType>
+    <!-- =========================================================================== -->
+    <xs:complexType name="ML_OperationMethod_Type">
+        <xs:complexContent>
+            <xs:extension base="gml:OperationMethodType">
+                <xs:sequence>
+                    <xs:element form="qualified" maxOccurs="unbounded" name="alternativeExpression"
+                        type="gmx:OperationMethodAlt_PropertyType"/>
+                </xs:sequence>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+    <!-- ........................................................................ -->
+    <xs:element name="ML_OperationMethod" substitutionGroup="gml:OperationMethod"
+        type="gmx:ML_OperationMethod_Type"/>
+    <!-- ........................................................................ -->
+    <xs:complexType name="ML_OperationMethod_PropertyType">
+        <xs:sequence minOccurs="0">
+            <xs:element ref="gmx:ML_OperationMethod"/>
+        </xs:sequence>
+        <xs:attributeGroup ref="gco:ObjectReference"/>
+        <xs:attribute ref="gco:nilReason"/>
+    </xs:complexType>
+    <!-- =========================================================================== -->
+    <xs:complexType name="ML_OperationParameterGroup_Type">
+        <xs:complexContent>
+            <xs:extension base="gml:OperationParameterGroupType">
+                <xs:sequence>
+                    <xs:element form="qualified" maxOccurs="unbounded" name="alternativeExpression"
+                        type="gmx:OperationParameterAlt_PropertyType"/>
+                </xs:sequence>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+    <!-- ........................................................................ -->
+    <xs:element name="ML_OperationParameterGroup" substitutionGroup="gml:OperationParameterGroup"
+        type="gmx:ML_OperationParameterGroup_Type"/>
+    <!-- ........................................................................ -->
+    <xs:complexType name="ML_OperationParameterGroup_PropertyType">
+        <xs:sequence minOccurs="0">
+            <xs:element ref="gmx:ML_OperationParameterGroup"/>
+        </xs:sequence>
+        <xs:attributeGroup ref="gco:ObjectReference"/>
+        <xs:attribute ref="gco:nilReason"/>
+    </xs:complexType>
+    <!-- =========================================================================== -->
+    <xs:complexType name="ML_OperationParameter_Type">
+        <xs:complexContent>
+            <xs:extension base="gml:OperationParameterType">
+                <xs:sequence>
+                    <xs:element form="qualified" maxOccurs="unbounded" name="alternativeExpression"
+                        type="gmx:OperationParameterAlt_PropertyType"/>
+                </xs:sequence>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+    <!-- ........................................................................ -->
+    <xs:element name="ML_OperationParameter" substitutionGroup="gml:OperationParameter"
+        type="gmx:ML_OperationParameter_Type"/>
+    <!-- ........................................................................ -->
+    <xs:complexType name="ML_OperationParameter_PropertyType">
+        <xs:sequence minOccurs="0">
+            <xs:element ref="gmx:ML_OperationParameter"/>
+        </xs:sequence>
+        <xs:attributeGroup ref="gco:ObjectReference"/>
+        <xs:attribute ref="gco:nilReason"/>
+    </xs:complexType>
+    <!-- =========================================================================== -->
+    <!--===================== Alternative Expresssion types ==============================-->
+    <xs:complexType name="CrsAlt_Type">
+        <xs:annotation>
+            <xs:documentation>XML attributes contraints: - 1) Id is mandatory - 2) codeSpace (type
+                xsd:anyURI) is mandatory</xs:documentation>
+        </xs:annotation>
+        <xs:complexContent>
+            <xs:extension base="gml:AbstractCRSType">
+                <xs:sequence>
+                    <xs:element form="qualified" name="locale" type="gmd:PT_Locale_PropertyType"/>
+                </xs:sequence>
+                <xs:attribute name="codeSpace" type="xs:anyURI" use="required"/>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+    <!-- ........................................................................ -->
+    <xs:element name="CrsAlt" type="gmx:CrsAlt_Type"/>
+    <!-- ........................................................................ -->
+    <xs:complexType name="CrsAlt_PropertyType">
+        <xs:sequence minOccurs="0">
+            <xs:element ref="gmx:CrsAlt"/>
+        </xs:sequence>
+        <xs:attributeGroup ref="gco:ObjectReference"/>
+        <xs:attribute ref="gco:nilReason"/>
+    </xs:complexType>
+    <!-- =========================================================================== -->
+    <xs:complexType name="CoordinateSystemAlt_Type">
+        <xs:annotation>
+            <xs:documentation>XML attributes contraints: - 1) Id is mandatory - 2) codeSpace (type
+                xsd:anyURI) is mandatory</xs:documentation>
+        </xs:annotation>
+        <xs:complexContent>
+            <xs:extension base="gml:IdentifiedObjectType">
+                <xs:sequence>
+                    <xs:element form="qualified" name="locale" type="gmd:PT_Locale_PropertyType"/>
+                </xs:sequence>
+                <xs:attributeGroup ref="gml:AggregationAttributeGroup"/>
+                <xs:attribute name="codeSpace" type="xs:anyURI" use="required"/>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+    <!-- ........................................................................ -->
+    <xs:element name="CoordinateSystemAlt" type="gmx:CoordinateSystemAlt_Type"/>
+    <!-- ........................................................................ -->
+    <xs:complexType name="CoordinateSystemAlt_PropertyType">
+        <xs:sequence minOccurs="0">
+            <xs:element ref="gmx:CoordinateSystemAlt"/>
+        </xs:sequence>
+        <xs:attributeGroup ref="gco:ObjectReference"/>
+        <xs:attribute ref="gco:nilReason"/>
+    </xs:complexType>
+    <!-- =========================================================================== -->
+    <xs:complexType name="CoordinateSystemAxisAlt_Type">
+        <xs:annotation>
+            <xs:documentation>XML attributes contraints: - 1) Id is mandatory - 2) codeSpace (type
+                xsd:anyURI) is mandatory</xs:documentation>
+        </xs:annotation>
+        <xs:complexContent>
+            <xs:extension base="gml:CoordinateSystemAxisType">
+                <xs:sequence>
+                    <xs:element form="qualified" name="locale" type="gmd:PT_Locale_PropertyType"/>
+                </xs:sequence>
+                <xs:attribute name="codeSpace" type="xs:anyURI" use="required"/>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+    <!-- ........................................................................ -->
+    <xs:element name="CoordinateSystemAxisAlt" type="gmx:CoordinateSystemAxisAlt_Type"/>
+    <!-- ........................................................................ -->
+    <xs:complexType name="CoordinateSystemAxisAlt_PropertyType">
+        <xs:sequence minOccurs="0">
+            <xs:element ref="gmx:CoordinateSystemAxisAlt"/>
+        </xs:sequence>
+        <xs:attributeGroup ref="gco:ObjectReference"/>
+        <xs:attribute ref="gco:nilReason"/>
+    </xs:complexType>
+    <!-- =========================================================================== -->
+    <xs:complexType name="DatumAlt_Type">
+        <xs:annotation>
+            <xs:documentation>XML attributes contraints: - 1) Id is mandatory - 2) codeSpace (type
+                xsd:anyURI) is mandatory</xs:documentation>
+        </xs:annotation>
+        <xs:complexContent>
+            <xs:extension base="gml:AbstractDatumType">
+                <xs:sequence>
+                    <xs:element form="qualified" name="locale" type="gmd:PT_Locale_PropertyType"/>
+                </xs:sequence>
+                <xs:attribute name="codeSpace" type="xs:anyURI" use="required"/>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+    <!-- ........................................................................ -->
+    <xs:element name="DatumAlt" type="gmx:DatumAlt_Type"/>
+    <!-- ........................................................................ -->
+    <xs:complexType name="DatumAlt_PropertyType">
+        <xs:sequence minOccurs="0">
+            <xs:element ref="gmx:DatumAlt"/>
+        </xs:sequence>
+        <xs:attributeGroup ref="gco:ObjectReference"/>
+        <xs:attribute ref="gco:nilReason"/>
+    </xs:complexType>
+    <!-- =========================================================================== -->
+    <xs:complexType name="EllipsoidAlt_Type">
+        <xs:annotation>
+            <xs:documentation>XML attributes contraints: - 1) Id is mandatory - 2) codeSpace (type
+                xsd:anyURI) is mandatory</xs:documentation>
+        </xs:annotation>
+        <xs:complexContent>
+            <xs:extension base="gml:IdentifiedObjectType">
+                <xs:sequence>
+                    <xs:element form="qualified" name="locale" type="gmd:PT_Locale_PropertyType"/>
+                </xs:sequence>
+                <xs:attribute name="codeSpace" type="xs:anyURI" use="required"/>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+    <!-- ........................................................................ -->
+    <xs:element name="EllipsoidAlt" type="gmx:EllipsoidAlt_Type"/>
+    <!-- ........................................................................ -->
+    <xs:complexType name="EllipsoidAlt_PropertyType">
+        <xs:sequence minOccurs="0">
+            <xs:element ref="gmx:EllipsoidAlt"/>
+        </xs:sequence>
+        <xs:attributeGroup ref="gco:ObjectReference"/>
+        <xs:attribute ref="gco:nilReason"/>
+    </xs:complexType>
+    <!-- =========================================================================== -->
+    <xs:complexType name="PrimeMeridianAlt_Type">
+        <xs:annotation>
+            <xs:documentation>XML attributes contraints: - 1) Id is mandatory - 2) codeSpace (type
+                xsd:anyURI) is mandatory</xs:documentation>
+        </xs:annotation>
+        <xs:complexContent>
+            <xs:extension base="gml:IdentifiedObjectType">
+                <xs:sequence>
+                    <xs:element form="qualified" name="locale" type="gmd:PT_Locale_PropertyType"/>
+                </xs:sequence>
+                <xs:attribute name="codeSpace" type="xs:anyURI" use="required"/>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+    <!-- ........................................................................ -->
+    <xs:element name="PrimeMeridianAlt" type="gmx:PrimeMeridianAlt_Type"/>
+    <!-- ........................................................................ -->
+    <xs:complexType name="PrimeMeridianAlt_PropertyType">
+        <xs:sequence minOccurs="0">
+            <xs:element ref="gmx:PrimeMeridianAlt"/>
+        </xs:sequence>
+        <xs:attributeGroup ref="gco:ObjectReference"/>
+        <xs:attribute ref="gco:nilReason"/>
+    </xs:complexType>
+    <!-- =========================================================================== -->
+    <xs:complexType name="OperationAlt_Type">
+        <xs:annotation>
+            <xs:documentation>XML attributes contraints: - 1) Id is mandatory - 2) codeSpace (type
+                xsd:anyURI) is mandatory</xs:documentation>
+        </xs:annotation>
+        <xs:complexContent>
+            <xs:extension base="gml:AbstractCoordinateOperationType">
+                <xs:sequence>
+                    <xs:element form="qualified" name="locale" type="gmd:PT_Locale_PropertyType"/>
+                </xs:sequence>
+                <xs:attribute name="codeSpace" type="xs:anyURI" use="required"/>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+    <!-- ........................................................................ -->
+    <xs:element name="OperationAlt" type="gmx:OperationAlt_Type"/>
+    <!-- ........................................................................ -->
+    <xs:complexType name="OperationAlt_PropertyType">
+        <xs:sequence minOccurs="0">
+            <xs:element ref="gmx:OperationAlt"/>
+        </xs:sequence>
+        <xs:attributeGroup ref="gco:ObjectReference"/>
+        <xs:attribute ref="gco:nilReason"/>
+    </xs:complexType>
+    <!-- =========================================================================== -->
+    <xs:complexType name="OperationMethodAlt_Type">
+        <xs:annotation>
+            <xs:documentation>XML attributes contraints: - 1) Id is mandatory - 2) codeSpace (type
+                xsd:anyURI) is mandatory</xs:documentation>
+        </xs:annotation>
+        <xs:complexContent>
+            <xs:extension base="gml:IdentifiedObjectType">
+                <xs:sequence>
+                    <xs:element form="qualified" name="locale" type="gmd:PT_Locale_PropertyType"/>
+                </xs:sequence>
+                <xs:attribute name="codeSpace" type="xs:anyURI" use="required"/>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+    <!-- ........................................................................ -->
+    <xs:element name="OperationMethodAlt" type="gmx:OperationMethodAlt_Type"/>
+    <!-- ........................................................................ -->
+    <xs:complexType name="OperationMethodAlt_PropertyType">
+        <xs:sequence minOccurs="0">
+            <xs:element ref="gmx:OperationMethodAlt"/>
+        </xs:sequence>
+        <xs:attributeGroup ref="gco:ObjectReference"/>
+        <xs:attribute ref="gco:nilReason"/>
+    </xs:complexType>
+    <!-- =========================================================================== -->
+    <xs:complexType name="OperationParameterAlt_Type">
+        <xs:annotation>
+            <xs:documentation>XML attributes contraints: - 1) Id is mandatory - 2) codeSpace (type
+                xsd:anyURI) is mandatory</xs:documentation>
+        </xs:annotation>
+        <xs:complexContent>
+            <xs:extension base="gml:OperationParameterType">
+                <xs:sequence>
+                    <xs:element form="qualified" name="locale" type="gmd:PT_Locale_PropertyType"/>
+                </xs:sequence>
+                <xs:attribute name="codeSpace" type="xs:anyURI" use="required"/>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+    <!-- ........................................................................ -->
+    <xs:element name="OperationParameterAlt" type="gmx:OperationParameterAlt_Type"/>
+    <!-- ........................................................................ -->
+    <xs:complexType name="OperationParameterAlt_PropertyType">
+        <xs:sequence minOccurs="0">
+            <xs:element ref="gmx:OperationParameterAlt"/>
+        </xs:sequence>
+        <xs:attributeGroup ref="gco:ObjectReference"/>
+        <xs:attribute ref="gco:nilReason"/>
+    </xs:complexType>
+    <!-- =========================================================================== -->
+    <!-- === End of file === -->
+    <!-- ########################################################################### -->
+    <!-- ########################################################################### -->
+    <!-- ================================== Classes ================================= -->
+    <xs:complexType abstract="true" name="AbstractCT_Catalogue_Type">
+        <xs:complexContent>
+            <xs:extension base="gco:AbstractObject_Type">
+                <xs:sequence>
+                    <xs:element form="qualified" name="name" type="gco:CharacterString_PropertyType"/>
+                    <xs:element form="qualified" maxOccurs="unbounded" name="scope"
+                        type="gco:CharacterString_PropertyType"/>
+                    <xs:element form="qualified" maxOccurs="unbounded" minOccurs="0"
+                        name="fieldOfApplication" type="gco:CharacterString_PropertyType"/>
+                    <xs:element form="qualified" name="versionNumber"
+                        type="gco:CharacterString_PropertyType"/>
+                    <xs:element form="qualified" name="versionDate" type="gco:Date_PropertyType"/>
+                    <xs:element form="qualified" minOccurs="0" name="language"
+                        type="gco:CharacterString_PropertyType"/>
+                    <xs:element form="qualified" minOccurs="0" name="characterSet"
+                        type="gmd:MD_CharacterSetCode_PropertyType"/>
+                    <xs:element form="qualified" maxOccurs="unbounded" minOccurs="0" name="locale"
+                        type="gmd:PT_Locale_PropertyType"/>
+                    <xs:element form="qualified" maxOccurs="unbounded" minOccurs="0"
+                        name="subCatalogue" type="gmx:CT_Catalogue_PropertyType"/>
+                </xs:sequence>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+    <!-- ........................................................................ -->
+    <xs:element abstract="true" name="AbstractCT_Catalogue" type="gmx:AbstractCT_Catalogue_Type"/>
+    <!-- ........................................................................ -->
+    <xs:complexType name="CT_Catalogue_PropertyType">
+        <xs:sequence minOccurs="0">
+            <xs:element ref="gmx:AbstractCT_Catalogue"/>
+        </xs:sequence>
+        <xs:attributeGroup ref="gco:ObjectReference"/>
+        <xs:attribute ref="gco:nilReason"/>
+    </xs:complexType>
+    <!-- =========================================================================== -->
+    <xs:complexType name="CT_CodelistCatalogue_Type">
+        <xs:complexContent>
+            <xs:extension base="gmx:AbstractCT_Catalogue_Type">
+                <xs:sequence>
+                    <xs:element form="qualified" maxOccurs="unbounded" name="codelistItem"
+                        type="gmx:CT_Codelist_PropertyType"/>
+                </xs:sequence>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+    <!-- ........................................................................ -->
+    <xs:element name="CT_CodelistCatalogue" substitutionGroup="gmx:AbstractCT_Catalogue"
+        type="gmx:CT_CodelistCatalogue_Type"/>
+    <!-- ........................................................................ -->
+    <xs:complexType name="CT_CodelistCatalogue_PropertyType">
+        <xs:sequence minOccurs="0">
+            <xs:element ref="gmx:CT_CodelistCatalogue"/>
+        </xs:sequence>
+        <xs:attributeGroup ref="gco:ObjectReference"/>
+        <xs:attribute ref="gco:nilReason"/>
+    </xs:complexType>
+    <!-- =========================================================================== -->
+    <xs:complexType name="CT_CrsCatalogue_Type">
+        <xs:complexContent>
+            <xs:extension base="gmx:AbstractCT_Catalogue_Type">
+                <xs:sequence>
+                    <xs:element form="qualified" maxOccurs="unbounded" name="crs"
+                        type="gmx:CT_CRS_PropertyType"/>
+                    <xs:element form="qualified" maxOccurs="unbounded" minOccurs="0"
+                        name="coordinateSystem" type="gmx:CT_CoordinateSystem_PropertyType"/>
+                    <xs:element form="qualified" maxOccurs="unbounded" minOccurs="0" name="axis"
+                        type="gmx:CT_CoordinateSystemAxis_PropertyType"/>
+                    <xs:element form="qualified" maxOccurs="unbounded" minOccurs="0" name="datum"
+                        type="gmx:CT_Datum_PropertyType"/>
+                    <xs:element form="qualified" maxOccurs="unbounded" minOccurs="0"
+                        name="ellipsoid" type="gmx:CT_Ellipsoid_PropertyType"/>
+                    <xs:element form="qualified" maxOccurs="unbounded" minOccurs="0"
+                        name="primeMeridian" type="gmx:CT_PrimeMeridian_PropertyType"/>
+                    <xs:element form="qualified" maxOccurs="unbounded" minOccurs="0"
+                        name="operation" type="gmx:CT_Operation_PropertyType"/>
+                    <xs:element form="qualified" maxOccurs="unbounded" minOccurs="0"
+                        name="operationMethod" type="gmx:CT_OperationMethod_PropertyType"/>
+                    <xs:element form="qualified" maxOccurs="unbounded" minOccurs="0"
+                        name="parameters" type="gmx:CT_OperationParameters_PropertyType"/>
+                </xs:sequence>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+    <!-- ........................................................................ -->
+    <xs:element name="CT_CrsCatalogue" substitutionGroup="gmx:AbstractCT_Catalogue"
+        type="gmx:CT_CrsCatalogue_Type"/>
+    <!-- ........................................................................ -->
+    <xs:complexType name="CT_CrsCatalogue_PropertyType">
+        <xs:sequence minOccurs="0">
+            <xs:element ref="gmx:CT_CrsCatalogue"/>
+        </xs:sequence>
+        <xs:attributeGroup ref="gco:ObjectReference"/>
+        <xs:attribute ref="gco:nilReason"/>
+    </xs:complexType>
+    <!-- =========================================================================== -->
+    <xs:complexType name="CT_UomCatalogue_Type">
+        <xs:complexContent>
+            <xs:extension base="gmx:AbstractCT_Catalogue_Type">
+                <xs:sequence>
+                    <xs:element form="qualified" maxOccurs="unbounded" name="uomItem"
+                        type="gmx:UnitDefinition_PropertyType"/>
+                </xs:sequence>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+    <!-- ........................................................................ -->
+    <xs:element name="CT_UomCatalogue" substitutionGroup="gmx:AbstractCT_Catalogue"
+        type="gmx:CT_UomCatalogue_Type"/>
+    <!-- ........................................................................ -->
+    <xs:complexType name="CT_UomCatalogue_PropertyType">
+        <xs:sequence minOccurs="0">
+            <xs:element ref="gmx:CT_UomCatalogue"/>
+        </xs:sequence>
+        <xs:attributeGroup ref="gco:ObjectReference"/>
+        <xs:attribute ref="gco:nilReason"/>
+    </xs:complexType>
+    <!-- =========================================================================== -->
+    <!-- ================================= Annotation ================================ -->
+    <xs:annotation>
+        <xs:documentation>This file was generated from ISO TC/211 UML class diagrams == 03-14-2005
+            12:00:20 ====== Handcrafted</xs:documentation>
+    </xs:annotation>
+    <!-- ================================== Imports ================================== -->
+    <!-- ########################################################################### -->
+    <!-- ########################################################################### -->
+    <!-- ================================== Classes ================================= -->
+    <!-- ======================== Handcrafted types =================================== -->
+    <!-- ========================================================================== -->
+    <!-- ====================== The FileName prototype ================================ -->
+    <!--It is used to point to a source file and is substitutable for CharacterString-->
+    <!--================= Type ==================-->
+    <xs:complexType name="FileName_Type">
+        <xs:simpleContent>
+            <xs:extension base="xs:string">
+                <xs:attribute name="src" type="xs:anyURI"/>
+            </xs:extension>
+        </xs:simpleContent>
+    </xs:complexType>
+    <!-- ........................................................................ -->
+    <xs:element name="FileName" substitutionGroup="gco:CharacterString" type="gmx:FileName_Type"/>
+    <!-- ........................................................................ -->
+    <xs:complexType name="FileName_PropertyType">
+        <xs:sequence minOccurs="0">
+            <xs:element ref="gmx:FileName"/>
+        </xs:sequence>
+        <xs:attribute ref="gco:nilReason"/>
+    </xs:complexType>
+    <!-- ========================================================================== -->
+    <!-- ====================== The MimeFileType prototype ============================= -->
+    <!--It is used to provide information on file types and is substitutable for CharacterString-->
+    <!--================= Type ==================-->
+    <xs:complexType name="MimeFileType_Type">
+        <xs:simpleContent>
+            <xs:extension base="xs:string">
+                <xs:attribute name="type" type="xs:string" use="required"/>
+            </xs:extension>
+        </xs:simpleContent>
+    </xs:complexType>
+    <!-- ........................................................................ -->
+    <xs:element name="MimeFileType" substitutionGroup="gco:CharacterString"
+        type="gmx:MimeFileType_Type"/>
+    <!-- ........................................................................ -->
+    <xs:complexType name="MimeFileType_PropertyType">
+        <xs:sequence minOccurs="0">
+            <xs:element ref="gmx:MimeFileType"/>
+        </xs:sequence>
+        <xs:attribute ref="gco:nilReason"/>
+    </xs:complexType>
+    <!-- ========================================================================== -->
+    <!-- ======================= The Anchor prototype ================================ -->
+    <!--It is used to point to a registred definition-->
+    <!--================= Type ==================-->
+    <xs:complexType name="Anchor_Type">
+        <xs:simpleContent>
+            <xs:extension base="xs:string">
+                <xs:attributeGroup ref="xlink:simpleAttrs"/>
+            </xs:extension>
+        </xs:simpleContent>
+    </xs:complexType>
+    <!-- ........................................................................ -->
+    <xs:element name="Anchor" substitutionGroup="gco:CharacterString" type="gmx:Anchor_Type"/>
+    <!-- ........................................................................ -->
+    <xs:complexType name="Anchor_PropertyType">
+        <xs:sequence minOccurs="0">
+            <xs:element ref="gmx:Anchor"/>
+        </xs:sequence>
+        <xs:attribute ref="gco:nilReason"/>
+    </xs:complexType>
+    <!--======= End of Schema ======-->
+    <!-- ########################################################################### -->
+    <!-- ########################################################################### -->
+    <!-- ================================== Classes ================================= -->
+    <xs:complexType name="MX_Aggregate_Type">
+        <xs:complexContent>
+            <xs:extension base="gmd:AbstractDS_Aggregate_Type">
+                <xs:sequence>
+                    <xs:element form="qualified" maxOccurs="unbounded" minOccurs="0"
+                        name="aggregateCatalogue" type="gmx:CT_Catalogue_PropertyType"/>
+                    <xs:element form="qualified" maxOccurs="unbounded" minOccurs="0"
+                        name="aggregateFile" type="gmx:MX_SupportFile_PropertyType"/>
+                </xs:sequence>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+    <!-- ........................................................................ -->
+    <xs:element name="MX_Aggregate" substitutionGroup="gmd:AbstractDS_Aggregate"
+        type="gmx:MX_Aggregate_Type"/>
+    <!-- ........................................................................ -->
+    <xs:complexType name="MX_Aggregate_PropertyType">
+        <xs:sequence minOccurs="0">
+            <xs:element ref="gmx:MX_Aggregate"/>
+        </xs:sequence>
+        <xs:attributeGroup ref="gco:ObjectReference"/>
+        <xs:attribute ref="gco:nilReason"/>
+    </xs:complexType>
+    <!-- =========================================================================== -->
+    <xs:complexType name="MX_DataSet_Type">
+        <xs:complexContent>
+            <xs:extension base="gmd:DS_DataSet_Type">
+                <xs:sequence>
+                    <xs:element form="qualified" maxOccurs="unbounded" name="dataFile"
+                        type="gmx:MX_DataFile_PropertyType"/>
+                    <xs:element form="qualified" maxOccurs="unbounded" minOccurs="0"
+                        name="datasetCatalogue" type="gmx:CT_Catalogue_PropertyType"/>
+                    <xs:element form="qualified" maxOccurs="unbounded" minOccurs="0"
+                        name="supportFile" type="gmx:MX_SupportFile_PropertyType"/>
+                </xs:sequence>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+    <!-- ........................................................................ -->
+    <xs:element name="MX_DataSet" substitutionGroup="gmd:DS_DataSet" type="gmx:MX_DataSet_Type"/>
+    <!-- ........................................................................ -->
+    <xs:complexType name="MX_DataSet_PropertyType">
+        <xs:sequence minOccurs="0">
+            <xs:element ref="gmx:MX_DataSet"/>
+        </xs:sequence>
+        <xs:attributeGroup ref="gco:ObjectReference"/>
+        <xs:attribute ref="gco:nilReason"/>
+    </xs:complexType>
+    <!-- =========================================================================== -->
+    <xs:complexType name="MX_DataFile_Type">
+        <xs:complexContent>
+            <xs:extension base="gmx:AbstractMX_File_Type">
+                <xs:sequence>
+                    <xs:element form="qualified" maxOccurs="unbounded" minOccurs="0"
+                        name="featureTypes" type="gco:GenericName_PropertyType"/>
+                    <xs:element form="qualified" name="fileFormat" type="gmd:MD_Format_PropertyType"
+                    />
+                </xs:sequence>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+    <!-- ........................................................................ -->
+    <xs:element name="MX_DataFile" substitutionGroup="gmx:AbstractMX_File"
+        type="gmx:MX_DataFile_Type"/>
+    <!-- ........................................................................ -->
+    <xs:complexType name="MX_DataFile_PropertyType">
+        <xs:sequence minOccurs="0">
+            <xs:element ref="gmx:MX_DataFile"/>
+        </xs:sequence>
+        <xs:attributeGroup ref="gco:ObjectReference"/>
+        <xs:attribute ref="gco:nilReason"/>
+    </xs:complexType>
+    <!-- =========================================================================== -->
+    <xs:complexType name="MX_SupportFile_Type">
+        <xs:complexContent>
+            <xs:extension base="gmx:AbstractMX_File_Type"/>
+        </xs:complexContent>
+    </xs:complexType>
+    <!-- ........................................................................ -->
+    <xs:element name="MX_SupportFile" substitutionGroup="gmx:AbstractMX_File"
+        type="gmx:MX_SupportFile_Type"/>
+    <!-- ........................................................................ -->
+    <xs:complexType name="MX_SupportFile_PropertyType">
+        <xs:sequence minOccurs="0">
+            <xs:element ref="gmx:MX_SupportFile"/>
+        </xs:sequence>
+        <xs:attributeGroup ref="gco:ObjectReference"/>
+        <xs:attribute ref="gco:nilReason"/>
+    </xs:complexType>
+    <!-- =========================================================================== -->
+    <xs:complexType abstract="true" name="AbstractMX_File_Type">
+        <xs:complexContent>
+            <xs:extension base="gco:AbstractObject_Type">
+                <xs:sequence>
+                    <xs:element form="qualified" name="fileName" type="gmx:FileName_PropertyType"/>
+                    <xs:element form="qualified" name="fileDescription"
+                        type="gco:CharacterString_PropertyType"/>
+                    <xs:element form="qualified" name="fileType"
+                        type="gmx:MimeFileType_PropertyType"/>
+                </xs:sequence>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+    <!-- ........................................................................ -->
+    <xs:element abstract="true" name="AbstractMX_File" type="gmx:AbstractMX_File_Type"/>
+    <!-- ........................................................................ -->
+    <xs:complexType name="MX_File_PropertyType">
+        <xs:sequence minOccurs="0">
+            <xs:element ref="gmx:AbstractMX_File"/>
+        </xs:sequence>
+        <xs:attributeGroup ref="gco:ObjectReference"/>
+        <xs:attribute ref="gco:nilReason"/>
+    </xs:complexType>
+    <!-- =========================================================================== -->
+    <!-- ........................................................................ -->
+    <xs:element name="MX_ScopeCode" substitutionGroup="gmd:MD_ScopeCode"
+        type="gco:CodeListValue_Type"/>
+    <!-- ........................................................................ -->
+    <xs:complexType name="MX_ScopeCode_PropertyType">
+        <xs:sequence minOccurs="0">
+            <xs:element ref="gmx:MX_ScopeCode"/>
+        </xs:sequence>
+        <xs:attribute ref="gco:nilReason"/>
+    </xs:complexType>
+    <!-- =========================================================================== -->
+    <!-- ########################################################################### -->
+    <!-- ########################################################################### -->
+    <!-- ================================== Classes ================================= -->
+</xs:schema>

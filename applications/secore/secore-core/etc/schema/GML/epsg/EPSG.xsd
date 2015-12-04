@@ -1,0 +1,347 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema xmlns="http://www.w3.org/2001/XMLSchema"
+  xmlns:gml="http://www.opengis.net/gml/3.2"
+  xmlns:gmd="http://www.isotc211.org/2005/gmd"
+  xmlns:xlink="http://www.w3.org/1999/xlink"
+  xmlns:epsg="urn:x-ogp:spec:schema-xsd:EPSG:1.0:dataset"
+  targetNamespace="urn:x-ogp:spec:schema-xsd:EPSG:1.0:dataset"
+  elementFormDefault="qualified" attributeFormDefault="unqualified"
+  version="1.0" id="epsg">
+  <!-- ======================================================================
+
+    GML 3.2.1 application schema for the EPSG Geodetic Parameter Dataset.
+
+    Change history:
+
+    2006 Sep 15:  Initial version. Based on GML 3.1.1
+    2007 Jan 05:  v0.2  Based on GML 3.2.0
+    2007 Jan 19:  v0.3  Fixed sexagesimal handling
+    2007 Jan 26:  v0.4  Method - signReversal moved to metadata.
+    2007 Feb 28:  v0.5  Alias - added 'code' attribute
+    2007 Apr 10:  v0.6  Supersession - made supersededBy property optional, to support
+                        revised interpretation of supersesssion model.
+    2007 May 05:  v0.7  Metadata - removed 'epsg:dataSource' element.  Data source is now
+                        located in 'codeSpace' attribute on gml:identifier.
+    2007 Oct 01:  v0.8  Dropped EllipsoidMetaData.
+    2007 Nov 07:  v0.9  Changed VersionHistory/versionDate type to xsd:dateTime from xsd:date.
+    2008 Mar 08:  v0.10 Added maxOccurs="unbounded" to VersionHistory/supersededBy element.
+    2012 May 02:  v1.0  Added GML 3.2.1 dependencies and correct AreaOfUse extension.
+
+    ====================================================================== -->
+  <import namespace="http://www.opengis.net/gml/3.2" schemaLocation="../gml/3.2.1/gml-3.2.1.xsd"/>
+  <import namespace="http://www.isotc211.org/2005/gmd" schemaLocation="../iso/19139/20070417/gmd/gmd-20070417.xsd"/>
+  <!-- ====================================================================== -->
+  <element name="Comment" type="epsg:CommentType" substitutionGroup="gml:Definition"/>
+  <complexType name="CommentType">
+    <complexContent>
+      <extension base="gml:DefinitionType">
+        <sequence>
+          <!--
+		    Note:
+              comment id is mapped to gml:identifier
+              comment text is mapped to gml:remarks element
+          -->
+          <element name="commentDate" type="date"/>
+          <!-- contributor is the name of the person submitting the comment -->
+          <element name="contributor" type="string"/>
+          <!-- commentedObject is a reference to the object to which the comment applies -->
+          <element name="commentedObject" type="gml:ReferenceType"/>
+        </sequence>
+      </extension>
+    </complexContent>
+  </complexType>
+  <!-- ====================================================================== -->
+  <element name="NamingSystem" type="epsg:NamingSystemType" substitutionGroup="gml:Definition"/>
+  <complexType name="NamingSystemType">
+    <complexContent>
+      <extension base="gml:DefinitionType"/>
+    </complexContent>
+  </complexType>
+  <!-- ====================================================================== -->
+  <element name="ChangeRequest" type="epsg:ChangeRequestType" substitutionGroup="gml:Definition"/>
+  <complexType name="ChangeRequestType">
+    <complexContent>
+      <extension base="gml:DefinitionType">
+        <sequence>
+          <!-- Note: Change Request column 'comment' is mapped to gml:remarks element -->
+          <element name="reportDate" type="date"/>
+          <element name="closedDate" type="date" minOccurs="0"/>
+          <element name="reporter" type="string"/>
+          <element name="request" type="string"/>
+          <element name="tablesAffected" type="string" minOccurs="0"/>
+          <!-- codesAffected is a SPACE delimited sequence of EPSG entity codes -->
+          <element name="codesAffected" type="string" minOccurs="0"/>
+          <element name="action" type="string" minOccurs="0"/>
+        </sequence>
+      </extension>
+    </complexContent>
+  </complexType>
+  <!-- ====================================================================== -->
+  <element name="VersionHistory" type="epsg:VersionHistoryType" substitutionGroup="gml:Definition"/>
+  <complexType name="VersionHistoryType">
+    <complexContent>
+      <extension base="gml:DefinitionType">
+        <sequence>
+          <!--
+            Note: The Version History table has no ID in the EPSG model.
+            It is generated based on the version number value.
+          -->
+          <element name="versionNumber" type="string"/>
+          <element name="versionDate" type="dateTime"/>
+          <element name="supersedes" type="string" minOccurs="0" maxOccurs="unbounded"/>
+          <element name="supersededBy" type="string" minOccurs="0" maxOccurs="unbounded"/>
+        </sequence>
+      </extension>
+    </complexContent>
+  </complexType>
+  <!-- ====================================================================== -->
+  <element name="AreaOfUse" type="epsg:AreaOfUseType" substitutionGroup="gmd:EX_Extent"/>
+  <complexType name="AreaOfUseType">
+    <complexContent>
+      <extension base="gmd:EX_Extent_Type">
+        <sequence>
+          <!-- Initially 'gmd:EX_Extent' will be populated from BBOX, if present -->
+          <!-- AreaOfUse column 'AREA_OF_USE' mapped to extent 'description' -->
+          <element ref="gml:metaDataProperty" minOccurs="0" maxOccurs="unbounded"/>
+          <element ref="gml:identifier" minOccurs="0"/>
+          <element ref="gml:name" minOccurs="0" maxOccurs="unbounded"/>
+          <element ref="gml:remarks" minOccurs="0"/>
+          <element name="isoA2CountryCode" type="string" minOccurs="0"/>
+          <element name="isoA3CountryCode" type="string" minOccurs="0"/>
+          <element name="isoNumericCountryCode" type="integer" minOccurs="0"/>
+          <!--
+            In EPSG relational model, entity geometry is held in a separate file,
+            with the file referenced by this column:  AREA_POLYGON_FILE_REF
+          -->
+          <element name="geometryFile" type="gml:ReferenceType" minOccurs="0"/>
+        </sequence>
+      </extension>
+    </complexContent>
+  </complexType>
+  <!-- ====================================================================== -->
+  <element name="ExtentDefinition" type="epsg:ExtentDefinitionType" substitutionGroup="gml:Definition"/>
+  <complexType name="ExtentDefinitionType">
+    <complexContent>
+      <extension base="gml:DefinitionType">
+        <sequence>
+          <element name="extent" type="epsg:ExtentPropertyType"/>
+        </sequence>
+      </extension>
+    </complexContent>
+  </complexType>
+  <!-- ====================================================================== -->
+  <complexType name="ExtentPropertyType">
+    <sequence>
+      <element ref="epsg:AreaOfUse"/>
+    </sequence>
+  </complexType>
+  <!-- ====================================================================== -->
+  <element name="AxisName" type="epsg:AxisNameType" substitutionGroup="gml:Definition"/>
+  <complexType name="AxisNameType">
+    <complexContent>
+      <extension base="gml:DefinitionType"/>
+    </complexContent>
+  </complexType>
+  <!-- ====================================================================== -->
+  <element name="Deprecation" type="epsg:DeprecationType" substitutionGroup="gml:Definition"/>
+  <complexType name="DeprecationType">
+    <complexContent>
+      <extension base="gml:DefinitionType">
+        <sequence>
+          <element name="deprecationDate" type="date"/>
+          <!-- Note: Deprecation column 'reason' is mapped to gml:description element -->
+          <element name="changeRequest" type="gml:ReferenceType"/>
+          <!-- Note: The property 'tableName' can be derived from the URN for the deprecatedObject -->
+          <element name="deprecatedObject" type="gml:ReferenceType"/>
+          <element name="replacedBy" type="gml:ReferenceType" minOccurs="0"/>
+        </sequence>
+      </extension>
+    </complexContent>
+  </complexType>
+  <!-- ====================================================================== -->
+  <element name="Supersession" type="epsg:SupersessionType" substitutionGroup="gml:Definition"/>
+  <complexType name="SupersessionType">
+    <complexContent>
+      <extension base="gml:DefinitionType">
+        <sequence>
+          <!--
+		    Note: SUPERSESSION_YEAR in the EPSG model is mapped to date;
+            it will be extended to include month and day as January 1st of the given year.
+		  -->
+          <element name="supersessionDate" type="date" minOccurs="0"/>
+          <!--
+            Note: The EPSG model does not include changeID reference in the
+            Supersession table.  It is included here to support uniform modelling of
+            deprecation and supersession actions.
+          -->
+          <element name="changeRequest" type="gml:ReferenceType" minOccurs="0"/>
+          <!-- Note: the property 'tableName' can be derived from the URN for the supersededObject -->
+          <element name="supersededObject" type="gml:ReferenceType"/>
+          <element name="supersededBy" type="gml:ReferenceType" minOccurs="0"/>
+          <!--
+            Possible values for supersessionType:
+              Supersession - Both old and new record remain valid. The old is typically retained for
+                 existing users, correcting errors etc.
+              Retirement - Information has been withdrawn by its information source and not
+                 replaced.
+          -->
+          <element name="supersessionType" type="string"/>
+        </sequence>
+      </extension>
+    </complexContent>
+  </complexType>
+  <!-- ====================================================================== -->
+  <element name="CommonMetaData" type="epsg:CommonMetaDataType" substitutionGroup="gml:AbstractMetaData"/>
+  <complexType name="CommonMetaDataType" mixed="true">
+    <complexContent mixed="true">
+      <extension base="gml:AbstractMetaDataType">
+        <sequence>
+          <!--
+		    In some cases, EPSG entity types (e.g. GeographicCRS) have been deprecated in GML 3.2.0.
+            This requires the EPSG entity type to be mapped to a different GML type (e.g. EPSG GeographicCRS maps
+            to GeodeticCRS in GML).  The 'type' property is used to preserve the original EPSG entity type in such cases.
+          -->
+          <element name="type" type="string" minOccurs="0"/>
+          <element name="alias" type="epsg:AliasType" minOccurs="0" maxOccurs="unbounded"/>
+          <element name="informationSource" type="string" minOccurs="0"/>
+          <element name="revisionDate" type="date" minOccurs="0"/>
+          <element name="changes" type="epsg:changeListType" minOccurs="0"/>
+          <element name="show" type="boolean" minOccurs="0"/>
+          <element name="isDeprecated" type="boolean" minOccurs="0"/>
+          <!--
+		    Sexagesimal values for any entity are captured here and their WGS84 decimal equivalent
+            is placed in the corresponding derived field in the appropriate GML property.
+            Note:  when a Sexagesimal value is encountered, the UOM reference on the related
+            parameter is changed to refer to the decimal degree representation (UOM code 9102).
+          -->
+          <element name="sexagesimalValue" type="epsg:sexagesimalValueType" minOccurs="0" maxOccurs="unbounded"/>
+        </sequence>
+      </extension>
+    </complexContent>
+  </complexType>
+  <!-- ====================================================================== -->
+  <complexType name="AliasType">
+    <sequence minOccurs="0">
+      <element name="remarks" type="string"/>
+    </sequence>
+    <attribute name="alias" type="string"/>
+    <attribute name="code" type="string"/>
+    <attribute name="codeSpace" type="anyURI"/>
+  </complexType>
+  <!-- ====================================================================== -->
+  <!-- A list of Change Request identifiers -->
+  <complexType name="changeListType">
+    <sequence>
+      <element name="changeID" type="gml:ReferenceType" minOccurs="0" maxOccurs="unbounded"/>
+    </sequence>
+  </complexType>
+  <!-- ====================================================================== -->
+  <!--
+    Sexagesimal values:
+    ASSUMPTION:
+      Individual properties which use sexagesimal UOM are constrained to occur *ONCE*,
+      at most.  If this constraint does not hold for a given object, this approach will
+      fail, as it can only reference a single instance per property.
+
+      Note that, if an Operation uses the same sexagesimal parameter definition twice, it fails.
+  -->
+  <complexType name="sexagesimalValueType">
+    <sequence>
+      <element name="degrees" type="integer"/>
+      <element name="minutes" type="nonNegativeInteger" minOccurs="0"/>
+      <element name="seconds" type="double" minOccurs="0"/>
+      <element name="hemisphere" type="epsg:HemisphereType" minOccurs="0"/>
+      <!--
+        propertyReference holds the URN of the derived field which, if specified, [MUST]
+        refer to an object property.  For this example, propertyReference would be the value of
+        the xlink:href below:
+          <usesValue>
+            <value uom="urn:x-ogc:def:unit:EPSG:9110">50</value>
+            <valueOfParameter xlink:href="urn:x-example:epsg:operation-parameter:8823"/>
+          </usesValue>
+      -->
+      <element name="propertyReference" type="gml:ReferenceType" minOccurs="0"/>
+    </sequence>
+    <attribute name="uom" type="anyURI"/>
+    <!-- The original UOM reference which indicates what the original encoding format was -->
+  </complexType>
+  <!-- Hemisphere for sexagesimal values which specify it -->
+  <simpleType name="HemisphereType">
+    <restriction base="string">
+      <enumeration value="N"/>
+      <enumeration value="E"/>
+      <enumeration value="W"/>
+      <enumeration value="S"/>
+    </restriction>
+  </simpleType>
+  <!-- ====================================================================== -->
+  <element name="CoordinateOperationMetaData" type="epsg:CoordinateOperationMetaDataType" substitutionGroup="gml:AbstractMetaData"/>
+  <complexType name="CoordinateOperationMetaDataType" mixed="true">
+    <complexContent mixed="true">
+      <extension base="gml:AbstractMetaDataType">
+        <sequence>
+          <element name="variant" type="nonNegativeInteger" minOccurs="0"/>
+          <element name="sourceCoordDiffUom" type="gml:ReferenceType" minOccurs="0"/>
+          <element name="targetCoordDiffUom" type="gml:ReferenceType" minOccurs="0"/>
+        </sequence>
+      </extension>
+    </complexContent>
+  </complexType>
+  <!-- ====================================================================== -->
+  <element name="CoordinateOperationMethodMetaData" type="epsg:CoordinateOperationMethodMetaDataType" substitutionGroup="gml:AbstractMetaData"/>
+  <complexType name="CoordinateOperationMethodMetaDataType" mixed="true">
+    <complexContent mixed="true">
+      <extension base="gml:AbstractMetaDataType">
+        <sequence>
+          <element name="isOperationReversible" type="boolean" minOccurs="0"/>
+          <element name="signReversal" type="epsg:ParamSignReversalType" minOccurs="0" maxOccurs="unbounded"/>
+          <element name="example" type="string" minOccurs="0"/>
+        </sequence>
+      </extension>
+    </complexContent>
+  </complexType>
+  <!-- ====================================================================== -->
+  <!--
+    Sign reversal, for methods which are reversible, indicates which parameter is affected
+    via the xlink:hef and whether the sign of the parameter must be reversed (if changeSign=true)
+  -->
+  <complexType name="ParamSignReversalType">
+    <complexContent>
+      <extension base="gml:ReferenceType">
+        <attribute name="changeSign" type="boolean"/>
+      </extension>
+    </complexContent>
+  </complexType>
+  <!-- ====================================================================== -->
+  <!--
+    Note: Only necessary for Geographic 2D/3D CRS', since ProjectedCRS uses GML properties:
+      <conversion xlink:href="urn:x-ogc:def:operation:EPSG:19984"/>
+      <baseGeodeticCRS xlink:href="urn:x-ogc:def:crs:EPSG:4269"/>
+  -->
+  <element name="CRSMetaData" type="epsg:CRSMetaDataType" substitutionGroup="gml:AbstractMetaData"/>
+  <complexType name="CRSMetaDataType" mixed="true">
+    <complexContent mixed="true">
+      <extension base="gml:AbstractMetaDataType">
+        <sequence>
+          <element name="projectionConversion" type="gml:ReferenceType" minOccurs="0"/>
+          <element name="sourceGeographicCRS" type="gml:ReferenceType" minOccurs="0"/>
+        </sequence>
+      </extension>
+    </complexContent>
+  </complexType>
+  <!-- ====================================================================== -->
+  <!--
+    Captures EPSG specific properties for parameter usage and is only used
+    inline on OperationMethods (not on Parameters themselves)
+  -->
+  <element name="ParameterMetaData" type="epsg:ParameterMetaDataType" substitutionGroup="gml:AbstractMetaData"/>
+  <complexType name="ParameterMetaDataType" mixed="true">
+    <complexContent mixed="true">
+      <extension base="gml:AbstractMetaDataType">
+        <sequence>
+          <element name="signReversal" type="boolean" minOccurs="0"/>
+        </sequence>
+      </extension>
+    </complexContent>
+  </complexType>
+</schema>

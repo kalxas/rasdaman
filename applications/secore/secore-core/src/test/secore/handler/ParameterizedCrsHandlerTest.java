@@ -116,7 +116,7 @@ public class ParameterizedCrsHandlerTest extends BaseTest {
           + "return insert node <dictionaryEntry xmlns=\"" + Constants.NAMESPACE_GML + "\">"
           + StringUtil.fixLinks(getData("AUTO_urn_newdef.xml"), Constants.LOCAL_URI)
           + "</dictionaryEntry> into $x";
-    DbManager.getInstance().getDb().updateQuery(query);
+    DbManager.getInstance().getDb().updateQuery(query, DbManager.USER_DB);
     
     ResolveRequest req = new ResolveRequest("local/crs/AUTO/1.3/42005?lon=-100");
     ResolveResponse res = handler.handle(req);

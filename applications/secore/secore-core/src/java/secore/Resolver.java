@@ -42,6 +42,7 @@ import org.slf4j.LoggerFactory;
 import secore.handler.QueryHandler;
 import secore.req.RequestParam;
 import static secore.util.Constants.*;
+import secore.gml.GMLValidator;
 
 /**
  * Resolves a given request.
@@ -110,7 +111,7 @@ public class Resolver {
    * @param url the URI to resolve
    * @return the response
    * @throws SecoreException when the resolver can not handle the given request, or in
-   *  case of a mall-formed request.
+   *  case of a malformed request.
    */
   public static ResolveResponse resolve(URL url) throws SecoreException {
     BufferedReader in = null;

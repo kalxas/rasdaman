@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<catalog xmlns="urn:oasis:names:tc:entity:xmlns:xml:catalog" prefer="system">
+
+  <group id="top-level-schemas">
+	<system systemId="http://www.opengis.net/gml/3.2" uri="./gml/3.2.1/gml-3.2.1.xsd"/>
+    <system systemId="urn:x-ogp:spec:schema-xsd:EPSG:1.0:dataset" uri="./epsg/EPSG.xsd"/>
+  </group>
+
+</catalog>

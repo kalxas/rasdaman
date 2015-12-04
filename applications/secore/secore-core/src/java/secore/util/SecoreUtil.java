@@ -4,8 +4,6 @@
  */
 package secore.util;
 
-import java.io.PrintWriter;
-import java.io.StringWriter;
 import java.util.Comparator;
 import java.util.Set;
 import java.util.TreeSet;
@@ -29,6 +27,7 @@ public class SecoreUtil {
 
   /**
    * Insert new definition to User Dictionary (NOTE: always insert to User)
+   *
    * @param newd String new definition to insert
    * @param id String identifier to insert
    * @return String != "" if error
@@ -180,6 +179,7 @@ public class SecoreUtil {
 
   /**
    * Delete definition (NOTE: only delete from User DB)
+   *
    * @param id String identifier to delete
    * @param todel String
    * @return String
@@ -188,13 +188,11 @@ public class SecoreUtil {
   public static String deleteDef(String id, String todel) throws SecoreException {
     log.trace("Delete definition with identifier: " + id);
 
-    if (todel.equals(ZERO)) {
-      todel = EMPTY;
-    }
+    String match = id + todel + "((?=(\\/))\\S*|$)";
     String query
         = "declare namespace gml = \"" + NAMESPACE_GML + "\";" + NEW_LINE
         + "for $x in collection('" + COLLECTION_NAME + "')//gml:identifier[text() = '" + id + todel + "']/.. "
-        + "union doc('" + COLLECTION_NAME + "')//gml:identifier[contains(.,'" + id + todel + "')]/.." + NEW_LINE
+        + "union doc('" + COLLECTION_NAME + "')//gml:identifier[matches(.,'" + match + "')]/.." + NEW_LINE
         + "return delete node $x";
 
     String error = Constants.EMPTY;
@@ -210,6 +208,7 @@ public class SecoreUtil {
 
   /**
    * Sort Element (URI of entries)
+   *
    * @param url
    * @param result
    * @return Set
