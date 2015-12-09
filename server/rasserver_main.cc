@@ -323,11 +323,11 @@ bool initialization()
 
     //pctmin
     StorageLayout::DefaultMinimalTileSize = static_cast<unsigned int>(configuration.getDefaultPCTMin());
-    LINFO << "PCTMin set to     : " << StorageLayout::DefaultMinimalTileSize;
+    LINFO << "PCTMin set to    : " << StorageLayout::DefaultMinimalTileSize;
 
     //pctmax
     StorageLayout::DefaultPCTMax = static_cast<unsigned int>(configuration.getDefaultPCTMax());
-    LINFO << "PCTMax set to     : " << StorageLayout::DefaultPCTMax;
+    LINFO << "PCTMax set to    : " << StorageLayout::DefaultPCTMax;
 
     //indexsize
     StorageLayout::DefaultIndexSize = static_cast<unsigned int>(configuration.getDefaultIndexSize());

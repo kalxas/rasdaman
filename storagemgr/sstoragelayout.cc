@@ -60,14 +60,15 @@ rasdaman GmbH.
 
 #include "../common/src/logging/easylogging++.hh"
 
-
+// this number should be DBMS dependent.. default in postgres seems to be 8kB, in MySQL 16kB, etc.
 const r_Bytes   StorageLayout::DBSPageSize = 4096;
 
 r_Bytes     StorageLayout::DefaultMinimalTileSize = DBSPageSize;
 
 r_Bytes     StorageLayout::DefaultPCTMax = 2 * DBSPageSize;
 
-r_Bytes     StorageLayout::DefaultTileSize = 32 * DBSPageSize;
+// 4MB
+r_Bytes     StorageLayout::DefaultTileSize = 4194304;
 
 unsigned int        StorageLayout::DefaultIndexSize = 0;
 
@@ -75,7 +76,7 @@ r_Index_Type        StorageLayout::DefaultIndexType = r_RPlus_Tree_Index; // Dir
 
 r_Tiling_Scheme     StorageLayout::DefaultTilingScheme = r_AlignedTiling;
 
-r_Minterval     StorageLayout::DefaultTileConfiguration("[0:511,0:511]");
+r_Minterval     StorageLayout::DefaultTileConfiguration("[0:1023,0:1023]");
 
 r_Data_Format       StorageLayout::DefaultDataFormat = r_Array;
 

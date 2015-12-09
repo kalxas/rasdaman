@@ -17,7 +17,7 @@
       "coverage_id" : "SomeOtherCoverage",
       "wcs_endpoint" : "http://example.org/rasdaman/ows",
       "partitioning_scheme" : [4000, 4000, 1],
-      "tiling": "ALIGNED [0:4000, 0:4000, 4]"
+      "tiling": "ALIGNED [0:3999, 0:3999, 0:4] TILE SIZE 80000000"
     }
   }
 }

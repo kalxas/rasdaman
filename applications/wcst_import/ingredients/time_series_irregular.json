@@ -24,7 +24,7 @@
         "datetime_format": "YYYY:MM:DD HH:mm:ss"
       },
       "time_crs": "http://localhost:8080/def/crs/OGC/0/AnsiDate",
-      "tiling": "ALIGNED [0:10, 0:1000, 0:500]"
+      "tiling": "ALIGNED [0:9, 0:999, 0:499] TILE SIZE 5000000"
     }
   }
 }

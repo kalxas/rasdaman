@@ -20,7 +20,7 @@
       "time_format": "auto",
       "time_crs": "http://localhost:8080/def/crs/OGC/0/AnsiDate",
       "time_step": "2 days 10 minutes 3 seconds",
-      "tiling": "ALIGNED [0:1000, 0:1000, 0:2]"
+      "tiling": "ALIGNED [0:999, 0:999, 0:2] TILE SIZE 3000000"
     }
   }
 }

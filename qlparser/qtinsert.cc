@@ -422,7 +422,7 @@ QtInsert::evaluate()
 
    // return the generated OID
 #ifdef DEBUG
-    LINFO << "QtInsert::evaluate() - returning oid:" << myoid;
+    LDEBUG << "QtInsert::evaluate() - returning oid:" << myoid;
 #endif
    returnValue = new QtAtomicData( static_cast<r_Long>(myoid), static_cast<unsigned short>(sizeof(r_Long)) );
    return returnValue;

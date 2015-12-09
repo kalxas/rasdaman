@@ -1,0 +1,18 @@
+{
+ "tileNo": "1",
+ "totalSize": "1000000",
+ "tiling": {
+	"tilingScheme": "aligned",
+	"tileSize": "4194304",
+	"tileConfiguration": "[0:999,0:999,0:0]"",
+	"tileDomains":
+	[
+		"[0:999,0:999,0:0]"
+	]
+ },
+ "index": {
+	"type": "rpt_index",
+	"PCTmax": "4096",
+	"PCTmin": "2048"
+ }
+}

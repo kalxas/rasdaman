@@ -107,7 +107,6 @@ void Configuration::initParameters()
 
     cmlLockMgrOn   = &cmlInter.addFlagParameter(NSN, "enable-tilelocking", "enables fine grained locking of tiles");
 
-    cmlOptLevel    = &cmlInter.addLongParameter(NSN, "opt", "<nn> optimization level (0-3)\n\t\t 0 = no / 3 = maximum optimization (see manual)", 3L);
     cmlConnectStr  = &cmlInter.addStringParameter(NSN, "connect", "<connect-str> connect string for underlying database(e.g. test/test@julep)", "/");
     cmlUserStr  = &cmlInter.addStringParameter('u', "user", "<username> database connection user (empty by default)", "");
     cmlPasswdStr  = &cmlInter.addStringParameter('p', "passwd", "<password> database connection password (empty by default)", "");
@@ -171,7 +170,6 @@ void Configuration::checkParameters()
 
     lockmgrOn             = cmlLockMgrOn->isPresent();
 
-    deprecated(cmlOptLevel);
     dbConnection = cmlConnectStr->getValueAsString();
     dbUser       = cmlUserStr->getValueAsString();
     dbPasswd     = cmlPasswdStr->getValueAsString();

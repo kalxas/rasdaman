@@ -16,7 +16,7 @@
   "recipe": {
     "name": "map_mosaic",
     "options": {
-      "tiling": "ALIGNED [0:500, 0:500]"
+      "tiling": "ALIGNED [0:1023, 0:1023] TILE SIZE 4194304"
     }
   }
 }

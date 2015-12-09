@@ -595,7 +595,7 @@ QtTypeElement::setDataType( const QtDataType newDataType )
     case QT_MDD:
     case QT_COMPLEX:
 #ifdef DEBUG
-        LINFO << "QtTypeElement::setDataType() - MDD and complex types need to be specified further.";
+        LDEBUG << "QtTypeElement::setDataType() - MDD and complex types need to be specified further.";
 #endif
         break;
 
