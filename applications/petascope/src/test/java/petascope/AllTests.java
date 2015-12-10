@@ -33,7 +33,8 @@ import org.junit.runners.Suite;
 @Suite.SuiteClasses({
     petascope.wcs2.ExamplesTest.class,
     petascope.util.ras.TestSystemOverloaded.class,
-    petascope.wcs2.ParseMultipleRasdamanQueryTest.class
+    petascope.wcs2.ParseMultipleRasdamanQueryTest.class,
+    petascope.wcs2.XXEVulnerabilityTest.class
 })
 public class AllTests {
 }

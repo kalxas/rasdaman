@@ -72,12 +72,15 @@ import nu.xom.ParsingException;
 import nu.xom.Text;
 import nu.xom.XPathContext;
 import nu.xom.converters.DOMConverter;
+import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.xml.sax.EntityResolver;
 import org.xml.sax.ErrorHandler;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
+import org.xml.sax.SAXNotRecognizedException;
+import org.xml.sax.SAXNotSupportedException;
 import org.xml.sax.SAXParseException;
 import org.xml.sax.XMLReader;
 
@@ -118,6 +121,8 @@ public class XMLUtil {
     private static File wcsSchema;
     public static final String XML_STD_ENCODING = "UTF-8";
     public static final String WCS_SCHEMA = "xml/ogc/wcs/2.0.0/wcsAll.xsd";
+    private static final String SET_FEATURE_XXE_FALSE = "http://xml.org/sax/features/external-general-entities";
+
 
     static {
         init();
@@ -130,6 +135,23 @@ public class XMLUtil {
         System.setProperty("javax.xml.parsers.SAXParserFactory",
                 "com.sun.org.apache.xerces.internal.jaxp.SAXParserFactoryImpl");
         factory = SAXParserFactory.newInstance();
+
+        try {
+            factory.setFeature(SET_FEATURE_XXE_FALSE, false);
+        } catch (ParserConfigurationException ex) {
+            //If feature does not exist, then no XXE support anyway so there is nothing to do
+            log.warn("Set feature XXE False: " + ex.getMessage());
+            log.debug(ExceptionUtils.getStackTrace(ex));
+        } catch (SAXNotRecognizedException ex) {
+            //If feature does not exist then,no XXE support anyway so there is nothing to do
+            log.warn("Set feature XXE False: " + ex.getMessage());
+            log.debug(ExceptionUtils.getStackTrace(ex));
+        } catch (SAXNotSupportedException ex) {
+            //If feature does not exist,then no XXE support anyway so there is nothing to do
+            log.warn("Set feature XXE False: " + ex.getMessage());
+            log.debug(ExceptionUtils.getStackTrace(ex));
+        }
+
         factory.setNamespaceAware(true);
         factory.setValidating(true);
         builder = new MyBuilder(false);
