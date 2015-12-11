@@ -60,7 +60,16 @@ public class ParseMultipleRasdamanQueryTest extends BaseTestCase{
          * Configuration directory containing "petascope.properties" setting file.
          * If @confDir@ is not default, manually edit this variable to your local configuration.
          */
+
         String confDir = ConfigManager.CONF_DIR_DEFAULT;
+        // i.e: confDir = "/usr/local/rasdaman/etc/";
+
+        // NO RUN THIS TEST IF DON'T CHANGE CONFIG DIRECTORY
+        if (confDir.equals(ConfigManager.CONF_DIR_DEFAULT))
+        {
+            throw new Exception("Please set @confDir@ to your installation first.");
+        }
+
         try {
             // Initialize the singleton configuration manager. Now all classes can read the settings.
             ConfigManager.getInstance(confDir);
@@ -80,20 +89,18 @@ public class ParseMultipleRasdamanQueryTest extends BaseTestCase{
         PerformWCS2RasdamanQuery requests[] = new PerformWCS2RasdamanQuery[NUM_REQUESTS];
         KVPProtocolExtension pext = new KVPProtocolExtension();
 
+        Thread threadList[] = new Thread[NUM_REQUESTS];
+
         for(int i = 0; i < NUM_REQUESTS; i++){
 
             requests[i] = new PerformWCS2RasdamanQuery(pext, meta);
-            (new Thread(requests[i])).start();
+            threadList[i] = new Thread();
+            threadList[i].start();
         }
 
-        boolean isDone = false;
-
-        while(!isDone) {
-            isDone = true;
-            for (int i = 0; i < NUM_REQUESTS; i++) {
-                if(!requests[i].isDone())
-                    isDone = false;
-            }
+        // Wait all threads are finished
+        for (int i = 0; i < NUM_REQUESTS; i++){
+            threadList[i].join();
         }
 
         for (int i = 0; i < NUM_REQUESTS; i++) {

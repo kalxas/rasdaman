@@ -19,31 +19,24 @@
  * For more information please see <http://www.rasdaman.org>
  * or contact Peter Baumann via <baumann@rasdaman.com>.
  */
-
 package petascope.util.ras;
 
-import org.junit.Assert;
-import org.junit.Ignore;
 import org.junit.Test;
 import petascope.BaseTestCase;
-import petascope.exceptions.RasdamanException;
 import org.junit.After;
 import org.junit.Before;
 import java.util.Scanner;
 import java.util.regex.Pattern;
-import java.util.regex.Matcher;
 import java.io.IOException;
 
 /**
- * Test class for quering an overloaded rasdaman server.
- * Generate concurrent queries to rasdaman until the system
- * is overloaded, Petascope should properly queue the requests
- * until more servers are available.
- * 
+ * Test class for quering an overloaded rasdaman server. Generate concurrent
+ * queries to rasdaman until the system is overloaded, Petascope should properly
+ * queue the requests until more servers are available.
+ *
  * @author Ernesto Rodriguez <ernesto4160@gmail.com>
  */
-
-public class TestSystemOverloaded extends BaseTestCase{
+public class TestSystemOverloaded extends BaseTestCase {
 
     private int numQueries = 5;
 
@@ -53,7 +46,7 @@ public class TestSystemOverloaded extends BaseTestCase{
     private String messages;
 
     //The default number of servers assumed if the test is unable to determine it at runtime
-    private final int DEFAULT_NUM_SERVERS=10;
+    private final int DEFAULT_NUM_SERVERS = 10;
 
     //The default login credentials in case RASLOGIN is not defined
     //user: rasadmin, password: rasadmin
@@ -62,112 +55,114 @@ public class TestSystemOverloaded extends BaseTestCase{
     @Before
     public void setUp() throws Exception {
 
-	messages="\n\nResulting messages from the test: \n\n";
+        messages = "\n\nResulting messages from the test: \n\n";
 
-	try {
-	    numQueries = getNumberOfServers() * 2;
-	} catch(IOException e) {
+        try {
+            numQueries = getNumberOfServers() * 2;
+        } catch (IOException e) {
 
-	    messages += "Failed to obtain the number of available rasdaman servers. Assuming " + DEFAULT_NUM_SERVERS + ".\n\n";
-	    numQueries = DEFAULT_NUM_SERVERS * 2;
-	}
+            messages += "Failed to obtain the number of available rasdaman servers. Assuming " + DEFAULT_NUM_SERVERS + ".\n\n";
+            numQueries = DEFAULT_NUM_SERVERS * 2;
+        }
 
-	messages += "Tested overloading a Rasdaman server with " + numQueries + " concurrent queries.\n\n";
+        messages += "Tested overloading a Rasdaman server with " + numQueries + " concurrent queries.\n\n";
 
     }
 
     @After
-    public void result(){
+    public void result() {
 
-	System.out.println(messages);
+        System.out.println(messages);
     }
-
 
     /**
      * Obtain the number of available Rasdaman servers through rascontrol.
-     * 
+     *
      * @return The number of servers (if found)
      * @throws IOException If an error occures while running rascontrol
      */
     private int getNumberOfServers() throws IOException {
 
-	int numServers = 0;
-	Pattern line = Pattern.compile(".*UP.*", Pattern.CASE_INSENSITIVE);
-	Pattern loginError = Pattern.compile(".*error.*", Pattern.CASE_INSENSITIVE);
-	
-	Process proc = Runtime.getRuntime().exec("rascontrol -t");
-	Scanner scn = new Scanner(proc.getInputStream());
-	boolean loginSuccessful;
+        int numServers = 0;
+        Pattern line = Pattern.compile(".*UP.*", Pattern.CASE_INSENSITIVE);
+        Pattern loginError = Pattern.compile(".*error.*", Pattern.CASE_INSENSITIVE);
 
-	if (scn.hasNextLine() && !(loginError.matcher(scn.nextLine()).find()))
-	    loginSuccessful = true;
-	else {
-	    loginSuccessful = false;
-	    messages += "Could not log in to rascontrol. Please consider setting the envoiernmental variable RASLOGIN properly. Trying with user: rasadmin and password: rasadmin.\n\n";
-	}
+        Process proc = Runtime.getRuntime().exec("rascontrol -t");
+        Scanner scn = new Scanner(proc.getInputStream());
+        boolean loginSuccessful;
 
-	scn.close();
+        if (scn.hasNextLine() && !(loginError.matcher(scn.nextLine()).find())) {
+            loginSuccessful = true;
+        } else {
+            loginSuccessful = false;
+            messages += "Could not log in to rascontrol. Please consider setting the environmental variable RASLOGIN properly. Trying with user: rasadmin and password: rasadmin.\n\n";
+        }
 
-	if (loginSuccessful)
-	    proc = Runtime.getRuntime().exec("rascontrol -x list srv");
-	else
-	    proc = Runtime.getRuntime().exec("rascontrol -x list srv", ENV);
+        scn.close();
 
-	scn = new Scanner(proc.getInputStream());	
+        if (loginSuccessful) {
+            proc = Runtime.getRuntime().exec("rascontrol -x list srv");
+        } else {
+            proc = Runtime.getRuntime().exec("rascontrol -x list srv", ENV);
+        }
 
-	while(scn.hasNextLine()){
+        scn = new Scanner(proc.getInputStream());
 
-	    String tmp = scn.nextLine();
+        while (scn.hasNextLine()) {
 
-	    if(line.matcher(tmp).find())
-		numServers++;
-	}
-	scn.close();
+            String tmp = scn.nextLine();
 
-	if (numServers <= 0) {
-	    messages += "Failed to obtain the number of available rasdaman servers. Assuming " + DEFAULT_NUM_SERVERS + ".\n\n";
-	    return DEFAULT_NUM_SERVERS;
-	} else {
-	    messages += "The number of available Rasdaman servers obtained is "+numServers+
-		" if this number is incorrect please check the RASLOGIN envoirnmental variable.\n\n";
-	    return numServers;
-	}
+            if (line.matcher(tmp).find()) {
+                numServers++;
+            }
+        }
+        scn.close();
+
+        if (numServers <= 0) {
+            messages += "Failed to obtain the number of available rasdaman servers. Assuming " + DEFAULT_NUM_SERVERS + ".\n\n";
+            return DEFAULT_NUM_SERVERS;
+        } else {
+            messages += "The number of available Rasdaman servers obtained is " + numServers
+                    + " if this number is incorrect please check the RASLOGIN envoirnmental variable.\n\n";
+            return numServers;
+        }
     }
-    
+
     /**
-     * Test overloading a rasdaman server with queries. The queries should be properly queued until more rasdaman servers
-     * become available. This method should complete without throwing an exception. The successful execution of this function
-     * means that the queries to overload the servers were propely handled and that no error occured.
-     * @throws Exception if one or more queries failed to execute, failure since queries couldn't be processed due to system overload
+     * Test overloading a rasdaman server with queries. The queries should be
+     * properly queued until more rasdaman servers become available. This method
+     * should complete without throwing an exception. The successful execution
+     * of this function means that the queries to overload the servers were
+     * propely handled and that no error occured.
+     *
+     * @throws Exception if one or more queries failed to execute, failure since
+     * queries couldn't be processed due to system overload
      */
     @Test
     public void testSystemOverloaded() throws Exception {
 
-	RasdamanQuery queries[] = new RasdamanQuery[numQueries];
+        RasdamanQuery queries[] = new RasdamanQuery[numQueries];
 
-	for(int i = 0; i < queries.length; i++){
+        Thread threadList[] = new Thread[queries.length];
 
-	    queries[i]=new RasdamanQuery();
-	    (new Thread(queries[i])).start();
-	}
+        for (int i = 0; i < queries.length; i++) {
 
-	boolean finished = false;
+            queries[i] = new RasdamanQuery();
+            threadList[i] = new Thread();
+            threadList[i].start();
+        }
 
-	while(!finished) {
+        // Wait all threads are finished
+        for (int i = 0; i < queries.length; i++) {
+            threadList[i].join();
+        }
 
-	    finished = true;
-	    for(int i = 0; i < queries.length; i++) {
-
-		if(!queries[i].isDone())
-		    finished = false;
-	    }
-	}
-	
-	for(int i = 0; i < queries.length; i++)
-	    try {
-		throw queries[i].resultingException();
-	    }catch(NullPointerException e){
-		//The query completed successfully
-	    }
+        for (int i = 0; i < queries.length; i++) {
+            try {
+                throw queries[i].resultingException();
+            } catch (NullPointerException e) {
+                //The query completed successfully
+            }
+        }
     }
 }
