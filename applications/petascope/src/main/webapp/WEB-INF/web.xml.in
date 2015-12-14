@@ -109,4 +109,15 @@
             30
         </session-timeout>
     </session-config>
+
+    <!-- Administrator page update service provider information -->
+     <servlet>
+        <servlet-name>Update Service Provider Metadata</servlet-name>
+        <servlet-class>petascope.admin.update.page.UpdateServiceProviderMetadata</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>Update Service Provider Metadata</servlet-name>
+        <url-pattern>/admin</url-pattern>
+    </servlet-mapping>
+
 </web-app>

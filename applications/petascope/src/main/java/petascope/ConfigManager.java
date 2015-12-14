@@ -87,6 +87,9 @@ public class ConfigManager {
     public static String METADATA_URL = "jdbc:postgresql://localhost:5432/petascopedb";
     public static String METADATA_USER = "petauser";
     public static String METADATA_PASS = "petapasswd";
+    // user updates service provider, service identification (user can change later in petascope.properties)
+    public static String PETASCOPE_ADMIN_USER = "petauser";
+    public static String PETASCOPE_ADMIN_PASS = "petapasswd";
     public static boolean METADATA_SQLITE = false;
     public static boolean METADATA_HSQLDB = false;
 
@@ -178,6 +181,9 @@ public class ConfigManager {
     public static final String KEY_METADATA_URL = "metadata_url";
     public static final String KEY_METADATA_USER = "metadata_user";
     public static final String KEY_METADATA_PASS = "metadata_pass";
+    // users edit service provider, service identification
+    public static final String KEY_PETASCOPE_ADMIN_USER = "petascope_admin_user";
+    public static final String KEY_PETASCOPE_ADMIN_PASS = "petascope_admin_pass";
     public static final String KEY_RASDAMAN_RETRY_TIMEOUT = "rasdaman_retry_timeout";
     public static final String KEY_RASDAMAN_RETRY_ATTEMPTS = "rasdaman_retry_attempts";
     public static final String KEY_CCIP_VERSION = "ccip_version";
@@ -309,6 +315,9 @@ public class ConfigManager {
         METADATA_URL = fileToHsqlConnectionUri(get(KEY_METADATA_URL));
         METADATA_USER           = get(KEY_METADATA_USER);
         METADATA_PASS           = get(KEY_METADATA_PASS);
+        PETASCOPE_ADMIN_USER    = get(KEY_PETASCOPE_ADMIN_USER);
+        PETASCOPE_ADMIN_PASS    = get(KEY_PETASCOPE_ADMIN_PASS);
+
         RASDAMAN_RETRY_TIMEOUT  = get(KEY_RASDAMAN_RETRY_TIMEOUT);
         RASDAMAN_RETRY_ATTEMPTS = get(KEY_RASDAMAN_RETRY_ATTEMPTS);
         PETASCOPE_SERVLET_URL   = get(KEY_PETASCOPE_SERVLET_URL);

@@ -2931,4 +2931,255 @@ public class DbMetadataSource implements IMetadataSource {
             }
         }
     }
+
+        /* ----------------- Admin update Service Identification and Provider ----------------------*/
+    /**
+     * @author: Bang Pham Huu
+     */
+    /**
+     * This function will only get 1 (Primary Key) from tables (for updating
+     * identification and provider) which needs 1 ID from FIRST_ROW of this
+     * table Table: ps_description, ps_service_identification,
+     * ps_service_provider
+     *
+     * @param tableName
+     * @return pk key from first row
+     * @throws java.sql.SQLException
+     */
+    public String getPrimaryKeyFromFirstRow(String tableName) throws SQLException {
+        String pk = "";
+
+        String PK_FIELD = "id";
+
+        // Init connection to database first
+        ensureConnection();
+
+        // Then init query to database
+        Statement s = conn.createStatement();
+
+        String sqlQuery = "SELECT " + PK_FIELD + " FROM " + tableName;
+
+        log.debug("SQL query : " + sqlQuery);
+
+        ResultSet r = null;
+
+        // Execute query and return error
+        try {
+            r = s.executeQuery(sqlQuery);
+            if (r.next()) {
+                // Get only 1 value
+                pk = r.getString(PK_FIELD);
+            }
+
+            if (pk.equals("")) {
+                String error = tableName + " is empty.";
+                throw new SQLException(error);
+            }
+        } catch (SQLException ex) {
+            String error = "Error when query table " + DbMetadataSource.TABLE_ROLE_CODE + " with query: " + sqlQuery + ". Exception is: " + ex.toString();
+            log.error(error);
+            throw new SQLException(error);
+        }
+
+        s.close();
+        s = null;
+
+        // If table is not empty then return PK key
+        return pk;
+
+    }
+
+    /**
+     * This function will update Identification including (title, abstract,
+     * service type and service type version) NOTE: table description (title,
+     * abstract) table service identification (service type, service type
+     * version)
+     *
+     * @throws java.sql.SQLException
+     */
+    public void updateIdentication(Map<String, String> valueMap) throws SQLException {
+        // Init connection to database first
+        ensureConnection();
+
+        // Then init query to database
+        Statement s = conn.createStatement();
+
+        // *********** 1. First update ps_description ***********
+        // 1.1 Get first row (pk_key) from ps_description
+        String pkID = getPrimaryKeyFromFirstRow(TABLE_DESCRIPTION);
+
+        // 1.2 Generate update query
+        String sqlQuery = "UPDATE " + TABLE_DESCRIPTION + " ";
+
+        /*update ps_description
+         set titles='{abc}', abstracts='{xxxxxxxxxxxxxxxXXX}'
+         where id=1*/
+        sqlQuery = sqlQuery + "SET " + DESCRIPTION_TITLES + "='{" + valueMap.get("serviceTitle") + "}'" + ",";
+        sqlQuery = sqlQuery + DESCRIPTION_ABSTRACTS + "='{" + valueMap.get("abstract") + "}' ";
+        sqlQuery = sqlQuery + "WHERE " + DESCRIPTION_ID + "='" + pkID + "'";
+        log.debug("SQL query : " + sqlQuery);
+
+        // 1.3 Run update query (note executeUpdate)
+        try {
+            int r = s.executeUpdate(sqlQuery);
+            // Important: Without commit although r > 0 but nothing is updated?
+            conn.commit();
+            if (r > 0) {
+                log.debug("Update " + TABLE_DESCRIPTION + " successful!");
+            }
+        } catch (Exception e) {
+            log.error(e.getMessage());
+        } finally {
+            s.close();
+            s = null;
+        }
+
+        // *********** 2. Second update ps_service_identification ***********
+        s = conn.createStatement();
+        // 2.1 Get first row (pk_key) from ps_service_deintification
+        pkID = getPrimaryKeyFromFirstRow(TABLE_SERVICE_IDENTIFICATION);
+
+        // 2.2 Generate update query
+        sqlQuery = "UPDATE " + TABLE_SERVICE_IDENTIFICATION + " ";
+
+        // NOTE: Don't allow to update service_type as it have problem with load Coverage Description (error)
+        sqlQuery = sqlQuery + "SET " + SERVICE_IDENTIFICATION_TYPE_VERSIONS + "='{" + valueMap.get("serviceTypeVersion") + "}' ";
+        sqlQuery = sqlQuery + "WHERE " + SERVICE_IDENTIFICATION_ID + "='" + pkID + "'";
+        log.debug("SQL query : " + sqlQuery);
+
+        // 2.3 Run update query
+        try {
+            int r = s.executeUpdate(sqlQuery);
+            // Important: Without commit although r > 0 but nothing is updated?
+            conn.commit();
+            if (r > 0) {
+                log.debug("Update " + TABLE_SERVICE_IDENTIFICATION + " successful!");
+            }
+        } catch (SQLException ex) {
+            String error = "Error when query table " + DbMetadataSource.TABLE_SERVICE_IDENTIFICATION + " with query: " + sqlQuery + ". Exception is: " + ex.toString();
+            log.error(error);
+            throw new SQLException(error);
+        } finally {
+            // Close connection
+            s.close();
+            s = null;
+
+        }
+
+    }
+
+    /**
+     * This function will update Service Provider including (name, website,
+     * contact, position, role, email, hours of service, contact instructions,
+     * city, administrative area, postal code, country)
+     *
+     * @param valueMap: Map<String, String>
+     * @throws java.sql.SQLException
+     */
+    public void updateProvider(Map<String, String> valueMap) throws SQLException {
+
+        // Init connection to database first
+        ensureConnection();
+
+        // Then init query to database
+        Statement s = conn.createStatement();
+
+        // *********** 1. First update ps_service_provider ***********
+        // 1.1 Get first row (pk_key) from ps_service_provider
+        String pkID = getPrimaryKeyFromFirstRow(TABLE_SERVICE_PROVIDER);
+
+        // 1.2 Generate update query
+        String sqlQuery = "UPDATE " + TABLE_SERVICE_PROVIDER + " "
+                + "SET name = '" + valueMap.get("providerName") + "',"
+                + "site = '" + valueMap.get("providerWebsite") + "',"
+                + "contact_individual_name = '" + valueMap.get("contactPerson") + "',"
+                + "contact_administrative_area = '" + valueMap.get("administrativeArea") + "',"
+                + "contact_position_name = '" + valueMap.get("positionName") + "',"
+                + "contact_city = '" + valueMap.get("cityAddress") + "',"
+                + "contact_postal_code = '" + valueMap.get("postalCode") + "',"
+                + "contact_country = '" + valueMap.get("country") + "',"
+                + "contact_email_addresses = '{" + valueMap.get("email") + "}',"
+                + "contact_hours_of_service = '" + valueMap.get("hoursOfService") + "',"
+                + "contact_instructions = '" + valueMap.get("contactInstructions") + "',"
+                + "contact_role_id = '" + valueMap.get("roleID") + "' "
+                + "WHERE id= '" + getPrimaryKeyFromFirstRow(TABLE_SERVICE_PROVIDER) + "'";
+
+        log.debug("SQL query : " + sqlQuery);
+
+        // 1.3 Run update query (note executeUpdate)
+        try {
+            int r = s.executeUpdate(sqlQuery);
+            // Important: Without commit although r > 0 but nothing is updated?
+            conn.commit();
+            if (r > 0) {
+                log.debug("Update " + TABLE_SERVICE_PROVIDER + " successful!");
+            }
+        } catch (Exception e) {
+            String error = "Error when query table " + DbMetadataSource.TABLE_SERVICE_PROVIDER + " with query: " + sqlQuery + ". Exception is: " + e.toString();
+            log.error(error);
+            throw new SQLException(error);
+        } finally {
+            s.close();
+            s = null;
+        }
+    }
+
+    /**
+     * This function will get all role_code in ps_role_code and return to
+     * form.jsp to display role list as select/option
+     *
+     * @throws java.sql.SQLException
+     */
+    public List<Pair> getListRoleCodeFromDB() throws SQLException {
+        // Init connection to database first
+        ensureConnection();
+
+        // Then init query to database
+        Statement s = conn.createStatement();
+
+        // Return list<string, string> with key, value from role table
+        List<Pair> roleList = new ArrayList<Pair>();
+
+        String id = ROLE_CODE_ID;
+        String value = ROLE_CODE_VALUE;
+
+        String sqlQuery = "SELECT " + id + "," + value
+                + " FROM " + DbMetadataSource.TABLE_ROLE_CODE;
+        log.debug("SQL query : " + sqlQuery);
+
+        ResultSet r = null;
+
+        // Execute query and return error
+        try {
+            r = s.executeQuery(sqlQuery);
+            if (!r.next()) {
+                String error = "Role code table is empty";
+                throw new SQLException(error);
+            }
+        } catch (SQLException ex) {
+            String error = "Error when query table " + DbMetadataSource.TABLE_ROLE_CODE + " with query: " + sqlQuery + ". Exception is: " + ex.toString();
+            log.error(error);
+            throw new SQLException(error);
+        }
+        // If table is not empty then get ID, Value as key, value and return as String List
+        while (r.next()) {
+            Pair<String, String> typeValue = Pair.of(r.getString("id"), r.getString("value"));
+            roleList.add(typeValue);
+        }
+
+        // Close connection
+        try {
+            s.close();
+            s = null;
+        } catch (Exception e) {
+            log.error(e.getMessage());
+        } finally {
+            closeConnection(s);
+        }
+
+        // return role list to select/option
+        return roleList;
+    }
+
+
 }

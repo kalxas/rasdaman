@@ -176,3 +176,15 @@ java_server=external
 #                (example: "start_rasdaman.sh --stop-embedded-petascope" or "start_rasdaman --start-embedded-petascope").
 # need to adapt:  yes (depend on user environment), normally is false.
 start_embedded_petascope=false
+
+# parameter:     petascope_admin_user
+# purpose:       Login account has r/w access
+#                to PetaScope service identification and service provider information.
+#                Usage: log in to http://DOMAIN:HORT/rasadaman/admin with user to change default metadata to personal metadata.
+#                recommendation: establish a dedicated user
+petascope_admin_user=petauser
+
+# parameter:     petascope_admin_pass
+# purpose:       password for petascope_admin_user login, as above
+# need to adapt: yes
+petascope_admin_pass=petapasswd
