@@ -34,3 +34,6 @@ if ENABLE_JAVA
 	$(PROTOC) --proto_path=grpc/protomessages --java_out=../../java/src/ $?
 	$(PROTOC) --plugin=protoc-gen-grpc-java=${GRPCJAVAPLUGIN} --grpc-java_out=../../java/src --proto_path=grpc/protomessages $?
 endif
+
+clean-local:
+	rm -f grpc/messages/{*.cc,*.h}
