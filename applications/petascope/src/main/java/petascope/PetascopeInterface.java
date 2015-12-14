@@ -21,8 +21,6 @@
  */
 package petascope;
 
-import com.oreilly.servlet.MultipartResponse;
-
 import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
@@ -70,6 +68,7 @@ import petascope.util.XMLSymbols;
 import petascope.util.XMLUtil;
 import petascope.util.ras.RasQueryResult;
 import petascope.util.ras.RasUtil;
+import petascope.util.response.MultipartResponse;
 import petascope.wcps.server.core.ProcessCoveragesRequest;
 import petascope.wcps.server.core.Wcps;
 import petascope.wcs.server.WcsServer;
@@ -649,12 +648,12 @@ public class PetascopeInterface extends HttpServlet {
             response.setStatus(res.getExitCode());
             if (res.getXml() != null && res.getData() != null) {
                 MultipartResponse multi = new MultipartResponse(response);
-                multi.startResponse(FormatExtension.MIME_GML);
+                multi.startPart(FormatExtension.MIME_GML);
                 IOUtils.write(res.getXml(), os);
-                multi.endResponse();
-                multi.startResponse(res.getMimeType());
+                multi.endPart();
+                multi.startPart(res.getMimeType());
                 IOUtils.write(res.getData(), os);
-                multi.endResponse();
+                multi.endPart();
                 multi.finish();
             } else if (res.isProcessCoverage()) {
                 try {

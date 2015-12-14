@@ -21,7 +21,6 @@
  */
 package petascope.wcs2;
 
-import com.oreilly.servlet.MultipartResponse;
 import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
@@ -46,6 +45,7 @@ import petascope.exceptions.RasdamanException;
 import petascope.exceptions.SecoreException;
 import petascope.util.StringUtil;
 import petascope.util.WcsUtil;
+import petascope.util.response.MultipartResponse;
 import petascope.wcs2.extensions.ExtensionsRegistry;
 import petascope.wcs2.extensions.FormatExtension;
 import petascope.wcs2.extensions.ProtocolExtension;
@@ -207,12 +207,12 @@ public class Wcs2Servlet extends HttpServlet {
             response.setStatus(res.getExitCode());
             if (res.getXml() != null && res.getData() != null) {
                 MultipartResponse multi = new MultipartResponse(response);
-                multi.startResponse(FormatExtension.MIME_GML);
+                multi.startPart(FormatExtension.MIME_GML);
                 IOUtils.write(res.getXml(), os);
-                multi.endResponse();
-                multi.startResponse(res.getMimeType());
+                multi.endPart();
+                multi.startPart(res.getMimeType());
                 IOUtils.write(res.getData(), os);
-                multi.endResponse();
+                multi.endPart();
                 multi.finish();
             } else {
                 try {
