@@ -131,31 +131,53 @@ public abstract class AbstractHandler implements Handler {
     id = StringUtil.uriToPath(id);
 
     // construct query
-    String query =
-        "declare namespace gml = \"" + NAMESPACE_GML + "\";\n" +
-        "declare namespace xlink = \"" + NAMESPACE_XLINK + "\";\n" +
-        "declare function local:getid($d as document-node(), $id as xs:string) as element() {\n" +
-        "	let $ret := $d//gml:" + el + "[fn:ends-with(text(), $id)]/..\n" +
-        "	return  if (empty($ret)) then\n" +
-        "	        <empty/>\n" +
-        "	       else\n" +
-        "	       	$ret[last()]\n" +
-        "};\n" +
-        "declare function local:flatten($d as document-node(), $id as xs:string, $depth as xs:integer) as element()* {\n" +
-        "  copy $el := local:getid($d, $id)\n" +
-        "  modify\n" +
-        "  (\n" +
-        "  for $c in $el//*[@xlink:href]\n" +
-        "  return if ($depth < " + depth + ") then\n" +
-        "  	replace node $c with local:flatten($d, $c/@xlink:href, $depth + 1)\n" +
-        "	  else replace node $c with $c\n" +
-        "  )\n" +
-        "  return $el\n" +
-        "};\n" +
-        "declare function local:work($id as xs:string) as element() {\n" +
-        work +
-        "};\n" +
-        "local:work('" + id + "')";
+    /* NOTE: This has 3 functions in XQuery:
+     + getid($d is collection("userdb" or "gml"), $id is URI)
+       It will try to find definition from xlink:href in "userdb" first.
+       If it is not inside "userdb" then will try to resolve from "gml".
+       $ret can returns a sequence() so need to use *[last()]* to get only 1 element
+
+     + flatten($d is collection("userdb" or "gml"), $id is URI, $depth is a number) // this is recursive function
+        Using xlink:href so one definition can import multiple other definition in side it.
+        So need to traverse the XML Element Tree to the xlink:href to get other included definition.
+        Depth-First Search.
+
+     + work($id is URI) will return the full resolved definition.
+     */
+    String query
+        = "declare namespace gml = \"" + NAMESPACE_GML + "\";\n"
+        + "declare namespace xlink = \"" + NAMESPACE_XLINK + "\";\n"
+        + "declare function local:getid($d as document-node(), $id as xs:string) as element() {\n"
+        + "let $retUserDB := $d//gml:" + el + "[fn:ends-with(text(), $id)]/..\n"
+        + "let $retValue := \"\"\n"
+        + "return if (empty($retUserDB)) then\n"
+        + "             let $retGML := collection('gml')//gml:" + el + "[fn:ends-with(text(), $id)]/..\n"
+        + "             return if (empty($retGML)) then\n"
+        + "                        <empty/>\n"
+        + "                    else"
+        + "                        let $retValue := $retGML[last()]\n"
+        + "                        return $retValue"
+        + "       else\n"
+        + "             let $retValue := $retUserDB[last()]\n"
+        + "             return $retValue"
+        + "};\n"
+        + ""
+        + "declare function local:flatten($d as document-node(), $id as xs:string, $depth as xs:integer) as element()* {\n"
+        + "  copy $el := local:getid($d, $id)\n"
+        + "  modify\n"
+        + "  (\n"
+        + "  for $c in $el//*[@xlink:href]\n"
+        + "  return if ($depth < " + depth + ") then\n"
+        + "  	replace node $c with local:flatten($d, $c/@xlink:href, $depth + 1)\n"
+        + "	  else replace node $c with $c\n"
+        + "  )\n"
+        + "  return $el\n"
+        + "};\n"
+        + ""
+        + "declare function local:work($id as xs:string) as element() {\n"
+        + work
+        + "};\n"
+        + "local:work('" + id + "')";
 
     return DbManager.getInstance().getDb().query(query);
   }
