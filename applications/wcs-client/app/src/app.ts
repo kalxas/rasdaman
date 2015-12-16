@@ -98,6 +98,7 @@ module rasdaman {
         .service("rasdaman.SettingsService", rasdaman.SettingsService)
         .service("rasdaman.common.SerializedObjectFactory", rasdaman.common.SerializedObjectFactory)
         .service("rasdaman.WCSService", rasdaman.WCSService)
+        .service("rasdaman.WCSErrorHandlingService", rasdaman.WCSErrorHandlingService)
         .controller("rasdaman.SettingsController", rasdaman.SettingsController)
         .controller("rasdaman.GetCapabilitiesController", rasdaman.GetCapabilitiesController)
         .controller("rasdaman.DescribeCoverageController", rasdaman.DescribeCoverageController)

@@ -33,6 +33,8 @@
 ///<reference path="ExtendedCapabilities.ts"/>
 ///<reference path="Get.ts"/>
 ///<reference path="GetCapabilities.ts"/>
+///<reference path="Exception.ts"/>
+///<reference path="ExceptionReport.ts"/>
 ///<reference path="HTTP.ts"/>
 ///<reference path="Keywords.ts"/>
 ///<reference path="Languages.ts"/>

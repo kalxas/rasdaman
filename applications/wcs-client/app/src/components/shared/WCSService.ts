@@ -85,12 +85,15 @@ module rasdaman {
 
         public getCoverage(request:wcs.GetCoverage):angular.IPromise<any> {
             var result = this.$q.defer();
+            // Build the request URL
+            var requestUrl = this.settings.WCSEndpoint + "?" + request.toKVP();
 
             // For get coverage, open a new window.
-            var requestUrl = this.settings.WCSEndpoint + "?" + request.toKVP();
             this.$window.open(requestUrl);
 
-            result.resolve();
+            // Return the URL as the result
+            result.resolve(requestUrl);
+
             return result.promise;
         }
 

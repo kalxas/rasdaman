@@ -23,6 +23,7 @@
 
 /// <reference path="shared/Constants.ts"/>
 /// <reference path="shared/WCSService.ts"/>
+/// <reference path="shared/WCSErrorHandlingService.ts"/>
 
 /// <reference path="settings/SettingsService.ts"/>
 /// <reference path="settings/SettingsController.ts"/>

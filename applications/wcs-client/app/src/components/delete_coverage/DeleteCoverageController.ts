@@ -33,13 +33,15 @@ module rasdaman {
             "$scope",
             "$log",
             "Notification",
-            "rasdaman.WCSService"
+            "rasdaman.WCSService",
+            "rasdaman.WCSErrorHandlingService"
         ];
 
         public constructor(private $scope:DeleteCoverageControllerScope,
                            private $log:angular.ILogService,
                            private alertService:any,
-                           private wcsService:rasdaman.WCSService) {
+                           private wcsService:rasdaman.WCSService,
+                           private errorHandlingService:WCSErrorHandlingService) {
             function isCoverageIdValid(coverageId:string):boolean {
                 if ($scope.StateInformation.ServerCapabilities) {
                     var coverageSummaries = $scope.StateInformation.ServerCapabilities.Contents.CoverageSummary;
@@ -79,11 +81,11 @@ module rasdaman {
                             this.alertService.success("Successfully deleted coverage with ID <b>" + $scope.IdOfCoverageToDelete + "<b/>");
                             this.$log.log(args);
                         }, (...args:any[])=> {
-                            this.alertService.error("The coverage with ID <b>" + $scope.IdOfCoverageToDelete + "<b/> could not be deleted. Check the log for additional information.");
+                            this.errorHandlingService.handleError(args);
                             this.$log.error(args);
                         }).finally(function () {
-                            $scope.RequestInProgress = false;
-                        });
+                        $scope.RequestInProgress = false;
+                    });
                 }
             };
 

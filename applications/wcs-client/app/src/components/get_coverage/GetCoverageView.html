@@ -143,7 +143,10 @@
                 </uib-accordion-group>
             </uib-accordion>
         </div>
-        <div class="row">
+        <div class="row top5" ng-show="Core.RequestUrl">
+            The constructed request is: <a href="{{Core.RequestUrl}}" target="_blank">{{Core.RequestUrl}}</a>
+        </div>
+        <div class="row top5">
             <button class="btn btn-default" ng-click="getCoverage()">Download Coverage</button>
         </div>
     </div>

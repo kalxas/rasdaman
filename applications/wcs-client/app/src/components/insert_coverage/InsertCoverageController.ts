@@ -32,13 +32,15 @@ module rasdaman {
             "$scope",
             "$log",
             "Notification",
-            "rasdaman.WCSService"
+            "rasdaman.WCSService",
+            "rasdaman.WCSErrorHandlingService"
         ];
 
         public constructor(private $scope:InsertCoverageControllerScope,
                            private $log:angular.ILogService,
                            private alertService:any,
-                           private wcsService:rasdaman.WCSService) {
+                           private wcsService:rasdaman.WCSService,
+                           private errorHandlingService:WCSErrorHandlingService) {
             $scope.UrlOfCoverageToInsert = null;
             $scope.RequestInProgress = false;
             $scope.UseGeneratedCoverageId = false;
@@ -55,11 +57,11 @@ module rasdaman {
                             this.$log.info(args);
                         },
                         (...args:any[])=> {
-                            this.alertService.error("The coverage referenced by <b>" + $scope.UrlOfCoverageToInsert + "</b>  not be inserted. Check the console log for more information.");
+                            this.errorHandlingService.handleError(args);
                             this.$log.error(args);
                         }).finally(function () {
-                            $scope.RequestInProgress = false;
-                        });
+                        $scope.RequestInProgress = false;
+                    });
                 }
             };
         }

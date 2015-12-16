@@ -32,14 +32,16 @@ module rasdaman {
             "$log",
             "$interval",
             "Notification",
-            "rasdaman.WCSService"
+            "rasdaman.WCSService",
+            "rasdaman.WCSErrorHandlingService"
         ];
 
         public constructor($scope:ProcessCoveragesViewModel,
                            $log:angular.ILogService,
                            $interval:angular.IIntervalService,
                            notificationService:any,
-                           wcsService:rasdaman.WCSService) {
+                           wcsService:rasdaman.WCSService,
+                           errorHandlingService:WCSErrorHandlingService) {
             $scope.EditorOptions = {
                 extraKeys: {"Ctrl-Space": "autocomplete"},
                 mode: "xquery",
@@ -77,12 +79,10 @@ module rasdaman {
                     wcsService.processCoverages(processCoverages, getBinaryData)
                         .then(
                             (data:any)=> {
-                                console.log(data);
-                                console.log(data.data);
                                 $scope.EditorData.push(WCPSResultFactory.getResult(command, data.data));
                             },
                             (...args:any[])=> {
-                                notificationService.error("Could not process the request. Check the log for additional information.");
+                                errorHandlingService.handleError(args);
                                 $log.error(args);
                             }
                         )
@@ -116,8 +116,6 @@ module rasdaman {
 
                 return -1;
             };
-
-
         }
 
         private static createExampleQueries():QueryExample[] {

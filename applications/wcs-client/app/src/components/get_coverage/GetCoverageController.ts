@@ -39,6 +39,7 @@ module rasdaman {
                            $log:angular.ILogService,
                            wcsService:rasdaman.WCSService,
                            alertService:any) {
+
             $scope.$watch("StateInformation.SelectedCoverageDescriptions",
                 (coverageDescriptions:wcs.CoverageDescriptions)=> {
                     if (coverageDescriptions && coverageDescriptions.CoverageDescription) {
@@ -60,6 +61,7 @@ module rasdaman {
                             IsTrimSelected: [],
                             IsMultiPartFormat: false,
                             SelectedCoverageFormat: $scope.StateInformation.ServerCapabilities.ServiceMetadata.FormatSupported[0],
+                            RequestUrl: null
                         };
 
                         var numberOfAxis = $scope.CoverageDescription.BoundedBy.Envelope.LowerCorner.Values.length;
@@ -93,7 +95,7 @@ module rasdaman {
 
                                 if ($scope.Core.IsTrimSelected[i]) {
                                     if ($scope.Core.Trims[i].TrimLow != min.toString()
-                                        && $scope.Core.Trims[i].TrimHigh != max.toString()) {
+                                        || $scope.Core.Trims[i].TrimHigh != max.toString()) {
                                         dimensionSubset.push($scope.Core.Trims[i]);
                                     }
                                 } else {
@@ -110,12 +112,13 @@ module rasdaman {
 
                             wcsService.getCoverage(getCoverageRequest)
                                 .then(
-                                    (data:any)=> {
-
-                                        $log.log(data);
+                                    (requestUrl:string)=> {
+                                        $scope.Core.RequestUrl = requestUrl;
                                     },
                                     (...args:any[])=> {
-                                        alertService.error("Failed to execute GetCoverage operation. Check the log for additional information.");
+                                        $scope.Core.RequestUrl = null;
+
+                                        alertService.error("Failed to execute GetCoverage operation.");
                                         $log.error(args);
                                     });
                         };
@@ -124,7 +127,7 @@ module rasdaman {
         }
 
         private static isRangeSubsettingSupported(serverCapabilities:wcs.Capabilities):boolean {
-            return serverCapabilities.ServiceIdentification.Profile.indexOf( Constants.RANGE_SUBSETTING_EXT_URI) != -1;
+            return serverCapabilities.ServiceIdentification.Profile.indexOf(Constants.RANGE_SUBSETTING_EXT_URI) != -1;
         }
 
         private static isScalingSupported(serverCapabilities:wcs.Capabilities):boolean {
@@ -156,6 +159,7 @@ module rasdaman {
         IsTrimSelected:boolean[];
         IsMultiPartFormat:boolean;
         SelectedCoverageFormat:string;
+        RequestUrl:string;
     }
 
     interface GetCoverageTabStates {

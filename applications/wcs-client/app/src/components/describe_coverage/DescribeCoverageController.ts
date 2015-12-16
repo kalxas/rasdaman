@@ -36,14 +36,16 @@ module rasdaman {
             "$rootScope",
             "$log",
             "rasdaman.WCSService",
-            "Notification"
+            "Notification",
+            "rasdaman.WCSErrorHandlingService"
         ];
 
         public constructor($scope:DescribeCoverageControllerScope,
                            $rootScope:angular.IRootScopeService,
                            $log:angular.ILogService,
                            wcsService:rasdaman.WCSService,
-                           alertService:any) {
+                           alertService:any,
+                           wcsErrorHandlingService:rasdaman.WCSErrorHandlingService) {
 
             $scope.SelectedCoverageId = null;
             $scope.IsCoverageDescriptionsDocumentOpen = false;
@@ -90,18 +92,18 @@ module rasdaman {
                 //Retrieve coverage description
                 wcsService.getCoverageDescription(describeCoverageRequest)
                     .then(
-                    (response:rasdaman.common.Response<wcs.CoverageDescriptions>)=> {
-                        //Success handler
-                        $scope.CoverageDescriptionsDocument = response.Document;
-                        $scope.CoverageDescriptions = response.Value;
-                    },
-                    (...args:any[])=> {
-                        $scope.CoverageDescriptionsDocument = null;
-                        $scope.CoverageDescriptions = null;
+                        (response:rasdaman.common.Response<wcs.CoverageDescriptions>)=> {
+                            //Success handler
+                            $scope.CoverageDescriptionsDocument = response.Document;
+                            $scope.CoverageDescriptions = response.Value;
+                        },
+                        (...args:any[])=> {
+                            $scope.CoverageDescriptionsDocument = null;
+                            $scope.CoverageDescriptions = null;
 
-                        alertService.error("Failed to retrieve the description for coverage with ID " + $scope.SelectedCoverageId + ". Check the log for more details.");
-                        $log.error(args);
-                    })
+                            wcsErrorHandlingService.handleError(args);
+                            $log.error(args);
+                        })
                     .finally(()=> {
                         $scope.StateInformation.SelectedCoverageDescriptions = $scope.CoverageDescriptions;
                     });

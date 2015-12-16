@@ -33,18 +33,18 @@ module rasdaman {
         public static $inject = [
             "$scope",
             "$log",
-            "$state",
             "rasdaman.WCSService",
             "rasdaman.SettingsService",
-            "Notification"
+            "Notification",
+            "rasdaman.WCSErrorHandlingService"
         ];
 
         public constructor(private $scope:CapabilitiesControllerScope,
                            private $log:angular.ILogService,
-                           private $state:any,
                            private wcsService:rasdaman.WCSService,
                            private settings:rasdaman.SettingsService,
-                           private alertService:any) {
+                           private alertService:any,
+                           private errorHandlingService:WCSErrorHandlingService) {
             $scope.IsAvailableCoveragesOpen = false;
             $scope.IsServiceIdentificationOpen = false;
             $scope.IsServiceProviderOpen = false;
@@ -54,7 +54,7 @@ module rasdaman {
 
             $scope.getServerCapabilities = ()=> {
                 if (!$scope.WcsServerEndpoint) {
-                    alertService.error("The entered WCS server endpoint is invalid.");
+                    alertService.error("The entered WCS endpoint is invalid.");
                     return;
                 }
 
@@ -83,7 +83,7 @@ module rasdaman {
                             $scope.IsServiceIdentificationOpen = false;
                             $scope.IsServiceProviderOpen = false;
 
-                            alertService.error("Failed to retrieve the capabilities of the server located at:" + this.settings.WCSEndpoint + ". Check the log for additional information.");
+                            errorHandlingService.handleError(args);
                             $log.error(args);
                         })
                     .finally(()=> {
