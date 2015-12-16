@@ -188,13 +188,14 @@ CC="gcc -L%{_libdir}/hdf -I/usr/include/netpbm -fpermissive " CXX="g++ -L%{_libd
 		--with-debug-symbols \
 		--with-filedatadir=%{rasdir}/data \
 		--with-wardir=%{_sharedstatedir}/%{tomcat}/webapps
-sed -i 's/^metadata_user=.\+/metadata_user=inituser/' applications/petascope/src/main/resources/petascope.properties
-sed -i 's/^metadata_pass=.\+/metadata_pass=initpass/' applications/petascope/src/main/resources/petascope.properties
+
+make %{?_smp_mflags} DESTDIR=%{buildroot}
+
+sed -i 's/^metadata_user=.\+/metadata_user=inituser/' applications/petascope/src/main/resources/petascope.properties.in
+sed -i 's/^metadata_pass=.\+/metadata_pass=initpass/' applications/petascope/src/main/resources/petascope.properties.in
 sed -i 's/^rasuser=rasdaman/rasuser=petauser/' applications/rasgeo/rasconnect
 sed -i 's/^raspassword=rasdaman/raspassword=petapasswd/' applications/rasgeo/rasconnect
 sed -i 's#@confdir@#%{_sysconfdir}/rasdaman#' applications/petascope/src/main/webapp/WEB-INF/web.xml.in
-
-make %{?_smp_mflags} DESTDIR=%{buildroot}
 
 %install
 rm -rf %{buildroot}
