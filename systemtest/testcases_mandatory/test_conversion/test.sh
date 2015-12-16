@@ -284,6 +284,34 @@ if [ $? -eq 0 ]; then
   run_test hdf inv_hdf hdf hdf GreySet
 fi
 
+############### export large data (ticket 240) ###############
+
+log "----- export large data  conversion test ------"
+COLL=test_large
+TYPE=GreySet
+f=rasql_1.tif
+
+$RASQL -q "drop collection $COLL" > /dev/null 2>&1
+$RASQL -q "create collection $COLL $TYPE" > /dev/null
+$RASQL -q "insert into $COLL values marray i in [0:999,0:9999] values 2c" > /dev/null
+$RASQL -q 'select tiff(c) from test_large as c' --out file --quiet
+if [ -f $f ]; then
+  output=`file $f`
+  if [ "$output" == "rasql_1.tif: data" ]; then
+    log "exporting large format-encoded data test failed."
+    NUM_FAIL=$(($NUM_FAIL + 1))
+  else
+    log "exporting large format-encoded data test passed."
+    NUM_SUC=$(($NUM_SUC + 1))
+  fi
+else
+  log "exporting large format-encoded data test failed."
+  NUM_FAIL=$(($NUM_FAIL + 1))
+fi
+rm -f $f
+$RASQL -q "drop collection $COLL" > /dev/null 2>&1
+
+
 ################ GML in JPEG2000 encoding ####################
 
 log '------ GML in JPEG2000 conversion --------'
