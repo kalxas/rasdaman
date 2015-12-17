@@ -52,11 +52,11 @@
                         <!--  <TH>Commit time</TH>-->
                         <TH><b>Submit Time</b></TH>
                         <TH width="90"><b>Action</b></TH>
-                        <TH><b>Status</b></TH>
-
-                        <py:if test="ADMIN==True">
-                            <TH><b>Test Status</b></TH>
+                        <py:if test="authenticated">
+                            <th><b>Review URL</b></th>
                         </py:if>
+                        <TH><b>Status</b></TH>
+                        <TH><b>Test Status</b></TH>
 
                     </TR>
                     <py:for each="patch in enumerate(patches)">
@@ -86,12 +86,21 @@
                                     </button>
                                 </py:if>
                             </TD>
+                            <py:if test="authenticated">
+                                <td><span>
+                                    <py:if test="patch[1]['differential_url']">
+                                    <a href="${patch[1]['differential_url']}">${patch[1]['differential_url']}</a>
+                                    </py:if>
+                                </span></td>
+                            </py:if>
                             <TD><span style="color:${patch[1]['status_color']}">&nbsp;${patch[1]['status']}&nbsp;</span></TD>
 
-                            <py:if test="ADMIN==True">
-                                <TD><span style="">&nbsp;${patch[1]['test']}&nbsp;</span></TD>
-                            </py:if>
-
+                            <TD>
+                                <py:choose test="">
+                                    <py:when test="authenticated and patch[1]['test_url']"><a style="text-decoration: none; color:${patch[1]['test_status_color']}" href="${patch[1]['test_url']}}">&nbsp;${patch[1]['test']}&nbsp;</a></py:when>
+                                    <py:otherwise><span style="color:${patch[1]['test_status_color']}">&nbsp;${patch[1]['test']}&nbsp; </span></py:otherwise>
+                                </py:choose>
+                            </TD>
                         </TR>
                     </py:for>
 

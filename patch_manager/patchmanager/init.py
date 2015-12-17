@@ -16,6 +16,8 @@ class PatchManagerInit(Component):
         # add column
         try:
             cursor.execute("ALTER TABLE Patches ADD rejected int")
+            cursor.execute("ALTER TABLE Patches ADD test_status text")
+            cursor.execute("ALTER TABLE Patches ADD differential_url text")
             self.log.info("Added rejected column to Patches table")
         except:
             pass

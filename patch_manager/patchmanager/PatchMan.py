@@ -9,13 +9,12 @@ import string
 import subprocess
 import sys
 import tempfile
-
 import smtplib
+import shutil
 from email.MIMEMultipart import MIMEMultipart
 from email.MIMEBase import MIMEBase
 from email.MIMEText import MIMEText
 from email import Encoders
-
 from trac.attachment import Attachment
 from trac.attachment import AttachmentModule
 from trac.config import PathOption
@@ -26,6 +25,10 @@ from trac.web.chrome import INavigationContributor
 from trac.web.chrome import ITemplateProvider
 from tracext.git import PyGIT
 from jenkinsapi import JenkinsApi
+from subprocess import check_output,CalledProcessError
+
+from patchmanager.model.patchmodel import PatchModel
+
 
 class PatchMan(Component):
     implements(ITemplateProvider)
@@ -34,23 +37,36 @@ class PatchMan(Component):
     APPLIED = "APPLIED", "green"
     PENDING = "PENDING", "orange"
     REJECTED = "REJECTED", "red"
-    GMAIL_USER = "rasdaman.community@gmail.com"
-    GMAIL_PWD = "TODO"
-    RECIPIENTS = ["p.baumann@jacobs-university.de", "d.misev@jacobs-university.de"]
 
-    def addNewPatch(self, FromAddr, Subject, Branch, Date, FileContent):
+    RECIPIENTS = ["p.baumann@jacobs-university.de", "d.misev@jacobs-university.de"]
+    DIFFERENTIAL_URL_KEY = "Differential Revision"
+
+    def getPatchPath(self, patchId):
+        filename = "patch" + str(patchId)
+        filepath = self.env.path + "/attachments/PatchManager/0.2/" + filename
+        return filepath
+
+    def addNewPatch(self, FromAddr, Subject, Branch, Date, FileContent, DifferentialURL=""):
         db = self.env.get_db_cnx()
         cursor = db.cursor()
-        cursor.execute("INSERT INTO Patches (email, subject, branch, commit_time, submit_time, rejected)\
-            VALUES (%s, %s, %s, %s, %s, %s) ", (FromAddr, Subject, Branch, Date, datetime.today(), "0"))
+        cursor.execute("INSERT INTO Patches (email, subject, branch, commit_time, submit_time, rejected, differential_url)\
+            VALUES (%s, %s, %s, %s, %s, %s, %s) ", (FromAddr, Subject, Branch, Date, datetime.today(), "0", DifferentialURL))
         id = db.get_last_id(cursor, "Patches");
 
-        file = Attachment(self.env, 'PatchManager', '0.2')
-        filename = "patch" + str(id)
-        FileContent.file.seek(0, 2)             # seek to end of file
-        size = FileContent.file.tell()
+        filepath = self.getPatchPath(id)
+        flags = os.O_CREAT + os.O_WRONLY + os.O_EXCL
+        if hasattr(os, 'O_BINARY'):
+            flags += os.O_BINARY
+        targetfile = os.fdopen(os.open(filepath, flags, 0666), 'w')
+        # file = Attachment(self.env, 'PatchManager', '0.2')
+        # tmp_file = Attachment(self.env, file.resource.parent)
+        # self.env.log.debug("attachment path: " + str(file.path) + ", " + str(attachment.path))
+        # FileContent.file.seek(0, 2)             # seek to end of file
+        # size = FileContent.file.tell()
         FileContent.file.seek(0);
-        file.insert(filename, FileContent.file, size)
+        # file.insert(filename, FileContent.file, size)
+        with targetfile:
+            shutil.copyfileobj(FileContent.file, targetfile);
         db.commit()
 
         jenkins_url = self.config.get('jenkins', 'url');
@@ -59,15 +75,14 @@ class PatchMan(Component):
         job_name = self.config.get('jenkins', 'patch_test_job_name');
         jenkins = JenkinsApi(jenkins_url, jenkins_user, jenkins_passwd, self.env.log);
 
-        jenkins.test_patch(id, job_name)
-
-        #TODO REMOVE
-        return
+        if self.is_jenkins_enabled():
+            jenkins.test_patch(id, job_name, Branch)
 
         for r in self.RECIPIENTS:
             self.sendMail(r, "[PATCH] <%s> %s" % (self.cutString(FromAddr, 15), self.cutString(Subject, 40)),
-                "New patch submitted to rasdaman.org:\n\nSubject\t %s\nFrom\t %s\nDate\t %s" % (Subject, FromAddr, Date),
-                None)
+                          "New patch submitted to rasdaman.org:\n\nSubject\t %s\nFrom\t %s\nDate\t %s" % (
+                          Subject, FromAddr, Date),
+                          None)
         return
 
     def cutString(self, s, n):
@@ -78,31 +93,34 @@ class PatchMan(Component):
 
     # http://kutuma.blogspot.com/2007/08/sending-emails-via-gmail-with-python.html
     def sendMail(self, to, subject, text, attach):
+        gmailUser = self.config.get('gmail', 'user')
+        gmailPassword = self.config.get('gmail', 'password')
+
         msg = MIMEMultipart()
-        msg['From'] = self.GMAIL_USER
+        msg['From'] = gmailUser
         msg['To'] = to
         msg['Subject'] = subject
         msg.attach(MIMEText(text))
 
         if attach != None:
-           part = MIMEBase('application', 'octet-stream')
-           part.set_payload(open(attach, 'rb').read())
-           Encoders.encode_base64(part)
-           part.add_header('Content-Disposition',
-                   'attachment; filename="%s"' % os.path.basename(attach))
-           msg.attach(part)
+            part = MIMEBase('application', 'octet-stream')
+            part.set_payload(open(attach, 'rb').read())
+            Encoders.encode_base64(part)
+            part.add_header('Content-Disposition',
+                            'attachment; filename="%s"' % os.path.basename(attach))
+            msg.attach(part)
 
         try:
-           mailServer = smtplib.SMTP("smtp.gmail.com", 587)
-           mailServer.ehlo()
-           mailServer.starttls()
-           mailServer.ehlo()
-           mailServer.login(self.GMAIL_USER, self.GMAIL_PWD)
-           mailServer.sendmail(self.GMAIL_USER, to, msg.as_string())
-           # Should be mailServer.quit(), but that crashes...
-           mailServer.close()
+            mailServer = smtplib.SMTP("smtp.gmail.com", 587)
+            mailServer.ehlo()
+            mailServer.starttls()
+            mailServer.ehlo()
+            mailServer.login(gmailUser, gmailPassword)
+            mailServer.sendmail(gmailUser, to, msg.as_string())
+            # Should be mailServer.quit(), but that crashes...
+            mailServer.close()
         except:
-           self.env.log.debug("failed sending email to " + to)
+            self.env.log.debug("failed sending email to " + to)
 
     def sendPatchStatusMail(self, id, patchStatus):
         """Send an email to the submitter of a patch with the given id. The
@@ -111,12 +129,12 @@ class PatchMan(Component):
         cursor = db.cursor()
         cursor.execute("SELECT email, subject, submit_time FROM Patches WHERE id='" + str(id) + "'")
         for email, subject, submit_time in cursor:
-            #self.env.log.debug("in sendPatchStatusMail: " + email + ' ' + subject + ' ' + submit_time)
+            # self.env.log.debug("in sendPatchStatusMail: " + email + ' ' + subject + ' ' + submit_time)
             if email and subject and submit_time:
                 self.sendMail(email, "rasdaman.org: PATCH " + patchStatus,
-                "Your patch submitted to rasdaman.org on " + str(submit_time) +
-                " has been " + patchStatus + "\n\nPatch description:\n" + str(subject),
-                None)
+                              "Your patch submitted to rasdaman.org on " + str(submit_time) +
+                              " has been " + patchStatus + "\n\nPatch description:\n" + str(subject),
+                              None)
 
     def checkPatchStatus(self, repo_patches, email, subject, branch):
         if email is None or subject is None:
@@ -134,8 +152,8 @@ class PatchMan(Component):
         else:
             return self.PENDING
 
-
     def getPatchUID(self, author, message, branch):
+        author = author.replace('"', '')
         return self._deleteExtraWhiteSpace(author + ":" + message + " (" + branch + ")").strip()
 
     def listBranches(self):
@@ -153,7 +171,7 @@ class PatchMan(Component):
         for branch in output:
             temp = branch[2:-1]
             if temp != 'master':
-				results.append({'branch':temp})
+                                results.append({'branch':temp})
 
         return results
 
@@ -170,37 +188,46 @@ class PatchMan(Component):
             t = repo.get_changeset(rev);
             properties = t.get_properties().get("git-author");
             branch = ""
+            self.env.log.debug("branches: %s" % t.get_branches())
             for tmp in t.get_branches():
                 branch, head = tmp
-                break
-            msg = t.message
-            end = msg.find("\n")
-            if end != -1:
-                msg = msg[:end]
-            if (properties is None):
-                key = self.getPatchUID(t.author, msg, branch);
-            else:
-                key = self.getPatchUID(properties[0], msg, branch);
-            rev = repo.previous_rev(rev)
-            repo_patches.update([(key, True)]);
-            subject_patches.update([(key, t.message)])
+                msg = t.message
+                end = msg.find("\n")
+                if end != -1:
+                    msg = msg[:end]
+
+                self.env.log.debug("branch: %s\n author: %s\n properties: %s\n msg: %s\n" % (branch, t.author, properties, msg))
+
+                if (properties is None):
+                    key = self.getPatchUID(t.author, msg, branch);
+                else:
+                    key = self.getPatchUID(properties[0], msg, branch);
+                rev = repo.previous_rev(rev)
+                repo_patches.update([(key, True)]);
+                subject_patches.update([(key, t.message)])
 
         db = self.env.get_db_cnx()
         cursor = db.cursor()
-        cursor.execute("SELECT id, email, subject, branch, commit_time, submit_time, rejected, test_status FROM Patches ORDER BY submit_time DESC LIMIT %s OFFSET %s", (count, offset))
+        cursor.execute(
+            "SELECT id, email, subject, branch, commit_time, submit_time, rejected, test_status, test_url, differential_url FROM Patches ORDER BY submit_time DESC LIMIT %s OFFSET %s",
+            (count, offset))
 
         jenkins_url = self.config.get('jenkins', 'url');
         jenkins_user = self.config.get('jenkins', 'user');
         jenkins_passwd = self.config.get('jenkins', 'passwd');
         jenkins = JenkinsApi(jenkins_url, jenkins_user, jenkins_passwd, self.env.log);
         job_name = self.config.get('jenkins', 'patch_test_job_name');
-        test_status = jenkins.get_test_patch_map(job_name)
-        self.env.log.debug(test_status)
+
+        test_status = {}
+
+        if self.is_jenkins_enabled():
+            test_status = jenkins.get_test_patch_map(job_name)
+            self.env.log.debug(test_status)
 
         update_cursor = db.cursor()
         refreshPage = False
 
-        for id, email, subject, branch, commit_time, submit_time, rejected_att, test in cursor:
+        for id, email, subject, branch, commit_time, submit_time, rejected_att, test, test_url, differential_url in cursor:
             if not branch:
                 branch = 'master'
             if rejected_att == 1:
@@ -237,11 +264,18 @@ class PatchMan(Component):
                 refreshPage |= bool(test_status[id]['building'])
                 if (not bool(test_status[id]['building'])) and (test is None):
                     test = test_status[id]['buildStatus']
+                    test_url = test_status[id]['url']
                     update_cursor.execute("UPDATE Patches SET test_status=%s WHERE id=%s", (test, id))
+                    update_cursor.execute("UPDATE Patches SET test_url=%s WHERE id=%s", (test_url, id))
 
-            result.append({'id':id, 'email':self.encodeEmail(email, req),
-                          'subject':subj, 'branch':branch, 'commit_time':commit_time,
-                          'submit_time':submit_time, 'status':status[0], 'status_color':status[1], 'test' : test});
+            test_status_color = 'red';
+            if test == 'SUCCESS':
+                test_status_color = 'green'
+
+            result.append({'id': id, 'email': self.encodeEmail(email, req),
+                           'subject': subj, 'branch': branch, 'commit_time': commit_time,
+                           'submit_time': submit_time, 'status': status[0], 'status_color': status[1], 'test': test,
+                           'test_url': test_url, 'test_status_color': test_status_color, 'differential_url': differential_url});
         db.commit()
         return result, refreshPage
 
@@ -282,10 +316,12 @@ class PatchMan(Component):
 
     def _getPatchDetails(self, emailContent):
         if (type(emailContent) == str):
-            msg = email.message_from_string(emailContent)
+            msg = PatchModel(emailContent)
         else:
-            msg = email.message_from_file(emailContent.file)
-        return {'From':msg.get("From"), 'Subject':msg.get("Subject"), 'Date':msg.get("Date")};
+            msg = PatchModel(emailContent.file.read())
+
+        return {'From': msg.getFrom(), 'Subject': msg.getSubject(), 'Date': msg.getDate(),
+                self.DIFFERENTIAL_URL_KEY: msg.getReviewUrl()}
 
     def _getBundleDetails(self, bundle, selectbranch):
 
@@ -301,38 +337,40 @@ class PatchMan(Component):
         _temp_bundle_file.seek(0)
         _bundle_path = _temp_bundle_file.name
         # DEBUG
-        #_bundle_file.seek(0)
-        #self.env.log.debug("BUNDLE FILE: " + _bundle_file.read(500))
-        #self.env.log.debug("TEMP BUNDLE FILE: " + _temp_bundle_file.read(500))
+        # _bundle_file.seek(0)
+        # self.env.log.debug("BUNDLE FILE: " + _bundle_file.read(500))
+        # self.env.log.debug("TEMP BUNDLE FILE: " + _temp_bundle_file.read(500))
 
         # Clone the repo for testing
         _temp_dir = tempfile.mkdtemp();
         _cmd = "cd " + _temp_dir + "; " + _git_bin + " clone -b " + selectbranch + " " + _rep_dir + " " + _temp_dir
         self.env.log.debug("terminal call: " + _cmd)
-        os.system( _cmd )
+        os.system(_cmd)
 
         # Check there is a single commit inside the bundle
         _cmd = "cd " + _temp_dir + "; test $( " + _git_bin + " bundle list-heads " + _bundle_path + " | wc -l ) = 1"
         self.env.log.debug("terminal call:" + _cmd)
-        if os.system( _cmd ) != os.EX_OK:
+        if os.system(_cmd) != os.EX_OK:
             raise TracError("The uploaded bundle contains more than one commit.")
-        #_temp_bundle_file.seek(0)
+        # _temp_bundle_file.seek(0)
 
         # Need to apply the bundle and fetch the details there (From, To, Date, etc.)
         # checkout to a tmp branch (otherwise git-fetch won't apply)
         _cmd = "cd " + _temp_dir + "; " + _git_bin + " checkout -b tmp "
         self.env.log.debug(("terminal call: " + _cmd + " 2>&1"))
-        os.system( _cmd )
+        os.system(_cmd)
         # apply the bundle
         _cmd = "cd " + _temp_dir + "; " + _git_bin + " fetch " + _bundle_path + " " + selectbranch + ":" + selectbranch
         self.env.log.debug(("terminal call: " + _cmd + " 2>&1"))
-        self.env.log.debug(self.toString(self.getSystemOutput( _cmd + " 2>&1" )))
+        messages = self.getSystemOutput(_cmd + " 2>&1")
+        self.env.log.debug(self.toString(messages))
 
         # patch the bundle's commit and extract metadata
         _cmd = "cd " + _temp_dir + "; " + _git_bin + " show " + selectbranch + " HEAD --pretty=email"
         self.env.log.debug(("terminal call: " + _cmd + " 2>&1"))
-        _bundle_patch = self.toString(self.getSystemOutput(_cmd + " 2>&1"))
-        #self.env.log.debug("Bundle diffs: " + _bundle_patch)
+        messages = self.getSystemOutput(_cmd + " 2>&1")
+        _bundle_patch = self.toString(messages)
+        # self.env.log.debug("Bundle diffs: " + _bundle_patch)
 
         # cleaning
         _temp_bundle_file.close()
@@ -344,7 +382,7 @@ class PatchMan(Component):
         result = StringIO.StringIO();
         lastSpace = False;
         for i in range(len(string1)):
-            if (not(string1[i] in string.whitespace)):
+            if (not (string1[i] in string.whitespace)):
                 result.write(string1[i]);
             elif (not lastSpace):
                 result.write(" ");
@@ -396,11 +434,12 @@ class PatchMan(Component):
         r = re.compile(r'\[PATCH[^\]]*\] +ticket:[0-9]+ .+', re.DOTALL)
         match = r.match(subject)
         if match is None and selectbranch == 'master':
-            raise TracError("The subject of the patch is invalid; Please edit it so that the subject starts with ticket:NUMBER, where NUMBER is a valid ticket number on the rasdaman.org tracker.")
+            raise TracError(
+                "The subject of the patch is invalid; Please edit it so that the subject starts with ticket:NUMBER, where NUMBER is a valid ticket number on the rasdaman.org tracker.")
 
         self.env.log.debug("A new patch was submitted! Getting details...");
-        self.addNewPatch(data['From'], data['Subject'], req.args["selectbranch"], data['Date'], req.args["patchfile"])
-        return {'page':'addpatchdetails.html', 'data':data}
+        self.addNewPatch(data['From'], data['Subject'], req.args["selectbranch"], data['Date'], req.args["patchfile"], data[self.DIFFERENTIAL_URL_KEY])
+        return {'page': 'addpatchdetails.html', 'data': data}
 
     def automatic_test_results(self):
         jenkins_url = self.config.get('jenkins', 'url');
@@ -426,8 +465,8 @@ class PatchMan(Component):
         for id in self.getIDs(req.args['select']):
             self.sendPatchStatusMail(id, "DELETED")
             cursor.execute("DELETE FROM Patches WHERE id=" + str(id))
-            file = self.getAttachment(id)
-            file.delete()
+            patchpath = self.getPatchPath(id)
+            os.remove(patchpath)
         db.commit()
 
     def processDownloadPatch(self, req):
@@ -441,7 +480,6 @@ class PatchMan(Component):
         os.system(cmd);
         req.send_header('Content-Disposition', 'attachment; filename="patches.tgz"');
         req.send_file(tempDir + "/archive.tgz", 'application/x-tar-gz')
-
 
     def getIDs(self, args):
         if type(args) == type("ab") or type(args) == type(u"ab"):
@@ -463,7 +501,6 @@ class PatchMan(Component):
         status = proc.close();
         return Messages
 
-
     def processApplyPatch(self, req):
         if not 'TRAC_ADMIN' in req.perm:
             raise TracError('You do not have enough priviledges to apply a patch!')
@@ -474,21 +511,19 @@ class PatchMan(Component):
         repDir = self.config.get('trac', 'repository_dir')
         gitBin = self.config.get('git', 'git_bin')
         # git commands
-        gitAm     = gitBin + ' am -3 --ignore-whitespace --whitespace=fix ' # see LSIS ticket #45
+        gitAm = gitBin + ' am -3 --ignore-whitespace --whitespace=fix '  # see LSIS ticket #45
         gitBranch = gitBin + ' branch '
-        gitClone  = gitBin + ' clone '
-        gitCo     = gitBin + ' checkout '
-        gitFetch  = gitBin + ' fetch '
-        gitLog    = gitBin + ' log '
-        gitPush   = gitBin + ' push '
+        gitClone = gitBin + ' clone '
+        gitCo = gitBin + ' checkout '
+        gitFetch = gitBin + ' fetch '
+        gitLog = gitBin + ' log '
+        gitPush = gitBin + ' push '
 
         log = ""
 
         for id in self.getIDs(req.args['select']):
             try:
-                file = self.getAttachment(id)
-                patch_path = file._get_path('PatchManager', '0.2', "patch" + str(id))
-                #log += self.toString(self.getSystemOutput("cd " + tempDir + "; " + gitAm + patch_path + " 2>&1"))
+                patch_path = self.getPatchPath(id)
             except RuntimeError:
                 print ""
 
@@ -509,50 +544,67 @@ class PatchMan(Component):
                     # Need to distinguish between an email-patch and a binary bundle:
                     _bundle_head_pattern = "git bundle"
                     _cmd = "head -n 1 " + patch_path + " | grep \"" + _bundle_head_pattern + "\""
-                    if os.system( _cmd ) != os.EX_OK:
+                    if os.system(_cmd) != os.EX_OK:
                         self.env.log.debug("applying patch...");
                         self.env.log.debug("terminal call2: " + "cd " + tempDir + "; " + gitAm + patch_path + " 2>&1")
-                        log += self.toString(self.getSystemOutput("cd " + tempDir + "; " + gitAm + patch_path + " 2>&1"))
+
+                        messages = self.getSystemOutput("cd " + tempDir + "; " + gitAm + patch_path + " 2>&1")
+                        log += self.toString(messages)
                     else:
                         self.env.log.debug("applying git bundle...");
                         _tmp_branch = "tmp"
                         # apply the bundle
-                        log += self.toString(self.getSystemOutput("cd " + tempDir + "; " + gitCo + " -b " + _tmp_branch + " 2>&1"))
+                        messages = self.getSystemOutput("cd " + tempDir + "; " + gitCo + " -b " + _tmp_branch + " 2>&1")
+                        log += self.toString(messages)
                         log += "\n"
-                        log += self.toString(self.getSystemOutput("cd " + tempDir + "; " + gitFetch + patch_path + " " + branch + ":" + branch + " 2>&1"))
+
+                        messages = self.getSystemOutput("cd " + tempDir + "; " + gitFetch + patch_path + " " + branch + ":" + branch + " 2>&1")
+                        log += self.toString(messages)
+
                         # get back to master and clean up
                         log += "\n"
-                        log += self.toString(self.getSystemOutput("cd " + tempDir + "; " + gitCo + " master 2>&1"))
+                        messages = self.getSystemOutput("cd " + tempDir + "; " + gitCo + " master 2>&1")
+                        log += self.toString(messages)
                         log += "\n"
-                        log += self.toString(self.getSystemOutput("cd " + tempDir + "; " + gitBranch + " -D " + _tmp_branch + " 2>&1"))
+
+                        messages = self.getSystemOutput("cd " + tempDir + "; " + gitBranch + " -D " + _tmp_branch + " 2>&1")
+                        log += self.toString(messages)
                         # Log (DEBUG)
                         log += "\n"
-                        log += self.toString(self.getSystemOutput("cd " + tempDir + "; " + gitLog + " --graph -3 " + branch + " 2>&1"))
+                        messages = self.getSystemOutput("cd " + tempDir + "; " + gitLog + " --graph -3 " + branch + " 2>&1")
+                        log += self.toString(messages)
 
                     # Push changes to public repo
                     try:
-                      log += "\n" + self.toString(self.getSystemOutput("cd " + tempDir + "; " + gitPush + " origin " + branch + " 2>&1"))
+                        self.env.log.debug("Applying patch on %s" % branch)
 
-                      os.system("rm -Rf " + tempDir)
-                      self.setRejected(id, 0)
+                        messages = self.getSystemOutput("cd " + tempDir + "; " + gitPush + " origin " + branch + " 2>&1")
+                        log += "\n" + self.toString(messages)
 
-                      if email and subject and submit_time:
-                          subjectCut = str(subject)[8:80]
-                          if len(str(subject)) > 80:
-                              subjectCut = subjectCut + "..."
-                          self.sendMail("rasdaman-dev@googlegroups.com",
-                          "Patch applied: " + subjectCut,
-                          "New patch has been applied in rasdaman:\n\n" + str(subject) +
-                          "\n\nSubmitted on: " + str(submit_time) +
-                          "\nSubmitted by: " + str(email),
-                          None)
-                          self.sendPatchStatusMail(id, "APPLIED")
+                        self.env.log.debug("Patch applied on %s" % branch)
+
+                        os.system("rm -Rf " + tempDir)
+                        self.setRejected(id, 0)
+
+                        if email and subject and submit_time:
+                            subjectCut = str(subject)[8:80]
+                            if len(str(subject)) > 80:
+                                subjectCut = subjectCut + "..."
+                            self.sendMail("rasdaman-dev@googlegroups.com",
+                                          "Patch applied: " + subjectCut,
+                                          "New patch has been applied in rasdaman:\n\n" + str(subject) +
+                                          "\n\nSubmitted on: " + str(submit_time) +
+                                          "\nSubmitted by: " + str(email),
+                                          None)
+                            self.sendPatchStatusMail(id, "APPLIED")
                     except RuntimeError:
-                          print ""
+                        self.env.log("Patch was not applied")
+                        print ""
             except RuntimeError:
+                self.env.log.debug("Reached here - patch check failed")
                 print ""
 
-        return {'page':'applypatchlog.html', 'data':{'messages':log.strip()}}
+        return {'page': 'applypatchlog.html', 'data': {'messages': log.strip()}}
 
     def toString(self, msgs):
         res = ""
@@ -576,7 +628,7 @@ class PatchMan(Component):
         for id in self.getIDs(req.args['select']):
             self.setRejected(id, 1)
             self.sendPatchStatusMail(id, "REJECTED")
-        return {'data':{'messages':Messages}}
+        return {'data': {'messages': Messages}}
 
     def processTryApplyPatch(self, req):
         if not 'TRAC_ADMIN' in req.perm:
@@ -585,20 +637,19 @@ class PatchMan(Component):
         repDir = self.config.get('trac', 'repository_dir')
         gitBin = self.config.get('git', 'git_bin')
         # git commands
-        gitAm     = gitBin + ' am -3 --ignore-whitespace --whitespace=fix ' # see LSIS ticket #45
-        gitClone  = gitBin + ' clone '
+        gitAm = gitBin + ' am -3 --ignore-whitespace --whitespace=fix '  # see LSIS ticket #45
+        gitClone = gitBin + ' clone '
+        gitCo = gitBin + ' checkout '
         Messages = [];
         for id in self.getIDs(req.args['select']):
             try:
-                file = self.getAttachment(id)
-                patch_path = file._get_path('PatchManager', '0.2', "patch" + str(id))
-                #log += self.toString(self.getSystemOutput("cd " + tempDir + "; " + gitAm + patch_path + " -3 2>&1"))
+                patch_path = self.getPatchPath(id)
             except RuntimeError:
                 print ""
 
             try:
                 self.setRejected(id, 0)
-                #self.sendPatchStatusMail(id, "APPLIED")
+                # self.sendPatchStatusMail(id, "APPLIED")
 
                 # send an email to rasdaman-dev
                 db = self.env.get_db_cnx()
@@ -614,21 +665,23 @@ class PatchMan(Component):
                     os.removedirs(tempDir);
 
                     self.env.log.debug("terminal call: " + gitClone + " -b " + branch + " " + repDir + " " + tempDir)
-                    Messages.extend(self.getSystemOutput(gitClone + " -b " + branch + " " + repDir + " " + tempDir))
+                    messages = self.getSystemOutput(gitClone + " -b " + branch + " " + repDir + " " + tempDir)
+                    Messages.extend(messages)
 
-                    Messages.extend(self.getSystemOutput("cd " + tempDir + "; " + gitAm + patch_path + " 2>&1"))
+                    messages = self.getSystemOutput("cd " + tempDir + "; " + gitAm + patch_path + " 2>&1")
+                    Messages.extend(messages)
                     self.env.log.debug("terminal call2: " + "cd " + tempDir + "; " + gitAm + patch_path + " 2>&1")
 
                     os.system("rm -Rf " + tempDir)
             except RuntimeError:
                 print ""
 
-        return {'data':{'messages':Messages}}
+        return {'data': {'messages': Messages}}
 
     def process_command(self, patchop, req):
         ind = patchop.find("-")
         if ind != -1:
-            req.args.update([("select", patchop[ind+1:])])
+            req.args.update([("select", patchop[ind + 1:])])
             patchop = patchop[:ind]
 
         if (patchop == "Upload patch"):
@@ -648,3 +701,7 @@ class PatchMan(Component):
             return ret
         else:
             raise TracError('Don\'t know how to handle operation: "' + patchop + '"')
+
+    def is_jenkins_enabled(self):
+        isEnabled = self.config.get('jenkins', 'enable', 'false')
+        return isEnabled.lower() == 'true'

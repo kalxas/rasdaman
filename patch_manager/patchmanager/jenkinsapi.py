@@ -4,6 +4,7 @@ class JenkinsApi:
     __BUILD_COMMAND = "/buildWithParameters?delay=0sec";
     __JSON_API = "/api/json?depth=1";
     __PATCH_ID_KEY = "PATCH_ID";
+    __PATCH_BRANCH = "PATCH_BRANCH"
     __JOB_URL_PATH = "/job/"
     __TEST_JOBS_THRESHOLD = 15;
     __AUTOMATIC_JOBS_THRESHOLD = 5;
@@ -27,17 +28,19 @@ class JenkinsApi:
         if r is None:
             return result
 
-        for builds in r.json()['builds']:
+        reqBuilds = r.json()
+        for builds in reqBuilds['builds']:
             patch_id = None
             build_status = builds['result']
             building = builds['building']
+            url = builds['url']
             for value in builds['actions']:
                 if 'parameters' in value:
                     for parameter in value['parameters']:
                         if parameter['name'] == 'PATCH_ID':
                             patch_id = parameter['value']
             if not patch_id is None and patch_id.isnumeric():
-                result[int(patch_id)] = {'buildStatus': build_status, 'building': building}
+                result[int(patch_id)] = {'buildStatus': build_status, 'building': building, 'url': url}
 
         return self.__get_last_n_dict_elemets(result, self.__TEST_JOBS_THRESHOLD);
 
@@ -52,18 +55,22 @@ class JenkinsApi:
             buildId = build['number']
             building = build['building']
             status = build['result']
+            status_color = 'red'
+            if status == 'SUCCESS':
+                status_color = 'green'
             changes = build['changeSet']['items']
             result[int(buildId)] = {
                 "buildId": buildId,
                 "building": building,
                 "status": status,
-                "changes": changes
+                "changes": changes,
+                "status_color": status_color
             }
 
         return self.__get_last_n_dict_elemets(result, self.__AUTOMATIC_JOBS_THRESHOLD)
 
-    def test_patch(self, patch_id, job_name):
-        params = {self.__PATCH_ID_KEY: patch_id};
+    def test_patch(self, patch_id, job_name, branch="master"):
+        params = {self.__PATCH_ID_KEY: patch_id, self.__PATCH_BRANCH: branch};
         r = self.__send_jenkins_request(job_name, self.__BUILD_COMMAND, params)
         if not self.__log is None:
             self.__log.debug(
@@ -71,11 +78,15 @@ class JenkinsApi:
 
     def __send_jenkins_request(self, job, apiCall, params=None):
         self.__log.debug(self.__jenkins_url + self.__JOB_URL_PATH + job + apiCall)
-        r = requests.post(self.__jenkins_url + self.__JOB_URL_PATH + job + apiCall, params,
+        r = None
+        try:
+         r = requests.post(self.__jenkins_url + self.__JOB_URL_PATH + job + apiCall, params,
                           auth=(self.__jenkins_user, self.__jenkins_passwd));
-        if r.status_code != 200:
+         if r.status_code != 200:
             if not self.__log is None:
                 self.__log.debug("Request failed with status: " + str(r.status_code))
+        except:
+         pass
 
         return r
 
