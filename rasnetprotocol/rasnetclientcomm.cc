@@ -162,6 +162,12 @@ RasnetClientComm::~RasnetClientComm() throw()
 
     closeRasmgrService();
     closeRasserverService();
+
+    if (clientParams != NULL)
+    {
+        delete clientParams;
+        clientParams = NULL;
+    }
 }
 
 int RasnetClientComm::connectClient(string userName, string passwordHash)
@@ -993,13 +999,14 @@ unsigned short RasnetClientComm::getMDDCore(r_Ref<r_GMarray> &mdd, GetMDDRes *th
     marray->set_type_by_name  ( thisResult->typeName );
     marray->set_type_structure( thisResult->typeStructure );
 
-    r_Data_Format currentFormat = (r_Data_Format)(thisResult->currentFormat);
-    //    currentFormat = r_Array;
+    r_Data_Format currentFormat = static_cast<r_Data_Format>(thisResult->currentFormat);
+//    currentFormat = r_Array;
     marray->set_current_format( currentFormat );
 
     r_Data_Format decompFormat;
 
     const r_Base_Type *baseType = marray->get_base_type_schema();
+    unsigned long marrayOffset = 0;
 
     // Variables needed for tile transfer
     GetTileRes* tileRes=0;
@@ -1029,111 +1036,141 @@ unsigned short RasnetClientComm::getMDDCore(r_Ref<r_GMarray> &mdd, GetMDDRes *th
         // take cellTypeLength for current MDD of the first tile
         if( tileCntr == 0 )
             marray->set_type_length( tileRes->marray->cellTypeLength );
-
-        tileDomain = r_Minterval( tileRes->marray->domain );
-        memCopyLen = tileDomain.cell_count() * marray->get_type_length(); // cell type length of the tile must be the same
-        if (memCopyLen < tileRes->marray->data.confarray_len)
-            memCopyLen = tileRes->marray->data.confarray_len;   // may happen when compression expands
-        memCopy    = new char[ memCopyLen ];
-
-        // create temporary tile
-        tile = new r_GMarray();
-        tile->set_spatial_domain( tileDomain );
-        tile->set_array( memCopy );
-        tile->set_array_size( memCopyLen );
-        tile->set_type_length( tileRes->marray->cellTypeLength );
         tileCntr++;
 
-        // Variables needed for block transfer of a tile
-        unsigned long  blockOffset = 0;
-        unsigned short subStatus  = 3;
-        currentFormat = (r_Data_Format)(tileRes->marray->currentFormat);
+        tileDomain = r_Minterval( tileRes->marray->domain );
 
-        switch( tileStatus )
+        if (currentFormat == r_Array)
         {
-        case 3: // at least one block of the tile is left
+            memCopyLen = tileDomain.cell_count() * marray->get_type_length(); // cell type length of the tile must be the same
+            if (memCopyLen < tileRes->marray->data.confarray_len)
+                memCopyLen = tileRes->marray->data.confarray_len;   // may happen when compression expands
+            memCopy    = new char[ memCopyLen ];
 
-            // Tile arrives in several blocks -> put them together
-            concatArrayData(tileRes->marray->data.confarray_val, tileRes->marray->data.confarray_len, memCopy, memCopyLen, blockOffset);
-            freeGetTileRes(tileRes);
+            // create temporary tile
+            tile = new r_GMarray();
+            tile->set_spatial_domain( tileDomain );
+            tile->set_array( memCopy );
+            tile->set_array_size( memCopyLen );
+            tile->set_type_length( tileRes->marray->cellTypeLength );
 
-            tileRes = executeGetNextTile();//rpcgetnexttile_1( &clientID, binding_h );
+            // Variables needed for block transfer of a tile
+            unsigned long  blockOffset = 0;
+            unsigned short subStatus  = 3;
+            currentFormat = static_cast<r_Data_Format>(tileRes->marray->currentFormat);
 
-            subStatus = tileRes->status;
-
-            if( subStatus == 4 )
+            switch( tileStatus )
             {
+            case 3: // at least one block of the tile is left
+
+                // Tile arrives in several blocks -> put them together
+                concatArrayData(tileRes->marray->data.confarray_val, tileRes->marray->data.confarray_len, memCopy, memCopyLen, blockOffset);
                 freeGetTileRes(tileRes);
-                throw r_Error( r_Error::r_Error_TransferFailed );
+
+                tileRes = executeGetNextTile();//rpcgetnexttile_1( &clientID, binding_h );
+
+                subStatus = tileRes->status;
+
+                if( subStatus == 4 )
+                {
+                    freeGetTileRes(tileRes);
+                    throw r_Error( r_Error::r_Error_TransferFailed );
+                }
+
+                concatArrayData(tileRes->marray->data.confarray_val, tileRes->marray->data.confarray_len, memCopy, memCopyLen, blockOffset);
+                freeGetTileRes(tileRes);
+
+                tileStatus = subStatus;
+                break;
+
+            default: // tileStatus = 0,3 last block of the current tile
+
+                // Tile arrives as one block.
+                concatArrayData(tileRes->marray->data.confarray_val, tileRes->marray->data.confarray_len, memCopy, memCopyLen, blockOffset);
+                freeGetTileRes(tileRes);
+
+                break;
             }
 
-            concatArrayData(tileRes->marray->data.confarray_val, tileRes->marray->data.confarray_len, memCopy, memCopyLen, blockOffset);
-            freeGetTileRes(tileRes);
+            char* marrayData = NULL;
+            // Now the tile is transferred completely, insert it into current MDD
+            if( tileStatus < 2 && tileCntr == 1 && (tile->spatial_domain() == marray->spatial_domain()))
+            {
+                // MDD consists of just one tile that is the same size of the mdd
 
-            tileStatus = subStatus;
-            break;
+                // simply take the data memory of the tile
+                marray->set_array( tile->get_array() );
+                marray->set_array_size( tile->get_array_size() );
+                tile->set_array( 0 );
+            }
+            else
+            {
+                // MDD consists of more than one tile or the tile does not cover the whole domain
 
-        default: // tileStatus = 0,3 last block of the current tile
+                r_Bytes size = mddDomain.cell_count() * marray->get_type_length();
 
-            // Tile arrives as one block.
-            concatArrayData(tileRes->marray->data.confarray_val, tileRes->marray->data.confarray_len, memCopy, memCopyLen, blockOffset);
-            freeGetTileRes(tileRes);
+                if( tileCntr == 1 )
+                {
+                    // allocate memory for the MDD
+                    marrayData = new char[ size ];
+                    memset(marrayData, 0, size);
 
-            break;
-        }
+                    marray->set_array( marrayData );
+                }
+                else
+                    marrayData = marray->get_array();
 
-        char* marrayData = NULL;
-        // Now the tile is transferred completely, insert it into current MDD
-        if( tileStatus < 2 && tileCntr == 1 && (tile->spatial_domain() == marray->spatial_domain()))
-        {
-            // MDD consists of just one tile that is the same size of the mdd
 
-            // simply take the data memory of the tile
-            marray->set_array( tile->get_array() );
-            marray->set_array_size( tile->get_array_size() );
-            tile->set_array( 0 );
+                // copy tile data into MDD data space (optimized, relying on the internal representation of an MDD )
+                char*         mddBlockPtr;
+                char*         tileBlockPtr = tile->get_array();
+                unsigned long blockCells   = static_cast<unsigned long>(tileDomain[tileDomain.dimension()-1].high()-tileDomain[tileDomain.dimension()-1].low()+1);
+                unsigned long blockSize    = blockCells * marray->get_type_length();
+                unsigned long blockNo      = tileDomain.cell_count() / blockCells;
+
+                for( unsigned long blockCtr = 0; blockCtr < blockNo; blockCtr++ )
+                {
+                    mddBlockPtr = marrayData + marray->get_type_length()*mddDomain.cell_offset( tileDomain.cell_point( blockCtr * blockCells ) );
+                    memcpy( mddBlockPtr, tileBlockPtr, blockSize );
+                    tileBlockPtr += blockSize;
+                }
+
+                marray->set_array_size( size );
+            }
+
+            // delete temporary tile
+            delete tile;
         }
         else
         {
-            // MDD consists of more than one tile or the tile does not cover the whole domain
-
-            r_Bytes size = mddDomain.cell_count() * marray->get_type_length();
-
+            //
+            // handle encoded data
+            //
+            char* marrayData = NULL;
             if( tileCntr == 1 )
             {
                 // allocate memory for the MDD
+                r_Bytes size = mddDomain.cell_count() * marray->get_type_length();
                 marrayData = new char[ size ];
                 memset(marrayData, 0, size);
-
                 marray->set_array( marrayData );
+                marray->set_array_size( size );
             }
             else
                 marrayData = marray->get_array();
 
+            unsigned long blockSize = tileRes->marray->data.confarray_len;
+            char* mddBlockPtr = marrayData + marrayOffset;
+            char* tileBlockPtr = tileRes->marray->data.confarray_val;
+            memcpy(mddBlockPtr, tileBlockPtr, blockSize);
+            marrayOffset += blockSize;
 
-            // copy tile data into MDD data space (optimized, relying on the internal representation of an MDD )
-            char*         mddBlockPtr;
-            char*         tileBlockPtr = tile->get_array();
-            unsigned long blockCells   = tileDomain[tileDomain.dimension()-1].high()-tileDomain[tileDomain.dimension()-1].low()+1;
-            unsigned long blockSize    = blockCells * marray->get_type_length();
-            unsigned long blockNo      = tileDomain.cell_count() / blockCells;
-
-            for( unsigned long blockCtr = 0; blockCtr < blockNo; blockCtr++ )
-            {
-                mddBlockPtr = marrayData + marray->get_type_length()*mddDomain.cell_offset( tileDomain.cell_point( blockCtr * blockCells ) );
-                memcpy( (void*)mddBlockPtr, (void*)tileBlockPtr, (size_t)blockSize );
-                tileBlockPtr += blockSize;
-            }
-
-            // former non-optimized version
-            // for( i=0; i<tileDomain->cell_count(); i++ )
-            //   (*marray)[tileDomain->cell_point( i )] = (*tile)[tileDomain->cell_point( i )];
-
-            marray->set_array_size( size );
+            free(tileRes->marray->domain);
+            free(tileRes->marray->data.confarray_val);
+            delete tileRes->marray;
+            delete tileRes;
+            tileRes = NULL;
         }
-
-        // delete temporary tile
-        delete tile;
 
     }  // end while( MDD is not transferred completely )
 
@@ -1197,32 +1234,32 @@ void RasnetClientComm::freeMarRpcRepresentation(const r_GMarray *mar, RPCMarray 
     free( rpcMarray );
 }
 
-int RasnetClientComm::concatArrayData( const char *source, unsigned long srcSize, char *&dest, unsigned long &destSize, unsigned long &destLevel )
+int RasnetClientComm::concatArrayData( const char *source, unsigned long srcSize, char *&dest, unsigned long &destSize, unsigned long &blockOffset )
 {
-    if (destLevel + srcSize > destSize)
+    if (blockOffset + srcSize > destSize)
     {
         // need to extend dest
-        unsigned long newSize = destLevel + srcSize;
+        unsigned long newSize = blockOffset + srcSize;
         char *newArray;
 
         // allocate a little extra if we have to extend
         newSize = newSize + newSize / 16;
 
-        //    LTRACE << "RasnetClientComm::concatArrayData(): need to extend from " << destSize << " to " << newSize;
+        //    LTRACE << need to extend from " << destSize << " to " << newSize;
 
         if ((newArray = new char[newSize]) == NULL)
         {
             return -1;
         }
 
-        memcpy(newArray, dest, destLevel);
+        memcpy(newArray, dest, blockOffset);
         delete [] dest;
         dest = newArray;
         destSize = newSize;
     }
 
-    memcpy(dest + destLevel, source, srcSize);
-    destLevel += srcSize;
+    memcpy(dest + blockOffset, source, srcSize);
+    blockOffset += srcSize;
 
     return 0;
 }
