@@ -135,12 +135,17 @@ public class SecoreUtil {
     if (equality) {
       // A bug with contains is def/crs/EPSG/0/2000 will returns also (epsg-crs-20004, epsg-crs-20005,..) then it cannot update so change to ends-with
       // http://www.xqueryfunctions.com/xq/fn_ends-with.html
+
+      // NOTE: all area definitions have 2 gml:identifier inside them, then only have to query definition 1 time.
+      // Using (collection....)[1]
       query = "declare namespace gml = \"" + NAMESPACE_GML + "\";" + NEW_LINE
-          + "let $d := collection('" + COLLECTION_NAME + "')//gml:identifier[ends-with(.,'" + id + "')]/.." + NEW_LINE
+          + "let $d := (collection('" + COLLECTION_NAME + "')//gml:identifier[ends-with(.,'" + id + "')]/..)[1]" + NEW_LINE
           + "return" + NEW_LINE
           + " if (exists($d)) then $d" + NEW_LINE
           + " else <empty/>";
-    } else if (elname != null) {
+    } // NOTE: 2 queries below which return a list of URL by text() will have duplicate value with area definitions
+    // However, sortElements will remove duplicate URLs -> no need to fix problem as it is hard when using XQUERY
+    else if (elname != null) {
       query = "declare namespace gml = \"" + NAMESPACE_GML + "\";" + NEW_LINE
           + "let $x := collection('" + COLLECTION_NAME + "')//gml:identifier[contains(.,'" + id + "')]/text()" + NEW_LINE
           + "return" + NEW_LINE

@@ -21,13 +21,11 @@
  */
 package secore.gml;
 
-import secore.db.*;
 import org.junit.Test;
 import static org.junit.Assert.*;
 import secore.handler.GeneralHandler;
 import secore.req.ResolveRequest;
 import secore.req.ResolveResponse;
-import secore.util.StringUtil;
 
 /**
  *
