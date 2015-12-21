@@ -9,5 +9,5 @@
       </epsg:CommonMetaData>
    </metaDataProperty>
    <scope>not known</scope>
-   <name>geographic3D to geographic2D / MSL depth</name>
+   <name>WGS 84 / MSL depth</name>
 </CompoundCRS>

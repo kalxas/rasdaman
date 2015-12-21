@@ -19,7 +19,7 @@
  * For more information please see <http://www.rasdaman.org>
  * or contact Peter Baumann via <baumann@rasdaman.com>.
 --%>
-<%-- 
+<%--
     Document   : index
     Created on : Oct 1, 2011, 12:18:10 PM
     Author     : Dimitar Misev
@@ -42,10 +42,10 @@
           if (!query.equals(Constants.EMPTY)) {
             String result = DbManager.getInstance().getDb().query(query);
             out.println("<br/><span style=\"font-size:x-large;\">Result:</span><br/>");
-            out.println("<form name=mf><textarea name=mt cols=150 rows=20 readonly>" + result + "</textarea></form>");
+            out.println("<form name=mf><textarea name=mt cols=150 rows=30 readonly>" + result + "</textarea></form>");
           } else {
             out.println("<br/><span style=\"font-size:x-large;\"><span style=\"color:red\">Empty query submitted!<span></span><br/>");
-          }  
+          }
         } else {
 
           String toquery = request.getParameter("query");
@@ -54,7 +54,7 @@
             out.println("<br/><span style=\"font-size:x-large;\"><a href='"+ Constants.INDEX_FILE +"'>Back</a></span><br/>");
             %>
             <form action="<%=Constants.INDEX_FILE%>" method="post" name="queryform">
-            <textarea cols="150" rows="20" name="runquery" wrap="virtual"></textarea><br/>
+            <textarea cols="150" rows="30" name="runquery" wrap="virtual"></textarea><br/>
             <input type="submit" name="Execute" value="Execute" />
             </form>
             <%

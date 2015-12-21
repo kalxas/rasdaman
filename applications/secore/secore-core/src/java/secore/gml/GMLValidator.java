@@ -85,7 +85,6 @@ public class GMLValidator {
     return ret;
   }
 
-
   /**
    * Try to validate GML definition with EPSG Schema XSD
    *
@@ -142,9 +141,20 @@ public class GMLValidator {
 
     // Now return all errors if they do exist
     if (!exceptions.isEmpty()) {
-      error = "The GML definition is not valid, please check error below \n";
       for (SAXParseException ex : exceptions) {
-        error += ex.getMessage() + "\n";
+        // Ignore "there are multiple occurrences of ID value" due to
+        // one definition can reference to multiple definitions and all of these objects can point to 1 defintion (1 gml identifier)
+        // This is just a warning when resolve a definition
+        if (!(ex.getMessage().contains("There are multiple occurrences of ID value")
+            || (ex.getMessage().contains("is not valid with respect to its type, 'ID'")))) {
+          error += ex.getMessage() + "\n";
+        }
+      }
+
+      // check if all is just warning due to multiple occurrences of ID then it still valid
+      // else it returns error
+      if (!error.isEmpty()) {
+        error = "The GML definition is not valid, please check error below \n" + error;
       }
     }
     return error;
