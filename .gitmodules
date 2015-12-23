@@ -1,8 +1,8 @@
-[submodule "third_party/grpc"]
-	path = third_party/grpc
-	url = https://github.com/grpc/grpc.git
-	branch = release-0_12
 [submodule "third_party/grpc-java"]
 	path = third_party/grpc-java
 	url = https://github.com/grpc/grpc-java.git
 	branch = master
+[submodule "third_party/grpc"]
+	path = third_party/grpc
+	url = https://github.com/grpc/grpc.git
+	branch = release-0_12

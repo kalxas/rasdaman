@@ -40,9 +40,9 @@ insertppm_LDADD=../rasodmg/librasodmg.a ../clientcomm/libclientcomm.a \
                 ../network/libnetwork.a
 
 if RMANRASNET
-    insertppm_LDADD += ../rasnet/librasnet.a \
-                ../common/src/libcommon.a -L/usr/local/lib -lgrpc++_unsecure -lgrpc -lgpr -lprotobuf -lpthread -ldl \
-                @GRPC_LIBS@ @GPR_LIBS@ @GRPCPP_LIBS@ @PROTOBUF_LIBS@ @BOOST_LDFLAGS@ -lboost_thread -lboost_regex -lboost_program_options -lboost_system
+    insertppm_LDADD += ../rasnet/librasnet.a ../common/src/libcommon.a \
+                    @GRPC_LIBS@ @PROTOBUF_LIBS@ @BOOST_LDFLAGS@ \
+                    -lboost_thread -lboost_regex -lboost_program_options -lboost_system -ldl
 endif
 
 CLEANFILES = rasdaman_insertdemo.sh

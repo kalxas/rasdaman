@@ -56,7 +56,7 @@ SRC = $(PROTO_SRC) \
 
 rasmgr_SOURCES = main.cc ${SRC}
 
-        rasmgr_LDADD = ../../rasnet/librasnet.a ../../common/src/libcommon.a ../../commline/libcommline.a @GRPCPP_LIBS@ @GPR_LIBS@  @GRPC_LIBS@ @PROTOBUF_LIBS@ @BOOST_LDFLAGS@ -lboost_thread -lboost_regex -lpthread -lboost_system -lboost_exception
+rasmgr_LDADD = ../../rasnet/librasnet.a ../../common/src/libcommon.a ../../commline/libcommline.a @GRPC_LIBS@ @PROTOBUF_LIBS@  @BOOST_LDFLAGS@ -lboost_thread -lboost_regex -lpthread -lboost_system -lboost_exception
 
 noinst_LIBRARIES = librasmgr.a
 

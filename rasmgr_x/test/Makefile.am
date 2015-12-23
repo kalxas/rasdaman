@@ -15,4 +15,4 @@ main_test_SOURCES = main_test.cc \
 					servermanagertest.cc \
 					clientmanagementservicetest.cc
 
-main_test_LDADD = ../src/librasmgr.a ../../rasnet/librasnet.a ../../common/src/libcommon.a @GRPC_LIBS@ @GPR_LIBS@ @GRPCPP_LIBS@ @PROTOBUF_LIBS@ @BOOST_LDFLAGS@ -lboost_thread -lpthread -lboost_system
+main_test_LDADD = ../src/librasmgr.a ../../rasnet/librasnet.a ../../common/src/libcommon.a @GRPC_LIBS@ @PROTOBUF_LIBS@ @BOOST_LDFLAGS@ -lboost_thread -lpthread -lboost_system

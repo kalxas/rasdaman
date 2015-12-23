@@ -50,7 +50,7 @@ directql_LDADD = ../../rasodmg/librasodmg.a ../../clientcomm/libclientcomm.a \
                ../../raslib/libraslib.a ../../tilemgr/libtilemgr.a ../../server/rasserver_config.o ../../reladminif/libreladminif.a @GDAL_LDFLAGS@ @CLIENTLDFLAGS@ @BASEDBLDFLAGS@
 
 if RMANRASNET
-  directql_LDADD += ../../rasnet/librasnet.a ../../common/src/libcommon.a @GRPC_LIBS@ @GPR_LIBS@ @GRPCPP_LIBS@ @PROTOBUF_LIBS@ @BOOST_LDFLAGS@ -lboost_thread -lboost_regex -lboost_program_options -lboost_system
+  directql_LDADD += ../../rasnet/librasnet.a ../../common/src/libcommon.a @GRPC_LIBS@ @PROTOBUF_LIBS@ @BOOST_LDFLAGS@ -lboost_thread -lboost_regex -lboost_program_options -lboost_system
 endif
 
 
@@ -59,9 +59,4 @@ SUBDIRS= ../../rasodmg ../../clientcomm \
 
 $(RECURSIVE_CLEAN_TARGETS):
 	@$(MAKE) $(AM_MAKEFLAGS) `echo $@ | sed s/-recursive/-am/`
-
-
-
-
-
 

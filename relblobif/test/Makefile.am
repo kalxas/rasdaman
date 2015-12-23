@@ -63,5 +63,5 @@ LDADD= ../../rasodmg/librasodmg.a ../../clientcomm/libclientcomm.a \
                ../../commline/cmlparser.o ../../reladminif/libreladminif.a testing.o @GDAL_LDFLAGS@ @CLIENTLDFLAGS@ @BASEDBLDFLAGS@
 
 if RMANRASNET
-    LDADD += ../../rasserver_x/src/librasnetserver.a ../../rasnetprotocol/librasnetprotocol.a ../../rasnet/librasnet.a ../../common/src/libcommon.a @GRPC_LIBS@ @GPR_LIBS@ @GRPCPP_LIBS@  @PROTOBUF_LIBS@ @BOOST_LDFLAGS@ -lboost_thread -lboost_regex -lboost_program_options -lboost_system
+    LDADD += ../../rasserver_x/src/librasnetserver.a ../../rasnetprotocol/librasnetprotocol.a ../../rasnet/librasnet.a ../../common/src/libcommon.a @GRPC_LIBS@ @PROTOBUF_LIBS@ @BOOST_LDFLAGS@ -lboost_thread -lboost_regex -lboost_program_options -lboost_system
 endif

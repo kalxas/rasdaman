@@ -119,7 +119,7 @@ common/src/grpc/messages/
 rasnet/src/messages/
 rasmgr_x/src/messages/
 rasmgr_x/src/rasmgr
-
+third_party/bin
 
 # patchmanager
 patch_manager/install_patchmanager.cfg

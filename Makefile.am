@@ -44,7 +44,7 @@ nobase_include_HEADERS=raslib/*.h raslib/*.hh raslib/*.icc raslib/*.cc \
 		rasodmg/*.hh rasodmg/*.cc rasodmg/*.icc conversion/*.h conversion/*.hh \
 		clientcomm/*.h clientcomm/*.hh commline/*.hh commline/*.cc debug/*.hh config.h
 
-SUBDIRS = relblobif relindexif relmddif relcatalogif reladminif relstorageif \
+SUBDIRS = third_party relblobif relindexif relmddif relcatalogif reladminif relstorageif \
           commline indexmgr catalogmgr tilemgr storagemgr network \
           common rasnet rasmgr_x rascontrol_x clientcomm rasserver_x rasnetprotocol \
           raslib servercomm rasodmg qlparser conversion \

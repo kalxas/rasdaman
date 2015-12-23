@@ -1,3 +1,31 @@
+# This file is part of rasdaman community.
+#
+# Rasdaman community is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# Rasdaman community is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with rasdaman community.  If not, see <http://www.gnu.org/licenses/>.
+#
+# Copyright 2003, 2004, 2005, 2006, 2007, 2008, 2009 Peter Baumann /
+# rasdaman GmbH.
+#
+# For more information please see <http://www.rasdaman.org>
+# or contact Peter Baumann via <baumann@rasdaman.com>.
+# Top Level makefile. This points to the various modules that have to be build
+# and/or deployed
+#
+#
+# COMMENTS:
+#
+##################################################################
+
 #                                               -*- Autoconf -*-
 # Process this file with autoconf to produce a configure script.
 
@@ -125,7 +153,8 @@ AC_FUNC_VPRINTF
 AC_CHECK_FUNCS([alarm bzero clock_gettime dup2 floor getcwd gethostbyaddr gethostbyname gethostname getpass gettimeofday inet_ntoa localtime_r memmove memset mkdir pathconf pow rint select socket sqrt strcasecmp strchr strdup strerror strncasecmp strrchr strstr strtol strtoul])
 
 AC_CONFIG_HEADERS([config.h])
-AC_CONFIG_FILES([Makefile
+AC_CONFIG_FILES([third_party/Makefile
+                 Makefile
                  catalogmgr/Makefile         
                  relblobif/Makefile
                  relblobif/test/Makefile
@@ -406,66 +435,44 @@ AM_CONDITIONAL([ENABLE_R], [test "$enable_r" = yes])
 AX_BOOST_BASE([1.48],[],[AC_MSG_FAILURE([boost library required with version >= 1.48. Please install it.])])
 CXXFLAGS="$CXXFLAGS ${BOOST_CPPFLAGS}"
 
+abs_top_srcdir=`pwd`
+RMANBASE=$abs_top_srcdir
+
 ### Start - Check for rasnet ###
 if test "$enable_rasnet" = "yes"; then
 #TODO: Fix this
+    THIRD_PARTY_DIR="$RMANBASE/third_party"
+
+    PROTOBUF_BIN="$THIRD_PARTY_DIR/bin/protobuf"
+    GRPC_BIN="$THIRD_PARTY_DIR/bin/grpc"
+    GRPC_JAVA_BIN="$THIRD_PARTY_DIR/bin/grpc-java"
+
+    # variables used in third_party/Makefile.am
+    AC_SUBST(THIRD_PARTY_DIR, "$THIRD_PARTY_DIR")
+    AC_SUBST(PROTOBUF_BIN, "$PROTOBUF_BIN")
+    AC_SUBST(GRPC_BIN, "$GRPC_BIN")
+    AC_SUBST(GRPC_JAVA_BIN, "$GRPC_JAVA_BIN")
+
+    AC_DEFINE([RMANRASNET], [], [Description])
+
+    # libs
+    AC_SUBST(GRPC_LIBS, "$GRPC_BIN/lib/libgrpc++_unsecure.a $GRPC_BIN/lib/libgrpc_unsecure.a $GRPC_BIN/lib/libgrpc++.a $GRPC_BIN/lib/libgrpc.a $GRPC_BIN/lib/libgpr.a -lz")
+    AC_SUBST(PROTOBUF_LIBS, "$PROTOBUF_BIN/lib/libprotobuf.a -lpthread")
+
+    # includes
     CXXFLAGS="$CXXFLAGS -std=c++11"
+    CXXFLAGS="$CXXFLAGS -I $GRPC_BIN/include/"
+    CXXFLAGS="$CXXFLAGS -I $PROTOBUF_BIN/include/"
 
-    # check for grpc
-    PKG_CHECK_MODULES(GRPC, grpc >= 0.0.0, [], [AC_MSG_FAILURE(grpc not found. Plase install grpc or specify the path to the protobuf package in PKG_CONFIG_PATH variable if it was not installed on the default path.)])
-    AC_SUBST(GRPC_LIBS)
-    AC_SUBST(GRPC_CFLAGS)
-    CXXFLAGS="$CXXFLAGS ${GRPC_CFLAGS}"
-
-    # check for gpr
-    PKG_CHECK_MODULES(GPR, gpr >= 0.0.0, [], [AC_MSG_FAILURE(gpr not found. Plase install grpc or specify the path to the protobuf package in PKG_CONFIG_PATH variable if it was not installed on the default path.)])
-    AC_SUBST(GPR_LIBS)
-    AC_SUBST(GPR_CFLAGS)
-    CXXFLAGS="$CXXFLAGS ${GPR_CFLAGS}"
-
-    # check for gpr
-    PKG_CHECK_MODULES(GRPCPP, grpc++_unsecure >= 0.0.0, [], [AC_MSG_FAILURE(grpc++_unsecure not found. Plase install grpc or specify the path to the protobuf package in PKG_CONFIG_PATH variable if it was not installed on the default path.)])
-    AC_SUBST(GRPCPP_LIBS)
-    AC_SUBST(GRPCPP_CFLAGS)
-    CXXFLAGS="$CXXFLAGS ${GRPCPP_CFLAGS}"
-
-    # check for protobuf
-    PKG_CHECK_MODULES(PROTOBUF, protobuf >= 3.0.0, [], [AC_MSG_FAILURE(libprotobuf not found. Plase install libprotobuf-dev or specify the path to the protobuf package in PKG_CONFIG_PATH variable if it was not installed on the default path.)])
-    AC_SUBST(PROTOBUF_LIBS)
-    AC_SUBST(PROTOBUF_CFLAGS)
-    CXXFLAGS="$CXXFLAGS ${PROTOBUF_CFLAGS}"
-
-    # protobuf compiler.
-    AC_ARG_WITH([protoc],
-        [AS_HELP_STRING([--with-protoc=/path/of/protoc],
-                        [Location of the protocol buffers compiler protoc. Defaults to looking on path.])],
-                        [PROTOC="$withval"],
-        [AS_IF([test "x${PROTOC}" == "x"], [AC_PATH_PROG([PROTOC], [protoc], [no])])]
-    )
-
-    AC_CHECK_FILE("${PROTOC}", , [AC_MSG_ERROR([ProtoBuf compiler "protoc" not found. Please install protobuf-compiler or specify the binary path using --with-protoc if it was not installed on the default path.])])
-
-    # GRPC CPP PLUGIN compiler.
-    AC_ARG_WITH([grpc_cpp_plugin],
-        [AS_HELP_STRING([--with-grpc_cpp_plugin=/path/of/grpccppplugin],
-                        [Location of the grpc cpp plugin. Defaults to looking on path.])],
-        [GRPCCPPPLUGIN="$withval"],
-        [AS_IF([test "x${GRPCCPPPLUGIN}" == "x"], [AC_PATH_PROG([GRPCCPPPLUGIN], [grpc_cpp_plugin], [no])])]
-    )
-    AC_CHECK_FILE("${GRPCCPPPLUGIN}", , [AC_MSG_ERROR([grpc cpp plugin not found. Please install it or specify the binary path using --with-grpc-cpp-plugin if it was not installed on the default path.])])
+    # plugins
+    AC_SUBST(PROTOC, "$PROTOBUF_BIN/bin/protoc")
+    AC_SUBST(GRPCCPPPLUGIN, "$GRPC_BIN/bin/grpc_cpp_plugin")
 
     if test "$disable_java" = "no"; then
-        # GRPC Java PLUGIN compiler.
-        AC_ARG_WITH([grpc-java-plugin],
-            [AS_HELP_STRING([--with-grpc-java-plugin=/path/of/grpcjavaplugin],
-                            [Location of the grpc java plugin. Defaults to looking on path.])],
-            [GRPCJAVAPLUGIN="$withval"],
-            [AS_IF([test "x${GRPCJAVAPLUGIN}" == "x"], [AC_PATH_PROG([GRPCJAVAPLUGIN], [protoc-gen-grpc-java], [no])])]
-        )
-        AC_CHECK_FILE("${GRPCJAVAPLUGIN}", , [AC_MSG_ERROR([grpc java plugin not found. Please install it or specify the binary path using --with-grpc-java-plugin if it was not installed on the default path.])])
+        AC_SUBST(GRPCJAVAPLUGIN, "$GRPC_JAVA_BIN/protoc-gen-grpc-java")
     fi
 fi
-### End - Check for rasnet ###
+### End - Check for rasnet :###
 
 
 # --------------- Database Specific Configuration ------------------
@@ -550,14 +557,6 @@ AS_IF([test "$with_default_basedb" == sqlite],
       ],
 [AC_MSG_ERROR([unsupported base DBMS: $with_default_basedb])]))
 
-AS_IF([test "$enable_rasnet" == yes],
-    [
-    AC_DEFINE([RMANRASNET], [], [Description])
-    ],
-    [])
-
-
-
 
 AM_CONDITIONAL([BASEDB_PGSQL], [test "$BASEDBSTRING" = pgsql])
 AM_CONDITIONAL([BASEDB_SQLITE], [test "$BASEDBSTRING" = sqlite])
@@ -582,9 +581,6 @@ AS_IF([test "$disable_java" = no],
     AC_PROG_JAVA_CC
     AC_CHECK_PROGS(JAR_TOOL, jar, [${am_missing_run} jar])
   ], [])
-
-abs_top_srcdir=`pwd`
-RMANBASE=$abs_top_srcdir
 
 AM_COND_IF([ENABLE_R], [
   AM_COND_IF([ENABLE_JAVA], ,
