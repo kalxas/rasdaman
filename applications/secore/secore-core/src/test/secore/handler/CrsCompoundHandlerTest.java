@@ -34,6 +34,7 @@ import static secore.BaseTest.TEST_HOST;
 import static secore.BaseTest.resetDb;
 import secore.Resolver;
 import secore.util.Constants;
+import secore.util.SecoreException;
 import secore.util.StringUtil;
 
 /**
@@ -41,7 +42,7 @@ import secore.util.StringUtil;
  * @author Dimitar Misev
  */
 public class CrsCompoundHandlerTest extends BaseTest {
-  
+
   private static CrsCompoundHandler handler;
 
   @BeforeClass
@@ -50,6 +51,35 @@ public class CrsCompoundHandlerTest extends BaseTest {
     handler = new CrsCompoundHandler();
     StringUtil.SERVICE_URI = Constants.LOCAL_URI;
     resetDb();
+  }
+
+  /**
+   * Test of handle method, of class CrsCombineHandler.
+   */
+  @Test
+  public void testExpandOrFormatParameter() throws Exception {
+    System.out.println("testExpandOrFormatParameter");
+    String uri = "local/crs-compound?"
+        + "1=local/crs/EPSG/0/4326?expand=full&"
+        + "2=local/crs/EPSG/0/4440?format=gml";
+    ResolveRequest request = new ResolveRequest(uri);
+
+    Boolean isCorrect = false;
+    try {
+      ResolveResponse result = handler.handle(request);
+    } catch (SecoreException e) {
+
+      // If it throws an exception then the test is correct
+      String ex = e.getMessage();
+
+      String expResult = "Compound CRS is not allowed to add expand/format parameter(s).";
+      if (ex.contains(expResult)) {
+        isCorrect = true;
+      }
+    }
+
+    // If it can handle correctly then res will contains the error message
+    assertTrue(isCorrect);
   }
 
   /**
@@ -101,7 +131,6 @@ public class CrsCompoundHandlerTest extends BaseTest {
     String expResult = getData("4326+4440.exp2");
     assertEquals(expResult, res.getData());
   }
-  
 
   /**
    * Test of getOperation method, of class CrsCombineHandler.
@@ -112,4 +141,5 @@ public class CrsCompoundHandlerTest extends BaseTest {
     String result = handler.getOperation();
     assertEquals(expResult, result);
   }
+
 }

@@ -50,12 +50,16 @@ public class GeneralHandler extends AbstractHandler {
   public static final String EXPAND_KEY = "expand";
   public static final String EXPAND_FULL = "full";
   public static final String EXPAND_NONE = "none";
+  // Format parameter
+  public static final String FORMAT_KEY = "format";
   /**
-   * Default recursion depth of link (xlink:href) expansions in XML.
-   * A value of 0 means no link is expanded: increasing integer values identify
-   * the recursion level at which link expansion is applied.
-   * It is recommended to keep this parameter to a value greater or equal than 1 (to let Petascope
-   * fetch the required CRS metadata) and less or equal 2 to avoid performance degradation.
+   * Default recursion depth of link (xlink:href) expansions in XML. A value of
+   * 0 means no link is expanded: increasing integer values identify the
+   * recursion level at which link expansion is applied. It is recommended to
+   * keep this parameter to a value greater or equal than 1 (to let Petascope
+   * fetch the required CRS metadata) and less or equal 2 to avoid performance
+   * degradation.
+   *
    * @see http://rasdaman.org/ticket/365
    */
   public static final String EXPAND_DEFAULT = "2";
@@ -66,9 +70,9 @@ public class GeneralHandler extends AbstractHandler {
 
   @Override
   public boolean canHandle(ResolveRequest request) throws SecoreException {
-    boolean ret = request.getOperation() != null && 
-        !OP_CRS_COMPOUND.equals(request.getOperation()) &&
-        !OP_EQUAL.equals(request.getOperation());
+    boolean ret = request.getOperation() != null
+        && !OP_CRS_COMPOUND.equals(request.getOperation())
+        && !OP_EQUAL.equals(request.getOperation());
     if (ret && request.getParams().size() < 3) {
       throw new SecoreException(ExceptionCode.MissingParameterValue, "Insufficient parameters provided");
     }
@@ -83,12 +87,12 @@ public class GeneralHandler extends AbstractHandler {
 
   public ResolveResponse resolveRequest(ResolveRequest request) throws SecoreException {
     String url = parseRequest(request);
-    
+
     ResolveResponse ret = resolveId(url, request.getExpandDepth(), new ArrayList<Parameter>());
-    
+
     ret = new ResolveResponse(StringUtil.replaceElementValue(
         ret.getData(), IDENTIFIER_LABEL, request.getOriginalRequest()));
-    
+
     // check if the result is a parameterized CRS, and forward to the ParameterizedCrsHandler
     if (ParameterizedCrsHandler.isParameterizedCrsDefinition(ret.getData())) {
       ret = resolveId(url, ZERO, new ArrayList<Parameter>());
@@ -96,7 +100,7 @@ public class GeneralHandler extends AbstractHandler {
       phandler.setDefinition(ret);
       ret = phandler.handle(request);
     }
-    
+
     return ret;
   }
 

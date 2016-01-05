@@ -33,6 +33,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import secore.Resolver;
 import secore.req.RequestParam;
+import secore.util.Constants;
 import static secore.util.Constants.*;
 
 /**
@@ -41,25 +42,31 @@ import static secore.util.Constants.*;
  * @author Dimitar Misev
  */
 public class CrsCompoundHandler extends AbstractHandler {
-  
+
   private static Logger log = LoggerFactory.getLogger(CrsCompoundHandler.class);
 
   public ResolveResponse handle(ResolveRequest request) throws SecoreException {
     log.debug("Handling resolve request...");
-    
+
     List<RequestParam> params = request.getParams();
-    
+
     if (request.getOperation().equals(getOperation()) && params.size() >= 1) {
-      
+
       // component CRS URIs
       List<RequestParam> components = request.getParams();
-      
+
       // do some checking first, whether they are existing references
       String name = EMPTY;
       String comp = EMPTY;
       String code = EMPTY;
       int i = 0;
       for (RequestParam component : components) {
+
+        // NOTE: Compound CRS does not have parameters expand or format
+        if (component.val.toString().contains(GeneralHandler.EXPAND_KEY) || component.val.toString().contains(GeneralHandler.FORMAT_KEY)) {
+          throw new SecoreException(ExceptionCode.InvalidParameterValue, "Compound CRS is not allowed to add expand/format parameter(s).");
+        }
+
         if (!(component.val instanceof ResolveRequest)) {
           throw new SecoreException(ExceptionCode.InvalidParameterValue.locator(component.key),
               "Invalid parameter value received for " + component.key + ": " + component.val);
@@ -74,8 +81,8 @@ public class CrsCompoundHandler extends AbstractHandler {
         ResolveRequest req = (ResolveRequest) component.val;
         if (req.getOperation().equals(Handler.OP_CRS_COMPOUND)) {
           throw new SecoreException(ExceptionCode.InvalidParameterValue.locator(component.key),
-              "Expected URL to simple definition as parameter value of " + component.key + 
-              ", but got a URL to a compound CRS");
+              "Expected URL to simple definition as parameter value of " + component.key
+              + ", but got a URL to a compound CRS");
         }
         if (req.isLocal()) {
           res = Resolver.resolve(req).getData();
@@ -104,36 +111,36 @@ public class CrsCompoundHandler extends AbstractHandler {
         comp += "   <componentReferenceSystem xlink:href='" + id + "'/>\n";
         code += "-" + id.substring(id.lastIndexOf(':') + 1);
       }
-      
-      String res = 
-          "<CompoundCRS xmlns:gml='" + NAMESPACE_GML + "'\n" +
-          "   xmlns:epsg='" + NAMESPACE_EPSG + "'\n" +
-          "   xmlns:xlink='" + NAMESPACE_XLINK + "'\n" +
-          "   gml:id='crs'>\n" +
-          "   <metaDataProperty>\n" +
-          "      <epsg:CommonMetaData>\n" +
-          "         <epsg:type>compound</epsg:type>\n" +
-          "      </epsg:CommonMetaData>\n" +
-          "   </metaDataProperty>\n" +
-          "   <scope>not known</scope>\n" +
-          "   <identifier codeSpace='" + Config.getInstance().getCodespace() +
-          "'>" + request.getOriginalRequest().replaceAll("&", "%26") + "</identifier>\n" +
-          "   <name>" + name + "</name>\n" + comp +
-          "</CompoundCRS>";
+
+      String res
+          = "<CompoundCRS xmlns:gml='" + NAMESPACE_GML + "'\n"
+          + "   xmlns:epsg='" + NAMESPACE_EPSG + "'\n"
+          + "   xmlns:xlink='" + NAMESPACE_XLINK + "'\n"
+          + "   gml:id='crs'>\n"
+          + "   <metaDataProperty>\n"
+          + "      <epsg:CommonMetaData>\n"
+          + "         <epsg:type>compound</epsg:type>\n"
+          + "      </epsg:CommonMetaData>\n"
+          + "   </metaDataProperty>\n"
+          + "   <scope>not known</scope>\n"
+          + "   <identifier codeSpace='" + Config.getInstance().getCodespace()
+          + "'>" + request.getOriginalRequest().replaceAll("&", "%26") + "</identifier>\n"
+          + "   <name>" + name + "</name>\n" + comp
+          + "</CompoundCRS>";
       log.debug("Done, returning response.");
       return new ResolveResponse(res);
     } else {
       log.error("Can't handle the given parameters, exiting with error.");
-      throw new SecoreException(ExceptionCode.MissingParameterValue, 
+      throw new SecoreException(ExceptionCode.MissingParameterValue,
           "Insufficient parameters provided");
     }
   }
-  
+
   private void checkCrsRef(String crsRef) throws SecoreException {
     if (!crsRef.contains(StringUtil.SERVLET_CONTEXT + "/crs")) {
-       log.error("Invalid crs-compound request, expected a CRS reference, but got " + crsRef);
-       throw new SecoreException(ExceptionCode.InvalidParameterValue, 
-           "Invalid " + getOperation() + " request, expected a CRS reference, but got " + crsRef);
+      log.error("Invalid crs-compound request, expected a CRS reference, but got " + crsRef);
+      throw new SecoreException(ExceptionCode.InvalidParameterValue,
+          "Invalid " + getOperation() + " request, expected a CRS reference, but got " + crsRef);
     }
   }
 
