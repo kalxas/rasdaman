@@ -579,7 +579,7 @@ void fast_scale_resample_array(char *dest, const char *src, const r_Minterval &d
 #endif
 
 void
-Tile::execScaleOp(const Tile* opTile, const r_Minterval& sourceDomain, __attribute__ ((unused)) const r_Point& origin, __attribute__ ((unused)) const std::vector<double>& scaleFactors)
+Tile::execScaleOp(const Tile* opTile, const r_Minterval& sourceDomain)
 {
     // origin is not used in this version
 #ifdef BLVAHELP

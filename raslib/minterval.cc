@@ -56,7 +56,7 @@ r_Minterval::r_Minterval(r_Dimension dim)
       dimensionality(dim),
       streamInitCnt(0)
 {
-    LTRACE << "r_Minterval(r_Dimension), this=" << (long)this;
+//    LTRACE << "r_Minterval(r_Dimension), this=" << (long)this;
     intervals = new r_Sinterval[ dimensionality ];
 }
 
@@ -172,7 +172,7 @@ r_Minterval::r_Minterval(char* mIntStr) throw(r_Eno_interval)
         dimensionality(1),
         streamInitCnt(0)
 {
-    LTRACE << "r_Minterval(char*), this=" << (long)this;
+//    LTRACE << "r_Minterval(char*), this=" << (long)this;
     constructorinit(mIntStr);
 }
 
@@ -239,7 +239,7 @@ r_Minterval::r_Minterval(const r_Minterval& minterval)
         dimensionality(0),
         streamInitCnt(0)
 {
-    LTRACE << "r_Minterval(const r_Minterval&), this=" << this;
+//    LTRACE << "r_Minterval(const r_Minterval&), this=" << this;
     dimensionality = minterval.dimensionality;
     streamInitCnt = minterval.streamInitCnt;
     if(minterval.intervals)
@@ -527,11 +527,6 @@ r_Minterval::scale(const vector<double>& scaleVec) throw(r_Eno_interval)
             high = low;
         }
 
-//      FIXME BUG it was not forseen to be able to scale [a:a] with a very low factor f
-//      to [af, af]
-//      if((r_Range)high != (r_Range)low)
-//        high--; // substract 1 which was added to high()
-
         intervals[i].set_interval(static_cast<r_Range>(low), static_cast<r_Range>(high));
     }
     return *this;
@@ -796,7 +791,7 @@ r_Minterval::closure_with(const r_Minterval& mint) throw(r_Edim_mismatch, r_Eno_
 {
     if (dimensionality != mint.dimension())
     {
-        LFATAL << "r_Minterval::closure_with(" << mint << ") dimensions (" << dimensionality << ") do not match";
+//        LFATAL << "r_Minterval::closure_with(" << mint << ") dimensions (" << dimensionality << ") do not match";
         throw(r_Edim_mismatch( dimensionality, mint.dimension()));
     }
 

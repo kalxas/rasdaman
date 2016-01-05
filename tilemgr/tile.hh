@@ -300,9 +300,7 @@ public:
       operation execution functions.
     */
     /// executes scaling operation.
-    virtual void execScaleOp(   const Tile* opTile, const r_Minterval& areaOp,
-                                const r_Point& origin,
-                                const std::vector<double>& scaleFactors);
+    virtual void execScaleOp(   const Tile* opTile, const r_Minterval& areaOp);
     /*@Doc:
       The tile {\tt opTile} is scaled down in each dimension by the
       corresponding element in vector {\tt scaleFactors}. The result

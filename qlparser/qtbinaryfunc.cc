@@ -842,21 +842,18 @@ QtScale::evaluate( QtDataList* inputList )
 
     QtMDD*         qtMDDObj          = static_cast<QtMDD*>(operand1);
     MDDObj*        currentMDDObj     = qtMDDObj->getMDDObject();
-    vector<r_Double>  scaleVector(0);
-
-    scaleVector = vector<r_Double>( qtMDDObj->getLoadDomain().dimension() );
+    vector<r_Double>  scaleVector(qtMDDObj->getLoadDomain().dimension());
 
     r_Minterval sourceDomain = qtMDDObj->getLoadDomain();
     r_Minterval targetDomain;
-    r_Point     origin1       = sourceDomain.get_origin();
-    r_Point     origin2       = qtMDDObj->getMDDObject()->getCurrentDomain().get_origin();
+    r_Point     sourceDomainOrigin = sourceDomain.get_origin();
 
     r_Minterval wishedTargetDomain;
     r_Point translation;
 
     //used for scale with wishedIv
     bool isWishedTargetSet = false;
-    r_Double sourceRange=0., targetRange=0., f=0., Tl=0., Th=0.;
+    r_Double sourceRange=0., targetRange=0., f=0., low=0., high=0.;
 
     switch( operand2->getDataType() )
     {
@@ -901,7 +898,6 @@ QtScale::evaluate( QtDataList* inputList )
     case QT_DOUBLE:
     case QT_FLOAT:
     {
-        LTRACE << "Scaling: " << ((QtAtomicData*)operand2)->getDoubleValue();
         for( unsigned int i=0; i<scaleVector.size(); i++ )
             scaleVector[i] = (static_cast<QtAtomicData*>(operand2))->getDoubleValue();
     }
@@ -933,37 +929,40 @@ QtScale::evaluate( QtDataList* inputList )
                 scaleVector[i] = targetRange / sourceRange;
                 f = scaleVector[i];
 
-                Tl = FLOOR(f*sourceDomain[i].low());
-                //correction by 1e-6 to avoid the strage bug when Th was a
+                low = FLOOR(f*sourceDomain[i].low());
+                //correction by 1e-6 to avoid the strange bug when high was a
                 //integer value and floor return value-1(e.g. query 47.ql)
-                Th = FLOOR(f*(sourceDomain[i].high()+1) + 0.000001)-1;
-
-// FIXME BUG    if(Tl != Th)
-//         Th--;
+                high = FLOOR(f*(sourceDomain[i].high()+1) + 0.000001)-1;
+                // apparently the above correction doesn't work for certain big numbers,
+                // e.g. 148290:148290 is scaled to 74145:74144 (invalid) by factor 0.5 -- DM 2012-may-25
+                if(high < low)
+                {
+                    high = low;
+                }
 
                 LTRACE << "Scale: before f=" << setprecision(12) << f;
-                LTRACE << "Scale: \n" << "precalculated: " << Tl << ':' << Th << "<-->"
+                LTRACE << "Scale: \n" << "precalculated: " << low << ':' << high << "<-->"
                        << wishedTargetDomain[i].low() << ':' << wishedTargetDomain[i].high() << "\n"
                        << "pro memoria: " << (r_Range)(f*(sourceDomain[i].high()+1)) << ", " << (f*(sourceDomain[i].high()+1))
                        << ", " << floor(f*(sourceDomain[i].high()+1))
                        << ", " << ceil(f*(sourceDomain[i].high()+1));
 
-                if( (Th-Tl+1) != targetRange )
+                if( (high-low+1) != targetRange )
                 {
-                    LTRACE << "Scale: correction necessary: "<<Tl<<':'<<Th<<"<-->"<<wishedTargetDomain[i].low()<<':'<<wishedTargetDomain[i].high();
+                    LTRACE << "Scale: correction necessary: "<<low<<':'<<high<<"<-->"<<wishedTargetDomain[i].low()<<':'<<wishedTargetDomain[i].high();
 
-                    f = f + (targetRange - (Th-Tl+1))/sourceRange;
+                    f = f + (targetRange - (high-low+1))/sourceRange;
 
-                    //    cout<<"f="<<setprecision(12)<<f<<" scale[i]="<<setprecision(12)<<scaleVector[i]<<endl;
-
-                    Tl = FLOOR(f*sourceDomain[i].low());
-                    //correction by 1e-6 to avoid the strage bug when Th was a
+                    low = FLOOR(f*sourceDomain[i].low());
+                    //correction by 1e-6 to avoid the strange bug when high was a
                     //integer value and floor return value-1(e.g. query 47.ql)
-                    Th = FLOOR(f*(sourceDomain[i].high()+1) + 0.000001)-1;
-// FIXME BUG        if(Tl != Th)
-//             Th--;
+                    high = FLOOR(f*(sourceDomain[i].high()+1) + 0.000001)-1;
+                    if(high < low)
+                    {
+                        high = low;
+                    }
 
-                    LTRACE << "Scale: ->: " << Tl << ':' << Th << "<-->" << wishedTargetDomain[i].low() << ':' << wishedTargetDomain[i].high();
+                    LTRACE << "Scale: ->: " << low << ':' << high << "<-->" << wishedTargetDomain[i].low() << ':' << wishedTargetDomain[i].high();
 
                     scaleVector[i]=f;
                     LTRACE << "Scale: after f=" << setprecision(12) << f;
@@ -971,7 +970,7 @@ QtScale::evaluate( QtDataList* inputList )
             }
             else
             {
-                scaleVector[i] =0; //exception? it can't heapen, this error is filtered long before reaching this point
+                scaleVector[i] = 0; //exception? it can't happen, this error is filtered long before reaching this point
             }
         }
     }
@@ -1002,50 +1001,54 @@ QtScale::evaluate( QtDataList* inputList )
         parseInfo.setErrorNo(419);
         throw parseInfo;
     }
-    LTRACE << "Dummy target domain: " << targetDomain;
 
     if(isWishedTargetSet)
     {
         translation = wishedTargetDomain.get_origin() - targetDomain.get_origin();
         targetDomain.translate(translation);
     }
+    LTRACE << "Target domain: " << targetDomain;
 
     // create a transient MDD object for the query result
     MDDObj* resultMDD = new MDDObj( currentMDDObj->getMDDBaseType(), targetDomain, currentMDDObj->getNullValues() );
 
-    //**********************
-    origin1 = r_Point(scaleVector.size()); // all zero!!
-    //**********************
+    sourceDomainOrigin = r_Point(scaleVector.size()); // all zero!!
 
     // get all tiles
     vector< boost::shared_ptr<Tile> >* tiles = currentMDDObj->intersect( qtMDDObj->getLoadDomain() );
+    vector<Tile*>* tmpTiles = new vector<Tile*>();
+    for (vector< boost::shared_ptr<Tile> >::iterator tileIter = tiles->begin(); tileIter != tiles->end(); tileIter++)
+    {
+        Tile* t = const_cast<Tile*>(tileIter->get());
+        tmpTiles->push_back(t);
+    }
+    Tile* sourceTile = new Tile(tmpTiles);
+    delete tmpTiles;
+    tmpTiles = NULL;
 
     //tile domain before & after
-    r_Minterval sourceTileDomain, destinationTileDomain;
+    r_Minterval sourceTileDomain, targetTileDomain;
 
-    //
-    // Algorithm A: Scale each Tile
-    //
+    // get relevant area of source tile
+    sourceTileDomain = qtMDDObj->getLoadDomain().create_intersection( sourceTile->getDomain() );
+    LTRACE << "Source tile domain: " << sourceTileDomain;
 
-    // iterate over source tiles
-    for( vector< boost::shared_ptr<Tile> >::iterator tileIter = tiles->begin(); tileIter != tiles->end(); tileIter++ )
+    // compute scaled  tile domain and check if it exists
+    if( sourceTile->scaleGetDomain( sourceTileDomain, scaleVector, targetTileDomain) )
     {
-        // get relevant area of source tile
-        sourceTileDomain = qtMDDObj->getLoadDomain().create_intersection( (*tileIter)->getDomain() );
+        LTRACE << "Target tile domain: " << targetTileDomain;
+        // create a new transient tile
+        Tile* targetTile = new Tile( targetTileDomain, currentMDDObj->getCellType() );
+        targetTile->execScaleOp( sourceTile, sourceTileDomain );
 
-        // compute scaled  tile domain and check if it exists
-        if( (*tileIter)->scaleGetDomain( sourceTileDomain, scaleVector, destinationTileDomain) )
+        if(isWishedTargetSet)
         {
-            LTRACE << "Destination tile domain: " << destinationTileDomain;
-            // create a new transient tile
-            Tile* newTransTile = new Tile( destinationTileDomain, currentMDDObj->getCellType() );
-            newTransTile->execScaleOp( tileIter->get(), sourceTileDomain, origin1,  scaleVector );
-
-            if(isWishedTargetSet)
-                (const_cast<r_Minterval&>(newTransTile->getDomain())).translate(translation);
-
-            resultMDD->insertTile( newTransTile );
+            r_Minterval& scaledTileDomain = const_cast<r_Minterval&>(targetTile->getDomain());
+            scaledTileDomain.translate(translation);
+            LTRACE << "Translated target tile domain: " << scaledTileDomain;
         }
+
+        resultMDD->insertTile( targetTile );
     }
 
     // create a new QtMDD object as carrier object for the transient MDD object
@@ -1055,6 +1058,8 @@ QtScale::evaluate( QtDataList* inputList )
     // of the MDD object is called
     delete tiles;
     tiles=NULL;
+    delete sourceTile;
+    sourceTile = NULL;
 
     // delete the old operands
     if( operand1 ) operand1->deleteRef();

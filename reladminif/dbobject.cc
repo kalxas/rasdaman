@@ -104,9 +104,6 @@ DBObject::isCached() const
 void
 DBObject::destroy()
 {
-#ifdef RMANDEBUG
-    OId tempid(myOId);
-#endif
     if (referenceCount == 0)
     {
         if (!_isCached)
@@ -371,7 +368,7 @@ DBObject::isModified() const
 OId
 DBObject::getOId() const
 {
-    LTRACE << "getOId() " << myOId;
+//    LTRACE << "getOId() " << myOId;
     return myOId;
 }
 

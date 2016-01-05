@@ -628,7 +628,7 @@ function import_irr_cube_2()
       # get ID of UoM
       _qry="SELECT id FROM ps_uom WHERE code='${c_swe_uom_code[$index]}'"
       c_swe_uom_id[$index]=$( $PSQL -X -P t -P format=unaligned -c "${_qry}" )
-      if [ -z "${c_swe_uom_id[$index]}"]
+      if [ -z "${c_swe_uom_id[$index]}" ]
       then
           _qry="INSERT INTO ps_uom (code) VALUES ('${c_swe_uom_code[$index]}') RETURNING id"
           c_swe_uom_id[$index]=$( $PSQL -X -P t -P format=unaligned -c "${_qry}" | head -n 1 )

@@ -252,9 +252,10 @@ function import_rasql_data()
   
   # check data types
   check_type GreySet
+  check_type GreySet3
   check_type RGBSet
   
-  drop_colls $TEST_GREY $TEST_GREY2 $TEST_RGB2
+  drop_colls $TEST_GREY $TEST_GREY2 $TEST_RGB2 $TEST_GREY3D
 
   create_coll $TEST_GREY GreySet
   insert_into $TEST_GREY "$TESTDATA_PATH/mr_1.png" "" "decode"
@@ -264,6 +265,9 @@ function import_rasql_data()
 
   create_coll $TEST_RGB2 RGBSet
   insert_into $TEST_RGB2 "$TESTDATA_PATH/rgb.png" "" "decode"
+
+  create_coll $TEST_GREY3D GreySet3
+  $RASQL -q "insert into $TEST_GREY3D values marray i in [0:99,0:99,0:4] values (char)(i[0] + i[1])"
 }
 
 

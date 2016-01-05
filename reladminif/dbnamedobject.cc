@@ -123,7 +123,7 @@ DBNamedObject::operator=(const DBNamedObject& old)
 const char*
 DBNamedObject::getName() const
 {
-    LTRACE << "getName() " << myName;
+//    LTRACE << "getName() " << myName;
     return myName;
 }
 

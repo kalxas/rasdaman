@@ -186,7 +186,7 @@ OId::OId(OIdCounter newId, OIdType type)
 OId::OIdType
 OId::getType() const
 {
-    LTRACE << "getType() " << oidtype;
+    //LTRACE << "getType() " << oidtype;
     return oidtype;
 }
 
@@ -199,20 +199,20 @@ OId::print_status(ostream& s) const
 OId::OIdCounter
 OId::getCounter() const
 {
-    LTRACE << "getCounter() " << oid;
+//    LTRACE << "getCounter() " << oid;
     return oid;
 }
 
 OId::operator long long() const
 {
-    LTRACE << "operator() " << oid;
+//    LTRACE << "operator() " << oid;
     return oid * OId::ID_MULTIPLIER + oidtype;
 }
 
 bool
 OId::operator!= (const OId& one) const
 {
-    LTRACE << "operator!=(" << one << ") " << *this;
+//    LTRACE << "operator!=(" << one << ") " << *this;
     return !(OId::operator==(one));
 }
 
@@ -228,14 +228,14 @@ OId::operator== (const OId& one) const
     {
         retval = false;
     }
-    LTRACE << "operator==(" << one << ") " << *this << " retval=" << retval;
+//    LTRACE << "operator==(" << one << ") " << *this << " retval=" << retval;
     return retval;
 }
 
 OId&
 OId::operator=(const OId& old)
 {
-    LTRACE << "operator=(" << old << ") "<< *this;
+//    LTRACE << "operator=(" << old << ") "<< *this;
     if (this != &old)
     {
         oid = old.oid;
@@ -256,7 +256,7 @@ OId::operator<(const OId& old) const
     {
         retval = (oidtype < old.oidtype);
     }
-    LTRACE << "operator<(" << old << ") " << *this << " retval=" << retval;
+//    LTRACE << "operator<(" << old << ") " << *this << " retval=" << retval;
     return retval;
 }
 
@@ -272,7 +272,7 @@ OId::operator>(const OId& old) const
     {
         retval = (oidtype > old.oidtype);
     }
-    LTRACE << "operator>(" << old << ") " << *this << " retval=" << retval;
+//    LTRACE << "operator>(" << old << ") " << *this << " retval=" << retval;
     return retval;
 }
 
@@ -288,7 +288,7 @@ OId::operator<=(const OId& old) const
     {
         retval = (oidtype < old.oidtype);
     }
-    LTRACE << "operator<=(" << old << ") " << *this << " retval=" << retval;
+//    LTRACE << "operator<=(" << old << ") " << *this << " retval=" << retval;
     return retval;
 }
 
@@ -304,14 +304,14 @@ OId::operator>=(const OId& old) const
     {
         retval = (oidtype > old.oidtype);
     }
-    LTRACE << "operator>=(" << old << ") " << *this << " retval=" << retval;
+//    LTRACE << "operator>=(" << old << ") " << *this << " retval=" << retval;
     return retval;
 }
 
 bool
 operator== (const long long one, const OId& two)
 {
-    LTRACE << "operator==(" << one << "," << two << ")";
+//    LTRACE << "operator==(" << one << "," << two << ")";
     bool retval = false;
     // see conversion operator above
     if ((static_cast<long long>(two)) == one)
@@ -322,7 +322,7 @@ operator== (const long long one, const OId& two)
 bool
 operator== (const OId& two, const long long one)
 {
-    LTRACE << "operator==(" << two << "," << one << ")";
+//    LTRACE << "operator==(" << two << "," << one << ")";
     bool retval=false;
     // see conversion operator above
     if ((static_cast<long long>(two)) == one)

@@ -326,7 +326,8 @@ MDDObj::intersect(const r_Minterval& searchInter) const
         for (std::vector< shared_ptr<Tile> >::iterator it = retval->begin(); it != retval->end(); it++)
         {
             LTRACE << "FOUND " << (*it)->getDomain() << " ";
-            (*it)->printStatus(0, RMInit::dbgOut);
+// TODO: fix with proper stream, RMInit is deprecated
+//            (*it)->printStatus(0, RMInit::dbgOut);
         }
     }
 #endif

@@ -61,6 +61,7 @@ NUM_SUC=0   # the number of success manipulations
 TEST_GREY=test_grey
 TEST_GREY2=test_grey2
 TEST_RGB2=test_rgb2
+TEST_GREY3D=test_grey3d
 TEST_COMPLEX=test_complex
 TEST_NULL=nulltest
 
