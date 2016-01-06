@@ -49,6 +49,8 @@ static const char rcsid[] = "@(#)qlparser, QtCondenseOp: $Header: /home/rasdev/C
 
 #include "catalogmgr/typefactory.hh"
 #include "relcatalogif/doubletype.hh"
+#include "relcatalogif/ulongtype.hh"
+#include "relcatalogif/longtype.hh"
 
 #include <iostream>
 #ifndef CPPSTDLIB
@@ -262,13 +264,22 @@ QtCondenseOp::evaluate( QtDataList* inputList )
         cellBaseType = static_cast<BaseType*> (const_cast<Type*> (input2->getDataStreamType().getType()));
     }
     const BaseType* resBaseType;
-    if (cellType == QT_FLOAT)
+    switch (cellType)
     {
+    case QT_FLOAT:
         resBaseType = new DoubleType();
-    }
-    else
-    {
+        break;
+    case QT_CHAR:
+    case QT_USHORT:
+        resBaseType = new ULongType();
+        break;
+    case QT_OCTET:
+    case QT_SHORT:
+        resBaseType = new LongType();
+        break;
+    default:
         resBaseType = cellBaseType;
+        break;
     }
 
     // get operation object
