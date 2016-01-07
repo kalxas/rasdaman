@@ -21,47 +21,50 @@
 #
 # For more information please see <http://www.rasdaman.org>
 # or contact Peter Baumann via <baumann@rasdaman.com>.
-# Top Level makefile. This points to the various modules that have to be build
-# and/or deployed
 #
 #
 # COMMENTS:
-#
+# This Makefile is used to configure, build and install third party
+# dependencies to a temporary local directory.
 ##################################################################
 
 AUTOMAKE_OPTIONS = foreign
 
 if RMANRASNET
 
-all: THIRD_PARTY_CLONE $(PROTOBUF_BIN) $(GRPC_BIN) $(GRPC_JAVA_BIN)
+all: init-third-party $(PROTOBUF_BIN) $(GRPC_BIN) $(GRPC_JAVA_BIN)
 
 .NOTPARALLEL:
 
-THIRD_PARTY_CLONE:
+# We recursively initialize the submodules everytime make is called.
+# The command is idempotent.
+init-third-party:
 	git submodule update --init --recursive
 
+# Compile and install Google Protobuf to a temporary folder.
 $(PROTOBUF_BIN):
-	$(MKDIR_P) $(PROTOBUF_BIN) && \
 	cd grpc/third_party/protobuf && \
 	./autogen.sh && \
 	./configure --prefix=${PROTOBUF_BIN} --disable-shared && \
 	make && \
+	$(MKDIR_P) $(PROTOBUF_BIN) && \
 	make install
 
+# Compile and install GRPC to a temporary folder.
 $(GRPC_BIN):
-	$(MKDIR_P) $(GRPC_BIN) && \
 	cd grpc && \
 	make && \
+	$(MKDIR_P) $(GRPC_BIN) && \
 	make install prefix=${GRPC_BIN}
 
 $(GRPC_JAVA_BIN):
 if ENABLE_JAVA
-	$(MKDIR_P) $(GRPC_JAVA_BIN) && \
 	export CPLUS_INCLUDE_PATH=${GRPC_BIN}/include:${PROTOBUF_BIN}/include && \
 	export LIBRARY_PATH=${GRPC_BIN}/lib:${PROTOBUF_BIN}/lib && \
 	cd grpc-java/compiler && \
 	../gradlew java_pluginExecutable && \
 	cd ../../ && \
+	$(MKDIR_P) $(GRPC_JAVA_BIN) && \
 	cp grpc-java/compiler/build/binaries/java_pluginExecutable/protoc-gen-grpc-java ${GRPC_JAVA_BIN}
 endif
 

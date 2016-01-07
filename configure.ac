@@ -440,33 +440,34 @@ RMANBASE=$abs_top_srcdir
 
 ### Start - Check for rasnet ###
 if test "$enable_rasnet" = "yes"; then
-#TODO: Fix this
+    AC_DEFINE([RMANRASNET], [], [Flag which is true when the rasnet protocol is enabled.])
+
+    # General configuration for third party modules.
     THIRD_PARTY_DIR="$RMANBASE/third_party"
-
-    PROTOBUF_BIN="$THIRD_PARTY_DIR/bin/protobuf"
-    GRPC_BIN="$THIRD_PARTY_DIR/bin/grpc"
-    GRPC_JAVA_BIN="$THIRD_PARTY_DIR/bin/grpc-java"
-
-    # variables used in third_party/Makefile.am
     AC_SUBST(THIRD_PARTY_DIR, "$THIRD_PARTY_DIR")
-    AC_SUBST(PROTOBUF_BIN, "$PROTOBUF_BIN")
-    AC_SUBST(GRPC_BIN, "$GRPC_BIN")
-    AC_SUBST(GRPC_JAVA_BIN, "$GRPC_JAVA_BIN")
-
-    AC_DEFINE([RMANRASNET], [], [Description])
-
-    # libs
-    AC_SUBST(GRPC_LIBS, "$GRPC_BIN/lib/libgrpc++_unsecure.a $GRPC_BIN/lib/libgrpc_unsecure.a $GRPC_BIN/lib/libgrpc++.a $GRPC_BIN/lib/libgrpc.a $GRPC_BIN/lib/libgpr.a -lz")
-    AC_SUBST(PROTOBUF_LIBS, "$PROTOBUF_BIN/lib/libprotobuf.a -lpthread")
-
-    # includes
+    # We need C++ 11 for RASNET
     CXXFLAGS="$CXXFLAGS -std=c++11"
-    CXXFLAGS="$CXXFLAGS -I $GRPC_BIN/include/"
+
+    # Configuration for Google Protobuf
+    PROTOBUF_BIN="$THIRD_PARTY_DIR/bin/protobuf"
     CXXFLAGS="$CXXFLAGS -I $PROTOBUF_BIN/include/"
 
-    # plugins
+    AC_SUBST(PROTOBUF_BIN, "$PROTOBUF_BIN")
     AC_SUBST(PROTOC, "$PROTOBUF_BIN/bin/protoc")
+    AC_SUBST(PROTOBUF_LIBS, "$PROTOBUF_BIN/lib/libprotobuf.a -lpthread")
+
+    # Configuration for GRPC
+    GRPC_BIN="$THIRD_PARTY_DIR/bin/grpc"
+    CXXFLAGS="$CXXFLAGS -I $GRPC_BIN/include/"
+
+    AC_SUBST(GRPC_BIN, "$GRPC_BIN")
     AC_SUBST(GRPCCPPPLUGIN, "$GRPC_BIN/bin/grpc_cpp_plugin")
+
+    AC_SUBST(GRPC_LIBS, "$GRPC_BIN/lib/libgrpc++_unsecure.a $GRPC_BIN/lib/libgrpc_unsecure.a $GRPC_BIN/lib/libgrpc++.a $GRPC_BIN/lib/libgrpc.a $GRPC_BIN/lib/libgpr.a -lz")
+
+    # Configuration for GRPC Java
+    GRPC_JAVA_BIN="$THIRD_PARTY_DIR/bin/grpc-java"
+    AC_SUBST(GRPC_JAVA_BIN, "$GRPC_JAVA_BIN")
 
     if test "$disable_java" = "no"; then
         AC_SUBST(GRPCJAVAPLUGIN, "$GRPC_JAVA_BIN/protoc-gen-grpc-java")
