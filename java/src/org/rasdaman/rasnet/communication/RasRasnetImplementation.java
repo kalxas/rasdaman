@@ -434,7 +434,7 @@ public class RasRasnetImplementation implements RasImplementationInterface, RasC
     private RasMgrClientServiceGrpc.RasMgrClientServiceBlockingStub getRasmgService() {
         this.initRasmgrServices();
 
-        if(!GrpcUtils.isServerAlive(rasserverHealthService, Constants.SERVICE_CALL_TIMEOUT)){
+        if(!GrpcUtils.isServerAlive(rasmgrHealthService, Constants.SERVICE_CALL_TIMEOUT)){
             throw new RasConnectionFailedException(MANAGER_CONN_FAILED, "");
         }
 
