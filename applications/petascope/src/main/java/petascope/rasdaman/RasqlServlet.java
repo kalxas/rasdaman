@@ -39,7 +39,7 @@ import petascope.ConfigManager;
 import petascope.HTTPRequest;
 import petascope.exceptions.ExceptionCode;
 import petascope.exceptions.PetascopeException;
-import petascope.exceptions.RasdamanException;
+import petascope.exceptions.rasdaman.RasdamanException;
 import petascope.util.KVPSymbols;
 import petascope.util.ListUtil;
 import petascope.util.RequestUtil;

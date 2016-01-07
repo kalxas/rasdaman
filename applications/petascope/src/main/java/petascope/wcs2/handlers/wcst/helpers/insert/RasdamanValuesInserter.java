@@ -22,7 +22,7 @@
 package petascope.wcs2.handlers.wcst.helpers.insert;
 
 import org.slf4j.LoggerFactory;
-import petascope.exceptions.RasdamanException;
+import petascope.exceptions.rasdaman.RasdamanException;
 import petascope.util.ras.RasUtil;
 
 import java.math.BigInteger;

@@ -1,3 +1,5 @@
+package petascope.exceptions.rasdaman;
+
 /*
  * This file is part of rasdaman community.
  *
@@ -19,15 +21,18 @@
  * For more information please see <http://www.rasdaman.org>
  * or contact Peter Baumann via <baumann@rasdaman.com>.
  */
-package petascope.wcs2.handlers.wcst.helpers.insert;
-
-import petascope.exceptions.rasdaman.RasdamanException;
+import petascope.exceptions.ExceptionCode;
 
 /**
- * Interface for creating rasdaman collections.
  *
- * @author <a href="mailto:merticariu@rasdaman.com">Vlad Merticariu</a>
+ * @author Bang Pham Huu
  */
-public interface RasdamanCollectionCreator {
-    public void createCollection() throws RasdamanException;
+public class RasdamanCollectionExistsException extends RasdamanException {
+
+    public RasdamanCollectionExistsException(ExceptionCode exceptionCode, String query, Exception ex) {
+        super(exceptionCode, EXCEPTION_TEXT.replace("$query", query), ex);
+    }
+
+    public static final String EXCEPTION_TEXT = "Error: collection name exists already, cannot recreate it: $query";
+
 }

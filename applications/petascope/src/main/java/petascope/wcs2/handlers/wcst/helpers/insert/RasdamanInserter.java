@@ -21,7 +21,7 @@
  */
 package petascope.wcs2.handlers.wcst.helpers.insert;
 
-import petascope.exceptions.RasdamanException;
+import petascope.exceptions.rasdaman.RasdamanException;
 
 import java.io.IOException;
 import java.math.BigInteger;

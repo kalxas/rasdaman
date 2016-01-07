@@ -54,7 +54,7 @@ import static petascope.ConfigManager.SECORE_URL_KEYWORD;
 import static petascope.ConfigManager.SETTINGS_FILE;
 import petascope.exceptions.ExceptionCode;
 import petascope.exceptions.PetascopeException;
-import petascope.exceptions.RasdamanException;
+import petascope.exceptions.rasdaman.RasdamanException;
 import petascope.exceptions.SecoreException;
 import petascope.exceptions.WCSException;
 import petascope.exceptions.wcst.WCSTDuplicatedCoverageName;

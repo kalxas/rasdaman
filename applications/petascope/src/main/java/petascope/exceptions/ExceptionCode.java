@@ -310,4 +310,5 @@ public class ExceptionCode {
             "Only rectified grids are supported in the domainSet element.");
 
     public static final ExceptionCode InconsistentChange = new ExceptionCode("InconsistentChange", SC_NOT_FOUND);
+    public static final ExceptionCode CollectionExists = new ExceptionCode("CollectionExists", "Collection name already exists in rasdaman");
 }

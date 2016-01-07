@@ -43,8 +43,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import petascope.ConfigManager;
 import petascope.exceptions.ExceptionCode;
-import petascope.exceptions.RasdamanException;
+import petascope.exceptions.rasdaman.RasdamanException;
 import petascope.exceptions.WCPSException;
+import petascope.exceptions.rasdaman.RasdamanCollectionExistsException;
 import petascope.util.WcpsConstants;
 import static petascope.util.ras.RasConstants.RASQL_VERSION;
 import petascope.wcps.grammar.WCPSRequest;
@@ -104,7 +105,7 @@ public class RasUtil {
         Database db = impl.newDatabase();
         int maxAttempts, timeout, attempts = 0;
 
-	//The result of the query will be assigned to ret
+        //The result of the query will be assigned to ret
         //Should allways return a result (empty result possible)
         //since a RasdamanException will be thrown in case of error
         Object ret = null;
@@ -154,8 +155,14 @@ public class RasUtil {
 
                     //Executing a rasdaman query failed
                     tr.abort();
-                    throw new RasdamanException(ExceptionCode.RasdamanRequestFailed,
-                            "Error evaluating rasdaman query: '" + query, ex);
+
+                    // Check if collection name exist then throw another exception
+                    if (ex.getMessage().contains("CREATE: Collection name exists already.")) {
+                        throw new RasdamanCollectionExistsException(ExceptionCode.CollectionExists, query, ex);
+                    } else {
+                        throw new RasdamanException(ExceptionCode.RasdamanRequestFailed,
+                                "Error evaluating rasdaman query: '" + query, ex);
+                    }
                 } catch (Error ex) {
                     tr.abort();
                     throw new RasdamanException(ExceptionCode.RasdamanRequestFailed,
@@ -210,7 +217,7 @@ public class RasUtil {
 
                 throw new RasdamanException(ExceptionCode.RasdamanUnavailable,
                         "Unable to get a free rasdaman server.");
-            } catch (RasClientInternalException ex){
+            } catch (RasClientInternalException ex) {
                 //when no rasdaman servers are started, rasj throws this type of exception
                 throw new RasdamanException(ExceptionCode.RasdamanUnavailable,
                         "Unable to get a free rasdaman server.");
@@ -428,11 +435,11 @@ public class RasUtil {
     public static void deleteFromRasdaman(BigInteger oid, String collectionName) throws RasdamanException {
         String query = TEMPLATE_DELETE.replaceAll(TOKEN_COLLECTION_NAME, collectionName).replace(TOKEN_OID, oid.toString());
         executeRasqlQuery(query, ConfigManager.RASDAMAN_ADMIN_USER, ConfigManager.RASDAMAN_ADMIN_PASS, true);
-       //check if there are other objects left in the collection
+        //check if there are other objects left in the collection
         log.info("Checking the number of objects left in collection " + collectionName);
         RasBag result = (RasBag) executeRasqlQuery(TEMPLATE_SDOM.replace(TOKEN_COLLECTION_NAME, collectionName));
         log.info("Result size is: " + String.valueOf(result.size()));
-        if(result.size() == 0){
+        if (result.size() == 0) {
             //no object left, delete the collection so that the name can be reused in the future
             log.info("No objects left in the collection, dropping the collection so the name can be reused in the future.");
             executeRasqlQuery(TEMPLATE_DROP_COLLECTION.replace(TOKEN_COLLECTION_NAME, collectionName), ConfigManager.RASDAMAN_ADMIN_USER, ConfigManager.RASDAMAN_ADMIN_PASS, true);
@@ -482,29 +489,28 @@ public class RasUtil {
     }
 
     public static BigInteger executeInsertFileStatement(String collectionName, String filePath, String mimetype,
-                                                        String username, String password, String tiling) throws RasdamanException, IOException {
+            String username, String password, String tiling) throws RasdamanException, IOException {
         BigInteger oid = new BigInteger("0");
         String query;
         String tilingClause = (tiling == null || tiling.isEmpty()) ? "" : TILING_KEYWORD + " " + tiling;
         //As decode does not work correctly with geotiffs at the moment, use the old inv_tiff function to insert it
         //TODO remove this once decode($1) works nicely
-        if(mimetype != null && mimetype.toLowerCase().contains(TIFF_MIMETYPE)) {
-            query = ConfigManager.RASDAMAN_BIN_PATH + RASQL + " --user " + username + " --passwd " + password + " -q " +
-                    "'" + TEMPLATE_INSERT_TIFF.replace(TOKEN_COLLECTION_NAME, collectionName).replace(TOKEN_TILING, tilingClause) + "' --file " + filePath;
-        }
-        else{
-            query = ConfigManager.RASDAMAN_BIN_PATH + RASQL + " --user " + username + " --passwd " + password + " -q " +
-                    "'" + TEMPLATE_INSERT_FILE.replace(TOKEN_COLLECTION_NAME, collectionName).replace(TOKEN_TILING, tilingClause) + "' --file " + filePath;
+        if (mimetype != null && mimetype.toLowerCase().contains(TIFF_MIMETYPE)) {
+            query = ConfigManager.RASDAMAN_BIN_PATH + RASQL + " --user " + username + " --passwd " + password + " -q "
+                    + "'" + TEMPLATE_INSERT_TIFF.replace(TOKEN_COLLECTION_NAME, collectionName).replace(TOKEN_TILING, tilingClause) + "' --file " + filePath;
+        } else {
+            query = ConfigManager.RASDAMAN_BIN_PATH + RASQL + " --user " + username + " --passwd " + password + " -q "
+                    + "'" + TEMPLATE_INSERT_FILE.replace(TOKEN_COLLECTION_NAME, collectionName).replace(TOKEN_TILING, tilingClause) + "' --file " + filePath;
         }
         log.info("Executing " + query);
-        Process p = Runtime.getRuntime().exec(new String[]{"bash","-c", query});
+        Process p = Runtime.getRuntime().exec(new String[]{"bash", "-c", query});
         BufferedReader stdError = new BufferedReader(new InputStreamReader(p.getErrorStream()));
         String s;
         String response = "";
         while ((s = stdError.readLine()) != null) {
             response += s + "\n";
         }
-        if(!response.isEmpty()){
+        if (!response.isEmpty()) {
             //error occured
             throw new RasdamanException(response);
         }
@@ -524,15 +530,15 @@ public class RasUtil {
     }
 
     public static void executeUpdateFileStatement(String query, String filePath, String mimetype, String username, String password) throws IOException, RasdamanException {
-        String rasql = ConfigManager.RASDAMAN_BIN_PATH + RASQL + " --user " + username + " --passwd " + password + " -q " +
-                "'" + query + "' --file '" + filePath + "'"; // BangPH - 986, 1026 fix error with filePath has space or special characters
+        String rasql = ConfigManager.RASDAMAN_BIN_PATH + RASQL + " --user " + username + " --passwd " + password + " -q "
+                + "'" + query + "' --file '" + filePath + "'"; // BangPH - 986, 1026 fix error with filePath has space or special characters
         //As decode does not work correctly with geotiffs at the moment, use the old inv_tiff function to insert it
         //TODO remove this once decode($1) works nicely
-        if(mimetype != null && mimetype.toLowerCase().contains(TIFF_MIMETYPE)) {
+        if (mimetype != null && mimetype.toLowerCase().contains(TIFF_MIMETYPE)) {
             rasql = rasql.replace("decode", "inv_tiff");
         }
         log.info("Executing " + rasql);
-        Process p = Runtime.getRuntime().exec(new String[]{"bash","-c", rasql});
+        Process p = Runtime.getRuntime().exec(new String[]{"bash", "-c", rasql});
         BufferedReader stdError = new BufferedReader(new InputStreamReader(p.getErrorStream()));
         String s;
         String response = "";
@@ -540,7 +546,7 @@ public class RasUtil {
             response += s + "\n";
         }
         //check if an error exist in the response
-        if(!response.isEmpty()){
+        if (!response.isEmpty()) {
             throw new RasdamanException(response);
         }
     }

@@ -2,7 +2,7 @@ package petascope.wcps2.cli;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
-import petascope.exceptions.RasdamanException;
+import petascope.exceptions.rasdaman.RasdamanException;
 import petascope.util.Pair;
 import petascope.util.ras.RasQueryResult;
 import petascope.util.ras.RasUtil;

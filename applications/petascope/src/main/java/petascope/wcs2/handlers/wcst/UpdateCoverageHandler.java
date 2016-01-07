@@ -27,6 +27,7 @@
  */
 package petascope.wcs2.handlers.wcst;
 
+import petascope.exceptions.rasdaman.RasdamanException;
 import nu.xom.Document;
 import nu.xom.Element;
 import nu.xom.ParsingException;

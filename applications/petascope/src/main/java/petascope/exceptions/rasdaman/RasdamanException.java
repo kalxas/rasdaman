@@ -19,9 +19,11 @@
  * For more information please see <http://www.rasdaman.org>
  * or contact Peter Baumann via <baumann@rasdaman.com>.
  */
-package petascope.exceptions;
+package petascope.exceptions.rasdaman;
 
 import petascope.ConfigManager;
+import petascope.exceptions.ExceptionCode;
+import petascope.exceptions.PetascopeException;
 
 public class RasdamanException extends PetascopeException {
 

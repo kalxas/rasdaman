@@ -22,7 +22,7 @@
 package petascope.wcps.server.core;
 
 import petascope.exceptions.PetascopeException;
-import petascope.exceptions.RasdamanException;
+import petascope.exceptions.rasdaman.RasdamanException;
 import petascope.exceptions.WCPSException;
 import java.io.IOException;
 import java.io.StringReader;

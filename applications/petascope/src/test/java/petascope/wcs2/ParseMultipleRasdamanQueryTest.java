@@ -29,7 +29,7 @@ import petascope.BaseTestCase;
 import petascope.wcs2.extensions.*;
 import petascope.core.DbMetadataSource;
 import petascope.ConfigManager;
-import petascope.exceptions.RasdamanException;
+import petascope.exceptions.rasdaman.RasdamanException;
 
 /**
  * This a test class used to test if petascope can

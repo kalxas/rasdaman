@@ -22,7 +22,7 @@
 
 package petascope.wms2.rasdaman;
 
-import petascope.exceptions.RasdamanException;
+import petascope.exceptions.rasdaman.RasdamanException;
 import petascope.util.ras.RasQueryResult;
 import petascope.util.ras.RasUtil;
 import petascope.wms2.service.exception.error.WMSDataStoreException;
