@@ -30,33 +30,32 @@
 # get script name
 PROG=$( basename $0 )
 
-BASEDIR=$(dirname "${BASH_SOURCE[0]}") # get current directory of test script
+SOURCE="${BASH_SOURCE[0]}"
+while [ -h "$SOURCE" ] ; do SOURCE="$(readlink "$SOURCE")"; done
+SCRIPT_DIR="$( cd -P "$( dirname "$SOURCE" )" && pwd )"
 
-# get the update script
-DIR=$(cd -P "$BASEDIR" && cd ../../.. && pwd) # go to rasdaman directory
+. "$SCRIPT_DIR"/../../util/common.sh
 
-. "$DIR"/systemtest/util/common.sh
-
-UPDATE="$DIR/applications/petascope/update_properties.sh"
+UPDATE=""$SCRIPT_DIR"/../../../applications/petascope/update_properties.sh"
 
 log "--- Testing updating values between new and old configuration files ---"
 
 # 1. Get the test input in old, new, oracle directories.
-OLD_DIR="$BASEDIR"'/data/old'
-NEW_DIR="$BASEDIR"'/data/new'
-ORACLE_DIR="$BASEDIR"'/oracle'
+OLD_DIR="$SCRIPT_DIR"'/data/old'
+NEW_DIR="$SCRIPT_DIR"'/data/new'
+ORACLE_DIR="$SCRIPT_DIR"'/oracle'
 
 
 # 2. Remove files in data/ and copy test suite from data_suite to data and preparing to test
 log 'Preparing input data directories.'
-rm -rf "$BASEDIR"'/data' || error "Error: Could not delete old data." # remove old data directory
-cp -R "$BASEDIR"'/data_suite' "$BASEDIR"'/data' || error "Error: Failed copying $BASEDIR/data_suite to $BASEDIR/data" # copy data_suite to data
+rm -rf "$SCRIPT_DIR"'/data' || error "Error: Could not delete old data." # remove old data directory
+cp -R "$SCRIPT_DIR"'/data_suite' "$SCRIPT_DIR"'/data' || error "Error: Failed copying $SCRIPT_DIR/data_suite to $SCRIPT_DIR/data" # copy data_suite to data
 log "Done."
 
 # 3. Check that data/old, data/new, oracle/ has the same input files
-OLD_COUNT=$(find "$BASEDIR"'/data/old' -type f | wc -l) # count files in the old directory
-NEW_COUNT=$(find "$BASEDIR"'/data/old' -type f | wc -l) # count files in the new directory
-ORACLE_COUNT=$(find "$BASEDIR"'/oracle' -type f | wc -l) # count files in the oracle directory
+OLD_COUNT=$(find "$SCRIPT_DIR"'/data/old' -type f | wc -l) # count files in the old directory
+NEW_COUNT=$(find "$SCRIPT_DIR"'/data/old' -type f | wc -l) # count files in the new directory
+ORACLE_COUNT=$(find "$SCRIPT_DIR"'/oracle' -type f | wc -l) # count files in the oracle directory
 
 echo 'Number of files to test is: '$OLD_COUNT;
 
