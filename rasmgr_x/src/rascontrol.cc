@@ -1020,10 +1020,14 @@ std::string RasControl::save()
     {
         message = this->formatErrorMessage("Saving data failed for an unknown reason.");
     }
+
+    return message;
 }
 
 std::string RasControl::exit()
-{}
+{
+    return "";
+}
 
 std::string RasControl::convertAdminRights (const UserAdminRightsProto &adminRights )
 {

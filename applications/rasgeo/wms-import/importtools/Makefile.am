@@ -27,7 +27,8 @@
 #
 ##################################################################
 
-AM_CXXFLAGS=@CLIENTCXXFLAGS@ -I../../../../include -I../../../../commline -I../
+# extend the AM_CXXFLAGS since it is set in configure.ac
+AM_CXXFLAGS=@AM_CXXFLAGS@ @CLIENTCXXFLAGS@ -I../../../../include -I../../../../commline -I../
 AM_LDFLAGS=@CLIENTLDFLAGS@
 
 noinst_PROGRAMS=fillpyramid

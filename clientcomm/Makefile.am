@@ -29,7 +29,8 @@
 #
 ##################################################################
 
-AM_CXXFLAGS = @CLIENTCXXFLAGS@
+# extend the AM_CXXFLAGS since it is set in configure.ac
+AM_CXXFLAGS = @AM_CXXFLAGS@ @CLIENTCXXFLAGS@
 AM_LDFLAGS = @CLIENTLDFLAGS@
 
 lib_LIBRARIES=libclientcomm.a
@@ -53,6 +54,7 @@ if RMANRASNET
     libclientcomm_a_SOURCES += ../rasnetprotocol/rasnetclientcomm.cc \
                           ../rasnetprotocol/rasnetclientcomm.hh
     libclientcomm_a_LIBADD = ../rasnet/librasnet.a ../common/src/libcommon.a
+    libclientcomm_a_CXXFLAGS = @AM_CXXFLAGS@ @DISABLE_PROTOBUF_WARNINGS_FLAGS@ -Wno-cast-qual
 endif
 
 EXTRA_libclientcomm_a_SOURCES = rpcif.x                          

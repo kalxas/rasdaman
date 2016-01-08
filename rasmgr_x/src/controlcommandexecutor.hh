@@ -19,20 +19,7 @@ rasdaman GmbH.
 *
 * For more information please see <http://www.rasdaman.org>
 * or contact Peter Baumann via <baumann@rasdaman.com>.
-/
-
-/**
- * AUTHOR:  rasdaman
- * SOURCE: controlcommandexecutor.hh
- *
- * MODULE:
- * CLASS:
- *
- * PURPOSE:
- *
- * COMMENTS:
 */
-
 
 #ifndef RASMGR_X_SRC_CONTROLCOMMANDEXECUTOR_HH_
 #define RASMGR_X_SRC_CONTROLCOMMANDEXECUTOR_HH_

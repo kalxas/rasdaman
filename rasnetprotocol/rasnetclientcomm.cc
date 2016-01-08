@@ -300,17 +300,21 @@ int RasnetClientComm::closeDB()
 
 int RasnetClientComm::createDB(const char *name) throw (r_Error)
 {
-    r_Error* error = r_Error::getAnyError("Not implemented exception;");
+    char* errorStr = strdup("Not implemented exception;");
+    r_Error* error = r_Error::getAnyError(errorStr);
     r_Error tmp = *error;
     delete error;
+    delete errorStr;
     throw tmp;
 }
 
 int RasnetClientComm::destroyDB(const char *name) throw (r_Error)
 {
-    r_Error* error = r_Error::getAnyError("Not implemented exception;");
+    char* errorStr = strdup("Not implemented exception;");
+    r_Error* error = r_Error::getAnyError(errorStr);
     r_Error tmp = *error;
     delete error;
+    delete errorStr;
     throw tmp;
 }
 
@@ -367,6 +371,8 @@ int RasnetClientComm::abortTA()
     {
         handleError(abortTransactionStatus.error_message());
     }
+
+    return 0;
 }
 
 void RasnetClientComm::insertMDD(const char *collName, r_GMarray *mar) throw (r_Error)
@@ -1219,17 +1225,18 @@ void RasnetClientComm::getMarRpcRepresentation(const r_GMarray *mar, RPCMarray *
     rpcMarray->cellTypeLength = mar->get_type_length();
     rpcMarray->currentFormat = initStorageFormat;
     rpcMarray->data.confarray_len = mar->get_array_size();
-    rpcMarray->data.confarray_val = (char*)(mar->get_array());
+    rpcMarray->data.confarray_val = const_cast<char*>(mar->get_array());
     rpcMarray->storageFormat = initStorageFormat;
 }
 
 
 void RasnetClientComm::freeMarRpcRepresentation(const r_GMarray *mar, RPCMarray *rpcMarray)
 {
-    if (rpcMarray->data.confarray_val != ((r_GMarray*)mar)->get_array())
+    if (rpcMarray->data.confarray_val != mar->get_array())
     {
         delete[] rpcMarray->data.confarray_val;
     }
+
     free( rpcMarray->domain );
     free( rpcMarray );
 }
@@ -1378,7 +1385,7 @@ void RasnetClientComm::sendMDDConstants( const r_OQL_Query& query ) throw( r_Err
 
     if( query.get_constants() )
     {
-        r_Set< r_GMarray* >* mddConstants = (r_Set< r_GMarray* >*)query.get_constants();
+        r_Set< r_GMarray* >* mddConstants = const_cast<r_Set< r_GMarray* >*>(query.get_constants());
 
         // in fact executeInitUpdate prepares server structures for MDD transfer
         if(executeInitUpdate() != 0)
@@ -1590,18 +1597,18 @@ void RasnetClientComm::getElementCollection( r_Set< r_Ref_Any >& resultColl ) th
         case r_Type::ULONG:
         case r_Type::FLOAT:
         case r_Type::DOUBLE:
-            element = new r_Primitive( thisResult->data.confarray_val, (r_Primitive_Type*) elementType );
+            element = new r_Primitive( thisResult->data.confarray_val, static_cast<r_Primitive_Type*>(const_cast<r_Type*>(elementType)) );
             r_Transaction::actual_transaction->add_object_list( r_Transaction::SCALAR, (void*) element );
             break;
 
         case r_Type::COMPLEXTYPE1:
         case r_Type::COMPLEXTYPE2:
-            element = new r_Complex(thisResult->data.confarray_val, (r_Complex_Type *)elementType);
+            element = new r_Complex(thisResult->data.confarray_val, static_cast<r_Complex_Type *>(const_cast<r_Type*>(elementType)) );
             r_Transaction::actual_transaction->add_object_list(r_Transaction::SCALAR, (void *)element);
             break;
 
         case r_Type::STRUCTURETYPE:
-            element = new r_Structure( thisResult->data.confarray_val, (r_Structure_Type*) elementType );
+            element = new r_Structure( thisResult->data.confarray_val, static_cast<r_Structure_Type*>(const_cast<r_Type*>(elementType)) );
             r_Transaction::actual_transaction->add_object_list( r_Transaction::SCALAR, (void*) element );
             break;
 
@@ -1836,9 +1843,11 @@ void RasnetClientComm::handleStatusCode(int status, string method) throw( r_Erro
 
 bool RasnetClientComm::effectivTypeIsRNP() throw()
 {
-    r_Error* error = r_Error::getAnyError("Not implemented exception;");
+    char* errorMsg = strdup("Not implemented exception;");
+    r_Error* error = r_Error::getAnyError(errorMsg);
     r_Error tmp = *error;
     delete error;
+    delete errorMsg;
     throw tmp;
 }
 
@@ -1849,25 +1858,31 @@ long unsigned int RasnetClientComm::getClientID() const
 
 void RasnetClientComm::triggerAliveSignal()
 {
-    r_Error* error = r_Error::getAnyError("Not implemented exception;");
+    char* errorMsg = strdup("Not implemented exception;");
+    r_Error* error = r_Error::getAnyError(errorMsg);
     r_Error tmp = *error;
     delete error;
+    delete errorMsg;
     throw tmp;
 }
 
 void RasnetClientComm::sendAliveSignal()
 {
-    r_Error* error = r_Error::getAnyError("Not implemented exception;");
+    char* errorMsg = strdup("Not implemented exception;");
+    r_Error* error = r_Error::getAnyError(errorMsg);
     r_Error tmp = *error;
     delete error;
+    delete errorMsg;
     throw tmp;
 }
 
 const char* RasnetClientComm::getExtendedErrorInfo() throw (r_Error)
 {
-    r_Error* error = r_Error::getAnyError("Not implemented exception;");
+    char* errorMsg = strdup("Not implemented exception;");
+    r_Error* error = r_Error::getAnyError(errorMsg);
     r_Error tmp = *error;
     delete error;
+    delete errorMsg;
     throw tmp;
 }
 
@@ -1879,35 +1894,42 @@ void RasnetClientComm::setUserIdentification(const char *userName, const char *p
 
 void RasnetClientComm::setMaxRetry(unsigned int newMaxRetry)
 {
-    r_Error* error = r_Error::getAnyError("Not implemented exception;");
+    char* errorMsg = strdup("Not implemented exception;");
+    r_Error* error = r_Error::getAnyError(errorMsg);
     r_Error tmp = *error;
     delete error;
+    delete errorMsg;
     throw tmp;
 }
 
 unsigned int RasnetClientComm::getMaxRetry()
 {
-    r_Error* error = r_Error::getAnyError("Not implemented exception;");
+    char* errorMsg = strdup("Not implemented exception;");
+    r_Error* error = r_Error::getAnyError(errorMsg);
     r_Error tmp = *error;
     delete error;
+    delete errorMsg;
     throw tmp;
 }
 
 void RasnetClientComm::setTimeoutInterval(int seconds)
 {
-    r_Error* error = r_Error::getAnyError("Not implemented exception;");
+    char* errorMsg = strdup("Not implemented exception;");
+    r_Error* error = r_Error::getAnyError(errorMsg);
     r_Error tmp = *error;
     delete error;
+    delete errorMsg;
     throw tmp;
 }
 
 int RasnetClientComm::getTimeoutInterval()
 {
-    r_Error* error = r_Error::getAnyError("Not implemented exception;");
+    char* errorMsg = strdup("Not implemented exception;");
+    r_Error* error = r_Error::getAnyError(errorMsg);
     r_Error tmp = *error;
     delete error;
+    delete errorMsg;
     throw tmp;
-
 }
 
 /* START: KEEP ALIVE */

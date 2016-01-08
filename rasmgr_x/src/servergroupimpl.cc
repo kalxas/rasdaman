@@ -104,7 +104,7 @@ void ServerGroupImpl::start()
     {
         this->stopped=false;
 
-        for(boost::int32_t i=0; i<this->config.min_alive_server_no(); i++)
+        for(boost::uint32_t i=0; i<this->config.min_alive_server_no(); i++)
         {
             this->startServer();
         }
@@ -729,7 +729,7 @@ void ServerGroupImpl::validateAndInitConfig(ServerGroupConfigProto &config)
         throw common::InvalidArgumentException(errorMessage);
     }
 
-    if(config.ports_size() < config.min_alive_server_no())
+    if((boost::uint32_t)config.ports_size() < config.min_alive_server_no())
     {
         std::string errorMessage = "The number of allocated ports must be greater than the minimum number of alive servers.";
 

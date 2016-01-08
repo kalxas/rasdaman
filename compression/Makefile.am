@@ -28,7 +28,8 @@
 # 
 ##################################################################
 
-AM_CXXFLAGS=@CLIENTCXXFLAGS@
+# extend the AM_CXXFLAGS since it is set in configure.ac
+AM_CXXFLAGS=@AM_CXXFLAGS@ @CLIENTCXXFLAGS@
 AM_LDFLAGS=@CLIENTLDFLAGS@
 
 lib_LIBRARIES = libcompression.a

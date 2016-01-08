@@ -28,7 +28,8 @@
 # 
 ##################################################################
 
-AM_CXXFLAGS=@BASEDBCXXFLAGS@
+# extend the AM_CXXFLAGS since it is set in configure.ac
+AM_CXXFLAGS=@AM_CXXFLAGS@ @BASEDBCXXFLAGS@
 AM_LDFLAGS=@BASEDBLDFLAGS@
 
 lib_LIBRARIES=libservercomm.a
@@ -55,6 +56,7 @@ libservercomm_a_SOURCES=../clientcomm/rpcif_xdr.c ../clientcomm/rpcif_svc.cc ser
 if RMANRASNET
     libservercomm_a_SOURCES += ../rasnetprotocol/rasnetservercomm.cc \
                         ../rasnetprotocol/rasnetservercomm.hh
+    libservercomm_a_CXXFLAGS = @AM_CXXFLAGS@ @DISABLE_PROTOBUF_WARNINGS_FLAGS@
 endif
 
 libservercomm_a_CPPFLAGS=-I../rnprotocol                        

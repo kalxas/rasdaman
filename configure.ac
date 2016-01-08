@@ -355,7 +355,7 @@ AC_ARG_ENABLE([benchmark],
 AC_ARG_ENABLE([strict],
               [AS_HELP_STRING([--enable-strict],
                               [enable compiling in strict mode: warnings terminate compilation.])],
-              [CXXFLAGS+=" -pedantic -Werror -Wall -Wextra -Wcast-align -Wcast-qual -Wctor-dtor-privacy -Wdisabled-optimization -Wformat=2 -Winit-self -Wlogical-op -Wmissing-declarations -Wmissing-include-dirs -Wnoexcept -Woverloaded-virtual -Wredundant-decls -Wshadow -Wsign-conversion -Wsign-promo -Wstrict-null-sentinel -Wstrict-overflow=5 -Wswitch-default -Wundef -Werror -Wno-unused -Wno-long-long -Wno-format-nonliteral "],
+              [ENABLESTRICTFLAGS="-pedantic -Werror -Wall -Wextra -Wshadow -Wcast-align -Wcast-qual -Wctor-dtor-privacy -Wdisabled-optimization -Wformat=2 -Winit-self -Wlogical-op -Wmissing-declarations -Wmissing-include-dirs -Wnoexcept -Woverloaded-virtual -Wredundant-decls -Wsign-conversion -Wsign-promo -Wstrict-null-sentinel -Wstrict-overflow=5 -Wswitch-default -Wundef -Wno-unused -Wno-long-long -Wno-format-nonliteral "],
               [])
 
 AC_ARG_WITH([test-server],
@@ -472,6 +472,9 @@ if test "$enable_rasnet" = "yes"; then
     if test "$disable_java" = "no"; then
         AC_SUBST(GRPCJAVAPLUGIN, "$GRPC_JAVA_BIN/protoc-gen-grpc-java")
     fi
+
+    DISABLE_PROTOBUF_WARNINGS_FLAGS="-Wno-sign-conversion -Wno-shadow -Wno-pedantic -Wno-undef"
+    AC_SUBST(DISABLE_PROTOBUF_WARNINGS_FLAGS, "$DISABLE_PROTOBUF_WARNINGS_FLAGS")
 fi
 ### End - Check for rasnet :###
 
@@ -690,6 +693,15 @@ CXXFLAGS="$CXXFLAGS -DBINDIR=\\\"\$(bindir)/\\\""
 CXXFLAGS="$CXXFLAGS -DLOGDIR=\\\"\$(logdir)/\\\""
 CXXFLAGS="$CXXFLAGS -DINCLUDE_DIR=\\\"\$(includedir)/\\\""
 CXXFLAGS="$CXXFLAGS -DFILEDATADIR=\\\"\$(filedatadir)/\\\""
+
+#The order of the compile flag variables is: $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS)
+#
+#Any flag in $(CXXFLAGS) cannot be followed by any other flag. Also, CXXFLAGS should not be overridden in the Makefile.
+#
+#AM_CXXFLAGS is replaced if you add your bin/lib_CXXFLAGS. Thus overriding any flag in AM_CXXFLAGS can be accomplised by adding: bin/lib_CXXFLAGS = @AM_CXXFLAGS@ <your flags>
+
+AM_CXXFLAGS="$AM_CXXFLAGS $ENABLESTRICTFLAGS"
+AC_SUBST(AM_CXXFLAGS)
 
 AC_OUTPUT
 

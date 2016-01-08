@@ -66,7 +66,7 @@ void UserCredentials::interactiveLogin()
     this->userPassword = common::Crypto::messageDigest(clearTextPass, DEFAULT_DIGEST);
 
     //Make sure we don't leave the password in the buffer
-    for(int i=0; i<strlen(plainPass); i++)
+    for(size_t i=0; i<strlen(plainPass); i++)
     {
         plainPass[i]=0;
     }
@@ -77,7 +77,7 @@ void UserCredentials::interactiveLogin()
 void UserCredentials::environmentLogin()
 {
     char auxUserName[rascontrol::MAX_USERNAME_LENGTH];
-    int i;
+    unsigned int i;
 
     char *s=getenv(RASLOGIN.c_str());
 
@@ -86,7 +86,7 @@ void UserCredentials::environmentLogin()
         throw std::runtime_error("RASLOGIN environment variable is not set.");
     }
 
-    for(i=0; i<rascontrol::MAX_USERNAME_LENGTH-1 && *s!=':' && *s ; i++,s++)
+    for(i = 0; i < rascontrol::MAX_USERNAME_LENGTH-1u && *s != ':' && *s ; i++, s++)
     {
         auxUserName[i]=*s;
     }

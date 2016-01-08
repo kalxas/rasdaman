@@ -235,7 +235,7 @@ message ServerGroupConfigProto {
       2; /*!< The host on which servers of this group will run */
   optional string db_host =
       3; /*!< The database host that will be used by servers of this group */
-  repeated int32 ports =
+  repeated uint32 ports =
       4; /*!< The set of ports on which servers from this group will run*/
   optional uint32 min_alive_server_no =
       5; /*!< The minimum number of servers that this group should have alive*/

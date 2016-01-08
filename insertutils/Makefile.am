@@ -29,7 +29,8 @@
 # 
 ##################################################################
 
-AM_CXXFLAGS = $(COMMCXXFLAGS)
+# extend the AM_CXXFLAGS since it is set in configure.ac
+AM_CXXFLAGS = @AM_CXXFLAGS@ $(COMMCXXFLAGS)
 AM_LDFLAGS = $(COMMLDFLAGS)    
 bin_PROGRAMS = insertppm
 bin_SCRIPTS = rasdaman_insertdemo.sh

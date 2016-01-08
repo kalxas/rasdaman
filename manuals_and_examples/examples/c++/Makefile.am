@@ -28,7 +28,8 @@
 #
 ##################################################################
 
-AM_CXXFLAGS= -w @CLIENTCXXFLAGS@ -DLINUX -DEARLY_TEMPLATE -DONCRPC -DDEBUG
+# extend the AM_CXXFLAGS since it is set in configure.ac
+AM_CXXFLAGS= @AM_CXXFLAGS@ -w @CLIENTCXXFLAGS@ -DLINUX -DEARLY_TEMPLATE -DONCRPC -DDEBUG
 AM_LDFLAGS= @CLIENTLDFLAGS@
 
 bin_PROGRAMS = insertppm query

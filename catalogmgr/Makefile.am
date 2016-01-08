@@ -32,7 +32,8 @@ RMANBASE=@abs_top_srcdir@
 BASEDBCXXFLAGS=@BASEDBCXXFLAGS@
 BASEDBLDFLAGS=@BASEDBLDFLAGS@
 
-AM_CXXFLAGS= $(BASEDBCXXFLAGS)
+# extend the AM_CXXFLAGS since it is set in configure.ac
+AM_CXXFLAGS= @AM_CXXFLAGS@ $(BASEDBCXXFLAGS)
 AM_LDFLAGS= $(BASEDBLDFLAGS)    
 
 # object files to put in library

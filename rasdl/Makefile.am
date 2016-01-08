@@ -31,7 +31,8 @@
 
 AM_LFLAGS=-I
 AM_YFLAGS=-d -y
-AM_CXXFLAGS=@BASEDBCXXFLAGS@
+# extend the AM_CXXFLAGS since it is set in configure.ac
+AM_CXXFLAGS=@AM_CXXFLAGS@ @BASEDBCXXFLAGS@
 AM_LDFLAGS=
 
 bin_PROGRAMS=rasdl

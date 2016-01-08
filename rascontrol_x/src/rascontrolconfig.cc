@@ -35,17 +35,17 @@ using std::string;
 
 RasControlConfig::RasControlConfig() :
     cmlInter        (CommandLineParser::getInstance()),
+    cmlHelp         (cmlInter.addFlagParameter('h',"help", "this help")),
     cmlHost         (cmlInter.addStringParameter(CommandLineParser::noShortName,"host", "<name> name of host where master rasmgr runs", DEFAULT_HOSTNAME)),
     cmlPort         (cmlInter.addLongParameter(CommandLineParser::noShortName,"port", "<nnnn> rasmgr port",DEFAULT_PORT)),
     cmlLogin        (cmlInter.addFlagParameter('l',"login", "just login prompt, used to set the environment variable RASLOGIN")),
+    cmlHist         (cmlInter.addStringParameter(CommandLineParser::noShortName, "hist", "<file-name> used to store your commands in file, as help for batch file.")),
+    cmlLogFile      (cmlInter.addStringParameter(CommandLineParser::noShortName, "log", "<file> easylogging configuration file.")),
+    cmlPrompt       (cmlInter.addStringParameter(CommandLineParser::noShortName, "prompt", "<nnn> change rascontrol prompt as following:\n\t\t 0 - prompt '>'\n\t\t 1 - prompt 'rasc>'\n\t\t 2 - prompt 'user:host>'","2")),
     cmlTestLogin    (cmlInter.addFlagParameter('t',"testlogin", "test if environment variable RASLOGIN is OK to login")),
     cmlInteractive  (cmlInter.addFlagParameter('e',"interactive", "interactive mode, login from environment variable RASLOGIN")),
     cmlQuiet        (cmlInter.addFlagParameter('q',"quiet", "quiet, don't print header (default on for -login and -testlogin)")),
-    cmlHist         (cmlInter.addStringParameter(CommandLineParser::noShortName, "hist", "<file-name> used to store your commands in file, as help for batch file.")),
-    cmlPrompt       (cmlInter.addStringParameter(CommandLineParser::noShortName, "prompt", "<nnn> change rascontrol prompt as following:\n\t\t 0 - prompt '>'\n\t\t 1 - prompt 'rasc>'\n\t\t 2 - prompt 'user:host>'","2")),
-    cmlExecute      (cmlInter.addFlagParameter('x',"execute", "batch mode, login from environment variable RASLOGIN\n   <rasmgr-cmd>\ta rasmgr command (only in batch mode)\n\t\tif no command if provided, command is read from stdin\n\t\t(used for batch mode with '<inputfile')")),
-    cmlHelp         (cmlInter.addFlagParameter('h',"help", "this help")),
-    cmlLogFile      (cmlInter.addStringParameter(CommandLineParser::noShortName, "log", "<file> easylogging configuration file."))
+    cmlExecute      (cmlInter.addFlagParameter('x',"execute", "batch mode, login from environment variable RASLOGIN\n   <rasmgr-cmd>\ta rasmgr command (only in batch mode)\n\t\tif no command if provided, command is read from stdin\n\t\t(used for batch mode with '<inputfile')"))
 {
     this->workMode = WKMINTERACTIV;
     this->loginMode = LGIINTERACTIV;
@@ -246,6 +246,9 @@ std::string RasControlConfig::getPrompt(const std::string &userName)
             break;
         case PROMPTFULL :
             this->prompt = userName +":"+this->rasMgrHost+"> ";
+            break;
+        default:
+            this->prompt = "> ";
             break;
         }
     }

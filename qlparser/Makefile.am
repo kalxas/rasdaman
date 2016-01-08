@@ -38,7 +38,8 @@ AM_LFLAGS=-i -I
 
 # -d generates token definitions in .h file
 AM_YFLAGS=-d -y
-AM_CXXFLAGS=@BASEDBCXXFLAGS@ @GDAL_CXXFLAGS@
+# extend the AM_CXXFLAGS since it is set in configure.ac
+AM_CXXFLAGS=@AM_CXXFLAGS@ @BASEDBCXXFLAGS@ @GDAL_CXXFLAGS@
 AM_CFLAGS=$(CXXFLAGS)
 libqlparser_a_SOURCES=oql.yy lex.ll alloca.c\
                       symtab.cc symtab.hh \

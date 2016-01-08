@@ -29,6 +29,6 @@ InvalidArgumentException::InvalidArgumentException(const std::string& whatArg)
     :LogicException(whatArg)
 {}
 
-InvalidArgumentException::~InvalidArgumentException()
+InvalidArgumentException::~InvalidArgumentException() throw()
 {}
 }

@@ -51,14 +51,14 @@ TEST_F(TimerTest, CheckIfTimerIsNotExpiredWhenTimeHasNotPassed)
 TEST_F(TimerTest, SleepUntilTimerExpires)
 {
     //Test if the timer has expired
-    usleep(period * 1000);
+    usleep((uint32_t)period * 1000u);
     ASSERT_TRUE(timer.hasExpired());
 }
 
 TEST_F(TimerTest, SleepUntilTimerExpiresAndReset)
 {
     //Test if the timer has expired
-    usleep(period * 1000);
+    usleep((uint32_t)period * 1000u);
     timer.reset();
     ASSERT_FALSE(timer.hasExpired());
 }

@@ -28,7 +28,8 @@
 # 
 ##################################################################
 
-AM_CXXFLAGS=@BASEDBCXXFLAGS@
+# extend the AM_CXXFLAGS since it is set in configure.ac
+AM_CXXFLAGS=@AM_CXXFLAGS@ @BASEDBCXXFLAGS@
 
 lib_LIBRARIES= libmddmgr.a
 libmddmgr_a_SOURCES= mddobj.cc mddobj.hh \

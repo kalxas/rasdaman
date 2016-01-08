@@ -75,7 +75,7 @@ using common::UUID;
 
 
 ServerManager::ServerManager(const ServerManagerConfig& config, boost::shared_ptr<ServerGroupFactory> serverGroupFactory)
-        :config(config), serverGroupFactory(serverGroupFactory)
+        : serverGroupFactory(serverGroupFactory), config(config)
 {
     this->isWorkerThreadRunning = true;
     this->workerCleanup.reset ( new thread ( &ServerManager::workerCleanupRunner, this ) );

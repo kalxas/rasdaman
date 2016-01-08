@@ -28,7 +28,8 @@
 #
 ##################################################################
 
-AM_CXXFLAGS=@CLIENTCXXFLAGS@ @BASEDBCXXFLAGS@
+# extend the AM_CXXFLAGS since it is set in configure.ac
+AM_CXXFLAGS= @AM_CXXFLAGS@ @CLIENTCXXFLAGS@ @BASEDBCXXFLAGS@
 AM_LDFLAGS=
 
 bin_PROGRAMS=directql

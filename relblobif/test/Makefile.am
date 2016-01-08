@@ -28,7 +28,8 @@
 #
 ##################################################################
 
-AM_CXXFLAGS=@CLIENTCXXFLAGS@ @BASEDBCXXFLAGS@ -Wno-write-strings
+# extend the AM_CXXFLAGS since it is set in configure.ac
+AM_CXXFLAGS=@AM_CXXFLAGS@ @CLIENTCXXFLAGS@ @BASEDBCXXFLAGS@ -Wno-write-strings
 AM_LDFLAGS=
 
 if BASEDB_SQLITE

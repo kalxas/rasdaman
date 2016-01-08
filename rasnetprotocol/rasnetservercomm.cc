@@ -661,7 +661,7 @@ grpc::Status RasnetServerComm::GetCollOidsByNameOrOid(grpc::ServerContext *conte
 
         if (oidTable != NULL)
         {
-            for (int i = 0; i < oidTableSize; ++i)
+            for (uint i = 0; i < oidTableSize; ++i)
             {
                 response->add_oid_set(oidTable[i].oid);
                 free(oidTable[i].oid);

@@ -101,9 +101,12 @@ char * EditLine::rl_gets(const char *prompt)
         free (line_read);
         line_read = (char *)NULL;
     }
+    char* line = strdup(prompt);
 
     /* Get a line from the user. */
-    line_read = readline ((char*)prompt);
+    line_read = readline (line);
+
+    free(line);
 
     /* If the line has any text in it, save it on the history. */
     if (line_read && *line_read)
@@ -111,7 +114,7 @@ char * EditLine::rl_gets(const char *prompt)
 
     return (line_read);
 #else
-    return (char*)(" ");
+    return strdup(" ");
 #endif
 
 }

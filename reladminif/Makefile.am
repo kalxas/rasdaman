@@ -30,7 +30,8 @@
 # 
 ##################################################################
 
-AM_CXXFLAGS=@BASEDBCXXFLAGS@
+# extend the AM_CXXFLAGS since it is set in configure.ac
+AM_CXXFLAGS=@AM_CXXFLAGS@ @BASEDBCXXFLAGS@
 AM_LDFLAGS=@BASEDBLDFLAGS@
 
 nobase_dist_pkgdata_DATA=db_updates/*

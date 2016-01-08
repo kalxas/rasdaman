@@ -23,7 +23,8 @@
 #
 ##################################################################
 
-AM_CXXFLAGS=@BASEDBCXXFLAGS@ @CLIENTCXXFLAGS@
+# extend the AM_CXXFLAGS since it is set in configure.ac
+AM_CXXFLAGS=@AM_CXXFLAGS@ @BASEDBCXXFLAGS@ @CLIENTCXXFLAGS@
 AM_LDFLAGS=@BASEDBLDFLAGS@
 
 .SUFFIXES= .@EMBEDDEDSQLEXT@ .@EMBEDDEDSQLOUT@

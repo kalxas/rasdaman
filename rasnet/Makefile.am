@@ -26,6 +26,7 @@ PROTO_SRC_SERVER=messages/rasmgr_rasctrl_service.pb.cc \
 
 noinst_LIBRARIES = librasnet.a
 librasnet_a_SOURCES = $(PROTO_SRC_CLIENT) $(PROTO_SRC_SERVER)
+librasnet_a_CXXFLAGS = @AM_CXXFLAGS@ @DISABLE_PROTOBUF_WARNINGS_FLAGS@
 
 $(PROTO_SRC_CLIENT): $(PROTOBUF_FILES_CLIENT)
 	echo "Generating client Protocol Buffers"

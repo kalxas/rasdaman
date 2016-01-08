@@ -40,7 +40,7 @@ public:
      */
     LogicException(const std::string& whatArg);
 
-    virtual ~LogicException();
+    virtual ~LogicException() throw();
 };
 
 }

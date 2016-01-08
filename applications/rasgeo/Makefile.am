@@ -27,7 +27,9 @@
 # COMMENTS:
 #
 ##################################################################
-AM_CXXFLAGS=@CLIENTCXXFLAGS@ @BASEDBCXXFLAGS@ @GDAL_CXXFLAGS@
+
+# extend the AM_CXXFLAGS since it is set in configure.ac
+AM_CXXFLAGS=@AM_CXXFLAGS@ @CLIENTCXXFLAGS@ @BASEDBCXXFLAGS@ @GDAL_CXXFLAGS@
 AM_LDFLAGS=@CLIENTLDFLAGS@
 
 

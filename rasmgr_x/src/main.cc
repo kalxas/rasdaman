@@ -45,6 +45,7 @@
 _INITIALIZE_EASYLOGGINGPP
 
 void installSignalHandlers();
+void sigIntHandler ( int sig );
 
 //RasManager object that orchestrates
 boost::shared_ptr<rasmgr::RasManager> manager;

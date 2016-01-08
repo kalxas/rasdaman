@@ -19,7 +19,7 @@ rasdaman GmbH.
 *
 * For more information please see <http://www.rasdaman.org>
 * or contact Peter Baumann via <baumann@rasdaman.com>.
-/
+*/
 
 /**
  * AUTHOR:  rasdaman
@@ -46,7 +46,7 @@ rasdaman GmbH.
 namespace rasmgr
 {
 ControlCommandExecutor::ControlCommandExecutor ( boost::shared_ptr<RasControl> control )
-    :rascontrol ( control ),grammar ( control )
+    :grammar ( control ), rascontrol ( control )
 {}
 
 ControlCommandExecutor::~ControlCommandExecutor()

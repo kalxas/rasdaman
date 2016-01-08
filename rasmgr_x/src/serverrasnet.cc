@@ -479,10 +479,8 @@ boost::uint32_t ServerRasNet::getClientQueueSize()
     {
         GrpcUtils::convertStatusToExceptionAndThrow(status);
     }
-    else
-    {
-        return (reply.clientqueuesize());
-    }
+
+    return (reply.clientqueuesize());
 }
 
 std::string ServerRasNet::getStartProcessCommand()

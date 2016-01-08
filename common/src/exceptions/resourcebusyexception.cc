@@ -6,7 +6,7 @@ ResourceBusyException::ResourceBusyException(const std::string &whatArg)
     :RuntimeException(whatArg)
 {}
 
-ResourceBusyException::~ResourceBusyException()
+ResourceBusyException::~ResourceBusyException() throw()
 {}
 
 }

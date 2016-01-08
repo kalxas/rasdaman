@@ -11,6 +11,7 @@ rascontrol_SOURCES = rascontrol_main.cc \
 					  usercredentials.cc
 
 rascontrol_LDADD = ../../commline/libcommline.a ../../rasnet/librasnet.a ../../common/src/libcommon.a ../../rasmgr_x/src/librasmgr.a @GRPC_LIBS@ @PROTOBUF_LIBS@ @BOOST_LDFLAGS@ -lboost_thread -lboost_system
+rascontrol_CXXFLAGS = @AM_CXXFLAGS@ @DISABLE_PROTOBUF_WARNINGS_FLAGS@
 
 noinst_LIBRARIES = librascontrol.a
 
@@ -23,3 +24,4 @@ librascontrol_a_SOURCES = commandexecutor.cc \
 							usercredentials.cc
 
 librascontrol_a_LIBADD = ../../commline/libcommline.a ../../rasnet/librasnet.a ../../common/src/libcommon.a
+librascontrol_a_CXXFLAGS = @AM_CXXFLAGS@ @DISABLE_PROTOBUF_WARNINGS_FLAGS@

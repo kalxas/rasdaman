@@ -36,14 +36,14 @@ const boost::uint32_t Configuration::MAXMSGOUTBUFF = 20000;
 
 Configuration::Configuration():
     cmlInter      (CommandLineParser::getInstance()),
-    cmlName       (cmlInter.addStringParameter(CommandLineParser::noShortName, "name", "<name> symbolic name of this rasmgr (slave only, default: the host name)")),
+    cmlHelp       (cmlInter.addFlagParameter('h', "help", "print this help")),
     cmlHostName   (cmlInter.addStringParameter(CommandLineParser::noShortName, "hostname", "<name> the advertized host name (master only, default: same as UNIX command 'hostname')")),
     cmlPort       (cmlInter.addLongParameter(CommandLineParser::noShortName, "port", "<port> listen port number", DEFAULT_PORT)),
     cmlPollFrequ  (cmlInter.addLongParameter(CommandLineParser::noShortName, "poll", "<poll> polling timeout (in seconds) for rasmgr listen port", 0 )),
+    cmlName       (cmlInter.addStringParameter(CommandLineParser::noShortName, "name", "<name> symbolic name of this rasmgr (slave only, default: the host name)")),
     cmlQuiet      (cmlInter.addFlagParameter( 'q', CommandLineParser::noLongName, "quiet: don't log requests (default: log requests to stdout)")),
     cmlLog        (cmlInter.addStringParameter('l', "log", "<log-file> log is printed to <log-file>\n\t\tif <log-file> is stdout , log output is printed to standard out", "log/rasmgr.<pid>.log")),
-    cmlLogConf       (cmlInter.addStringParameter(CommandLineParser::noShortName, "logconf", "<config-file> easylogging configuration file.\n\t\t The config-file is used to setup the log properties at runtime.", "")),
-    cmlHelp       (cmlInter.addFlagParameter('h', "help", "print this help"))
+    cmlLogConf       (cmlInter.addStringParameter(CommandLineParser::noShortName, "logconf", "<config-file> easylogging configuration file.\n\t\t The config-file is used to setup the log properties at runtime.", ""))
 {
     char hName[HOSTNAME_SIZE];
     int ghnResult = gethostname(hName, sizeof(hName) );

@@ -29,7 +29,8 @@
 #
 ##################################################################
 
-AM_CXXFLAGS=@BASEDBCXXFLAGS@
+# extend the AM_CXXFLAGS since it is set in configure.ac
+AM_CXXFLAGS=@AM_CXXFLAGS@ @BASEDBCXXFLAGS@
 AM_LDFLAGS=
 
 bin_PROGRAMS=rasserver
@@ -51,6 +52,7 @@ rasserver_LDADD=../servercomm/libservercomm.a ../qlparser/libqlparser.a ../conve
 
 if RMANRASNET
     rasserver_LDADD += ../rasserver_x/src/librasnetserver.a ../rasnetprotocol/librasnetprotocol.a ../rasnet/librasnet.a ../common/src/libcommon.a @GRPC_LIBS@ @PROTOBUF_LIBS@ @BOOST_LDFLAGS@ -lboost_thread -lboost_regex -lboost_program_options -lboost_system
+    rasserver_CXXFLAGS=@AM_CXXFLAGS@ @DISABLE_PROTOBUF_WARNINGS_FLAGS@
 endif
 
 SUBDIRS = ../relblobif ../relindexif ../relmddif ../relcatalogif ../reladminif ../relstorageif \
