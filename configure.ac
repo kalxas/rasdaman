@@ -34,9 +34,9 @@ AC_PREREQ(2.61)
 AC_INIT(Rasdaman, 9.2.0, baumann@rasdaman.com)
 AM_INIT_AUTOMAKE([1.9 tar-pax subdir-objects -Wno-portability])
 
-AC_PREFIX_DEFAULT(/usr/local/rasdaman)
+AC_PREFIX_DEFAULT(/opt/rasdaman)
 if test "$prefix" = "NONE" ; then
-  prefix=/usr/local/rasdaman
+  prefix=/opt/rasdaman
 fi
 # Define CXXFLAGS before AC_PROG_CXX or it will automatically add -g -O2 on some systems
 USER_CFLAGS="$CFLAGS"
