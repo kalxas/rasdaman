@@ -155,6 +155,7 @@ echo
 
 pushd "$QUERIES_PATH" > /dev/null
 
+loge
 
 for f in *; do
 
@@ -184,11 +185,11 @@ for f in *; do
     fi
   fi
 
-  # print test header
-  echo "running test: $f"
-  echo
-  cat "$f"
-  echo
+  # print test header (also to find $LOG) with tee in util/common.sh
+  loge "running test: $f"
+  loge
+  cat "$f" | tee -a $LOG
+  loge
 
   run_test
 
