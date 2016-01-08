@@ -38,7 +38,7 @@
 # --- constants & routines
 
 # script name
-PROG=`basename $0`
+PROG=$(basename $0)
 VERSION=9.2
 
 # script return codes
@@ -63,19 +63,13 @@ DEFINITION_FILE=@pkgdatadir@examples/rasdl/basictypes.dl
 
 # error termination routine
 error() {
-	echo "$PROG: $1"
+  echo
+	echo "$PROG: $1" >&2
 	exit $RC_ERROR
 }
 
 # --- checking preconditions
 echo "$PROG: Creating database, rasdaman v$VERSION on base DBMS $BASEDBMS"
-
-# - are we user 'rasdaman'?
-if [ $USER != $RASDAMAN_USER ]
-then
-        echo "Warning: script should be run as user '$RASDAMAN_USER', not '$USER'; will try nevertheless."
-fi
-
 # - Can I find utilities?
 if [ "$BASEDBMS" == "$BASEDBMS_PGSQL" ]; then
     psql --help 2>&1 1>/dev/null || \
@@ -96,45 +90,39 @@ fi
 # --- action: create database directory & cluster if needed
 
 if [ "$BASEDBMS" == "$BASEDBMS_PGSQL" ]; then
-    echo -n "$PROG: PostgreSQL database generation...\c"
+    echo -n "$PROG: PostgreSQL database generation... "
 
     # - PostgreSQL part
-    createdb $DATABASE_NAME
-    if [[ $? != 0 ]]
-    then
-        error "createdb failed."
-    fi
+    createdb $DATABASE_NAME || error "createdb failed creating PostgreSQL database $DATABASE_NAME."
+    echo "ok."
 fi
 
 # - rasdaman part
 
-echo -n "$PROG: rasdaman dictionary initialization...\c"
+echo -n "$PROG: rasdaman dictionary initialization... "
 
 # - check if user has rights to create SQLite database
 if [ "$BASEDBMS" == "$BASEDBMS_SQLITE" ]; then
   datadir=$(dirname "@dbconn@")
   if [ ! -d "$datadir" ]
   then
-    echo "$MYNAME: Filestorage directory $datadir does not exist, rasdaman database cannot be created." >&2
-    exit $RC_ERROR
+    echo
+    echo -n "$PROG: Filestorage directory '$datadir' not found, creating... "
+    mkdir -p "$datadir" || error "failed creating filestorage directory '$datadir'."
+    echo "ok."
   fi
   if [ ! -w "$datadir" ]
   then
-    echo "$MYNAME: User $USER has no write permissions in $datadir, rasdaman database cannot be created." >&2
-    exit $RC_ERROR
+    error "$PROG: User '$USER' has no write permissions in '$datadir', rasdaman database cannot be created."
   fi
   if [ ! -x "$datadir" ]
   then
-    echo "$MYNAME: User $USER has no execute permissions in $datadir (and/or parent directories), rasdaman database cannot be created." >&2
-    exit $RC_ERROR
+    error "$PROG: User '$USER' has no execute permissions in '$datadir' (and/or parent directories), rasdaman database cannot be created."
   fi
 fi
 
-@bindir@rasdl -c --connect @dbconn@ && @bindir@rasdl -r $DEFINITION_FILE -i --connect @dbconn@
-if [[ $? != 0 ]]
-then
-	error "rasdl failed."
-fi
+@bindir@rasdl -c --connect @dbconn@ || error "rasdl failed creating RASBASE."
+@bindir@rasdl -r $DEFINITION_FILE -i --connect @dbconn@ || error "rasdl failed reading standard type definitions."
 
 # --- action end 
 
