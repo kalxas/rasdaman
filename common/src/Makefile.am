@@ -7,7 +7,9 @@ PROTO_SRC= grpc/messages/error.pb.cc \
 		   grpc/messages/healthservice.pb.cc \
 		   grpc/messages/healthservice.grpc.pb.cc
 
-
+PROTO_JAVA_SRC = ../../java/src/org/rasdaman/rasnet/service/Healthservice.java \
+                ../../java/src/org/rasdaman/rasnet/service/HealthServiceGrpc.java \
+                ../../java/src/org/rasdaman/rasnet/service/Error.java
 
 libcommon_a_SOURCES = crypto/crypto.cc \
 					  exceptions/connectionfailedexception.cc \
@@ -42,11 +44,18 @@ $(PROTO_SRC): $(PROTOBUF_FILES)
 	$(PROTOC) --proto_path=grpc/protomessages --grpc_out=grpc/messages --plugin=protoc-gen-grpc=${GRPCCPPPLUGIN} $?
 
 if ENABLE_JAVA
+all-local: $(PROTO_JAVA_SRC)
+
+$(PROTO_JAVA_SRC): $(PROTOBUF_FILES)
 	$(PROTOC) --proto_path=grpc/protomessages --java_out=../../java/src/ $?
 	$(PROTOC) --plugin=protoc-gen-grpc-java=${GRPCJAVAPLUGIN} --grpc-java_out=../../java/src --proto_path=grpc/protomessages $?
+
 endif
 
 clean-local:
 	rm -f grpc/messages/{*.cc,*.h}
+if ENABLE_JAVA
+	rm -f $(PROTO_JAVA_SRC)
+endif
 
 endif

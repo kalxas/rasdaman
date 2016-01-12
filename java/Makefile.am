@@ -133,5 +133,5 @@ wps:
 jar: all
 
 if RMANRASNET
-    SUBDIRS=../rasnet
+    SUBDIRS=../rasnet ../common
 endif
