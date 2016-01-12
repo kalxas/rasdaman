@@ -113,6 +113,7 @@ GDAL_CXXFLAGS=`$GDAL_CONFIG --cflags`
 
 # default, changed by --enable-debug, --with-optimization
 GCC_OPTIMIZATION_FLAG="-O3"
+GCC_DEBUG_SYMBOLS_FLAG="-g0"
 
 # Checks for header files.
 AC_PATH_X
@@ -331,10 +332,10 @@ AC_ARG_ENABLE([debug],
 AM_CONDITIONAL([ENABLE_DEBUG], [test "$RMANDEBUG" = on])
 
 AC_ARG_WITH([debug-symbols],
-            [AS_HELP_STRING([--without-debug-symbols],
-                            [compile rasdaman without debug symbols])],
-            [with_debug_symbols=no],
-            [with_debug_symbols=yes])
+            [AS_HELP_STRING([--with-debug-symbols],
+                            [compile rasdaman with debug symbols])],
+            [with_debug_symbols=yes],
+            [with_debug_symbols=no])
 AC_MSG_NOTICE(compiling with debug symbols... $with_debug_symbols)
 
 AC_ARG_WITH([optimization],
@@ -611,20 +612,19 @@ done
 # ----------------
 
 # General definitions.
-AS_IF([test "x$RMANDEBUG" != x],
-      [AC_DEFINE([RMANDEBUG])
-       AC_DEFINE([DEBUG])
-       CXXFLAGS+=" -g3 -gdwarf-2 -rdynamic "
-      ], 
-      [
-       AC_DEFINE([_DISABLE_TRACE_LOGS])
-       AS_IF([test "x$with_debug_symbols" == xyes],
-       [CXXFLAGS+=" -g3 -gdwarf-2 -rdynamic "],
-       [
-        AC_DEFINE([__NO_MATH_INLINES])
-       ])
-      ])
+if [ test "x$RMANDEBUG" != "x" || test "x$with_debug_symbols" == "xyes" ]; then
+    GCC_DEBUG_SYMBOLS_FLAG="-g3 -gdwarf-2 -rdynamic"
+fi
 
+if [ test "x$RMANDEBUG" != "x" ]; then
+    AC_DEFINE([RMANDEBUG])
+    AC_DEFINE([DEBUG])
+else
+    AC_DEFINE([_DISABLE_TRACE_LOGS])
+    if [ test "x$with_debug_symbols" == "xno" ]; then
+        AC_DEFINE([__NO_MATH_INLINES])
+    fi
+fi
 
 AC_SUBST(BASEDBSTRING)
 AC_DEFINE_UNQUOTED([BASEDBSTRING], ["$BASEDBSTRING"])
@@ -645,7 +645,7 @@ BASEDBCXXFLAGS+=" $DBIF_INC "
 COMPDATE=`date +"%d.%m.%Y %H:%M:%S"`
 AC_DEFINE_UNQUOTED([COMPDATE], ["$COMPDATE"])
 
-CXXFLAGS+=" -fno-stack-protector -fno-strict-overflow $GCC_OPTIMIZATION_FLAG"
+CXXFLAGS+=" -fno-stack-protector -fno-strict-overflow $GCC_OPTIMIZATION_FLAG $GCC_DEBUG_SYMBOLS_FLAG"
 CXXFLAGS+=" -I$abs_top_srcdir -I$abs_top_srcdir/debug -I$abs_top_srcdir/include $USER_CXXFLAGS"
 CFLAGS+=" $GCC_OPTIMIZATION_FLAG "
 CFLAGS+=" $USER_CFLAGS"
