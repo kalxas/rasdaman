@@ -39,7 +39,7 @@ all: init-third-party $(PROTOBUF_BIN) $(GRPC_BIN) $(GRPC_JAVA_BIN)
 # We recursively initialize the submodules everytime make is called.
 # The command is idempotent.
 init-third-party:
-	git submodule update --init --recursive
+	cd .. && git submodule update --init --recursive
 
 # Compile and install Google Protobuf to a temporary folder.
 $(PROTOBUF_BIN):
