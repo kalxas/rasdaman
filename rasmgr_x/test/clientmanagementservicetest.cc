@@ -28,12 +28,14 @@
 #include "../src/servermanager.hh"
 #include "../src/constants.hh"
 #include "../src/clientmanagementservice.hh"
+#include "../src/exceptions/rasmgrexceptions.hh"
 
 #include "mocks/servermanagermock.hh"
 #include "mocks/clientmanagermock.hh"
 #include "mocks/usermanagermock.hh"
 #include "mocks/servergroupfactorymock.hh"
 #include "mocks/mockrasserver.hh"
+#include "mocks/peermanagermock.hh"
 
 namespace rasmgr
 {
@@ -54,22 +56,24 @@ class ClientManagementServiceTest:public ::testing::Test
 protected:
     ClientManagementServiceTest()
     {
-        this->userManager.reset(new UserManagerMock());
-
-        ClientManagerConfig config;
-        this->clientManager.reset(new ClientManagerMock(config,userManager));
+        this->userManager = boost::make_shared<UserManagerMock>();
 
         ServerManagerConfig serverManagerConfig;
-        this->serverGroupFactory.reset(new ServerGroupFactoryMock());
+        this->serverGroupFactory = boost::make_shared<ServerGroupFactoryMock>();
 
-        this->serverManager.reset(new ServerManagerMock(serverManagerConfig, serverGroupFactory));
+        this->serverManager = boost::make_shared<ServerManagerMock>(serverManagerConfig, serverGroupFactory);
+        this->peerManager = boost::make_shared<PeerManagerMock> ();
 
-        this->service.reset(new ClientManagementService(this->clientManager, this->serverManager));
+        ClientManagerConfig config;
+        this->clientManager = boost::make_shared<ClientManagerMock>(config, userManager, serverManager, peerManager);
+
+        this->service.reset(new ClientManagementService(this->clientManager));
     }
 
     boost::shared_ptr<ServerManager> serverManager;
     boost::shared_ptr<ClientManager> clientManager;
     boost::shared_ptr<UserManager> userManager;
+    boost::shared_ptr<PeerManager> peerManager;
     boost::shared_ptr<ServerGroupFactory> serverGroupFactory;
 
     boost::shared_ptr<ClientManagementService> service;
@@ -151,61 +155,34 @@ TEST_F(ClientManagementServiceTest, DisconnectSuccess)
     ASSERT_TRUE(status.ok());
 }
 
-TEST_F(ClientManagementServiceTest, OpenDbSuccessInOneAttempt)
+TEST_F(ClientManagementServiceTest, OpenDbSucess)
 {
     std::string clientUUID = "clientUUID";
     std::string hostName = "hostName";
-    boost::int32_t port = 7001;
+    std::string dbId = "dbId";
+    boost::uint32_t port = 7001;
+
+    ClientServerSession session {clientUUID, dbId, hostName, port};
 
     ClientManagerMock& clientMgrMock = *boost::dynamic_pointer_cast<ClientManagerMock>(clientManager);
-    EXPECT_CALL(clientMgrMock, openClientDbSession(_, _, _, _)).WillOnce(SetArgReferee<3>(clientUUID));
-
-    boost::shared_ptr<Server> freeServer(new MockRasServer());
-    MockRasServer& mockServer = *boost::dynamic_pointer_cast<MockRasServer>(freeServer);
-    EXPECT_CALL(mockServer, getHostName()).WillOnce(Return(hostName));
-    EXPECT_CALL(mockServer, getPort()).WillOnce(Return(port));
-
-    ServerManagerMock& serverMgrMock = *boost::dynamic_pointer_cast<ServerManagerMock>(serverManager);
-    EXPECT_CALL(serverMgrMock, tryGetFreeServer(_,_)).WillOnce(DoAll(SetArgReferee<1>(freeServer), Return(true)));
+    EXPECT_CALL(clientMgrMock, openClientDbSession(_, _, _)).WillOnce(SetArgReferee<2>(session));
 
     rasnet::service::OpenDbReq request;
     rasnet::service::OpenDbRepl response;
 
     Status status = this->service->OpenDb(NULL, &request, &response);
     ASSERT_TRUE(status.ok());
+    ASSERT_EQ(port, response.port());
+    ASSERT_EQ(hostName, response.serverhostname());
+    ASSERT_EQ(clientUUID, response.clientsessionid());
+    ASSERT_EQ(dbId, response.dbsessionid());
 }
 
-TEST_F(ClientManagementServiceTest, OpenDbSuccessInLastAttempt)
-{
-    std::string clientUUID = "clientUUID";
-    std::string hostName = "hostName";
-    boost::int32_t port = 7001;
-
-    ClientManagerMock& clientMgrMock = *boost::dynamic_pointer_cast<ClientManagerMock>(clientManager);
-    EXPECT_CALL(clientMgrMock, openClientDbSession(_, _, _, _)).WillOnce(SetArgReferee<3>(clientUUID));
-
-    boost::shared_ptr<Server> freeServer(new MockRasServer());
-    MockRasServer& mockServer = *boost::dynamic_pointer_cast<MockRasServer>(freeServer);
-    EXPECT_CALL(mockServer, getHostName()).WillOnce(Return(hostName));
-    EXPECT_CALL(mockServer, getPort()).WillOnce(Return(port));
-
-    ServerManagerMock& serverMgrMock = *boost::dynamic_pointer_cast<ServerManagerMock>(serverManager);
-    EXPECT_CALL(serverMgrMock, tryGetFreeServer(_,_))
-    .Times(MAX_GET_SERVER_RETRIES - 1)
-    .WillOnce(Return(false))
-    .WillOnce(DoAll(SetArgReferee<1>(freeServer), Return(true)));
-
-    rasnet::service::OpenDbReq request;
-    rasnet::service::OpenDbRepl response;
-
-    Status status = this->service->OpenDb(NULL, &request, &response);
-    ASSERT_TRUE(status.ok());
-}
 
 TEST_F(ClientManagementServiceTest, OpenDbFailure)
 {
-    ServerManagerMock& serverMgrMock = *boost::dynamic_pointer_cast<ServerManagerMock>(serverManager);
-    EXPECT_CALL(serverMgrMock, tryGetFreeServer(_,_)).WillRepeatedly(Return(false));
+    ClientManagerMock& clientMgrMock = *boost::dynamic_pointer_cast<ClientManagerMock>(clientManager);
+    EXPECT_CALL(clientMgrMock, openClientDbSession(_, _, _)).WillOnce(Throw(NoAvailableServerException()));
 
     rasnet::service::OpenDbReq request;
     rasnet::service::OpenDbRepl response;

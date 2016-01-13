@@ -76,7 +76,6 @@ using rasnet::service::OpenServerDatabaseReq;
 using rasnet::service::OpenServerDatabaseRepl;
 using rasnet::service::CloseServerDatabaseReq;
 using rasnet::service::AbortTransactionRepl;
-using rasnet::service::ClientIdentity;
 using rasnet::service::AbortTransactionReq;
 using rasnet::service::BeginTransactionRepl;
 using rasnet::service::BeginTransactionReq;
@@ -134,7 +133,6 @@ using rasnet::service::StartInsertMDDRepl;
 using rasnet::service::StartInsertMDDReq;
 using rasnet::service::StartInsertTransMDDRepl;
 using rasnet::service::StartInsertTransMDDReq;
-using rasnet::service::ClientIdentity;
 using rasnet::service::KeepAliveReq;
 using rasnet::service::KeepAliveRequest;
 using common::ErrorMessage;
@@ -186,7 +184,8 @@ int RasnetClientComm::connectClient(string userName, string passwordHash)
         handleError(status.error_message());
     }
 
-    this->clientId = connectRepl.clientid();
+    //Kept for backwards compatibility
+    this->clientId = static_cast<long unsigned int>(common::UUID::generateIntId());
     this->clientUUID = connectRepl.clientuuid();
 
     // Send keep alive messages to rasmgr until openDB is called
@@ -205,6 +204,8 @@ int RasnetClientComm::disconnectClient()
 
     ClientContext context;
     grpc::Status status = this->getRasMgrService()->Disconnect(&context, disconnectReq, &disconnectRepl);
+
+    this->stopRasMgrKeepAlive();
     this->closeRasmgrService();
 
     if (!status.ok())
@@ -229,8 +230,16 @@ int RasnetClientComm::openDB(const char *database)
     ClientContext openDbContext;
     grpc::Status openDbStatus = this->getRasMgrService()->OpenDb(&openDbContext, openDatabaseReq, &openDatabaseRepl);
 
-    //stop sending keep alive messages to rasmgr
-    this->stopRasMgrKeepAlive();
+    this->remoteClientUUID = openDatabaseRepl.clientsessionid();
+    // If the allocated server belongs to the current rasmgr,
+    // We can stop sending keep alive messages to the current rasmgr.
+
+    if(this->remoteClientUUID==this->clientUUID)
+    {
+        LDEBUG<<"Stopping rasmgr keep alive.";
+        //stop sending keep alive messages to rasmgr
+        this->stopRasMgrKeepAlive();
+    }
 
     if (!openDbStatus.ok())
     {
@@ -272,7 +281,9 @@ int RasnetClientComm::closeDB()
 
     closeServerDatabaseReq.set_client_id(this->clientId);
     closeDbReq.set_clientid(this->clientId);
-    closeDbReq.set_clientuuid(this->clientUUID);
+
+    // The remoteClientUUID identifies local and remote sessions
+    closeDbReq.set_clientuuid(this->remoteClientUUID);
     closeDbReq.set_dbsessionid(this->sessionId);
 
     grpc::ClientContext closeServerDbContext;
@@ -2102,7 +2113,7 @@ void RasnetClientComm::clientRasServerKeepAliveRunner()
                 ::rasnet::service::KeepAliveRequest keepAliveReq;
                 Void keepAliveRepl;
 
-                keepAliveReq.set_client_uuid(this->clientUUID);
+                keepAliveReq.set_client_uuid(this->remoteClientUUID);
                 keepAliveReq.set_session_id(this->sessionId);
 
                 grpc::ClientContext context;

@@ -23,6 +23,7 @@
 
 syntax = "proto3";
 //The first line must specify the syntax.
+
 package rasnet.service;
 option java_package = "org.rasdaman.rasnet.service";
 
@@ -31,57 +32,40 @@ option java_generic_services = false;
 
 import "common_service.proto";
 
-message ConnectReq
-{
-    string userName = 1;
-    string passwordHash = 2;
+message GetRemoteServerRequest {
+    // The user name of the user that requested a server
+    string user_name = 1;
+
+    // The password hash of the user that requested a server
+    string password_hash =  2;
+
+    // The name of the database that the user has requested
+    string database_name = 3;
 }
 
-message ConnectRepl
-{
-    string clientUUID = 1;
-    int32 keepAliveTimeout = 2;
-    int32 clientId = 3;
+message GetRemoteServerReply {
+    // The client session id assigned by the remote rasmgr
+    string client_session_id = 1;
+
+    // DB session ID associated with this transaction
+    string db_session_id = 2;
+
+    // Host name of the assigned server
+    string server_host_name = 3;
+
+    // The port of the assigned server
+    uint32 server_port = 4;
 }
 
-message DisconnectReq
-{
-    string clientUUID = 1;
-    int32 clientId = 2;
+message ReleaseServerRequest {
+    // The client id assigned by the remote rasmgr
+    string client_session_id = 1;
+
+    // The ID of the DB session we want to release
+    string db_session_id = 2;
 }
 
-message OpenDbReq
-{
-    string clientUUID = 1;
-    int32 clientId = 2;
-    string databaseName = 3;
-}
-
-message OpenDbRepl
-{
-    string clientSessionId = 1;
-    string dbSessionId = 2;
-    string serverHostName = 3;
-    uint32 port = 4;
-}
-
-message CloseDbReq
-{
-    string clientUUID = 1;
-    int32 clientId = 2;
-    string dbSessionId = 3;
-}
-
-message KeepAliveReq
-{
-    string clientUUID = 1;
-}
-
-service RasMgrClientService
-{
-    rpc Connect(ConnectReq) returns (ConnectRepl);
-    rpc Disconnect(DisconnectReq) returns (rasnet.service.Void);
-    rpc OpenDb(OpenDbReq) returns (OpenDbRepl);
-    rpc CloseDb(CloseDbReq) returns (rasnet.service.Void);
-    rpc KeepAlive(KeepAliveReq) returns (rasnet.service.Void);
+service RasmgrRasmgrService{
+    rpc TryGetRemoteServer(GetRemoteServerRequest) returns (GetRemoteServerReply);
+    rpc ReleaseServer(ReleaseServerRequest) returns (rasnet.service.Void);
 }

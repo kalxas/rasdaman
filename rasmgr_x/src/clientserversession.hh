@@ -20,30 +20,29 @@
  * or contact Peter Baumann via <baumann@rasdaman.com>.
  */
 
-#include <iostream>
-#include <google/protobuf/stubs/common.h>
-#include "../src/unittest/gtest.h"
-#include "../src/logging/easylogging++.hh"
-#include "config.h"
+#ifndef RASMGR_X_SRC_CLIENTSERVERSESSION_HH
+#define RASMGR_X_SRC_CLIENTSERVERSESSION_HH
 
-_INITIALIZE_EASYLOGGINGPP
-using namespace std;
+#include <string>
+#include <boost/cstdint.hpp>
 
-int main(int argc, char **argv)
+namespace rasmgr
 {
-    easyloggingpp::Configurations defaultConf;
-    defaultConf.setToDefault();
-    defaultConf.set(easyloggingpp::Level::Error,
-                    easyloggingpp::ConfigurationType::Format,
-                    "%datetime %level %loc %log %func ");
-    easyloggingpp::Loggers::reconfigureAllLoggers(defaultConf);
-    ::testing::InitGoogleTest(&argc, argv);
+/**
+ * @brief The ClientServerSession struct contains information
+ * needed by the client to contact a server and to identify itself
+ * on the server.
+ */
+struct ClientServerSession
+{
+    std::string clientSessionId;/*!< ID assigned to the client session*/
 
-    int testResults = RUN_ALL_TESTS();
+    std::string dbSessionId;/*!< ID assigned to the current database session*/
 
-    #ifdef RMANRASNET
-        google::protobuf::ShutdownProtobufLibrary();
-    #endif
+    std::string serverHostName;/*!< The host on which the remote server runs*/
 
-    return testResults;
+    boost::uint32_t serverPort;/*!< The port on which the remote server runs*/
+};
 }
+
+#endif // RASMGR_X_SRC_CLIENTSERVERSESSION_HH

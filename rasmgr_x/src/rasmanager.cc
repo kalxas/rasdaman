@@ -35,22 +35,24 @@
 #include "../../rasnet/messages/rasmgr_client_service.grpc.pb.h"
 #include "messages/rasmgrmess.pb.h"
 
-#include "clientmanager.hh"
-#include "clientmanagerconfig.hh"
 #include "clientmanagementservice.hh"
-#include "controlcommandexecutor.hh"
-#include "controlservice.hh"
+#include "clientmanagerconfig.hh"
+#include "clientmanager.hh"
 #include "configuration.hh"
 #include "configurationmanager.hh"
+#include "controlcommandexecutor.hh"
+#include "controlservice.hh"
 #include "databasehostmanager.hh"
 #include "databasemanager.hh"
-#include "rasmgrconfig.hh"
+#include "peermanager.hh"
 #include "rascontrol.hh"
-#include "servermanagerconfig.hh"
+#include "rasmgrconfig.hh"
+#include "rasmgrservice.hh"
 #include "serverfactoryrasnet.hh"
 #include "servergroupfactoryimpl.hh"
-#include "servermanager.hh"
 #include "servermanagementservice.hh"
+#include "servermanagerconfig.hh"
+#include "servermanager.hh"
 #include "usermanager.hh"
 
 #include "rasmanager.hh"
@@ -82,10 +84,12 @@ void RasManager::start()
     boost::shared_ptr<ServerGroupFactory> serverGroupFactory(new ServerGroupFactoryImpl(dbhManager, serverFactory));
     shared_ptr<ServerManager> serverManager ( new ServerManager ( serverMgrConfig,  serverGroupFactory) );
 
-    ClientManagerConfig clientManagerConfig;
-    shared_ptr<ClientManager> clientManager ( new ClientManager ( clientManagerConfig, userManager));
+    shared_ptr<PeerManager> peerManager (new PeerManager());
 
-    shared_ptr<RasControl> rascontrol ( new RasControl ( userManager, dbhManager, dbManager,serverManager , this) );
+    ClientManagerConfig clientManagerConfig;
+    shared_ptr<ClientManager> clientManager ( new ClientManager ( clientManagerConfig, userManager, serverManager, peerManager));
+
+    shared_ptr<RasControl> rascontrol ( new RasControl ( userManager, dbhManager, dbManager, serverManager, peerManager, this) );
 
     shared_ptr<ControlCommandExecutor> commandExecutor ( new ControlCommandExecutor ( rascontrol ) );
 
@@ -97,7 +101,9 @@ void RasManager::start()
 
     boost::shared_ptr<rasnet::service::RasMgrRasServerService::Service> serverManagementService ( new rasmgr::ServerManagementService ( serverManager ) );
     boost::shared_ptr<rasnet::service::RasMgrRasCtrlService::Service> rasctrlService ( new rasmgr::ControlService ( commandExecutor ) );
-    boost::shared_ptr<rasnet::service::RasMgrClientService::Service> clientService ( new rasmgr::ClientManagementService ( clientManager, serverManager ) );
+    boost::shared_ptr<rasnet::service::RasMgrClientService::Service> clientService ( new rasmgr::ClientManagementService ( clientManager) );
+    boost::shared_ptr<rasnet::service::RasmgrRasmgrService::Service> rasmgrService(new rasmgr::RasmgrService(clientManager));
+
     //The health service will only be used to report on the health of the server.
     boost::shared_ptr<common::HealthServiceImpl> healthService(new common::HealthServiceImpl());
 
@@ -114,6 +120,8 @@ void RasManager::start()
     builder.RegisterService(clientService.get());
     builder.RegisterService(serverManagementService.get());
     builder.RegisterService(rasctrlService.get());
+    builder.RegisterService(rasmgrService.get());
+
     builder.RegisterService(healthService.get());
 
     this->running = true;

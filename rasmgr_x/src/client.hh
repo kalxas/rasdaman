@@ -59,6 +59,14 @@ public:
     const std::string& getClientId() const;
 
     /**
+     * @brief getUser Get the user information(user name, password, access rights) associated with this client.
+     * The returned value is a constant to prevent accidental modification of the user information.
+     * User data should be modified only through the UserManager.
+     * @return
+     */
+    const boost::shared_ptr<const User> getUser() const;
+
+    /**
      * Check if the client is alive.
      * @return TRUE if the client is alive, false otherwise.
      */

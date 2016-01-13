@@ -32,6 +32,7 @@
 
 #include "databasehostmanager.hh"
 #include "databasemanager.hh"
+#include "peermanager.hh"
 #include "rasmanager.hh"
 #include "servermanager.hh"
 #include "usermanager.hh"
@@ -54,12 +55,14 @@ RasControl::RasControl ( boost::shared_ptr<UserManager> userManager,
                          boost::shared_ptr<DatabaseHostManager> dbHostManager,
                          boost::shared_ptr<DatabaseManager> dbManager,
                          boost::shared_ptr<ServerManager> serverManager,
+                         boost::shared_ptr<PeerManager> peerManager,
                          RasManager* rasmanager )
 {
     this->userManager = userManager;
     this->dbHostManager = dbHostManager;
     this->dbManager = dbManager;
     this->serverManager = serverManager;
+    this->peerManager = peerManager;
     this->rasmanager = rasmanager;
 }
 
@@ -578,17 +581,58 @@ std::string RasControl::helpUser()
 
 std::string RasControl::defineInpeer ( std::string hostName )
 {
-    return this->getNotImplementedMes();
+    std::string message;
+
+    try
+    {
+        this->peerManager->defineInPeer(hostName);
+        message = "Defining inpeer rasmgr " + hostName;
+    }
+    catch ( std::exception& ex )
+    {
+        message = this->formatErrorMessage(ex.what());
+    }
+    catch ( ... )
+    {
+        message = this->formatErrorMessage("Defining inpeer failed for an unknown reason.");
+    }
+
+    return message;
 }
 
 std::string RasControl::removeInpeer ( std::string hostName )
 {
-    return this->getNotImplementedMes();
+    std::string message;
+
+    try
+    {
+        this->peerManager->removeInPeer(hostName);
+        message = "Peer "+hostName+ " removed";
+    }
+    catch ( std::exception& ex )
+    {
+        message = this->formatErrorMessage(ex.what());
+    }
+    catch ( ... )
+    {
+        message = this->formatErrorMessage("Removing inpeer failed for an unknown reason.");
+    }
+
+    return message;
 }
 
 std::string RasControl::listInpeer()
 {
-    return this->getNotImplementedMes();
+    std::stringstream ss;
+    PeerMgrProto peerMgrData = this->peerManager->serializeToProto();
+
+    ss<<"List of inpeers:\r\n";
+    for(int i=0; i<peerMgrData.inpeers_size(); ++i)
+    {
+        ss<<"\r\n"<<std::setw(2)<<(i+1)<<". "<<peerMgrData.inpeers(i).host_name();
+    }
+
+    return ss.str();
 }
 
 std::string RasControl::helpInpeer()
@@ -598,17 +642,58 @@ std::string RasControl::helpInpeer()
 
 std::string RasControl::defineOutpeer ( const DefineOutpeer& outpeerData )
 {
-    return this->getNotImplementedMes();
+    std::string message;
+
+    try
+    {
+        this->peerManager->defineOutPeer(outpeerData.host_name(), outpeerData.port());
+        message = "Defining outpeer rasmgr "+outpeerData.host_name()+" port="+std::to_string(outpeerData.port());
+    }
+    catch ( std::exception& ex )
+    {
+        message = this->formatErrorMessage(ex.what());
+    }
+    catch ( ... )
+    {
+        message = this->formatErrorMessage("Defining outpeer failed for an unknown reason.");
+    }
+
+    return message;
 }
 
 std::string RasControl::removeOutpeer ( std::string hostName )
 {
-    return this->getNotImplementedMes();
+    std::string message;
+
+    try
+    {
+        this->peerManager->removeOutPeer(hostName);
+        message = "Peer "+hostName+ " removed";
+    }
+    catch ( std::exception& ex )
+    {
+        message = this->formatErrorMessage(ex.what());
+    }
+    catch ( ... )
+    {
+        message = this->formatErrorMessage("Removing outpeer failed for an unknown reason.");
+    }
+
+    return message;
 }
 
 std::string RasControl::listOutpeer()
 {
-    return this->getNotImplementedMes();
+    std::stringstream ss;
+    PeerMgrProto peerMgrData = this->peerManager->serializeToProto();
+
+    ss<<"List of outpeers:\r\n";
+    for(int i=0; i<peerMgrData.outpeers_size(); ++i)
+    {
+        ss<<"\r\n"<<std::setw(2)<<(i+1)<<". "<<peerMgrData.outpeers(i).host_name()<<" "<<peerMgrData.outpeers(i).port();
+    }
+
+    return ss.str();
 }
 
 std::string RasControl::helpOutpeer()

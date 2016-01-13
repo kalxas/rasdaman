@@ -9,13 +9,18 @@ SRC = $(PROTO_SRC) \
 	  exceptions/dbbusyexception.cc \
 	  exceptions/dbhostalreadyexistsexception.cc \
 	  exceptions/dbhostbusyexception.cc \
-	  exceptions/inexistentclientexception.cc \
 	  exceptions/duplicatedbsessionexception.cc \
+	  exceptions/inexistentclientexception.cc \
 	  exceptions/inexistentdatabaseexception.cc \
 	  exceptions/inexistentdbhostexception.cc \
+	  exceptions/inexistentinpeerexception.cc \
+	  exceptions/inexistentoutpeerexception.cc \
 	  exceptions/inexistentservergroupexception.cc \
 	  exceptions/inexistentuserexception.cc \
+	  exceptions/inpeeralreadyexistsexception.cc \
 	  exceptions/invalidclientcredentialsexception.cc \
+	  exceptions/noavailableserverexception.cc \
+	  exceptions/outpeeralreadyexistsexception.cc \
 	  exceptions/servergroupbusyexception.cc \
 	  exceptions/servergroupduplicateexception.cc \
 	  exceptions/useralreadyexistsexception.cc \
@@ -25,6 +30,7 @@ SRC = $(PROTO_SRC) \
 	  clientmanagementservice.cc \
 	  clientmanager.cc \
 	  clientmanagerconfig.cc \
+	  clientserverrequest.cc \
 	  configuration.cc \
 	  configurationmanager.cc \
 	  controlcommandexecutor.cc \
@@ -33,10 +39,15 @@ SRC = $(PROTO_SRC) \
 	  databasehost.cc \
 	  databasehostmanager.cc \
 	  databasemanager.cc \
+	  inpeer.cc \
+	  outpeer.cc \
+	  peermanager.cc \
 	  rascontrol.cc \
 	  rasctrlgrammarconstants.cc \
 	  rasmanager.cc \
 	  rasmgrconfig.cc \
+	  rasmgrservice.cc \
+	  remoteclientsession.cc \
 	  server.cc \
 	  serverconfig.cc \
 	  serverfactory.cc \

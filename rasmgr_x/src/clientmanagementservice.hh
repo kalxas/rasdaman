@@ -32,7 +32,6 @@ namespace rasmgr
 {
 
 class ClientManager;
-class ServerManager;
 
 /**
  * @brief The ClientManagementService class Handles requests from clients,
@@ -43,8 +42,7 @@ class ClientManagementService : public rasnet::service::RasMgrClientService::Ser
 {
 public:
 
-    ClientManagementService(boost::shared_ptr<ClientManager> clientManager,
-                            boost::shared_ptr<ServerManager> serverManager);
+    ClientManagementService(boost::shared_ptr<ClientManager> clientManager);
 
     virtual ~ClientManagementService();
 
@@ -60,8 +58,6 @@ public:
 
 private:
     boost::shared_ptr<ClientManager> clientManager;/*! Instance of the ClientManager class used for adding clients and client sessions */
-    boost::shared_ptr<ServerManager> serverManager;/*! Instance of the ServerManager class used for retrieving available servers*/
-    boost::mutex assignServerMutex; /*! Used for synchronizing access to the area where we assign a free server */
 };
 
 } /* namespace rasmgr */

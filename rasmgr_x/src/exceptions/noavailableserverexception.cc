@@ -20,30 +20,14 @@
  * or contact Peter Baumann via <baumann@rasdaman.com>.
  */
 
-#include <iostream>
-#include <google/protobuf/stubs/common.h>
-#include "../src/unittest/gtest.h"
-#include "../src/logging/easylogging++.hh"
-#include "config.h"
+#include "noavailableserverexception.hh"
 
-_INITIALIZE_EASYLOGGINGPP
-using namespace std;
-
-int main(int argc, char **argv)
+namespace rasmgr
 {
-    easyloggingpp::Configurations defaultConf;
-    defaultConf.setToDefault();
-    defaultConf.set(easyloggingpp::Level::Error,
-                    easyloggingpp::ConfigurationType::Format,
-                    "%datetime %level %loc %log %func ");
-    easyloggingpp::Loggers::reconfigureAllLoggers(defaultConf);
-    ::testing::InitGoogleTest(&argc, argv);
+NoAvailableServerException::NoAvailableServerException()
+    :common::ResourceBusyException("There is no available server for the client.")
+{}
 
-    int testResults = RUN_ALL_TESTS();
-
-    #ifdef RMANRASNET
-        google::protobuf::ShutdownProtobufLibrary();
-    #endif
-
-    return testResults;
+NoAvailableServerException::~NoAvailableServerException()
+{}
 }

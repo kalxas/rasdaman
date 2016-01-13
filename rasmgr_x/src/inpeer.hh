@@ -20,21 +20,31 @@
  * or contact Peter Baumann via <baumann@rasdaman.com>.
  */
 
-#ifndef RASMGR_X_SRC_EXCEPTIONS_INVALIDDBHOSTCONFIGEXCEPTION_HH
-#define RASMGR_X_SRC_EXCEPTIONS_INVALIDDBHOSTCONFIGEXCEPTION_HH
+#ifndef RASMGR_X_SRC_INPEER_HH
+#define RASMGR_X_SRC_INPEER_HH
 
-#include "../../../common/src/exceptions/exception.hh"
+#include <string>
 
 namespace rasmgr
 {
-
-class InvalidDbHostConfigException : public common::Exception
+/**
+ * @brief The InPeer class contains information needed to identify a peer from
+ * which requests can be received.
+ */
+class InPeer
 {
 public:
-    InvalidDbHostConfigException(const std::string& configuration);
+    /**
+     * @brief InPeer Initialize a new instance of the InPeer class.
+     * @param hostName The name of the host on which the peer rasmgr is running.
+     */
+    InPeer(const std::string& hostName);
 
-    virtual ~InvalidDbHostConfigException();
+    std::string getHostName() const;
+
+private:
+    std::string hostName; /*! Name of the host on which the rasmgr is running.*/
 };
-
 }
-#endif // RASMGR_X_SRC_EXCEPTIONS_INVALIDDBHOSTCONFIGEXCEPTION_HH
+
+#endif // INPEER_HH

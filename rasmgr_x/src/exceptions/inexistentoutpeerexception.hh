@@ -14,36 +14,32 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with rasdaman community.  If not, see <http://www.gnu.org/licenses/>.
  *
- * Copyright 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014 Peter Baumann / rasdaman GmbH.
+ * Copyright 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015 Peter Baumann / rasdaman GmbH.
  *
  * For more information please see <http://www.rasdaman.org>
  * or contact Peter Baumann via <baumann@rasdaman.com>.
  */
 
-#include <iostream>
-#include <google/protobuf/stubs/common.h>
-#include "../src/unittest/gtest.h"
-#include "../src/logging/easylogging++.hh"
-#include "config.h"
+#ifndef RASMGR_X_SRC_EXCEPTIONS_INEXISTENTOUTPEEREXCEPTION_HH_
+#define RASMGR_X_SRC_EXCEPTIONS_INEXISTENTOUTPEEREXCEPTION_HH_
 
-_INITIALIZE_EASYLOGGINGPP
-using namespace std;
+#include "../../common/src/exceptions/rasexceptions.hh"
 
-int main(int argc, char **argv)
+namespace rasmgr
 {
-    easyloggingpp::Configurations defaultConf;
-    defaultConf.setToDefault();
-    defaultConf.set(easyloggingpp::Level::Error,
-                    easyloggingpp::ConfigurationType::Format,
-                    "%datetime %level %loc %log %func ");
-    easyloggingpp::Loggers::reconfigureAllLoggers(defaultConf);
-    ::testing::InitGoogleTest(&argc, argv);
+/**
+ * @brief The InexistentOutPeerException class defines a type of object to be thrown as exception.
+ *  It reports errors that arise because a user tried to operate on a OutPeer that does not exist.
+ */
 
-    int testResults = RUN_ALL_TESTS();
+class InexistentOutPeerException:public common::MissingResourceException
+{
+public:
+    InexistentOutPeerException(const std::string& hostName);
 
-    #ifdef RMANRASNET
-        google::protobuf::ShutdownProtobufLibrary();
-    #endif
+    virtual ~InexistentOutPeerException();
+};
 
-    return testResults;
 }
+
+#endif // INEXISTENTOUTPEEREXCEPTION_HH

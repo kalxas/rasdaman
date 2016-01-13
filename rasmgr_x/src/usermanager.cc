@@ -133,7 +133,7 @@ void UserManager::changeUser(const std::string &userName, const UserProto &newUs
 
     if ( !changed )
     {
-	throw InexistentUserException(userName);
+        throw InexistentUserException(userName);
     }
 }
 
@@ -155,7 +155,7 @@ void UserManager::removeUser ( const std::string& userName )
 
     if ( !removed )
     {
-	throw InexistentUserException(userName);
+        throw InexistentUserException(userName);
     }
 }
 
@@ -199,7 +199,7 @@ void UserManager::saveUserInformation()
 
     if ( !ofs )
     {
-	throw common::RuntimeException( "Could not open authentication file for writing. File path:" + std::string ( authFileName ) );
+        throw common::RuntimeException( "Could not open authentication file for writing. File path:" + std::string ( authFileName ) );
     }
     else
     {

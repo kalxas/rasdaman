@@ -14,36 +14,23 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with rasdaman community.  If not, see <http://www.gnu.org/licenses/>.
  *
- * Copyright 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014 Peter Baumann / rasdaman GmbH.
+ * Copyright 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015 Peter Baumann / rasdaman GmbH.
  *
  * For more information please see <http://www.rasdaman.org>
  * or contact Peter Baumann via <baumann@rasdaman.com>.
  */
 
-#include <iostream>
-#include <google/protobuf/stubs/common.h>
-#include "../src/unittest/gtest.h"
-#include "../src/logging/easylogging++.hh"
-#include "config.h"
 
-_INITIALIZE_EASYLOGGINGPP
-using namespace std;
+#include "inexistentoutpeerexception.hh"
 
-int main(int argc, char **argv)
+namespace rasmgr
 {
-    easyloggingpp::Configurations defaultConf;
-    defaultConf.setToDefault();
-    defaultConf.set(easyloggingpp::Level::Error,
-                    easyloggingpp::ConfigurationType::Format,
-                    "%datetime %level %loc %log %func ");
-    easyloggingpp::Loggers::reconfigureAllLoggers(defaultConf);
-    ::testing::InitGoogleTest(&argc, argv);
 
-    int testResults = RUN_ALL_TESTS();
+InexistentOutPeerException::InexistentOutPeerException(const std::string &hostName)
+    :common::MissingResourceException("No outpeer with host name" + hostName + " found. ")
+{}
 
-    #ifdef RMANRASNET
-        google::protobuf::ShutdownProtobufLibrary();
-    #endif
+InexistentOutPeerException::~InexistentOutPeerException()
+{}
 
-    return testResults;
 }

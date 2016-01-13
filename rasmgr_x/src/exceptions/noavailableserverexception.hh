@@ -20,30 +20,28 @@
  * or contact Peter Baumann via <baumann@rasdaman.com>.
  */
 
-#include <iostream>
-#include <google/protobuf/stubs/common.h>
-#include "../src/unittest/gtest.h"
-#include "../src/logging/easylogging++.hh"
-#include "config.h"
+#ifndef RASMGR_X_SRC_EXCEPTIONS_NOAVAILABLESERVEREXCEPTION_HH
+#define RASMGR_X_SRC_EXCEPTIONS_NOAVAILABLESERVEREXCEPTION_HH
 
-_INITIALIZE_EASYLOGGINGPP
-using namespace std;
+#include <string>
+#include <boost/cstdint.hpp>
 
-int main(int argc, char **argv)
+#include "../../common/src/exceptions/rasexceptions.hh"
+
+namespace rasmgr
 {
-    easyloggingpp::Configurations defaultConf;
-    defaultConf.setToDefault();
-    defaultConf.set(easyloggingpp::Level::Error,
-                    easyloggingpp::ConfigurationType::Format,
-                    "%datetime %level %loc %log %func ");
-    easyloggingpp::Loggers::reconfigureAllLoggers(defaultConf);
-    ::testing::InitGoogleTest(&argc, argv);
 
-    int testResults = RUN_ALL_TESTS();
+/**
+ * @brief The NoAvailableServerException class defines a type of object to be thrown as exception.
+ *  It reports errors that arise because a free server could not be found for a client
+ */
+class NoAvailableServerException:public common::ResourceBusyException
+{
+public:
+    NoAvailableServerException();
 
-    #ifdef RMANRASNET
-        google::protobuf::ShutdownProtobufLibrary();
-    #endif
+    virtual ~NoAvailableServerException();
+};
 
-    return testResults;
 }
+#endif // NOAVAILABLESERVEREXCEPTION_HH

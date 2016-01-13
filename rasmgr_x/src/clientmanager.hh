@@ -35,13 +35,17 @@
 #include "../../common/src/time/timer.hh"
 
 #include "clientmanagerconfig.hh"
+#include "clientserverrequest.hh"
+#include "clientserversession.hh"
 
 namespace rasmgr
 {
 
 class Client;
 class ClientCredentials;
+class PeerManager;
 class Server;
+class ServerManager;
 class UserManager;
 
 /**
@@ -57,9 +61,14 @@ public:
      * @brief ClientManager
      * @param userManager Instance of the user manager that holds information
      * about registered users. It is needed to evaluate the access credentials
+     * @param serverManager Instance of the server manager that is used to retrieve
+     * servers for clients
      * of each client
      */
-    ClientManager(const ClientManagerConfig& config, boost::shared_ptr<UserManager> userManager);
+    ClientManager(const ClientManagerConfig& config,
+                  boost::shared_ptr<UserManager> userManager,
+                  boost::shared_ptr<ServerManager> serverManager,
+                  boost::shared_ptr<PeerManager> peerManager);
 
     /**
      * Destruct the ClientManager class object.
@@ -85,11 +94,10 @@ public:
     /**
      * @brief openClientDbSession Open a database session for the client with the given id and provide a unique session id.
      * @param clientId Unique ID identifying the client
-     * @param dbName  Database that the client wants to open
-     * @param assignedServer  Server that will be assigned to the client if this operation succeeds.
-     * @param out_sessionId  Session ID that will uniquely identify this session together with the clientID.
+     * @param dbName  Database the client wants to open
+     * @param out_serverSession Information identifying the client and the assigned server.
      */
-    virtual void openClientDbSession(std::string clientId, const std::string& dbName,boost::shared_ptr<Server> assignedServer, std::string& out_sessionId);
+    virtual void openClientDbSession(std::string clientId, const std::string& dbName, ClientServerSession& out_serverSession);
 
     /**
      * @brief closeClientDbSession Remove a client session from the client manager and the servers
@@ -117,7 +125,10 @@ private:
 
     std::map<std::string, boost::shared_ptr<Client> > clients; /*! list of active clients */
     boost::shared_mutex clientsMutex; /*! Mutex used to synchronize access to the clients object*/
+    boost::mutex serverManagerMutex; /*! Mutex used to prevent a free server being assigned to two different clients when tryGetFreeServer is called*/
     boost::shared_ptr<UserManager> userManager;
+    boost::shared_ptr<ServerManager> serverManager;
+    boost::shared_ptr<PeerManager> peerManager;
 
     boost::mutex threadMutex;/*! Mutex used to safely stop the worker thread */
     bool isThreadRunning; /*! Flag used to stop the worker thread */
@@ -127,6 +138,16 @@ private:
      * Evaluate the list of clients and remove the ones that have died.
      */
     void evaluateClientsStatus();
+
+    /**
+     * @brief tryGetFreeServer Try repeatedly to acquire a free server for the client.
+     * @param dbName
+     * @param server
+     * @return
+     */
+    bool tryGetFreeLocalServer(boost::shared_ptr<Client> client, const std::string& dbName, ClientServerSession& out_serverSession);
+
+    bool tryGetFreeRemoteServer(const ClientServerRequest& request, ClientServerSession& out_serverSession);
 };
 
 } /* namespace rasmgr */

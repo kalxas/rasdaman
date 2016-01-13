@@ -20,30 +20,23 @@
  * or contact Peter Baumann via <baumann@rasdaman.com>.
  */
 
-#include <iostream>
-#include <google/protobuf/stubs/common.h>
-#include "../src/unittest/gtest.h"
-#include "../src/logging/easylogging++.hh"
-#include "config.h"
+#include "remoteclientsession.hh"
 
-_INITIALIZE_EASYLOGGINGPP
-using namespace std;
-
-int main(int argc, char **argv)
+namespace rasmgr
 {
-    easyloggingpp::Configurations defaultConf;
-    defaultConf.setToDefault();
-    defaultConf.set(easyloggingpp::Level::Error,
-                    easyloggingpp::ConfigurationType::Format,
-                    "%datetime %level %loc %log %func ");
-    easyloggingpp::Loggers::reconfigureAllLoggers(defaultConf);
-    ::testing::InitGoogleTest(&argc, argv);
 
-    int testResults = RUN_ALL_TESTS();
+RemoteClientSession::RemoteClientSession(const std::string &clientSessionId, const std::string &dbSessionId)
+    :clientSessionId(clientSessionId), dbSessionId(dbSessionId)
+{}
 
-    #ifdef RMANRASNET
-        google::protobuf::ShutdownProtobufLibrary();
-    #endif
+std::string RemoteClientSession::getClientSessionId() const
+{
+    return clientSessionId;
+}
 
-    return testResults;
+std::string RemoteClientSession::getDbSessionId() const
+{
+    return dbSessionId;
+}
+
 }

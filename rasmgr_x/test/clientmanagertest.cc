@@ -36,11 +36,16 @@
 #include "../src/clientmanager.hh"
 #include "../src/clientcredentials.hh"
 #include "../src/clientmanagerconfig.hh"
+#include "../src/exceptions/rasmgrexceptions.hh"
+#include "../src/constants.hh"
 
 #include "../src/messages/rasmgrmess.pb.h"
 
 #include "mocks/mockrasserver.hh"
 #include "mocks/usermanagermock.hh"
+#include "mocks/servermanagermock.hh"
+#include "mocks/servergroupfactorymock.hh"
+#include "mocks/peermanagermock.hh"
 
 namespace rasmgr
 {
@@ -56,6 +61,7 @@ using rasmgr::ClientManagerConfig;
 using ::testing::AtLeast;                     // #1
 using ::testing::_;
 using ::testing::Return;
+using ::testing::SetArgReferee;
 using rasmgr::UserAdminRightsProto;
 using rasmgr::UserDatabaseRightsProto;
 using boost::shared_ptr;
@@ -68,22 +74,27 @@ protected:
         dbName("dbName"), sessionId("sessionId"),
         serverHost("tcp://localhost"),serverPort(7010)
     {
+        config.setCleanupInterval(10);
+        config.setClientLifeTime(10);
+
         rasmgr::UserAdminRights adminRights;
         adminRights.setAccessControlRights(true);
         adminRights.setInfoRights(true);
         adminRights.setServerAdminRights(true);
         adminRights.setSystemConfigRights(true);
 
-        config.setCleanupInterval(10);
-        config.setClientLifeTime(10);
-
         rasmgr::UserDatabaseRights dbRights(true, true);
+        user = boost::make_shared<User>(userName, userPassword, dbRights, adminRights);
 
-        user.reset(new rasmgr::User(userName,userPassword,dbRights, adminRights));
+        userManager = boost::make_shared<UserManagerMock>();
+        serverGroupFactory = boost::make_shared<ServerGroupFactoryMock>();
 
-        userManager.reset(new UserManagerMock());
-        clientManager.reset(new ClientManager(config,userManager));
+        ServerManagerConfig serverManagerConfig;
+        serverManager = boost::make_shared<ServerManagerMock>(serverManagerConfig, serverGroupFactory);
 
+        peerManager = boost::make_shared<PeerManagerMock>();
+
+        clientManager = boost::make_shared<ClientManager>(config, userManager, serverManager, peerManager);
     }
 
     boost::shared_ptr<rasmgr::User> user;
@@ -98,10 +109,13 @@ protected:
     std::string serverHost;
     boost::int32_t serverPort;
     boost::shared_ptr<UserManager> userManager;
+    boost::shared_ptr<ServerGroupFactory> serverGroupFactory;
     boost::shared_ptr<ClientManager> clientManager;
+    boost::shared_ptr<ServerManager> serverManager;
+    boost::shared_ptr<PeerManager> peerManager;
 };
 
-TEST_F(ClientManagerTest, connectClientFailsInexistentUser)
+TEST_F(ClientManagerTest, connectClient_FailsInexistentUser)
 {
     std::string badUser="badUser";
     std::string badPassword = "badPassword";
@@ -109,27 +123,24 @@ TEST_F(ClientManagerTest, connectClientFailsInexistentUser)
     rasmgr::ClientCredentials badCredentials(badUser, badPassword);
     UserManagerMock& userMgrMock = *boost::dynamic_pointer_cast<UserManagerMock>(userManager);
 
-    EXPECT_CALL(userMgrMock, tryGetUser(_,_))
-    .WillOnce(Return(false)).WillRepeatedly(DoAll(testing::SetArgReferee<1>(user), Return(true)));
+    EXPECT_CALL(userMgrMock, tryGetUser(_,_)).WillOnce(Return(false));
 
     //Will fail because the user manager will say that there is no client with those credentials
-    ASSERT_ANY_THROW(clientManager->connectClient(badCredentials, out_clientId));
+    ASSERT_THROW(clientManager->connectClient(badCredentials, out_clientId), InexistentUserException);
 }
 
 TEST_F(ClientManagerTest, connectClientBadPassword)
 {
-    std::string badUser="badUser";
     std::string badPassword = "badPassword";
     std::string out_clientId;
-    rasmgr::ClientCredentials badCredentials(badUser, badPassword);
+
+    // Create credentials with the same user name but with a different password
+    rasmgr::ClientCredentials badCredentials(user->getName(), badPassword);
     UserManagerMock& userMgrMock = *boost::dynamic_pointer_cast<UserManagerMock>(userManager);
 
-    EXPECT_CALL(userMgrMock, tryGetUser(_,_))
-    .WillOnce(Return(false)).WillRepeatedly(DoAll(testing::SetArgReferee<1>(user), Return(true)));
+    EXPECT_CALL(userMgrMock, tryGetUser(_,_)).WillOnce(DoAll(testing::SetArgReferee<1>(user), Return(true)));
 
-    //Good user name, bad password
-    badCredentials.setUserName(user->getName());
-    ASSERT_ANY_THROW(clientManager->connectClient(badCredentials, out_clientId));
+    ASSERT_THROW(clientManager->connectClient(badCredentials, out_clientId), InvalidClientCredentialsException);
 }
 
 TEST_F(ClientManagerTest, connectClientSuccess)
@@ -138,13 +149,18 @@ TEST_F(ClientManagerTest, connectClientSuccess)
     rasmgr::ClientCredentials credentials(user->getName(), user->getPassword());
 
     UserManagerMock& userMgrMock = *boost::dynamic_pointer_cast<UserManagerMock>(userManager);
-    EXPECT_CALL(userMgrMock, tryGetUser(_,_))
-    .WillOnce(DoAll(testing::SetArgReferee<1>(user), Return(true)));
+    EXPECT_CALL(userMgrMock, tryGetUser(_,_)).WillOnce(DoAll(testing::SetArgReferee<1>(user), Return(true)));
 
     ASSERT_NO_THROW(clientManager->connectClient(credentials, out_clientId));
 }
 
-TEST_F(ClientManagerTest, disconnectClient)
+TEST_F(ClientManagerTest, disconnectClient_NoClientWithGivenId)
+{
+    //Nothing will happen because there is no client with that ID
+    ASSERT_NO_THROW(clientManager->disconnectClient("out_clientId"));
+}
+
+TEST_F(ClientManagerTest, disconnectClient_Success)
 {
     std::string out_clientId;
     rasmgr::ClientCredentials credentials(user->getName(), user->getPassword());
@@ -153,9 +169,6 @@ TEST_F(ClientManagerTest, disconnectClient)
 
     EXPECT_CALL(userMgrMock, tryGetUser(_,_))
     .WillOnce(DoAll(testing::SetArgReferee<1>(user), Return(true)));
-
-    //Nothing will happen because there is no client with that ID
-    ASSERT_NO_THROW(clientManager->disconnectClient("out_clientId"));
 
     //Will succeed
     ASSERT_NO_THROW(clientManager->connectClient(credentials, out_clientId));
@@ -164,77 +177,165 @@ TEST_F(ClientManagerTest, disconnectClient)
     ASSERT_NO_THROW(clientManager->disconnectClient(out_clientId));
 }
 
-TEST_F(ClientManagerTest, openClientDbSessionFailBecauseThereIsNoClient)
+TEST_F(ClientManagerTest, openClientDbSession_FailBecauseThereIsNoClientWithTheGivenId)
 {
-    std::string out_clientId;
-    std::string out_sessionId;
-
     boost::shared_ptr<Server> server(new MockRasServer());
 
     MockRasServer& serverMock = *boost::dynamic_pointer_cast<MockRasServer>(server);
     //  EXPECT_CALL(serverMock, allocateClientSession(_, _ ,dbName, _)).Times(1);
     EXPECT_CALL(serverMock, isClientAlive(_)).WillRepeatedly(Return(false));
 
+    std::string clientId("randomId");
+    ClientServerSession out_serverSession;
     //Will fail because there is no client with this id
-    ASSERT_ANY_THROW(clientManager->openClientDbSession(out_clientId, dbName, server, out_sessionId));
+    ASSERT_THROW(clientManager->openClientDbSession(clientId, dbName, out_serverSession), InexistentClientException);
 }
 
-TEST_F(ClientManagerTest, openClientDbSessionFail)
+TEST_F(ClientManagerTest, openClientDbSession_SuccessLocalServerFirstAttempt)
 {
-    std::string out_clientId;
-    std::string out_sessionId;
-
-    rasmgr::ClientCredentials credentials(user->getName(), user->getPassword());
-    boost::shared_ptr<Server> server(new MockRasServer());
-
-    MockRasServer& serverMock = *boost::dynamic_pointer_cast<MockRasServer>(server);
-    //  EXPECT_CALL(serverMock, allocateClientSession(_, _ ,dbName, _)).Times(1);
-    EXPECT_CALL(serverMock, isClientAlive(_)).WillRepeatedly(Return(false));
-
+    // Setup the user manager to successfully connect a client
     UserManagerMock& userMgrMock = *boost::dynamic_pointer_cast<UserManagerMock>(userManager);
     EXPECT_CALL(userMgrMock, tryGetUser(_,_))
     .WillOnce(DoAll(testing::SetArgReferee<1>(user), Return(true)));
 
-    ASSERT_NO_THROW(clientManager->connectClient(credentials, out_clientId));
+    // The ServerManager will return this server when asked for one
+    boost::shared_ptr<Server> freeServer(new MockRasServer());
+    MockRasServer& mockServer = *boost::dynamic_pointer_cast<MockRasServer>(freeServer);
+    EXPECT_CALL(mockServer, getHostName()).WillOnce(Return(serverHost));
+    EXPECT_CALL(mockServer, getPort()).WillOnce(Return(serverPort));
+    EXPECT_CALL(mockServer, allocateClientSession(_,_,_, _)).Times(1);
 
-    //Wait for the client to die
-    usleep(boost::uint32_t(config.getCleanupInterval()*1000*2));
-
-    ASSERT_ANY_THROW(clientManager->openClientDbSession(out_clientId, dbName, server, out_sessionId));
-}
-
-TEST_F(ClientManagerTest, openClientDbSessionSuccess)
-{
-    std::string out_clientId;
-    std::string out_sessionId;
+    ServerManagerMock& serverMgrMock = *boost::dynamic_pointer_cast<ServerManagerMock>(serverManager);
+    EXPECT_CALL(serverMgrMock, tryGetFreeServer(_,_)).WillOnce(DoAll(SetArgReferee<1>(freeServer), Return(true)));
 
     rasmgr::ClientCredentials credentials(user->getName(), user->getPassword());
-    boost::shared_ptr<Server> server(new MockRasServer());
+    std::string clientId;
+    clientManager->connectClient(credentials, clientId);
 
-    MockRasServer& serverMock = *boost::dynamic_pointer_cast<MockRasServer>(server);
-    EXPECT_CALL(serverMock, allocateClientSession(_, _ ,dbName, _)).Times(1);
-    EXPECT_CALL(serverMock, isClientAlive(_)).WillRepeatedly(Return(false));
+    ClientServerSession out_serverSession;
+    ASSERT_NO_THROW(clientManager->openClientDbSession(clientId, dbName, out_serverSession));
 
+    ASSERT_EQ(serverHost, out_serverSession.serverHostName);
+    ASSERT_EQ(serverPort, out_serverSession.serverPort);
+    ASSERT_EQ(clientId, out_serverSession.clientSessionId);
+    //the database session id is automatically created
+}
+
+//DIsabled for speed. Enable when you refactor constants
+TEST_F(ClientManagerTest, DISABLED_openClientDbSession_SuccessLocalServerLastAttempt)
+{
+    // Setup the user manager to successfully connect a client
     UserManagerMock& userMgrMock = *boost::dynamic_pointer_cast<UserManagerMock>(userManager);
     EXPECT_CALL(userMgrMock, tryGetUser(_,_))
     .WillOnce(DoAll(testing::SetArgReferee<1>(user), Return(true)));
 
-    ASSERT_NO_THROW(clientManager->connectClient(credentials, out_clientId));
+    // The ServerManager will return this server when asked for one
+    boost::shared_ptr<Server> freeServer(new MockRasServer());
+    MockRasServer& mockServer = *boost::dynamic_pointer_cast<MockRasServer>(freeServer);
+    EXPECT_CALL(mockServer, getHostName()).WillOnce(Return(serverHost));
+    EXPECT_CALL(mockServer, getPort()).WillOnce(Return(serverPort));
+    EXPECT_CALL(mockServer, allocateClientSession(_,_,_, _)).Times(1);
 
-    ASSERT_NO_THROW(clientManager->openClientDbSession(out_clientId, dbName, server, out_sessionId));
+    ServerManagerMock& serverMgrMock = *boost::dynamic_pointer_cast<ServerManagerMock>(serverManager);
+    EXPECT_CALL(serverMgrMock, tryGetFreeServer(_,_))
+    .Times(MAX_GET_SERVER_RETRIES - 1)
+    .WillOnce(Return(false))
+    .WillOnce(DoAll(SetArgReferee<1>(freeServer), Return(true)));
+
+    rasmgr::ClientCredentials credentials(user->getName(), user->getPassword());
+    std::string clientId;
+    clientManager->connectClient(credentials, clientId);
+
+    ClientServerSession out_serverSession;
+    ASSERT_NO_THROW(clientManager->openClientDbSession(clientId, dbName, out_serverSession));
+
+    ASSERT_EQ(serverHost, out_serverSession.serverHostName);
+    ASSERT_EQ(serverPort, out_serverSession.serverPort);
+    ASSERT_EQ(clientId, out_serverSession.clientSessionId);
+    //the database session id is automatically created
+}
+
+//DIsabled for speed. Enable when you refactor constants into a configurable file
+TEST_F(ClientManagerTest, DISABLED_openClientDbSession_SuccessRemoteServer)
+{
+    // Setup the user manager to successfully connect a client
+    UserManagerMock& userMgrMock = *boost::dynamic_pointer_cast<UserManagerMock>(userManager);
+    EXPECT_CALL(userMgrMock, tryGetUser(_,_))
+    .WillOnce(DoAll(testing::SetArgReferee<1>(user), Return(true)));
+
+    ServerManagerMock& serverMgrMock = *boost::dynamic_pointer_cast<ServerManagerMock>(serverManager);
+    EXPECT_CALL(serverMgrMock, tryGetFreeServer(_,_))
+    .Times(MAX_GET_SERVER_RETRIES)
+    .WillRepeatedly(Return(false));
+
+    PeerManagerMock& peerMgrMock = *boost::dynamic_pointer_cast<PeerManagerMock>(peerManager);
+    std::string remoteClientId = "remoteClientId";
+    std::string remoteDbId = "dbSessionId";
+    std::string remoteServerHost = "remote";
+    boost::uint32_t remoteServerPort = 46000;
+    ClientServerSession serverSession {remoteClientId, remoteDbId, remoteServerHost, remoteServerPort};
+
+    EXPECT_CALL(peerMgrMock, tryGetRemoteServer(_, _))
+    .Times(1)
+    .WillOnce(DoAll(SetArgReferee<1>(serverSession), Return(true)));
+
+    rasmgr::ClientCredentials credentials(user->getName(), user->getPassword());
+    std::string clientId;
+    clientManager->connectClient(credentials, clientId);
+
+    ClientServerSession out_serverSession;
+    ASSERT_NO_THROW(clientManager->openClientDbSession(clientId, dbName, out_serverSession));
+
+    ASSERT_EQ(remoteServerHost, out_serverSession.serverHostName);
+    ASSERT_EQ(remoteServerPort, out_serverSession.serverPort);
+    ASSERT_EQ(remoteClientId, out_serverSession.clientSessionId);
+    //the database session id is automatically created
+}
+
+//DIsabled for speed. Enable when you refactor constants into a configurable file
+TEST_F(ClientManagerTest, DISABLED_openClientDbSession_FailBecauseNoAvailableServer)
+{
+    // Setup the user manager to successfully connect a client
+    UserManagerMock& userMgrMock = *boost::dynamic_pointer_cast<UserManagerMock>(userManager);
+    EXPECT_CALL(userMgrMock, tryGetUser(_,_))
+    .WillOnce(DoAll(testing::SetArgReferee<1>(user), Return(true)));
+
+    ServerManagerMock& serverMgrMock = *boost::dynamic_pointer_cast<ServerManagerMock>(serverManager);
+    EXPECT_CALL(serverMgrMock, tryGetFreeServer(_,_))
+    .Times(MAX_GET_SERVER_RETRIES)
+    .WillRepeatedly(Return(false));
+
+    PeerManagerMock& peerMgrMock = *boost::dynamic_pointer_cast<PeerManagerMock>(peerManager);
+
+    EXPECT_CALL(peerMgrMock, tryGetRemoteServer(_, _))
+    .Times(1)
+    .WillOnce(Return(false));
+
+    rasmgr::ClientCredentials credentials(user->getName(), user->getPassword());
+    std::string clientId;
+    clientManager->connectClient(credentials, clientId);
+
+    ClientServerSession out_serverSession;
+    ASSERT_THROW(clientManager->openClientDbSession(clientId, dbName, out_serverSession), NoAvailableServerException);
 }
 
 
-TEST_F(ClientManagerTest, closeClientDbSessionWillFailsBecauseThereIsNoClient)
+TEST_F(ClientManagerTest, closeClientDbSession_FailsBecauseThereIsNoClient)
 {
     std::string out_clientId;
     std::string out_sessionId;
+
+    PeerManagerMock& peerMgrMock = *boost::dynamic_pointer_cast<PeerManagerMock>(peerManager);
+
+    EXPECT_CALL(peerMgrMock, isRemoteClientSession(_))
+    .Times(1)
+    .WillOnce(Return(false));
 
     //There is no client connected.
-    ASSERT_ANY_THROW(clientManager->closeClientDbSession(out_clientId, out_sessionId));
+    ASSERT_THROW(clientManager->closeClientDbSession(out_clientId, out_sessionId), InexistentClientException);
 }
 
-TEST_F(ClientManagerTest, closeClientDbSessionNoOpenSessions)
+TEST_F(ClientManagerTest, closeClientDbSession_NoOpenSessions)
 {
     std::string out_clientId;
     std::string out_sessionId;
@@ -251,31 +352,44 @@ TEST_F(ClientManagerTest, closeClientDbSessionNoOpenSessions)
     ASSERT_NO_THROW(clientManager->closeClientDbSession(out_clientId, out_sessionId));
 }
 
-TEST_F(ClientManagerTest, closeClientDbSessionOpenDbSessions)
+TEST_F(ClientManagerTest, closeClientDbSession_RemoteSession)
 {
     std::string out_clientId;
     std::string out_sessionId;
 
-    rasmgr::ClientCredentials credentials(user->getName(), user->getPassword());
-    boost::shared_ptr<Server> server(new MockRasServer());
+    PeerManagerMock& peerMgrMock = *boost::dynamic_pointer_cast<PeerManagerMock>(peerManager);
 
-    MockRasServer& serverMock = *boost::dynamic_pointer_cast<MockRasServer>(server);
-    EXPECT_CALL(serverMock, allocateClientSession(_, _ ,dbName, _)).Times(1);
-    EXPECT_CALL(serverMock, deallocateClientSession(_,_)).Times(1);
-    EXPECT_CALL(serverMock, isClientAlive(_)).WillRepeatedly(Return(true));
+    EXPECT_CALL(peerMgrMock, isRemoteClientSession(_))
+    .WillOnce(Return(true));
+
+    EXPECT_CALL(peerMgrMock, releaseServer(_))
+    .Times(1);
+
+    //There is no client connected.
+    ASSERT_NO_THROW(clientManager->closeClientDbSession(out_clientId, out_sessionId));
+}
+
+TEST_F(ClientManagerTest, keepClientAlive_InexistentClient)
+{
+    ASSERT_THROW(clientManager->keepClientAlive("testId"), InexistentClientException);
+}
+
+TEST_F(ClientManagerTest, keepClientAlive_ValidClient)
+{
+    std::string out_clientId;
+
+    rasmgr::ClientCredentials credentials(user->getName(), user->getPassword());
 
     UserManagerMock& userMgrMock = *boost::dynamic_pointer_cast<UserManagerMock>(userManager);
     EXPECT_CALL(userMgrMock, tryGetUser(_,_))
     .WillOnce(DoAll(testing::SetArgReferee<1>(user), Return(true)));
 
     clientManager->connectClient(credentials, out_clientId);
-    clientManager->openClientDbSession(out_clientId, dbName, server, out_sessionId);
 
-    //Will succeed
-    ASSERT_NO_THROW(clientManager->closeClientDbSession(out_clientId, out_sessionId));
+    ASSERT_NO_THROW(clientManager->keepClientAlive(out_clientId));
 }
 
-TEST_F(ClientManagerTest, keepClientAliveFail)
+TEST_F(ClientManagerTest, keepClientAlive_ExpiredClient)
 {
     std::string out_clientId;
 
@@ -289,14 +403,16 @@ TEST_F(ClientManagerTest, keepClientAliveFail)
     EXPECT_CALL(userMgrMock, tryGetUser(_,_))
     .WillOnce(DoAll(testing::SetArgReferee<1>(user), Return(true)));
 
-    ASSERT_ANY_THROW(clientManager->keepClientAlive(out_clientId));
+    clientManager->connectClient(credentials, out_clientId);
 
-    ASSERT_NO_THROW(clientManager->connectClient(credentials, out_clientId));
+    // The client exists
+    ASSERT_NO_THROW(clientManager->keepClientAlive(out_clientId));
 
     //Wait for the client to die
     usleep(boost::uint32_t(config.getCleanupInterval()*1000*2));
 
-    ASSERT_ANY_THROW(clientManager->keepClientAlive(out_clientId));
+    ASSERT_THROW(clientManager->keepClientAlive(out_clientId), InexistentClientException);
 }
+
 }
 }

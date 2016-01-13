@@ -10,9 +10,14 @@ main_test_SOURCES = main_test.cc \
 					databasehosttest.cc \
 					databasehostmanagertest.cc \
 					databasemanagertest.cc \
+					peermanagertest.cc \
+					outpeertest.cc \
 					rasservertest.cc \
 					servergrouptest.cc \
 					servermanagertest.cc \
 					clientmanagementservicetest.cc
 
-main_test_LDADD = ../src/librasmgr.a ../../rasnet/librasnet.a ../../common/src/libcommon.a @GRPC_LIBS@ @PROTOBUF_LIBS@ @BOOST_LDFLAGS@ -lboost_thread -lpthread -lboost_system
+main_test_LDADD = ../src/librasmgr.a ../../rasnet/librasnet.a ../../common/src/libcommon.a ../../common/src/libgooglemock.a @GRPC_LIBS@ @PROTOBUF_LIBS@ @BOOST_LDFLAGS@ -lboost_thread -lpthread -lboost_system
+
+check-local:
+	./main_test

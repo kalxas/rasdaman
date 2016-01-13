@@ -21,6 +21,7 @@
  */
 
 #include <stdexcept>
+#include <boost/smart_ptr.hpp>
 
 #include "../../common/src/logging/easylogging++.hh"
 #include "../../common/src/exceptions/rasexceptions.hh"
@@ -45,7 +46,7 @@ void DatabaseHostManager::defineDatabaseHost(const DatabaseHostPropertiesProto &
 {
     if(!newDbHost.has_host_name() || newDbHost.host_name().empty())
     {
-        throw new common::InvalidArgumentException("Invalid database host configuration:\n"+newDbHost.SerializeAsString());
+        throw common::InvalidArgumentException("Invalid database host configuration:\n" + newDbHost.DebugString());
     }
 
     list<shared_ptr<DatabaseHost> >::iterator it;
@@ -72,7 +73,7 @@ void DatabaseHostManager::defineDatabaseHost(const DatabaseHostPropertiesProto &
         std::string connectStr = newDbHost.has_connect_string() ? newDbHost.connect_string() : empty;
         std::string userName = newDbHost.has_user_name()?newDbHost.user_name():empty;
         std::string password = newDbHost.has_password()?newDbHost.password():empty;
-        shared_ptr<DatabaseHost> dbHost(new DatabaseHost(newDbHost.host_name(), connectStr, userName, password));
+        auto dbHost = boost::make_shared<DatabaseHost>(newDbHost.host_name(), connectStr, userName, password);
 
         this->hostList.push_back(dbHost);
     }

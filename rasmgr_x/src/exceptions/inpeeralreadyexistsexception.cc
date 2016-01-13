@@ -20,30 +20,18 @@
  * or contact Peter Baumann via <baumann@rasdaman.com>.
  */
 
-#include <iostream>
-#include <google/protobuf/stubs/common.h>
-#include "../src/unittest/gtest.h"
-#include "../src/logging/easylogging++.hh"
-#include "config.h"
+#include "inpeeralreadyexistsexception.hh"
 
-_INITIALIZE_EASYLOGGINGPP
-using namespace std;
-
-int main(int argc, char **argv)
+namespace rasmgr
 {
-    easyloggingpp::Configurations defaultConf;
-    defaultConf.setToDefault();
-    defaultConf.set(easyloggingpp::Level::Error,
-                    easyloggingpp::ConfigurationType::Format,
-                    "%datetime %level %loc %log %func ");
-    easyloggingpp::Loggers::reconfigureAllLoggers(defaultConf);
-    ::testing::InitGoogleTest(&argc, argv);
 
-    int testResults = RUN_ALL_TESTS();
+InPeerAlreadyExistsException::InPeerAlreadyExistsException(const std::string &hostName)
+    :common::LogicException( "Inpeer rasmanager " + hostName + " already defined.")
+{
 
-    #ifdef RMANRASNET
-        google::protobuf::ShutdownProtobufLibrary();
-    #endif
+}
 
-    return testResults;
+InPeerAlreadyExistsException::~InPeerAlreadyExistsException()
+{}
+
 }

@@ -33,7 +33,6 @@
 #include "../../rasnet/messages/rasmgr_client_service.pb.h"
 
 #include "clientmanager.hh"
-#include "servermanager.hh"
 #include "constants.hh"
 
 #include "clientcredentials.hh"
@@ -52,16 +51,11 @@ using common::GrpcUtils;
 
 using grpc::Status;
 
-using rasnet::service::ClientIdentity;
-
 using std::string;
 
-ClientManagementService::ClientManagementService(boost::shared_ptr<ClientManager> clientManager,
-        boost::shared_ptr<ServerManager> serverManager)
-{
-    this->clientManager=clientManager;
-    this->serverManager=serverManager;
-}
+ClientManagementService::ClientManagementService(boost::shared_ptr<ClientManager> clientManager)
+    :clientManager(clientManager)
+{}
 
 ClientManagementService::~ClientManagementService()
 {}
@@ -87,10 +81,8 @@ grpc::Status ClientManagementService::Connect(grpc::ServerContext *context, cons
         //If the authentication fails, an exception is thrown
         this->clientManager->connectClient(credentials, out_clientUUID);
 
+        response->set_clientid(common::UUID::generateIntId());
         response->set_clientuuid(out_clientUUID);
-
-        int clientId = common::UUID::generateIntId();
-        response->set_clientid(clientId);
         response->set_keepalivetimeout(this->clientManager->getConfig().getClientLifeTime());
 
         LDEBUG<<"Finished connecting client with ID:"
@@ -145,55 +137,24 @@ grpc::Status ClientManagementService::Disconnect(grpc::ServerContext *context, c
 
 grpc::Status ClientManagementService::OpenDb(grpc::ServerContext *context, const rasnet::service::OpenDbReq *request, rasnet::service::OpenDbRepl *response)
 {
+    string clientId = request->clientuuid();
+    string dbName = request->databasename();
+
     grpc::Status status = Status::OK;
 
     try
     {
-        shared_ptr<Server> server;
-        string out_sessionId;
-        string clientId = request->clientuuid();
-        string dbName = request->databasename();
+        ClientServerSession session;
 
-        boost::uint32_t attemptsLeft = MAX_GET_SERVER_RETRIES;
-        boost::posix_time::time_duration intervalBetweenAttempts = boost::posix_time::milliseconds(INTERVAL_BETWEEN_GET_SERVER);
+        //The session is initialized by the call
+        this->clientManager->openClientDbSession(clientId, dbName, session);
 
-        /**
-         * 1. Try for a fixed number of times to acquire a server.
-         *    If there is no server available, unlock access to this section and sleep for a given timeout.
-         * 2. Add the session to the client manager.
-         * 3. Fill the response to the client with the server's identity
-         */
-        while(attemptsLeft>=1)
-        {
-            unique_lock<mutex> lock(this->assignServerMutex);
+        LDEBUG_IF(clientId!=session.clientSessionId)<<"Opened remote database session for client with ID:"<<clientId;
 
-            //Try to get a free server that contains the requested database
-            if(this->serverManager->tryGetFreeServer(dbName, server))
-            {
-                //Open a session for the client.
-                this->clientManager->openClientDbSession(clientId, dbName, server, out_sessionId);
-
-                response->set_dbsessionid(out_sessionId);
-                response->set_serverhostname(server->getHostName());
-                response->set_port(server->getPort());
-
-                break;
-            }
-            else if(attemptsLeft>1)
-            {
-                // If there are still attempts left, unlock access to this region and sleep
-                lock.unlock();
-                boost::this_thread::sleep(intervalBetweenAttempts);
-                lock.lock();
-            }
-            else
-            {
-                //Fail if there is no available server and the number of attempts was exceeded
-                status = GrpcUtils::convertExceptionToStatus("There is no available server for the client.");
-            }
-
-            attemptsLeft--;
-        }
+        response->set_clientsessionid(session.clientSessionId);
+        response->set_dbsessionid(session.dbSessionId);
+        response->set_port(session.serverPort);
+        response->set_serverhostname(session.serverHostName);
     }
     catch(std::exception& ex)
     {

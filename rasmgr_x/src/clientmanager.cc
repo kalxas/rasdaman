@@ -22,6 +22,7 @@
 
 #include <iostream>
 #include <stdexcept>
+#include <string>
 
 #include <boost/date_time/posix_time/posix_time.hpp>
 #include <boost/thread.hpp>
@@ -32,12 +33,15 @@
 
 #include "exceptions/rasmgrexceptions.hh"
 
+#include "constants.hh"
 #include "client.hh"
 #include "clientcredentials.hh"
 #include "user.hh"
 #include "usermanager.hh"
-
+#include "servermanager.hh"
+#include "server.hh"
 #include "clientmanager.hh"
+#include "peermanager.hh"
 
 namespace rasmgr
 {
@@ -48,8 +52,10 @@ using boost::shared_mutex;
 using boost::shared_ptr;
 using boost::shared_lock;
 using boost::thread;
+using boost::upgrade_lock;
 using boost::unique_lock;
 using boost::weak_ptr;
+using boost::mutex;
 using common::UUID;
 using common::Timer;
 using std::map;
@@ -57,9 +63,14 @@ using std::pair;
 using std::runtime_error;
 using std::string;
 
-ClientManager::ClientManager(const ClientManagerConfig& config, boost::shared_ptr<rasmgr::UserManager> userManager):
+ClientManager::ClientManager(const ClientManagerConfig& config,
+                             boost::shared_ptr<UserManager> userManager,
+                             boost::shared_ptr<ServerManager> serverManager,
+                             boost::shared_ptr<PeerManager> peerManager):
     config(config),
-    userManager(userManager)
+    userManager(userManager),
+    serverManager(serverManager),
+    peerManager(peerManager)
 {
     this->isThreadRunning = true;
     this->managementThread.reset(
@@ -105,14 +116,14 @@ void ClientManager::connectClient(const ClientCredentials& clientCredentials, st
         {
             //Lock access to this area.
             unique_lock<shared_mutex> lock(this->clientsMutex);
-            //        Generate a UID for the client
+            //       dbName Generate a UID for the client
             do
             {
                 out_clientUUID = UUID::generateUUID();
             }
             while (this->clients.find(out_clientUUID) != this->clients.end());
 
-            shared_ptr<Client> client(new Client(out_clientUUID, out_user, this->config.getClientLifeTime()));
+            shared_ptr<Client> client = boost::make_shared<Client>(out_clientUUID, out_user, this->config.getClientLifeTime());
 
             this->clients.insert(std::make_pair(out_clientUUID, client));
         }
@@ -123,7 +134,7 @@ void ClientManager::connectClient(const ClientCredentials& clientCredentials, st
     }
     else
     {
-        throw InexistentClientException(clientCredentials.getUserName());
+        throw InexistentUserException(clientCredentials.getUserName());
     }
 }
 
@@ -136,7 +147,7 @@ void ClientManager::disconnectClient(const std::string& clientId)
      */
 
     map<string, shared_ptr<Client> >::iterator it;
-    boost::upgrade_lock<boost::shared_mutex> lock(this->clientsMutex);
+    upgrade_lock<shared_mutex> lock(this->clientsMutex);
 
     it = this->clients.find(clientId);
 
@@ -145,7 +156,7 @@ void ClientManager::disconnectClient(const std::string& clientId)
         //Remove the client from all the servers where it had opened sessions
         it->second->removeClientFromServers();
 
-        boost::upgrade_to_unique_lock<boost::shared_mutex> uniqueLock(lock);
+        boost::upgrade_to_unique_lock<shared_mutex> uniqueLock(lock);
         this->clients.erase(it);
 
         LINFO<<"The client with ID:\""<<clientId<<"\" has been removed from the list";
@@ -156,22 +167,36 @@ void ClientManager::disconnectClient(const std::string& clientId)
     }
 }
 
-void ClientManager::openClientDbSession(std::string clientId, const std::string& dbName,boost::shared_ptr<Server> assignedServer, std::string& out_sessionId)
+void ClientManager::openClientDbSession(std::string clientId, const std::string& dbName, ClientServerSession& out_serverSession)
 {
-
-    /**
-     * 1. Determine if the client is in the list of active clients.
-     * 2. Create a DBSession for the client or throw an exception.
-     */
-
-    map<string, shared_ptr<Client> >::iterator it;
-
     shared_lock<shared_mutex> lock(this->clientsMutex);
 
-    it = this->clients.find(clientId);
-    if(it!=this->clients.end())
+    auto clientsIter = this->clients.find(clientId);
+    if(clientsIter!=this->clients.end())
     {
-        it->second->addDbSession(dbName, assignedServer, out_sessionId);
+        auto client = clientsIter->second;
+
+        if(tryGetFreeLocalServer(client, dbName, out_serverSession))
+        {
+            LDEBUG<<"Allocated local server running on "<<out_serverSession.serverHostName<<":"<<out_serverSession.serverPort
+                  <<" to client with ID "<<out_serverSession.clientSessionId;
+        }
+        else
+        {
+            // Try to get a remote server for the client.
+
+            ClientServerRequest request(client->getUser()->getName(), client->getUser()->getPassword(), dbName);
+
+            if(this->tryGetFreeRemoteServer(request, out_serverSession))
+            {
+                LDEBUG<<"Allocated remote server running on "<<out_serverSession.serverHostName<<":"<<out_serverSession.serverPort
+                      <<" to client with ID "<<out_serverSession.clientSessionId;
+            }
+            else
+            {
+                throw NoAvailableServerException();
+            }
+        }
     }
     else
     {
@@ -181,14 +206,18 @@ void ClientManager::openClientDbSession(std::string clientId, const std::string&
 
 void ClientManager::closeClientDbSession(const std::string& clientId, const std::string& sessionId)
 {
-    map<string, shared_ptr<Client> >::iterator it;
-
     shared_lock<shared_mutex> lock(this->clientsMutex);
 
-    it = this->clients.find(clientId);
+    RemoteClientSession clientSession(clientId, sessionId);
+
+    map<string, shared_ptr<Client> >::iterator it = this->clients.find(clientId);
     if(it!=this->clients.end())
     {
         it->second->removeDbSession(sessionId);
+    }
+    else if(this->peerManager->isRemoteClientSession(clientSession))
+    {
+        this->peerManager->releaseServer(clientSession);
     }
     else
     {
@@ -265,5 +294,56 @@ void ClientManager::evaluateClientsStatus()
     }
 }
 
+bool ClientManager::tryGetFreeLocalServer(boost::shared_ptr<Client> client, const std::string& dbName, ClientServerSession& out_serverSession)
+{
+    boost::uint32_t attemptsLeft = MAX_GET_SERVER_RETRIES;
+    boost::posix_time::time_duration intervalBetweenAttempts = boost::posix_time::milliseconds(INTERVAL_BETWEEN_GET_SERVER);
+    bool foundServer = false;
+    /**
+     * 1. Try for a fixed number of times to acquire a server.
+     *    If there is no server available, unlock access to this section and sleep for a given timeout.
+     * 2. Add the session to the client manager.
+     * 3. Fill the response to the client with the server's identity
+     */
+    while(attemptsLeft>=1)
+    {
+        unique_lock<mutex> lock(this->serverManagerMutex);
+
+        boost::shared_ptr<Server> assignedServer;
+
+        //Try to get a free server that contains the requested database
+        if(this->serverManager->tryGetFreeServer(dbName, assignedServer))
+        {
+            std::string dbSessionId;
+            \
+            // A value will be assigned to dbSessionId by the ID
+            client->addDbSession(dbName, assignedServer, dbSessionId);
+
+            out_serverSession.clientSessionId = client->getClientId();
+            out_serverSession.dbSessionId = dbSessionId;
+            out_serverSession.serverHostName = assignedServer->getHostName();
+            out_serverSession.serverPort = static_cast<google::protobuf::uint32_t>(assignedServer->getPort());
+
+            foundServer = true;
+            break;
+        }
+        else if(attemptsLeft>1)
+        {
+            // If there are still attempts left, unlock access to this region and sleep
+            lock.unlock();
+            boost::this_thread::sleep(intervalBetweenAttempts);
+            lock.lock();
+        }
+
+        attemptsLeft--;
+    }
+
+    return foundServer;
+}
+
+bool ClientManager::tryGetFreeRemoteServer(const ClientServerRequest &request, ClientServerSession &out_reply)
+{
+    return this->peerManager->tryGetRemoteServer(request, out_reply);
+}
 
 } /* namespace rasmgr */

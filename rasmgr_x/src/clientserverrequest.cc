@@ -20,16 +20,26 @@
  * or contact Peter Baumann via <baumann@rasdaman.com>.
  */
 
-#include "invaliddbhostconfigexception.hh"
+#include "clientserverrequest.hh"
 
 namespace rasmgr
 {
-
-InvalidDbHostConfigException::InvalidDbHostConfigException(const std::string &configuration)
-    :common::Exception("The following database host configuration is invalid:"+configuration)
+ClientServerRequest::ClientServerRequest(const std::string &userName, const std::string &password, const std::string &databaseName)
+    :userName(userName), password(password), databaseName(databaseName)
 {}
 
-InvalidDbHostConfigException::~InvalidDbHostConfigException()
-{}
+std::string ClientServerRequest::getUserName() const
+{
+    return userName;
+}
 
+std::string ClientServerRequest::getPassword() const
+{
+    return password;
+}
+
+std::string ClientServerRequest::getDatabaseName() const
+{
+    return databaseName;
+}
 }

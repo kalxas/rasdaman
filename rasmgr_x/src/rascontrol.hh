@@ -34,6 +34,7 @@ namespace rasmgr
 {
 class DatabaseHostManager;
 class DatabaseManager;
+class PeerManager;
 class RasManager;
 class ServerManager;
 class UserManager;
@@ -49,6 +50,7 @@ public:
                  boost::shared_ptr<DatabaseHostManager> dbHostManager,
                  boost::shared_ptr<DatabaseManager> dbManager,
                  boost::shared_ptr<ServerManager> serverManager,
+                 boost::shared_ptr<PeerManager> peerManager,
                  RasManager* rasmanager);
 
     std::string deprecatedCommand();
@@ -116,6 +118,7 @@ private:
     boost::shared_ptr<DatabaseHostManager> dbHostManager;
     boost::shared_ptr<DatabaseManager> dbManager;
     boost::shared_ptr<ServerManager> serverManager;
+    boost::shared_ptr<PeerManager> peerManager;
 	RasManager* rasmanager;
 
     std::string convertAdminRights ( const UserAdminRightsProto& adminRights );

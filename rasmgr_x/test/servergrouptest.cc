@@ -328,7 +328,6 @@ TEST_F(ServerGroupTest, stop)
     EXPECT_CALL(runningServerRef, registerServer(runningServerId));
     EXPECT_CALL(runningServerRef, getServerId()).WillRepeatedly(Return(runningServerId));
     //The server will be stopped
-    EXPECT_CALL(runningServerRef, stop(force));
     //Because the server is stopped isAlive will return false.
     EXPECT_CALL(runningServerRef, isAlive()).WillOnce(Return(false));
     //This will return the port used by the server

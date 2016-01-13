@@ -12,3 +12,6 @@ if RMANRASNET
                          grpc/healthserviceservertest.cc
     main_test_LDADD +=  @GRPC_LIBS@ @PROTOBUF_LIBS@
 endif
+
+check-local:
+	./main_test

@@ -20,30 +20,33 @@
  * or contact Peter Baumann via <baumann@rasdaman.com>.
  */
 
-#include <iostream>
-#include <google/protobuf/stubs/common.h>
-#include "../src/unittest/gtest.h"
-#include "../src/logging/easylogging++.hh"
-#include "config.h"
+#ifndef RASMGR_X_SRC_EXCEPTIONS_OUTPEERALREADYEXISTSEXCEPTION_HH
+#define RASMGR_X_SRC_EXCEPTIONS_OUTPEERALREADYEXISTSEXCEPTION_HH
 
-_INITIALIZE_EASYLOGGINGPP
-using namespace std;
+#include <string>
+#include <boost/cstdint.hpp>
 
-int main(int argc, char **argv)
+#include "../../common/src/exceptions/rasexceptions.hh"
+
+namespace rasmgr
 {
-    easyloggingpp::Configurations defaultConf;
-    defaultConf.setToDefault();
-    defaultConf.set(easyloggingpp::Level::Error,
-                    easyloggingpp::ConfigurationType::Format,
-                    "%datetime %level %loc %log %func ");
-    easyloggingpp::Loggers::reconfigureAllLoggers(defaultConf);
-    ::testing::InitGoogleTest(&argc, argv);
 
-    int testResults = RUN_ALL_TESTS();
+/**
+ * @brief The OutPeerAlreadyExistsException class defines a type of object to be thrown as exception.
+ *  It reports errors that arise because a user tries to create a peer with the same identiefier as an existing one.
+ */
+class OutPeerAlreadyExistsException:public common::LogicException
+{
+public:
+    /**
+     * @brief InPeerAlreadyExistsException
+     * @param hostName Host name uniquely identifying the peer
+     * @param port Port uniquely identifying the peer
+     */
+    OutPeerAlreadyExistsException(const std::string& hostName, const boost::uint32_t port);
 
-    #ifdef RMANRASNET
-        google::protobuf::ShutdownProtobufLibrary();
-    #endif
-
-    return testResults;
+    virtual ~OutPeerAlreadyExistsException();
+};
 }
+
+#endif // PEERALREADYEXISTSEXCEPTION_HH

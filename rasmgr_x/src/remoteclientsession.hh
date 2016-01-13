@@ -20,30 +20,31 @@
  * or contact Peter Baumann via <baumann@rasdaman.com>.
  */
 
-#include <iostream>
-#include <google/protobuf/stubs/common.h>
-#include "../src/unittest/gtest.h"
-#include "../src/logging/easylogging++.hh"
-#include "config.h"
+#ifndef RASMGR_X_SRC_REMOTECLIENTSESSION_HH
+#define RASMGR_X_SRC_REMOTECLIENTSESSION_HH
 
-_INITIALIZE_EASYLOGGINGPP
-using namespace std;
-
-int main(int argc, char **argv)
+#include <string>
+#include <boost/cstdint.hpp>
+namespace rasmgr
 {
-    easyloggingpp::Configurations defaultConf;
-    defaultConf.setToDefault();
-    defaultConf.set(easyloggingpp::Level::Error,
-                    easyloggingpp::ConfigurationType::Format,
-                    "%datetime %level %loc %log %func ");
-    easyloggingpp::Loggers::reconfigureAllLoggers(defaultConf);
-    ::testing::InitGoogleTest(&argc, argv);
+/**
+ * @brief The RemoteClientSession struct contains information identifying a remote client session
+ */
+class RemoteClientSession
+{
+public:
+    RemoteClientSession(const std::string& clientSessionId, const std::string& dbSessionId);
 
-    int testResults = RUN_ALL_TESTS();
+    std::string getClientSessionId() const;
 
-    #ifdef RMANRASNET
-        google::protobuf::ShutdownProtobufLibrary();
-    #endif
+    std::string getDbSessionId() const;
 
-    return testResults;
+private:
+    std::string clientSessionId;/*!< String identifying the client session on the remote rasmgr */
+
+    std::string dbSessionId;/*!< String identifying the database session on the remote rasmgr*/
+};
+
 }
+
+#endif // REMOTECLIENTSESSION_HH

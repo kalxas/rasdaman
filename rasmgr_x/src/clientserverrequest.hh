@@ -20,30 +20,36 @@
  * or contact Peter Baumann via <baumann@rasdaman.com>.
  */
 
-#include <iostream>
-#include <google/protobuf/stubs/common.h>
-#include "../src/unittest/gtest.h"
-#include "../src/logging/easylogging++.hh"
-#include "config.h"
 
-_INITIALIZE_EASYLOGGINGPP
-using namespace std;
+#ifndef RASMGR_X_SRC_CLIENTSERVERREQUEST_HH
+#define RASMGR_X_SRC_CLIENTSERVERREQUEST_HH
 
-int main(int argc, char **argv)
+#include <string>
+
+namespace rasmgr
 {
-    easyloggingpp::Configurations defaultConf;
-    defaultConf.setToDefault();
-    defaultConf.set(easyloggingpp::Level::Error,
-                    easyloggingpp::ConfigurationType::Format,
-                    "%datetime %level %loc %log %func ");
-    easyloggingpp::Loggers::reconfigureAllLoggers(defaultConf);
-    ::testing::InitGoogleTest(&argc, argv);
+/**
+ * @brief The ClientServerRequest struct contains information
+ * required for requesting a new server from a remote rasmgr.
+ */
+class ClientServerRequest
+{
+public:
+    ClientServerRequest(const std::string& userName, const std::string& password, const std::string& dbName);
 
-    int testResults = RUN_ALL_TESTS();
+    std::string getUserName() const;
 
-    #ifdef RMANRASNET
-        google::protobuf::ShutdownProtobufLibrary();
-    #endif
+    std::string getPassword() const;
 
-    return testResults;
+    std::string getDatabaseName() const;
+
+private:
+    std::string userName;/*!< The name of the user requesting a new server*/
+
+    std::string password;/*!< The password hash of the user requesting a new server*/
+
+    std::string databaseName;/*!< The name of the database that the user is trying to access*/
+};
 }
+
+#endif // RASMGR_X_SRC_CLIENTSERVERREQUEST_HH

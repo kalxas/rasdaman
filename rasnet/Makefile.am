@@ -8,7 +8,8 @@ PROTOBUF_FILES_CLIENT= protomessages/client_rassrvr_service.proto \
 
 PROTOBUF_FILES_SERVER= protomessages/rasmgr_rasctrl_service.proto \
 				protomessages/rasmgr_rassrvr_service.proto \
-				protomessages/rassrvr_rasmgr_service.proto
+				protomessages/rassrvr_rasmgr_service.proto \
+				protomessages/rasmgr_rasmgr_service.proto
 
 PROTO_SRC_JAVA_CLIENT = ../java/src/org/rasdaman/rasnet/service/RasMgrClientServiceGrpc.java \
                         ../java/src/org/rasdaman/rasnet/service/RasmgrClientService.java \
@@ -28,7 +29,9 @@ PROTO_SRC_SERVER=messages/rasmgr_rasctrl_service.pb.cc \
            messages/rasmgr_rassrvr_service.pb.cc \
            messages/rasmgr_rassrvr_service.grpc.pb.cc \
            messages/rassrvr_rasmgr_service.pb.cc \
-           messages/rassrvr_rasmgr_service.grpc.pb.cc
+           messages/rassrvr_rasmgr_service.grpc.pb.cc \
+           messages/rasmgr_rasmgr_service.pb.cc \
+           messages/rasmgr_rasmgr_service.grpc.pb.cc
 
 noinst_LIBRARIES = librasnet.a
 librasnet_a_SOURCES = $(PROTO_SRC_CLIENT) $(PROTO_SRC_SERVER)

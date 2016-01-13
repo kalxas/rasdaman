@@ -133,11 +133,11 @@ protected:
 
         std::string serverBaseAddress = "0.0.0.0";
 
-        goodServerBuilder.AddListeningPort(common::GrpcUtils::convertAddressToString(serverBaseAddress, this->goodPort), grpc::InsecureServerCredentials());
+        goodServerBuilder.AddListeningPort(common::GrpcUtils::constructAddressString(serverBaseAddress, this->goodPort), grpc::InsecureServerCredentials());
         goodServerBuilder.RegisterService((SynchronousService*)service.get());
         goodService = goodServerBuilder.BuildAndStart();
 
-        failingServerBuilder.AddListeningPort(common::GrpcUtils::convertAddressToString(serverBaseAddress, this->badPort), grpc::InsecureServerCredentials());
+        failingServerBuilder.AddListeningPort(common::GrpcUtils::constructAddressString(serverBaseAddress, this->badPort), grpc::InsecureServerCredentials());
         failingServerBuilder.RegisterService((SynchronousService*)failService.get());
         failingService = failingServerBuilder.BuildAndStart();
 

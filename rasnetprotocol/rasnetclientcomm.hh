@@ -139,7 +139,14 @@ private:
     void closeRasmgrService();
 
     long unsigned int clientId;
+    /// The ID allocated by the rasmgr upon a successful connect request
     std::string clientUUID;
+
+    /// The ID allocated to the client upon a OpenDb request.
+    /// If the allocated server belongs to the current rasmgr, the UUID is the same
+    /// as the clientUUID. If the allocated server belongs to a peer of the current rasmgr,
+    /// the UUID uniquely identifies the client on the remote server.
+    std::string remoteClientUUID;
     std::string sessionId;
 
     char capability[100];

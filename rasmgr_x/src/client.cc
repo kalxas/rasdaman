@@ -164,6 +164,11 @@ void Client::removeClientFromServers()
     this->assignedServers.clear();
 }
 
+const boost::shared_ptr<const User> Client::getUser() const
+{
+    return user;
+}
+
 bool Client::isClientAliveOnServers()
 {
     bool isAlive=false;
