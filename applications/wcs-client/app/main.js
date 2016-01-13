@@ -2434,9 +2434,7 @@ var rasdaman;
                                 }
                             }
                             else {
-                                if ($scope.Core.Slices[i].SlicePoint != Math.round((min + max) / 2).toString()) {
-                                    dimensionSubset.push($scope.Core.Slices[i]);
-                                }
+                                dimensionSubset.push($scope.Core.Slices[i]);
                             }
                         }
                         var getCoverageRequest = new wcs.GetCoverage($scope.CoverageDescription.CoverageId, dimensionSubset, $scope.Core.SelectedCoverageFormat, $scope.Core.IsMultiPartFormat);

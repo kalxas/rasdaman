@@ -99,9 +99,7 @@ module rasdaman {
                                         dimensionSubset.push($scope.Core.Trims[i]);
                                     }
                                 } else {
-                                    if ($scope.Core.Slices[i].SlicePoint != Math.round((min + max) / 2).toString()) {
                                         dimensionSubset.push($scope.Core.Slices[i]);
-                                    }
                                 }
                             }
 
