@@ -27,21 +27,13 @@
 # ./petascope_insertdemo.sh
 #
 # Description
-#  Command-line utility for updating the petascope database. The updating is
-#  done by importing all appropriate updateX.sql files to postgres. The script
-#  determines automatically which updates need to be imported. There are two
-#  cases:
-#   1. no petascope database is present, in which case the updates start from 0.
-#   2. a ps_dbupdates table is present, in this case the updates start from the
-#      number saved in the update column.
-#
+#  Command-line utility for importing test data to Petascope by WCST_Import.
 #  Database connection details are read from etc/petascope.properties
 #
 # PRECONDITIONS
-#  1) PostgreSQL server must be running
+#  1) PostgreSQL server must be running with petascopedb
 #  2) etc/petascope.properties should be present, and the metadata_user should
 #     have appropriate write rights in postgres.
-#  3) share/rasdaman/petascope should contain the SQL update scripts
 
 PROG=`basename $0`
 
@@ -51,9 +43,11 @@ CODE_FAIL=255
 # petascope settings file
 SETTINGS=@sysconfdir@/petascope.properties
 
-# petascope updateN.sql scripts
+# petascope updateN.sql scripts and demo examples
 SCRIPT_DIR=@pkgdatadir@/petascope
 
+# input file directory (coverage files + recipe files .template.json)
+DATA_DIRECTORY=$SCRIPT_DIR/petascope_insertdemo_data
 
 # ------------------------------------------------------------------------------
 # functions
@@ -73,163 +67,130 @@ error() {
   echo "$PROG: exiting." >&2
   exit $CODE_FAIL
 }
-feedback() {
-  if [ $? -ne 0 ]; then
-    echo failed.
-    echo "$PROG: exiting." >&2
-    exit $CODE_FAIL
-  else
-    echo ok.
-  fi
-}
 
-#
-# checks
-#
-check_postgres() {
-  which psql > /dev/null || error "PostgreSQL missing, please add psql to the PATH."
-  pgrep postgres > /dev/null
-  if [ $? -ne 0 ]; then
-    pgrep postmaster > /dev/null || error "The PostgreSQL service is not started."
-  fi
-  psql -U $PS_USER -p $PS_PORT --list 2>&1 | egrep "\b$PS_DB\b" > /dev/null
-  if [ $? -ne 0 ]; then
-    error "no petascope database found, please run update_petascopedb.sh first."
-  fi
-}
-check_rasdaman() {
-  which rasql > /dev/null || error "rasdaman not installed, please add rasql to the PATH."
-  pgrep rasmgr > /dev/null || error "rasdaman not started, please start with start_rasdaman.sh"
 
-  # set rascontrol login
-  if [ -z "$RASLOGIN" ]; then
-    export RASLOGIN=rasadmin:d293a15562d3e70b6fdc5ee452eaed40
-  fi
-  $RASCONTROL -x 'list srv -all' > /dev/null || error "no rasdaman servers started."
-}
-check_paths() {
-  if [ ! -f "$SETTINGS" ]; then
-	  error "petascope settings not found: $SETTINGS"
-  fi
-  if [ ! -d "$SCRIPT_DIR" ]; then
-    error "SQL update script directory not found: $SCRIPT_DIR"
-  fi
-}
 
-#
-# import 2D geo-referenced data
-#
-function import_mst()
+usage()
 {
-  local TESTDATA_PATH="$1"
-  if [ ! -f "$TESTDATA_PATH/mean_summer_airtemp.tif" ]; then
-    error "testdata file $TESTDATA_PATH/mean_summer_airtemp.tif not found"
-  fi
+  local -r usage="
+  Usage: $PROG [OPTION]...
 
-  c=$2
-  c_colltype='GreySet'
-  c_marraytype='GreyImage'
-  c_crs='%SECORE_URL%/crs/EPSG/0/4326'
+  Description:
+    Inserts sample demo data into petascope.
 
-  #
+  Options:
+    -h, --help
+     display this help and exit
+    -s, --service-endpoint
+     specify the service endpoint (default: http://localhost:8080)
+  "
+
+  echo "$usage"
+  exit $RC_OK
+}
+
+
+#
+# Import all coverages exist in petascope
+#
+import_all_coverages()
+{
+  log "Starting to ingest example coverages to petascope..."
+  for DATA in $DATA_DIRECTORY/*; do
+
+    # 1.1 Get the recipe file template
+    RECIPE_TEMPLATE_FILE=$(find $DATA -type f -name "*.template.json")
+
+    # 1.2 Get the coverage id from recipe file
+    COVERAGE_ID=$(grep -Po '"coverage_id":.*?[^\\]",' $RECIPE_TEMPLATE_FILE | awk -F'"' '{print $4}')
+
+    # 1.3 Import coverage_id
+    import_coverage $COVERAGE_ID $DATA $RECIPE_TEMPLATE_FILE
+  done
+
+  log "All coverages are imported correctly. Done."
+  log "Ok."
+  exit $CODE_OK
+}
+
+#
+# import
+#
+import_coverage()
+{
+  COVERAGE_ID="$1"
+  DATA="$2" # coverage directory
+  RECIPE_TEMPLATE_FILE="$3"
+
   # START
-  #
-  $RASERASE --coverage $c > /dev/null 2>&1
-  $RASIMPORT -f "${TESTDATA_PATH}/mean_summer_airtemp.tif" \
-             --coll $c \
-             --coverage-name $c \
-             -t  ${c_marraytype}:${c_colltype} \
-             --crs-uri  "$c_crs" \
-             --crs-order 1:0  > /dev/null || exit $RC_ERROR
 
-  # (re)initialize WMS
-  "$DROPWMS" australia_wms > /dev/null 2>&1
-  "$INITWMS" australia_wms mean_summer_airtemp EPSG:4326 -l '2:4:8:16' -h localhost -p $PETASCOPE_PORT > /dev/null 2>&1
-  if [ $? -ne 0 ]; then
-    log "Warning: WMS initialization for mean_summer_airtemp failed."
-    log "Reloading the server capabilities might have failed (assuming localhost:${PETASCOPE_PORT}): please try to restart the server and check WMS GetCapabilities."
+  # 1. Insert coverage by WCS
+
+  # 1.1 Copy file from template.json to ingest.json
+  RECIPE_FILE="$DATA"/'ingest.json'
+  cp "$RECIPE_TEMPLATE_FILE" "$RECIPE_FILE"
+
+  # 1.2 Replace PETASCOPE_URL and SECORE_URL in petascope_insertdemo.template.json
+  sed -i "s@PETASCOPE_URL@$PETASCOPE_URL@g" "$RECIPE_FILE"
+  sed -i "s@SECORE_URL@$SECORE_URL@g" "$RECIPE_FILE"
+
+  # 1.3 Run wcst_import with petascope_insertdemo.json recipe
+  logn "Ingesting $COVERAGE_ID to petascope by wcst_import..."
+  "@bindir@/wcst_import.sh" $RECIPE_FILE
+  echo "Done."
+
+  # 1.4 Remove $RECIPE_FILE and $RECIPE_RESUME_FILE
+  logn "Cleaning temporary files..."
+  if [ -f "$RECIPE_FILE" ]; then
+     rm "$RECIPE_FILE"
   fi
-  "$FILLPYR" mean_summer_airtemp --tasplit > /dev/null 2>&1
-  if [ $? -ne 0 ]; then
-    log "Warning: WMS pyramid creation for mean_summer_airtemp failed."
+
+  RECIPE_RESUME_FILE=$(find $DATA -type f -name "*.resume.json")
+  if [ -f "$RECIPE_RESUME_FILE" ]; then
+     rm "$RECIPE_RESUME_FILE"
   fi
+  echo "Done."
 }
 
 # ------------------------------------------------------------------------------
 # work
 # ------------------------------------------------------------------------------
 
-check_paths
-
 #
-# postgres connection details
+# import all coverages example
 #
-PS_USER=`grep metadata_user "$SETTINGS" | awk -F "=" '{print $2}'`
-PS_USER="${PS_USER#"${PS_USER%%[![:space:]]*}"}"
-PS_PASS=`grep metadata_pass "$SETTINGS" | awk -F "=" '{print $2}'`
-PS_PASS="${PS_PASS#"${PS_PASS%%[![:space:]]*}"}"
-PS_DB=`grep metadata_url "$SETTINGS" | awk -F "/" '{print $4}' | tr -d '\n'`
-PS_PORT=`grep metadata_url "$SETTINGS" | awk -F ":|/" '{print $6}' | tr -d '\n'`
 
-# add user/pass to the .pgpass file
-PGPASS_LINE="$HOSTNAME:*:*:$PS_USER:$PS_PASS"
-PGPASS_FILE="$HOME/.pgpass"
-if [ ! -f $PGPASS_FILE ]; then
-  echo "$PGPASS_LINE" > $PGPASS_FILE
-  chmod 600 $PGPASS_FILE
-else
-  grep "$PS_USER" $PGPASS_FILE > /dev/null
-  if [ $? -ne 0 ]; then
-    echo "$PGPASS_LINE" >> $PGPASS_FILE
+
+# ----------------------------------------------------------------------------
+# parse command-line options
+# ----------------------------------------------------------------------------
+SERVICE_ENDPOINT=http://localhost:8080 # default end point
+
+option=
+for i in "$@"; do
+  if [ -n "$option" ]; then
+    case $option in
+      -s|--service-endpoint*)
+        SERVICE_ENDPOINT="$i";;
+      *) error "unknown option: $option";;
+    esac
+    option=""
+  else
+    option=""
+    case $i in
+      -h|--help*)     usage;;
+      *)              option="$i";;
+    esac
   fi
-fi
+done
 
-#
-# postgress commands
-#
-PSQL="psql -U $PS_USER -d $PS_DB -p $PS_PORT"
+# petascope, secore URL
+PETASCOPE_URL=$SERVICE_ENDPOINT/rasdaman/ows
+SECORE_URL=$SERVICE_ENDPOINT/def
 
-# print some info
-log "postgres settings read from $SETTINGS"
-log "  user: $PS_USER"
-log "  port: $PS_PORT"
-log "  db: $PS_DB"
+log "Petascope service endpoint is: "$PETASCOPE_URL
+log "Secore service endpoint is: "$SECORE_URL
 
-check_postgres
+echo -e
 
-#
-# rasdaman connection details
-#
-RAS_USER=`grep rasdaman_admin_user "$SETTINGS" | awk -F "=" '{print $2}' | tr -d '\n'`
-RAS_PASS=`grep rasdaman_admin_pass "$SETTINGS" | awk -F "=" '{print $2}' | tr -d '\n'`
-RAS_DB=`grep rasdaman_database "$SETTINGS" | awk -F "=" '{print $2}' | tr -d '\n'`
-RAS_SERVER=`grep rasdaman_url "$SETTINGS" | awk -F ":|/" '{print $4}' | tr -d '\n'`
-RAS_PORT=`grep rasdaman_url "$SETTINGS" | awk -F ":|/" '{print $5}' | tr -d '\n'`
-PETASCOPE_PORT=8080
-
-#
-# rasdaman commands
-#
-RASQL="@bindir@/rasql --user $RAS_USER --passwd $RAS_PASS -d $RAS_DB -s $RAS_SERVER -p $RAS_PORT"
-RASCONTROL="@bindir@/rascontrol"
-RASIMPORT="@bindir@/rasimport"
-RASERASE="@bindir@/raserase"
-INITWMS="@bindir@/init_wms.sh"
-FILLPYR="@bindir@/fill_pyramid.sh"
-DROPWMS="@bindir@/drop_wms.sh"
-
-# print some info
-log "rasdaman settings"
-log "  user: $RAS_USER"
-log "  host: $RAS_SERVER"
-log "  port: $RAS_PORT"
-log "  db: $RAS_DB"
-
-check_rasdaman
-
-#
-# insert sample data to rasdaman
-#
-logn "inserting \`mean_summer_airtemp' 2D demo dataset for WC*S and WMS services... "
-import_mst "$SCRIPT_DIR" mean_summer_airtemp
-echo "Ok."
+import_all_coverages
