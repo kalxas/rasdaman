@@ -824,7 +824,7 @@ public class CoverageMetadata implements Cloneable {
      * Gets the number of bands of this coverage.
      * @return number of bands for this coverage.
      */
-    public Integer getNumberOfBands(){
+    public int getNumberOfBands(){
         return this.sweComponents.size();
     }
     /*
