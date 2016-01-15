@@ -78,7 +78,7 @@ rasdaman GmbH.
 #include "rviewUtils.hh"
 #include "rviewThumb.hh"
 
-#include "common/src/logging/easylogging++.hh"
+#include <easylogging++.h>
 
 #include "rasodmg/ref.hh"
 #include "rasodmg/marray.hh"

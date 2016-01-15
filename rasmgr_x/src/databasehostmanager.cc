@@ -23,7 +23,7 @@
 #include <stdexcept>
 #include <boost/smart_ptr.hpp>
 
-#include "../../common/src/logging/easylogging++.hh"
+#include <easylogging++.h>
 #include "../../common/src/exceptions/rasexceptions.hh"
 
 #include "exceptions/rasmgrexceptions.hh"

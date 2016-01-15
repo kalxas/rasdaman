@@ -31,7 +31,7 @@ rasdaman GmbH.
 #include   "types.h"
 #include   "server.h"
 
-#include "../common/src/logging/easylogging++.hh"
+#include <easylogging++.h>
 
 #ifdef PURIFY
 #include <purify.h>

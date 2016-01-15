@@ -52,7 +52,7 @@ rasdaman GmbH.
 #include "catalogmgr/typefactory.hh"
 #include "relcatalogif/mdddomaintype.hh"
 
-#include "../common/src/logging/easylogging++.hh"
+#include <easylogging++.h>
 
 #include <iostream>
 #ifndef CPPSTDLIB

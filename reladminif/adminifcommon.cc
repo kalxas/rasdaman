@@ -51,7 +51,7 @@ rasdaman GmbH.
 
 #include "externs.h"
 
-#include "../common/src/logging/easylogging++.hh"
+#include <easylogging++.h>
 
 // defined in rasserver.cc
 extern char globalConnectId[256];

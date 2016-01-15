@@ -36,7 +36,7 @@ static const char rcsid[] = "@(#)catalogif,BaseType: $Id: basetype.C,v 1.11 2001
 
 #include "basetype.hh"
 #include "reladminif/externs.h"
-#include "../common/src/logging/easylogging++.hh"
+#include <easylogging++.h>
 
 BaseType::BaseType(const char* name)
 	:	Type(name)

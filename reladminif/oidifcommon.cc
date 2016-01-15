@@ -41,7 +41,7 @@ rasdaman GmbH.
 #include "externs.h"
 #include "sqlerror.hh"
 #include "raslib/error.hh"
-#include "../common/src/logging/easylogging++.hh"
+#include <easylogging++.h>
 
 #ifdef RMANBENCHMARK
 RMTimer OId::oidAlloc("OId","allocateOId");

@@ -97,7 +97,7 @@ static const char rcsid[] = "@(#)rasgeo/rasgeo_util,RasgeoUtil: $Id: rasgeo_util
 // debug facility; relies on -DDEBUG at compile time
 #include "debug/debug.hh"
 
-#include "common/src/logging/easylogging++.hh"
+#include <easylogging++.h>
 
 
 /*

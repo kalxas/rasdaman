@@ -49,7 +49,7 @@ using namespace std;
 #include "mddmgr/mddcoll.hh"
 #include "mddmgr/mddcolliter.hh"
 
-#include "../common/src/logging/easylogging++.hh"
+#include <easylogging++.h>
 
 #include "servercomm/servercomm.hh"
 

@@ -36,7 +36,7 @@ rasdaman GmbH.
 #include "rasodmg/dirdecompose.hh"
 #include "rasodmg/dirtiling.hh"
 
-#include "../common/src/logging/easylogging++.hh"
+#include <easylogging++.h>
 
 #include <assert.h>
 #include <string.h>

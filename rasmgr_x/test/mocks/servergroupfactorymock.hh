@@ -1,7 +1,7 @@
 #ifndef RASMGR_X_TEST_SERVERGROUPFACTORYMOCK_HH
 #define RASMGR_X_TEST_SERVERGROUPFACTORYMOCK_HH
 
-#include "../../../common/src/mock/gmock.h"
+#include <gmock/gmock.h>
 
 #include "../src/servergroupfactory.hh"
 

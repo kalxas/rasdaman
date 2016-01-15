@@ -51,7 +51,7 @@ rasdaman GmbH.
 #include "externs.h"
 #include "catalogmgr/typefactory.hh"
 
-#include "../common/src/logging/easylogging++.hh"
+#include <easylogging++.h>
 
 DBObject*
 ObjectBroker::loadInlineTile(const OId& id) throw (r_Error)

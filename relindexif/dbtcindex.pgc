@@ -46,7 +46,7 @@ EXEC SQL include "../reladminif/sqlglobals.h";
 
 #include "dbtcindex.hh"
 #include "reladminif/sqlerror.hh"
-#include "../common/src/logging/easylogging++.hh"
+#include <easylogging++.h>
 
 void
 DBTCIndex::deleteFromDb() throw (r_Error)

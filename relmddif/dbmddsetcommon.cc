@@ -32,7 +32,7 @@ rasdaman GmbH.
 #include "relcatalogif/collectiontype.hh"
 #include "reladminif/dbobjectiditerator.hh"
 #include "raslib/error.hh"
-#include "../common/src/logging/easylogging++.hh"
+#include <easylogging++.h>
 
 void
 DBMDDSet::printStatus(unsigned int level, std::ostream& stream) const

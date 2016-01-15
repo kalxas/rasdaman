@@ -42,7 +42,7 @@ rasdaman GmbH.
 
 #include "raslib/parseparams.hh"
 
-#include "../common/src/logging/easylogging++.hh"
+#include <easylogging++.h>
 
 
 

@@ -43,7 +43,7 @@ rasdaman GmbH.
 #include "relindexif/dbtcindex.hh"
 #include "indexmgr/hierindexds.hh"
 #include "debug/debug.hh"
-#include "../common/src/logging/easylogging++.hh"
+#include <easylogging++.h>
 
 template <class T> bool
 DBRef<T>::pointerCaching = true;

@@ -37,7 +37,7 @@
 #include "raslib/error.hh"
 #include "mymalloc/mymalloc.h"
 
-#include "../common/src/logging/easylogging++.hh"
+#include <easylogging++.h>
 
 #include <sstream>
 #include <string.h>

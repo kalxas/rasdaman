@@ -46,7 +46,7 @@ rasdaman GmbH.
 #include "relmddif/dbmddset.hh"
 #include "relindexif/dbrcindexds.hh"
 #include "debug.hh"
-#include "../common/src/logging/easylogging++.hh"
+#include <easylogging++.h>
 
 #ifdef LINUX
 template class DBRef<BLOBTile>;

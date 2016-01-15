@@ -87,7 +87,7 @@ using std::ostringstream;
 #include "debug/debug.hh"
 
 #include "raslib/log_config.hh"
-#include "common/src/logging/easylogging++.hh"
+#include <easylogging++.h>
 
 /*
  * --- these values determine the pyramid, it must be consistent wih all other rasgeo modules -------

@@ -49,7 +49,7 @@ rasdaman GmbH.
 #include "relindexif/indexid.hh"
 #include "indexmgr/indexds.hh"
 #include "reladminif/sqlitewrapper.hh"
-#include "../common/src/logging/easylogging++.hh"
+#include <easylogging++.h>
 
 #include "debug-srv.hh"
 

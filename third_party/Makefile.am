@@ -30,9 +30,7 @@
 
 AUTOMAKE_OPTIONS = foreign
 
-if RMANRASNET
-
-all: init-third-party $(PROTOBUF_BIN) $(GRPC_BIN) $(GRPC_JAVA_BIN)
+all-local: init-third-party compile-gmock compile-rasnet-deps
 
 .NOTPARALLEL:
 
@@ -40,6 +38,27 @@ all: init-third-party $(PROTOBUF_BIN) $(GRPC_BIN) $(GRPC_JAVA_BIN)
 # The command is idempotent.
 init-third-party:
 	cd .. && git submodule update --init --recursive
+
+# gmock should be compiled irrespectively
+compile-gmock: $(GMOCK_LIB)
+
+if RMANRASNET
+compile-rasnet-deps: $(PROTOBUF_BIN) $(GRPC_BIN) $(GRPC_JAVA_BIN)
+else
+compile-rasnet-deps: ;
+endif
+
+# According to the instructions on the GoogleMock GitHub page
+# we build a library using the following method
+$(GMOCK_LIB):
+	$(MKDIR_P) $(GMOCK_BIN) && \
+	$(CXX) -isystem ${GTEST_DIR}/include -I${GTEST_DIR} \
+	-isystem ${GMOCK_DIR}/include -I${GMOCK_DIR} \
+	-pthread -c ${GTEST_DIR}/src/gtest-all.cc -o ${GMOCK_BIN}/gtest-all.o && \
+	$(CXX) -isystem ${GTEST_DIR}/include -I${GTEST_DIR} \
+	-isystem ${GMOCK_DIR}/include -I${GMOCK_DIR} \
+	-pthread -c ${GMOCK_DIR}/src/gmock-all.cc -o ${GMOCK_BIN}/gmock-all.o && \
+	$(AR) -rv ${GMOCK_LIB} ${GMOCK_BIN}/gtest-all.o ${GMOCK_BIN}/gmock-all.o
 
 # Compile and install Google Protobuf to a temporary folder.
 $(PROTOBUF_BIN):
@@ -66,8 +85,6 @@ if ENABLE_JAVA
 	cd ../../ && \
 	$(MKDIR_P) $(GRPC_JAVA_BIN) && \
 	cp grpc-java/compiler/build/binaries/java_pluginExecutable/protoc-gen-grpc-java ${GRPC_JAVA_BIN}
-endif
-
 endif
 
 clean-force: clean-am clean-bin clean-grpc clean-protobuf

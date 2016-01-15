@@ -43,7 +43,7 @@ rasdaman GmbH.
 #include "relblobif/blobtile.hh"
 #include "indexmgr/keyobject.hh"
 #include "storagemgr/sstoragelayout.hh"
-#include "../common/src/logging/easylogging++.hh"
+#include <easylogging++.h>
 
 DBRCIndexDS::DBRCIndexDS(const OId& id)
     :   IndexDS(id),

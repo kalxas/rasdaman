@@ -42,7 +42,7 @@ rasdaman GmbH.
 #include "reladminif/sqlglobals.h"
 #include "reladminif/sqlitewrapper.hh"
 #include "dbminterval.hh"
-#include "../common/src/logging/easylogging++.hh"
+#include <easylogging++.h>
 #include <cstring>
 
 void

@@ -34,7 +34,7 @@ rasdaman GmbH.
 #include <akgnet_commbuffer.hh>
 #include <string>
 #include <assert.h>
-#include "../common/src/logging/easylogging++.hh"
+#include <easylogging++.h>
 
 akg::CommBuffer::CommBuffer() throw()
 {

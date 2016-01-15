@@ -44,7 +44,7 @@ rasdaman GmbH.
 #include "rasodmg/oqlquery.hh"
 #include "rasodmg/partinsert.hh"
 
-#include "../common/src/logging/easylogging++.hh"
+#include <easylogging++.h>
 
 
 // format string for creating collections; parameters: collection name, set type

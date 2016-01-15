@@ -113,7 +113,7 @@ using namespace std;
 #include "globals.hh"
 
 #include "raslib/log_config.hh"
-#include "../../common/src/logging/easylogging++.hh"
+#include <easylogging++.h>
 
 #ifdef __VISUALC__
 #undef __EXECUTABLE__

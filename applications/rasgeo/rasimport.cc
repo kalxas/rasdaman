@@ -51,7 +51,7 @@
 #include "debug-clt.hh"
 
 #include "raslib/log_config.hh"
-#include "common/src/logging/easylogging++.hh"
+#include <easylogging++.h>
 
 
 using namespace std;

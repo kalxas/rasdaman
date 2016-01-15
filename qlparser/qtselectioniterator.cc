@@ -39,7 +39,7 @@ static const char rcsid[] = "@(#)qlparser, QtSelectionIterator: $Id: qtselection
 
 #include "relcatalogif/type.hh"
 
-#include "../common/src/logging/easylogging++.hh"
+#include <easylogging++.h>
 
 #include <iostream>
 #include <string>

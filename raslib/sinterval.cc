@@ -48,7 +48,7 @@ using namespace std;
 
 #include "raslib/error.hh"
 
-#include "../common/src/logging/easylogging++.hh"
+#include <easylogging++.h>
 
 r_Sinterval::r_Sinterval()
     : lower_bound(0),

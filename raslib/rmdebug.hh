@@ -42,7 +42,7 @@
 #include "raslib/rminit.hh"
 #include "raslib/rm.hh"
 
-#include "../common/src/logging/easylogging++.hh"
+#include <easylogging++.h>
 
 extern int RManDebug;
 extern int RManBenchmark;

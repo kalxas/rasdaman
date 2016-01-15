@@ -20,7 +20,7 @@
  * or contact Peter Baumann via <baumann@rasdaman.com>.
  */
 
-#include "../../common/src/unittest/gtest.h"
+#include <gtest/gtest.h>
 #include "../src/useradminrights.hh"
 #include "../src/messages/rasmgrmess.pb.h"
 #include "util/testutil.hh"

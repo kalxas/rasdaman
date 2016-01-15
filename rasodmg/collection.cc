@@ -37,7 +37,7 @@ static const char rcsidcollection[] = "@(#)rasodmg, r_Collection: $Id: collectio
 #include "config.h"
 #include "raslib/collectiontype.hh"
 
-#include "../common/src/logging/easylogging++.hh"
+#include <easylogging++.h>
 
 #include "rasodmg/collection.hh"
 #include "rasodmg/iterator.hh"

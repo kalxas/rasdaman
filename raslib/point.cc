@@ -38,7 +38,7 @@ static const char rcsid[] = "@(#)raslib, r_Point: $Id: point.cc,v 1.22 2002/08/2
 #include <string.h>
 #include <sstream>
 
-#include "../common/src/logging/easylogging++.hh"
+#include <easylogging++.h>
 
 #include "raslib/error.hh"
 

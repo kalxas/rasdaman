@@ -68,7 +68,7 @@ rasdaman GmbH.
 
 #include "cube_render.h"
 
-#include "common/src/logging/easylogging++.hh"
+#include <easylogging++.h>
 
 
 const int rviewOSectionImage::osection_ctrly = 140;

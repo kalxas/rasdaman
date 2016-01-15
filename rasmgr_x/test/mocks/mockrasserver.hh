@@ -3,7 +3,7 @@
 
 #include <boost/smart_ptr.hpp>
 
-#include "../../common/src/mock/gmock.h"
+#include <gmock/gmock.h>
 
 #include "../../src/server.hh"
 #include "../../src/databasehost.hh"

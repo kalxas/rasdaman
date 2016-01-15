@@ -23,7 +23,7 @@
 #include <fstream>
 #include <stdexcept>
 
-#include "../../common/src/logging/easylogging++.hh"
+#include <easylogging++.h>
 #include "../../common/src/exceptions/logicexception.hh"
 
 #include "controlrasmgrrasnet.hh"

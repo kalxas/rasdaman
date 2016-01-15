@@ -35,7 +35,7 @@ rasdaman GmbH.
 
 #include <akgnet_server.hh>
 
-#include "../common/src/logging/easylogging++.hh"
+#include <easylogging++.h>
 
 //#include<iostream>
 

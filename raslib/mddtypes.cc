@@ -43,7 +43,7 @@ static const char rcsid[] = "@(#)raslib, mddtypes: $Header: /home/rasdev/CVS-rep
 #endif
 
 #include "raslib/mddtypes.hh"
-#include "../common/src/logging/easylogging++.hh"
+#include <easylogging++.h>
 
 
 /*

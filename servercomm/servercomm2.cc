@@ -107,7 +107,7 @@ extern "C" int gethostname(char *name, int namelen);
 
 #include "lockmgr/lockmanager.hh"
 
-#include "../common/src/logging/easylogging++.hh"
+#include <easylogging++.h>
 
 // console output describing successful/unsuccessful actions
 #define MSG_OK          "ok"

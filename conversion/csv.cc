@@ -67,7 +67,7 @@ rasdaman GmbH.
 #include <stack>
 
 #include "debug/debug-srv.hh"
-#include "../common/src/logging/easylogging++.hh"
+#include <easylogging++.h>
 
 #define DIM_BOUNDARY -1
 

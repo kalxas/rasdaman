@@ -44,7 +44,7 @@ rasdaman GmbH.
 #include "reladminif/sqlglobals.h"
 #include "reladminif/sqlitewrapper.hh"
 #include "relcatalogif/collectiontype.hh"
-#include "../common/src/logging/easylogging++.hh"
+#include <easylogging++.h>
 
 DBMDDSet::DBMDDSet(const char* name, const OId& id, const CollectionType* type) throw (r_Error)
 : DBNamedObject(id, name),

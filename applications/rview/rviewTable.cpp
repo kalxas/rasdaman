@@ -76,7 +76,7 @@ rasdaman GmbH.
 #include "rviewDModes.hh"
 #include "rviewPrefs.hh"
 
-#include "common/src/logging/easylogging++.hh"
+#include <easylogging++.h>
 
 const int textCanvas::txcanv_cospace = 8;
 const int textCanvas::txcanv_colspace = 16;

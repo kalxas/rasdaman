@@ -44,7 +44,7 @@ rasdaman GmbH.
 #include "testing.h"
 
 #include "raslib/log_config.hh"
-#include "../../common/src/logging/easylogging++.hh"
+#include <easylogging++.h>
 
 using namespace std;
 

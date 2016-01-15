@@ -45,7 +45,7 @@ static const char rcsid[] = "@(#)qlparser, QLMarrayOp, QLCondenseOp: $Header: /h
 
 #include "relcatalogif/basetype.hh"
 
-#include "../common/src/logging/easylogging++.hh"
+#include <easylogging++.h>
 
 QLMarrayOp::QLMarrayOp( QtOperation*     newCellExpression,
                         std::vector<QtData*>* newDataList,

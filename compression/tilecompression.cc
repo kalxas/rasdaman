@@ -46,7 +46,7 @@ rasdaman GmbH.
 #include "compression/tilecompression.hh"
 #include "compression/tilecompnone.hh"
 
-#include "../common/src/logging/easylogging++.hh"
+#include <easylogging++.h>
 
 /*
  *  r_Tile_Compression class

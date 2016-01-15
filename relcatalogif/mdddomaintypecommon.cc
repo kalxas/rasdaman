@@ -35,7 +35,7 @@ rasdaman GmbH.
 #include "reladminif/externs.h"
 #include "reladminif/objectbroker.hh"
 #include "dbminterval.hh"
-#include "../common/src/logging/easylogging++.hh"
+#include <easylogging++.h>
 #include <cstring>
 #include <string>
 

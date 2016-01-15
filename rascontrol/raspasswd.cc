@@ -47,7 +47,7 @@ rasdaman GmbH.
 #include "raspasswd.hh"
 #include "rasmgr_utils_comm.hh"
 #include "raslib/log_config.hh"
-#include "../common/src/logging/easylogging++.hh"
+#include <easylogging++.h>
 
 
 #ifndef RMANVERSION

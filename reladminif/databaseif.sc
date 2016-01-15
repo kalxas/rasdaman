@@ -51,7 +51,7 @@ using namespace std;
 #include "databaseif.hh"
 #include "oidif.hh"
 #include "adminif.hh"
-#include "../common/src/logging/easylogging++.hh"
+#include <easylogging++.h>
 
 extern char globalConnectId[PATH_MAX];
 

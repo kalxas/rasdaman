@@ -37,7 +37,7 @@ rasdaman GmbH.
 using namespace std;
 
 #include "log_config.hh"
-#include "../common/src/logging/easylogging++.hh"
+#include <easylogging++.h>
 
 #include "globals.hh"
 

@@ -40,7 +40,7 @@ rasdaman GmbH.
 #include "sqlerror.hh"
 #include "adminif.hh"
 #include "sqlitewrapper.hh"
-#include "../common/src/logging/easylogging++.hh"
+#include <easylogging++.h>
 
 void
 OId::initialize()

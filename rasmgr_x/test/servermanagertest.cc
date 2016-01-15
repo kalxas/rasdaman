@@ -20,7 +20,7 @@
  * or contact Peter Baumann via <baumann@rasdaman.com>.
  */
 
-#include "../../common/src/unittest/gtest.h"
+#include <gtest/gtest.h>
 
 #include "mocks/servergroupfactorymock.hh"
 #include "mocks/servergroupmock.hh"

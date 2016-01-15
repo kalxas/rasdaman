@@ -36,7 +36,7 @@ static const char rcsid[] = "@(#)qlparser, QtBinaryOperation: $Id: qtbinaryopera
 #include "qlparser/qtbinaryoperation.hh"
 #include "qlparser/qtconst.hh"
 
-#include "../common/src/logging/easylogging++.hh"
+#include <easylogging++.h>
 
 #include <iostream>
 #ifndef CPPSTDLIB

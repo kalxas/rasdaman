@@ -51,7 +51,7 @@ static const char rcsid[] = "@(#)qlparser, QtMarrayOp2: $Header: /home/rasdev/CV
 
 #include "catalogmgr/algebraops.hh"
 
-#include "../common/src/logging/easylogging++.hh"
+#include <easylogging++.h>
 
 #include <iostream>
 #ifndef CPPSTDLIB

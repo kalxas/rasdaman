@@ -35,7 +35,7 @@ rasdaman GmbH.
 */
 #include "config.h"
 #include "rasmgr_users.hh"
-#include "../common/src/logging/easylogging++.hh"
+#include <easylogging++.h>
 
 RandomGenerator::RandomGenerator()
 {

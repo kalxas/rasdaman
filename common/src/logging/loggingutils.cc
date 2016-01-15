@@ -23,7 +23,7 @@
 #include <string>
 #include <grpc/support/log.h>
 
-#include "easylogging++.hh"
+#include <easylogging++.h>
 #include "loggingutils.hh"
 
 namespace common

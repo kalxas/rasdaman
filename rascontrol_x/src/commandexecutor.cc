@@ -22,7 +22,7 @@
 
 #include <boost/algorithm/string.hpp>
 
-#include "../../common/src/logging/easylogging++.hh"
+#include <easylogging++.h>
 #include "../../rasmgr_x/src/rasctrlgrammarconstants.hh"
 
 #include "controlrasmgrcomm.hh"

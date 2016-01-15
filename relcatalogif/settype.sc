@@ -43,7 +43,7 @@ rasdaman GmbH.
 #include "reladminif/sqlglobals.h"
 #include "reladminif/objectbroker.hh"
 #include "reladminif/sqlitewrapper.hh"
-#include "../common/src/logging/easylogging++.hh"
+#include <easylogging++.h>
 
 void
 SetType::insertInDb() throw (r_Error)

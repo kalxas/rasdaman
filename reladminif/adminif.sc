@@ -43,7 +43,7 @@ rasdaman GmbH.
 #include "adminif.hh"
 #include "objectbroker.hh"
 #include "relblobif/blobfs.hh"
-#include "../common/src/logging/easylogging++.hh"
+#include <easylogging++.h>
 
 using blobfs::BlobFS;
 

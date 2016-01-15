@@ -25,7 +25,7 @@ rasdaman GmbH.
 #include "raslib/complex.hh"
 #include "raslib/error.hh"
 #include "raslib/complextype.hh"
-#include "../common/src/logging/easylogging++.hh"
+#include <easylogging++.h>
 
 #include "config.h"
 

@@ -43,7 +43,7 @@ static const char rcsid[] = "@(#)raslib, ImportError: $Id: import_error.cc,v 1.3
 // debug facility; relies on -DDEBUG at compile time
 #include "debug.hh"
 
-#include "common/src/logging/easylogging++.hh"
+#include <easylogging++.h>
 
 /// error object, carrying int error code
 ImportError::ImportError( int e )

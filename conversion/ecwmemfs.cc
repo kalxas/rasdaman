@@ -25,7 +25,7 @@ rasdaman GmbH.
 #include "ecwmemfs.hh"
 #include <fstream>
 #include <algorithm>
-#include "../common/src/logging/easylogging++.hh"
+#include <easylogging++.h>
 
 const char*
 MemoryFileSystem::memorySrc = NULL;

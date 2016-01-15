@@ -50,7 +50,7 @@ static const char rcsid[] = "@(#)qlparser, QtMarrayOp: $Header: /home/rasdev/CVS
 #include "catalogmgr/algebraops.hh"
 #include "relcatalogif/mdddimensiontype.hh"
 
-#include "../common/src/logging/easylogging++.hh"
+#include <easylogging++.h>
 
 #include <iostream>
 #ifndef CPPSTDLIB

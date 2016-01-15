@@ -1,7 +1,7 @@
 #ifndef RASMGR_X_TEST_MOCKS_DATABASEHOSTMGRMOCK
 #define RASMGR_X_TEST_MOCKS_DATABASEHOSTMGRMOCK
 
-#include "../../common/src/mock/gmock.h"
+#include <gmock/gmock.h>
 
 #include "../../src/databasehostmanager.hh"
 namespace rasmgr

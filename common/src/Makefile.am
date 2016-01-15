@@ -1,4 +1,4 @@
-noinst_LIBRARIES = libcommon.a libgooglemock.a
+noinst_LIBRARIES = libcommon.a
 
 PROTOBUF_FILES= grpc/protomessages/error.proto \
 				grpc/protomessages/healthservice.proto
@@ -24,9 +24,6 @@ libcommon_a_SOURCES = crypto/crypto.cc \
 					  time/timer.cc
 
 libcommon_a_CXXFLAGS = @AM_CXXFLAGS@ -Wno-shadow
-
-libgooglemock_a_SOURCES=  mock/gmock-gtest-all.cc
-libgooglemock_a_CXXFLAGS =
 
 if RMANRASNET
 

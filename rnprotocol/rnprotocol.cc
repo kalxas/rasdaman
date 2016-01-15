@@ -36,7 +36,7 @@ using namespace std;
 
 #include "debug.hh"
 
-#include "../common/src/logging/easylogging++.hh"
+#include <easylogging++.h>
 
 
 const RnpQuark Rnp::rnpProtocolId = 25112001;

@@ -23,7 +23,7 @@
 #include <unistd.h>
 #include <errno.h>
 #include "../../include/globals.hh"
-#include "../../common/src/logging/easylogging++.hh"
+#include <easylogging++.h>
 
 #include "configuration.hh"
 

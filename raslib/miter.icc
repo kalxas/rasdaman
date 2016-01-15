@@ -30,7 +30,7 @@ rasdaman GmbH.
 
 #include "raslib/miter.hh"
 #include "raslib/minterval.hh"
-#include "../common/src/logging/easylogging++.hh"
+#include <easylogging++.h>
 
 inline
 r_Miter::r_Miter( const r_Minterval* newAreaIter,

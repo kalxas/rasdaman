@@ -41,7 +41,7 @@ rasdaman GmbH.
 #include "reladminif/sqlerror.hh"
 #include "reladminif/sqlglobals.h"
 #include "reladminif/sqlitewrapper.hh"
-#include "../common/src/logging/easylogging++.hh"
+#include <easylogging++.h>
 
 void
 MDDDimensionType::insertInDb() throw (r_Error)

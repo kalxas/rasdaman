@@ -45,7 +45,7 @@ rasdaman GmbH.
 #include <math.h>
 #include <cstdlib>
 
-#include "../common/src/logging/easylogging++.hh"
+#include <easylogging++.h>
 
 // Uncoment the _VISUALIZE_2D_DECOMP_ line to generate ppm files the
 // visualization of the domain decomposition done by the algoritm

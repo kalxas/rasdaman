@@ -40,7 +40,7 @@
 #include "raslib/basetype.hh"
 #include "raslib/error.hh"
 
-#include "../common/src/logging/easylogging++.hh"
+#include <easylogging++.h>
 
 
 

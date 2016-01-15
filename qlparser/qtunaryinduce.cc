@@ -48,7 +48,7 @@ static const char rcsid[] = "@(#)qlparser, QtUnaryInduce: $Id: qtunaryinduce.cc,
 #include "relcatalogif/mdddimensiontype.hh"
 #include "relcatalogif/syntaxtypes.hh"
 
-#include "../common/src/logging/easylogging++.hh"
+#include <easylogging++.h>
 
 #include <sstream>
 #ifndef CPPSTDLIB

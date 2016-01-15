@@ -27,9 +27,9 @@
 #include <boost/cstdint.hpp>
 #include <boost/shared_ptr.hpp>
 
-#include "../../common/src/unittest/gtest.h"
-#include "../../common/src/mock/gmock.h"
-#include "../../common/src/logging/easylogging++.hh"
+#include <gtest/gtest.h>
+#include <gmock/gmock.h>
+#include <easylogging++.h>
 
 #include "mocks/serverfactorymock.hh"
 #include "mocks/databasehostmgrmock.hh"

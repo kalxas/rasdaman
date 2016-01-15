@@ -27,7 +27,7 @@ rasdaman GmbH.
 
 #include <cstdlib>
 #include <iostream>
-#include "../common/src/logging/easylogging++.hh"
+#include <easylogging++.h>
 
 using namespace std;
 

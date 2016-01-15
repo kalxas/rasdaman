@@ -43,7 +43,7 @@ static const char rcsid[] = "@(#)qlparser, QtBinaryInduce: $Id: qtbinaryinduce.c
 
 #include "mddmgr/mddobj.hh"
 
-#include "../common/src/logging/easylogging++.hh"
+#include <easylogging++.h>
 
 #include "catalogmgr/typefactory.hh"
 #include "relcatalogif/mdddomaintype.hh"

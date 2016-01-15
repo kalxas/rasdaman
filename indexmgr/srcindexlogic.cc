@@ -44,7 +44,7 @@ static const char rcsiddirix[] = "@(#)dirix, SRCIndexLogic: $Id: srcindexlogic.c
 #include "relblobif/blobtile.hh"
 #include "raslib/mitera.hh"
 
-#include "../common/src/logging/easylogging++.hh"
+#include <easylogging++.h>
 
 unsigned int
 SRCIndexLogic::computeNumberOfTiles(const StorageLayout& sl, const r_Minterval& mddDomain)

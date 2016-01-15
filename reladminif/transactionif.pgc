@@ -48,7 +48,7 @@ EXEC SQL include sqlglobals.h;
 #include "objectbroker.hh"
 #include "databaseif.hh"
 #include "dbobject.hh"
-#include "../common/src/logging/easylogging++.hh"
+#include <easylogging++.h>
 
 // PG stuff for libpg connection maintenance
 #include "libpq-fe.h"

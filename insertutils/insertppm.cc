@@ -87,7 +87,7 @@ using namespace std;
 #endif
 
 #include "raslib/log_config.hh"
-#include "common/src/logging/easylogging++.hh"
+#include <easylogging++.h>
 
 extern "C" {
 #include <ppm.h>

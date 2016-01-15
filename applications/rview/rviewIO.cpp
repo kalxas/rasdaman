@@ -76,7 +76,7 @@ rasdaman GmbH.
 #include "rviewIO.hh"
 #include "rviewTypes.hh"
 
-#include "common/src/logging/easylogging++.hh"
+#include <easylogging++.h>
 
 #include "tiffio.h"
 

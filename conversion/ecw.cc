@@ -29,7 +29,7 @@ rasdaman GmbH.
 #include "ecw.hh"
 #include "convertor.hh"
 #include "convfactory.hh"
-#include "../common/src/logging/easylogging++.hh"
+#include <easylogging++.h>
 
 #ifdef ECW
 #include "ecwmemfs.hh"

@@ -63,7 +63,7 @@ using namespace std;
 #include "debug/debug-srv.hh"
 
 #include "raslib/log_config.hh"
-#include "../common/src/logging/easylogging++.hh"
+#include <easylogging++.h>
 
 extern bool hostCmp( const char *h1, const char *h2);
 

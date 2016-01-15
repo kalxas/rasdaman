@@ -43,7 +43,7 @@ static const char rcsid[] = "@(#)qlparser, QtPointOp: $Id: qtpointop.cc,v 1.7 20
 #include "catalogmgr/ops.hh"
 #include "relcatalogif/type.hh"
 
-#include "../common/src/logging/easylogging++.hh"
+#include <easylogging++.h>
 
 #include <iostream>
 #ifndef CPPSTDLIB

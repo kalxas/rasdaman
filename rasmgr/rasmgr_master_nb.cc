@@ -51,7 +51,7 @@ using namespace std;
 
 #include "debug-srv.hh"
 #include "raslib/rmdebug.hh"
-#include "../common/src/logging/easylogging++.hh"
+#include <easylogging++.h>
 
 
 

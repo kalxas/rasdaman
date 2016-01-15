@@ -95,7 +95,7 @@ rasdaman GmbH.
 #include "rviewIO.hh"
 #include "rviewDb.hh"
 
-#include "common/src/logging/easylogging++.hh"
+#include <easylogging++.h>
 
 
 

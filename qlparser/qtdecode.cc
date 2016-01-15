@@ -44,7 +44,7 @@ rasdaman GmbH.
 #include "qlparser/qtoncstream.hh"
 #include "qlparser/qtexecute.hh"
 
-#include "../common/src/logging/easylogging++.hh"
+#include <easylogging++.h>
 
 #include <iostream>
 #ifndef CPPSTDLIB

@@ -47,7 +47,7 @@ static const char rcsid[] = "@(#)rasodmg/test,ImportOrthoUtil: $Id: rasql_signal
 #include <strings.h>
 #endif
 
-#include "common/src/logging/easylogging++.hh"
+#include <easylogging++.h>
 
 using namespace std;
 

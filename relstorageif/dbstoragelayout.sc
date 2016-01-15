@@ -40,7 +40,7 @@ rasdaman GmbH.
 #include "storagemgr/sstoragelayout.hh"
 #include "reladminif/objectbroker.hh"
 #include "reladminif/sqlitewrapper.hh"
-#include "../common/src/logging/easylogging++.hh"
+#include <easylogging++.h>
 
 DBStorageLayout::DBStorageLayout()
 : DBObject(),

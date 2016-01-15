@@ -29,7 +29,7 @@ rasdaman GmbH.
 
 #include <cstdlib>
 #include <cstring>
-#include "../common/src/logging/easylogging++.hh"
+#include <easylogging++.h>
 
 inline QtNode*
 QtNode::getParent() const

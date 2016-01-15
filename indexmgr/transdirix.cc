@@ -40,7 +40,7 @@ static const char rcsid[] = "@(#)transdirix, TransDirIx: $Id: transdirix.cc,v 1.
 #include "raslib/rmdebug.hh"
 #include "reladminif/oidif.hh"
 #include "tilemgr/tile.hh"
-#include "../common/src/logging/easylogging++.hh"
+#include <easylogging++.h>
 
 
 IndexDS*

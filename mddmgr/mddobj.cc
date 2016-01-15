@@ -49,7 +49,7 @@ static const char rcsid[] = "@(#)persmddobj, PersMDDObj: $Id: mddobj.cc,v 1.26 2
 #include "relcatalogif/mdddomaintype.hh"
 #include "raslib/mddtypes.hh"
 #include "indexmgr/mddobjix.hh"
-#include "../common/src/logging/easylogging++.hh"
+#include <easylogging++.h>
 
 using boost::shared_ptr;
 

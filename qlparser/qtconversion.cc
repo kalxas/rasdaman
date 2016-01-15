@@ -49,7 +49,7 @@ static const char rcsid[] = "@(#)qlparser, QtConversion: $Header: /home/rasdev/C
 #include "relcatalogif/structtype.hh"
 #include "relcatalogif/chartype.hh"
 
-#include "../common/src/logging/easylogging++.hh"
+#include <easylogging++.h>
 
 #include <iostream>
 #ifndef CPPSTDLIB

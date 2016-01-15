@@ -38,7 +38,7 @@ rasdaman GmbH.
 #include "qlparser/qtmdd.hh"
 #include "tilemgr/tile.hh"
 #include "catalogmgr/typefactory.hh"
-#include "../common/src/logging/easylogging++.hh"
+#include <easylogging++.h>
 
 #include "mddmgr/mddobj.hh"
 

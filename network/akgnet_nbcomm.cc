@@ -33,7 +33,7 @@ rasdaman GmbH.
 #include "config.h"
 #include <akgnet_nbcomm.hh>
 #include <assert.h>
-#include "../common/src/logging/easylogging++.hh"
+#include <easylogging++.h>
 
 //### NBJob - static members #########################
 time_t akg::NbJob::timeOutInterv = 30;

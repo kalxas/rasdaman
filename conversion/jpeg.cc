@@ -47,7 +47,7 @@ extern "C" {
 #include "raslib/parseparams.hh"
 #include "conversion/jpeg.hh"
 #include "conversion/memfs.hh"
-#include "../common/src/logging/easylogging++.hh"
+#include <easylogging++.h>
 
 
 

@@ -37,7 +37,7 @@
 #include <boost/format.hpp>
 
 #include "../../common/src/exceptions/rasexceptions.hh"
-#include "../../common/src/logging/easylogging++.hh"
+#include <easylogging++.h>
 #include "../../common/src/uuid/uuid.hh"
 
 #include "exceptions/rasmgrexceptions.hh"

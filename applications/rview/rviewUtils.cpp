@@ -100,7 +100,7 @@ rasdaman GmbH.
 #include "rviewTypeMan.hh"
 #include "labelManager.hh"
 
-#include "common/src/logging/easylogging++.hh"
+#include <easylogging++.h>
 
 
 #ifdef __VISUALC__

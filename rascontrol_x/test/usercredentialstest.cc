@@ -22,8 +22,8 @@
 
 #include <cstdlib>
 
-#include "../../common/src/logging/easylogging++.hh"
-#include "../../common/src/unittest/gtest.h"
+#include <easylogging++.h>
+#include <gtest/gtest.h>
 #include "../../common/src/crypto/crypto.hh"
 #include "../../include/globals.hh"
 

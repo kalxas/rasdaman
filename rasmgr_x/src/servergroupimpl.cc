@@ -28,7 +28,7 @@
 #include <boost/lexical_cast.hpp>
 #include <boost/cstdint.hpp>
 
-#include "../../common/src/logging/easylogging++.hh"
+#include <easylogging++.h>
 #include "../../common/src/exceptions/rasexceptions.hh"
 
 #include "constants.hh"

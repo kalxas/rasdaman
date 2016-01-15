@@ -24,7 +24,7 @@ rasdaman GmbH.
 #include "dbobjectiditerator.hh"
 #include "objectbroker.hh"
 #include "dbref.hh"
-#include "../common/src/logging/easylogging++.hh"
+#include <easylogging++.h>
 
 template<class T>
 DBObjectIdIterator<T>::DBObjectIdIterator(const DBObjectIdIterator<T>& oidlist)

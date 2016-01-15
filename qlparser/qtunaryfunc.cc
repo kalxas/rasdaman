@@ -40,7 +40,7 @@ static const char rcsid[] = "@(#)qlparser, QtIntervalLoOp, QtIntervalHiOp, QtSDo
 #include "qlparser/qtmdd.hh"
 #include "mddmgr/mddobj.hh"
 
-#include "../common/src/logging/easylogging++.hh"
+#include <easylogging++.h>
 
 const QtNode::QtNodeType QtIntervalLoOp::nodeType = QtNode::QT_LO;
 

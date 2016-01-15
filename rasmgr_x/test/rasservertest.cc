@@ -27,9 +27,9 @@
 #include <grpc++/grpc++.h>
 #include <grpc++/security/credentials.h>
 
-#include "../../common/src/unittest/gtest.h"
-#include "../../common/src/mock/gmock.h"
-#include "../../common/src/logging/easylogging++.hh"
+#include <gtest/gtest.h>
+#include <gmock/gmock.h>
+#include <easylogging++.h>
 #include "../../common/src/grpc/grpcutils.hh"
 
 #include "../../rasnet/messages/rassrvr_rasmgr_service.grpc.pb.h"

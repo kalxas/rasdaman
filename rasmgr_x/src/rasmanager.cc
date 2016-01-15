@@ -29,7 +29,7 @@
 #include "../../common/src/crypto/crypto.hh"
 #include "../../common/src/grpc/grpcutils.hh"
 #include "../../common/src/grpc/healthserviceimpl.hh"
-#include "../../common/src/logging/easylogging++.hh"
+#include <easylogging++.h>
 #include "../../rasnet/messages/rasmgr_rasctrl_service.grpc.pb.h"
 #include "../../rasnet/messages/rasmgr_rassrvr_service.grpc.pb.h"
 #include "../../rasnet/messages/rasmgr_client_service.grpc.pb.h"

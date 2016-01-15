@@ -49,7 +49,7 @@ using namespace std;
 #include "raslib/error.hh"
 #include "eoid.hh"
 
-#include "../common/src/logging/easylogging++.hh"
+#include <easylogging++.h>
 
 #ifdef RMANBENCHMARK
 RMTimer DBObject::readTimer = RMTimer("DBObject","read");

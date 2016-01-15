@@ -75,7 +75,7 @@ rasdaman GmbH.
 #include "rviewUtils.hh"
 #include "rviewDModes.hh"
 #include "rviewPrefs.hh"
-#include "common/src/logging/easylogging++.hh"
+#include <easylogging++.h>
 
 
 const int rviewStringViewer::strview_msgheight = 30;

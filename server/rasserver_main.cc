@@ -86,7 +86,7 @@ RMINITGLOBALS('C')
 #include "../rasserver_x/src/rasnetserver.hh"
 #endif
 
-#include "../common/src/logging/easylogging++.hh"
+#include <easylogging++.h>
 
 // return codes
 #define RC_OK       0

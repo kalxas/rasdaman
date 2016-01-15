@@ -33,7 +33,7 @@ rasdaman GmbH.
 #include "reladminif/sqlerror.hh"
 #include "mddtype.hh"
 #include "reladminif/externs.h"
-#include "../common/src/logging/easylogging++.hh"
+#include <easylogging++.h>
 
 r_Bytes
 MDDType::getMemorySize() const

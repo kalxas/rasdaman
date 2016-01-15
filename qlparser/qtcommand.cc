@@ -43,7 +43,7 @@ static const char rcsid[] = "@(#)qlparser, QtCommand: $Header: /home/rasdev/CVS-
 #include "qlparser/querytree.hh"
 #include "qlparser/qtinsert.hh"
 #include "relblobif/tilecache.hh"
-#include "../common/src/logging/easylogging++.hh"
+#include <easylogging++.h>
 
 #include <iostream>
 

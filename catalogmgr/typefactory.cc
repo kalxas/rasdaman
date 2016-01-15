@@ -55,7 +55,7 @@ static const char rcsid[] = "@(#)catalogif,TypeFactory: $Header: /home/rasdev/CV
 #include "relmddif/dbmddobj.hh"
 #include "relmddif/dbmddset.hh"
 #include "relcatalogif/syntaxtypes.hh"
-#include "../common/src/logging/easylogging++.hh"
+#include <easylogging++.h>
 
 TypeFactory* TypeFactory::myInstance = 0;
 

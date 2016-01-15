@@ -50,7 +50,7 @@ rasdaman GmbH.
 
 #include "debug.hh"
 #include "raslib/rmdebug.hh"
-#include "../common/src/logging/easylogging++.hh"
+#include <easylogging++.h>
 
 #include "conversion/png.hh"
 #include "conversion/memfs.hh"

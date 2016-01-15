@@ -29,7 +29,7 @@ rasdaman GmbH.
 
 #include "../../rasnet/messages/rasmgr_rassrvr_service.grpc.pb.h"
 
-#include "../../common/src/logging/easylogging++.hh"
+#include <easylogging++.h>
 #include "../../common/src/grpc/grpcutils.hh"
 #include "../../common/src/exceptions/rasexceptions.hh"
 #include "../../rasnetprotocol/rasnetservercomm.hh"

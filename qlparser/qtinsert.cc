@@ -69,7 +69,7 @@ static const char rcsid[] = "@(#)qlparser, QtInsert: $Header: /home/rasdev/CVS-r
 #include "raslib/basetype.hh"
 #include "raslib/collectiontype.hh"
 
-#include "../common/src/logging/easylogging++.hh"
+#include <easylogging++.h>
 
 
 extern ServerComm::ClientTblElt* currentClientTblElt;

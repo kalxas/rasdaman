@@ -47,7 +47,7 @@ static const char rcsid[] = "@(#)blobif,BLOBTile: $Id: inlinetile.cc,v 1.5 2002/
 #include "relindexif/dbtcindex.hh"
 #include "reladminif/dbref.hh"
 #include "storagemgr/sstoragelayout.hh"
-#include "../common/src/logging/easylogging++.hh"
+#include <easylogging++.h>
 
 #include <cstring>
 

@@ -22,8 +22,8 @@
 
 #include <iostream>
 #include <google/protobuf/stubs/common.h>
-#include "../src/unittest/gtest.h"
-#include "../src/logging/easylogging++.hh"
+#include <gtest/gtest.h>
+#include <easylogging++.h>
 #include "config.h"
 
 _INITIALIZE_EASYLOGGINGPP

@@ -40,7 +40,7 @@ rasdaman GmbH.
 #include "dbminterval.hh"
 #include "reladminif/sqlglobals.h"
 #include "reladminif/sqlitewrapper.hh"
-#include "../common/src/logging/easylogging++.hh"
+#include <easylogging++.h>
 
 DBMinterval::DBMinterval()
     :   DBObject(),

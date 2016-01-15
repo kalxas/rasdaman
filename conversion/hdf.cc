@@ -48,7 +48,7 @@ rasdaman GmbH.
 #include "raslib/error.hh"
 #include "raslib/parseparams.hh"
 #include "raslib/primitivetype.hh"
-#include "../common/src/logging/easylogging++.hh"
+#include <easylogging++.h>
 
 #ifdef HAVE_HDF_H
 #include "hdf.h"

@@ -52,7 +52,7 @@ using namespace std;
 #include <stdlib.h>
 #include <stdio.h>
 
-#include "../common/src/logging/easylogging++.hh"
+#include <easylogging++.h>
 
 
 using std::endl;

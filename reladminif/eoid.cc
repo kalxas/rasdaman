@@ -37,7 +37,7 @@ rasdaman GmbH.
 #include "adminif.hh"
 #include "databaseif.hh"
 #include "raslib/error.hh"
-#include "../common/src/logging/easylogging++.hh"
+#include <easylogging++.h>
 
 void
 EOId::print_status(std::ostream& s) const

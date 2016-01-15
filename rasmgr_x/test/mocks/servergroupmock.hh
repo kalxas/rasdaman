@@ -1,7 +1,7 @@
 #ifndef RASMGR_X_TEST_SERVERGROUPMOCK_HH
 #define RASMGR_X_TEST_SERVERGROUPMOCK_HH
 
-#include "../../../common/src/mock/gmock.h"
+#include <gmock/gmock.h>
 
 #include "../src/servergroup.hh"
 namespace rasmgr

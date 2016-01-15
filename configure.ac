@@ -63,6 +63,9 @@ AC_CHECK_PROGS(YACC, ['bison -y' byacc yacc], no)
 if test "$YACC" = "no" ; then
    AC_MSG_ERROR([could not find bison, byacc or yacc. Please install.])
 fi
+AC_CHECK_PROG(AR, ar, ar, no)
+AS_IF([test x$AR = no],
+    AC_MSG_ERROR([Cannot find a valid 'ar' tool]))
 AC_PROG_BISON
 
 # Checks for libraries.
@@ -434,32 +437,61 @@ AM_CONDITIONAL([ENABLE_R], [test "$enable_r" = yes])
 
 # check for boost
 AX_BOOST_BASE([1.48],[],[AC_MSG_FAILURE([boost library required with version >= 1.48. Please install it.])])
+AX_BOOST_SYSTEM
+AX_BOOST_THREAD
+AX_BOOST_REGEX
+AX_BOOST_PROGRAM_OPTIONS
 CXXFLAGS="$CXXFLAGS ${BOOST_CPPFLAGS}"
 
 abs_top_srcdir=`pwd`
 RMANBASE=$abs_top_srcdir
 
+### Start - Configuration of third party libraries ###
+THIRD_PARTY_DIR="$RMANBASE/third_party"
+AC_SUBST(THIRD_PARTY_DIR, "$THIRD_PARTY_DIR")
+
+# Add easylogging as a system dependency to prevent warnings
+CXXFLAGS="$CXXFLAGS -isystem $THIRD_PARTY_DIR/easyloggingpp"
+
+# GoogleTest variables
+GTEST_DIR="$THIRD_PARTY_DIR/googletest"
+AC_SUBST(GTEST_DIR, "$GTEST_DIR")
+
+# GoogleTest include flags. GoogleTest is treated as a system dependency.
+CXXFLAGS="$CXXFLAGS -isystem ${GTEST_DIR}/include -I${GTEST_DIR} "
+
+# GoogleMock variables
+GMOCK_DIR="$THIRD_PARTY_DIR/googlemock"
+AC_SUBST(GMOCK_DIR, "$GMOCK_DIR")
+
+GMOCK_BIN="$THIRD_PARTY_DIR/bin/gmock"
+AC_SUBST(GMOCK_BIN, "$GMOCK_BIN")
+
+GMOCK_LIB="$GMOCK_BIN/libgmock.a"
+AC_SUBST(GMOCK_LIB, "$GMOCK_LIB")
+
+# GoogleMock include flags. GoogleMock is treated as a system dependency.
+CXXFLAGS="$CXXFLAGS -isystem ${GMOCK_DIR}/include -I${GMOCK_DIR} "
+
+### End - Configuration of third party libraries ###
+
 ### Start - Check for rasnet ###
 if test "$enable_rasnet" = "yes"; then
     AC_DEFINE([RMANRASNET], [], [Flag which is true when the rasnet protocol is enabled.])
 
-    # General configuration for third party modules.
-    THIRD_PARTY_DIR="$RMANBASE/third_party"
-    AC_SUBST(THIRD_PARTY_DIR, "$THIRD_PARTY_DIR")
     # We need C++ 11 for RASNET
     CXXFLAGS="$CXXFLAGS -std=c++11"
 
     # Configuration for Google Protobuf
     PROTOBUF_BIN="$THIRD_PARTY_DIR/bin/protobuf"
-    CXXFLAGS="$CXXFLAGS -I $PROTOBUF_BIN/include/"
-
     AC_SUBST(PROTOBUF_BIN, "$PROTOBUF_BIN")
     AC_SUBST(PROTOC, "$PROTOBUF_BIN/bin/protoc")
     AC_SUBST(PROTOBUF_LIBS, "$PROTOBUF_BIN/lib/libprotobuf.a -lpthread")
+    CXXFLAGS="$CXXFLAGS -isystem $PROTOBUF_BIN/include/"
 
     # Configuration for GRPC
     GRPC_BIN="$THIRD_PARTY_DIR/bin/grpc"
-    CXXFLAGS="$CXXFLAGS -I $GRPC_BIN/include/"
+    CXXFLAGS="$CXXFLAGS -isystem $GRPC_BIN/include/"
 
     AC_SUBST(GRPC_BIN, "$GRPC_BIN")
     AC_SUBST(GRPCCPPPLUGIN, "$GRPC_BIN/bin/grpc_cpp_plugin")

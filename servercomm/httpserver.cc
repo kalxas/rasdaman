@@ -79,7 +79,7 @@ static const char rcsid[] = "@(#)servercomm, HttpServer: $Id: httpserver.cc,v 1.
 #include "qlparser/qtpointdata.hh"
 #include "qlparser/qtstringdata.hh"
 
-#include "../common/src/logging/easylogging++.hh"
+#include <easylogging++.h>
 
 #define UNEXPECTED_INTERNAL_ERROR 10000
 

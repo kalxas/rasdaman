@@ -27,7 +27,7 @@ static const char rcsid[] = "@(#)raslib, r_Marray_Type: $Header: /home/rasdev/CV
 #include "raslib/marraytype.hh"
 #include "raslib/basetype.hh"
 #include "raslib/error.hh"
-#include "../common/src/logging/easylogging++.hh"
+#include <easylogging++.h>
 
 r_Marray_Type::r_Marray_Type()
     :   r_Type(),

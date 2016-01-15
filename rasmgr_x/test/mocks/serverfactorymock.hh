@@ -3,7 +3,7 @@
 
 #include <boost/shared_ptr.hpp>
 
-#include "../../../common/src/mock/gmock.h"
+#include <gmock/gmock.h>
 
 #include "../../src/serverfactory.hh"
 namespace rasmgr

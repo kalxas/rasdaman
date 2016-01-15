@@ -43,7 +43,7 @@ static const char rcsid[] = "@(#)rasgeo, InitError: $Id: rasgeo_error.cc,v 1.1 2
 // debug facility; relies on -DDEBUG at compile time
 #include "debug/debug.hh"
 
-#include "common/src/logging/easylogging++.hh"
+#include <easylogging++.h>
 
 /// error object, carrying int error code
 InitError::InitError( int e )

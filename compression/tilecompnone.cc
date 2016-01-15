@@ -33,7 +33,7 @@ rasdaman GmbH.
 #include <string.h>
 
 #include "compression/tilecompnone.hh"
-#include "../common/src/logging/easylogging++.hh"
+#include <easylogging++.h>
 
 
 r_Tile_Comp_None::r_Tile_Comp_None( const r_Minterval &dom, const r_Base_Type *type ) : r_Tile_Compression(dom, type)

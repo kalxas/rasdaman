@@ -43,7 +43,7 @@ static const char rcsid[] = "@(#)qlparser, QtCondense: $Header: /home/rasdev/CVS
 #include "qlparser/qtbinaryinduce.hh"
 #include "qlparser/qtbinaryinduce2.hh"
 
-#include "../common/src/logging/easylogging++.hh"
+#include <easylogging++.h>
 
 #include "mddmgr/mddobj.hh"
 

@@ -43,7 +43,7 @@ rasdaman GmbH.
 #include "reladminif/sqlerror.hh"
 #include "reladminif/sqlglobals.h"
 #include "reladminif/sqlitewrapper.hh"
-#include "../common/src/logging/easylogging++.hh"
+#include <easylogging++.h>
 
 // container size for index node
 // BEWARE: keep these parameters always consistent!

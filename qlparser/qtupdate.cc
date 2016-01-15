@@ -49,7 +49,7 @@ static const char rcsid[] = "@(#)qlparser, QtUpdate: $Header: /home/rasdev/CVS-r
 #include <iostream>
 #include <memory>
 
-#include "../common/src/logging/easylogging++.hh"
+#include <easylogging++.h>
 
 const QtNode::QtNodeType QtUpdate::nodeType = QtNode::QT_UPDATE;
 

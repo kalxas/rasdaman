@@ -48,7 +48,7 @@ rasdaman GmbH.
 #include "storagemgr/sstoragelayout.hh"
 #include "raslib/endian.hh"
 #include "debug.hh"
-#include "../common/src/logging/easylogging++.hh"
+#include <easylogging++.h>
 
 DBHierIndex::DBHierIndex(const OId& id)
     :   HierIndexDS(id),

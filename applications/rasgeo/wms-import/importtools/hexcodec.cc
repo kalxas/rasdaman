@@ -28,7 +28,7 @@
 // debug facility; relies on -DDEBUG at compile time
 #include "debug/debug.hh"
 
-#include "common/src/logging/easylogging++.hh"
+#include <easylogging++.h>
 
 using std::ostringstream;
 using std::ios;

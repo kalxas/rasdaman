@@ -34,7 +34,7 @@
 #include "blobfile.hh"
 #include "dirwrapper.hh"
 #include "blobfstransaction.hh"
-#include "../common/src/logging/easylogging++.hh"
+#include <easylogging++.h>
 #include "blobfstransactionlock.hh"
 #include "reladminif/sqlitewrapper.hh"
 

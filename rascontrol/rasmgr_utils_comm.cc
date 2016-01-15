@@ -43,7 +43,7 @@ rasdaman GmbH.
 #include "rasmgr_utils_comm.hh"
 #include "rascontrol.hh"
 
-#include "../common/src/logging/easylogging++.hh"
+#include <easylogging++.h>
 
 RasMgrClientComm::RasMgrClientComm()
 {

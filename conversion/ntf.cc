@@ -44,7 +44,7 @@ rasdaman GmbH.
 #include "conversion/ntf.hh"
 #include "conversion/memfs.hh"
 
-#include "../common/src/logging/easylogging++.hh"
+#include <easylogging++.h>
 
 // nitf reader library
 

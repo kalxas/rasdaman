@@ -73,7 +73,7 @@ rasdaman GmbH.
 #include "rviewPrefs.hh"
 #include "labelManager.hh"
 
-#include "common/src/logging/easylogging++.hh"
+#include <easylogging++.h>
 
 
 

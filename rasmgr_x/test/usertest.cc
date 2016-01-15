@@ -1,4 +1,4 @@
-#include "../../common/src/unittest/gtest.h"
+#include <gtest/gtest.h>
 
 #include "../src/user.hh"
 #include "../src/userdatabaserights.hh"

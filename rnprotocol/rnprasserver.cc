@@ -25,7 +25,7 @@ rasdaman GmbH.
 
 #include "rnprasserver.hh"
 
-#include "../common/src/logging/easylogging++.hh"
+#include <easylogging++.h>
 
 // forever and ever
 const RnpQuark RnpRasserver::serverID = 3072002;

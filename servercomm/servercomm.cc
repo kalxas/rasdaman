@@ -120,7 +120,7 @@ extern "C" int gethostname(char *name, int namelen);
 #include<netdb.h>
 #include<iostream>
 
-#include "../common/src/logging/easylogging++.hh"
+#include <easylogging++.h>
 
 using namespace std;
 // init globals for server initialization

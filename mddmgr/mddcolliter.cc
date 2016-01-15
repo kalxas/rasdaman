@@ -40,7 +40,7 @@ rasdaman GmbH.
 #include "relmddif/dbmddobj.hh"
 #include "relmddif/dbmddset.hh"
 #include "reladminif/dbobjectiditerator.hh"
-#include "../common/src/logging/easylogging++.hh"
+#include <easylogging++.h>
 
 MDDCollIter::MDDCollIter(MDDColl* targetColl)
     :   dbIter(0),

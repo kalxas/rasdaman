@@ -43,7 +43,7 @@ rasdaman GmbH.
 #include "tilecache.hh"
 #include "blobfs.hh"
 
-#include "../common/src/logging/easylogging++.hh"
+#include <easylogging++.h>
 
 using namespace std;
 using blobfs::BlobFS;

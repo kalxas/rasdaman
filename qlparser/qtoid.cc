@@ -42,7 +42,7 @@ static const char rcsid[] = "@(#)qlparser, QtOId: $Header: /home/rasdev/CVS-repo
 
 #include "raslib/oid.hh"
 
-#include "../common/src/logging/easylogging++.hh"
+#include <easylogging++.h>
 
 const QtNode::QtNodeType QtOId::nodeType = QtNode::QT_OID;
 

@@ -24,7 +24,7 @@
 #include "blobfstransactionlock.hh"
 #include "blobfscommon.hh"
 #include "dirwrapper.hh"
-#include "../common/src/logging/easylogging++.hh"
+#include <easylogging++.h>
 
 using namespace std;
 using namespace blobfs;

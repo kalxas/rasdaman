@@ -70,7 +70,7 @@ rasdaman GmbH.
 #include "rviewQuery.hh"
 #include "rviewPrefs.hh"
 
-#include "common/src/logging/easylogging++.hh"
+#include <easylogging++.h>
 
 
 

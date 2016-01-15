@@ -21,7 +21,7 @@
  */
 #include <boost/thread/locks.hpp>
 
-#include "../../common/src/logging/easylogging++.hh"
+#include <easylogging++.h>
 
 #include "rasmgrconfig.hh"
 

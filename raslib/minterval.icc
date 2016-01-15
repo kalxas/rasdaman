@@ -32,7 +32,7 @@ rasdaman GmbH.
 
 // -*-C++-*- (for Emacs)
 #include "raslib/error.hh"
-#include "../common/src/logging/easylogging++.hh"
+#include <easylogging++.h>
 
 inline r_Dimension
 r_Minterval::dimension() const

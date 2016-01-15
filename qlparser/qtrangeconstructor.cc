@@ -43,7 +43,7 @@ rasdaman GmbH.
 #include "catalogmgr/typefactory.hh"
 #include "relcatalogif/structtype.hh"
 
-#include "../common/src/logging/easylogging++.hh"
+#include <easylogging++.h>
 
 #include "mddmgr/mddobj.hh"
 #include "mymalloc/mymalloc.h"

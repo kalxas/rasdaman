@@ -42,7 +42,7 @@ rasdaman GmbH.
 #include "debug.hh"
 #include "rasodmg/gmarray.hh"
 
-#include "../common/src/logging/easylogging++.hh"
+#include <easylogging++.h>
 #include "rpcif.h"
 
 

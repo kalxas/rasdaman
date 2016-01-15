@@ -51,7 +51,7 @@ rasdaman GmbH.
 #include "rasmgr_error.hh"
 #include "raslib/rminit.hh"
 
-#include "../common/src/logging/easylogging++.hh"
+#include <easylogging++.h>
 
 #ifndef COMPDATE
 #error "Please specify the COMPDATE variable!"

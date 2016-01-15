@@ -42,7 +42,7 @@ using namespace std;
 #include "raslib/dlist.hh"
 #include "mymalloc/mymalloc.h"
 
-#include "../common/src/logging/easylogging++.hh"
+#include <easylogging++.h>
 
 #include <math.h>
 #include <string.h>

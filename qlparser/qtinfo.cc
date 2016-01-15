@@ -48,7 +48,7 @@ rasdaman GmbH.
 
 #include "raslib/oid.hh"
 #include "raslib/parseparams.hh"
-#include "../common/src/logging/easylogging++.hh"
+#include <easylogging++.h>
 
 using namespace std;
 

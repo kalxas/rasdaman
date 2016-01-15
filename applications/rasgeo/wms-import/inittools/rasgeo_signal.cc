@@ -50,7 +50,7 @@ static const char rcsid[] = "@(#)rasodmg/test,ImportOrthoUtil: $Id: rasgeo_signa
 // tell debug that here is the place for the variables
 #include "debug/debug.hh"
 
-#include "common/src/logging/easylogging++.hh"
+#include <easylogging++.h>
 
 //installSignalHandlers function should be called first in main function
 //in order to receive a signal in your program

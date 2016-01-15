@@ -46,7 +46,7 @@ rasdaman GmbH.
 #include <linux/limits.h>
 
 #include "raslib/log_config.hh"
-#include "../common/src/logging/easylogging++.hh"
+#include <easylogging++.h>
 
 #ifndef RMANVERSION
 #error "Please specify RMANVERSION variable!"

@@ -37,7 +37,7 @@
 #include <stdio.h>
 #include "blobfile.hh"
 #include "blobfscommon.hh"
-#include "../common/src/logging/easylogging++.hh"
+#include <easylogging++.h>
 
 using namespace std;
 using namespace blobfs;

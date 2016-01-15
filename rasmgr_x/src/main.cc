@@ -30,7 +30,7 @@
 #include "../../config.h"
 #include "../../version.h"
 
-#include "../../common/src/logging/easylogging++.hh"
+#include <easylogging++.h>
 #include "../../common/src/crypto/crypto.hh"
 #include "../../common/src/logging/loggingutils.hh"
 

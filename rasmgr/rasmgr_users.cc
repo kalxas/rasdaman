@@ -45,7 +45,7 @@ using namespace std;
 #include "globals.hh"   // RASMGR_AUTH_FILE
 
 #include "debug-srv.hh"
-#include "../common/src/logging/easylogging++.hh"
+#include <easylogging++.h>
 
 extern bool hostCmp( const char *h1, const char *h2);
 

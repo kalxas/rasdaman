@@ -44,7 +44,7 @@ static const char rcsid[] = "@(#)qlparser, QtMintervalOp: $Header: /home/rasdev/
 #include "catalogmgr/ops.hh"
 #include "relcatalogif/type.hh"
 
-#include "../common/src/logging/easylogging++.hh"
+#include <easylogging++.h>
 
 #include <iostream>
 #ifndef CPPSTDLIB

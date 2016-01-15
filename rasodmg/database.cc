@@ -44,7 +44,7 @@ static const char rcsid[] = "@(#)rasodmg, r_Database: $Id: database.cc,v 1.47 20
 #include "rasodmg/transaction.hh"
 #include "clientcomm/clientcomm.hh"
 
-#include "../common/src/logging/easylogging++.hh"
+#include <easylogging++.h>
 
 #ifdef DATABASE_NOT_SET
 #undef __EXECUTABLE__

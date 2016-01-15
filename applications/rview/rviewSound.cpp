@@ -108,7 +108,7 @@ rasdaman GmbH.
 #include "labelManager.hh"
 #endif // HAL
 
-#include "common/src/logging/easylogging++.hh"
+#include <easylogging++.h>
 
 
 

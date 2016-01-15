@@ -23,9 +23,9 @@
 #include <string>
 #include <boost/cstdint.hpp>
 
-#include "../../common/src/unittest/gtest.h"
-#include "../../common/src/mock/gmock.h"
-#include "../../common/src/logging/easylogging++.hh"
+#include <gtest/gtest.h>
+#include <gmock/gmock.h>
+#include <easylogging++.h>
 
 #include "../src/messages/rasmgrmess.pb.h"
 #include "../src/client.hh"

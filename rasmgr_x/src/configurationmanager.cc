@@ -5,7 +5,7 @@
 
 #include "../../config.h"
 #include "../../include/globals.hh"
-#include "../../common/src/logging/easylogging++.hh"
+#include <easylogging++.h>
 #include "../../common/src/exceptions/missingresourceexception.hh"
 
 #include "constants.hh"

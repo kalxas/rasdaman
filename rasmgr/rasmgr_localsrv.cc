@@ -59,7 +59,7 @@ using namespace std;
 
 
 #include "debug-srv.hh"
-#include "../common/src/logging/easylogging++.hh"
+#include <easylogging++.h>
 
 
 // aux function for now() to avoid a compiler warning (see 'man strftime')

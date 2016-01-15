@@ -45,7 +45,7 @@ using namespace std;
 #include "mymalloc/mymalloc.h"
 #include "mddmgr/mddobj.hh"
 
-#include "../common/src/logging/easylogging++.hh"
+#include <easylogging++.h>
 
 const QtNode::QtNodeType QtVariable::nodeType = QT_MDD_VAR;
 

@@ -23,7 +23,7 @@
 #include <stdexcept>
 
 #include "../../common/src/uuid/uuid.hh"
-#include "../../common/src/logging/easylogging++.hh"
+#include <easylogging++.h>
 
 #include "exceptions/rasmgrexceptions.hh"
 #include "messages/rasmgrmess.pb.h"

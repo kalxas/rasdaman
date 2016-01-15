@@ -47,7 +47,7 @@ static const char rcsid[] = "@(#)raslib, RasqlError: $Id: rasql_error.cc,v 1.1 2
 // debug facility; relies on -DDEBUG at compile time
 #include "debug-clt.hh"
 
-#include "common/src/logging/easylogging++.hh"
+#include <easylogging++.h>
 
 /// error object, carrying int error code
 RasqlError::RasqlError( int e )

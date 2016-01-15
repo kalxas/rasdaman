@@ -21,8 +21,8 @@
  */
 
 #include <iostream>
-#include "../../common/src/unittest/gtest.h"
-#include "../../common/src/logging/easylogging++.hh"
+#include <gtest/gtest.h>
+#include <easylogging++.h>
 
 _INITIALIZE_EASYLOGGINGPP
 using namespace std;

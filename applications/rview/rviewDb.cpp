@@ -79,7 +79,7 @@ rasdaman GmbH.
 #include "rviewMDD.hh"
 #include "rviewPrefs.hh"
 
-#include "common/src/logging/easylogging++.hh"
+#include <easylogging++.h>
 
 
 

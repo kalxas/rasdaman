@@ -36,7 +36,7 @@ rasdaman GmbH.
 #include <cstdarg>
 #include <cstdio>
 #include <bool.h>
-#include "../common/src/logging/easylogging++.hh"
+#include <easylogging++.h>
 
 extern sqlite3* sqliteConn;
 

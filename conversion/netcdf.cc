@@ -48,7 +48,7 @@ rasdaman GmbH.
 #include "relcatalogif/basetype.hh"
 #include "relcatalogif/structtype.hh"
 
-#include "../common/src/logging/easylogging++.hh"
+#include <easylogging++.h>
 
 #include <cstring>
 #include <sstream>

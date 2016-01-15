@@ -102,7 +102,7 @@ and -DCOMPDATE="\"$(COMPDATE)\"" when compiling
 #include "debug/debug.hh"
 
 #include "raslib/log_config.hh"
-#include "common/src/logging/easylogging++.hh"
+#include <easylogging++.h>
 
 /*
  * parse cmd line, fill all program variables

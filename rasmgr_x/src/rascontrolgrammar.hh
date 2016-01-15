@@ -39,7 +39,7 @@
 #include <boost/phoenix/operator.hpp>
 #include <boost/fusion/container/vector.hpp>
 
-#include "common/src/logging/easylogging++.hh"
+#include <easylogging++.h>
 
 #include "rascontrol.hh"
 #include "rasctrlgrammarconstants.hh"

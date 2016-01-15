@@ -78,7 +78,7 @@ rasdaman GmbH.
 #include "rviewDModes.hh"
 #include "rviewOSection.hh"
 
-#include "common/src/logging/easylogging++.hh"
+#include <easylogging++.h>
 
 
 

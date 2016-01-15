@@ -47,7 +47,7 @@ rasdaman GmbH.
 #include "raslib/odmgtypes.hh"
 #include "raslib/parseparams.hh"
 #include "conversion/vff.hh"
-#include "../common/src/logging/easylogging++.hh"
+#include <easylogging++.h>
 
 
 // file magic

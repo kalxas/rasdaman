@@ -78,7 +78,7 @@ rasdaman GmbH.
 #include "rviewPrefs.hh"
 #include "rviewMDD.hh"
 
-#include "common/src/logging/easylogging++.hh"
+#include <easylogging++.h>
 
 
 const int chartCanvas::chcanv_cospace = 16;

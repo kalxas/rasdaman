@@ -1,5 +1,5 @@
-#include "../../common/src/unittest/gtest.h"
-#include "../../common/src/mock/gmock.h"
+#include <gtest/gtest.h>
+#include <gmock/gmock.h>
 #include "../../common/src/grpc/healthserviceimpl.hh"
 #include "../../common/src/grpc/grpcutils.hh"
 

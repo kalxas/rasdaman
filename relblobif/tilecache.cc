@@ -26,7 +26,7 @@ rasdaman GmbH.
 
 #include <algorithm>
 #include <set>
-#include "../common/src/logging/easylogging++.hh"
+#include <easylogging++.h>
 
 using namespace std;
 

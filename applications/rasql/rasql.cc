@@ -97,7 +97,7 @@ using namespace std;
 #include "../../commline/cmlparser.hh"
 
 #include "raslib/log_config.hh"
-#include "common/src/logging/easylogging++.hh"
+#include <easylogging++.h>
 
 #include "rasql_error.hh"
 #include "rasql_signal.hh"
@@ -212,7 +212,7 @@ typedef enum
 #define PARAM_DEBUG "debug"
 #define HELP_DEBUG  "generate diagnostic output"
 
-#include "common/src/logging/easylogging++.hh"
+#include <easylogging++.h>
 _INITIALIZE_EASYLOGGINGPP
 
 // global variables and default settings

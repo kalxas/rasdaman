@@ -52,7 +52,7 @@ static const char rcsid[] = "@(#)reladminif,DatabaseIf: $Id: databaseif.ec,v 1.9
 #include "config.h"
 #include "version.h"
 #include "debug/debug.hh"
-#include "../common/src/logging/easylogging++.hh"
+#include <easylogging++.h>
 
 using namespace std;
 
