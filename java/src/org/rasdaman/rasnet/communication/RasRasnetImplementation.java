@@ -24,9 +24,7 @@ package org.rasdaman.rasnet.communication;
 
 import com.google.protobuf.*;
 import io.grpc.ManagedChannel;
-import io.grpc.ManagedChannelBuilder;
 import io.grpc.StatusRuntimeException;
-import io.grpc.netty.NettyChannelBuilder;
 import org.odmg.*;
 import org.rasdaman.rasnet.service.ClientRasServerService.*;
 import org.rasdaman.rasnet.service.ClientRassrvrServiceGrpc;
@@ -55,6 +53,8 @@ public class RasRasnetImplementation implements RasImplementationInterface, RasC
     private HealthServiceGrpc.HealthServiceBlockingStub rasserverHealthService;
     private ManagedChannel rasmgrServiceChannel;
     private ManagedChannel rasServerServiceChannel;
+
+    private RasnetServiceFactory serviceFactory;
 
     private String rasServerHost;
     private int rasServerPort;
@@ -86,7 +86,12 @@ public class RasRasnetImplementation implements RasImplementationInterface, RasC
 
     /* END - KEEP ALIVE */
 
-    public RasRasnetImplementation(String server) {
+    public RasRasnetImplementation(RasnetServiceFactory rasnetServiceFactory, String server) {
+
+        if (rasnetServiceFactory == null) {
+            throw new IllegalArgumentException("Service factory is null.");
+        }
+
         Debug.enterVerbose("RasNetImplementation.RasNetImplementation start. server=" + server);
         try {
             StringTokenizer t = new StringTokenizer(server, "/");
@@ -94,6 +99,8 @@ public class RasRasnetImplementation implements RasImplementationInterface, RasC
             this.rasMgrHost = t.nextToken("/:");
             String portStr = t.nextToken(":");
             this.rasMgrPort = Integer.parseInt(portStr);
+
+            this.serviceFactory = rasnetServiceFactory;
         } catch (NoSuchElementException e) {
             Debug.talkCritical("RasNetImplementation.RasNetImplementation: " + e.getMessage());
             Debug.leaveVerbose("RasNetImplementation.RasNetImplementation done: " + e.getMessage());
@@ -398,8 +405,6 @@ public class RasRasnetImplementation implements RasImplementationInterface, RasC
             throw new RasClientInternalException("RasNetImplementation", "executeQueryRequest()", e.getMessage());
         } catch (StatusRuntimeException ex) {
             throw GrpcUtils.convertStatusToRuntimeException(ex.getStatus());
-        } catch (Exception ex) {
-            throw new RasQueryExecutionFailedException(ex.getMessage());
         }
     }
 
@@ -423,36 +428,36 @@ public class RasRasnetImplementation implements RasImplementationInterface, RasC
         }
     }
 
-    private synchronized void initRasmgrServices(){
+    private synchronized void initRasmgrServices() {
         if (this.rasmgService == null) {
-            this.rasmgrServiceChannel = NettyChannelBuilder.forAddress(this.rasMgrHost, this.rasMgrPort).usePlaintext(true).build();
-            this.rasmgService = RasMgrClientServiceGrpc.newBlockingStub(this.rasmgrServiceChannel);
-            this.rasmgrHealthService =  HealthServiceGrpc.newBlockingStub(this.rasmgrServiceChannel);
+            this.rasmgrServiceChannel = this.serviceFactory.createChannel(this.rasMgrHost, this.rasMgrPort);
+            this.rasmgService = this.serviceFactory.createRasmgrClientService(this.rasmgrServiceChannel);
+            this.rasmgrHealthService = this.serviceFactory.createHealthService(this.rasmgrServiceChannel);
         }
     }
 
     private RasMgrClientServiceGrpc.RasMgrClientServiceBlockingStub getRasmgService() {
         this.initRasmgrServices();
 
-        if(!GrpcUtils.isServerAlive(rasmgrHealthService, Constants.SERVICE_CALL_TIMEOUT)){
+        if (!GrpcUtils.isServerAlive(rasmgrHealthService, Constants.SERVICE_CALL_TIMEOUT)) {
             throw new RasConnectionFailedException(MANAGER_CONN_FAILED, "");
         }
 
         return rasmgService;
     }
 
-    private synchronized void initRasserverServices(){
+    private synchronized void initRasserverServices() {
         if (this.rasServerService == null) {
-            this.rasServerServiceChannel = NettyChannelBuilder.forAddress(this.rasServerHost, this.rasServerPort).usePlaintext(true).build();
-            this.rasServerService = ClientRassrvrServiceGrpc.newBlockingStub(this.rasServerServiceChannel);
-            this.rasserverHealthService = HealthServiceGrpc.newBlockingStub(this.rasServerServiceChannel);
+            this.rasServerServiceChannel = this.serviceFactory.createChannel(this.rasServerHost, this.rasServerPort);
+            this.rasServerService = this.serviceFactory.createClientRasServerService(this.rasServerServiceChannel);
+            this.rasserverHealthService = this.serviceFactory.createHealthService(this.rasServerServiceChannel);
         }
     }
 
     private synchronized ClientRassrvrServiceGrpc.ClientRassrvrServiceBlockingStub getRasServerService() {
         this.initRasserverServices();
 
-        if(!GrpcUtils.isServerAlive(rasserverHealthService, Constants.SERVICE_CALL_TIMEOUT)){
+        if (!GrpcUtils.isServerAlive(rasserverHealthService, Constants.SERVICE_CALL_TIMEOUT)) {
             throw new RasConnectionFailedException(MANAGER_CONN_FAILED, "");
         }
 

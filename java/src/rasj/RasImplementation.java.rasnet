@@ -1,6 +1,7 @@
 package rasj;
 
 import org.rasdaman.rasnet.communication.RasRasnetImplementation;
+import org.rasdaman.rasnet.communication.RasnetServiceFactoryImpl;
 import rasj.odmg.*;
 import rasj.global.*;		// RASJ_VERSION
 import rasj.rnp.*;
@@ -123,7 +124,7 @@ public class RasImplementation implements Implementation
 	    Debug.talkVerbose( "RasImplementation.constructor: using protocol " + PROTOCOL_RNP + "." );
 	    imp = new RasRNPImplementation(server);
 	  } else if(useRasnet){
-            imp = new RasRasnetImplementation(server);
+            imp = new RasRasnetImplementation(new RasnetServiceFactoryImpl(), server);
         }
         else
           {
