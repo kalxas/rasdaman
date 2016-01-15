@@ -47,22 +47,16 @@ _INITIALIZE_EASYLOGGINGPP
 void installSignalHandlers();
 void sigIntHandler ( int sig );
 
+using common::Crypto;
+using rasmgr::Configuration;
+using rasmgr::RasManager;
+
 //RasManager object that orchestrates
 boost::shared_ptr<rasmgr::RasManager> manager;
 
 int main ( int argc, char** argv )
 {
-    using common::Crypto;
-    using rasmgr::Configuration;
-    using rasmgr::RasManager;
-
-    easyloggingpp::Configurations defaultConf;
-    defaultConf.setToDefault();
-    easyloggingpp::Loggers::reconfigureAllLoggers ( defaultConf );
-
     Configuration config;
-
-    common::LoggingUtils::redirectGRPCLogToEasyLogging();
 
     installSignalHandlers();
 
@@ -78,8 +72,23 @@ int main ( int argc, char** argv )
         return RASMGR_RESULT_ILL_ARGS;
     }
 
+    common::LoggingUtils::redirectGRPCLogToEasyLogging();
+
+    std::string logConfigFilePath(std::string(CONFDIR)+"/"+RASMGR_LOG_CONF);
+    if (!config.getLogFile().empty())
+    {
+        easyloggingpp::Configurations easyloggingConf = common::LoggingUtils::getServerLoggingConfiguration(logConfigFilePath, config.getLogFile());
+        easyloggingpp::Loggers::reconfigureAllLoggers ( easyloggingConf );
+    }
+    else
+    {
+        easyloggingpp::Configurations easyloggingConf = common::LoggingUtils::getServerLoggingConfiguration(logConfigFilePath);
+        easyloggingpp::Loggers::reconfigureAllLoggers ( easyloggingConf );
+    }
+
     if ( config.isQuiet() )
     {
+        // If quiet is set, it overwrites any log configuration
         easyloggingpp::Loggers::disableAll();
     }
     else
@@ -97,12 +106,6 @@ int main ( int argc, char** argv )
                  "GNU General Public License for more details. \n\n"<<std::endl;
 
         std::cout << " rasmgr running on " << config.getHostName() << ", listening on port " << config.getPort();
-    }
-
-    if ( !config.getLogConfigFile().empty() )
-    {
-        easyloggingpp::Configurations conf ( config.getLogConfigFile().c_str() );
-        easyloggingpp::Loggers::reconfigureAllLoggers ( conf );
     }
 
     manager.reset ( new RasManager ( config ) );
@@ -133,7 +136,7 @@ void sigIntHandler ( int sig )
 
 void installSignalHandlers()
 {
-  //TODO: This is deprecated.
+    //TODO: This is deprecated.
     signal ( SIGINT, sigIntHandler );
     signal ( SIGTERM, sigIntHandler );
     signal ( SIGHUP, SIG_IGN );

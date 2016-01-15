@@ -22,6 +22,7 @@
 
 #include <unistd.h>
 #include <errno.h>
+#include <cstring>
 #include "../../include/globals.hh"
 #include <easylogging++.h>
 
@@ -39,11 +40,9 @@ Configuration::Configuration():
     cmlHelp       (cmlInter.addFlagParameter('h', "help", "print this help")),
     cmlHostName   (cmlInter.addStringParameter(CommandLineParser::noShortName, "hostname", "<name> the advertized host name (master only, default: same as UNIX command 'hostname')")),
     cmlPort       (cmlInter.addLongParameter(CommandLineParser::noShortName, "port", "<port> listen port number", DEFAULT_PORT)),
-    cmlPollFrequ  (cmlInter.addLongParameter(CommandLineParser::noShortName, "poll", "<poll> polling timeout (in seconds) for rasmgr listen port", 0 )),
     cmlName       (cmlInter.addStringParameter(CommandLineParser::noShortName, "name", "<name> symbolic name of this rasmgr (slave only, default: the host name)")),
     cmlQuiet      (cmlInter.addFlagParameter( 'q', CommandLineParser::noLongName, "quiet: don't log requests (default: log requests to stdout)")),
-    cmlLog        (cmlInter.addStringParameter('l', "log", "<log-file> log is printed to <log-file>\n\t\tif <log-file> is stdout , log output is printed to standard out", "log/rasmgr.<pid>.log")),
-    cmlLogConf       (cmlInter.addStringParameter(CommandLineParser::noShortName, "logconf", "<config-file> easylogging configuration file.\n\t\t The config-file is used to setup the log properties at runtime.", ""))
+    cmlLog        (cmlInter.addStringParameter('l', "log", "<log-file> log is printed to <log-file>\n\t\tif <log-file> is stdout , log output is printed to standard out", "log/rasmgr.<pid>.log"))
 {
     char hName[HOSTNAME_SIZE];
     int ghnResult = gethostname(hName, sizeof(hName) );
@@ -53,7 +52,7 @@ Configuration::Configuration():
         LERROR<<"Error: cannot get hostname of my machine: error " << ghnErrno << "; will use '" << DEFAULT_HOSTNAME << "' as heuristic.";
         this->hostName = DEFAULT_HOSTNAME;
     }
-    this->logConfigFile = "";
+
     this->name = this->hostName;
     this->port = DEFAULT_PORT;
     this->quiet = false;
@@ -104,35 +103,34 @@ bool Configuration::parseCommandLineParameters(int argc, char **argv)
         }
     }
 
-    if( (result==true) && cmlLogConf.isPresent() )
+    if( (result==true) && cmlLog.isPresent() )
     {
         try
         {
-            this->logConfigFile = cmlLogConf.getValueAsString();
+            this->logFile = cmlLog.getValueAsString();
         }
         catch(CmlException& err)
         {
-            std::cerr << "Error converting logconf parameter " << cmlLogConf.getValueAsString() << " to string: " << err.what() << std::endl;
+            std::cerr << "Error converting logconf parameter " << cmlLog.getValueAsString() << " to string: " << err.what() << std::endl;
             result = false;
         }
     }
 
-
-
-//    if( (result==true) && cmlHostName.isPresent() )
-//    {
-//        if (sizeof(hostName) > strlen(cmlHostName.getValueAsString()))
-//            strcpy(publicHostName,cmlHostName.getValueAsString());
-//        else
-//        {
-//            std::cerr << "Error: host name exceeds length limit of " << sizeof(hostName) << " characters." << std::endl;
-//            result = false;
-//        }
-//    }
+    if( (result==true) && cmlHostName.isPresent() )
+    {
+        if(HOSTNAME_SIZE > strlen(cmlHostName.getValueAsString()))
+        {
+            this->hostName = cmlHostName.getValueAsString();
+        }
+        else
+        {
+            std::cerr << "Error: host name exceeds length limit of " << sizeof(hostName) << " characters." << std::endl;
+            result = false;
+        }
+    }
 
     return result;
 }
-
 
 void Configuration::printHelp()
 {
@@ -161,9 +159,10 @@ bool Configuration::isQuiet() const
 {
     return quiet;
 }
-std::string Configuration::getLogConfigFile() const
+
+std::string Configuration::getLogFile() const
 {
-    return logConfigFile;
+    return logFile;
 }
 
 }

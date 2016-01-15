@@ -61,6 +61,9 @@ rasdaman GmbH.
 /// name of server logging configuration file
 #define SERVER_LOG_CONF    "log-server.conf"
 
+/// name of rasmgr logging configuration file
+#define RASMGR_LOG_CONF    "log-rasmgr.conf"
+
 /// name of client logging configuration file
 #define CLIENT_LOG_CONF    "log-client.conf"
 

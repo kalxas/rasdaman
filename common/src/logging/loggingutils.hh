@@ -24,6 +24,7 @@
 #define COMMON_SRC_LOGGING_LOGGINGUTILS_HH
 
 #include <grpc/support/log.h>
+#include <easylogging++.h>
 
 namespace common
 {
@@ -37,6 +38,16 @@ public:
      * @brief redirectGRPCLogToEasyLogging Redirect the GRPC log to use the Easylogging library.
      */
     static void redirectGRPCLogToEasyLogging();
+
+    static easyloggingpp::Configurations getClientLoggingConfiguration();
+
+    static easyloggingpp::Configurations getServerLoggingConfiguration(const std::string& configFilePath);
+
+    static easyloggingpp::Configurations getServerLoggingConfiguration(const std::string& configFilePath, const std::string& outputLogFilePath);
+
+private:
+    static bool doesFileExist(const std::string& filePath);
+    static easyloggingpp::Configurations getDefaultEasyloggingConfig();
 };
 }
 

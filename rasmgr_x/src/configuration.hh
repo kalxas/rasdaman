@@ -33,7 +33,7 @@ public:
 
     bool isQuiet() const;
 
-    std::string getLogConfigFile() const;
+    std::string getLogFile() const;
 
 private:
     static const boost::uint32_t HOSTNAME_SIZE;
@@ -42,14 +42,14 @@ private:
 
     //interface program
     CommandLineParser    &cmlInter;
-    CommandLineParameter &cmlHelp, &cmlHostName, &cmlPort, &cmlPollFrequ;
-    CommandLineParameter &cmlName, &cmlQuiet, &cmlLog, &cmlLogConf;
+    CommandLineParameter &cmlHelp, &cmlHostName, &cmlPort;
+    CommandLineParameter &cmlName, &cmlQuiet, &cmlLog;
 
     bool quiet;
     std::string name; /*!< symbolic name of this rasmgr  */
     std::string hostName;/*!< the advertized host name (master only, default: same as UNIX command 'hostname')" */
     boost::uint32_t port;/*!< Port number */
-    std::string logConfigFile;
+    std::string logFile;/*!< The file to which to output the log */
 
 };
 }
