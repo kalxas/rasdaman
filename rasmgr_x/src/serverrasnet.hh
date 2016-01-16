@@ -157,6 +157,11 @@ public:
     virtual std::string getServerId() const;
 
 private:
+    /**
+     * The number of microseconds between a SIGTERM signal and a SIGKILL signal sent to the server.
+     * This timeout allows the server enough time to cleanup after itself.
+    */
+    static const boost::uint32_t SERVER_CLEANUP_TIMEOUT;
     std::string hostName;/*! Hostname of the RasServer process */
     boost::int32_t port;/*! Port of the RasServer process */
     boost::shared_ptr<DatabaseHost> dbHost;/*! Database host to which this server has access */

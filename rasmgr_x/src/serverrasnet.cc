@@ -84,6 +84,7 @@ using rasnet::service::RasServerService;
 
 #define RASEXECUTABLE BINDIR"rasserver"
 
+const boost::uint32_t ServerRasNet::SERVER_CLEANUP_TIMEOUT = 30000;
 
 ServerRasNet::ServerRasNet(const ServerConfig &config)
 {
@@ -370,37 +371,38 @@ boost::uint32_t ServerRasNet::getTotalSessionNo()
 
 void ServerRasNet::stop(KillLevel level)
 {
-    int signal = 0;
-    if(level == KILL)
+    switch(level)
     {
-        signal = SIGKILL;
-    }
-    else
+    case KillLevel::FORCE:
     {
-        signal = SIGTERM;
-    }
-
-    if(signal==0)
-    {
-        //Check if the process is alive and responding to requests
-        bool isAlive = (kill(this->processId, signal)==0);
-
-        if(isAlive)
+        if(kill(this->processId, SIGTERM))
         {
-            CloseServerReq request;
-            Void response;
-
-            request.set_serverid(this->serverId.c_str());
-
-            //If the request fails, we assume that the server was stopped
-            ClientContext context;
-            this->configureClientContext(context);
-            this->service->Close(&context, request, &response);
+            LERROR<<"Failed to send SIGTERM to server with ID:"<<this->serverId;
         }
     }
-    else
+    break;
+
+    case KillLevel::KILL:
     {
-        kill(this->processId, signal);
+        if(kill(this->processId, SIGTERM))
+        {
+            LERROR<<"Failed to send SIGTERM to server with ID:"<<this->serverId;
+        }
+
+        usleep(SERVER_CLEANUP_TIMEOUT);
+
+        if(kill(this->processId, SIGKILL))
+        {
+            LERROR<<"Failed to send SIGKILL to server with ID:"<<this->serverId;
+        }
+    }
+    break;
+    default:
+
+        if(kill(this->processId, SIGTERM))
+        {
+            LERROR<<"Failed to send SIGTERM to server with ID:"<<this->serverId;
+        }
     }
 
     unique_lock<shared_mutex> lock(this->stateMtx);

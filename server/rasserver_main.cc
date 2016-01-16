@@ -134,26 +134,39 @@ test_handler( int sig, siginfo_t* info, void * ucontext);
 
 
 void
-crash_handler(__attribute__ ((unused)) int sig, __attribute__ ((unused)) siginfo_t* info, void * ucontext) {
-  print_stacktrace(ucontext);
-  if (TileCache::cacheLimit > 0)
-  {
-    TileCache::clear();
-  }
-  if (server != NULL)
-    delete server;
-  server = NULL;
-  LINFO << "rasserver terminated.";
+crash_handler(__attribute__ ((unused)) int sig, __attribute__ ((unused)) siginfo_t* info, void * ucontext)
+{
+    print_stacktrace(ucontext);
+    if (TileCache::cacheLimit > 0)
+    {
+        TileCache::clear();
+    }
+    if (server != NULL)
+        delete server;
+    server = NULL;
+    LINFO << "rasserver terminated.";
 
-  exit(SEGFAULT_EXIT_CODE);
+    exit(SEGFAULT_EXIT_CODE);
 }
 
 void
-test_handler(__attribute__ ((unused)) int sig, __attribute__ ((unused)) siginfo_t* info, void * ucontext) {
-  LINFO << "test handler caught signal SIGUSR1";
-  print_stacktrace(ucontext);
-  LINFO << "killing rasserver with SIGKILL.";
-  raise(SIGKILL);
+test_handler(__attribute__ ((unused)) int sig, __attribute__ ((unused)) siginfo_t* info, void * ucontext)
+{
+    LINFO << "test handler caught signal SIGUSR1";
+    print_stacktrace(ucontext);
+    LINFO << "killing rasserver with SIGKILL.";
+    raise(SIGKILL);
+}
+
+/**
+  * This function is called when a SIGTERM signal is received by the process.
+  * The function is placed here because it affects the global behavior of the process.
+  */
+void rasnetTerminationHandler(__attribute__ ((unused)) int sig, __attribute__ ((unused)) siginfo_t* info, void * ucontext)
+{
+    LINFO<<"Exiting server process.";
+
+    exit(EXIT_SUCCESS);
 }
 
 _INITIALIZE_EASYLOGGINGPP
@@ -220,6 +233,8 @@ int main ( int argc, char** argv )
 #ifdef RMANRASNET
         else if(configuration.isRasnetServer())
         {
+            installSigHandler(rasnetTerminationHandler, SIGTERM);
+
             //start rasnet server
             rasserver::RasnetServer rasnetServer(configuration);
             rasnetServer.startRasnetServer();
@@ -384,7 +399,7 @@ bool initialization()
     //use tilecontainer
     RMInit::useTileContainer = configuration.useTileContainer();
     LINFO << "Use Tile Container: " << RMInit::useTileContainer;
-    
+
     //set cache size limit
     TileCache::cacheLimit = configuration.getCacheLimit();
     LINFO << "Cache size limit  : " << TileCache::cacheLimit;
