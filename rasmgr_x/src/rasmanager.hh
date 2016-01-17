@@ -51,6 +51,8 @@ public:
      * @brief saveConfiguration Save this rasmanager's configuration to rasmgr.conf and rasmgr.auth
      */
     void saveConfiguration();
+
+    void setIsConfigurationDirty(bool isDirty);
 private:
     boost::shared_ptr<ConfigurationManager> configManager;
     std::unique_ptr<grpc::Server> server;

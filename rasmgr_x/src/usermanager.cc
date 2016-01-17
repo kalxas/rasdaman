@@ -31,6 +31,7 @@
 
 #include <easylogging++.h>
 #include "../../common/src/crypto/crypto.hh"
+#include "../../common/src/uuid/uuid.hh"
 #include "../../common/src/exceptions/rasexceptions.hh"
 #include "../../include/globals.hh"
 
@@ -56,7 +57,8 @@ using google::protobuf::io::CodedOutputStream;
 using google::protobuf::io::IstreamInputStream;
 using google::protobuf::io::OstreamOutputStream;
 
-UserManager::UserManager()
+UserManager::UserManager():
+    rasmgrAuthFilePath(std::string(CONFDIR) + "/" + RASMGR_AUTH_FILE )
 {}
 
 UserManager::~UserManager()
@@ -176,30 +178,28 @@ bool UserManager::tryGetUser ( const std::string& userName, boost::shared_ptr<Us
     return false;
 }
 
-
-void UserManager::saveUserInformation()
+void UserManager::saveUserInformation(bool backup)
 {
     UserMgrProto userData = this->serializeToProto();
 
     unique_lock<mutex> lock ( this->mut );
-    char authFileName[PATH_MAX];
+
+    std::string authFilePath = backup ? (rasmgrAuthFilePath + "." + common::UUID::generateUUID()):rasmgrAuthFilePath;
 
     //This checks if the path to the RASMGR_AUTH_FILE is longer thant the maximum file path.
-    int pathLen = snprintf ( authFileName, PATH_MAX, "%s/%s", CONFDIR, RASMGR_AUTH_FILE );
-    if ( pathLen >= PATH_MAX )
+    if ( authFilePath.length() >= PATH_MAX )
     {
-        authFileName[PATH_MAX-1] = '\0';    // force-terminate string before printing
-        throw common::RuntimeException("Authentication file path longer than maximum allowed by OS:"+std::string(authFileName));
+        throw common::RuntimeException("Authentication file path longer than maximum allowed by OS:"+authFilePath);
     }
 
-    LDEBUG<<"Writing to authentication file:"<<authFileName;
+    LDEBUG<<"Writing to authentication file:"<<authFilePath;
 
     //Create the authentication file.
-    std::ofstream ofs ( authFileName );
+    std::ofstream ofs ( authFilePath );
 
     if ( !ofs )
     {
-        throw common::RuntimeException( "Could not open authentication file for writing. File path:" + std::string ( authFileName ) );
+        throw common::RuntimeException( "Could not open authentication file for writing. File path:" + authFilePath );
     }
     else
     {
@@ -210,7 +210,7 @@ void UserManager::saveUserInformation()
         if ( r==false )
         {
             LERROR<<"Could not write to authentication file";
-            throw common::RuntimeException( "Could not write to authentication file. File path:" + std::string ( authFileName ) );
+            throw common::RuntimeException( "Could not write to authentication file. File path:" + authFilePath);
         }
     }
 
@@ -219,25 +219,22 @@ void UserManager::saveUserInformation()
 
 void UserManager::loadUserInformation()
 {
-    char authFileName[PATH_MAX];
     //True if reading the elements from file was successful.
     bool success=true;
 
     //This checks if the path to the RASMGR_AUTH_FILE is longer thant the maximum file path.
-    int pathLen = snprintf ( authFileName, PATH_MAX, "%s/%s", CONFDIR, RASMGR_AUTH_FILE );
-    if ( pathLen >= PATH_MAX )
+    if ( rasmgrAuthFilePath.length() >= PATH_MAX )
     {
-        authFileName[PATH_MAX-1] = '\0';    // force-terminate string before printing
-        LERROR<<"Authentication file path longer than maximum allowed by OS:"<<std::string(authFileName);
+        LERROR<<"Authentication file path longer than maximum allowed by OS:"<<rasmgrAuthFilePath;
 
         success = false;
     }
 
     if(success)
     {
-        LDEBUG<<"Opening authentication file:"<<authFileName;
+        LDEBUG<<"Opening authentication file:"<<rasmgrAuthFilePath;
 
-        std::ifstream ifs ( authFileName );
+        std::ifstream ifs ( rasmgrAuthFilePath );
 
         if ( !ifs )
         {

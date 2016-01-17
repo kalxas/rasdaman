@@ -19,7 +19,7 @@ public:
     MOCK_METHOD2(changeUser, void(const std::string&, const rasmgr::UserProto&));
     MOCK_METHOD1(removeUser, void(const std::string&));
     MOCK_METHOD2(tryGetUser, bool(const std::string&, boost::shared_ptr<rasmgr::User>&));
-    MOCK_METHOD0(saveUserInformation, void(void));
+    MOCK_METHOD1(saveUserInformation, void(bool));
     MOCK_METHOD0(loadUserInformation, void(void));
     MOCK_METHOD0(serializeToProto, rasmgr::UserMgrProto(void));
 };

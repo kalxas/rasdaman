@@ -93,7 +93,7 @@ void RasManager::start()
 
     shared_ptr<ControlCommandExecutor> commandExecutor ( new ControlCommandExecutor ( rascontrol ) );
 
-    this->configManager.reset(new ConfigurationManager(commandExecutor, userManager));
+    this->configManager.reset(new ConfigurationManager(commandExecutor, dbhManager, dbManager, peerManager, serverManager, userManager));
     LINFO<<"Loading rasmgr configuration.";
     this->configManager->loadConfiguration();
     LINFO<<"Finished loading rasmgr configuration.";
@@ -137,8 +137,8 @@ void RasManager::stop()
 {
     if(this->running)
     {
-        this->configManager->saveConfiguration();
-        //TODO: Check shutdown
+        this->configManager->saveConfiguration(true);
+
         this->server->Shutdown();
         LINFO<<"Stopping rasmanager.";
     }
@@ -147,5 +147,10 @@ void RasManager::stop()
 void RasManager::saveConfiguration()
 {
     this->configManager->saveConfiguration();
+}
+
+void RasManager::setIsConfigurationDirty(bool isDirty)
+{
+    this->configManager->setIsDirty(isDirty);
 }
 }

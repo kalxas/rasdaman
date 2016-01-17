@@ -39,7 +39,6 @@ class RasManager;
 class ServerManager;
 class UserManager;
 
-
 /**
  * @brief The RasControl class Delegates management commands to the appropriate component of rasmgr.
  */
@@ -114,12 +113,12 @@ public:
     bool hasServerAdminRights ( std::string userName,std::string password );
 	bool isValidUser(std::string userName, std::string password);
 private:
-    boost::shared_ptr<UserManager> userManager;
-    boost::shared_ptr<DatabaseHostManager> dbHostManager;
-    boost::shared_ptr<DatabaseManager> dbManager;
-    boost::shared_ptr<ServerManager> serverManager;
-    boost::shared_ptr<PeerManager> peerManager;
-	RasManager* rasmanager;
+    boost::shared_ptr<UserManager> userManager_;
+    boost::shared_ptr<DatabaseHostManager> dbHostManager_;
+    boost::shared_ptr<DatabaseManager> dbManager_;
+    boost::shared_ptr<ServerManager> serverManager_;
+    boost::shared_ptr<PeerManager> peerManager_;
+    RasManager* rasmanager_;
 
     std::string convertAdminRights ( const UserAdminRightsProto& adminRights );
     std::string convertDbRights ( const UserDatabaseRightsProto& dbRights );

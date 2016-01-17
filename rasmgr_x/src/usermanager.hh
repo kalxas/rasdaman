@@ -78,11 +78,14 @@ public:
 
     /**
      * @brief Save the information stored by the user manager to the RASMGR_AUTH_FILE
+     * @param backup If the flag is true, the user information is stored to a unique
+     * file whos path is generated from the default path and a unique string. Otherwise
+     * the default path for the authentication file is used.
      * @return void
      * @throws std::runtime_error If the authentication information could not be saved.
      * THIS METHOD IS NOT THREAD SAFE
      */
-    virtual void saveUserInformation();
+    virtual void saveUserInformation(bool backup=false);
 
     /**
      * @brief loadUserInformation Load user information from authentication file rasmgr.conf
@@ -95,6 +98,7 @@ public:
     virtual UserMgrProto serializeToProto();
 
 private:
+    const std::string rasmgrAuthFilePath;
     std::list<boost::shared_ptr<User> > userList;
     boost::mutex mut;
 };

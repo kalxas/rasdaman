@@ -58,12 +58,12 @@ RasControl::RasControl ( boost::shared_ptr<UserManager> userManager,
                          boost::shared_ptr<PeerManager> peerManager,
                          RasManager* rasmanager )
 {
-    this->userManager = userManager;
-    this->dbHostManager = dbHostManager;
-    this->dbManager = dbManager;
-    this->serverManager = serverManager;
-    this->peerManager = peerManager;
-    this->rasmanager = rasmanager;
+    this->userManager_ = userManager;
+    this->dbHostManager_ = dbHostManager;
+    this->dbManager_ = dbManager;
+    this->serverManager_ = serverManager;
+    this->peerManager_ = peerManager;
+    this->rasmanager_ = rasmanager;
 }
 
 std::string RasControl::deprecatedCommand()
@@ -99,7 +99,9 @@ std::string RasControl::defineDbHost ( const DefineDbHost& dbHostData )
             dbhProp.set_password(dbHostData.passwd());
         }
 
-        this->dbHostManager->defineDatabaseHost(dbhProp);
+        this->dbHostManager_->defineDatabaseHost(dbhProp);
+
+        this->rasmanager_->setIsConfigurationDirty(true);
     }
     catch ( std::exception& ex )
     {
@@ -143,7 +145,9 @@ std::string RasControl::changeDbHost ( const ChangeDbHost& dbHostData )
             dbhProto.set_host_name(dbHostData.n_name());
         }
 
-        this->dbHostManager->changeDatabaseHost ( dbHostData.host_name(), dbhProto);
+        this->dbHostManager_->changeDatabaseHost ( dbHostData.host_name(), dbhProto);
+
+        this->rasmanager_->setIsConfigurationDirty(true);
     }
     catch ( std::exception& ex )
     {
@@ -166,7 +170,9 @@ std::string RasControl::removeDbHost ( const RemoveDbHost& dbHostData )
 
     try
     {
-        this->dbHostManager->removeDatabaseHost ( dbHostData.host_name() );
+        this->dbHostManager_->removeDatabaseHost ( dbHostData.host_name() );
+
+        this->rasmanager_->setIsConfigurationDirty(true);
     }
     catch ( std::exception& ex )
     {
@@ -184,7 +190,7 @@ std::string RasControl::listDbHost()
 {
     std::stringstream ss;
     int counter = 1;
-    DatabaseHostMgrProto dbhMgrData = this->dbHostManager->serializeToProto();
+    DatabaseHostMgrProto dbhMgrData = this->dbHostManager_->serializeToProto();
 
     ss<<"List of database hosts:\r\n";
     ss<<"    Database Host    Connection String             Databases";
@@ -215,7 +221,7 @@ std::string RasControl::defineDb ( const DefineDb& dbData )
 
     try
     {
-        this->dbManager->defineDatabase (dbData.dbhost_name(), dbData.db_name());
+        this->dbManager_->defineDatabase (dbData.dbhost_name(), dbData.db_name());
     }
     catch ( std::exception& ex )
     {
@@ -240,7 +246,9 @@ std::string RasControl::changeDb ( const ChangeDb& dbData )
         DatabasePropertiesProto dbProp;
         dbProp.set_n_name(dbData.n_db_name());
 
-        this->dbManager->changeDatabase ( dbData.db_name(), dbProp);
+        this->dbManager_->changeDatabase ( dbData.db_name(), dbProp);
+
+        this->rasmanager_->setIsConfigurationDirty(true);
     }
     catch ( std::exception& ex )
     {
@@ -262,7 +270,9 @@ std::string RasControl::removeDb ( const RemoveDb& dbData )
 
     try
     {
-        this->dbManager->removeDatabase(dbData.dbhost_name() ,dbData.db_name());
+        this->dbManager_->removeDatabase(dbData.dbhost_name() ,dbData.db_name());
+
+        this->rasmanager_->setIsConfigurationDirty(true);
     }
     catch ( std::exception& ex )
     {
@@ -285,7 +295,7 @@ std::string RasControl::listDb ( const ListDb& listDbData )
     //If the Database name was given, list information about this database
     if(listDbData.has_db_name())
     {
-        DatabaseMgrProto dbMgrData = this->dbManager->serializeToProto();
+        DatabaseMgrProto dbMgrData = this->dbManager_->serializeToProto();
 
         ss<<"List database: "<<listDbData.db_name() <<"\r\n";
         ss<<"    Database Name         Open Trans.";
@@ -302,7 +312,7 @@ std::string RasControl::listDb ( const ListDb& listDbData )
     }
     else if(listDbData.has_dbh_name())
     {
-        DatabaseMgrProto dbMgrData = this->dbManager->serializeToProto();
+        DatabaseMgrProto dbMgrData = this->dbManager_->serializeToProto();
         bool found = false;
 
         for(int i=0; i<dbMgrData.databases_size(); ++i)
@@ -337,7 +347,7 @@ std::string RasControl::listDb ( const ListDb& listDbData )
     }//assume -all was passed in
     else
     {
-        DatabaseMgrProto dbMgrData = this->dbManager->serializeToProto();
+        DatabaseMgrProto dbMgrData = this->dbManager_->serializeToProto();
 
         ss<<"List database: \r\n";
         ss<<"    Database Name         Open Trans.";
@@ -426,7 +436,9 @@ std::string RasControl::defineUser ( const DefineUser& userData )
 
     try
     {
-        this->userManager->defineUser(userProp);
+        this->userManager_->defineUser(userProp);
+
+        this->rasmanager_->setIsConfigurationDirty(true);
     }
     catch ( std::exception& ex )
     {
@@ -446,7 +458,9 @@ std::string RasControl::removeUser ( const RemoveUser& userData )
 
     try
     {
-        this->userManager->removeUser ( userData.user_name() );
+        this->userManager_->removeUser ( userData.user_name() );
+
+        this->rasmanager_->setIsConfigurationDirty(true);
     }
     catch ( std::exception& ex )
     {
@@ -536,7 +550,9 @@ std::string RasControl::changeUser ( const ChangeUser& userData )
             userProp.set_allocated_default_db_rights(dbRights);
         }
 
-        this->userManager->changeUser(userData.user_name(), userProp);
+        this->userManager_->changeUser(userData.user_name(), userProp);
+
+        this->rasmanager_->setIsConfigurationDirty(true);
     }
     catch ( std::exception& ex )
     {
@@ -553,7 +569,7 @@ std::string RasControl::changeUser ( const ChangeUser& userData )
 std::string RasControl::listUser ( const ListUser& userData )
 {
     std::stringstream ss;
-    UserMgrProto userMgrData = this->userManager->serializeToProto();
+    UserMgrProto userMgrData = this->userManager_->serializeToProto();
 
     bool displayRights = userData.has_diplay_rights();
     int counter=1;
@@ -585,7 +601,10 @@ std::string RasControl::defineInpeer ( std::string hostName )
 
     try
     {
-        this->peerManager->defineInPeer(hostName);
+        this->peerManager_->defineInPeer(hostName);
+
+        this->rasmanager_->setIsConfigurationDirty(true);
+
         message = "Defining inpeer rasmgr " + hostName;
     }
     catch ( std::exception& ex )
@@ -606,7 +625,10 @@ std::string RasControl::removeInpeer ( std::string hostName )
 
     try
     {
-        this->peerManager->removeInPeer(hostName);
+        this->peerManager_->removeInPeer(hostName);
+
+        this->rasmanager_->setIsConfigurationDirty(true);
+
         message = "Peer "+hostName+ " removed";
     }
     catch ( std::exception& ex )
@@ -624,7 +646,7 @@ std::string RasControl::removeInpeer ( std::string hostName )
 std::string RasControl::listInpeer()
 {
     std::stringstream ss;
-    PeerMgrProto peerMgrData = this->peerManager->serializeToProto();
+    PeerMgrProto peerMgrData = this->peerManager_->serializeToProto();
 
     ss<<"List of inpeers:\r\n";
     for(int i=0; i<peerMgrData.inpeers_size(); ++i)
@@ -646,7 +668,10 @@ std::string RasControl::defineOutpeer ( const DefineOutpeer& outpeerData )
 
     try
     {
-        this->peerManager->defineOutPeer(outpeerData.host_name(), outpeerData.port());
+        this->peerManager_->defineOutPeer(outpeerData.host_name(), outpeerData.port());
+
+        this->rasmanager_->setIsConfigurationDirty(true);
+
         message = "Defining outpeer rasmgr "+outpeerData.host_name()+" port="+std::to_string(outpeerData.port());
     }
     catch ( std::exception& ex )
@@ -667,8 +692,11 @@ std::string RasControl::removeOutpeer ( std::string hostName )
 
     try
     {
-        this->peerManager->removeOutPeer(hostName);
+        this->peerManager_->removeOutPeer(hostName);
+
         message = "Peer "+hostName+ " removed";
+
+        this->rasmanager_->setIsConfigurationDirty(true);
     }
     catch ( std::exception& ex )
     {
@@ -685,7 +713,7 @@ std::string RasControl::removeOutpeer ( std::string hostName )
 std::string RasControl::listOutpeer()
 {
     std::stringstream ss;
-    PeerMgrProto peerMgrData = this->peerManager->serializeToProto();
+    PeerMgrProto peerMgrData = this->peerManager_->serializeToProto();
 
     ss<<"List of outpeers:\r\n";
     for(int i=0; i<peerMgrData.outpeers_size(); ++i)
@@ -761,7 +789,9 @@ std::string RasControl::defineServerGroup ( const DefineServerGroup &groupData )
             serverConfig.set_server_options(groupData.options());
         }
 
-        this->serverManager->defineServerGroup(serverConfig);
+        this->serverManager_->defineServerGroup(serverConfig);
+
+        this->rasmanager_->setIsConfigurationDirty(true);
     }
     catch ( std::exception& ex )
     {
@@ -838,7 +868,9 @@ std::string RasControl::changeServerGroup ( const ChangeServerGroup &groupData )
             newConfig.set_server_options(groupData.n_options());
         }
 
-        this->serverManager->changeServerGroup(groupData.group_name(), newConfig);
+        this->serverManager_->changeServerGroup(groupData.group_name(), newConfig);
+
+        this->rasmanager_->setIsConfigurationDirty(true);
     }
     catch ( std::exception& ex )
     {
@@ -860,7 +892,9 @@ std::string RasControl::removeServerGroup ( std::string groupName )
 
     try
     {
-        this->serverManager->removeServerGroup ( groupName );
+        this->serverManager_->removeServerGroup ( groupName );
+
+        this->rasmanager_->setIsConfigurationDirty(true);
     }
     catch ( std::exception& ex )
     {
@@ -879,7 +913,7 @@ std::string RasControl::listServerGroup ( const ListServerGroup &listData )
     std::stringstream ss;
 
     bool extraInfo = listData.has_extra_info();
-    ServerMgrProto serverMgrData = this->serverManager->serializeToProto();
+    ServerMgrProto serverMgrData = this->serverManager_->serializeToProto();
 
     if(listData.has_group_name())
     {
@@ -1012,7 +1046,7 @@ std::string RasControl::startServerGroup ( const StartServerGroup &upSrv )
 
     try
     {
-        this->serverManager->startServerGroup ( upSrv );
+        this->serverManager_->startServerGroup ( upSrv );
     }
     catch ( std::exception& ex )
     {
@@ -1034,7 +1068,7 @@ std::string RasControl::stopServerGroup ( const StopServerGroup &downSrv )
 
     try
     {
-        this->serverManager->stopServerGroup ( downSrv );
+        this->serverManager_->stopServerGroup ( downSrv );
     }
     catch ( std::exception& ex )
     {
@@ -1056,7 +1090,7 @@ std::string RasControl::stopRasMgr()
 
     try
     {
-        if(this->serverManager->hasRunningServers())
+        if(this->serverManager_->hasRunningServers())
         {
             message="This rasmgr instance has running server groups. Down all the server groups before stoping rasmgr.";
         }
@@ -1095,7 +1129,8 @@ std::string RasControl::save()
 
     try
     {
-        this->rasmanager->saveConfiguration();
+        this->rasmanager_->saveConfiguration();
+        message = "Saving configuration file...ok. Saving authorization file...ok.";
     }
     catch ( std::exception& ex )
     {
@@ -1223,14 +1258,14 @@ std::string RasControl::showHelp()
 
 void RasControl::stopRasmgrAsync()
 {
-    this->rasmanager->stop();
+    this->rasmanager_->stop();
 }
 
 bool RasControl::hasInfoRights ( std::string userName, std::string password )
 {
     boost::shared_ptr<User> user;
 
-    if ( this->userManager->tryGetUser ( userName, user ) && user->getPassword() == password )
+    if ( this->userManager_->tryGetUser ( userName, user ) && user->getPassword() == password )
     {
         return user->getAdminRights().hasInfoRights();
     }
@@ -1244,7 +1279,7 @@ bool RasControl::hasConfigRights ( std::string userName,std::string password )
 {
     boost::shared_ptr<User> user;
 
-    if ( this->userManager->tryGetUser ( userName, user ) && user->getPassword() == password )
+    if ( this->userManager_->tryGetUser ( userName, user ) && user->getPassword() == password )
     {
         return user->getAdminRights().hasSystemConfigRights();
     }
@@ -1258,7 +1293,7 @@ bool RasControl::hasUserAdminRights ( std::string userName,std::string password 
 {
     boost::shared_ptr<User> user;
 
-    if ( this->userManager->tryGetUser ( userName, user ) && user->getPassword() == password )
+    if ( this->userManager_->tryGetUser ( userName, user ) && user->getPassword() == password )
     {
         return user->getAdminRights().hasAccessControlRights();
     }
@@ -1272,7 +1307,7 @@ bool RasControl::hasServerAdminRights ( std::string userName,std::string passwor
 {
     boost::shared_ptr<User> user;
 
-    if ( this->userManager->tryGetUser ( userName, user ) && user->getPassword() == password )
+    if ( this->userManager_->tryGetUser ( userName, user ) && user->getPassword() == password )
     {
         return user->getAdminRights().hasServerAdminRights();
     }
@@ -1285,7 +1320,7 @@ bool RasControl::isValidUser (std::string userName, std::string password )
 {
     boost::shared_ptr<User> user;
 
-    return this->userManager->tryGetUser ( userName, user ) && user->getPassword() == password ;
+    return this->userManager_->tryGetUser ( userName, user ) && user->getPassword() == password ;
 }
 
 
