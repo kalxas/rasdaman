@@ -372,12 +372,14 @@ QtDomainOperation::evaluate( QtDataList* inputList )
 
             QtMDD*  qtMDD         = static_cast<QtMDD*>(operand);
             MDDObj* currentMDDObj = qtMDD->getMDDObject();
-            r_Minterval* nullValues = currentMDDObj->getNullValues();
+            r_Minterval* nullValues = NULL;
 
             if( currentMDDObj )
             {
                 LTRACE << "  mdd domain: "              << currentMDDObj->getCurrentDomain();
                 LTRACE << "  mdd load domain: "         << qtMDD->getLoadDomain();
+
+                nullValues = currentMDDObj->getNullValues();
 
                 // reset loadDomain to intersection of domain and loadDomain
                 // if( domain.intersection_with( qtMDD->getLoadDomain() ) != qtMDD->getLoadDomain() )
@@ -502,13 +504,13 @@ QtDomainOperation::evaluate( QtDataList* inputList )
 
             QtMDD*  qtMDD         = static_cast<QtMDD*>(operand);
             MDDObj* currentMDDObj = qtMDD->getMDDObject();
-            r_Minterval* nullValues = currentMDDObj->getNullValues();
+            r_Minterval* nullValues = NULL;
 
             if( currentMDDObj )
             {
                 bool trimming   = false;
                 bool projection = false;
-
+                nullValues = currentMDDObj->getNullValues();
                 // reset loadDomain to intersection of domain and loadDomain
                 if( domain.intersection_with( qtMDD->getLoadDomain() ) != qtMDD->getLoadDomain() )
                     qtMDD->setLoadDomain( domain.intersection_with( qtMDD->getLoadDomain() ) );
