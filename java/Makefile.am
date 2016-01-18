@@ -135,3 +135,7 @@ jar: all
 if RMANRASNET
     SUBDIRS=../rasnet ../common
 endif
+
+install-data-hook:
+	mkdir -p @libdir@
+	cp dist/rasj.jar @libdir@
