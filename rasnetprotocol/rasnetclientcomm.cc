@@ -23,6 +23,7 @@ rasdaman GmbH.
 
 #include <cstring>
 #include <fstream>
+#include <chrono>
 
 #include <grpc++/grpc++.h>
 #include <grpc++/security/credentials.h>
@@ -71,6 +72,9 @@ using common::GrpcUtils;
 using grpc::Channel;
 using grpc::ClientContext;
 using grpc::Status;
+
+using std::chrono::system_clock;
+using std::chrono::milliseconds;
 
 using rasnet::service::OpenServerDatabaseReq;
 using rasnet::service::OpenServerDatabaseRepl;
@@ -138,6 +142,8 @@ using rasnet::service::KeepAliveRequest;
 using common::ErrorMessage;
 
 using std::string;
+
+const unsigned int CLIENT_COMMUNICATION_FAILURE = 237;
 
 RasnetClientComm::RasnetClientComm(string rasmgrHost, int rasmgrPort):
     transferFormatParams(NULL),
@@ -275,36 +281,43 @@ int RasnetClientComm::closeDB()
 {
     int retval = 0;
 
-    CloseServerDatabaseReq closeServerDatabaseReq;
-    CloseDbReq closeDbReq;
-    Void closeDatabaseRepl;
-
-    closeServerDatabaseReq.set_client_id(this->clientId);
-    closeDbReq.set_clientid(this->clientId);
-
-    // The remoteClientUUID identifies local and remote sessions
-    closeDbReq.set_clientuuid(this->remoteClientUUID);
-    closeDbReq.set_dbsessionid(this->sessionId);
-
-    grpc::ClientContext closeServerDbContext;
-    grpc::Status closeServerDbStatus = this->getRasServerService()->CloseServerDatabase(&closeServerDbContext, closeServerDatabaseReq, &closeDatabaseRepl);
-    if(!closeServerDbStatus.ok())
+    try
     {
-        handleError(closeServerDbStatus.error_message());
-    }
+        CloseServerDatabaseReq closeServerDatabaseReq;
+        CloseDbReq closeDbReq;
+        Void closeDatabaseRepl;
 
-    grpc::ClientContext closeDbContext;
-    grpc::Status closeDbStatus = this->getRasMgrService()->CloseDb(&closeDbContext, closeDbReq, &closeDatabaseRepl);
-    if(!closeDbStatus.ok())
+        closeServerDatabaseReq.set_client_id(this->clientId);
+        closeDbReq.set_clientid(this->clientId);
+
+        // The remoteClientUUID identifies local and remote sessions
+        closeDbReq.set_clientuuid(this->remoteClientUUID);
+        closeDbReq.set_dbsessionid(this->sessionId);
+
+        grpc::ClientContext closeServerDbContext;
+        grpc::Status closeServerDbStatus = this->getRasServerService()->CloseServerDatabase(&closeServerDbContext, closeServerDatabaseReq, &closeDatabaseRepl);
+        if(!closeServerDbStatus.ok())
+        {
+            handleError(closeServerDbStatus.error_message());
+        }
+
+        grpc::ClientContext closeDbContext;
+        grpc::Status closeDbStatus = this->getRasMgrService()->CloseDb(&closeDbContext, closeDbReq, &closeDatabaseRepl);
+        if(!closeDbStatus.ok())
+        {
+            handleError(closeDbStatus.error_message());
+        }
+
+        this->stopRasServerKeepAlive();
+
+        this->disconnectClient();
+
+        this->closeRasserverService();
+    }
+    catch(...)
     {
-        handleError(closeDbStatus.error_message());
+        LDEBUG<<"Closing database failed.";
     }
-
-    this->stopRasServerKeepAlive();
-
-    this->disconnectClient();
-
-    this->closeRasserverService();
 
     return retval;
 }
@@ -361,6 +374,7 @@ int RasnetClientComm::commitTA() throw (r_Error)
 
     grpc::ClientContext context;
     grpc::Status commitStatus = this->getRasServerService()->CommitTransaction(&context, commitTransactionReq, &commitTransactionRepl);
+
     if (!commitStatus.ok())
     {
         handleError(commitStatus.error_message());
@@ -371,16 +385,23 @@ int RasnetClientComm::commitTA() throw (r_Error)
 
 int RasnetClientComm::abortTA()
 {
-    AbortTransactionReq abortTransactionReq;
-    AbortTransactionRepl AbortTransactionRepl;
-
-    abortTransactionReq.set_client_id(this->clientId);
-
-    grpc::ClientContext context;
-    grpc::Status abortTransactionStatus = this->getRasServerService()->AbortTransaction(&context, abortTransactionReq, &AbortTransactionRepl);
-    if (!abortTransactionStatus.ok())
+    try
     {
-        handleError(abortTransactionStatus.error_message());
+        AbortTransactionReq abortTransactionReq;
+        AbortTransactionRepl AbortTransactionRepl;
+
+        abortTransactionReq.set_client_id(this->clientId);
+
+        grpc::ClientContext context;
+        grpc::Status abortTransactionStatus = this->getRasServerService()->AbortTransaction(&context, abortTransactionReq, &AbortTransactionRepl);
+        if (!abortTransactionStatus.ok())
+        {
+            handleError(abortTransactionStatus.error_message());
+        }
+    }
+    catch(...)
+    {
+        LDEBUG<<"Aborting transaction failed.";
     }
 
     return 0;
@@ -782,12 +803,12 @@ void RasnetClientComm::initRasserverService()
     }
 }
 
-boost::shared_ptr<rasnet::service::ClientRassrvrService::Stub> RasnetClientComm::getRasServerService()
+boost::shared_ptr<rasnet::service::ClientRassrvrService::Stub> RasnetClientComm::getRasServerService(bool throwIfConnectionFailed)
 {
     this->initRasserverService();
 
     // Check if the rasmgr is serving
-    if(!GrpcUtils::isServerAlive(this->rasserverHealthService, SERVICE_CALL_TIMEOUT))
+    if(!GrpcUtils::isServerAlive(this->rasserverHealthService, SERVICE_CALL_TIMEOUT) && throwIfConnectionFailed)
     {
         LERROR<<"The client failed to connect to rasserver.";
         handleConnectionFailure();
@@ -807,12 +828,12 @@ void RasnetClientComm::closeRasserverService()
     }
 }
 
-boost::shared_ptr<rasnet::service::RasMgrClientService::Stub> RasnetClientComm::getRasMgrService()
+boost::shared_ptr<rasnet::service::RasMgrClientService::Stub> RasnetClientComm::getRasMgrService(bool throwIfConnectionFailed)
 {
     this->initRasmgrService();
 
     // Check if the rasmgr is serving
-    if(!GrpcUtils::isServerAlive(this->rasmgrHealthService, SERVICE_CALL_TIMEOUT))
+    if(!GrpcUtils::isServerAlive(this->rasmgrHealthService, SERVICE_CALL_TIMEOUT) && throwIfConnectionFailed)
     {
         LERROR<<"The client failed to connect to rasmgr.";
         handleConnectionFailure();
@@ -1807,25 +1828,27 @@ void RasnetClientComm::handleError(string error)
     {
         if (message.type() == ErrorMessage::RERROR)
         {
-            r_Error rError(static_cast<r_Error::kind>(message.kind()), message.error_no());
-            LDEBUG << "rasnet protocol throwning exception: " << message.error_text();
-            throw rError;
+            LDEBUG<<"Throwing error received from the server:"<<message.DebugString();
+            throw r_Error(static_cast<r_Error::kind>(message.kind()), message.error_no());
         }
         else
         {
-            std::runtime_error ex(message.error_text());
-            throw ex;
+            LDEBUG<<"Throwing error received from the server:"<<message.DebugString();
+
+            throw r_EGeneral("General error received from the server.");
         }
     }
     else
     {
-        throw r_EGeneral(error);
+        LERROR<<"Client failed with error:"<<error;
+
+        throw r_EGeneral("The client failed to contact the server.");
     }
 }
 
 void RasnetClientComm::handleConnectionFailure()
 {
-    throw r_EGeneral("The connection to the server failed.");
+    throw r_EGeneral("The client failed to contact the server.");
 }
 
 void RasnetClientComm::handleStatusCode(int status, string method) throw( r_Error )
@@ -2018,7 +2041,12 @@ void RasnetClientComm::clientRasMgrKeepAliveRunner()
                 keepAliveReq.set_clientuuid(this->clientUUID);
 
                 grpc::ClientContext context;
-                grpc::Status keepAliveStatus = this->getRasMgrService()->KeepAlive(&context, keepAliveReq, &keepAliveRepl);
+
+                // We do not want this thread to block forever
+                system_clock::time_point deadline = system_clock::now() + milliseconds(SERVICE_CALL_TIMEOUT);
+                context.set_deadline(deadline);
+
+                grpc::Status keepAliveStatus = this->getRasMgrService(false)->KeepAlive(&context, keepAliveReq, &keepAliveRepl);
 
                 if (!keepAliveStatus.ok())
                 {
@@ -2117,7 +2145,12 @@ void RasnetClientComm::clientRasServerKeepAliveRunner()
                 keepAliveReq.set_session_id(this->sessionId);
 
                 grpc::ClientContext context;
-                grpc::Status keepAliveStatus = this->getRasServerService()->KeepAlive(&context, keepAliveReq, &keepAliveRepl);
+
+                // We do not want this thread to block forever
+                system_clock::time_point deadline = system_clock::now() + milliseconds(SERVICE_CALL_TIMEOUT);
+                context.set_deadline(deadline);
+
+                grpc::Status keepAliveStatus = this->getRasServerService(false)->KeepAlive(&context, keepAliveReq, &keepAliveRepl);
 
                 if (!keepAliveStatus.ok())
                 {
@@ -2125,7 +2158,6 @@ void RasnetClientComm::clientRasServerKeepAliveRunner()
                     LDEBUG<<"Stopping client-rasserver keep alive thread.";
                     this->isRasserverKeepAliveRunning = false;
                 }
-
             }
         }
         catch (std::exception& ex)

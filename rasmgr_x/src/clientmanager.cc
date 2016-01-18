@@ -272,12 +272,19 @@ void ClientManager::evaluateClientsStatus()
                 {
                     toErase=it;
                     ++it;
-                    if(!toErase->second->isAlive())
+                    try
                     {
-                        toErase->second->removeClientFromServers();
+                        if(!toErase->second->isAlive())
+                        {
+                            toErase->second->removeClientFromServers();
 
-                        boost::upgrade_to_unique_lock<boost::shared_mutex> uniqueClientsLock(clientsLock);
-                        this->clients.erase(toErase);
+                            boost::upgrade_to_unique_lock<boost::shared_mutex> uniqueClientsLock(clientsLock);
+                            this->clients.erase(toErase);
+                        }
+                    }
+                    catch(...)
+                    {
+                        LERROR<<"Evaluating status of client failed. Client ID:"<<toErase->second->getClientId();
                     }
                 }
             }

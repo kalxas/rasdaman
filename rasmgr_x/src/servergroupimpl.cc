@@ -60,7 +60,7 @@ using boost::lexical_cast;
 using common::Timer;
 
 ServerGroupImpl::ServerGroupImpl(const ServerGroupConfigProto &config, boost::shared_ptr<DatabaseHostManager> dbhManager, boost::shared_ptr<ServerFactory> serverFactory):
-        config(config), dbhManager(dbhManager), serverFactory(serverFactory)
+    config(config), dbhManager(dbhManager), serverFactory(serverFactory)
 {
     //Validate the configuration and initialize defaults
     this->validateAndInitConfig(this->config);
@@ -123,7 +123,7 @@ void ServerGroupImpl::stop(KillLevel level)
 
     if(this->stopped)
     {
-	std::string errorMessage("ServerGroup is already stopped");
+        std::string errorMessage("ServerGroup is already stopped");
 
         throw common::InvalidStateException(errorMessage);
     }
@@ -150,7 +150,7 @@ bool ServerGroupImpl::tryRegisterServer(const std::string &serverId)
     //If the server group is stopped, we cannot register new servers.
     if(this->stopped)
     {
-	std::string errorMessage("ServerGroup is already stopped. No new servers can register.");
+        std::string errorMessage("ServerGroup is already stopped. No new servers can register.");
         throw common::InvalidStateException(errorMessage);
     }
 
@@ -209,7 +209,7 @@ void ServerGroupImpl::changeGroupConfig(const ServerGroupConfigProto &value)
 
     if(!this->stopped)
     {
-	std::string errorMessage("Cannot change ServerGroup configuration while the ServerGroup is running.");
+        std::string errorMessage("Cannot change ServerGroup configuration while the ServerGroup is running.");
         throw common::InvalidStateException(errorMessage);
     }
 
@@ -475,7 +475,7 @@ void ServerGroupImpl::evaluateRestartingServers()
                 {
                     (*restartingServerToEraseIt)->stop(KILL);
                     LDEBUG<<"Stopping server with ID:"<<(*restartingServerToEraseIt)->getServerId()
-                    <<" because it has to be restarted.";
+                          <<" because it has to be restarted.";
 
                     //add the port back to the pool
                     this->availablePorts.insert((*restartingServerToEraseIt)->getPort());
@@ -485,15 +485,15 @@ void ServerGroupImpl::evaluateRestartingServers()
                 catch(std::exception& ex)
                 {
                     LERROR<<"Failed to kill server with ID"
-                    <<(*restartingServerToEraseIt)->getServerId()
-                    <<" reason:"<<ex.what();
+                          <<(*restartingServerToEraseIt)->getServerId()
+                          <<" reason:"<<ex.what();
 
                 }
                 catch(...)
                 {
                     LERROR<<"Failed to kill server with ID"
-                    <<(*restartingServerToEraseIt)->getServerId()
-                    << " for unknown reason.";
+                          <<(*restartingServerToEraseIt)->getServerId()
+                          << " for unknown reason.";
                 }
             }
         }
@@ -550,12 +550,20 @@ void ServerGroupImpl::removeDeadServers()
             startingToEraseIt = startingIt;
             ++startingIt;
 
-            if(startingToEraseIt->second.second.hasExpired())
+            try
             {
-                LDEBUG<<"Removed server that failed to start with id:"<< startingToEraseIt->second.first->getServerId();
+                if(startingToEraseIt->second.second.hasExpired())
+                {
+                    LDEBUG<<"Removed server that failed to start with id:"<< startingToEraseIt->second.first->getServerId();
 
-                this->availablePorts.insert(startingToEraseIt->second.first->getPort());
-                this->startingServers.erase(startingToEraseIt);
+                    startingToEraseIt->second.first->stop(KILL);
+                    this->availablePorts.insert(startingToEraseIt->second.first->getPort());
+                    this->startingServers.erase(startingToEraseIt);
+                }
+            }
+            catch(...)
+            {
+                LDEBUG<<"Server with id: "<<(*runningToErase)->getServerId()<<" is not responding to pings.";
             }
         }
     }

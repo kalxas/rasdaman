@@ -49,16 +49,16 @@ const boost::int32_t STARTING_SERVER_LIFETIME = 10000;
 const boost::int32_t SERVER_MANAGER_CLEANUP_INTERVAL = 3000;
 
 /**
- * @brief CLIENT_LIFETIME Default number of milliseconds after which a client that has not sent
- * a KeepAlive request is removed from the list of active clients.
- */
-const boost::int32_t CLIENT_LIFETIME = 3000;
-
-/**
  * @brief CLIENT_MANAGER_CLEANUP_INTERVAL Number of milliseconds between consecutive cleanup runs
  * of the client manager. This value should be larger or equal that CLIENT_LIFETIME
  */
 const boost::int32_t CLIENT_MANAGER_CLEANUP_INTERVAL = 3000;
+
+/**
+ * @brief CLIENT_LIFETIME Default number of milliseconds after which a client that has not sent
+ * a KeepAlive request is removed from the list of active clients.
+ */
+const boost::int32_t CLIENT_LIFETIME = CLIENT_MANAGER_CLEANUP_INTERVAL * 10;
 
 /**
  * @brief MAX_CONTROL_COMMAND_LENGTH Maximum length of a command from rascontrol.

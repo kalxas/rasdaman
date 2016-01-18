@@ -130,8 +130,8 @@ private:
     void clientRasServerKeepAliveRunner();
     /* END: KEEP ALIVE */
 
-    ::boost::shared_ptr<rasnet::service::ClientRassrvrService::Stub> getRasServerService();
-    ::boost::shared_ptr<rasnet::service::RasMgrClientService::Stub> getRasMgrService();
+    ::boost::shared_ptr<rasnet::service::ClientRassrvrService::Stub> getRasServerService(bool throwIfConnectionFailed=true);
+    ::boost::shared_ptr<rasnet::service::RasMgrClientService::Stub> getRasMgrService(bool throwIfConnectionFailed=true);
 
     void initRasserverService();
     void initRasmgrService();

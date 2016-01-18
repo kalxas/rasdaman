@@ -1065,10 +1065,17 @@ int main(int argc, char** argv)
 
     if (retval != EXIT_SUCCESS && (dbIsOpen || taIsOpen) )
     {
-        INFO( "aborting transaction..." << flush );
-        closeTransaction( false );  // abort transaction and close database, ignore any further exceptions
-        INFO( "ok" << endl );
-        closeDatabase();
+        try
+        {
+            INFO( "aborting transaction..." << flush );
+            closeTransaction( false );  // abort transaction and close database, ignore any further exceptions
+            INFO( "ok" << endl );
+            closeDatabase();
+        }
+        catch(...)
+        {
+            LDEBUG<<"Ignoring cleanup exceptions.";
+        }
     }
 
     INFO( argv[0] << " done." << endl );

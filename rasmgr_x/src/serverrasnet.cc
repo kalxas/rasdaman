@@ -257,12 +257,7 @@ bool ServerRasNet::isClientAlive(const std::string& clientId)
 
         Status status = this->service->GetClientStatus(&context, request, &response);
 
-        if(!status.ok())
-        {
-            GrpcUtils::convertStatusToExceptionAndThrow(status);
-        }
-
-        result = (response.status()==ClientStatusRepl::ALIVE);
+        result = (status.ok() && response.status()==ClientStatusRepl::ALIVE);
     }
 
     return result;
