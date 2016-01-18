@@ -253,6 +253,8 @@ public:
 
     static const short MaxBuiltInId;
 
+    static const std::string ANONYMOUS_CELL_TYPE_PREFIX;
+
     // Maps syntax types to internal type names (e.g. char -> Char)
     static std::string getInternalTypeFromSyntaxType(const std::string &syntaxTypeName);
     // Maps internal types to syntax types (e.g. Char -> char)

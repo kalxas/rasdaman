@@ -121,6 +121,18 @@ public class TypeRegistry {
         return result;
     }
 
+    private String expandDimensions(int numberOfDimensions){
+        StringBuilder result = new StringBuilder();
+        for (int i = 0 ; i < numberOfDimensions; i++){
+            result.append("a" + String.valueOf(i));
+            if(i < numberOfDimensions - 1){
+                result.append(",");
+            }
+        }
+
+        return result.toString();
+    }
+
     public String createNewType(Integer numberOfDimensions, ArrayList<String> bandBaseTypes, ArrayList<String> nullValues) throws PetascopeException {
         log.info("Creating new type.");
         String marrayName = getRandomTypeName();
@@ -129,7 +141,7 @@ public class TypeRegistry {
             //simple types
             String queryMarray = QUERY_CREATE_MARRAY_TYPE.replace("$typeName", marrayName)
                     .replace("$typeStructure", bandBaseTypes.get(0))
-                    .replace("$dimensions", numberOfDimensions.toString());
+                    .replace("$dimensions", expandDimensions(numberOfDimensions));
             //create the marray type
             RasUtil.executeRasqlQuery(queryMarray, ConfigManager.RASDAMAN_ADMIN_USER, ConfigManager.RASDAMAN_ADMIN_PASS, true);
         } else {
@@ -142,7 +154,7 @@ public class TypeRegistry {
             //marray type
             String queryMarray = QUERY_CREATE_MARRAY_TYPE.replace("$typeName", marrayName)
                     .replace("$typeStructure", structName)
-                    .replace("$dimensions", numberOfDimensions.toString());
+                    .replace("$dimensions", expandDimensions(numberOfDimensions));
             //create it
             RasUtil.executeRasqlQuery(queryMarray, ConfigManager.RASDAMAN_ADMIN_USER, ConfigManager.RASDAMAN_ADMIN_PASS, true);
         }
@@ -236,15 +248,22 @@ public class TypeRegistry {
     }
 
     private String parseSetMarrayName(String setLine){
-        String[] parts = setLine.split("UNDER SET \\{ ");
+        String result;
+        String[] parts = setLine.split("AS SET \\(");
         if(parts.length < 2){ //invalid line
             return "";
         }
-        String[] marrayNameParts = parts[1].split(" }");
+        String[] marrayNameParts = parts[1].split("\\)");
         if(parts.length < 1){ //invalid line
             return "";
         }
-        return marrayNameParts[0].trim();
+        if(marrayNameParts[0].contains("NULL VALUES")){
+            result = marrayNameParts[0].split("NULL VALUES")[0].trim();
+        }
+        else {
+            result = marrayNameParts[0].trim();
+        }
+        return result;
     }
 
     private void initializeMarrayTypes() throws RasdamanException {
@@ -272,9 +291,9 @@ public class TypeRegistry {
                     typeName = nameParts[0].trim();
                 }
             }
-            String[] structParts = i.split("UNDER STRUCT");
+            String[] structParts = i.split("AS");
             if(structParts.length > 1){
-                typeStructure = "struct " + structParts[1].trim();
+                typeStructure = "struct " + structParts[1].trim().replace("(", "{").replace(")","}");
             }
             structTypeDefinitions.put(typeName, typeStructure);
         }
@@ -293,17 +312,17 @@ public class TypeRegistry {
     }
 
     private String parseMarrayStructure(String marrayLine) throws RasdamanException {
-        String[] parts = marrayLine.split("UNDER MARRAY");
+        String[] parts = marrayLine.split("AS");
         if(parts.length < 2){ //invalid line
             return "";
         }
-        String marrayStructure = parts[1].replace(" { ", "").replace(" } ", "").trim();
-        String[] marrayStructureParts = marrayStructure.split(",");
+        String marrayStructure = parts[1].trim();
+        String[] marrayStructureParts = marrayStructure.split("MDARRAY");
         if(marrayStructureParts.length < 2){ //invalid line
             return "";
         }
         //marrayStructureParts[0] is the type or structure name, marrayStructureParts[1] is the dimensionality
-        return (expandStructureType(marrayStructureParts[0]) + "," + marrayStructureParts[1]);
+        return (expandStructureType(marrayStructureParts[0].trim()) + "," + marrayStructureParts[1].split(",").length);
     }
 
     private String expandStructureType(String typeName) throws RasdamanException {
@@ -453,8 +472,8 @@ public class TypeRegistry {
     private final static String QUERY_MARRAY_TYPES = "SELECT a FROM RAS_MARRAY_TYPES a";
     private final static String QUERY_STRUCT_TYPES = "SELECT a FROM RAS_STRUCT_TYPES a";
     private final static String QUERY_SET_TYPES = "SELECT a FROM RAS_SET_TYPES a";
-    private final static String QUERY_CREATE_MARRAY_TYPE = "CREATE TYPE $typeName UNDER MARRAY { $typeStructure } , $dimensions";
-    private final static String QUERY_CREATE_SET_TYPE = "CREATE TYPE $typeName UNDER SET { $marrayTypeName } $nullValues";
+    private final static String QUERY_CREATE_MARRAY_TYPE = "CREATE TYPE $typeName AS $typeStructure MDARRAY [$dimensions]";
+    private final static String QUERY_CREATE_SET_TYPE = "CREATE TYPE $typeName AS SET ($marrayTypeName $nullValues)";
     private final static String NULL_VALUES_TEMPLATE = "NULL VALUES [$values]";
-    private final static String QUERY_CREATE_STRUCT_TYPE = "CREATE TYPE $structTypeName UNDER STRUCT { $structStructure }";
+    private final static String QUERY_CREATE_STRUCT_TYPE = "CREATE TYPE $structTypeName AS ( $structStructure )";
 }

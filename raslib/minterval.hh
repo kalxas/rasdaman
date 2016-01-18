@@ -529,6 +529,12 @@ public:
       {\tt print_status()}.
     */
 
+    /**
+     * @brief get_named_axis_string_representation
+     * @return
+     */
+    std::string get_named_axis_string_representation() const;
+
     //@Man: Methods for internal use only:
     //@{
     /// calculate number of cells

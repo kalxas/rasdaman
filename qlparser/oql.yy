@@ -222,9 +222,9 @@ struct QtUpdateSpecElement
 %token <typeToken>       TUNSIG TBOOL TOCTET TCHAR TSHORT TUSHORT TLONG TULONG TFLOAT TDOUBLE
 %token <commandToken>    SELECT FROM WHERE AS RESTRICT TO EXTEND BY PROJECT AT DIMENSION ALL SOME
                          COUNTCELLS ADDCELLS AVGCELLS MINCELLS MAXCELLS SDOM OVER USING LO HI UPDATE
-                         SET ASSIGN MARRAY CONDENSE IN DOT COMMA IS NOT AND OR XOR PLUS MINUS MAX_BINARY MIN_BINARY MULT
+                         SET ASSIGN MARRAY MDARRAY CONDENSE IN DOT COMMA IS NOT AND OR XOR PLUS MINUS MAX_BINARY MIN_BINARY MULT
                          DIV INTDIV MOD EQUAL LESS GREATER LESSEQUAL GREATEREQUAL NOTEQUAL COLON SEMICOLON LEPAR
-                         REPAR LRPAR RRPAR LCPAR RCPAR INSERT INTO VALUES DELETE DROP CREATE COLLECTION TYPE UNDER
+                         REPAR LRPAR RRPAR LCPAR RCPAR INSERT INTO VALUES DELETE DROP CREATE COLLECTION TYPE
                          MDDPARAM OID SHIFT SCALE SQRT ABS EXP LOGFN LN SIN COS TAN SINH COSH TANH ARCSIN
                          ARCCOS ARCTAN POW POWER OVERLAY BIT UNKNOWN FASTSCALE PYRAMID MEMBERS ADD ALTER LIST
 			  INDEX RC_INDEX TC_INDEX A_INDEX D_INDEX RD_INDEX RPT_INDEX RRPT_INDEX IT_INDEX AUTO
@@ -256,13 +256,13 @@ struct QtUpdateSpecElement
 %type <qtONCStreamListValue>  collectionList
 %type <qtUnaryOperationValue> reduceIdent structSelection trimExp
 %type <qtOperationValue>      mddExp inductionExp generalExp resultList reduceExp functionExp spatialOp
-                              integerExp mintervalExp intervalExp condenseExp variable mddConfiguration mintervalList concatExp rangeConstructorExp
+                              integerExp mintervalExp namedMintervalExp intervalExp namedIntervalExp condenseExp variable mddConfiguration mintervalList concatExp rangeConstructorExp
                               caseExp typeAttribute
 %type <tilingType>            tilingAttributes  tileTypes tileCfg statisticParameters tilingSize
                               borderCfg interestThreshold dirdecompArray dirdecomp dirdecompvals intArray
 %type <indexType> 	      indexingAttributes indexTypes
 // %type <stgType>           storageAttributes storageTypes comp compType zLibCfg rLECfg waveTypes
-%type <qtOperationListValue>  spatialOpList spatialOpList2 bboxList mddList caseCond caseCondList caseEnd generalExpList typeAttributeList
+%type <qtOperationListValue>  spatialOpList namedSpatialOpList spatialOpList2 namedSpatialOpList2 bboxList mddList caseCond caseCondList caseEnd generalExpList typeAttributeList
 %type <integerToken>          intLitExp
 %type <operationValue>        condenseOpLit 
 %type <castTypes>	      castType
@@ -903,7 +903,7 @@ deleteExp: DELETE FROM iteratedCollection WHERE generalExp
 	}
 	;
 
-createType: CREATE TYPE createTypeName UNDER STRCT LCPAR typeAttributeList RCPAR
+createType: CREATE TYPE createTypeName AS LRPAR typeAttributeList RRPAR
             {
                 try
                 {
@@ -923,14 +923,13 @@ createType: CREATE TYPE createTypeName UNDER STRCT LCPAR typeAttributeList RCPAR
                   FREESTACK($3)
                   FREESTACK($4)
                   FREESTACK($5)
-                  FREESTACK($6)
-                  FREESTACK($8)
+                  FREESTACK($7)
 
                   QueryTree::symtab.wipe();
                   YYABORT;
                 }
 
-                QtCreateCellType* cellTypeNode = new QtCreateCellType($3.value, $7);
+                QtCreateCellType* cellTypeNode = new QtCreateCellType($3.value, $6);
                 cellTypeNode->setParseInfo( *($1.info) );
 
                 parseQueryTree->setRoot( cellTypeNode );
@@ -939,10 +938,9 @@ createType: CREATE TYPE createTypeName UNDER STRCT LCPAR typeAttributeList RCPAR
                 FREESTACK($2);
                 FREESTACK($4);
                 FREESTACK($5);
-                FREESTACK($6);
-                FREESTACK($8);
+                FREESTACK($7);
             }
-          | CREATE TYPE createTypeName UNDER MARRAY LCPAR createTypeName RCPAR COMMA intLitExp
+          | CREATE TYPE createTypeName AS createTypeName MDARRAY namedMintervalExp
             {
                 try
                 {
@@ -963,15 +961,11 @@ createType: CREATE TYPE createTypeName UNDER STRCT LCPAR typeAttributeList RCPAR
                   FREESTACK($4)
                   FREESTACK($5)
                   FREESTACK($6)
-                  FREESTACK($7)
-                  FREESTACK($8)
-                  FREESTACK($9)
-                  FREESTACK($10)
                   QueryTree::symtab.wipe();
                   YYABORT;
                 }
 
-                QtCreateMarrayType* mddTypeNode = new QtCreateMarrayType($3.value, $7.value, (r_Dimension)$10.svalue);
+                QtCreateMarrayType* mddTypeNode = new QtCreateMarrayType($3.value, $5.value, $7);
                 mddTypeNode->setParseInfo( *($1.info));
 
                 parseQueryTree->setRoot( mddTypeNode );
@@ -979,12 +973,9 @@ createType: CREATE TYPE createTypeName UNDER STRCT LCPAR typeAttributeList RCPAR
                 FREESTACK($1);
                 FREESTACK($2);
                 FREESTACK($4);
-                FREESTACK($5);
                 FREESTACK($6);
-                FREESTACK($8);
-                FREESTACK($9);
             }
-          | CREATE TYPE createTypeName UNDER MARRAY LCPAR createTypeName RCPAR COMMA mintervalExp
+          | CREATE TYPE createTypeName AS LRPAR typeAttributeList RRPAR MDARRAY namedMintervalExp
             {
                 try
                 {
@@ -1004,15 +995,13 @@ createType: CREATE TYPE createTypeName UNDER STRCT LCPAR typeAttributeList RCPAR
                   FREESTACK($3)
                   FREESTACK($4)
                   FREESTACK($5)
-                  FREESTACK($6)
                   FREESTACK($7)
                   FREESTACK($8)
-                  FREESTACK($9)
                   QueryTree::symtab.wipe();
                   YYABORT;
                 }
 
-                QtCreateMarrayType* mddTypeNode = new QtCreateMarrayType($3.value, $7.value, $10);
+                QtCreateMarrayType* mddTypeNode = new QtCreateMarrayType($3.value, $6, $9);
                 mddTypeNode->setParseInfo( *($1.info));
 
                 parseQueryTree->setRoot( mddTypeNode );
@@ -1021,11 +1010,10 @@ createType: CREATE TYPE createTypeName UNDER STRCT LCPAR typeAttributeList RCPAR
                 FREESTACK($2);
                 FREESTACK($4);
                 FREESTACK($5);
-                FREESTACK($6);
+                FREESTACK($7);
                 FREESTACK($8);
-                FREESTACK($9);
             }
-          | CREATE TYPE createTypeName UNDER SET LCPAR createTypeName RCPAR
+          | CREATE TYPE createTypeName AS SET LRPAR createTypeName RRPAR
             {
                 try
                 {
@@ -1063,7 +1051,7 @@ createType: CREATE TYPE createTypeName UNDER STRCT LCPAR typeAttributeList RCPAR
                 FREESTACK($8)
 
             }
-          | CREATE TYPE createTypeName UNDER SET LCPAR createTypeName RCPAR NULLKEY VALUES mintervalExp
+          | CREATE TYPE createTypeName AS SET LRPAR createTypeName NULLKEY VALUES mintervalExp RRPAR
             {
                 try
                 {
@@ -1087,12 +1075,12 @@ createType: CREATE TYPE createTypeName UNDER STRCT LCPAR typeAttributeList RCPAR
                   FREESTACK($7)
                   FREESTACK($8)
                   FREESTACK($9)
-                  FREESTACK($10)
+                  FREESTACK($11)
                   QueryTree::symtab.wipe();
                   YYABORT;
                 }
 
-                QtCreateSetType* setTypeNode = new QtCreateSetType($3.value, $7.value, $11);
+                QtCreateSetType* setTypeNode = new QtCreateSetType($3.value, $7.value, $10);
                 setTypeNode->setParseInfo( *($1.info) );
 
                 parseQueryTree->setRoot( setTypeNode);
@@ -1103,7 +1091,7 @@ createType: CREATE TYPE createTypeName UNDER STRCT LCPAR typeAttributeList RCPAR
                 FREESTACK($6)
                 FREESTACK($8)
                 FREESTACK($9)
-                FREESTACK($10)
+                FREESTACK($11)
             }
             ;
 
@@ -1176,7 +1164,7 @@ generalExp: caseExp                         { $$ = $1;}
 	| variable                          { $$ = $1; }
 	| mintervalExp                      { $$ = $1; }
 	| intervalExp                       { $$ = $1; }
-	| generalLit
+        | generalLit
 	{
 	  $$ = new QtConst( $1 );
 	  parseQueryTree->removeDynamicObject( $1 );
@@ -1501,6 +1489,107 @@ intervalExp: generalExp COLON generalExp
 	  FREESTACK($2)
 	  FREESTACK($3)
 	};                        
+
+/* NEW TYPE BEGIN - TODO-GM: refactor*/
+namedMintervalExp: LEPAR namedSpatialOpList REPAR
+                {
+                    QtNode::QtOperationList::iterator iter;
+                    for( iter=$2->begin(); iter!=$2->end(); ++iter )
+                        parseQueryTree->removeDynamicObject( *iter );
+
+                    $$ = new QtMintervalOp( $2 );
+                    $$->setParseInfo( *($1.info) );
+
+                    parseQueryTree->addDynamicObject( $$ );
+                }
+                ;
+
+namedSpatialOpList:
+        {
+            $$ = new QtNode::QtOperationList();
+        }
+        | namedSpatialOpList2
+        {
+            $$ = $1;
+        };
+
+namedSpatialOpList2: namedSpatialOpList2 COMMA namedIntervalExp
+        {
+          $1->push_back( $3 );
+          $$ = $1;
+          FREESTACK($2)
+        }
+        | namedIntervalExp
+        {
+          $$ = new QtNode::QtOperationList(1);
+          (*$$)[0] = $1;
+        };
+
+namedIntervalExp: Identifier LRPAR generalExp COLON generalExp RRPAR
+        {
+          $$ = new QtIntervalOp( $3, $5 );
+          $$->setParseInfo( *($2.info) );
+          parseQueryTree->removeDynamicObject( $3 );
+          parseQueryTree->removeDynamicObject( $5 );
+          parseQueryTree->addDynamicObject( $$ );
+          FREESTACK($2)
+          FREESTACK($4)
+          FREESTACK($6)
+        }
+        | Identifier LRPAR MULT COLON generalExp RRPAR
+        {
+          QtConst* const1 = new QtConst( new QtStringData("*") );
+          const1->setParseInfo( *($3.info) );
+          $$ = new QtIntervalOp( const1, $5 );
+          $$->setParseInfo( *($2.info) );
+          parseQueryTree->removeDynamicObject( $5 );
+          parseQueryTree->addDynamicObject( $$ );
+
+          FREESTACK($2)
+          FREESTACK($3)
+          FREESTACK($4)
+          FREESTACK($6)
+        }
+        | Identifier LRPAR generalExp COLON MULT RRPAR
+        {
+          QtConst* const1 = new QtConst( new QtStringData("*") );
+          const1->setParseInfo( *($5.info) );
+          $$ = new QtIntervalOp( $3, const1 );
+          $$->setParseInfo( *($1.info) );
+          parseQueryTree->removeDynamicObject( $3 );
+          parseQueryTree->addDynamicObject( $$ );
+          FREESTACK($2)
+          FREESTACK($4)
+          FREESTACK($5)
+          FREESTACK($6)
+        }
+        | Identifier LRPAR MULT COLON MULT RRPAR
+        {
+          QtConst* const1 = new QtConst( new QtStringData("*") );
+          const1->setParseInfo( *($3.info) );
+          QtConst* const2 = new QtConst( new QtStringData("*") );
+          const2->setParseInfo( *($5.info) );
+          $$ = new QtIntervalOp( const1, const2 );
+          $$->setParseInfo( *($2.info) );
+          parseQueryTree->addDynamicObject( $$ );
+          FREESTACK($2)
+          FREESTACK($3)
+          FREESTACK($4)
+          FREESTACK($5)
+          FREESTACK($6)
+        }
+        | Identifier
+        {
+            QtConst* const1 = new QtConst( new QtStringData("*") );
+            const1->setParseInfo( *($1.info) );
+            QtConst* const2 = new QtConst( new QtStringData("*") );
+            const2->setParseInfo( *($1.info) );
+            $$ = new QtIntervalOp( const1, const2 );
+            $$->setParseInfo( *($1.info) );
+            parseQueryTree->addDynamicObject( $$ );
+        };
+
+/* NEW TYPE END - TODO-GM: refactor*/
 
 condenseExp: CONDENSE condenseOpLit OVER condenseVariable IN generalExp WHERE generalExp USING generalExp
 	{

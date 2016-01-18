@@ -91,6 +91,7 @@ public:
       if domain is not specified). Sets are printed in the form
       #set<setName>#. The char* has to be freed by the caller!
     */
+    virtual char* getNewTypeStructure() const;
 
     TypeEnum getType() const;
     /*@Doc:

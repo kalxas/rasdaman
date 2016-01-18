@@ -56,6 +56,7 @@ static const char rcsid[] = "@(#)catalogif,TypeFactory: $Header: /home/rasdev/CV
 #include "relmddif/dbmddset.hh"
 #include "relcatalogif/syntaxtypes.hh"
 #include <easylogging++.h>
+#include <boost/algorithm/string/predicate.hpp>
 
 TypeFactory* TypeFactory::myInstance = 0;
 
@@ -75,6 +76,8 @@ const char* FloatType::Name = "Float";
 const char* DoubleType::Name = "Double";
 const char* ComplexType1::Name = "Complex1";
 const char* ComplexType2::Name = "Complex2";
+
+const std::string TypeFactory::ANONYMOUS_CELL_TYPE_PREFIX = "__CELLTYPE__";
 
 using namespace std;
 
@@ -445,6 +448,20 @@ TypeFactory::deleteMDDType(const char* typeName)
             }
             if (canDelete)
             {
+                //TODO-GM: explain
+                // check if the base type is an annonymous type
+                if (resultType->getSubtype() != MDDType::MDDONLYTYPE)
+                {
+                    const BaseType* baseType = static_cast<MDDBaseType*>(const_cast<MDDType*>(resultType))->getBaseType();
+                    std::string baseTypeName = std::string(baseType->getTypeName());
+                    if (boost::starts_with(baseTypeName, TypeFactory::ANONYMOUS_CELL_TYPE_PREFIX))
+                    {
+                        DBObjectId baseTypeToKill(baseType->getOId());
+                        baseTypeToKill->setPersistent(false);
+                        baseTypeToKill->setCached(false);
+                    }
+                }
+
                 DBObjectId toKill(resultType->getOId());
                 toKill->setPersistent(false);
                 toKill->setCached(false);

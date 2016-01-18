@@ -37,6 +37,7 @@ rasdaman GmbH.
 #include <easylogging++.h>
 #include <stdio.h>
 #include <cstring>
+#include <boost/algorithm/string/predicate.hpp>
 
 r_Bytes
 MDDDimensionType::getMemorySize() const
@@ -112,10 +113,32 @@ MDDDimensionType::getTypeStructure() const
 char* MDDDimensionType::getNewTypeStructure() const
 {
     std::ostringstream ss;
-    ss << "MARRAY { "
-       << TypeFactory::getSyntaxTypeFromInternalType(std::string(myBaseType->getTypeName()))
-       << " } , "
-       << myDimension;
+
+    if (boost::starts_with(myBaseType->getTypeName(), TypeFactory::ANONYMOUS_CELL_TYPE_PREFIX))
+    {
+        ss << myBaseType->getNewTypeStructure();
+    }
+    else
+    {
+        ss << TypeFactory::getSyntaxTypeFromInternalType(std::string(myBaseType->getTypeName()));
+    }
+
+    ss << " MDARRAY ";
+
+    ss << "[";
+    bool isFirst = true;
+    for (r_Dimension i = 0; i < myDimension; ++i)
+    {
+        if (!isFirst)
+        {
+            ss << ",";
+        }
+
+        ss << "a" << i;
+        isFirst = false;
+    }
+
+    ss << "]";
 
     std::string result = ss.str();
     return strdup(result.c_str());

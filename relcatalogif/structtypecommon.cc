@@ -227,7 +227,7 @@ char*
 StructType::getNewTypeStructure() const
 {
     std::ostringstream ss;
-    ss << "STRUCT { ";
+    ss << "(";
 
     bool isFirst = true;
 
@@ -247,7 +247,7 @@ StructType::getNewTypeStructure() const
         isFirst = false;
     }
 
-    ss << " }";
+    ss << ")";
 
     std::string result = ss.str();
 

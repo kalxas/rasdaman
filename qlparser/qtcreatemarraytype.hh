@@ -31,8 +31,8 @@ rasdaman GmbH.
 #define QTCREATEMDDTYPE_HH
 
 #include "qtexecute.hh"
-#include "raslib/minterval.hh"
 #include "raslib/mddtypes.hh"
+#include "qtcelltypeattributes.hh"
 
 /**
  * @brief The QtCreateMarrayType class - Creates a Marray type
@@ -40,12 +40,14 @@ rasdaman GmbH.
 class QtCreateMarrayType : public QtExecute
 {
 public:
+
     /**
-     * @param typeName - Name of the type
-     * @param cellTypeName - Cell type (which can be either a base type or a struct type)
-     * @param dimensioanlity - the number of dimensions this type has
+     * @brief QtCreateMarrayType
+     * @param typeName
+     * @param typeAttributes
+     * @param domainNode
      */
-    QtCreateMarrayType(const std::string& typeName, const std::string cellTypeName, r_Dimension dimensioanlity);
+    QtCreateMarrayType(const std::string &typeName, QtNode::QtOperationList* typeAttributes, QtOperation *domainNode);
 
     /**
      * @param typeName - Name of the type
@@ -64,7 +66,7 @@ public:
 private:
     std::string typeName;
     std::string cellTypeName;
-    r_Dimension dimensioanlity;
+    QtNode::QtOperationList* typeAttributes;
     QtOperation* domainNode;
 
     static const QtNodeType nodeType;

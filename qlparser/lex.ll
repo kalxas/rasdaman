@@ -208,13 +208,13 @@ int string_yyinput( char* buf, int max_size )
 "create"                                 { SETTOKEN( CREATE, commandToken, CREATE ) }
 "collection"                             { SETTOKEN( COLLECTION, commandToken, COLLECTION ) }
 "type"                                   { SETTOKEN( TYPE, commandToken, TYPE ) }
-"under"                                  { SETTOKEN( UNDER, commandToken, UNDER ) }
 
 "update"                                 { SETTOKEN( UPDATE, commandToken, UPDATE ) }
 "set"                                    { SETTOKEN( SET, commandToken, SET ) }
 "assign"                                 { SETTOKEN( ASSIGN, commandToken, ASSIGN ) }
 "in"                                     { SETTOKEN( IN, commandToken, IN ) }
 "marray"                                 { SETTOKEN( MARRAY, commandToken, MARRAY ) }
+"mdarray"                                { SETTOKEN( MDARRAY, commandToken, MDARRAY ) }
 "condense"                               { SETTOKEN( CONDENSE, commandToken, CONDENSE ) }
 "null"                                   { SETTOKEN( NULLKEY, commandToken, NULLKEY ) }
 "commit"                                 { SETTOKEN( COMMIT, commandToken, COMMIT ) }

@@ -848,6 +848,36 @@ r_Minterval::get_string_representation() const
     return returnString;
 }
 
+std::string
+r_Minterval::get_named_axis_string_representation() const
+{
+    std::ostringstream ss;
+    ss << "[";
+
+    bool isFirst = true;
+
+    for (r_Dimension i=0; i<dimensionality; i++)
+    {
+        if (!isFirst)
+        {
+            ss << ",";
+        }
+
+        ss << "a" << i;
+
+        if (intervals[i].is_low_fixed() || intervals[i].is_high_fixed())
+        {
+            ss << "(" << intervals[i] << ")";
+        }
+
+        isFirst = false;
+    }
+
+    ss << "]";
+
+    return ss.str();
+}
+
 r_Area
 r_Minterval::cell_count() const throw(r_Error)
 {

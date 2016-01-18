@@ -55,6 +55,8 @@ rasdaman GmbH.
 #include "relcatalogif/alltypes.hh"
 #include "catalogmgr/typefactory.hh"
 
+#include <boost/algorithm/string/predicate.hpp>
+
 // MDD and SET names required for returning the list of types
 // they can be any string and are required just by the internal structure
 #define MOCK_MDD_COLLECTION_NAME "RAS_NAMETYPE"
@@ -427,20 +429,23 @@ MDDColl::getMDDCollection(const char* collName) throw (r_Error)
             StructType* typePtr       = structIter.get_element();
             char*       typeStructure = typePtr->getNewTypeStructure();
 
-            std::string result = "";
-            result.append("CREATE TYPE ");
-            result.append(typePtr->getTypeName());
-            result.append(" UNDER ");
-            result.append(typeStructure);
+            if (!boost::starts_with(typePtr->getTypeName(), TypeFactory::ANONYMOUS_CELL_TYPE_PREFIX))
+            {
+                std::string result = "";
+                result.append("CREATE TYPE ");
+                result.append(typePtr->getTypeName());
+                result.append(" AS ");
+                result.append(typeStructure);
 
-            nameDomain[0].set_high(static_cast<r_Range>(result.length()));
-            transObj = new MDDObj(mt, nameDomain);
-            transTile = new Tile(nameDomain, bt, result.c_str(), 0, r_Array);
-            transObj->insertTile(transTile);
-            retval->insert(transObj);
+                nameDomain[0].set_high(static_cast<r_Range>(result.length()));
+                transObj = new MDDObj(mt, nameDomain);
+                transTile = new Tile(nameDomain, bt, result.c_str(), 0, r_Array);
+                transObj->insertTile(transTile);
+                retval->insert(transObj);
 
-            free( typeStructure );
-            typeStructure = NULL;
+                free( typeStructure );
+                typeStructure = NULL;
+            }
 
             structIter.advance();
         }
@@ -472,7 +477,7 @@ MDDColl::getMDDCollection(const char* collName) throw (r_Error)
             std::string result = "";
             result.append("CREATE TYPE ");
             result.append(typePtr->getTypeName());
-            result.append(" UNDER ");
+            result.append(" AS ");
             result.append(typeStructure);
 
             nameDomain[0].set_high(static_cast<r_Range>(result.length()));
@@ -512,9 +517,8 @@ MDDColl::getMDDCollection(const char* collName) throw (r_Error)
             std::string result = "";
             result.append("CREATE TYPE ");
             result.append(typePtr->getTypeName());
-            result.append(" UNDER SET { ");
+            result.append(" AS SET (");
             result.append(typePtr->getMDDType()->getTypeName());
-            result.append(" }");
 
             DBMinterval* nullValues = typePtr->getNullValues();
             if (nullValues)
@@ -522,6 +526,8 @@ MDDColl::getMDDCollection(const char* collName) throw (r_Error)
                 result.append(" NULL VALUES ");
                 result.append(nullValues->get_string_representation());
             }
+
+            result.append(")");
 
             nameDomain[0].set_high(static_cast<r_Range>(result.length()));
             transObj = new MDDObj(mt, nameDomain);

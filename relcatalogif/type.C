@@ -113,6 +113,12 @@ Type::getTypeStructure() const
   return result;
 }
 
+char*
+Type::getNewTypeStructure() const
+{
+  return getTypeStructure();
+}
+
 TypeEnum
 Type::getType() const
 {
