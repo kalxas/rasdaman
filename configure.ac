@@ -420,13 +420,31 @@ AC_ARG_ENABLE([java],
 AC_MSG_NOTICE(Disable java? $disable_java)
 AM_CONDITIONAL([ENABLE_JAVA], [test "$disable_java" = no])
 
+# ------------------------------------------------------------------------------
+# --enable-rasnet, --with-protocol=rnp|rasnet
+#
 
 AC_ARG_ENABLE([rasnet],
               [AS_HELP_STRING([--enable-rasnet],
-                              [this feature enables the rasnet protocol.])],
-              [enable_rasnet=yes],
-              [enable_rasnet=no])
-AM_CONDITIONAL([RMANRASNET], [test "$enable_rasnet" = yes])
+                              [this feature enables the rasnet protocol; deprecated since v9.2])],
+              [AC_MSG_NOTICE(['--enable-rasnet' is a deprecated option since rasdaman v9.2])],
+              [])
+
+AC_ARG_WITH([protocol],
+            [AS_HELP_STRING([--with-protocol=PROTOCOL],
+                            [set network protocol used in rasdaman (rasnet or rnp).])],
+            [protocol=$withval],
+            [protocol=rasnet])
+
+if test "$protocol" != "rnp" -a "$protocol" != "rasnet"; then
+  AC_MSG_ERROR([Invalid network protocol '$protocol' has been specified, must be one of rasnet or rnp.])
+fi
+
+AM_CONDITIONAL([RMANRASNET], [test "$protocol" = "rasnet"])
+AC_MSG_NOTICE(Using network protocol: $protocol)
+
+# ------------------------------------------------------------------------------
+
 
 AC_ARG_ENABLE([r],
               [AS_HELP_STRING([--enable-r],
@@ -476,7 +494,7 @@ CXXFLAGS="$CXXFLAGS -isystem ${GMOCK_DIR}/include -I${GMOCK_DIR} "
 ### End - Configuration of third party libraries ###
 
 ### Start - Check for rasnet ###
-if test "$enable_rasnet" = "yes"; then
+if test "$protocol" = "rasnet"; then
     AC_DEFINE([RMANRASNET], [], [Flag which is true when the rasnet protocol is enabled.])
 
     # We need C++ 11 for RASNET
