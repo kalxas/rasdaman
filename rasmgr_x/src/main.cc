@@ -82,7 +82,8 @@ int main ( int argc, char** argv )
     }
     else
     {
-        easyloggingpp::Configurations easyloggingConf = common::LoggingUtils::getServerLoggingConfiguration(logConfigFilePath);
+        std::string logOutputFile = std::string(LOGDIR)+"/rasmgr."+boost::to_string(::getpid())+".log";
+        easyloggingpp::Configurations easyloggingConf = common::LoggingUtils::getServerLoggingConfiguration(logConfigFilePath, logOutputFile);
         easyloggingpp::Loggers::reconfigureAllLoggers ( easyloggingConf );
     }
 
