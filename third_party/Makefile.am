@@ -99,3 +99,34 @@ clean-grpc:
 clean-protobuf:
 	cd grpc/third_party/protobuf && \
 	make clean
+
+if RMANRASNET
+
+install-data-hook:
+	$(MKDIR_P) $(includedir) && \
+	cp -R ${GTEST_DIR}/include/gtest $(includedir) && \
+	cp -R ${GMOCK_DIR}/include/gmock $(includedir) && \
+	cp easyloggingpp/easylogging++.h $(includedir) && \
+	cp -R ${GRPC_BIN}/include/grpc $(includedir) && \
+	cp -R ${GRPC_BIN}/include/grpc++ $(includedir) && \
+	cp -R ${PROTOBUF_BIN}/include/google $(includedir)
+
+install-exec-hook:
+	$(MKDIR_P) $(libdir) && \
+	cp ${GMOCK_LIB} $(libdir) && \
+	cp ${GRPC_BIN}/lib/*.a $(libdir) && \
+	cp ${PROTOBUF_BIN}/lib/*.a $(libdir)
+
+else
+
+install-data-hook:
+	$(MKDIR_P) $(includedir) && \
+	cp -R ${GTEST_DIR}/include/gtest $(includedir) && \
+	cp -R ${GMOCK_DIR}/include/gmock $(includedir) && \
+	cp easyloggingpp/easylogging++.h $(includedir)
+
+install-exec-hook:
+	$(MKDIR_P) $(libdir) && \
+	cp ${GMOCK_LIB} $(libdir)
+
+endif
