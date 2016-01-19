@@ -16,7 +16,8 @@
   "recipe": {
     "name": "map_mosaic",
     "options": {
-      "wms_import": true
+      "wms_import": true,
+      "band_names": ["Gray"]
     }
   }
 }
