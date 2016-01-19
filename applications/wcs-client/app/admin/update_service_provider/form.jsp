@@ -98,16 +98,16 @@
                     return (!str || 0 === str.length);
                 }
 
-                // Valid type versions (NOTE: must follow X.X.X with X is number or update to data will error)
+                // Validate type versions (NOTE: must follow X.X.X where X is a number with a maximum of 2 digits.)
                 function validateVersion(version)
                 {
-                    // Note: can have many versions (i.e: 1.2.3,3.2.4,2.3.1), "seperating by ,"
+                    // Note: comma-separated list of versions (i.e: 1.2.3,3.2.4,2.3.1)
                     // or 1 version (i.e: 1.3.4, without .)
                     if (/^([0-9]*)\.([0-9]+)\.([0-9]+)(\, [0-9]*\.[0-9]+\.[0-9]+)*$/.test(version))
                     {
                         return (true);
                     }
-                    alert("You have entered an invalid version(s)\n(Hint: X.X.X or X.X.X, Y.Y.Y, ... with X and Y is number!)");
+                    alert("Invalid version number (format required: comma-separated list of n.n.n): " + version);
                     return (false);
                 }
 
@@ -223,7 +223,7 @@
                             return false;
                         } else if (!validateEmail(email))
                         {
-                            alert("You have entered an invalid email(s)\n(Hint: XXX or XXX, YYY, ... with XXX and YYY is valid email (i.e: abc@gmail.com)).");
+                            alert("Invalid email address (format required: comma-separated list of email addresses): " + email);
                             return false;
                         }
 

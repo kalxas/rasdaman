@@ -184,7 +184,7 @@ javadoc: $(all_javas)
 # Finally, copy $(SETTINGS_FILE) file petascope.properties in ~petascope/src/main/resources to $RMANHOME/etc/
 .PHONY: install
 install: war service
-	echo "Recreate petascope properties temporary setting file...";
+	echo "Creating temporary petascope.properties file for merging with old configuration file...";
 	$(CP) $(SETTINGS_FILE) $(SETTINGS_FILE_EDIT);
 	echo "Done.";
 	$(MKDIR) $(DESTDIR)$(wardir)
