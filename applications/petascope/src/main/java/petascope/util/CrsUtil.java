@@ -109,6 +109,7 @@ public class CrsUtil {
     // WGS84
     public static final String WGS84_EPSG_CODE = "4326";
 
+
     /* CACHES: avoid EPSG db and SECORE redundant access */
     private static Map<String, CrsDefinition>       parsedCRSs       = new HashMap<String, CrsDefinition>();        // CRS definitions
     private static Map<List<String>, Boolean>       crsComparisons   = new HashMap<List<String>, Boolean>();        // CRS equality tests

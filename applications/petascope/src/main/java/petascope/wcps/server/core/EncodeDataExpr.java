@@ -27,6 +27,7 @@ import org.w3c.dom.*;
 import petascope.core.IDynamicMetadataSource;
 import petascope.exceptions.SecoreException;
 import petascope.exceptions.WCPSException;
+import petascope.util.CrsUtil;
 import petascope.util.GdalParameters;
 import petascope.util.WcpsConstants;
 import static petascope.util.ras.RasConstants.*;
@@ -35,7 +36,7 @@ import petascope.wcps.metadata.CoverageInfo;
 
 // This is the equivalent of the "ProcessingExprType" complex XML type.
 public class EncodeDataExpr extends AbstractRasNode {
-       
+
     private static Logger log = LoggerFactory.getLogger(EncodeDataExpr.class);
 
     private IRasNode coverageExprType;
@@ -51,7 +52,7 @@ public class EncodeDataExpr extends AbstractRasNode {
 
         for (child = node.getFirstChild(); child != null; child = child.getNextSibling()) {
             nodeName = child.getNodeName();
-            
+
             if (nodeName.equals("#" + WcpsConstants.MSG_TEXT)) {
                 continue;
             }
@@ -77,7 +78,7 @@ public class EncodeDataExpr extends AbstractRasNode {
             } catch (WCPSException ex) {
                 throw ex;
             }
-            
+
             /// Keep this child for XML tree crawling:
             super.children.add(coverageExprType);
         }
@@ -91,7 +92,7 @@ public class EncodeDataExpr extends AbstractRasNode {
     public String getMime() {
         return mime;
     }
- 
+
     public String toRasQL() {
         // TODO: cjucovschi - implement store
 
@@ -113,22 +114,22 @@ public class EncodeDataExpr extends AbstractRasNode {
                     gdalid = format;
                 }
             }
-            
+
             // determine function name either encode() or csv() (and similar)
             if (encode) {
                 result = RASQL_ENCODE;
             } else {
                 result = format;
             }
-            
+
             // first parameter to function
             result += "(" + coverageExprType.toRasQL();
-            
+
             // second parameter has to be the gdal format name, in case of encode()
             if (encode) {
                 result += ", \"" + gdalid + "\"";
             }
-            
+
             if (!encode) {
                 if (extraParams != null) {
                     result = result + ", \"" + extraParams + "\"";
@@ -137,27 +138,31 @@ public class EncodeDataExpr extends AbstractRasNode {
                 // finally extra parameters to the encoding function.
                 // They can be either explicitely set by the user (or by WCS engine) or,
                 // in case of GTiff/JPEG200 enconding, automatically filled with (geo)bounds
-                
+
                 // Get the bounds of the 2D requested coverage
                 try {
                     GdalParameters gdalParams = new GdalParameters((CoverageExpr)coverageExprType, 2);
-                    CoverageInfo info = ((CoverageExpr) coverageExprType).getCoverageInfo();
-                    
-                    if (info != null) {
-                        // Build the whole string (dimensions of reqBounds are already checked inside getRequestBounds)
-                        if (info.getBbox() != null) {
-                            gdalParams.setCrs(info.getCoverageCrs());
+                    // if georeferenced is false then no need to add bounding box as extra parameters
+                    if (gdalParams.isGeoreferenced())
+                    {
+                        CoverageInfo info = ((CoverageExpr) coverageExprType).getCoverageInfo();
+
+                        if (info != null) {
+                            // Build the whole string (dimensions of reqBounds are already checked inside getRequestBounds)
+                            if (info.getBbox() != null) {
+                                gdalParams.setCrs(info.getCoverageCrs());
+                            }
+
+                            // Append params to the rasql query (params with same key are overwritten so that params set by WCS are not lost):
+                            gdalParams.addExtraParams(extraParams);
+                            extraParams = gdalParams.toString();
+                            result = result + ", \"" + extraParams + "\"";
                         }
-                        
-                        // Append params to the rasql query (params with same key are overwritten so that params set by WCS are not lost):
-                        gdalParams.addExtraParams(extraParams);
-                        extraParams = gdalParams.toString();
-                        result = result + ", \"" + extraParams + "\"";
                     }
                 } catch (WCPSException ex) {
                     log.warn("GDAL extra CRS parameters not set due to error: " + ex.getMessage());
                 }
-            }            
+            }
             result = result + ")";
         }
         return result;
