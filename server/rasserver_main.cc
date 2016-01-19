@@ -131,6 +131,11 @@ crash_handler( int sig, siginfo_t* info, void * ucontext);
 void
 test_handler( int sig, siginfo_t* info, void * ucontext);
 
+/**
+  * This function is called when a SIGTERM signal is received by the process.
+  * The function is placed here because it affects the global behavior of the process.
+  */
+void rasnetTerminationHandler(int sig, siginfo_t* info, void * ucontext);
 
 
 void
