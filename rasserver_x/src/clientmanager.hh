@@ -78,7 +78,12 @@ public:
     size_t getClientQueueSize();
 
 private:
-    static const int ALIVE_PERIOD = 3000; /* milliseconds */
+	/**
+	* The maximum number of milliseconds between two consecutive KeepAlive messages
+	* from the client. If a KeepAlive message is not received in this amount of time,
+	* the client is removed from the server.
+	*/
+    static const int ALIVE_PERIOD = 30000; /* milliseconds */
 
     boost::scoped_ptr<boost::thread> managementThread;
 
