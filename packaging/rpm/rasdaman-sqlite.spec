@@ -6,7 +6,7 @@
 %endif
 Name:           rasdaman
 Version:        9.2.0
-Release:        1%{?dist}
+Release:        2%{?dist}
 Summary:        rasdaman - Raster Data Manager
 
 Group:          Applications/Databases
@@ -20,7 +20,7 @@ BuildRoot:      %{_tmppath}/%{name}-%{version}
 BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 %endif
 
-BuildRequires: gcc gcc-c++ make autoconf automake
+BuildRequires: gcc gcc-c++ make autoconf automake unzip curl git
 BuildRequires: bison
 BuildRequires: libtiff-devel
 BuildRequires: hdf-devel
@@ -281,8 +281,7 @@ fi
 %{_bindir}/update_db.sh
 %{_bindir}/wcst_import.sh
 %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/rasdaman/rasmgr.conf
-%config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/rasdaman/log-server.conf
-%config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/rasdaman/log-client.conf
+%config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/rasdaman/log-*.conf
 %{_localstatedir}/log/rasdaman/empty
 %{_datadir}/rasdaman/errtxts*
 %{_datadir}/rasdaman/db_updates
@@ -293,28 +292,8 @@ fi
 
 %files devel
 %defattr(-,root,root,-)
-%{_includedir}/rasdaman
-%{_libdir}/libcatalogmgr.a
-%{_libdir}/libclientcomm.a
-%{_libdir}/libcommline.a
-%{_libdir}/libconversion.a
-%{_libdir}/libhttpserver.a
-%{_libdir}/libindexmgr.a
-%{_libdir}/liblockmanager.a
-%{_libdir}/libmddmgr.a
-%{_libdir}/libnetwork.a
-%{_libdir}/libqlparser.a
-%{_libdir}/libraslib.a
-%{_libdir}/librasodmg.a
-%{_libdir}/libreladminif.a
-%{_libdir}/librelblobif.a
-%{_libdir}/librelcatalogif.a
-%{_libdir}/librelindexif.a
-%{_libdir}/librelmddif.a
-%{_libdir}/librelstorageif.a
-%{_libdir}/libservercomm.a
-%{_libdir}/libstoragemgr.a
-%{_libdir}/libtilemgr.a
+%{_includedir}/*
+%{_libdir}/*
 
 %files docs
 %defattr(-,root,root,-)
