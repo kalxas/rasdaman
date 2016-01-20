@@ -123,7 +123,7 @@ public class PetascopeInterface extends HttpServlet {
         }
 
         // Initialize the logging system
-        log.info("Petascope {} starting", ConfigManager.PETASCOPE_VERSION);
+        log.info("Petascope {} starting", ConfigManager.RASDAMAN_VERSION);
 
         // External libraries licensing issues
         log.info("To obtain a list of external packages used, please visit www.rasdaman.org .");
@@ -195,7 +195,7 @@ public class PetascopeInterface extends HttpServlet {
         }
 
         log.info("-----------------------------------------------");
-        log.info("      PetaScope {} successfully started      ", ConfigManager.PETASCOPE_VERSION);
+        log.info("      PetaScope {} successfully started      ", ConfigManager.RASDAMAN_VERSION);
         log.info("-----------------------------------------------");
     }
 

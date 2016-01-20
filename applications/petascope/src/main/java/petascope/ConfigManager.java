@@ -56,20 +56,6 @@ public class ConfigManager {
 
     private static final Logger log = LoggerFactory.getLogger(ConfigManager.class);
 
-    /* Major version number. This is the first release (1). */
-    public final static String MAJOR = "2";
-    /*
-     * Minor version number.
-     * v2 adds the reference implementation of WCS 2.0.
-     * v3 adds WGS84 handling in WCPS requests
-     * v4 adds a WPS implementation.
-     * v5 adds integration to n52 WPS framework
-     */
-    public final static String MINOR = "0";
-    /* Bug-fix count. We have a hack: every WCPS response is written to disk. */
-    public final static String BUGFIX = "0";
-
-    public final static String PETASCOPE_VERSION = MAJOR + "." + MINOR + "." + BUGFIX;
     public final static String PETASCOPE_LANGUAGE = "en";
     /* If the value no given in petascope.properties, this URL gets initialized
      * automatically when the first request is received.
@@ -366,7 +352,7 @@ public class ConfigManager {
 
         log.info("------------------------------------");
         log.info("       *** PETASCOPE ***      ");
-        log.info("Petascope Version: " + PETASCOPE_VERSION);
+        log.info("Petascope Version: " + RASDAMAN_VERSION);
         log.info("Metadata Driver  : " + METADATA_DRIVER);
         log.info("Metadata URL     : " + METADATA_URL);
         log.info("Metadata Username: " + METADATA_USER);

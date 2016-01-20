@@ -81,7 +81,7 @@ public class PetascopeException extends Exception {
      * @param ex original exception
      */
     public PetascopeException(ExceptionCode exceptionCode, String exceptionText, Exception ex) {
-        this(exceptionCode, exceptionText, ex, ConfigManager.PETASCOPE_VERSION, ConfigManager.PETASCOPE_LANGUAGE);
+        this(exceptionCode, exceptionText, ex, ConfigManager.RASDAMAN_VERSION, ConfigManager.PETASCOPE_LANGUAGE);
     }
 
     /**

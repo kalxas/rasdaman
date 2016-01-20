@@ -81,7 +81,7 @@ public class SecoreException extends Exception {
      * @param causeEx original exception
      */
     public SecoreException(ExceptionCode exceptionCode, String exceptionText, Exception causeEx) {
-        this(exceptionCode, exceptionText, causeEx, ConfigManager.PETASCOPE_VERSION, ConfigManager.PETASCOPE_LANGUAGE);
+        this(exceptionCode, exceptionText, causeEx, ConfigManager.RASDAMAN_VERSION, ConfigManager.PETASCOPE_LANGUAGE);
     }
 
     /**
