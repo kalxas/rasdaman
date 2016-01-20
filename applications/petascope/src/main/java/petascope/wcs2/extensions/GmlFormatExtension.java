@@ -56,7 +56,9 @@ public class GmlFormatExtension extends AbstractGmlcovFormatExtension {
 
     @Override
     public boolean canHandle(GetCoverageRequest req) {
-        return req.getFormat() == null || (!req.isMultipart() && getMimeType().equals(req.getFormat()));
+        // convert back from application/gml xml -> application/gml+xml
+        String regFormat = req.getFormat().replace(" ", "+");
+        return req.getFormat() == null || (!req.isMultipart() && getMimeType().equals(regFormat));
         //return false;
     }
 

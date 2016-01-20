@@ -279,6 +279,7 @@ public class StringUtil {
             char c = s.charAt(i);
             switch (c) {
                 case '+':
+                    // e.g application/gml+xml -> application/gml xml
                     sb.append(' ');
                     break;
                 case '%':

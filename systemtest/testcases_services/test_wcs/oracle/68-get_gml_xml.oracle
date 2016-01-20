@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<gmlcov:RectifiedGridCoverage
+    xmlns='http://www.opengis.net/gml/3.2'
+    xmlns:gml='http://www.opengis.net/gml/3.2'
+    xmlns:gmlcov='http://www.opengis.net/gmlcov/1.0'
+    xmlns:swe='http://www.opengis.net/swe/2.0'
+    xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance'
+    xmlns:wcs='http://www.opengis.net/wcs/2.0' id="mr"
+    xsi:schemaLocation= 'http://www.opengis.net/wcs/2.0 http://schemas.opengis.net/wcs/2.0/wcsAll.xsd'>
+
+  <boundedBy>
+    <Envelope srsName="/crs/OGC/0/Index2D" axisLabels="i j" uomLabels="GridSpacing GridSpacing" srsDimension="2">
+      <lowerCorner>10 10</lowerCorner>
+      <upperCorner>20 20</upperCorner>
+    </Envelope>
+  </boundedBy>
+
+  <domainSet>
+    <RectifiedGrid dimension="2" id="mr-grid">
+      <limits>
+        <GridEnvelope>
+          <low>10 190</low>
+          <high>20 200</high>
+        </GridEnvelope>
+      </limits>
+      <axisLabels>i j</axisLabels>
+      <origin>
+          <Point id="mr-origin" srsName="/crs/OGC/0/Index2D" axisLabels="i j" uomLabels="GridSpacing GridSpacing" srsDimension="2">
+              <pos>10 20</pos>
+          </Point>
+      </origin>
+      <offsetVector srsName="/crs/OGC/0/Index2D" axisLabels="i j" uomLabels="GridSpacing GridSpacing" srsDimension="2">1 0</offsetVector>
+      <offsetVector srsName="/crs/OGC/0/Index2D" axisLabels="i j" uomLabels="GridSpacing GridSpacing" srsDimension="2">0 -1</offsetVector>
+    </RectifiedGrid>
+  </domainSet>
+
+  <rangeSet>
+    <DataBlock>
+      <rangeParameters/>
+      <tupleList ts="," cs=" ">61,60,65,73,70,44,0,16,49,51,25,63,61,63,67,66,53,20,0,34,54,39,60,59,59,64,70,67,45,5,14,43,40,54,61,61,61,65,69,57,20,2,38,46,43,60,65,59,57,63,63,41,4,23,45,27,49,61,61,60,65,69,53,12,9,43,8,33,60,69,64,59,61,56,28,0,33,0,0,29,58,68,61,59,60,44,5,23,3,0,10,39,59,65,64,63,49,12,14,10,0,0,16,42,58,61,57,47,20,0,18,7,0,0,15,42,60,64,51,21,0</tupleList>
+    </DataBlock>
+  </rangeSet>
+
+  <coverageFunction>
+    <GridFunction>
+      <sequenceRule axisOrder="+2 +1">Linear</sequenceRule>
+      <startPoint>10 190</startPoint>
+    </GridFunction>
+  </coverageFunction>
+
+  <gmlcov:rangeType>
+    <swe:DataRecord>
+    <swe:field name="value">
+      <swe:Quantity  definition="/dataType/OGC/0/unsignedByte"><swe:label>unsigned char</swe:label><swe:description>primitive</swe:description><swe:uom code="10^0" /><swe:constraint><swe:AllowedValues><swe:interval>0 255</swe:interval></swe:AllowedValues></swe:constraint></swe:Quantity>
+    </swe:field>
+    </swe:DataRecord>
+  </gmlcov:rangeType>
+<gmlcov:metadata/>
+</gmlcov:RectifiedGridCoverage>
