@@ -422,7 +422,7 @@ void ServerManager::evaluateServerGroups()
                     * This means that dead server entries will be removed
                     * and new servers will be started.
                     */
-    LINFO<<"Evaluating server groups.";
+    LDEBUG<<"Evaluating server groups.";
     for ( list<shared_ptr<ServerGroup> >::iterator it = this->
             serverGroupList.begin();
             it!=this->serverGroupList.end();

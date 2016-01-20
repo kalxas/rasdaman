@@ -49,11 +49,11 @@ grpc::Status ServerManagementService::RegisterServer(grpc::ServerContext *contex
 
     try
     {
-        LINFO<<"Registering server with ID:"<<request->serverid();
+        LDEBUG<<"Registering server with ID:"<<request->serverid();
 
         this->serverManager->registerServer(request->serverid());
 
-        LINFO<<"Finished registering server with ID:"<<request->serverid();
+        LDEBUG<<"Finished registering server with ID:"<<request->serverid();
     }
     catch(std::exception& ex)
     {

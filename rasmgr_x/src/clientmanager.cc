@@ -159,11 +159,11 @@ void ClientManager::disconnectClient(const std::string& clientId)
         boost::upgrade_to_unique_lock<shared_mutex> uniqueLock(lock);
         this->clients.erase(it);
 
-        LINFO<<"The client with ID:\""<<clientId<<"\" has been removed from the list";
+        LDEBUG<<"The client with ID:\""<<clientId<<"\" has been removed from the list";
     }
     else
     {
-        LINFO<<"The client with ID:\""<<clientId<<"\" was not present in the active clients list";
+        LDEBUG<<"The client with ID:\""<<clientId<<"\" was not present in the active clients list";
     }
 }
 
