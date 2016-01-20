@@ -115,7 +115,7 @@ struct RasControlGrammar : qi::grammar<Iterator, std::string ( void ), ascii::sp
     this->strRule = qi::lexeme[ ( qi::alpha | qi::char_ ( '_' ) | qi::char_ ( '/') ) >> * ( qi::alnum | qi::char_ ( '_' ) | qi::char_ ( '/') | qi::char_ ( '-') )]; //qi::as_string[qi::lexeme[+qi::alnum]];
 
     //TODO-AT: Make this accept any host name
-    this->hostNameRule  = qi::lexeme[ ( qi::alpha | qi::char_ ( '_' ) ) >> * ( qi::alnum | qi::char_ ( '_' ) | qi::char_ ( '-' ) )];
+    this->hostNameRule  = qi::lexeme[ ( qi::alpha | qi::char_ ( '_' ) ) >> * ( qi::alnum | qi::char_ ( '_' ) | qi::char_ ( '.' ) | qi::char_ ( '-' ) )];
 
     //BEGIN:HOST COMMANDS
     //The host commands are DEPRECATED.
