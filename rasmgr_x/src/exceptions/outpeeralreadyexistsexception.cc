@@ -30,7 +30,7 @@ OutPeerAlreadyExistsException::OutPeerAlreadyExistsException(const std::string &
     :common::LogicException( "Outpeer rasmanager " + hostName +":"+ std::to_string(port)+ " already defined.")
 {}
 
-OutPeerAlreadyExistsException::~OutPeerAlreadyExistsException()
+OutPeerAlreadyExistsException::~OutPeerAlreadyExistsException() throw()
 {}
 
 }

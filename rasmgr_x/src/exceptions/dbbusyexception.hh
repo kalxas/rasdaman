@@ -41,7 +41,7 @@ public:
      */
     DbBusyException(const std::string& dbName);
 
-    virtual ~DbBusyException();
+    virtual ~DbBusyException() throw();
 };
 }
 

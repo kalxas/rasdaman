@@ -29,6 +29,6 @@ InexistentDatabaseException::InexistentDatabaseException(const std::string &dbNa
     :common::MissingResourceException("The database "+dbName+" does not exist.")
 {}
 
-InexistentDatabaseException::~InexistentDatabaseException()
+InexistentDatabaseException::~InexistentDatabaseException() throw()
 {}
 }

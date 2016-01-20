@@ -46,8 +46,8 @@ OutPeer::OutPeer(const std::string &hostName, const uint32_t port)
 
     LDEBUG<<"Created channel to outpeer:"<<serverAddress;
 
-    this->healthService = boost::make_shared<::common::HealthService::Stub>(channel);
-    this->rasmgrService = boost::make_shared<::rasnet::service::RasmgrRasmgrService::Stub>(channel);
+    this->healthService = boost::make_shared< ::common::HealthService::Stub>(channel);
+    this->rasmgrService = boost::make_shared< ::rasnet::service::RasmgrRasmgrService::Stub>(channel);
 }
 
 std::string OutPeer::getHostName() const

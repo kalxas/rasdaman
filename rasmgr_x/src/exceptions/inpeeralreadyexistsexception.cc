@@ -31,7 +31,7 @@ InPeerAlreadyExistsException::InPeerAlreadyExistsException(const std::string &ho
 
 }
 
-InPeerAlreadyExistsException::~InPeerAlreadyExistsException()
+InPeerAlreadyExistsException::~InPeerAlreadyExistsException() throw()
 {}
 
 }

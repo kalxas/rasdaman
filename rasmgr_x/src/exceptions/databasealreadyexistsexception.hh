@@ -42,7 +42,7 @@ public:
      */
     DatabaseAlreadyExistsException(const std::string& dbName, const std::string& dbHostName);
 
-    virtual ~DatabaseAlreadyExistsException();
+    virtual ~DatabaseAlreadyExistsException() throw();
 };
 }
 

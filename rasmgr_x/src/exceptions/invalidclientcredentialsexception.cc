@@ -28,6 +28,6 @@ InvalidClientCredentialsException::InvalidClientCredentialsException()
     :common::RuntimeException("The credentials provided by the client are invalid.")
 {}
 
-InvalidClientCredentialsException::~InvalidClientCredentialsException()
+InvalidClientCredentialsException::~InvalidClientCredentialsException() throw()
 {}
 }

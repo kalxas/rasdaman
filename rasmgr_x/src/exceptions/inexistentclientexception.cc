@@ -27,7 +27,7 @@ InexistentClientException::InexistentClientException(const std::string &clientId
     :common::MissingResourceException("The client with client ID "+clientId+" does not exist.")
 {}
 
-InexistentClientException::~InexistentClientException()
+InexistentClientException::~InexistentClientException() throw()
 {}
 
 }

@@ -83,8 +83,8 @@ private:
     std::string hostName; /*!< Name of the host on which the rasmgr is running.*/
     boost::uint32_t port; /*!< Port on which the rasmgr is running on the given host */
 
-    boost::shared_ptr<::rasnet::service::RasmgrRasmgrService::Stub> rasmgrService;
-    boost::shared_ptr<::common::HealthService::Stub> healthService;
+    boost::shared_ptr< ::rasnet::service::RasmgrRasmgrService::Stub> rasmgrService;
+    boost::shared_ptr< ::common::HealthService::Stub> healthService;
 
     std::string createSessionId(const RemoteClientSession& clientSession);
 };

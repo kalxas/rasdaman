@@ -33,7 +33,7 @@ class InvalidRasctrlCommandException:public common::Exception
 public:
     InvalidRasctrlCommandException();
 
-    virtual ~InvalidRasctrlCommandException();
+    virtual ~InvalidRasctrlCommandException() throw();
 };
 }
 

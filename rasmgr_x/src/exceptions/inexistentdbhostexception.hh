@@ -36,7 +36,7 @@ class InexistentDbHostException : public common::MissingResourceException
 public:
     InexistentDbHostException(const std::string& dbHostName);
 
-    virtual ~InexistentDbHostException();
+    virtual ~InexistentDbHostException() throw();
 };
 
 } /* namespace rasmgr */

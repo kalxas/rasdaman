@@ -37,7 +37,7 @@ class InexistentClientException: public common::MissingResourceException
 public:
     InexistentClientException(const std::string& clientId);
 
-    virtual ~InexistentClientException();
+    virtual ~InexistentClientException() throw();
 };
 }
 #endif // RASMGR_X_SRC_EXCEPTIONS_INEXISTENTCLIENTEXCEPTION_HH

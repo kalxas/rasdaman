@@ -177,7 +177,7 @@ private:
 
     boost::uint32_t sessionNo;
 
-    boost::shared_ptr<::rasnet::service::RasServerService::Stub> service; /*! Service stub used to communicate with the RasServer process */
+    boost::shared_ptr< ::rasnet::service::RasServerService::Stub> service; /*! Service stub used to communicate with the RasServer process */
 
 
     boost::shared_mutex sessionMtx; /*!Mutex used for making the object thread safe */

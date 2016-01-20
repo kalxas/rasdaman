@@ -29,7 +29,7 @@ DbHostBusyException::DbHostBusyException(const std::string& dbHostName)
     :common::ResourceBusyException("The database host "+dbHostName+" is busy and its properties cannot be changed.")
 {}
 
-DbHostBusyException::~DbHostBusyException()
+DbHostBusyException::~DbHostBusyException() throw()
 {}
 
 } /* namespace rasmgr */

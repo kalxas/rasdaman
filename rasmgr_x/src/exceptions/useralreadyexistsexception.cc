@@ -29,7 +29,7 @@ UserAlreadyExistsException::UserAlreadyExistsException(const std::string& userNa
 :common::LogicException("The user " + userName + " already exists.")
 {}
 
-UserAlreadyExistsException::~UserAlreadyExistsException()
+UserAlreadyExistsException::~UserAlreadyExistsException() throw()
 {}
 
 

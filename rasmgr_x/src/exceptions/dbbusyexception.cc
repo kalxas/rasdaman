@@ -30,6 +30,6 @@ DbBusyException::DbBusyException(const std::string& dbName)
 
 }
 
-DbBusyException::~DbBusyException()
+DbBusyException::~DbBusyException() throw()
 {}
 }

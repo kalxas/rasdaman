@@ -37,7 +37,7 @@ class InexistentInPeerException:public common::MissingResourceException
 public:
     InexistentInPeerException(const std::string& hostName);
 
-    virtual ~InexistentInPeerException();
+    virtual ~InexistentInPeerException() throw();
 };
 
 }

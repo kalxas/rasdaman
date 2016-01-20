@@ -40,7 +40,7 @@ class NoAvailableServerException:public common::ResourceBusyException
 public:
     NoAvailableServerException();
 
-    virtual ~NoAvailableServerException();
+    virtual ~NoAvailableServerException() throw();
 };
 
 }

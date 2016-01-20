@@ -30,7 +30,7 @@ InexistentOutPeerException::InexistentOutPeerException(const std::string &hostNa
     :common::MissingResourceException("No outpeer with host name" + hostName + " found. ")
 {}
 
-InexistentOutPeerException::~InexistentOutPeerException()
+InexistentOutPeerException::~InexistentOutPeerException() throw()
 {}
 
 }

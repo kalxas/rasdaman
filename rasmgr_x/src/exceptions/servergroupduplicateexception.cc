@@ -29,7 +29,7 @@ ServerGroupDuplicateException::ServerGroupDuplicateException(const std::string& 
     : common::LogicException("Server group "+ serverGroupName + " already defined.")
 {}
 
-ServerGroupDuplicateException::~ServerGroupDuplicateException()
+ServerGroupDuplicateException::~ServerGroupDuplicateException() throw()
 {}
 
 } /* namespace rasmgr */

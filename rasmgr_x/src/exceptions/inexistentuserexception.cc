@@ -29,6 +29,6 @@ InexistentUserException::InexistentUserException(const std::string& userName)
     :common::MissingResourceException("The user "+userName+" does not exist.")
 {}
 
-InexistentUserException::~InexistentUserException()
+InexistentUserException::~InexistentUserException() throw()
 {}
 } /* namespace rasmgr */

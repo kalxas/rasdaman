@@ -31,6 +31,6 @@ DatabaseAlreadyExistsException::DatabaseAlreadyExistsException(const std::string
 
 }
 
-DatabaseAlreadyExistsException::~DatabaseAlreadyExistsException()
+DatabaseAlreadyExistsException::~DatabaseAlreadyExistsException() throw()
 {}
 }

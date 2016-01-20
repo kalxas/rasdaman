@@ -29,7 +29,7 @@ InexistentServerGroupException::InexistentServerGroupException(const std::string
     :common::MissingResourceException("The server group "+serverId+" does not exist.")
 {}
 
-InexistentServerGroupException::~InexistentServerGroupException()
+InexistentServerGroupException::~InexistentServerGroupException() throw()
 {}
 
 

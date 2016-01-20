@@ -45,7 +45,7 @@ public:
      */
     InPeerAlreadyExistsException(const std::string& hostName);
 
-    virtual ~InPeerAlreadyExistsException();
+    virtual ~InPeerAlreadyExistsException() throw();
 };
 }
 

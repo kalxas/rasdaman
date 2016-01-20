@@ -36,7 +36,7 @@ class InvalidClientCredentialsException: public common::RuntimeException
 public:
     InvalidClientCredentialsException();
 
-    virtual ~InvalidClientCredentialsException();
+    virtual ~InvalidClientCredentialsException() throw();
 };
 }
 #endif // RASMGR_X_SRC_EXCEPTIONS_INVALIDCLIENTCREDENTIALSEXCEPTION_HH
