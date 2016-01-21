@@ -103,8 +103,10 @@ log.save
 aclocal.m4
 ylwrap
 java/dist/
+java/bin/
 output
 applications/petascope/src/main/webapp/WEB-INF/web.xml
+applications/petascope/src/main/resources/petascope.properties
 compile
 /applications/petascope/dist/
 wcps.tokens
@@ -121,6 +123,7 @@ rasnet/src/messages/
 rasmgr_x/src/messages/
 rasmgr_x/src/rasmgr
 third_party/bin
+rascontrol_x/src/rascontrol
 
 # patchmanager
 patch_manager/install_patchmanager.cfg
@@ -166,6 +169,7 @@ config.guess
 config.sub
 config.h.in
 
+# testing
 core
 systemtest/testcases_manual/test_crash_rasserver/queries_metrics
 systemtest/testcases_manual/test_crash_rasserver/bugs
@@ -175,3 +179,5 @@ test_blobfs
 test_blobfstransaction
 test_blobfstransactionlock
 *.log
+systemtest/testcases_services/test_wcst_import/test_data/*/ingest.json
+systemtest/testcases_services/test_update_properties/data/
