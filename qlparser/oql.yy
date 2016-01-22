@@ -226,7 +226,7 @@ struct QtUpdateSpecElement
                          DIV INTDIV MOD EQUAL LESS GREATER LESSEQUAL GREATEREQUAL NOTEQUAL COLON SEMICOLON LEPAR
                          REPAR LRPAR RRPAR LCPAR RCPAR INSERT INTO VALUES DELETE DROP CREATE COLLECTION TYPE
                          MDDPARAM OID SHIFT SCALE SQRT ABS EXP LOGFN LN SIN COS TAN SINH COSH TANH ARCSIN
-                         ARCCOS ARCTAN POW POWER OVERLAY BIT UNKNOWN FASTSCALE PYRAMID MEMBERS ADD ALTER LIST
+                         ARCCOS ARCTAN POW POWER OVERLAY BIT UNKNOWN FASTSCALE MEMBERS ADD ALTER LIST
 			  INDEX RC_INDEX TC_INDEX A_INDEX D_INDEX RD_INDEX RPT_INDEX RRPT_INDEX IT_INDEX AUTO
 			 TILING ALIGNED REGULAR DIRECTIONAL NULLKEY
 			 WITH SUBTILING AREA OF INTEREST STATISTIC TILE SIZE BORDER THRESHOLD
@@ -267,7 +267,7 @@ struct QtUpdateSpecElement
 %type <operationValue>        condenseOpLit 
 %type <castTypes>	      castType
 %type <dummyValue>            qlfile query selectExp createExp insertExp deleteExp updateExp dropExp selectIntoExp commitExp tileSizeControl createType dropType
-//%type <identifierToken>       namedCollection collectionIterator typeName attributeIdent pyrName 
+
 %type <identifierToken>       namedCollection collectionIterator typeName attributeIdent createTypeName
 			      marrayVariable condenseVariable
 
@@ -278,10 +278,6 @@ struct QtUpdateSpecElement
 %type <qtComplexDataValue>    complexLit
 %type <qtScalarDataListValue> scalarLitList dimensionLitList
 %type <floatToken>            numericalLit floatLitExp
-// pyramid data
-// %type <pyrElemType>           pyrElem pyrElem2
-// %type <pyrListType>           pyrList pyrList2
-// %type <stringToken>           pyrOid
 
 // marray2 with multiple intervals
 %type <mddIntervalListType>   ivList
@@ -308,7 +304,6 @@ query: createExp
         | commitExp
         | createType
         | dropType
-//        | pyramidExp;
 	;
 
 commitExp: COMMIT
