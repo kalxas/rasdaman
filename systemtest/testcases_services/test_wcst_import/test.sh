@@ -76,7 +76,7 @@ for TEST_CASE in $TEST_DATA/*; do
     sed -i "s@SECORE_URL@$SECORE_URL@g" "$RECIPE_FILE"
 
     # 1.4 execute wcst_import with $RECIPE_FILE
-    "$SCRIPT_DIR/../../../applications/wcst_import/wcst_import.sh" $RECIPE_FILE
+    python "$SCRIPT_DIR/../../../applications/wcst_import/wcst_import.py" $RECIPE_FILE
     #echo "ABCDEF: $DIR/applications/wcst_import/wcst_import" $RECIPE_FILE
 
     # 2 Check if wcst_import runs successfully
