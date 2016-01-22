@@ -37,9 +37,10 @@
 #include "configuration.hh"
 #include "rasmanager.hh"
 
-#define RASMGR_RESULT_OK        0
+#define RASMGR_RESULT_OK            0
 #define RASMGR_RESULT_NO_MD5        1
 #define RASMGR_RESULT_ILL_ARGS      2
+#define RASMGR_RESULT_FAILED        3
 
 
 _INITIALIZE_EASYLOGGINGPP
@@ -106,7 +107,7 @@ int main ( int argc, char** argv )
                  "MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the "
                  "GNU General Public License for more details. \n\n"<<std::endl;
 
-        std::cout << " rasmgr running on " << config.getHostName() << ", listening on port " << config.getPort();
+        std::cout << "rasmgr running on " << config.getHostName() << ", listening on port " << config.getPort() << std::endl;
     }
 
     manager.reset ( new RasManager ( config ) );
@@ -117,14 +118,16 @@ int main ( int argc, char** argv )
     }
     catch ( std::exception& ex )
     {
-        std::cerr<<"rasmanager failed with exception:"<<ex.what();
+        std::cerr << "rasmanager failed with exception:"<<ex.what() << std::endl;
+        return RASMGR_RESULT_FAILED;
     }
     catch ( ... )
     {
-        std::cerr<<"rasmanager failed for an unknown reason.";
+        std::cerr << "rasmanager failed for an unknown reason." << std::endl;
+        return RASMGR_RESULT_FAILED;
     }
 
-    return 0;
+    return RASMGR_RESULT_OK;
 }
 
 void sigIntHandler ( int sig )

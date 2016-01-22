@@ -80,6 +80,14 @@ public:
      * @return TRUE if the server responds with a valid message within the given timeout, FALSE otherwise.
      */
     static bool isServerAlive(const boost::shared_ptr<HealthService::Stub>& healthService, boost::uint32_t timeoutMilliseconds);
+
+    /**
+     * @brief isPortUsed Utility function used to check whether a port is already taken.
+     * @param host The host name on which the verification has to be done.
+     * @param port The port which will be cecked.
+     * @return True if the port is busy, false otherwise.
+     */
+    static bool isPortBusy(const std::string& host, boost::uint32_t port);
 };
 
 }

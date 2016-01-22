@@ -54,6 +54,8 @@
 #include "servermanagerconfig.hh"
 #include "servermanager.hh"
 #include "usermanager.hh"
+#include "../../common/src/grpc/grpcutils.hh"
+#include "../../common/src/exceptions/resourcebusyexception.hh"
 
 #include "rasmanager.hh"
 
@@ -74,6 +76,16 @@ RasManager::~RasManager()
 void RasManager::start()
 {
     LINFO<<"Starting rasmanager.";
+
+    if (common::GrpcUtils::isPortBusy(DEFAULT_HOSTNAME, this->port))
+    {
+        std::ostringstream error;
+
+        error << "Failed to start rasmanager on port '"
+              << this->port
+              << "': address is already in use.";
+        throw common::ResourceBusyException(error.str());
+    }
 
     shared_ptr<DatabaseHostManager> dbhManager ( new DatabaseHostManager() );
     shared_ptr<DatabaseManager> dbManager ( new DatabaseManager ( dbhManager ) );

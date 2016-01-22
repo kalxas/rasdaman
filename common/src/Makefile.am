@@ -21,7 +21,11 @@ libcommon_a_SOURCES = crypto/crypto.cc \
 					  exceptions/resourcebusyexception.cc \
 					  exceptions/runtimeexception.cc \
 					  uuid/uuid.cc \
-					  time/timer.cc
+					  time/timer.cc \
+                      network/networkresolverfactory.cc \
+                      network/abstractnetworkresolver.cc \
+                      network/ipv4resolver.cc \
+                      network/ipv6resolver.cc
 
 libcommon_a_CXXFLAGS = @AM_CXXFLAGS@ -Wno-shadow
 

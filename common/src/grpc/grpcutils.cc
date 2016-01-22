@@ -31,6 +31,8 @@
 #include "messages/healthservice.grpc.pb.h"
 #include "messages/error.pb.h"
 
+#include "../network/networkresolverfactory.hh"
+
 #include "grpcutils.hh"
 
 namespace common
@@ -135,6 +137,11 @@ bool GrpcUtils::isServerAlive(const boost::shared_ptr<HealthService::Stub> &heal
     grpc::Status status = healthService->Check(&context,request, &response);
 
     return status.ok() && response.status()==common::HealthCheckResponse::SERVING;
+}
+
+bool GrpcUtils::isPortBusy(const std::string& host, boost::uint32_t port)
+{
+    return NetworkResolverFactory::getNetworkResolver(host, port)->isPortBusy();
 }
 
 }

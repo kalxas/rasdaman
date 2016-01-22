@@ -37,5 +37,69 @@ TEST(GrpcUtilsTest, AddressToStringTest)
 
     ASSERT_EQ("localhost:5002", GrpcUtils::constructAddressString(host, port));
 }
+
+//TODO-GM: create a mock server instead of using the HTTP port
+TEST(GrpcUtilsTest, IsPortBusyHostNameTest)
+{
+    std::string host = "localhost";
+    // HTTP port should be taken
+    boost::uint16_t port = 80;
+
+    ASSERT_TRUE(GrpcUtils::isPortBusy(host, port));
+}
+
+TEST(GrpcUtilsTest, IsPortFreeHostNameTest)
+{
+    std::string host = "localhost";
+    // port = 0 will assign a random free port
+    boost::uint16_t port = 0;
+
+    ASSERT_FALSE(GrpcUtils::isPortBusy(host, port));
+}
+
+TEST(GrpcUtilsTest, IsPortFreeIpV4Test)
+{
+    std::string host = "127.0.0.1";
+    // port = 0 will assign a random free port
+    boost::uint16_t port = 0;
+
+    ASSERT_FALSE(GrpcUtils::isPortBusy(host, port));
+}
+
+TEST(GrpcUtilsTest, IsPortFreeIpV6Test)
+{
+    std::string host = "::1";
+    // port = 0 will assign a random free port
+    boost::uint16_t port = 0;
+
+    ASSERT_FALSE(GrpcUtils::isPortBusy(host, port));
+}
+
+TEST(GrpcUtilsTest, IsPortBusyIpV4Test)
+{
+    std::string host = "127.0.0.1";
+    // HTTP port should be taken
+    boost::uint16_t port = 80;
+
+    ASSERT_TRUE(GrpcUtils::isPortBusy(host, port));
+}
+
+TEST(GrpcUtilsTest, IsPortBusyIpV6Test)
+{
+    std::string host = "::1";
+    // HTTP port should be taken
+    boost::uint16_t port = 80;
+
+    ASSERT_TRUE(GrpcUtils::isPortBusy(host, port));
+}
+
+TEST(GrpcUtilsTest, IsPortBusyInvalidHostNameTest)
+{
+    std::string host = "qwertyuiolp;[";
+    // HTTP port should be taken
+    boost::uint16_t port = 0;
+
+    ASSERT_THROW(GrpcUtils::isPortBusy(host, port), std::runtime_error);
+}
 }
 }
