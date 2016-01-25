@@ -41,6 +41,7 @@ SRC = $(PROTO_SRC) \
 	  databasemanager.cc \
 	  inpeer.cc \
 	  outpeer.cc \
+	  randomgenerator.cc \
 	  peermanager.cc \
 	  rascontrol.cc \
 	  rasctrlgrammarconstants.cc \
@@ -62,6 +63,7 @@ SRC = $(PROTO_SRC) \
 	  serverrasnet.cc \
 	  user.cc \
 	  useradminrights.cc \
+	  userauthconverter.cc \
 	  userdatabaserights.cc \
 	  usermanager.cc
 

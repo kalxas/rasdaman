@@ -39,6 +39,7 @@
 #include "exceptions/rasmgrexceptions.hh"
 
 #include "user.hh"
+#include "userauthconverter.hh"
 
 #include "usermanager.hh"
 
@@ -219,87 +220,21 @@ void UserManager::saveUserInformation(bool backup)
 
 void UserManager::loadUserInformation()
 {
-    //True if reading the elements from file was successful.
-    bool success=true;
-
-    //This checks if the path to the RASMGR_AUTH_FILE is longer thant the maximum file path.
-    if ( rasmgrAuthFilePath.length() >= PATH_MAX )
+    if(tryLoadUserAuthFromOldFile(rasmgrAuthFilePath))
     {
-        LERROR<<"Authentication file path longer than maximum allowed by OS:"<<rasmgrAuthFilePath;
-
-        success = false;
+        LDEBUG<<"Loaded user info from old style auth file.";
     }
-
-    if(success)
+    else if(tryLoadUserAuthFromFile(rasmgrAuthFilePath))
     {
-        LDEBUG<<"Opening authentication file:"<<rasmgrAuthFilePath;
-
-        std::ifstream ifs ( rasmgrAuthFilePath );
-
-        if ( !ifs )
-        {
-            //Could not open the file
-            success = false;
-        }
-        else
-        {
-            IstreamInputStream inputStream ( &ifs );
-            CodedInputStream codedInStream ( &inputStream );
-
-            UserMgrProto list;
-            if ( !list.ParseFromCodedStream ( &codedInStream ) )
-            {
-                //Parsing the file failed.
-                LERROR<<"Invalid authentication file";
-                success =false;
-            }
-            else
-            {
-                for ( int i=0; i<list.users_size(); i++ )
-                {
-                    this->defineUser(list.users(i));
-                }
-            }
-        }
-
-        ifs.close();
+        LDEBUG<<"Loaded user info from new style auth file.";
     }
-
-    if ( !success )
+    else
     {
-        LWARNING<<"Could not open authentication file. Creating default users.";
-        UserDatabaseRightsProto* fullDbRights = new UserDatabaseRightsProto();
-        fullDbRights->set_read(true);
-        fullDbRights->set_write(true);
-
-        UserDatabaseRightsProto* guestDbRights  = new UserDatabaseRightsProto();
-        guestDbRights->set_read(true);
-        guestDbRights->set_write(false);
-
-        UserAdminRightsProto *adminRights = new UserAdminRightsProto();
-        UserAdminRightsProto *guestAdminRights = new UserAdminRightsProto();
-
-        adminRights->set_access_control_rights(true);
-        adminRights->set_info_rights(true);
-        adminRights->set_server_admin_rights(true);
-        adminRights->set_system_config_rights(true);
-
-        UserProto admin;
-        admin.set_name(DEFAULT_ADMIN);
-        admin.set_password(common::Crypto::messageDigest ( DEFAULT_ADMIN_PASSWD, DEFAULT_DIGEST ));
-        admin.set_allocated_admin_rights(adminRights);
-        admin.set_allocated_default_db_rights(fullDbRights);
-
-        UserProto guest;
-        guest.set_name(DEFAULT_USER);
-        guest.set_password(common::Crypto::messageDigest ( DEFAULT_USER, DEFAULT_DIGEST ));
-        guest.set_allocated_admin_rights(guestAdminRights);
-        guest.set_allocated_default_db_rights(guestDbRights);
-
-        this->defineUser(admin);
-        this->defineUser(guest);
+        this->loadDefaultUserAuth();
+        LDEBUG<<"Loaded default user auth.";
     }
 }
+
 
 UserMgrProto UserManager::serializeToProto()
 {
@@ -316,6 +251,104 @@ UserMgrProto UserManager::serializeToProto()
     }
 
     return result;
+}
+
+bool UserManager::tryLoadUserAuthFromOldFile(const std::string &filePath)
+{
+    UserMgrProto oldUserData;
+    if(UserAuthConverter::tryGetOldFormatAuthData(filePath, oldUserData))
+    {
+        for(int i=0; i<oldUserData.users_size(); ++i)
+        {
+            this->defineUser(oldUserData.users(i));
+        }
+
+        LDEBUG<<"Loaded old format auth data.";
+
+        return true;
+    }
+
+    return false;
+}
+
+bool UserManager::tryLoadUserAuthFromFile(const std::string &filePath)
+{
+    bool success = false;
+
+    if ( filePath.length() >= PATH_MAX )
+    {
+        LERROR<<"Authentication file path longer than maximum allowed by OS:"<<filePath;
+    }
+    else
+    {
+        LDEBUG<<"Opening authentication file:"<<filePath;
+
+        std::ifstream ifs ( filePath );
+
+        if ( !ifs )
+        {
+            LERROR<<"Could not open :"<<filePath;
+        }
+        else
+        {
+            IstreamInputStream inputStream ( &ifs );
+            CodedInputStream codedInStream ( &inputStream );
+
+            UserMgrProto list;
+            if ( !list.ParseFromCodedStream ( &codedInStream ) )
+            {
+                //Parsing the file failed.
+                LERROR<<"Invalid authentication file";
+            }
+            else
+            {
+                for ( int i=0; i<list.users_size(); i++ )
+                {
+                    this->defineUser(list.users(i));
+                }
+
+                success=true;
+            }
+        }
+
+        ifs.close();
+    }
+
+    return success;
+}
+
+void UserManager::loadDefaultUserAuth()
+{
+    UserDatabaseRightsProto* fullDbRights = new UserDatabaseRightsProto();
+    fullDbRights->set_read(true);
+    fullDbRights->set_write(true);
+
+    UserDatabaseRightsProto* guestDbRights  = new UserDatabaseRightsProto();
+    guestDbRights->set_read(true);
+    guestDbRights->set_write(false);
+
+    UserAdminRightsProto *adminRights = new UserAdminRightsProto();
+    UserAdminRightsProto *guestAdminRights = new UserAdminRightsProto();
+
+    adminRights->set_access_control_rights(true);
+    adminRights->set_info_rights(true);
+    adminRights->set_server_admin_rights(true);
+    adminRights->set_system_config_rights(true);
+
+    UserProto admin;
+    admin.set_name(DEFAULT_ADMIN);
+    admin.set_password(common::Crypto::messageDigest ( DEFAULT_ADMIN_PASSWD, DEFAULT_DIGEST ));
+    admin.set_allocated_admin_rights(adminRights);
+    admin.set_allocated_default_db_rights(fullDbRights);
+
+    UserProto guest;
+    guest.set_name(DEFAULT_USER);
+    guest.set_password(common::Crypto::messageDigest ( DEFAULT_USER, DEFAULT_DIGEST ));
+    guest.set_allocated_admin_rights(guestAdminRights);
+    guest.set_allocated_default_db_rights(guestDbRights);
+
+    this->defineUser(admin);
+    this->defineUser(guest);
 }
 
 } /* namespace rasmgr */

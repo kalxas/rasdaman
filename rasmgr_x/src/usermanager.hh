@@ -101,6 +101,11 @@ private:
     const std::string rasmgrAuthFilePath;
     std::list<boost::shared_ptr<User> > userList;
     boost::mutex mut;
+
+    bool tryLoadUserAuthFromOldFile(const std::string& filePath);
+    bool tryLoadUserAuthFromFile(const std::string& filePath);
+
+    void loadDefaultUserAuth();
 };
 
 } /* namespace rasmgr */

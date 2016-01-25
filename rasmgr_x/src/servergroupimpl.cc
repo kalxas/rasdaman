@@ -384,8 +384,8 @@ void ServerGroupImpl::evaluateGroup()
             }
         }
 
-        LDEBUG<<"There are "<< availableServerNo<<" available servers.";
-        LDEBUG<<"There are "<< idleServerNo<< " free servers.";
+        LTRACE<<"There are "<< availableServerNo<<" available servers.";
+        LTRACE<<"There are "<< idleServerNo<< " free servers.";
 
         if(availableServerNo < this->config.min_available_server_no())
         {
@@ -393,12 +393,12 @@ void ServerGroupImpl::evaluateGroup()
             uint32_t notStartedServerNo = uint32_t(this->config.ports_size())
                                           - (this->startingServers.size() + this->runningServers.size() + this->restartingServers.size());
 
-            LDEBUG<<"Server group("<<this->getGroupName()<<") has "<<notStartedServerNo<<"servers that have not been started";
-            LDEBUG<<"Server group("<<this->getGroupName()<<") wants to start at most"<<maxNoServersToStart;
+            LTRACE<<"Server group("<<this->getGroupName()<<") has "<<notStartedServerNo<<"servers that have not been started";
+            LTRACE<<"Server group("<<this->getGroupName()<<") wants to start at most"<<maxNoServersToStart;
 
             uint32_t serversToStartNo = std::min(maxNoServersToStart,notStartedServerNo);
 
-            LDEBUG<<"Server group("<<this->getGroupName()<<") will start "<<serversToStartNo<<" servers";
+            LTRACE<<"Server group("<<this->getGroupName()<<") will start "<<serversToStartNo<<" servers";
 
 
             for(uint32_t i=0; i<serversToStartNo; i++)
@@ -413,12 +413,12 @@ void ServerGroupImpl::evaluateGroup()
             //Stopping this many servers will keep the minimum number of available servers
             uint32_t availableServersToStop=  availableServerNo - this->config.min_available_server_no();
 
-            LDEBUG<<"Server group("<<this->getGroupName()<<") has "<<maxServersToStop<<" servers more than the maximum number of allowed idle servers";
-            LDEBUG<<"Server group("<<this->getGroupName()<<") can stop"<<availableServersToStop <<" servers while maintaining the minimum number of available servers.";
+            LTRACE<<"Server group("<<this->getGroupName()<<") has "<<maxServersToStop<<" servers more than the maximum number of allowed idle servers";
+            LTRACE<<"Server group("<<this->getGroupName()<<") can stop"<<availableServersToStop <<" servers while maintaining the minimum number of available servers.";
 
             uint32_t serversToStop = std::min(availableServersToStop, maxServersToStop);
 
-            LDEBUG<<"Server group("<<this->getGroupName()<<") will stop"<<serversToStop <<" free servers";
+            LTRACE<<"Server group("<<this->getGroupName()<<") will stop"<<serversToStop <<" free servers";
 
             list<shared_ptr<Server> >::iterator it;
             for(it=this->runningServers.begin(); serversToStop>0 && it!=this->runningServers.end(); ++it)
@@ -435,7 +435,7 @@ void ServerGroupImpl::evaluateGroup()
 
 void ServerGroupImpl::evaluateRestartingServers()
 {
-    LDEBUG<<"Started evaluating which servers have to be restarted in group :"<<this->getGroupName();
+    LTRACE<<"Started evaluating which servers have to be restarted in group :"<<this->getGroupName();
 
     if(this->config.countdown()>0)
     {
@@ -503,12 +503,12 @@ void ServerGroupImpl::evaluateRestartingServers()
         LDEBUG<<"The countdown is set to 0. Servers will never be restarted.";
     }
 
-    LDEBUG<<"Finished evaluating which servers have to be restarted in group :"<<this->getGroupName();
+    LTRACE<<"Finished evaluating which servers have to be restarted in group :"<<this->getGroupName();
 }
 
 void ServerGroupImpl::removeDeadServers()
 {
-    LDEBUG<<"Started removing dead servers in group("<<this->getGroupName()<<");";
+    LTRACE<<"Started removing dead servers in group("<<this->getGroupName()<<");";
 
     map<string, pair<shared_ptr<Server>,Timer> >::iterator startingIt;
     map<string, pair<shared_ptr<Server>,Timer> >::iterator startingToEraseIt;
@@ -532,7 +532,7 @@ void ServerGroupImpl::removeDeadServers()
             {
                 if(!(*runningToErase)->isAlive())
                 {
-                    LDEBUG<<"Removed dead server with id:"<<(*runningToErase)->getServerId();
+                    LTRACE<<"Removed dead server with id:"<<(*runningToErase)->getServerId();
                     (*runningToErase)->stop(KILL);
                     this->availablePorts.insert((*runningToErase)->getPort());
                     this->runningServers.erase(runningToErase);
@@ -540,7 +540,7 @@ void ServerGroupImpl::removeDeadServers()
             }
             catch(...)
             {
-                LDEBUG<<"Server with id: "<<(*runningToErase)->getServerId()<<" is not responding to pings.";
+                LTRACE<<"Server with id: "<<(*runningToErase)->getServerId()<<" is not responding to pings.";
             }
         }
 
@@ -554,7 +554,7 @@ void ServerGroupImpl::removeDeadServers()
             {
                 if(startingToEraseIt->second.second.hasExpired())
                 {
-                    LDEBUG<<"Removed server that failed to start with id:"<< startingToEraseIt->second.first->getServerId();
+                    LTRACE<<"Removed server that failed to start with id:"<< startingToEraseIt->second.first->getServerId();
 
                     startingToEraseIt->second.first->stop(KILL);
                     this->availablePorts.insert(startingToEraseIt->second.first->getPort());
@@ -563,7 +563,7 @@ void ServerGroupImpl::removeDeadServers()
             }
             catch(...)
             {
-                LDEBUG<<"Server with id: "<<(*runningToErase)->getServerId()<<" is not responding to pings.";
+                LTRACE<<"Server with id: "<<(*runningToErase)->getServerId()<<" is not responding to pings.";
             }
         }
     }
@@ -576,7 +576,7 @@ void ServerGroupImpl::removeDeadServers()
         LERROR<<"Removing dead servers has failed for an unknown reason";
     }
 
-    LDEBUG<<"Finished removing dead servers in group("<<this->getGroupName()<<");";
+    LTRACE<<"Finished removing dead servers in group("<<this->getGroupName()<<");";
 }
 
 void ServerGroupImpl::startServer()
