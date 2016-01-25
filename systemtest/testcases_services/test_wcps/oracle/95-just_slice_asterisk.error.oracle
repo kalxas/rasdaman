@@ -1,4 +1,12 @@
-<html><head><title>Web Coverage Processing Service</title></head><body>
-<h1>An error has occured</h1>
-<p>WCPS Error: Cannot use asterisk in slicing expression.</p>
-</body></html>
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<ows:ExceptionReport version="2.0.0"
+    xsd:schemaLocation="http://www.opengis.net/ows/2.0 http://schemas.opengis.net/ows/2.0/owsExceptionReport.xsd"
+      >
+    <ows:Exception exceptionCode="InvalidSubsetting">
+        <ows:ExceptionText>Cannot use asterisk in slicing expression.</ows:ExceptionText>
+    </ows:Exception>
+    <ows:Exception exceptionCode="InvalidSubsetting">
+        <ows:ExceptionText>Cannot use asterisk in slicing expression.</ows:ExceptionText>
+    </ows:Exception>
+
+</ows:ExceptionReport>

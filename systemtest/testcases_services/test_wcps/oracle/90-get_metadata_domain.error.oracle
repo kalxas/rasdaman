@@ -1,4 +1,15 @@
-<html><head><title>Web Coverage Processing Service</title></head><body>
-<h1>An error has occured</h1>
-<p>Error: Cannot return domain metadata of this coverage for non-native CRS http://www.opengis.net/def/crs/EPSG/0/32633</p>
-</body></html>
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<ows:ExceptionReport version="2.0.0"
+    xsd:schemaLocation="http://www.opengis.net/ows/2.0 http://schemas.opengis.net/ows/2.0/owsExceptionReport.xsd"
+      >
+    <ows:Exception exceptionCode="UnsupportedCombination">
+        <ows:ExceptionText>Cannot return domain metadata of this coverage for non-native CRS /crs/EPSG/0/32633</ows:ExceptionText>
+    </ows:Exception>
+    <ows:Exception exceptionCode="UnsupportedCombination">
+        <ows:ExceptionText>Cannot return domain metadata of this coverage for non-native CRS /crs/EPSG/0/32633</ows:ExceptionText>
+    </ows:Exception>
+    <ows:Exception exceptionCode="UnsupportedCombination">
+        <ows:ExceptionText>Cannot return domain metadata of this coverage for non-native CRS /crs/EPSG/0/32633</ows:ExceptionText>
+    </ows:Exception>
+
+</ows:ExceptionReport>

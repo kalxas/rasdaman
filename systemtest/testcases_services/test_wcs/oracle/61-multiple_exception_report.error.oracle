@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<ows:ExceptionReport version="2.0.0"
+    xsd:schemaLocation="http://www.opengis.net/ows/2.0 http://schemas.opengis.net/ows/2.0/owsExceptionReport.xsd"
+      >
+    <ows:Exception exceptionCode="RasdamanRequestFailed">
+        <ows:ExceptionText>Error executing rasql query: Error evaluating rasdaman query: 'select csv((c) [2:10,(110.0)/(2)]) from rgb AS c where oid(c)=0</ows:ExceptionText>
+    </ows:Exception>
+    <ows:Exception exceptionCode="RasdamanRequestFailed">
+        <ows:ExceptionText>Error evaluating rasdaman query: 'select csv((c) [2:10,(110.0)/(2)]) from rgb AS c where oid(c)=0</ows:ExceptionText>
+    </ows:Exception>
+    <ows:Exception exceptionCode="RuntimeError">
+        <ows:ExceptionText>org.odmg.QueryException : Execution error 390 in line 1, column 16, near token [: Minterval dimension specifications must be either of type interval or integer.</ows:ExceptionText>
+    </ows:Exception>
+
+</ows:ExceptionReport>

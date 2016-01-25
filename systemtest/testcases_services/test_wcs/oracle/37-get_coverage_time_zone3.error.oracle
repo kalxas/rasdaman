@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<ows:ExceptionReport version="2.0.0"
+    xsd:schemaLocation="http://www.opengis.net/ows/2.0 http://schemas.opengis.net/ows/2.0/owsExceptionReport.xsd"
+      >
+    <ows:Exception exceptionCode="InvalidSubsetting">
+        <ows:ExceptionText>t axis: subset (-0.08333333333333333:-1.1574074074074074E-8) is out of bounds.</ows:ExceptionText>
+    </ows:Exception>
+
+</ows:ExceptionReport>

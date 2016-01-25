@@ -432,6 +432,17 @@ prepare_xml_file()
 }
 
 
+# -----------------------------------------------------------------------------
+
+# when wget returns empty file, using curl to get the error in page content.
+# $1 is request error link, $2 is output file.
+wget_error(){
+  # get script name
+  PROG=$( basename $0 )
+  curl -s -R $1 > $2
+}
+
+
 # ------------------------------------------------------------------------------
 #
 # run a test suite, expected global vars:
@@ -510,10 +521,22 @@ run_test()
               # send to petascope
               $WGET -q --post-data "query=$QUERY" $WCPS_URL -O "$out"
               WGET_EXIT_CODE=$?
+              if [[ $WGET_EXIT_CODE != 0 ]]; then
+                  echo "Error when processing WCPS request in KVP, query return error: "$WGET_EXIT_CODE
+                  wget_error "$WCPS_EMBEDDED_URL""$QUERY" "$out"
+                  echo ".Done"
+              fi
               ;;
       wcs)    case "$test_type" in
                 kvp) $WGET -q "$WCS_URL?$QUERY" -O "$out"
                      WGET_EXIT_CODE=$?
+		                 # wget cannot get the error page, then need curl to download error and save to output file.
+		                 # Note: not get error page from request in XML as it only returns general message.
+                     if [[ $WGET_EXIT_CODE != 0 ]]; then
+                        echo "Error when processing WCS request in KVP, query return error: "$WGET_EXIT_CODE
+                        wget_error "$WCS_URL?$QUERY" "$out"
+                        echo ".Done"
+                     fi
                      ;;
                 xml) postdata=`mktemp`
                      cat "$f" > "$postdata"
@@ -530,6 +553,11 @@ run_test()
       secore) QUERY=`echo "$QUERY" | sed 's|%SECORE_URL%|'$SECORE_URL'|g' | tr -d '\t' | tr -d ' '`
               $WGET -q "$SECORE_URL$QUERY" -O "$out"
               WGET_EXIT_CODE=$?
+              if [[ $WGET_EXIT_CODE != 0 ]]; then
+                 echo "Error when processing CRS request in SECORE, query return error: "$WGET_EXIT_CODE
+                 wget_error "$SECORE_URL$QUERY" "$out"
+                 echo ".Done"
+              fi
               ;;
       select|rasql|nullvalues|jit)
               QUERY=`cat $f`
@@ -597,14 +625,19 @@ run_test()
         cmp "$output_tmp" "$oracle_tmp" 2>&1
         update_result
 
-      elif [[ "$oracle" == *.error.* ]]; then
+      # Note: when request in XML, the error is throw in general as
+      # e.g >Couldn't understand the recieved request, is the service attribute missing?
+      # then with submit in XML, only check HTTP error code
+      elif [[ "$out" == *.error.xml* ]]; then
 
         # This test is supposed to raise an exception: check wget exit code instead of the response.
         log "http exit code comparison"
         test "$WGET_CODE_SERVER_ERROR" = "$WGET_EXIT_CODE"
         update_result
 
-      elif [ -f "$oracle" ]; then
+      # Note: when request in KVP, the error is throw in specific message
+      # then with submit in KVP, compare the erro page
+      elif [ -f "$oracle"  ] || [ "$oracle" == *.error.* ]; then
 
         filetype=`file "$oracle" | awk -F ':' '{print $2;}'`
         echo "$filetype" | egrep -i "(xml|ascii|text)" > /dev/null

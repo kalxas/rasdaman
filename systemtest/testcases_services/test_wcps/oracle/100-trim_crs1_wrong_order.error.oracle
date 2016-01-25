@@ -1,5 +1,15 @@
-<html><head><title>Web Coverage Processing Service</title></head><body>
-<h1>An error has occured</h1>
-<p>WCPS Error: Could not evaluate rasdaman query: 'select csv(c[*:*,226:138,*:*]) from eobstest AS c where oid(c)=237569'
- Cause: Error evaluating rasdaman query: 'select csv(c[*:*,226:138,*:*]) from eobstest AS c where oid(c)=237569</p>
-</body></html>
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<ows:ExceptionReport version="2.0.0"
+    xsd:schemaLocation="http://www.opengis.net/ows/2.0 http://schemas.opengis.net/ows/2.0/owsExceptionReport.xsd"
+      >
+    <ows:Exception exceptionCode="SemanticError">
+        <ows:ExceptionText>Error evaluating rasdaman query: 'select csv(c[*:*,226:138,*:*]) from eobstest AS c where oid(c)=0</ows:ExceptionText>
+    </ows:Exception>
+    <ows:Exception exceptionCode="RasdamanRequestFailed">
+        <ows:ExceptionText>Error evaluating rasdaman query: 'select csv(c[*:*,226:138,*:*]) from eobstest AS c where oid(c)=0</ows:ExceptionText>
+    </ows:Exception>
+    <ows:Exception exceptionCode="RuntimeError">
+        <ows:ExceptionText>org.odmg.QueryException : Execution error 389 in line 1, column 21, near token :: No interval (in case of fixed bounds, the upper one can not be smaller than the lower one).</ows:ExceptionText>
+    </ows:Exception>
+
+</ows:ExceptionReport>
