@@ -254,7 +254,7 @@ public interface WcpsConstants {
     public static final String MSG_XMLNS                        = "xmlns=\"http://www.opengis.net/wcps/1.0\" service=\"WCPS\" version=\"1.0.0\"";
     public static final String MSG_XML_SYNTAX                   = "xmlSyntax";
     public static final String MSG_Y                            = "Y";
-
+    
     /**
      * DBParam messages
      */

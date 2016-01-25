@@ -172,8 +172,18 @@ public class TrimCoverageExpr extends AbstractRasNode implements ICoverageInfo {
         }
         String[] a = res.fst;
         String[] b = new String[dims];
-        for (int i = 0; i < dims; i++) {
-            b[i] = WcsUtil.min(a[i], dimNames[i]);
+        for (int i = 0; i < dims; i++) {            
+            try
+            {
+                b[i] = WcsUtil.min(a[i], dimNames[i]);
+            }
+            catch(NumberFormatException e)
+            {
+                // Due to dimNames[i] = "i_i[]:i_i[]" then it will throw error when try to find min values
+                // between a[i] and dimNames[i] (which is converted to Int) (e.g *:* and i_i[0]:i_i[0] (* means MAX value of integer))
+                // then set b[i] to dimNames[i] when it this case.
+                b[i] = dimNames[i];
+            }            
         }
 
         return Pair.of(b, res.snd);
