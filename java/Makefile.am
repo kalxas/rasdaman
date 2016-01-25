@@ -137,5 +137,5 @@ if RMANRASNET
 endif
 
 install-data-hook:
-	mkdir -p @libdir@
-	cp dist/rasj.jar @libdir@
+	mkdir -p $(DESTDIR)@libdir@
+	cp dist/rasj.jar $(DESTDIR)@libdir@

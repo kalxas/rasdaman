@@ -20,8 +20,9 @@ BuildRoot:      %{_tmppath}/%{name}-%{version}
 BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 %endif
 
-BuildRequires: gcc gcc-c++ make autoconf automake unzip curl git
+BuildRequires: gcc gcc-c++ make autoconf automake unzip curl git unzip
 BuildRequires: bison
+BuildRequires: libstdc++-static
 BuildRequires: libtiff-devel
 BuildRequires: hdf-devel
 BuildRequires: libjpeg-devel
@@ -276,8 +277,7 @@ fi
 %{_bindir}/update_db.sh
 %{_bindir}/wcst_import.sh
 %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/rasdaman/rasmgr.conf
-%config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/rasdaman/log-server.conf
-%config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/rasdaman/log-client.conf
+%config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/rasdaman/log-*.conf
 %{_localstatedir}/log/rasdaman/empty
 %{_datadir}/rasdaman/errtxts*
 %{_datadir}/rasdaman/db_updates

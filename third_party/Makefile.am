@@ -103,30 +103,30 @@ clean-protobuf:
 if RMANRASNET
 
 install-data-hook:
-	$(MKDIR_P) $(includedir) && \
-	cp -R ${GTEST_DIR}/include/gtest $(includedir) && \
-	cp -R ${GMOCK_DIR}/include/gmock $(includedir) && \
-	cp easyloggingpp/easylogging++.h $(includedir) && \
-	cp -R ${GRPC_BIN}/include/grpc $(includedir) && \
-	cp -R ${GRPC_BIN}/include/grpc++ $(includedir) && \
-	cp -R ${PROTOBUF_BIN}/include/google $(includedir)
+	$(MKDIR_P) $(DESTDIR)$(includedir) && \
+	cp -R ${GTEST_DIR}/include/gtest $(DESTDIR)$(includedir) && \
+	cp -R ${GMOCK_DIR}/include/gmock $(DESTDIR)$(includedir) && \
+	cp easyloggingpp/easylogging++.h $(DESTDIR)$(includedir) && \
+	cp -R ${GRPC_BIN}/include/grpc $(DESTDIR)$(includedir) && \
+	cp -R ${GRPC_BIN}/include/grpc++ $(DESTDIR)$(includedir) && \
+	cp -R ${PROTOBUF_BIN}/include/google $(DESTDIR)$(includedir)
 
 install-exec-hook:
-	$(MKDIR_P) $(libdir) && \
-	cp ${GMOCK_LIB} $(libdir) && \
-	cp ${GRPC_BIN}/lib/*.a $(libdir) && \
-	cp ${PROTOBUF_BIN}/lib/*.a $(libdir)
+	$(MKDIR_P) $(DESTDIR)$(libdir) && \
+	cp ${GMOCK_LIB} $(DESTDIR)$(libdir) && \
+	cp ${GRPC_BIN}/lib/*.a $(DESTDIR)$(libdir) && \
+	cp ${PROTOBUF_BIN}/lib/*.a $(DESTDIR)$(libdir)
 
 else
 
 install-data-hook:
-	$(MKDIR_P) $(includedir) && \
-	cp -R ${GTEST_DIR}/include/gtest $(includedir) && \
-	cp -R ${GMOCK_DIR}/include/gmock $(includedir) && \
-	cp easyloggingpp/easylogging++.h $(includedir)
+	$(MKDIR_P) $(DESTDIR)$(includedir) && \
+	cp -R ${GTEST_DIR}/include/gtest $(DESTDIR)$(includedir) && \
+	cp -R ${GMOCK_DIR}/include/gmock $(DESTDIR)$(includedir) && \
+	cp easyloggingpp/easylogging++.h $(DESTDIR)$(includedir)
 
 install-exec-hook:
-	$(MKDIR_P) $(libdir) && \
-	cp ${GMOCK_LIB} $(libdir)
+	$(MKDIR_P) $(DESTDIR)$(libdir) && \
+	cp ${GMOCK_LIB} $(DESTDIR)$(libdir)
 
 endif

@@ -20,8 +20,9 @@ BuildRoot:      %{_tmppath}/%{name}-%{version}
 BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 %endif
 
-BuildRequires: gcc gcc-c++ make autoconf automake unzip curl git
+BuildRequires: gcc gcc-c++ make autoconf automake unzip curl git unzip
 BuildRequires: bison
+BuildRequires: libstdc++-static
 BuildRequires: libtiff-devel
 BuildRequires: hdf-devel
 BuildRequires: libjpeg-devel
@@ -185,7 +186,6 @@ CC="gcc -L%{_libdir}/hdf -I/usr/include/netpbm -fpermissive " CXX="g++ -L%{_libd
 		--with-pic \
 		--with-docs \
 		--with-default-basedb=sqlite \
-		--with-debug-symbols \
 		--with-filedatadir=%{rasdir}/data \
 		--with-wardir=%{_sharedstatedir}/%{tomcat}/webapps
 
