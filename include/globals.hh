@@ -96,5 +96,10 @@ rasdaman GmbH.
 ///  The number of milliseconds a server has to reply to a service request.
 #define SERVICE_CALL_TIMEOUT 5000
 
+/// For servers, this means "all IP addresses on the local machine".
+/// If a host has two IP addresses, 192.168.1.1 and 10.1.2.1, and a server running on the host listens on [::], it will be reachable at both of those IPs.
+/// This address can be used by servers that want to be reached from outside local machine.
+#define ALL_IP_ADDRESSES "[::]"
+
 #endif // GLOBALS_HH
 

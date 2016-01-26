@@ -120,7 +120,7 @@ void RasManager::start()
     boost::shared_ptr<common::HealthServiceImpl> healthService(new common::HealthServiceImpl());
 
 
-    std::string serverAddress = common::GrpcUtils::constructAddressString(DEFAULT_HOSTNAME,  this->port);
+    std::string serverAddress = common::GrpcUtils::constructAddressString(ALL_IP_ADDRESSES,  this->port);
     //GreeterServiceImpl service;
 
     grpc::ServerBuilder builder;

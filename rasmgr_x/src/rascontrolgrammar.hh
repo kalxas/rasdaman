@@ -337,7 +337,7 @@ struct RasControlGrammar : qi::grammar<Iterator, std::string ( void ), ascii::sp
 
     ////-------BEGIN:inpeer section -----////
     //define <<inpeer hostname>>
-    this->defineInpeerSubRule = this->inpeerLit >> this->strRule
+    this->defineInpeerSubRule = this->inpeerLit >> this->hostNameRule
                                 [qi::_val = boost::phoenix::bind ( &RasControl::defineInpeer, this->rascontrol.get(), qi::_1 )];
 
     //list <<inpeer>>
@@ -345,7 +345,7 @@ struct RasControlGrammar : qi::grammar<Iterator, std::string ( void ), ascii::sp
                               [qi::_val = boost::phoenix::bind ( &RasControl::listInpeer, this->rascontrol.get() )];
 
     //remove <<inpeer hostname>>
-    this->removeInpeerSubRule = this->inpeerLit >> this->strRule
+    this->removeInpeerSubRule = this->inpeerLit >> this->hostNameRule
                                 [qi::_val = boost::phoenix::bind ( &RasControl::removeInpeer, this->rascontrol.get(), qi::_1 )];
 
     //help <<inpeer>>
@@ -356,7 +356,7 @@ struct RasControlGrammar : qi::grammar<Iterator, std::string ( void ), ascii::sp
 
     ////-------BEGIN:outpeer section -----////
     //define <<outpeer hostname [-port portnumber]>>
-    this->defineOutpeerSubRule = ( this->outpeerLit[boost::bind ( &DefineOutpeer::Clear, &this->defOutpeer )] >> this->strRule[boost::phoenix::bind ( static_cast< void ( DefineOutpeer::* ) ( const ::std::string & ) > ( &DefineOutpeer::set_host_name ), &defOutpeer, qi::_1 )]
+    this->defineOutpeerSubRule = ( this->outpeerLit[boost::bind ( &DefineOutpeer::Clear, &this->defOutpeer )] >> this->hostNameRule[boost::phoenix::bind ( static_cast< void ( DefineOutpeer::* ) ( const ::std::string & ) > ( &DefineOutpeer::set_host_name ), &defOutpeer, qi::_1 )]
                                    >> - ( this->_portLit >> qi::int_[boost::phoenix::bind ( &DefineOutpeer::set_port, &defOutpeer, qi::_1 )] ) )
                                  [qi::_val = boost::phoenix::bind ( &RasControl::defineOutpeer, this->rascontrol.get(), boost::phoenix::ref ( defOutpeer ) )];
     //list <<outpeer>>
@@ -364,7 +364,7 @@ struct RasControlGrammar : qi::grammar<Iterator, std::string ( void ), ascii::sp
                                [qi::_val = boost::phoenix::bind ( &RasControl::listOutpeer, this->rascontrol.get() )];
 
     //remove <<outpeer hostname>>
-    this->removeOutpeerSubRule = this->outpeerLit >> this->strRule
+    this->removeOutpeerSubRule = this->outpeerLit >> this->hostNameRule
                                  [qi::_val = boost::phoenix::bind ( &RasControl::removeOutpeer, this->rascontrol.get(), qi::_1 )];
 
     //help <<outpeer>>

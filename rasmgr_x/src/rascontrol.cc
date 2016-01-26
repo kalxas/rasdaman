@@ -668,11 +668,13 @@ std::string RasControl::defineOutpeer ( const DefineOutpeer& outpeerData )
 
     try
     {
-        this->peerManager_->defineOutPeer(outpeerData.host_name(), outpeerData.port());
+        boost::uint32_t peerPort = outpeerData.port()==0 ? DEFAULT_PORT : outpeerData.port();
+
+        this->peerManager_->defineOutPeer(outpeerData.host_name(), peerPort);
 
         this->rasmanager_->setIsConfigurationDirty(true);
 
-        message = "Defining outpeer rasmgr "+outpeerData.host_name()+" port="+std::to_string(outpeerData.port());
+        message = "Defining outpeer rasmgr "+outpeerData.host_name()+" port="+std::to_string(peerPort);
     }
     catch ( std::exception& ex )
     {
