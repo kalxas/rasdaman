@@ -97,6 +97,7 @@ export RASMGR_CONF="$RMANHOME/etc/rasmgr.conf"
 # ------------------------------------------------------------------------------
 # logging
 #
+
 LOG="$SCRIPT_DIR/log"
 OLDLOG="$LOG.save"
 FAILED="$SCRIPT_DIR/failed_cases"
@@ -146,8 +147,9 @@ error()
 # ------------------------------------------------------------------------------
 # setup log
 #
-if [ -n "$SCRIPT_DIR" ]; then
-  if [ -f $LOG ]; then
+
+if [ -n "$SCRIPT_DIR" ] ; then
+  if [ -f $LOG ] ; then
     echo Old logfile found, copying it to $OLDLOG
     rm -f $OLDLOG
     mv $LOG $OLDLOG
@@ -417,7 +419,7 @@ run_rasql_test()
 prepare_xml_file()
 {
   xml_file="${1}"
-  logn "Preparing XML file $xml_file for oracle comparison... "
+  echo "Preparing XML file $xml_file for oracle comparison... "
   if [ -n "${1}" ]; then
       sed -i 's/gml://g' "$xml_file"
       sed -i $'s/\r//g' "$xml_file"
@@ -428,7 +430,7 @@ prepare_xml_file()
       sed -i 's#http:\/\/\(\w\|[.-]\)\+\(:[0-9]\+\)\?\/def##g' "$xml_file" # not only test.cfg SECORE_URL, but also what's in ps_crs!
       sed -i 's|at=[^ ]*||g' "$xml_file"                                   # e.g. See ``/crs/OGC/0'' Vs ``/crs?authority=OGC&version=0''.
   fi
-  loge "ok."
+  echo "ok."
 }
 
 
