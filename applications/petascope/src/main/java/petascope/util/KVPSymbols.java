@@ -45,6 +45,11 @@ public interface KVPSymbols {
     String KEY_SUBSET              = "subset";
     String KEY_VERSION             = "version";
     String VERSIONS_SEP            = ",";
+    // This supports *Coverage Summary* GetCapabilities&sections=CoverageSummary|Contents|All to return standard GetCapabilities (#153)
+    String KEY_SECTIONS                                       = "sections";
+    String VALUE_SECTIONS_COVERAGESUMMARY_COVEARGE_SUMMARY    = "CoverageSummary";
+    String VALUE_SECTIONS_COVERAGESUMMARY_CONTENTS            = "Contents";
+    String VALUE_SECTIONS_COVERAGESUMMARY_ALL                 = "All";
 
     // rasql KVP
     String KEY_PASSWORD = "password";

@@ -21,6 +21,7 @@
  */
 package petascope.wcs2.parsers;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -29,6 +30,7 @@ import org.slf4j.LoggerFactory;
 import petascope.HTTPRequest;
 import petascope.exceptions.ExceptionCode;
 import petascope.exceptions.WCSException;
+import petascope.util.KVPSymbols;
 import static petascope.util.KVPSymbols.*;
 import petascope.util.ListUtil;
 import petascope.wcs2.handlers.RequestHandler;
@@ -98,8 +100,24 @@ public abstract class KVPParser<T extends Request> extends AbstractRequestParser
 
         checkValue(m, KEY_REQUEST, getOperationName());
         checkValue(m, KEY_SERVICE, BaseRequest.SERVICE);
+
+        // only section value which is set to 'CoverageSummary|Contents|All' is valid
+        if(m.containsKey("sections"))
+        {
+            String[] validCases = { KVPSymbols.VALUE_SECTIONS_COVERAGESUMMARY_COVEARGE_SUMMARY
+                                   ,KVPSymbols.VALUE_SECTIONS_COVERAGESUMMARY_CONTENTS
+                                   ,KVPSymbols.VALUE_SECTIONS_COVERAGESUMMARY_ALL};
+            checkValue(m, KEY_SECTIONS, validCases);
+        }
     }
 
+     /**
+     * This function will check value for argument in list of valid cases
+     * @param m: List arguments
+     * @param k: Argument's key which is needed to check
+     * @param vals: Argument's list of valid cases
+     * @throws WCSException
+     */
     private void checkValue(Map<String, List<String>> m, String k, String... vals) throws WCSException {
         String v = get(k, m);
         if (v == null || (!ListUtil.toList(vals).contains(v))) {

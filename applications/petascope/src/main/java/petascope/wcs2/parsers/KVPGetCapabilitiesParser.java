@@ -44,7 +44,8 @@ public class KVPGetCapabilitiesParser extends KVPParser<GetCapabilitiesRequest> 
                 KEY_ACCEPTVERSIONS,
                 KEY_ACCEPTFORMATS,
                 KEY_ACCEPTLANGUAGES,
-                KEY_VERSION);
+                KEY_VERSION,
+                KEY_SECTIONS);
         return new GetCapabilitiesRequest(
                 get(KEY_ACCEPTVERSIONS, p),
                 get(KEY_ACCEPTFORMATS, p),
