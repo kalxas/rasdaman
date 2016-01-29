@@ -42,7 +42,7 @@ OutPeer::OutPeer(const std::string &hostName, const uint32_t port)
 {
     // Initialize the service used for communicating with the remote rasmgr
     std::string serverAddress = GrpcUtils::constructAddressString(this->hostName, boost::uint32_t(this->port));
-    auto channel = grpc::CreateChannel(serverAddress, grpc::InsecureChannelCredentials());
+    auto channel = grpc::CreateChannel(serverAddress, grpc::InsecureCredentials());
 
     LDEBUG<<"Created channel to outpeer:"<<serverAddress;
 

@@ -58,7 +58,7 @@ ControlRasMgrRasnet::ControlRasMgrRasnet(const UserCredentials& userCredentials,
     try
     {
         string serverAddress = common::GrpcUtils::constructAddressString(config.getRasMgrHost(), config.getRasMgrPort());
-        std::shared_ptr<Channel> channel( grpc::CreateChannel(serverAddress, grpc::InsecureChannelCredentials()));
+        std::shared_ptr<Channel> channel( grpc::CreateChannel(serverAddress, grpc::InsecureCredentials()));
 
         this->rasmgrService.reset(new RasMgrRasCtrlService::Stub(channel));
         this->healthService.reset(new common::HealthService::Stub(channel));

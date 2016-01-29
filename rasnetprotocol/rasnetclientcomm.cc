@@ -789,7 +789,7 @@ void RasnetClientComm::initRasserverService()
         try
         {
             std::string rasServerAddress = GrpcUtils::constructAddressString(rasServerHost, rasServerPort);
-            std::shared_ptr<grpc::Channel> channel( grpc::CreateChannel(rasServerAddress, grpc::InsecureChannelCredentials()));
+            std::shared_ptr<grpc::Channel> channel( grpc::CreateChannel(rasServerAddress, grpc::InsecureCredentials()));
 
             this->rasserverService.reset(new ::rasnet::service::ClientRassrvrService::Stub(channel));
             this->rasserverHealthService.reset(new common::HealthService::Stub(channel));
@@ -849,7 +849,7 @@ void RasnetClientComm::initRasmgrService()
     {
         try
         {
-            std::shared_ptr<Channel> channel( grpc::CreateChannel(rasmgrHost, grpc::InsecureChannelCredentials()));
+            std::shared_ptr<Channel> channel( grpc::CreateChannel(rasmgrHost, grpc::InsecureCredentials()));
             this->rasmgrService.reset(new ::rasnet::service::RasMgrClientService::Stub(channel));
             this->rasmgrHealthService.reset(new common::HealthService::Stub(channel));
 

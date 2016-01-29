@@ -72,12 +72,14 @@ $(PROTOBUF_BIN):
 # Compile and install GRPC to a temporary folder.
 $(GRPC_BIN):
 	cd grpc && \
+	git checkout release-0_11_1 && \
 	make && \
 	$(MKDIR_P) $(GRPC_BIN) && \
 	make install prefix=${GRPC_BIN}
 
 $(GRPC_JAVA_BIN):
 if ENABLE_JAVA
+	cd grpc-java && git checkout v0.9.1
 	export CPLUS_INCLUDE_PATH=${GRPC_BIN}/include:${PROTOBUF_BIN}/include && \
 	export LIBRARY_PATH=${GRPC_BIN}/lib:${PROTOBUF_BIN}/lib && \
 	cd grpc-java/compiler && \

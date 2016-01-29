@@ -102,7 +102,7 @@ ServerRasNet::ServerRasNet(const ServerConfig &config)
 
     // Initialize the service
     std::string serverAddress = GrpcUtils::constructAddressString(this->hostName, boost::uint32_t(this->port));
-    this->service.reset(new ::rasnet::service::RasServerService::Stub(grpc::CreateChannel(serverAddress, grpc::InsecureChannelCredentials())));
+    this->service.reset(new ::rasnet::service::RasServerService::Stub(grpc::CreateChannel(serverAddress, grpc::InsecureCredentials())));
 }
 
 ServerRasNet::~ServerRasNet()

@@ -94,7 +94,7 @@ void RasnetServer::startRasnetServer()
 void RasnetServer::registerServerWithRasmgr()
 {
     std::string rasmgrAddress = GrpcUtils::constructAddressString(configuration.getRasmgrHost(), boost::uint32_t( configuration.getRasmgrPort()));;
-    std::shared_ptr<grpc::Channel> channel( grpc::CreateChannel(rasmgrAddress, grpc::InsecureChannelCredentials()));
+    std::shared_ptr<grpc::Channel> channel( grpc::CreateChannel(rasmgrAddress, grpc::InsecureCredentials()));
 
     ::rasnet::service::RasMgrRasServerService::Stub rasmgrRasserverService(channel);
     boost::shared_ptr<common::HealthService::Stub> healthService(new common::HealthService::Stub(channel));

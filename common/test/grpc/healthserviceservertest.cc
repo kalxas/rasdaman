@@ -48,7 +48,7 @@ protected:
 
         this->server = builder.BuildAndStart();
 
-        std::shared_ptr<grpc::Channel> channel( grpc::CreateChannel(serverAddress, grpc::InsecureChannelCredentials()));
+        std::shared_ptr<grpc::Channel> channel( grpc::CreateChannel(serverAddress, grpc::InsecureCredentials()));
         this->service.reset(new HealthService::Stub(channel));
     }
 
