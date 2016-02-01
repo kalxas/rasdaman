@@ -29,6 +29,8 @@ import org.opengis.referencing.crs.CRSAuthorityFactory;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import org.opengis.referencing.operation.MathTransform;
 import org.opengis.referencing.operation.TransformException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import petascope.wms2.metadata.EXGeographicBoundingBox;
 import petascope.wms2.service.exception.error.WMSInvalidCrsUriException;
 
@@ -40,7 +42,7 @@ import petascope.wms2.service.exception.error.WMSInvalidCrsUriException;
  *
  * @author <a href="mailto:dumitru@rasdaman.com">Alex Dumitru</a>
  */
-public class CrsComputer {
+public class CrsComputer {   
 
     /**
      * Converts a bounding box into an ExGeographinBoundingBox (WGS84 crs).
@@ -54,14 +56,27 @@ public class CrsComputer {
      * @throws TransformException
      * @throws FactoryException
      */
-    public static EXGeographicBoundingBox covertToWgs84(String originalCrs, double minX, double minY, double maxX, double maxY) throws TransformException, FactoryException {
+    public static EXGeographicBoundingBox covertToWgs84(String originalCrs, double minX, double minY, double maxX, double maxY) {
         //check if the crs is not index2d
         if (originalCrs.startsWith("OGC")) {
             //not geo-referenced
             return new EXGeographicBoundingBox("0", "0", "0", "0");
         }
-        double[] minCrsPoint = getDefaultCrsCoord(minX, minY, originalCrs);
-        double[] maxCrsPoint = getDefaultCrsCoord(maxX, maxY, originalCrs);
+
+        double[] minCrsPoint = new double[] {minX, minY};
+        double[] maxCrsPoint = new double[] {maxX, maxY};
+
+        try
+        {
+            minCrsPoint = getDefaultCrsCoord(minX, minY, originalCrs);
+            maxCrsPoint = getDefaultCrsCoord(maxX, maxY, originalCrs);
+        }
+        catch(FactoryException e)  {
+            handleExceptionFromOpenGIS(originalCrs, minX, minY, maxX, maxY);
+        } catch (TransformException e) {
+            handleExceptionFromOpenGIS(originalCrs, minX, minY, maxX, maxY);
+        }
+
         return new EXGeographicBoundingBox(String.valueOf(minCrsPoint[0]), String.valueOf(maxCrsPoint[0]),
             String.valueOf(minCrsPoint[1]), String.valueOf(maxCrsPoint[1]));
     }
@@ -109,6 +124,26 @@ public class CrsComputer {
             return dstProjec;
         }
     }
+
+    /***
+     * Handle exception when try to get the originalCRS from opengis
+     * @param originalCrs Name of CRS want to find
+     * @param minX min X in bounding box
+     * @param minY min Y in bounding box
+     * @param maxX max X in bounding box
+     * @param maxY max Y in bounding box
+     * @return
+     */
+    private static void handleExceptionFromOpenGIS(String originalCrs, double minX, double minY, double maxX, double maxY)
+    {        
+        log.debug("Could not find the given crs: {} in the list of CRS definitions.", originalCrs);
+        log.debug("Returning the original coordinates of the layer's bounding box: [{}, {}, {}, {}]", minX, minY, maxX, maxY);
+    }
+    
+    /**
+     * For logging
+     */
+    private static Logger log = LoggerFactory.getLogger(CrsComputer.class);
 
     /**
      * Needed for the WGS84 coordinates
