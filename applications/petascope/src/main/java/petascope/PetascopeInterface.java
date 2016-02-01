@@ -236,6 +236,10 @@ public class PetascopeInterface extends HttpServlet {
             ConfigManager.PETASCOPE_SERVLET_URL = req.getRequestURL().toString();
         }
     }
+    
+    private void setCORSHeader(HttpServletResponse httpResponse) throws ServletException {
+        httpResponse.setHeader("Access-Control-Allow-Origin", CORS_ACCESS_CONTROL_ALLOW_ORIGIN);
+    }
 
     /**
      * @return a parameter map of the query string in lower case parameters
@@ -260,6 +264,7 @@ public class PetascopeInterface extends HttpServlet {
     @Override
     public void doGet(HttpServletRequest httpRequest, HttpServletResponse httpResponse) throws ServletException {
         setServletURL(httpRequest);
+        setCORSHeader(httpResponse);
 
         // NOTE: admin can change Service Prodiver, Identification then session *reloadPage* will exist and value is true
         HttpSession session = httpRequest.getSession();
@@ -295,8 +300,6 @@ public class PetascopeInterface extends HttpServlet {
                 }
 
                 meta.ensureConnection();
-
-                httpResponse.setHeader("Access-Control-Allow-Origin", CORS_ACCESS_CONTROL_ALLOW_ORIGIN);
 
                 requestBody = IOUtils.toString(httpRequest.getReader());
 
