@@ -274,12 +274,18 @@ class WCSTExecutor(WCSTBaseExecutor):
         :param dict namespaces: of namespaces to be used inside the xml parsing
         :param str service_call: the service call to the WCST
         """
-        if response.find("ows:ExceptionReport") != -1:
+        if response.find("ExceptionReport") != -1:
             xml = XMLProcessor.fromstring(response)
             error_code = ""
             error_text = response
-            for error in xml.findall("ows:Exception", namespaces):
-                error_code = error.attrib["exceptionCode"]
+            # this is WCST error
+            if namespaces is not None:
+                for error in xml.findall("ows:Exception", namespaces):
+                    error_code = error.attrib["exceptionCode"]
+            # check if a WMS error occurred and parse accordingly
+            else:
+                for error in xml:
+                    error_code = error.attrib["code"]
 
             raise WCSTException(error_code, error_text, service_call)
 
@@ -295,8 +301,19 @@ class WCSTExecutor(WCSTBaseExecutor):
         if output:
             log.info(service_call)
         response = url_lib.urlopen(service_call).read()
-        namespaces = {"ows": "http://www.opengis.net/ows/2.0"}
+
+        namespaces = ""
+
+        # check if a WMS error occurred and parse accordingly
+        if response.find("ServiceExceptionReport") != -1:
+            namespaces = None
+        # if WCST error then using ows:ExceptionReport
+        elif response.find("ExceptionReport") != -1:
+            namespaces = {"ows": "http://www.opengis.net/ows/2.0"}
+
+        # Check error from response
         self.__check_request_for_errors(response, namespaces, service_call)
+
         try:
             if str(response) != "" and str(response) != "None":
                 return response
@@ -313,7 +330,7 @@ class WCSTMockExecutor(WCSTBaseExecutor):
         """
         WCSTBaseExecutor.__init__(self, base_url, insitu)
         self.base_url = base_url
-        self.insitu=insitu
+        self.insitu = insitu
 
     def execute(self, request):
         """

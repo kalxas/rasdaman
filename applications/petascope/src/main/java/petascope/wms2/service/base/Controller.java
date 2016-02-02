@@ -30,6 +30,8 @@ import petascope.wms2.service.exception.response.ExceptionResponseFactory;
 import petascope.wms2.servlet.WMSGetRequest;
 
 import java.util.List;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * The controller class manages the workflow from receiving a request to returning a response. Each raw request (a request
@@ -42,7 +44,7 @@ import java.util.List;
  * @author <a href="mailto:dumitru@rasdaman.com">Alex Dumitru</a>
  */
 public abstract class Controller<RST extends Request, PT extends Parser<RST>, HT extends Handler<RST, RPT>, RPT extends Response> {
-
+   
     /**
      * Constructor for the class
      *
@@ -82,12 +84,20 @@ public abstract class Controller<RST extends Request, PT extends Parser<RST>, HT
                 validator.validate(request);
             }
             return getHandler().handle(request);
-        } catch (WMSException exception) {
-            return ExceptionResponseFactory.getExceptionResponse(exception, getExceptionFormat(rawRequest));
+        } catch (WMSException e) {
+            log.error("A WMSException was thrown when processing response WMS.", e);
+            return ExceptionResponseFactory.getExceptionResponse(e, getExceptionFormat(rawRequest));
         } catch (Exception e) {
-            return ExceptionResponseFactory.getExceptionResponse(new WMSInternalException(e), getExceptionFormat(rawRequest));
+            WMSInternalException exception = new WMSInternalException(e);
+            log.error("A general exception was thrown when processing response WMS.", exception);
+            return ExceptionResponseFactory.getExceptionResponse(exception, getExceptionFormat(rawRequest));
         }
     }
+    
+    /**
+     * For logging
+     */
+    private static Logger log = LoggerFactory.getLogger(Controller.class);
 
     /**
      * Returns the parser for this controller

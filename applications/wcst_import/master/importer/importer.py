@@ -226,9 +226,9 @@ class Importer:
             request = WMSTFromWCSInsertRequest(self.coverage.coverage_id, False)
             ConfigManager.executor.execute(request)
         except Exception as e:
-            log.warn(
-                "Exception thrown when importing in WMS. Please try to reimport in WMS manually. Full error: " + str(e))
-            pass
+            log.error(
+                "Exception thrown when importing in WMS. Please try to reimport in WMS manually.")
+            raise e
 
     def _is_insert(self):
         """
