@@ -374,15 +374,27 @@ class CoverageReader():
                 return GDALGmlUtil(file_path).get_band_gdal_type()
         return None
 
+    def description(self):
+        """
+        Gets the description from coverage_id in wcs_url
+        :rtype: String
+        """
+        xmlstr = urllib.urlopen(self._get_description_url()).read()
+        # Check if coverage id does not exist in wcs_endpoint by returning an Exception
+        if xmlstr.find("ExceptionReport") != -1:
+            raise RuntimeException("Could not read the coverage description for coverage id: {} with url: {} ".format(self.coverage_id, self.wcs_url))
+        # If coverage id does exist then return its description
+        return xmlstr
+
     def _read(self):
         """
         Reads the metadata from the describe coverage and creates the virtual coverage object
         :rtype: Coverage
         """
         try:
-            xmlstr = urllib.urlopen(self._get_description_url()).read()
+            xmlstr = self.description();
             root = etree.fromstring(xmlstr)
-            crs = self._get_crs(root).replace("localhost:9090", "localhost:8080")
+            crs = self._get_crs(root)
             crs_axes = CRSUtil(crs).get_axes()
             range_type = self._get_range_types(root)
             raster_coords = self._get_raster_coords(root)

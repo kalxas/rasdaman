@@ -22,6 +22,7 @@
  *
 """
 import os
+import urllib
 
 from master.error.runtime_exception import RuntimeException
 from master.importer.importer import Importer
@@ -73,6 +74,11 @@ class Recipe(BaseRecipe):
             self.options['wms_import'] = False
         else:
             self.options['wms_import'] = bool(self.options['wms_import'])
+
+        # Validate wcs_endpoint
+        ret = urllib.urlopen(self.options['wcs_endpoint'])
+        if ret.getcode() != 200:
+            raise RuntimeException("The given wcs_endpoint is not valid. Please check that the url is correct.")
 
     def describe(self):
         """
