@@ -28,8 +28,14 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Node;
+import petascope.core.CoverageMetadata;
+import petascope.core.DbMetadataSource;
+import petascope.core.DynamicMetadataSource;
+import petascope.core.IDynamicMetadataSource;
+import petascope.exceptions.PetascopeException;
 import petascope.exceptions.SecoreException;
 import petascope.exceptions.WCPSException;
+import petascope.util.CrsUtil;
 import petascope.util.Pair;
 import petascope.util.WcpsConstants;
 import petascope.util.WcsUtil;
@@ -111,6 +117,13 @@ public class SliceCoverageExpr extends AbstractRasNode implements ICoverageInfo 
             /* TODO: BUG: This searches the axis types list using name, not type */
             axisId = coverageInfo.getDomainIndexByName(axis.getAxisName());
             slicingPosStr = axis.getSlicingPosition();
+            // NOTE: in case get slicing position is domain or imageCrsDomain it will return interval in "(lo,high)"
+            // need to convert interval into pixel coordinates
+            if(slicingPosStr.matches("\\(.*,.*\\)"))
+            {
+                slicingPosStr = convertDomainIntervalToPixelInterval(slicingPosStr, axis, xq);
+            }
+            
             dimNames[axisId] = slicingPosStr;
             // Slicing position can be a constant number or a variable reference
             try {
@@ -196,5 +209,53 @@ public class SliceCoverageExpr extends AbstractRasNode implements ICoverageInfo 
             }
         }
         return false;
+    }
+    
+    /**
+     * 
+     * @param domainInterval: Domain Interval, e.g (Lat[lo]:Lat[hi]) in CRS degree
+     * @param axis: Axis Name, e.g (Lat)
+     * @param xq: XML Query
+     * @return Returns Pixel Interval from Domain Interval, e.g (Lat[lo]:Lat[hi]) -> (lo:hi) in grid integer
+     * @throws WCPSException
+     * @throws PetascopeException 
+     */
+    public String convertDomainIntervalToPixelInterval(String domainInterval, DimensionPointElement axis, XmlQuery xq) throws WCPSException {
+        String tmp = domainInterval;
+        tmp = tmp.substring(tmp.indexOf("(") + 1, tmp.indexOf(")"));
+        tmp = tmp.replace(",", ":");
+        String[] domainTmp = tmp.split(":");
+        
+        // Convert to pixel coordinates
+        String val1 = domainTmp[0];
+        String val2 = domainTmp[1];            
+        String thisAxisName = axis.getAxisName();        
+
+        CoverageMetadata meta = null;
+        try {
+           meta = xq.getMetadataSource().read(getCoverageInfo().getCoverageName());
+        } catch (Exception ex) {
+            log.error(ex.getMessage());
+            throw new WCPSException(ex.getMessage(), ex);
+        }
+
+        DbMetadataSource dbMeta = null;
+
+        IDynamicMetadataSource dmeta = xq.getMetadataSource();
+        if (dmeta instanceof DynamicMetadataSource &&
+            ((DynamicMetadataSource)dmeta).getMetadataSource() instanceof DbMetadataSource) {
+            dbMeta = (DbMetadataSource) ((DynamicMetadataSource)dmeta).getMetadataSource();
+        }
+
+        // Return lo:hi pixel interval
+        long[] pCoord;
+        try {
+            pCoord = CrsUtil.convertToInternalGridIndices(meta, dbMeta, thisAxisName, val1, true, val2, true);
+        } catch (PetascopeException ex) {
+            throw new WCPSException(ex.getExceptionCode(), ex.getExceptionText());
+        }
+        domainInterval = pCoord[0] + ":" + pCoord[1];
+        
+        return domainInterval;
     }
 }

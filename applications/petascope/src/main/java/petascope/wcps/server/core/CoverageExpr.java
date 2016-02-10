@@ -156,7 +156,7 @@ public class CoverageExpr extends AbstractRasNode implements ICoverageInfo {
                         }
                         child = null; 
                         exMessage = exMessage.equals(firstMessage) ? e.getMessage() : exMessage;
-                    }
+                    } 
                 }
             }
 

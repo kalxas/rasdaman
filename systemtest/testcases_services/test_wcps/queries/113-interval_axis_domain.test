@@ -1,0 +1,2 @@
+for c in (eobstest) return encode( count ( c[Lat( domain(c, Lat, "http://localhost:8080/def/crs/EPSG/0/4326")), Long(25:40), t(0) ] > 0 ) , "csv")
+

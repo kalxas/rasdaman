@@ -27,6 +27,7 @@ import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.*;
+import petascope.exceptions.PetascopeException;
 import petascope.exceptions.SecoreException;
 import petascope.exceptions.WCPSException;
 import petascope.util.Pair;
@@ -77,7 +78,8 @@ public class SubsetOperationCoverageExpr extends AbstractRasNode implements ICov
                 child = new SliceCoverageExpr(node, xq);
             } catch (WCPSException ex) {
                 throw ex;
-            } 
+            }
+             
             info = ((SliceCoverageExpr) child).getCoverageInfo();
         } else {
             log.error("Failed to match SubsetOperation: " + nodeName);
