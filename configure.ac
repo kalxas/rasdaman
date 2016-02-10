@@ -514,7 +514,7 @@ if test "$protocol" = "rasnet"; then
     AC_SUBST(GRPC_BIN, "$GRPC_BIN")
     AC_SUBST(GRPCCPPPLUGIN, "$GRPC_BIN/bin/grpc_cpp_plugin")
 
-    AC_SUBST(GRPC_LIBS, "$GRPC_BIN/lib/libgrpc++_unsecure.a $GRPC_BIN/lib/libgrpc_unsecure.a $GRPC_BIN/lib/libgrpc++.a $GRPC_BIN/lib/libgrpc.a $GRPC_BIN/lib/libgpr.a -lz")
+    AC_SUBST(GRPC_LIBS, "$GRPC_BIN/lib/libgrpc++_unsecure.a $GRPC_BIN/lib/libgrpc_unsecure.a -lz")
 
     # Configuration for GRPC Java
     GRPC_JAVA_BIN="$THIRD_PARTY_DIR/bin/grpc-java"

@@ -60,6 +60,13 @@ $(GMOCK_LIB):
 	-pthread -c ${GMOCK_DIR}/src/gmock-all.cc -o ${GMOCK_BIN}/gmock-all.o && \
 	$(AR) -rv ${GMOCK_LIB} ${GMOCK_BIN}/gtest-all.o ${GMOCK_BIN}/gmock-all.o
 
+# Compile and install GRPC to a temporary folder.
+$(GRPC_BIN):
+	cd grpc && \
+	make && \
+	$(MKDIR_P) $(GRPC_BIN) && \
+	make install prefix=${GRPC_BIN}
+
 # Compile and install Google Protobuf to a temporary folder.
 $(PROTOBUF_BIN):
 	cd grpc/third_party/protobuf && \
@@ -69,17 +76,8 @@ $(PROTOBUF_BIN):
 	$(MKDIR_P) $(PROTOBUF_BIN) && \
 	make install
 
-# Compile and install GRPC to a temporary folder.
-$(GRPC_BIN):
-	cd grpc && \
-	git checkout release-0_11_1 && \
-	make && \
-	$(MKDIR_P) $(GRPC_BIN) && \
-	make install prefix=${GRPC_BIN}
-
 $(GRPC_JAVA_BIN):
 if ENABLE_JAVA
-	cd grpc-java && git checkout v0.9.1
 	export CPLUS_INCLUDE_PATH=${GRPC_BIN}/include:${PROTOBUF_BIN}/include && \
 	export LIBRARY_PATH=${GRPC_BIN}/lib:${PROTOBUF_BIN}/lib && \
 	cd grpc-java/compiler && \

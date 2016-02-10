@@ -31,6 +31,8 @@ rasdaman GmbH.
 
 #include <boost/thread.hpp>
 
+#include <grpc++/grpc++.h>
+
 #include "../../common/src/grpc/healthserviceimpl.hh"
 #include "../../server/rasserver_config.hh"
 #include "../../rasnetprotocol/rasnetservercomm.hh"
