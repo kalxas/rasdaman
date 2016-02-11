@@ -68,8 +68,12 @@ public:
     virtual grpc::Status GetTypeStructure(grpc::ServerContext *context, const rasnet::service::GetTypeStructureReq *request, rasnet::service::GetTypeStructureRepl *response) override;
     virtual grpc::Status SetFormat(grpc::ServerContext *context, const rasnet::service::SetFormatReq *request, rasnet::service::SetFormatRepl *response) override;
     virtual grpc::Status KeepAlive(grpc::ServerContext *context, const rasnet::service::KeepAliveRequest *request, rasnet::service::Void *response) override;
+    virtual grpc::Status BeginStreamedHttpQuery(grpc::ServerContext *context, const rasnet::service::BeginStreamedHttpQueryReq *request, rasnet::service::StreamedHttpQueryRepl *response) override;
+    virtual grpc::Status GetNextStreamedHttpQuery(grpc::ServerContext *context, const rasnet::service::GetNextStreamedHttpQueryReq *request, rasnet::service::StreamedHttpQueryRepl *response) override;
 
 private:
+
+
     ::boost::shared_ptr<rasserver::ClientManager> clientManager;
 
     static grpc::Status getRErrorStatus(r_Error &err);

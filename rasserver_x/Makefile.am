@@ -1,5 +1,5 @@
 AUTOMAKE_OPTIONS = foreign
 
 if RMANRASNET
-    SUBDIRS = src
+    SUBDIRS = src test
 endif

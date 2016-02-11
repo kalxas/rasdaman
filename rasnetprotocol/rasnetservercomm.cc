@@ -26,8 +26,11 @@ rasdaman GmbH.
 #include "../server/rasserver_entry.hh"
 #include "../debug/debug-srv.hh"
 #include "common/src/grpc/messages/error.pb.h"
+#include "common/src/uuid/uuid.hh"
 
 using common::ErrorMessage;
+using rasserver::ClientQueryStreamedResult;
+using common::UUID;
 
 RasnetServerComm::RasnetServerComm(::boost::shared_ptr<rasserver::ClientManager> clientManager)
 {
@@ -937,7 +940,7 @@ grpc::Status RasnetServerComm::ExecuteHttpQuery(grpc::ServerContext *context, co
     {
         RasServerEntry& rasserver = RasServerEntry::getInstance();
         char *resultBuffer = 0;
-        int resultLen = rasserver.compat_executeQueryHttp(request->data().c_str(), request->data_length(), resultBuffer);
+        int resultLen = rasserver.compat_executeQueryHttp(request->data().c_str(), request->data().length(), resultBuffer);
 
         response->set_data(resultBuffer, resultLen);
         delete[] resultBuffer;
@@ -951,6 +954,81 @@ grpc::Status RasnetServerComm::ExecuteHttpQuery(grpc::ServerContext *context, co
     {
         LDEBUG << "request terminated: " << ex.what() << " exception kind=" << ex.get_kind() << ", errorno=" << ex.get_errorno();
         status = RasnetServerComm::getRErrorStatus(ex);
+    }
+    catch (std::exception &ex)
+    {
+        LERROR << "Error: request terminated with general exception: " << ex.what();
+        status = RasnetServerComm::getSTLExceptionStatus(ex);
+    }
+    catch (...)
+    {
+        LERROR << "Error: request terminated with generic exception.";
+        status = RasnetServerComm::getUnknownExceptionStatus();
+    }
+
+    return status;
+}
+
+grpc::Status RasnetServerComm::BeginStreamedHttpQuery(grpc::ServerContext *context, const rasnet::service::BeginStreamedHttpQueryReq *request, rasnet::service::StreamedHttpQueryRepl *response)
+{
+    grpc::Status status = grpc::Status::OK;
+    try
+    {
+        RasServerEntry& rasserver = RasServerEntry::getInstance();
+        char *resultBuffer = 0;
+        int resultLen = rasserver.compat_executeQueryHttp(request->data().c_str(), request->data().length(), resultBuffer);
+
+        string requestUUID = UUID::generateUUID();
+
+        boost::shared_ptr<ClientQueryStreamedResult> result(new ClientQueryStreamedResult(resultBuffer, resultLen, request->client_uuid()));
+
+        rasserver::DataChunk nextChunk = result->getNextChunk();
+        response->set_data(nextChunk.bytes, nextChunk.length);
+        response->set_bytes_left(result->getRemainingBytesLength());
+        response->set_data_length(resultLen);
+        response->set_uuid(requestUUID);
+
+        this->clientManager->addQueryStreamedResult(requestUUID, result);
+    }
+    catch (r_Ebase_dbms &edb)
+    {
+        LERROR << "Error: base DBMS reports: " << edb.what();
+        status = RasnetServerComm::getRErrorStatus(edb);
+    }
+    catch (r_Error &ex)
+    {
+        LDEBUG << "request terminated: " << ex.what() << " exception kind=" << ex.get_kind() << ", errorno=" << ex.get_errorno();
+        status = RasnetServerComm::getRErrorStatus(ex);
+    }
+    catch (std::exception &ex)
+    {
+        LERROR << "Error: request terminated with general exception: " << ex.what();
+        status = RasnetServerComm::getSTLExceptionStatus(ex);
+    }
+    catch (...)
+    {
+        LERROR << "Error: request terminated with generic exception.";
+        status = RasnetServerComm::getUnknownExceptionStatus();
+    }
+
+    return status;
+
+}
+
+grpc::Status RasnetServerComm::GetNextStreamedHttpQuery(grpc::ServerContext *context, const rasnet::service::GetNextStreamedHttpQueryReq *request, rasnet::service::StreamedHttpQueryRepl *response)
+{
+    grpc::Status status = grpc::Status::OK;
+    try
+    {
+        boost::shared_ptr<ClientQueryStreamedResult> result = this->clientManager->getQueryStreamedResult(request->uuid());
+        rasserver::DataChunk nextChunk = result->getNextChunk();
+        response->set_data(nextChunk.bytes, nextChunk.length);
+        response->set_bytes_left(result->getRemainingBytesLength());
+
+        if (result->getRemainingBytesLength() == 0)
+        {
+            this->clientManager->cleanQueryStreamedResult(request->uuid());
+        }
     }
     catch (std::exception &ex)
     {

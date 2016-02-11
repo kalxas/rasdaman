@@ -256,10 +256,28 @@ message ExecuteHttpQueryReq
 {
     int32 client_id = 1;
     bytes data = 2;
-    int32 data_length = 3;
 }
 
 message ExecuteHttpQueryRepl {  bytes data = 1; }
+
+message BeginStreamedHttpQueryReq
+{
+    string client_uuid = 1;
+    bytes data = 2;
+}
+
+message GetNextStreamedHttpQueryReq
+{
+    string uuid = 1;
+}
+
+message StreamedHttpQueryRepl
+{
+    string uuid = 1;
+    bytes data = 2;
+    uint64 data_length = 3;
+    uint64 bytes_left = 4;
+}
 
 message GetNextElementReq {  int32 client_id = 1; }
 
@@ -398,4 +416,6 @@ service ClientRassrvrService
     rpc GetTypeStructure(GetTypeStructureReq) returns (GetTypeStructureRepl);
     rpc SetFormat(SetFormatReq) returns (SetFormatRepl);
     rpc KeepAlive(KeepAliveRequest) returns (rasnet.service.Void);
+    rpc BeginStreamedHttpQuery(BeginStreamedHttpQueryReq) returns (StreamedHttpQueryRepl);
+    rpc GetNextStreamedHttpQuery(GetNextStreamedHttpQueryReq) returns (StreamedHttpQueryRepl);
 }

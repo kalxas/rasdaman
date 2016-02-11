@@ -216,6 +216,7 @@ AC_CONFIG_FILES([third_party/Makefile
                  rasnet/Makefile
                  rasserver_x/Makefile
                  rasserver_x/src/Makefile
+                 rasserver_x/test/Makefile
                  rasmgr_x/Makefile
                  rasmgr_x/src/Makefile
                  rasmgr_x/test/Makefile

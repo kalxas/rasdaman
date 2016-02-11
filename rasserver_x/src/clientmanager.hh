@@ -31,7 +31,8 @@ rasdaman GmbH.
 #include <boost/shared_ptr.hpp>
 #include <boost/thread.hpp>
 
-#include "../../common/src/time/timer.hh"
+#include "common/src/time/timer.hh"
+#include "clientquerystreamedresult.hh"
 
 namespace rasserver
 {
@@ -77,6 +78,27 @@ public:
      */
     size_t getClientQueueSize();
 
+    /**
+     * @brief cleanQueryStreamedResult Removes from the pool a result which must be streamed.
+     * @param requestUUID An unique identifier for the streamed result.
+     */
+    void cleanQueryStreamedResult(const std::string& requestUUID);
+
+    /**
+     * @brief getQueryStreamedResult Retrieves the streamed result based on the request unique identifier.
+     * @param requestUUID An unique identifier for the streamed result.
+     * @return A ClientQueryStreamedResult providing methods for getting the next chunk of data to be streamed.
+     */
+    boost::shared_ptr<ClientQueryStreamedResult> getQueryStreamedResult(const std::string& requestUUID);
+
+    /**
+     * @brief addQueryStreamedResult Saves a resul which will be streamed to the client.
+     * @param requestUUID An unique identifier for the streamed result.
+     * @param streamedResult The result which will be streamed.
+     */
+    void addQueryStreamedResult(const std::string& requestUUID, const boost::shared_ptr<ClientQueryStreamedResult>& streamedResult);
+
+
 private:
 	/**
 	* The maximum number of milliseconds between two consecutive KeepAlive messages
@@ -89,6 +111,7 @@ private:
 
     boost::shared_mutex clientMutex;/*! Mutex used to synchronize access to the clientList */
     std::map<std::string, common::Timer> clientList;/*! Map between a clientId and a Timer that counts down from the last ping*/
+    std::map<std::string, boost::shared_ptr<ClientQueryStreamedResult> > queryStreamedResultList; /*! Map between request id and the request result.*/
 
     boost::mutex threadMutex;/*! Mutex used to safely stop the worker thread */
     bool isThreadRunning; /*! Flag used to stop the worker thread */

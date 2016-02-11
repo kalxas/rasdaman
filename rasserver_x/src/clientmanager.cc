@@ -22,8 +22,9 @@ rasdaman GmbH.
 */
 
 #include <easylogging++.h>
-#include "../../common/src/uuid/uuid.hh"
-#include "../../server/rasserver_entry.hh"
+#include "common/src/uuid/uuid.hh"
+#include "server/rasserver_entry.hh"
+#include "common/src/exceptions/missingresourceexception.hh"
 
 #include "clientmanager.hh"
 
@@ -34,6 +35,7 @@ using std::string;
 using std::pair;
 using std::make_pair;
 using std::map;
+using std::set;
 using common::Timer;
 using boost::scoped_ptr;
 using boost::unique_lock;
@@ -107,6 +109,28 @@ void ClientManager::resetLiveliness(std::string clientUUID)
     }
 }
 
+void ClientManager::cleanQueryStreamedResult(const std::string &requestUUID)
+{
+    this->queryStreamedResultList.erase(requestUUID);
+}
+
+void ClientManager::addQueryStreamedResult(const std::string& requestUUID, const shared_ptr<ClientQueryStreamedResult>& streamedResult)
+{
+    this->queryStreamedResultList.insert(std::make_pair(requestUUID, streamedResult));
+}
+
+shared_ptr<ClientQueryStreamedResult> ClientManager::getQueryStreamedResult(const std::string& requestUUID)
+{
+    map<string, shared_ptr<ClientQueryStreamedResult> >::iterator queryResult = this->queryStreamedResultList.find(requestUUID);
+
+    if (queryResult == this->queryStreamedResultList.end())
+    {
+        throw common::MissingResourceException("Invalid request uuid: " + requestUUID);
+    }
+
+    return queryResult->second;
+}
+
 size_t ClientManager::getClientQueueSize()
 {
     return this->clientList.size();
@@ -116,6 +140,9 @@ void ClientManager::evaluateClientStatus()
 {
     map<string, Timer>::iterator it;
     map<string, Timer >::iterator toErase;
+
+    map<string, shared_ptr<ClientQueryStreamedResult> >::iterator resultIt;
+    map<string, shared_ptr<ClientQueryStreamedResult> >::iterator toEraseResult;
 
     boost::posix_time::time_duration timeToSleepFor = boost::posix_time::milliseconds(ALIVE_PERIOD);
 
@@ -128,6 +155,7 @@ void ClientManager::evaluateClientStatus()
             // destructor when it is time to stop the worker thread
             if(!this->isThreadRunningCondition.timed_wait(threadLock, timeToSleepFor))
             {
+                set<string> deadClients;
 
                 boost::upgrade_lock<boost::shared_mutex> clientsLock(this->clientMutex);
                 it = this->clientList.begin();
@@ -140,12 +168,25 @@ void ClientManager::evaluateClientStatus()
                     {
                         boost::upgrade_to_unique_lock<boost::shared_mutex> uniqueLock(clientsLock);
                         this->clientList.erase(toErase);
+                        deadClients.insert(toErase->first);
 
                         // If the client dies, clean up
                         RasServerEntry& rasServerEntry = RasServerEntry::getInstance();
                         rasServerEntry.compat_abortTA();
                         rasServerEntry.compat_closeDB();
                         rasServerEntry.compat_disconnectClient();
+                    }
+                }
+
+                resultIt = this->queryStreamedResultList.begin();
+                while(resultIt != this->queryStreamedResultList.end())
+                {
+                    toEraseResult = resultIt;
+                    resultIt++;
+
+                    if (deadClients.find(toEraseResult->second->getClientUUID()) != deadClients.end())
+                    {
+                        this->cleanQueryStreamedResult(resultIt->first);
                     }
                 }
             }

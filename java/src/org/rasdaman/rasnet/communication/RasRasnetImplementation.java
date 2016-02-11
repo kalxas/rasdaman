@@ -389,17 +389,41 @@ public class RasRasnetImplementation implements RasImplementationInterface, RasC
     public Object queryRequest(String parameters) throws RasQueryExecutionFailedException {
         try {
             byte[] bytes = parameters.getBytes("8859_1");
-            ExecuteHttpQueryReq executeHttpQueryReq = ExecuteHttpQueryReq.newBuilder()
-                    .setClientId(clientID)
+
+            BeginStreamedHttpQueryReq beginStreamedHttpQueryReq = BeginStreamedHttpQueryReq.newBuilder()
+                    .setClientUuid(this.clientUUID)
                     .setData(ByteString.copyFrom(bytes))
-                    .setDataLength(bytes.length)
                     .build();
 
-            ExecuteHttpQueryRepl executeHttpQueryRepl = this.getRasServerService().executeHttpQuery(executeHttpQueryReq);
+            StreamedHttpQueryRepl streamedHttpQueryRepl = this.getRasServerService().beginStreamedHttpQuery(beginStreamedHttpQueryReq);
 
-            return getResponse(executeHttpQueryRepl.getData().toByteArray());
+            String requestUUID = streamedHttpQueryRepl.getUuid();
+            long dataLength = streamedHttpQueryRepl.getDataLength();
+            ByteArrayOutputStream data = new ByteArrayOutputStream((int)dataLength);
+            data.write(streamedHttpQueryRepl.getData().toByteArray());
 
-        } catch (UnsupportedEncodingException e) {
+            long bytesLeft = streamedHttpQueryRepl.getBytesLeft();
+
+            while (bytesLeft > 0) {
+
+                GetNextStreamedHttpQueryReq nextStreamedHttpQueryReq = GetNextStreamedHttpQueryReq.newBuilder()
+                        .setUuid(requestUUID)
+                        .build();
+                StreamedHttpQueryRepl nextStreamedHttpQueryRepl = this.getRasServerService().getNextStreamedHttpQuery(nextStreamedHttpQueryReq);
+
+                byte[] nextChunk = nextStreamedHttpQueryRepl.getData().toByteArray();
+
+                bytesLeft = nextStreamedHttpQueryRepl.getBytesLeft();
+                data.write(nextStreamedHttpQueryRepl.getData().toByteArray());
+            }
+
+            if (data.size() != dataLength) {
+                throw new RasClientInternalException("RasNetImplementation", "executeQueryRequest()", String.format("Bytes expected: %d, bytes received: %d", dataLength, data.size()));
+            }
+
+            return getResponse(data.toByteArray());
+
+        } catch (IOException e) {
             Debug.talkCritical("RasNetImplementation.executeQueryRequest: " + e.getMessage());
             Debug.leaveVerbose("RasNetImplementation.executeQueryRequest: done, " + e.getMessage());
             throw new RasClientInternalException("RasNetImplementation", "executeQueryRequest()", e.getMessage());
@@ -527,6 +551,7 @@ public class RasRasnetImplementation implements RasImplementationInterface, RasC
         }
     }
 
+    @SuppressWarnings("Duplicates")
     private Object getResponse(byte[] opaqueAnswer)
             throws RasQueryExecutionFailedException {
         Debug.enterVerbose("RasNetImplementation.getResponse: start.");
