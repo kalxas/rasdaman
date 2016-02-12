@@ -532,69 +532,14 @@ StorageLayout::calcStatisticLayout(const r_Minterval& tileDomain)
 r_Minterval
 StorageLayout::getDefaultTileCfg(int baseTypeSize, r_Dimension sourceDimension)
 {
-    /**
-     * Calculation of the end dimension(high)
-     * Algorithm:
-     *     get size of the basetype
-     *     if dimension == 1, give 0:(DefaultTileSize) inverval
-     *     else
-     *         tileCells = total cells in the tile
-     *         mbMultiplier = DefaultTileSize / tileCells
-     *         adjustingMultiplier = mbMultiplier / baseTypeSize
-     *         lastdimension.high() = lastdimension.high()*adjustingMultiplier
-     *
-     *         make string with added 0 if necessary
-     *     return  string
-     *
-     */
-    std::string newDomain = "";
-    std::ostringstream ss;
-    int lastDimValue;
-    if(sourceDimension == 1)
+    std::string newDomain = "[";
+    for(unsigned int i = 0; i < sourceDimension; i++)
     {
-        newDomain += "[0:";
-        lastDimValue = static_cast<int>(static_cast<double>(StorageLayout::DefaultTileSize) / static_cast<double>(baseTypeSize)) - 1;
-        ss << lastDimValue;
-        newDomain += ss.str();
-        newDomain += "]";
-
-    }else{
-        r_Minterval defaultTileConfiguration = StorageLayout::DefaultTileConfiguration;
-        char *defaultTileDefPtr = defaultTileConfiguration.get_string_representation();
-        std::string defaultTileDef = std::string(defaultTileDefPtr);
-        free(defaultTileDefPtr);
-
-        r_Point intervals = defaultTileConfiguration.get_extent();
-        r_Range tileCells = 1;
-        for(unsigned int i = 0; i < defaultTileConfiguration.dimension(); i++)
-            tileCells *= intervals[i];
-
-
-        double mbMultiplier = static_cast<double>(StorageLayout::DefaultTileSize) /static_cast<double>(tileCells);
-        double adjustingMultiplier = mbMultiplier / static_cast<double>(baseTypeSize);
-        lastDimValue =  (defaultTileConfiguration[defaultTileConfiguration.dimension() -1].high()+1) * adjustingMultiplier;
-
-        defaultTileConfiguration[defaultTileConfiguration.dimension() -1].set_high(static_cast<r_Range>(lastDimValue)-1);
-
-        char *adjustedDomainPtr = defaultTileConfiguration.get_string_representation();
-        std::string adjustedDomain = adjustedDomainPtr;
-        free(adjustedDomainPtr);
-
-        //remove the first '['
-        adjustedDomain.erase(0, 1);
-        //reconfigure adjusted domain for tiling
-        std::string toAddDom = std::string("0:0,");
-        for(unsigned int i = 0; i < sourceDimension-2; i++)
-        {
-            newDomain += toAddDom;
-        }
-        newDomain = std::string("[")+newDomain;
-
-        newDomain += adjustedDomain;
-
-
+        if (i > 0)
+            newDomain += ", ";
+        newDomain += "0:*";
     }
+    newDomain += "]";
     r_Minterval newTileCfg(newDomain.c_str());
     return newTileCfg;
-
 }

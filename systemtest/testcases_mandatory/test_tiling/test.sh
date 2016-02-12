@@ -92,9 +92,6 @@ function run_test()
 {
   local q_id="$1"
   local f=tmp.unknown
-  if [ $# -eq 1 ]; then
-    f=tmp.csv
-  fi
   
   if [ ! -f $f ]; then
     log "Failed executing select query." | tee -a $LOG
@@ -176,8 +173,8 @@ for i in $QUERY_PATH/*.rasql; do
     fi
 
     # test result contents
-    $RASQL -q "select csv(c) from $coll_name as c" --out file --outfile tmp > /dev/null
-    run_test "$q_id.csv"
+    $RASQL -q "select c from $coll_name as c" --out file --outfile tmp > /dev/null
+    run_test "$q_id.bin"
 
     # test dbinfo for tile structure
     $RASQL -q "select dbinfo(c, \"printtiles=1\") from $coll_name as c" --out file --outfile tmp > /dev/null

@@ -1,1 +1,1 @@
-insert into test_coll3 values marray i in [0:0,0:19,0:19] values 1c
+insert into test_coll3 values marray i in [0:2251,0:2301,0:0] values 0c

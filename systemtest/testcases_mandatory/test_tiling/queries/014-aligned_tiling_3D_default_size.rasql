@@ -1,1 +1,1 @@
-insert into test_coll3 values marray i in [0:999,0:999,0:0] values 1c tiling aligned [0:999,0:999,0:0]
+insert into test_coll3 values marray i in [0:99,0:99,0:0] values 1c tiling aligned [0:999,0:999,0:0]

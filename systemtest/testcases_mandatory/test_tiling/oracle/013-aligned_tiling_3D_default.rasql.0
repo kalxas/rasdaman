@@ -1,13 +1,14 @@
 {
- "tileNo": "1",
- "totalSize": "400",
+ "tileNo": "2",
+ "totalSize": "5184104",
  "tiling": {
 	"tilingScheme": "aligned",
 	"tileSize": "4194304",
-	"tileConfiguration": "[0:0,0:1023,0:4095]"",
+	"tileConfiguration": "[0:*,0:*,0:*]"",
 	"tileDomains":
 	[
-		"[0:0,0:19,0:19]"
+		"[0:1821,0:2301,0:0]",
+		"[1822:2251,0:2301,0:0]"
 	]
  },
  "index": {
