@@ -1,1 +1,0 @@
-for c in ( rgb ) return encode( c[ i(*:1), j(340:*) ], "csv" )

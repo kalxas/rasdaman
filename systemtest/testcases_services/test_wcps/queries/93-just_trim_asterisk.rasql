@@ -1,1 +1,0 @@
-select csv(c[0:1,340:344]) from rgb AS c

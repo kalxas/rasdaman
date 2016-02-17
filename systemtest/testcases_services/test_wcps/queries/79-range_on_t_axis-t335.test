@@ -1,6 +1,0 @@
-for c in (eobstest)
-return encode(
-  coverage averagesOverTime
-  over $T t(0:2)
-  values ( avg(c[t($T:$T + 1)] ) ),
-"csv")

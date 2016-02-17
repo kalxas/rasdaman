@@ -1,1 +1,0 @@
-for c in (eobstest) return domain(c, Long, "http://www.opengis.net/def/crs/EPSG/0/32633")

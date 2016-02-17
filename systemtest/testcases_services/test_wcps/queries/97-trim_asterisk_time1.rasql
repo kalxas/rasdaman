@@ -1,1 +1,0 @@
-select csv(c[2:6,89,90]) from eobstest AS c

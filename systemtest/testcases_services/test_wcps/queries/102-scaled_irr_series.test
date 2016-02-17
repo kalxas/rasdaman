@@ -1,4 +1,0 @@
-for c in (irr_cube_2) return encode (
-   scale( slice( (c[ansi("2008-01-01T00Z":"2008-01-01T12Z")]).b2, {ansi:"CRS:1"(0)}),
-          { N:"CRS:1"(0:1), E:"CRS:1"(0:2) } )
-, "csv")

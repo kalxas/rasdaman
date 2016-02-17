@@ -1,7 +1,0 @@
-for c in (mr)
-  return condense +
-  over $x x(0:100),
-       $y y(0:100)
-  where (max(c[i($x:$x),j($y:$y)]) < 100)
-  using c[i($x),j($y)]
-

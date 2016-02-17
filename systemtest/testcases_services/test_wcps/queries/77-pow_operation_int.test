@@ -1,1 +1,0 @@
-for c in (mr) return encode( pow( c[i(100:110),j(100:110)], 2 ), "csv" )

@@ -1,1 +1,0 @@
-for c in (mean_summer_airtemp) return crsSet(c)

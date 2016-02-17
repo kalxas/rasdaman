@@ -1,0 +1,2 @@
+for c in ( eobstest ) return encode( c[ Long:"CRS:1"(226:138) ], "csv")
+

@@ -1,1 +1,0 @@
-t:http://localhost:8080/def/crs/OGC/0/Temporal?epoch="1950-01-01T00:00:00"&uom="d" CRS:1, Long:http://localhost:8080/def/crs/EPSG/0/4326 CRS:1, Lat:http://localhost:8080/def/crs/EPSG/0/4326 CRS:1

@@ -1,4 +1,0 @@
-for c in (mr) return
-   encode(
-      count(trim(c, {i(100:101),j(100:101)}) > 0) * 2,
-   "csv")

@@ -1,1 +1,0 @@
-for c in (eobstest) return domain(c, Long, "CRS:1")

@@ -1,1 +1,0 @@
-select csv(scale( (c) [2,*:*,*:*], [0:20,0:20] )) from eobstest AS c
