@@ -52,6 +52,12 @@ import java.util.regex.Pattern;
  */
 public class RasOQLQuery implements OQLQuery, RasCommDefs
 {
+  /**
+   * Keywords used to determine which type of query will be executed.
+   */
+    private static final String INSERT_KEYWORD = "INSERT";
+    private static final String SELECT_KEYWORD = "SELECT";
+
     /**
      * This variable holds a reference to the RasImplementation object which created
      * this RasOQLQuery object
@@ -219,35 +225,31 @@ public class RasOQLQuery implements OQLQuery, RasCommDefs
                       }
                   }
               }
-             
+
+            String queryStringCopy = queryString;
             // what kind of query do we have?
             // FIXME: this way you don't see it keyword is in comment, and you miss mixed case!! -- PB 2003-jun-15
-            if((queryString.indexOf("select") != -1) || (queryString.indexOf("SELECT") != -1))
-              {
-                //select query
-                params = "Command=" + RasODMGGlobal.commQueryExec + "&ClientID=" +
-                         rasImplementation.getClientID() + "&QueryString=" + queryString;
-              }
-            else if ((queryString.indexOf("insert") != -1) || (queryString.indexOf("INSERT") != -1))
-              {
-                // insert query
-                params = "Command=" + RasODMGGlobal.commInsertQueryExec + "&ClientID=" +
-                    rasImplementation.getClientID() + "&QueryString=" + queryString +
-                    "&Endianess=" + BIG_ENDIAN + "&NumberOfQueryParameters=" +
-                    numberOfParams;
-                if(numberOfParams > 0)
-                    params = params + "&BinDataSize=" + mddData.length() + "&BinData=" + mddData;
-              }
-            else
-              {
-                // update query
-                params = "Command=" + RasODMGGlobal.commUpdateQueryExec + "&ClientID=" +
-                    rasImplementation.getClientID() + "&QueryString=" + queryString +
-                    "&Endianess=" + BIG_ENDIAN + "&NumberOfQueryParameters=" +
-                    numberOfParams;
-                if(numberOfParams > 0)
-                    params = params + "&BinDataSize=" + mddData.length() + "&BinData=" + mddData;
-              }
+            if (queryStringCopy.toLowerCase().startsWith(SELECT_KEYWORD.toLowerCase())) {
+              //select query
+              params = "Command=" + RasODMGGlobal.commQueryExec + "&ClientID=" +
+                      rasImplementation.getClientID() + "&QueryString=" + queryString;
+            } else if (queryStringCopy.toLowerCase().startsWith(INSERT_KEYWORD.toLowerCase())) {
+              // insert query
+              params = "Command=" + RasODMGGlobal.commInsertQueryExec + "&ClientID=" +
+                      rasImplementation.getClientID() + "&QueryString=" + queryString +
+                      "&Endianess=" + BIG_ENDIAN + "&NumberOfQueryParameters=" +
+                      numberOfParams;
+              if (numberOfParams > 0)
+                params = params + "&BinDataSize=" + mddData.length() + "&BinData=" + mddData;
+            } else {
+              // update query
+              params = "Command=" + RasODMGGlobal.commUpdateQueryExec + "&ClientID=" +
+                      rasImplementation.getClientID() + "&QueryString=" + queryString +
+                      "&Endianess=" + BIG_ENDIAN + "&NumberOfQueryParameters=" +
+                      numberOfParams;
+              if (numberOfParams > 0)
+                params = params + "&BinDataSize=" + mddData.length() + "&BinData=" + mddData;
+            }
             
             //request.execute(rasImplementation.getRasServer(),params);//RasODMGGlobal.getRasServer(),params);
             //return request.getResult();
