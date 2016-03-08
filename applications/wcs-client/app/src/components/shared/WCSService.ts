@@ -103,7 +103,7 @@ module rasdaman {
             if (!coverageId) {
                 result.reject("You must specify at least one coverage ID.");
             }
-            var requestUrl = this.settings.WCSEndpoint + "?SERVICE=WCS&VERSION=2.0.1&REQUEST=DeleteCoverage&COVERAGEID=" + coverageId;
+            var requestUrl = this.settings.WCSEndpoint + "?" + this.settings.WCSServiceNameVersion + "&REQUEST=DeleteCoverage&COVERAGEID=" + coverageId;
 
             this.$http.get(requestUrl)
                 .then(function (data:any) {
@@ -121,7 +121,7 @@ module rasdaman {
             if (!coverageUrl) {
                 result.reject("You must indicate a coverage source.");
             }
-            var requestUrl = this.settings.WCSEndpoint + "?SERVICE=WCS&VERSION=2.0.1&REQUEST=InsertCoverage&coverageRef=" + encodeURI(coverageUrl);
+            var requestUrl = this.settings.WCSEndpoint + "?" + this.settings.WCSServiceNameVersion + "&REQUEST=InsertCoverage&coverageRef=" + encodeURI(coverageUrl);
             if (useGeneratedId) {
                 requestUrl += "&useId=new";
             }
@@ -145,7 +145,8 @@ module rasdaman {
         public processCoverages(query:wcs.ProcessCoverages, binaryFormat?:boolean):angular.IPromise<rasdaman.common.Response<any> > {
             var result = this.$q.defer();
 
-            var requestUrl = this.settings.WCSEndpoint + "?" + query.toKVP();
+            var requestUrl = this.settings.WCSEndpoint + "?" + this.settings.WCSServiceNameVersion + query.toKVP();	    
+
             var request:angular.IRequestConfig = {
                 method: 'GET',
                 url: requestUrl,

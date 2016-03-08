@@ -26,11 +26,12 @@
 module rasdaman {
     export class SettingsService {
         public WCSEndpoint:string;
-
+	public WCSServiceNameVersion:string; 
         public static $inject = ["$window"];
 
         public constructor($window:angular.IWindowService) {
-            this.WCSEndpoint = $window.location.origin+"/rasdaman/ows";
+            this.WCSEndpoint = $window.location.origin + "/rasdaman/ows";
+            this.WCSServiceNameVersion = "SERVICE=WCS&VERSION=2.0.1";
         }
     }
 }
