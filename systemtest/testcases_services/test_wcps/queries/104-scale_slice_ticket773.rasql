@@ -1,0 +1,1 @@
+select csv(scale( c[0,36:38,103:103], [36:38,103:103] )) from eobstest AS c

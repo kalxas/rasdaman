@@ -1,0 +1,9 @@
+for c in (mean_summer_airtemp)
+  return 
+        (condense min
+        over     $py y (300:301)
+        using    c[Long:"CRS:1"(100), Lat:"CRS:1"($py)])
+        +
+        (condense max
+        over     $py y (300:301)
+        using    c[Long:"CRS:1"(100), Lat:"CRS:1"($py)])

@@ -1,0 +1,1 @@
+for c in ( eobstest ) return encode( c[ t("1950-01-03T13:05:00":"1950-04-03T13:05:00"), Long(20:170), Lat(10)], "tiff" )

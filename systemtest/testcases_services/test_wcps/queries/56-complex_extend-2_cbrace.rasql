@@ -1,0 +1,1 @@
+select encode(((extend(t,[0:500,0:500]))+(0c)), "JPEG", "nodata=0") from mr AS t

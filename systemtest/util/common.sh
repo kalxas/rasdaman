@@ -520,12 +520,12 @@ run_test()
     case "$SVC_NAME" in
       wcps)   # URL encode query
               QUERY=`cat $f | xxd -plain | tr -d '\n' | sed 's/\(..\)/%\1/g'`
-              # send to petascope with WCPSVersion=1.5
-              $WGET -q "$WCPS_EMBEDDED_URL_1_5$QUERY" -O "$out"
+              # send to petascope
+              $WGET -q --post-data "query=$QUERY" $WCPS_URL -O "$out"
               WGET_EXIT_CODE=$?
               if [[ $WGET_EXIT_CODE != 0 ]]; then
                   echo "Error when processing WCPS request in KVP, query return error: "$WGET_EXIT_CODE
-                  wget_error "$WCPS_EMBEDDED_URL_1_5$QUERY" "$out"
+                  wget_error "$WCPS_EMBEDDED_URL""$QUERY" "$out"
                   echo ".Done"
               fi
               ;;

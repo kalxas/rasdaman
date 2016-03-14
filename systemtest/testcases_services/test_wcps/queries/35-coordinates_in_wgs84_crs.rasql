@@ -1,0 +1,1 @@
+ select png(c[1:100,1:100]) from mr AS c

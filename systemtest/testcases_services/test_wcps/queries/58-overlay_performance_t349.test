@@ -1,0 +1,77 @@
+for c in (mr)
+return encode(
+  (unsigned char)(({
+    red:   ((unsigned char)((c < 20) * 200));
+    green: ((unsigned char)((c < 20) * 10));
+    blue:  ((unsigned char)((c < 20) * 10))
+  }
+overlay
+  (unsigned char){
+    red:   ((unsigned char)((c >= 20 and c < 25) * 255));
+    green: ((unsigned char)((c >= 20 and c < 25) * 165));
+    blue:  ((unsigned char)((c >= 20 and c < 25) * 0))
+  }
+overlay
+  (unsigned char){
+    red:   ((unsigned char)((c >= 25 and c < 30) * 255));
+    green: ((unsigned char)((c >= 25 and c < 30) * 215));
+    blue:  ((unsigned char)((c >= 25 and c < 30) * 0))
+  }
+overlay
+  (unsigned char){
+    red:   ((unsigned char)((c >= 30 and c < 35) * 255));
+    green: ((unsigned char)((c >= 30 and c < 35) * 255));
+    blue:  ((unsigned char)((c >= 30 and c < 35) * 0))
+  }
+overlay
+  (unsigned char){
+    red:   ((unsigned char)((c >= 35 and c < 40) * 173));
+    green: ((unsigned char)((c >= 35 and c < 40) * 255));
+    blue:  ((unsigned char)((c >= 35 and c < 40) * 47))
+  }
+overlay
+  (unsigned char){
+    red:   ((unsigned char)((c >= 40 and c < 45) * 20));
+    green: ((unsigned char)((c >= 40 and c < 45) * 255));
+    blue:  ((unsigned char)((c >= 40 and c < 45) * 20))
+  }
+overlay
+  (unsigned char){
+    red:   ((unsigned char)((c >= 45 and c < 50) * 10));
+    green: ((unsigned char)((c >= 45 and c < 50) * 200));
+    blue:  ((unsigned char)((c >= 45 and c < 50) * 10))
+  }
+overlay
+  (unsigned char){
+    red:   ((unsigned char)((c >= 50 and c < 55) * 0));
+    green: ((unsigned char)((c >= 50 and c < 55) * 136));
+    blue:  ((unsigned char)((c >= 50 and c < 55) * 0))
+  }
+overlay
+  (unsigned char){
+    red:   ((unsigned char)((c >= 55 and c < 253) * 0));
+    green: ((unsigned char)((c >= 55 and c < 253) * 0));
+    blue:  ((unsigned char)((c >= 55 and c < 253) * 255))
+  }
+overlay
+  (unsigned char){
+    red:   ((unsigned char)((c = 253) * 0));
+    green: ((unsigned char)((c = 253) * 0));
+    blue:  ((unsigned char)((c = 253) * 250))
+  }
+overlay
+  (unsigned char){
+    red:   ((unsigned char)((c = 254) * 255));
+    green: ((unsigned char)((c = 254) * 235));
+    blue:  ((unsigned char)((c = 254) * 190))
+  }
+overlay
+  (unsigned char){
+    red:   ((unsigned char)(c = 255) * 80);
+    green: ((unsigned char)(c = 255) * 80);
+    blue:  ((unsigned char)(c = 255) * 80)
+  }
+
+)[i(10:20),j(37:40)])
+,
+"png", "nodata=0")

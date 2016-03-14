@@ -1,0 +1,1 @@
+select csv(marray i_i in [1:3] values max_cells(((((c) [2:3,34:35,i_i[0]]).0)-(((c) [2:3,34:35,(i_i[0])-(1)]).1)))) from irr_cube_2 AS c
