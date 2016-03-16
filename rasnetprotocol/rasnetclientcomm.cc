@@ -1820,28 +1820,40 @@ void RasnetClientComm::checkForRwTransaction() throw( r_Error )
     }
 }
 
-void RasnetClientComm::handleError(string error)
+void RasnetClientComm::handleError(const string& error)
 {
     ErrorMessage message;
 
-    if(message.ParseFromString(error))
+    if(error.empty())
+    {
+       throw r_EGeneral("Internal server error.");
+    }
+    else if(message.ParseFromString(error))
     {
         if (message.type() == ErrorMessage::RERROR)
         {
             LDEBUG<<"Throwing error received from the server:"<<message.DebugString();
             throw r_Error(static_cast<r_Error::kind>(message.kind()), message.error_no());
         }
+        else if ( message.type() ==ErrorMessage::STL )
+        {
+            LDEBUG<<"Throwing error received from the server:"<<message.DebugString();
+            throw r_EGeneral ( message.error_text());
+        }
+        else if ( message.type() == ErrorMessage::UNKNOWN )
+        {
+            LDEBUG<<"Throwing error received from the server:"<<message.DebugString();
+            throw r_EGeneral ( message.error_text());
+        }
         else
         {
             LDEBUG<<"Throwing error received from the server:"<<message.DebugString();
-
-            throw r_EGeneral("General error received from the server.");
+            throw r_EGeneral ( "General error received from the server." );
         }
     }
     else
     {
         LERROR<<"Client failed with error:"<<error;
-
         throw r_EGeneral("The client failed to contact the server.");
     }
 }
@@ -1851,7 +1863,7 @@ void RasnetClientComm::handleConnectionFailure()
     throw r_EGeneral("The client failed to contact the server.");
 }
 
-void RasnetClientComm::handleStatusCode(int status, string method) throw( r_Error )
+void RasnetClientComm::handleStatusCode(int status, const string& method) throw( r_Error )
 {
     switch( status )
     {

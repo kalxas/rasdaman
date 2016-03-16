@@ -166,9 +166,9 @@ private:
 
     std::string rasmgrHost;
 
-    static void handleError(std::string error);
+    static void handleError(const std::string& error);
     static void handleConnectionFailure();
-    static void handleStatusCode(int status, std::string method) throw (r_Error);
+    static void handleStatusCode(int status, const std::string& method) throw (r_Error);
 
     int executeStartInsertPersMDD(const char* collName, r_GMarray* mar);
     int executeInsertTile(bool persistent, RPCMarray *tile);
