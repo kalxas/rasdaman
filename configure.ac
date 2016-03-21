@@ -303,11 +303,11 @@ AC_ARG_WITH([static-libs],
             [],
             [with_static_libs=no])
 
-AC_ARG_WITH([pic],
-            [AS_HELP_STRING([--with-pic], 
-                            [generate position independent code (PIC)])],
-            [CXXFLAGS+=" -fPIC " CFLAGS+=" -fPIC "],
-            [])
+AC_ARG_ENABLE([pic],
+            [AS_HELP_STRING([--disable-pic], 
+                            [disable generation of position independent code (PIC)])],
+            [],
+            [CXXFLAGS+=" -fPIC " CFLAGS+=" -fPIC "])
 
 # postgres is automatically defined in m4/ct_check_postgres_db.m4
 AC_ARG_WITH([default-basedb],
