@@ -64,6 +64,7 @@ public class GetMapRequest extends Request {
         this.styles = styles;
         this.crs = crs;
         this.bbox = bbox;
+        this.originalBbox = new BoundingBox(bbox);
         this.format = format;
         this.width = width;
         this.height = height;
@@ -232,7 +233,8 @@ public class GetMapRequest extends Request {
     }
 
     /**
-     * Returns the bbox requested
+     * Returns the bbox requested by the user. This bbox can be modified by validators or handlers to make it conform
+     * to certain specifications. See {@link GetMapRequest#getOriginalBbox()} for the original bbox
      *
      * @return the bbox requested
      */
@@ -328,6 +330,16 @@ public class GetMapRequest extends Request {
         return dimensions;
     }
 
+    /**
+     * Returns the original bounding box as supplied by the user. See {@link GetMapRequest#getBbox()} to understand
+     * the difference between the two
+     *
+     * @return the original bounding box
+     */
+    public BoundingBox getOriginalBbox(){
+        return originalBbox;
+    }
+
 
     @Nullable
     private final List<Layer> layers;
@@ -337,6 +349,8 @@ public class GetMapRequest extends Request {
     private final Crs crs;
     @Nullable
     private final BoundingBox bbox;
+    @Nullable
+    private final BoundingBox originalBbox;
     @NotNull
     private final GetMapFormat format;
     private final int width;

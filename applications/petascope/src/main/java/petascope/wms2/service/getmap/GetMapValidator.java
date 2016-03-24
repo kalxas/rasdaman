@@ -77,6 +77,7 @@ public class GetMapValidator implements Validator<GetMapRequest> {
         }
     }
 
+
     /**
      * Throws an error if the request does not contain any layers
      *

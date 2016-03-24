@@ -60,25 +60,28 @@ public class MergedLayer {
      * Constructor for the class
      *
      * @param boundingBox    the bounding box for this layer
-     * @param mapBoundingBox the bounding box for the whole map
+     * @param originalBoundingBox the original bounding box for this rasdaman layer as requested by the user
      * @param rasdamanLayers the rasdaman layers corresponding to the layers requested in the client's request
      * @param dimensions     the dimensions corresponding to the layers and the client's request
      * @param styles         the styles requested by the client
      * @param height         the height of the response
      * @param width          the width of the response
      * @param format         the format of the response
+     * @param transparent    boolean value indicating if the layer should have the nodata values transparent
      */
-    public MergedLayer(List<Layer> layers, BoundingBox boundingBox, BoundingBox mapBoundingBox, List<RasdamanLayer> rasdamanLayers,
-                       List<Dimension> dimensions, List<Style> styles, int width, int height, GetMapFormat format) {
+    public MergedLayer(List<Layer> layers, BoundingBox boundingBox, BoundingBox originalBoundingBox,
+                       List<RasdamanLayer> rasdamanLayers,  List<Dimension> dimensions, List<Style> styles,
+                       int width, int height, GetMapFormat format, boolean transparent) {
         this.layers = layers;
         this.boundingBox = boundingBox;
+        this.originalBoundingBox = originalBoundingBox;
         this.rasdamanLayers = rasdamanLayers;
-        this.mapBoundingBox = mapBoundingBox;
         this.dimensions = dimensions;
         this.styles = styles;
         this.height = height;
         this.width = width;
         this.format = format;
+        this.transparent = transparent;
     }
 
     /**
@@ -91,7 +94,14 @@ public class MergedLayer {
     public List<RasdamanSubset> getRasdamanSubsets() throws WMSInvalidDimensionValue, WMSInvalidBbox {
         List<RasdamanSubset> rasdamanSubsets = new ArrayList<RasdamanSubset>(dimensions.size() + 2); //extra dimensions + axis x + axis y
         rasdamanSubsets.addAll(dimensionsToSubset());
-        rasdamanSubsets.addAll(boundingBoxToSubset());
+        rasdamanSubsets.addAll(boundingBoxToSubset(boundingBox));
+        return rasdamanSubsets;
+    }
+
+    public List<RasdamanSubset> getRasdamanExtendSubsets() throws WMSInvalidDimensionValue, WMSInvalidBbox {
+        List<RasdamanSubset> rasdamanSubsets = new ArrayList<RasdamanSubset>(dimensions.size() + 2); //extra dimensions + axis x + axis y
+        rasdamanSubsets.addAll(dimensionsToSubset());
+        rasdamanSubsets.addAll(boundingBoxToSubset(originalBoundingBox));
         return rasdamanSubsets;
     }
 
@@ -101,7 +111,7 @@ public class MergedLayer {
      * @return the rasdaman subset
      * @throws WMSInvalidBbox
      */
-    private List<RasdamanSubset> boundingBoxToSubset() throws WMSInvalidBbox {
+    private List<RasdamanSubset> boundingBoxToSubset(BoundingBox boundingBox) throws WMSInvalidBbox {
         try {
             List<RasdamanSubset> rasdamanSubsets = new ArrayList<RasdamanSubset>(2);
             DbMetadataSource dbMetadataSource = new DbMetadataSource(ConfigManager.METADATA_DRIVER,
@@ -118,11 +128,11 @@ public class MergedLayer {
                 for (String axisLabel : getAxesLabels(coverageMetadata.getCrsUris())) {
                     DomainElement dom = coverageMetadata.getDomainByName(axisLabel);
                     if (dom.getType().equals(AxisTypes.X_AXIS) || dom.getType().equals(AxisTypes.Y_AXIS)) {
-                        String min = String.valueOf(this.boundingBox.getMinx());
-                        String max = String.valueOf(this.boundingBox.getMaxx());
+                        String min = String.valueOf(boundingBox.getMinx());
+                        String max = String.valueOf(boundingBox.getMaxx());
                         if (index != 0) {
-                            min = String.valueOf(this.boundingBox.getMiny());
-                            max = String.valueOf(this.boundingBox.getMaxy());
+                            min = String.valueOf(boundingBox.getMiny());
+                            max = String.valueOf(boundingBox.getMaxy());
                         }
                         CrsComputer crsComputer = new CrsComputer(dom.getLabel(), crs,
                             new Interval<String>(min, max), coverage, coverageRegistry);
@@ -136,7 +146,6 @@ public class MergedLayer {
             } catch (SecoreException e) {
                 throw new WMSInvalidCrsUriException(crs);
             }
-
             return rasdamanSubsets;
         } catch (Exception e) {
             throw new WMSInvalidBbox(boundingBox.toString());
@@ -202,13 +211,23 @@ public class MergedLayer {
         return format;
     }
 
+    /**
+     * Boolean value indicating if nodata pixels should be rendered transparent
+     *
+     * @return transparency of the merged layer
+     */
+    public boolean isTransparent() {
+        return transparent;
+    }
+
     private final BoundingBox boundingBox;
+    private final BoundingBox originalBoundingBox;
     private final List<RasdamanLayer> rasdamanLayers;
     private final List<Dimension> dimensions;
     private final List<Style> styles;
     private final int height;
     private final int width;
     private final GetMapFormat format;
-    private final BoundingBox mapBoundingBox;
     private final List<Layer> layers;
+    private final boolean transparent;
 }

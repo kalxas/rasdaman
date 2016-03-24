@@ -90,6 +90,15 @@ public class BoundingBox implements ISerializableMetadataObject, IPersistentMeta
         this.layer = layer;
     }
 
+    public BoundingBox(BoundingBox boundingBox){
+        this.crs = boundingBox.getCrs();
+        this.minx = boundingBox.minx;
+        this.miny = boundingBox.miny;
+        this.maxx = boundingBox.maxx;
+        this.maxy = boundingBox.maxy;
+        this.layer = boundingBox.layer;
+    }
+
     /**
      * Empty constructor to be used by the persistence provider
      */

@@ -71,6 +71,12 @@ public class RasqlQueryGenerator {
     private String generateEncodeClause(@NotNull String selectClause) {
         String encode = ENCODE_CLAUSE;
         encode = encode.replace("$Select", selectClause).replace("$Format", mergedLayer.getFormat().getRasdamanFormat());
+        if(mergedLayer.isTransparent()) {
+            encode = encode.replace("$nodata", ", \"nodata=0\"");
+        }
+        else{
+            encode = encode.replace("$nodata", "");
+        }
         return encode;
     }
 
@@ -104,6 +110,41 @@ public class RasqlQueryGenerator {
     }
 
     /**
+     * Generates the extend clause of the rasql query
+     *
+     * @return the extend clause of the rasql query
+     * @throws WMSInvalidDimensionValue
+     * @throws WMSInvalidBbox
+     */
+    private String generateExtendClause() throws WMSInvalidDimensionValue, WMSInvalidBbox {
+        String extendClause  = EXTEND_CLAUSE;
+        String subsets = generateSubsetClause(mergedLayer.getRasdamanExtendSubsets());
+        extendClause = extendClause.replace("$Subsets", subsets);
+        return extendClause;
+    }
+
+    /**
+     * Generates the scale clause of the query
+     *
+     * @param layer the merged layer containing information about output size and requested bounding box
+     * @return the scale query
+     * @throws WMSInvalidDimensionValue
+     * @throws WMSInvalidBbox
+     */
+    private String generateScaleClause(RasdamanLayer layer) throws WMSInvalidDimensionValue, WMSInvalidBbox {
+        String scaleClause  = SCALE_CLAUSE;
+        scaleClause = scaleClause.replace("$Extend", generateExtendClause());
+        if (layer.getXOrder() == 0) {
+            scaleClause = scaleClause.replace("$1Axis", String.valueOf(mergedLayer.getWidth() - 1));
+            scaleClause = scaleClause.replace("$2Axis", String.valueOf(mergedLayer.getHeight() - 1));
+        } else {
+            scaleClause = scaleClause.replace("$1Axis", String.valueOf(mergedLayer.getHeight() - 1));
+            scaleClause = scaleClause.replace("$2Axis", String.valueOf(mergedLayer.getWidth() - 1));
+        }
+        return scaleClause;
+    }
+
+    /**
      * Generates the select clause and returns it
      *
      * @return the select clause
@@ -112,19 +153,13 @@ public class RasqlQueryGenerator {
      */
     private String generateSelectClause() throws WMSInvalidDimensionValue, WMSInvalidBbox {
         List<String> selects = new ArrayList<String>();
-        String subset = generateSubsetClause();
+        String subset = generateSubsetClause(mergedLayer.getRasdamanSubsets());
         int layerPosition = 0;
         for (RasdamanLayer layer : mergedLayer.getRasdamanLayers()) {
-            String select = SCALE_CLAUSE;
+            String select = generateScaleClause(layer);
             String col = layer.getCollectionName() + subset;
             select = select.replace("$Col", col);
-            if (layer.getXOrder() == 0) {
-                select = select.replace("$1Axis", String.valueOf(mergedLayer.getWidth()));
-                select = select.replace("$2Axis", String.valueOf(mergedLayer.getHeight()));
-            } else {
-                select = select.replace("$1Axis", String.valueOf(mergedLayer.getHeight()));
-                select = select.replace("$2Axis", String.valueOf(mergedLayer.getWidth()));
-            }
+
             select = addStyleToSelectClause(select, layerPosition);
             layerPosition += 1;
             selects.add(select);
@@ -132,6 +167,13 @@ public class RasqlQueryGenerator {
         return StringUtils.join(selects, SELECT_JOINER);
     }
 
+    /**
+     * Adds the style rasql fragment to the select clause
+     *
+     * @param select the select clause of the rasql query
+     * @param stylePosition the position of the style in the list of layer styles
+     * @return the styles select clause
+     */
     private String addStyleToSelectClause(String select, int stylePosition) {
         if (mergedLayer.getStyles().size() > stylePosition) {
             String rasqlStylePart = mergedLayer.getStyles().get(stylePosition).getRasqlQueryTransformer();
@@ -150,13 +192,12 @@ public class RasqlQueryGenerator {
      * @throws WMSInvalidDimensionValue
      * @throws WMSInvalidBbox
      */
-    private String generateSubsetClause() throws WMSInvalidDimensionValue, WMSInvalidBbox {
+    private String generateSubsetClause(List<RasdamanSubset> subsets) throws WMSInvalidDimensionValue, WMSInvalidBbox {
         String subset = SUBSET_START;
         List<String> dimSubsets = new ArrayList<String>();
-        List<RasdamanSubset> sortedSubset = mergedLayer.getRasdamanSubsets();
-        Collections.sort(sortedSubset);
-        for (RasdamanSubset rsub : sortedSubset) {
-            dimSubsets.add(String.valueOf(rsub.getMin()) + SUBSET_DIMENSION_INTERVAL_SPLIT + String.valueOf(rsub.getMax()));
+        Collections.sort(subsets);
+        for (RasdamanSubset rasdamanSubset : subsets) {
+            dimSubsets.add(String.valueOf(rasdamanSubset.getMin()) + SUBSET_DIMENSION_INTERVAL_SPLIT + String.valueOf(rasdamanSubset.getMax()));
         }
         subset += StringUtils.join(dimSubsets, SUBSET_JOINER);
         subset += SUBSET_END;
@@ -169,8 +210,9 @@ public class RasqlQueryGenerator {
     private final static String OID_FILTER_JOINER = " AND ";
     private final static String COLLECTION_JOINER = ",";
     private final static String SELECT_JOINER = " OVERLAY ";
-    private final static String SCALE_CLAUSE = "SCALE($Col, [0:$1Axis, 0:$2Axis])";
-    private final static String ENCODE_CLAUSE = "encode($Select, \"$Format\")";
+    private final static String EXTEND_CLAUSE = "EXTEND($Col, $Subsets)";
+    private final static String SCALE_CLAUSE = "SCALE($Extend, [0:$1Axis, 0:$2Axis])";
+    private final static String ENCODE_CLAUSE = "ENCODE($Select, \"$Format\" $nodata)";
     private final static String SUBSET_JOINER = ",";
     private final static String SUBSET_DIMENSION_INTERVAL_SPLIT = ":";
     private final static String SUBSET_START = "[";

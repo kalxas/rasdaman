@@ -156,7 +156,7 @@ public class EncodeDataExpr extends AbstractRasNode {
                             // Append params to the rasql query (params with same key are overwritten so that params set by WCS are not lost):
                             gdalParams.addExtraParams(extraParams);
                             extraParams = gdalParams.toString();
-                            result = result + ", \"" + extraParams + "\"";
+                            result = result + ", \"" + extraParams.replace('"', '\'') + "\"";
                         }
                     }
                 } catch (WCPSException ex) {
