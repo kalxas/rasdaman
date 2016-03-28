@@ -38,7 +38,7 @@ SRCS = src/org/odmg/*.java src/rasj/*.java src/rasj/global/*.java src/rasj/clien
 
 if RMANRASNET
 SRCS += src/org/rasdaman/rasnet/communication/*.java src/org/rasdaman/rasnet/service/*.java src/org/rasdaman/rasnet/util/*.java
-CLASSPATH = -cp lib/commons-codec-1.3.jar:lib/commons-logging-1.1.1.jar:lib/google-auth-library-credentials-0.3.0.jar:lib/google-auth-library-oauth2-http-0.3.0.jar:lib/google-http-client-1.19.0.jar:lib/google-http-client-jackson2-1.19.0.jar:lib/grpc-all-0.9.0.jar:lib/grpc-auth-0.9.0.jar:lib/grpc-core-0.9.0.jar:lib/grpc-netty-0.9.0.jar:lib/grpc-okhttp-0.9.0.jar:lib/grpc-protobuf-0.9.0.jar:lib/grpc-protobuf-nano-0.9.0.jar:lib/grpc-stub-0.9.0.jar:lib/guava-18.0.jar:lib/hamcrest-core-1.3.jar:lib/hpack-0.10.1.jar:lib/httpclient-4.0.1.jar:lib/httpcore-4.0.1.jar:lib/jackson-core-2.1.3.jar:lib/jsr305-3.0.0.jar:lib/junit-4.11.jar:lib/junit-4.12.jar:lib/mockito-all-1.10.19.jar:lib/mockito-core-1.10.19.jar:lib/netty-buffer-4.1.0.Beta6.jar:lib/netty-codec-4.1.0.Beta6.jar:lib/netty-codec-http2-4.1.0.Beta6.jar:lib/netty-codec-http-4.1.0.Beta6.jar:lib/netty-common-4.1.0.Beta6.jar:lib/netty-handler-4.1.0.Beta6.jar:lib/netty-resolver-4.1.0.Beta6.jar:lib/netty-transport-4.1.0.Beta6.jar:lib/objenesis-2.1.jar:lib/okhttp-2.4.0.jar:lib/okio-1.4.0.jar:lib/protobuf-java-3.0.0-beta-1.jar:lib/protobuf-javanano-3.0.0-alpha-4.jar
+CLASSPATH = lib/commons-codec-1.3.jar:lib/commons-logging-1.1.1.jar:lib/google-auth-library-credentials-0.3.0.jar:lib/google-auth-library-oauth2-http-0.3.0.jar:lib/google-http-client-1.19.0.jar:lib/google-http-client-jackson2-1.19.0.jar:lib/grpc-all-0.9.0.jar:lib/grpc-auth-0.9.0.jar:lib/grpc-core-0.9.0.jar:lib/grpc-netty-0.9.0.jar:lib/grpc-okhttp-0.9.0.jar:lib/grpc-protobuf-0.9.0.jar:lib/grpc-protobuf-nano-0.9.0.jar:lib/grpc-stub-0.9.0.jar:lib/guava-18.0.jar:lib/hamcrest-core-1.3.jar:lib/hpack-0.10.1.jar:lib/httpclient-4.0.1.jar:lib/httpcore-4.0.1.jar:lib/jackson-core-2.1.3.jar:lib/jsr305-3.0.0.jar:lib/junit-4.11.jar:lib/junit-4.12.jar:lib/mockito-all-1.10.19.jar:lib/mockito-core-1.10.19.jar:lib/netty-buffer-4.1.0.Beta6.jar:lib/netty-codec-4.1.0.Beta6.jar:lib/netty-codec-http2-4.1.0.Beta6.jar:lib/netty-codec-http-4.1.0.Beta6.jar:lib/netty-common-4.1.0.Beta6.jar:lib/netty-handler-4.1.0.Beta6.jar:lib/netty-resolver-4.1.0.Beta6.jar:lib/netty-transport-4.1.0.Beta6.jar:lib/objenesis-2.1.jar:lib/okhttp-2.4.0.jar:lib/okio-1.4.0.jar:lib/protobuf-java-3.0.0-beta-1.jar:lib/protobuf-javanano-3.0.0-alpha-4.jar
 
 endif
 
@@ -49,9 +49,9 @@ else
 	cp src/rasj/RasImplementation.java.rnp src/rasj/RasImplementation.java
 endif
 
-all : select_rasimplementation src/org/odmg/*.java src/rasj/*.java src/rasj/global/*.java src/rasj/clientcommhttp/*.java src/rasj/odmg/*.java src/rasj/rnp/*.java
+all : select_rasimplementation src/org/odmg/*.java src/rasj/*.java src/rasj/global/*.java src/rasj/clientcommhttp/*.java src/rasj/odmg/*.java src/rasj/rnp/*.java javadoc
 	mkdir -p bin dist
-	javac $(CLASSPATH) -d bin $(SRCS)
+	javac -cp $(CLASSPATH) -d bin $(SRCS)
 if RMANRASNET
 	cd bin && \
     jar xf ../lib/commons-codec-1.3.jar && \
@@ -97,6 +97,22 @@ endif
 	jar -cf dist/rasj.jar -C bin .
 	cp dist/rasj.jar ../applications/petascope/lib/rasj.jar
 
+if GENERATE_DOCS
+APIDOCS   = dist/apidocs
+JDFLAGS   = -sourcepath src \
+            -d $(APIDOCS)           \
+            -source 1.5 -classpath $(CLASSPATH)
+
+DOC       = doc
+DOCRASJ   = $(DOC)/doc-rasj
+APIFOLDER = $(DOCRASJ)/classes
+.PHONY: javadoc
+javadoc:
+	javadoc $(JDFLAGS) $(SRCS)
+else
+javadoc:
+endif
+
 examples: src/examples/*.java all
 	mkdir -p bin
 	javac -d bin src/examples/*.java -cp dist/rasj.jar
@@ -139,3 +155,7 @@ endif
 install-data-hook:
 	mkdir -p $(DESTDIR)@libdir@
 	cp dist/rasj.jar $(DESTDIR)@libdir@
+if GENERATE_DOCS
+	mkdir -p $(DESTDIR)$(pkgdatadir)/$(APIFOLDER)
+	cp -r $(APIDOCS)/* $(DESTDIR)$(pkgdatadir)/$(APIFOLDER)
+endif
