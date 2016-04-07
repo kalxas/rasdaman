@@ -1,0 +1,1 @@
+select condense + over i in [0:10] using {i[0]} from test_grey as c

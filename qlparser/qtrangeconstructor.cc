@@ -379,13 +379,12 @@ QtRangeConstructor::checkType(QtTypeTuple *typeTuple)
 
     QtTypeElement inputType;
 
-    StructType *structType;
     // check operand branches
     if (operationList)
     {
-        QtOperationList::iterator iter;
-
-        for (iter = operationList->begin(); iter != operationList->end(); iter++)
+        StructType *structType = new StructType("", operationList->size());
+        unsigned int i = 0;
+        for (QtOperationList::iterator iter = operationList->begin(); iter != operationList->end(); iter++, i++)
         {
 
             if (*iter)
@@ -397,39 +396,24 @@ QtRangeConstructor::checkType(QtTypeTuple *typeTuple)
             {
                 complexLit = false;
             }
+            else
+            {
+                char elementName[50];
+                sprintf(elementName, "%d\0", i);
+                structType->addElement(elementName, ((BaseType*)inputType.getType()));
+            }
         }
         if (complexLit)
         {
-            char elementName[50];
-            int i = 0;
-
-            std::vector<QtScalarData *> scalarOperandList;
-            for (iter = operationList->begin(); iter != operationList->end(); iter++)
-            {
-                QtData *operand = (*iter)->evaluate(NULL);
-                scalarOperandList.push_back(static_cast<QtScalarData *>(operand));
-            }
-
-            structType = new StructType("", scalarOperandList.size());
-
-            // add type elements, the first element inserted has no 0, the second no 1, and so on
-            for (std::vector<QtScalarData *>::iterator iterScalar = scalarOperandList.begin(); iterScalar != scalarOperandList.end(); iterScalar++, i++)
-            {
-                sprintf(elementName, "%d", i);
-                structType->addElement(elementName, (*iterScalar)->getValueType());
-            }
             TypeFactory::addTempType(structType);
             dataStreamType.setDataType(QT_COMPLEX);
             dataStreamType.setType(structType);
-            for (std::vector<QtScalarData *>::iterator iterScalar = scalarOperandList.begin(); iterScalar != scalarOperandList.end(); iterScalar++)
-            {
-                (*iterScalar)->deleteRef();
-                *iterScalar = NULL;
-            }
         }
         else
         {
             dataStreamType.setDataType(QT_MDD);
+            delete structType;
+            structType = NULL;
         }
 
     }

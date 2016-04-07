@@ -1,0 +1,1 @@
+select {c[100,110], c[110,100]} from test_grey as c
