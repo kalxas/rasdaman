@@ -841,6 +841,10 @@ protected:
     unsigned int numElems;
     // array of operations on the elements.
     BinaryOp** elemOps;
+    BinaryOp** equalOps;
+    BinaryOp** lessOps;
+    UnaryOp** assignmentOps;
+    char boolRes[1];
 };
 
 //@ManMemo: Module: {\bf catalogif}.

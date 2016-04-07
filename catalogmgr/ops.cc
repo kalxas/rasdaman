@@ -35,6 +35,7 @@ static const char rcsid[] = "@(#)catalogif,ops.cc: $Header: /home/rasdev/CVS-rep
 #endif
 #include "ops.hh"
 #include "relcatalogif/alltypes.hh"
+#include "reladminif/objectbroker.hh"
 #include "typefactory.hh"
 #include "raslib/point.hh"
 #include <easylogging++.h>
@@ -3881,18 +3882,49 @@ OpBinaryStruct::OpBinaryStruct( const BaseType* newStructType, Ops::OpType op,
     unsigned int i = 0;
 
     _operation = op;
+    BaseType* boolType = ((BaseType*)ObjectBroker::getObjectByName(OId::ATOMICTYPEOID, "Bool"));
+    
 
     myStructType = (StructType*)const_cast<BaseType*>(newStructType);
     numElems = myStructType->getNumElems();
     elemOps = new BinaryOp*[numElems];
+    equalOps = new BinaryOp*[numElems];
+    lessOps = new BinaryOp*[numElems];
+    assignmentOps = new UnaryOp*[numElems];
     for(i = 0; i < numElems; i++)
     {
-        elemOps[i] = Ops::getBinaryOp( op, myStructType->getElemType(i),
-                                       myStructType->getElemType(i),
-                                       myStructType->getElemType(i),
-                                       newResOff + myStructType->getOffset(i),
-                                       newOp1Off + myStructType->getOffset(i),
-                                       newOp2Off + myStructType->getOffset(i) );
+        equalOps[i] = NULL;
+        lessOps[i] = NULL;
+        assignmentOps[i] = NULL;
+        elemOps[i] = NULL;
+        if (op == Ops::OP_MIN_BINARY || op == Ops::OP_MAX_BINARY)
+        {
+            lessOps[i] = Ops::getBinaryOp( Ops::OP_LESS, boolType,
+                                           myStructType->getElemType(i),
+                                           myStructType->getElemType(i),
+                                           0,
+                                           newOp1Off + myStructType->getOffset(i),
+                                           newOp2Off + myStructType->getOffset(i) );
+            equalOps[i] = Ops::getBinaryOp( Ops::OP_EQUAL, boolType,
+                                           myStructType->getElemType(i),
+                                           myStructType->getElemType(i),
+                                           0,
+                                           newOp1Off + myStructType->getOffset(i),
+                                           newOp2Off + myStructType->getOffset(i) );
+            assignmentOps[i] = Ops::getUnaryOp( Ops::OP_IDENTITY, myStructType->getElemType(i),
+                                           myStructType->getElemType(i),
+                                           newResOff + myStructType->getOffset(i),
+                                           newOp1Off + myStructType->getOffset(i) );
+        }
+        else
+        {
+            elemOps[i] = Ops::getBinaryOp( op, myStructType->getElemType(i),
+                                           myStructType->getElemType(i),
+                                           myStructType->getElemType(i),
+                                           newResOff + myStructType->getOffset(i),
+                                           newOp1Off + myStructType->getOffset(i),
+                                           newOp2Off + myStructType->getOffset(i) );
+        }
     }
 }
 
@@ -3902,9 +3934,19 @@ OpBinaryStruct::~OpBinaryStruct()
 
     for(i = 0; i < numElems; i++)
     {
-        delete elemOps[i];
+        if (elemOps[i])
+            delete elemOps[i];
+        if (lessOps[i])
+            delete lessOps[i];
+        if (equalOps[i])
+            delete equalOps[i];
+        if (assignmentOps[i])
+            delete assignmentOps[i];
     }
     delete[] elemOps;
+    delete[] lessOps;
+    delete[] equalOps;
+    delete[] assignmentOps;
 }
 
 void
@@ -3915,7 +3957,6 @@ OpBinaryStruct::operator()( char* res, const char* op1,
 
     if( _operation == Ops::OP_OVERLAY )
     {
-        LINFO << "OpBinaryStruct operation";
         for(i = 0; i < numElems; ++i)
             if(*(op2 + op2Off) && !isNull(*(op2 + op2Off)))
             {
@@ -3924,11 +3965,41 @@ OpBinaryStruct::operator()( char* res, const char* op1,
                 return;
             }
     }
-
-
-    for(i = 0; i < numElems; i++)
+    if( _operation == Ops::OP_MIN_BINARY || _operation == Ops::OP_MAX_BINARY )
     {
-        (*elemOps[i])(res, op1, op2);
+        bool op1Min = true;
+        for(i = 0; i < numElems; ++i)
+        {
+            (*lessOps[i])(boolRes, op1, op2);
+            bool op1LessThanOp2 = *((bool*)(boolRes));
+            if (!op1LessThanOp2)
+            {
+                (*equalOps[i])(boolRes, op1, op2);
+                bool op1EqualToOp2 = *((bool*)(boolRes));
+                if (!op1EqualToOp2)
+                {
+                    op1Min = false;
+                    break;
+                }
+            }
+        }
+        const char* op = op1;
+        if ((_operation == Ops::OP_MIN_BINARY && !op1Min) ||
+                (_operation == Ops::OP_MAX_BINARY && op1Min))
+        {
+            op = op2;
+        }
+        for(i = 0; i < numElems; i++)
+        {
+            (*assignmentOps[i])(res, op);
+        }
+    }
+    else
+    {
+        for(i = 0; i < numElems; i++)
+        {
+            (*elemOps[i])(res, op1, op2);
+        }
     }
 
 }
