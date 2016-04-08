@@ -53,7 +53,8 @@ public:
 
      *  \param rasport  rasmgr port (e.g. 7001)
      *  \param pgport   postgres server port (e.g. 5432)
-     *  \param hostname hostname (e.g. localhost)
+     *  \param hostname1 hostname1 (e.g. localhost) for RASBASE only
+     *  \param hostname2 hostname2 (e.g. localhost) for petascopedb only
      *  \param RasDbName rasdaman data base name (e.g. RASBASE)
      *  \param PetaDbName petascope data base name
      *  \param RasDbUser rasdaman data base user (e.g. PostgreSQL user)
@@ -65,7 +66,8 @@ public:
      */
 
     RasdamanConnector(int rasport, int pgport,
-                      std::string hostname,
+                      std::string hostname1,
+		      std::string hostname2,
                       std::string RasDbName, std::string PetaDbName,
                       std::string RasDbuser, std::string RasDbPasswd,
                       std::string RasUser, std::string RasPasswd,
@@ -118,10 +120,15 @@ public:
         return this->m_iRasPort;
     };
 
-    /*! get configured connection details */
+    /*! get configured connection details for host1 */
     std::string getHostName()
     {
         return this->m_sHostName;
+    };
+    /*! get configured connection details for host2 */
+    std::string getHostName2()
+    {
+        return this->m2_sHostName;
     };
     /*! get configured connection details */
     std::string getRasDbName()
@@ -177,8 +184,10 @@ protected:
     int m_iRasPort;
     /*! Postgres port */
     int m_iPgPort;
-    /*! hostname */
+    /*! hostname1 */
     std::string m_sHostName;
+    /*! hostname2 */
+    std::string m2_sHostName;
     /*! rasdaman data base name */
     std::string m_RasDbName;
     /*! petascope data base name */

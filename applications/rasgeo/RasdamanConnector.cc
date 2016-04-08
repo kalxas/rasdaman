@@ -38,19 +38,20 @@ RasdamanConnector::RasdamanConnector()
 }
 
 RasdamanConnector::RasdamanConnector(int rasport, int pgport,
-                                     std::string hostname,
+                                     std::string hostname1,
+                                     std::string hostname2,
                                      std::string RasDbName, std::string PetaDbName,
                                      std::string RasDbuser, std::string RasDbPasswd,
                                      std::string RasUser, std::string RasPasswd,
                                      std::string PetaUser, std::string PetaPasswd) :
     m_iRasPort(rasport), m_iPgPort(pgport),
-    m_sHostName(hostname), m_RasDbName(RasDbName),
+    m_sHostName(hostname1), m2_sHostName(hostname2), m_RasDbName(RasDbName),
     m_PetaDbName(PetaDbName), m_RasDbUser(RasDbuser),
     m_RasDbPasswd(RasDbPasswd), m_RasUser(RasUser),
     m_RasPasswd(RasPasswd), m_PetaUser(PetaUser),
     m_PetaPasswd(PetaPasswd)
 {
-    m_db.set_servername(hostname.c_str(), rasport);
+    m_db.set_servername(hostname1.c_str(), rasport);
     m_db.set_useridentification(RasUser.c_str(), RasPasswd.c_str());
 
     this->m_petaconn = 0;
@@ -119,9 +120,13 @@ int RasdamanConnector::parseConfig(std::string configfile) throw (r_Error)
         key = removeWhiteSpaces(linestr.substr(0, pos));
         value = removeWhiteSpaces(linestr.substr(pos + 1, linestr.size() - 1));
 
-        if (key == "host")
+        if (key == "host1")
         {
-            this->m_sHostName = value;
+            this->m_sHostName = value;    
+        }
+        else if (key == "host2")
+        {
+            this->m2_sHostName = value;
         }
         else if (key == "rasport")
         {
@@ -274,7 +279,7 @@ const PGconn* RasdamanConnector::getRasConnection()
 std::string RasdamanConnector::getPetaPGConnectString(void)
 {
     std::stringstream connstr;
-    connstr << "host=" << this->m_sHostName <<
+    connstr << "host=" << this->m2_sHostName <<
             " port=" << this->m_iPgPort <<
             " dbname=" << this->m_PetaDbName <<
             " user=" << this->m_PetaUser <<
