@@ -30,7 +30,7 @@
   <rangeSet>
     <DataBlock>
       <rangeParameters/>
-      <tupleList ts="," cs=" ">3,3.5,4,4.5</tupleList>
+      <tupleList ts="," cs=" ">3.000000,3.500000,4.000000,4.500000</tupleList>
     </DataBlock>
   </rangeSet>
 
