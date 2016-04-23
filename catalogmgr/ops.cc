@@ -31,7 +31,7 @@ static const char rcsid[] = "@(#)catalogif,ops.cc: $Header: /home/rasdev/CVS-rep
 #else
 #include <malloc.h> // malloc()
 #include <values.h>
-#include <math.h>
+#include <cmath>
 #endif
 #include "ops.hh"
 #include "relcatalogif/alltypes.hh"
@@ -2999,7 +2999,7 @@ OpEQUALCCharCDouble::operator()( char* res, const char* op1,
 
     op1Type->convertToCDouble(op1 + op1Off, &doubleOp1);
     op2Type->convertToCDouble(op2 + op2Off, &doubleOp2);
-    *(res + resOff) = (isnan(doubleOp1) && isnan(doubleOp2)) || doubleOp1 == doubleOp2;
+    *(res + resOff) = (std::isnan(doubleOp1) && std::isnan(doubleOp2)) || doubleOp1 == doubleOp2;
 }
 
 OpLESSCCharCDouble::OpLESSCCharCDouble( const BaseType* newResType,
@@ -3085,8 +3085,8 @@ OpNOTEQUALCCharCDouble::operator()( char* res, const char* op1,
     }
     else
     {
-        bool isNan1 = isnan(doubleOp1);
-        bool isNan2 = isnan(doubleOp2);
+        bool isNan1 = std::isnan(doubleOp1);
+        bool isNan2 = std::isnan(doubleOp2);
         *(res + resOff) = (isNan1 != isNan2) || (!(isNan1 || isNan2) && doubleOp1 != doubleOp2);
     }
 }
