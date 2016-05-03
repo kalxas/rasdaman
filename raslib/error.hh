@@ -147,6 +147,10 @@ public:
                 r_Error_MemoryAllocation,
 
                 r_Error_InvalidOptimizationLevel,
+                r_Error_InvalidBoundsStringContents,
+                r_Error_RuntimeProjectionError,
+                r_Error_InvalidSourceCRS,
+                r_Error_InvalidTargetCRS,
 
                 r_Error_TileCannotBeLocked,
 

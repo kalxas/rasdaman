@@ -21,11 +21,15 @@
  */
 package petascope.wcs2.parsers;
 
-import java.util.*;
-
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.StringTokenizer;
+import java.util.regex.Pattern;
 import petascope.HTTPRequest;
 import petascope.exceptions.ExceptionCode;
 import petascope.exceptions.WCSException;
+import petascope.util.CrsUtil;
 import static petascope.util.KVPSymbols.*;
 import petascope.util.ListUtil;
 import petascope.util.StringUtil;
@@ -44,12 +48,47 @@ import petascope.wcs2.parsers.subsets.SubsetParser;
  */
 public class KVPGetCoverageParser extends KVPParser<GetCoverageRequest> {
 
+    private static final Pattern PATTERN = Pattern.compile("([^,\\(]+)(,([^\\(]+))?\\(([^,\\)]+)(,([^\\)]+))?\\)");
+
+    /**
+     * Parses any subset parameters defined as in OGC 09-147r1 standard(e.g.
+     * ...&subset=x(200,300)&subset=y(300,200)) and for backwards compatibility
+     * subsets defined as subsetD(where D is any distinct string)(e.g.
+     * &subsetA=x(200,300))
+     *
+     * @param request - the request parameters as a string
+     * @return ret - a hashmap containing the subsets
+     */
+    public HashMap<String, String> parseSubsetParams(String request) {
+        HashMap<String, String> ret = new HashMap<String, String>();
+        StringTokenizer st = new StringTokenizer(request, "&");
+        while (st.hasMoreTokens()) {
+            String kvPair = (String) st.nextToken();
+            int splitPos = kvPair.indexOf("=");
+            if (splitPos != -1) {
+                String key = kvPair.substring(0, splitPos);
+                String value = kvPair.substring(splitPos + 1);
+                if (key.equalsIgnoreCase(KEY_SUBSET)) {
+                    ret.put(key + value, value);
+                }
+                //Backward compatibility
+                else if (key.toLowerCase().startsWith(KEY_SUBSET)
+                        && !key.equalsIgnoreCase(KEY_SUBSETCRS)) {
+                    ret.put(key + value, value);
+                }
+            }
+        }
+
+        return ret;
+    }
+
     @Override
     public GetCoverageRequest parse(HTTPRequest request) throws WCSException {
         String input = request.getRequestString();
         Map<String, List<String>> p = StringUtil.parseQuery(input);
         checkEncodingSyntax(p,
                 KEY_COVERAGEID, KEY_VERSION, KEY_MEDIATYPE, KEY_FORMAT,
+                KEY_SUBSETCRS, KEY_OUTPUTCRS, KEY_RANGESUBSET,
                 KEY_SCALEFACTOR, KEY_SCALEAXES, KEY_SCALESIZE, KEY_SCALEEXTENT,
                 KEY_RANGESUBSET, KEY_INTERPOLATION);
         List<String> coverageIds = p.get(KEY_COVERAGEID); // null if no key
@@ -81,6 +120,47 @@ public class KVPGetCoverageParser extends KVPParser<GetCoverageRequest> {
 
         //Parse rangeSubset parameters if any for the RangeSubset Extension
         RangeSubsettingExtension.parseGetCoverageKVPRequest(p, ret);
+
+        /* CrsExt-extension parameters: */
+        // subsettingCrs
+        String subCrs=null, outCrs=null;
+        List<String> list = p.get(KEY_SUBSETCRS);
+        if (list != null && list.size() > 1) {
+            throw new WCSException(ExceptionCode.InvalidRequest,
+                    "Multiple \"" + KEY_SUBSETCRS + "\" parameters in the request: must be unique.");
+        }
+        else {
+            subCrs = ListUtil.head(list);
+            if (!(subCrs == null) && !CrsUtil.CrsUri.isValid(subCrs)) {
+                throw new WCSException(ExceptionCode.NotASubsettingCrs,
+                        KEY_SUBSETCRS + " " + subCrs + " is not valid.");
+            }
+            if (!(subCrs == null) && !CrsUtil.isSupportedCrsCode(subCrs)) {
+                throw new WCSException(ExceptionCode.SubsettingCrsNotSupported,
+                        KEY_SUBSETCRS + " " + subCrs + " is not supported.");
+            }
+        }
+        // outputCrs
+        list = p.get(KEY_OUTPUTCRS);
+        if (list != null && list.size() > 1) {
+            throw new WCSException(ExceptionCode.InvalidRequest,
+                    "Multiple \"" + KEY_OUTPUTCRS + "\" parameters in the request: must be unique.");
+        }
+        else {
+            outCrs = ListUtil.head(list);
+            if (!(outCrs == null) && !CrsUtil.CrsUri.isValid(outCrs)) {
+                throw new WCSException(ExceptionCode.NotAnOutputCrs,
+                        KEY_OUTPUTCRS + " " + outCrs + " is not valid.");
+            }
+            if (!(outCrs == null) && !CrsUtil.isSupportedCrsCode(outCrs)) {
+                throw new WCSException(ExceptionCode.SubsettingCrsNotSupported,
+                        KEY_OUTPUTCRS + " " + outCrs + " is not supported.");
+            }
+        }
+        if (!(subCrs==null) || !(outCrs==null)) {
+            ret.getCrsExt().setSubsettingCrs(subCrs);
+            ret.getCrsExt().setOutputCrs(outCrs);
+        }
 
         //Parse subsets
         List<DimensionSubset> subsets = SubsetParser.parseSubsets(input);

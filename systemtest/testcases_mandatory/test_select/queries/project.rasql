@@ -1,0 +1,1 @@
+select project( c, "EPSG:4326", "EPSG:3857") from test_grey as c

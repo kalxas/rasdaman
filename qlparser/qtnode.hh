@@ -134,6 +134,7 @@ public:
         QT_UNARY_OPERATION,
         QT_CONDENSE,
         QT_UNARY_INDUCE,
+        QT_PROJECT,
 
 //**************
         QT_ABS, QT_EXP, QT_LOG, QT_LN, QT_SIN, QT_COS,

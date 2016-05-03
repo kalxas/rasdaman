@@ -32,6 +32,7 @@ rasdaman GmbH.
 #include "qlparser/qtencode.hh"
 #include "qlparser/qtmdd.hh"
 #include "qlparser/qtmintervaldata.hh"
+#include "qlparser/qtproject.hh"
 #include "raslib/error.hh"
 #include "raslib/primitivetype.hh"
 #include "raslib/structuretype.hh"
@@ -46,6 +47,8 @@ rasdaman GmbH.
 #include <ospace/string.h> // STL<ToolKit>
 #else
 #include <string>
+#include <bits/basic_string.h>
+#include <bits/stl_list.h>
 using namespace std;
 #endif
 
@@ -132,6 +135,49 @@ QtData* QtEncode::evaluate(QtDataList* inputList) throw (r_Error)
                 return 0;
             }
 #endif
+
+        TALK("Geo-bbox: xmin = " << gParams.xmin
+                << ", xmax = " << gParams.xmax
+                << ", ymin = " << gParams.ymin
+                << ", ymax = " << gParams.ymax
+                <<  ", crs = " << gParams.crs);
+        
+        // in case of project child, update bbox according to projection output
+        QtNode::QtNodeList* projections = input->getChild(QT_PROJECT, QT_ALL_NODES);
+        if (input->getNodeType() == QT_PROJECT)
+        {
+            if (projections == NULL)
+                projections = new QtNodeList();
+            projections->push_back(input);
+        }
+        if (projections != NULL && !projections->empty())
+        {
+            TALK(projections->size() << " projection children");
+            for (QtNodeList::iterator it = projections->begin(); it != projections->end(); it++)
+            {
+                QtProject* project = (QtProject*)(*it);
+                gParams.xmin = project->getMinX();
+                gParams.xmax = project->getMaxX();
+                gParams.ymin = project->getMinY();
+                gParams.ymax = project->getMaxY();
+                string newCrs(project->getTargetCrs());
+                gParams.crs = newCrs;
+                
+                TALK("Updated to: xmin = " << gParams.xmin
+                        << ", xmax = " << gParams.xmax
+                        << ", ymin = " << gParams.ymin
+                        << ", ymax = " << gParams.ymax
+                        <<  ", crs = " << gParams.crs);
+                break;
+            }
+        } else {
+            TALK("no projection children");
+        }
+        if (projections)
+        {
+            delete projections;
+            projections = NULL;
+        }
 
             // Perform the actual evaluation
             QtMDD* qtMDD = static_cast<QtMDD*>(operand);

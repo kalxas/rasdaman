@@ -132,6 +132,11 @@ public interface XMLSymbols {
     String LABEL_TRIM_HIGH = "TrimHigh";
     String LABEL_TUPLELIST = "tupleList";
     String LABEL_WGS84_BBOX = "Wgs84BoundingBox";
+
+    // wcs crs-extension
+    String LABEL_CRS_METADATA = "CrsMetadata";
+    String LABEL_CRS = "CRS";
+
     String LABEL_EXTENSION = "Extension";
     String LABEL_FORMAT_SUPPORTED = "formatSupported";
     String LABEL_GENERAL_GRID_AXIS = "generalGridAxis";
@@ -296,6 +301,11 @@ public interface XMLSymbols {
     String ATT_SRS_DIMENSION = "srsDimension";
     String ATT_UOM_LABELS = "uomLabels";
     String ATT_AXIS_LABELS = "axisLabels";
+
+    // crs-extension
+    String ATT_SUPPORTED_CRS = "supportedCrs";
+    String ATT_SUBSET_CRS = "subsettingCrs";
+    String ATT_OUTPUT_CRS = "outputCrs";
 
     // bbox
     String ATT_LOWERCORNER = "LowerCorner";

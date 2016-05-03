@@ -31,6 +31,7 @@ import java.net.URLConnection;
 import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
@@ -45,6 +46,13 @@ import nu.xom.Document;
 import nu.xom.Element;
 import nu.xom.ParsingException;
 import nu.xom.ValidityException;
+import org.geotools.geometry.jts.JTS;
+import org.geotools.referencing.CRS;
+import org.opengis.referencing.FactoryException;
+import org.opengis.referencing.NoSuchAuthorityCodeException;
+import org.opengis.referencing.crs.CoordinateReferenceSystem;
+import org.opengis.referencing.operation.MathTransform;
+import org.opengis.referencing.operation.TransformException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import petascope.ConfigManager;
@@ -58,9 +66,15 @@ import petascope.exceptions.ExceptionCode;
 import petascope.exceptions.PetascopeException;
 import petascope.exceptions.SecoreException;
 import petascope.exceptions.WCPSException;
+import petascope.exceptions.WCSException;
 import static petascope.util.StringUtil.ENCODING_UTF8;
 import petascope.wcps.metadata.CellDomainElement;
+import petascope.wcps.metadata.CoverageInfo;
 import petascope.wcps.metadata.DomainElement;
+import petascope.wcps.server.core.CoverageExpr;
+import petascope.wcps.server.core.ExtendCoverageExpr;
+import petascope.wcps.server.core.IRasNode;
+import petascope.wcps.server.core.TrimCoverageExpr;
 
 /**
  * Coordinates transformation utility in case a spatial reprojection
@@ -91,6 +105,7 @@ public class CrsUtil {
     public static final String GRID_CRS  = "CRS:1";
     public static final String INDEX_CRS_PATTERN = "Index%dD";
     public static final String INDEX_UOM = "GridSpacing"; // See Uom in Index[1-9]D CRS defs
+    public static final String GRID_UOM = "GridSpacing"; // See Uom in Index[1-9]D CRS defs
     public static final String PURE_UOM  = "10^0";
 
 
@@ -99,24 +114,157 @@ public class CrsUtil {
 
     // TODO: do not rely on a static set of auths, but ask SECORE to return the supported authorities: ./def/crs/
     public static final String EPSG_AUTH = "EPSG";
-    //public static final String ISO_AUTH  = "ISO";
-    //public static final String AUTO_AUTH = "AUTO";
+    public static final String ISO_AUTH  = "ISO";
+    public static final String AUTO_AUTH = "AUTO";
     public static final String OGC_AUTH  = "OGC";
     //public static final String IAU_AUTH  = "IAU2000";
     //public static final String UMC_AUTH  = "UMC";
-    //public static final List<String> SUPPORTED_AUTHS = Arrays.asList(EPSG_AUTH, ISO_AUTH, AUTO_AUTH, OGC_AUTH); // IAU_AUTH, UMC_AUTH);
+    public static final List<String> SUPPORTED_AUTHS = Arrays.asList(EPSG_AUTH, ISO_AUTH, AUTO_AUTH, OGC_AUTH); // IAU_AUTH, UMC_AUTH);
 
     // WGS84
     public static final String WGS84_EPSG_CODE = "4326";
 
 
     /* CACHES: avoid EPSG db and SECORE redundant access */
+    private static Map<List<String>, MathTransform> loadedTransforms = new HashMap<List<String>, MathTransform>();  // CRS reprojections
     private static Map<String, CrsDefinition>       parsedCRSs       = new HashMap<String, CrsDefinition>();        // CRS definitions
     private static Map<List<String>, Boolean>       crsComparisons   = new HashMap<List<String>, Boolean>();        // CRS equality tests
     private static Map<List<String>, Long[]>  gridIndexConversions   = new HashMap<List<String>, Long[]>();         // subset2gridIndex conversions
 
     private List<String> crssMap;
+    private CoordinateReferenceSystem sCrsID, tCrsID;
     private static final Logger log = LoggerFactory.getLogger(CrsUtil.class);
+
+    // Constructor
+    public CrsUtil(String sCrs, String tCrs) throws WCSException {
+        sCrsID=null;
+        tCrsID=null;
+
+        try {
+            // TODO: allow non-EPSG CRSs.
+            crssMap = new ArrayList<String>(2);
+            crssMap.addAll(Arrays.asList(sCrs, tCrs));
+
+            if (CrsUtil.loadedTransforms.containsKey(crssMap)) {
+                log.info("CRS transform already loaded in memory.");
+            } else {
+                log.info("Previously unused CRS transform: create and load in memory.");
+                sCrsID = CRS.decode(EPSG_AUTH + ":" + CrsUri.getCode(sCrs));
+                tCrsID = CRS.decode(EPSG_AUTH + ":" + CrsUri.getCode(tCrs));
+                MathTransform transform = CRS.findMathTransform(sCrsID, tCrsID);
+                CrsUtil.loadedTransforms.put(crssMap, transform);
+            }
+        } catch (NoSuchAuthorityCodeException e) {
+            log.error("Could not find CRS " + (sCrsID==null?sCrs:tCrs) + " on the EPSG db: CRS transform impossible.");
+            throw new WCSException(ExceptionCode.InvalidMetadata, "Unsopported or invalid CRS \"" + (sCrsID==null?sCrs:tCrs) + "\".");
+        } catch (FactoryException e) {
+            log.error("Error while decoding CRS " + (sCrsID==null?sCrs:tCrs) + "\n" + e.getMessage());
+            throw new WCSException(ExceptionCode.InternalComponentError, "Error while instanciating new CrsUtil object.\".");
+        } catch (Exception e) {
+            log.error(e.getMessage());
+            throw new WCSException(ExceptionCode.InternalComponentError, "Error while instanciating new CrsUtil object.\".");
+        }
+    }
+
+    // Interface (unuseful now)
+    /**
+     * @return Indicates whether the CrsUtil object has already been created: only DomainInterval/Points
+     *  read the WCPS CRS specification, so CrsUtil is called multiple times to transform e.g. a whole BBOX specification.
+     */
+    /*public CoordinateReferenceSystem getSourceCrs() {
+        return sCrsID;
+    }
+    public CoordinateReferenceSystem getTargetCrs() {
+        return tCrsID;
+    }*/
+
+    // Methods
+    /** Overloaded transform methods:
+     * @param   srcCoords       Array of input coordinates: min values first, max values next. E.g. [xMin,yMin,xMax,yMax].
+     * @return  List<Double>    Locations transformed to targetCRS (defined at construction time).
+     * @throws  WCSException
+     */
+    public List<Double> transform (double[] srcCoords) throws WCSException {
+
+        try {
+            double[] trasfCoords = new double[srcCoords.length];
+
+            // Transform
+            JTS.xform(CrsUtil.loadedTransforms.get(crssMap), srcCoords, trasfCoords);
+
+            /* Re-order transformed coordinates: warping between different projections
+             * might change the ordering of the points. Eg with a small horizontal subsets
+             * and a very wide vertical subset:
+             *
+             *   EPSG:32634 (UTM 34N) |  EPSG:4326 (pure WGS84)
+             *   230000x   3800000y   =  18.07lon   34.31lat
+             *   231000x   4500000y   =  17.82lon   40.61lat
+             */
+            double buf;
+            for (int i = 0; i < trasfCoords.length/2; i++) {
+                if (trasfCoords[i] > trasfCoords[i+trasfCoords.length/2]) {
+                    // Need to swap the coordinates
+                    buf = trasfCoords[i];
+                    trasfCoords[i] = trasfCoords[i+trasfCoords.length/2];
+                    trasfCoords[i+trasfCoords.length/2] = buf;
+                }
+            }
+
+            // Format output
+            List<Double> out = new ArrayList<Double>(srcCoords.length);
+            for (int i = 0; i < trasfCoords.length; i++)
+                out.add(trasfCoords[i]);
+
+            return out;
+
+        } catch (TransformException e) {
+            log.error("Error while transforming coordinates.\n" + e.getMessage());
+            throw new WCSException(ExceptionCode.InternalComponentError, "Error while transforming point.\".");
+        } catch (ClassCastException e) {
+            log.error("Inappropriate key when accessing CrsUtil.loadedTransforms.\n" + e.getMessage());
+            throw new WCSException(ExceptionCode.InternalComponentError, "Error while transforming point.\".");
+        } catch (NullPointerException e) {
+            log.error("Null key when accessing CrsUtil.loadedTransforms.\n" + e.getMessage());
+            throw new WCSException(ExceptionCode.InternalComponentError, "Error while transforming point.\".");
+        } catch (Exception e) {
+            log.error("Error while transforming point." + e.getMessage());
+            throw new WCSException(ExceptionCode.InternalComponentError, "Error while transforming point.\".");
+        }
+    }
+    // Dummy overload
+    public List<Double> transform (String[] coords) throws WCSException {
+        double[] doubleCoords = new double[coords.length];
+        int i = 0;
+        try {
+            for (i = 0; i < coords.length; i++)
+                doubleCoords[i] = Double.parseDouble(coords[i]);
+        } catch (NumberFormatException ex) {
+            throw new WCSException (ExceptionCode.InvalidParameterValue,
+                    "Coordinate " + coords[i] + " seems wrong: could not parse to number.", ex);
+        }
+        // Call the real transform method:
+        return transform(doubleCoords);
+    }
+
+    // TODO: ask SECORE which auths are supported.
+    /**
+     * @param   String crsID    OGC identification URL of CRS.
+     * @return  boolean         True if a supported CRS (currently EPSG codes only).
+     */
+    public static boolean isSupportedCrsCode(String crsID) {
+    //   try {
+    //        // read from List e return
+    //        return crsID.equals(GRID_CRS)
+    //                || (CrsUri.getAuthority(crsID).equals(EPSG_AUTH) && CrsUri.getVersion(crsID).equals(CRS_DEFAULT_VERSION)) //&& SUPPORTED_EPSG.contains(Integer.parseInt(CrsUri.getCode(crsID))));
+    //                ||
+    //        //      || CrsUri.getAuthority(crsID).equals(IAU_AUTH) && ....
+    //        //      ...
+    //    } catch (Exception e) {
+    //        log.warn(e.getMessage());
+    //        return false;
+    //    }
+        return true;
+    }
 
     /**
      * Build a CRS HTTP URI.
@@ -1605,5 +1753,202 @@ public class CrsUtil {
         }
     }
 
+    /**
+     * Inner class which gathers the required geo-parameters for GTiff/JPEG2000 encoding.
+     */
+    public static class CrsProperties {
+        /* Encoding parameters */
+        private static final String CRS_PARAM  = "crs";
+        private static final String XMAX_PARAM = "xmax";
+        private static final String XMIN_PARAM = "xmin";
+        private static final String YMAX_PARAM = "ymax";
+        private static final String YMIN_PARAM = "ymin";
+        private static final char PS = ';'; // parameter separator
+        private static final char KVS = '='; // key-value separator
 
+        /* Members */
+        private double lowX;
+        private double highX;
+        private double lowY;
+        private double highY;
+        private String crs;
+
+        /* Constructors */
+        // Unreferenced gml:Grid
+        public CrsProperties() {
+            lowX  = 0.0D;
+            highX = 0.0D;
+            lowY  = 0.0D;
+            highY = 0.0D;
+            crs   = "";
+        }
+        // Georeferenced gml:RectifiedGrid
+        public CrsProperties(double xMin, double xMax, double yMin, double yMax, String crs) {
+            lowX  = xMin;
+            highX = xMax;
+            lowY  = yMin;
+            highY = yMax;
+            this.crs = crs;
+        }
+        public CrsProperties(String xMin, String xMax, String yMin, String yMax, String crs) {
+            this(Double.parseDouble(xMin), Double.parseDouble(xMax),
+                    Double.parseDouble(yMin), Double.parseDouble(yMax), crs);
+        }
+
+        /**
+         * Returns the bounds of the requested coverage with trim-updates and
+         * letting out sliced dimensions. Dimensionality of the bounds is
+         * checked against the DIM argument.
+         *
+         * @param queryRoot The root node of the XML query, used to fetch trims
+         * and slices
+         * @param expectedDim expected dimensionality of queryRoot
+         * @throws WCPSException
+         */
+        public CrsProperties(CoverageExpr queryRoot, Integer expectedDim) throws WCPSException {
+            CoverageInfo info = queryRoot.getCoverageInfo();
+
+            if (info != null) {
+                // (order of subset) not necessarily = (order of coverage axes)
+                Map<Integer, String> orderToName = new HashMap<Integer, String>();
+                // axis name -> geo bounds
+                Map<String, Double[]> nameToBounds = new HashMap<String, Double[]>();
+
+                // Fetch the operations which change the geo bounding box (trim/extend)
+                List<IRasNode> subsets = MiscUtil.childrenOfTypes(queryRoot, TrimCoverageExpr.class, ExtendCoverageExpr.class);
+
+                // Check each dimension: slice->discard, trim/extend->setBounds, otherwise set bbox bounds
+                for (int i = 0; i < info.getNumDimensions(); i++) {
+                    String dimName = info.getDomainElement(i).getLabel();
+
+                    // The dimension is surely in the output
+                    if (!queryRoot.isSlicedAxis(dimName)) {
+                        orderToName.put(info.getDomainIndexByName(dimName), dimName);
+
+                        // Set the bounds of this dimension: total bbox first, then update in case of trims in the request
+                        nameToBounds.put(dimName, new Double[] {
+                            info.getDomainElement(info.getDomainIndexByName(dimName)).getMinValue().doubleValue(),
+                            info.getDomainElement(info.getDomainIndexByName(dimName)).getMaxValue().doubleValue()
+                        });
+
+                        // reduce or extend the bbox according to the subset ops applied to the coverage
+                        for (IRasNode subset : subsets) {
+                            Double[] subsetBounds = null;
+                            if (subset instanceof TrimCoverageExpr) {
+                                if (((TrimCoverageExpr)subset).trimsDimension(dimName)) {
+                                    // Set bounds specified in the trim (themselves trimmed by bbox values)
+                                    subsetBounds = ((TrimCoverageExpr)subset).trimmingValues(dimName);
+                                }
+                            }
+                            if (subset instanceof ExtendCoverageExpr) {
+                                if (((ExtendCoverageExpr)subset).extendsDimension(dimName)) {
+                                    // Set bounds specified in the trim (themselves trimmed by bbox values)
+                                    subsetBounds = ((ExtendCoverageExpr)subset).extendingValues(dimName);
+                                }
+                            }
+                            if (subsetBounds != null && subsetBounds.length > 0) {
+                                nameToBounds.remove(dimName);
+                                nameToBounds.put(dimName, subsetBounds);
+                            }
+                        }
+                    }
+                }
+
+                // Check dimensions is exactly 2:
+                if (orderToName.size() != expectedDim) {
+                    String message = "The number of output dimensions " + orderToName.size()
+                            + " does not match the expected dimensionality: " + expectedDim;
+                    log.error(message);
+                    throw new WCPSException(ExceptionCode.InvalidRequest, message);
+                }
+
+                // Set the bounds in the proper order (according to the order of the axes in the coverage
+                Double[] dom1 = nameToBounds.get(orderToName.get(Collections.min(orderToName.keySet())));
+                Double[] dom2 = nameToBounds.get(orderToName.get(Collections.max(orderToName.keySet())));
+
+                // Output: min1, max1, min2, max2
+                lowX = dom1[0];
+                highX = dom1[1];
+                lowY = dom2[0];
+                highY = dom2[1];
+            }
+        }
+
+        // Interface
+        public double getXmin() {
+            return lowX;
+        }
+        public double getXmax() {
+            return highX;
+        }
+        public double getYmin() {
+            return lowY;
+        }
+        public double getYmax() {
+            return highY;
+        }
+        public String getCrs() {
+            return crs;
+        }
+        public void setCrs(String crs) {
+            this.crs = crs;
+        }
+
+// -- enterprise only start
+        /**
+         * @return string representation suitable to be passed on to the project
+         * function in rasql: minx,miny,maxx,maxy
+         */
+        public String toRasqlProjectBbox() {
+            return lowX + "," + lowY + "," + highX + "," + highY;
+        }
+// -- enterprise only end
+        
+        @Override
+        public String toString() {
+            return toString(null);
+        }
+
+        public String toString(String extraParams) {
+            String ret = null;
+            if (crs != null && !CrsUtil.GRID_CRS.equals(crs)) {
+                ret = appendToExtraParams(
+                        appendToExtraParams(
+                        appendToExtraParams(
+                        appendToExtraParams(
+                        appendToExtraParams(extraParams, XMIN_PARAM, lowX + ""),
+                                                         XMAX_PARAM, highX + ""),
+                                                         YMIN_PARAM, lowY + ""),
+                                                         YMAX_PARAM, highY + ""),
+                                                         CRS_PARAM, CrsUtil.CrsUri.getAuthority(crs) + ":" + CrsUtil.CrsUri.getCode(crs));
+            } else {
+                // return empty in case of CRS:1
+                ret = appendToExtraParams(extraParams, null, null);
+            }
+            return ret;
+        }
+
+        /**
+         * Append key-value pair to existing extra parameters. Takes into account
+         * if any argument is null.
+         *
+         * @return extraParams with key-value accordingly appended.
+         */
+        private String appendToExtraParams(String extraParams, String key, String value) {
+            String param = (key == null || value == null) ? "" : key + KVS + value;
+            String ret = null;
+
+            if (extraParams == null || extraParams.length() == 0) {
+                ret = param;
+            } else {
+                if (extraParams.toLowerCase().contains(PS + key + KVS)) {
+                    ret = extraParams; // don't override if key is already supplied by user
+                } else {
+                    ret = extraParams + PS + param;
+                }
+            }
+
+            return ret;
+        }
+    }
 }

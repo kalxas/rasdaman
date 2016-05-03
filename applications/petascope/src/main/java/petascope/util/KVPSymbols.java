@@ -50,6 +50,8 @@ public interface KVPSymbols {
     String VALUE_SECTIONS_COVERAGESUMMARY_COVEARGE_SUMMARY    = "CoverageSummary";
     String VALUE_SECTIONS_COVERAGESUMMARY_CONTENTS            = "Contents";
     String VALUE_SECTIONS_COVERAGESUMMARY_ALL                 = "All";
+    String KEY_OUTPUTCRS           = "outputcrs";
+    String KEY_SUBSETCRS           = "subsettingcrs";
 
     // rasql KVP
     String KEY_PASSWORD = "password";

@@ -1,0 +1,1 @@
+for c in (mean_summer_airtemp)  return encode(crsTransform(c, { Lat:"http://www.opengis.net/def/crs/EPSG/0/3857", Long:"http://www.opengis.net/def/crs/EPSG/0/3857"}, {}), "tiff", "nodata=0")

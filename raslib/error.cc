@@ -439,6 +439,22 @@ r_Error::setErrorTextOnKind()
         strcpy(buffer, "Format conversion failed");
         break;
 
+    case r_Error_InvalidBoundsStringContents:
+        strcpy(buffer, "Illegal contents of the string with projection bounds");
+        break;
+
+    case r_Error_RuntimeProjectionError:
+        strcpy(buffer, "CRS Reprojection failed at runtime. Check that the CRSes are fully supported.");
+        break;
+
+    case r_Error_InvalidSourceCRS:
+        strcpy(buffer, "Cannot use source coordinate reference system, as reported by GDAL library");
+        break;
+
+    case r_Error_InvalidTargetCRS:
+        strcpy(buffer, "Cannot use target coordinate reference system, as reported by GDAL library");
+        break;
+
     default:
         strcpy(buffer, "not specified");
         break;

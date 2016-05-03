@@ -33,7 +33,6 @@ rasdaman GmbH.
 #include "raslib/type.hh"
 
 
-
 class GDALDataset;
 class QtConversion;
 

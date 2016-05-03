@@ -54,6 +54,7 @@ public class ExtensionsRegistry {
     public static final String XML_IDENTIFIER = "http://www.opengis.net/spec/WCS_protocol-binding_post-xml/1.0";
     public static final String WCPS1_IDENTIFIER = "http://www.opengis.net/spec/WCPS/1.0/conf/wcps-core";
     public static final String WCST_IDENTIFIER = "http://www.opengis.net/spec/WCS_service-extension_transaction/2.0/conf/insert+delete";
+    public static final String CRS_IDENTIFIER = "http://www.opengis.net/spec/WCS_service-extension_crs/1.0/conf/crs";
 
     private static final Set<Extension> extensions = new HashSet<Extension>();
     private static final Set<String> extensionIds = new HashSet<String>();
@@ -81,6 +82,7 @@ public class ExtensionsRegistry {
         registerExtension(new MultipartJPEG2000FormatExtension());
         registerExtension(new MultipartNetcdfFormatExtension());
         registerExtension(new RangeSubsettingExtension());
+        registerExtension(new CRSExtension());
         registerExtension(new ScalingExtension());
         registerExtension(new ProcessCoverageExtension());
         registerExtension(new WCSTExtension());

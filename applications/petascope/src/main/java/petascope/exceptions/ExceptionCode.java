@@ -311,4 +311,15 @@ public class ExceptionCode {
 
     public static final ExceptionCode InconsistentChange = new ExceptionCode("InconsistentChange", SC_NOT_FOUND);
     public static final ExceptionCode CollectionExists = new ExceptionCode("CollectionExists", "Collection name already exists in rasdaman");
+
+    // WCS CRS-extension
+    public static final ExceptionCode NotASubsettingCrs = new ExceptionCode("NotASubsettingCrs",
+            "Parameter indicated in the subsettingCrs parameter is not a valid CRS", 400);
+    public static final ExceptionCode SubsettingCrsNotSupported = new ExceptionCode("SubsettingCrsNotSupported",
+            "CRS indicated in the subsettingCrs parameter is not supported by this server", 501);
+    public static final ExceptionCode NotAnOutputCrs = new ExceptionCode("NotAnOutputCrs",
+            "Parameter indicated in the outputCrs parameter is not a valid CRS", 400);
+    public static final ExceptionCode OutputCrsNotSupported = new ExceptionCode("OutputCrsNotSupported",
+            "CRS indicated in the outputCrs parameter is not supported by this server", 501);
+
 }

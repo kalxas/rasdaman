@@ -94,8 +94,8 @@ SHELL     = bash
 JAVA      = java
 JAVAC     = javac
 
-JJARS_CP  = lib/gt9.jar:lib/ormlite-core-4.48.jar:lib/ormlite-jdbc-4.48.jar:lib/annotations-9.0.4.jar:lib/commons-lang3-3.1.jar:lib/antlr-4.1-complete.jar:lib/antlrworks-1.3.1.jar:lib/commons-fileupload-1.2.jar:lib/commons-io-1.3.2.jar:lib/commons-math-1.1.jar:lib/mockito-all-1.10.19.jar:lib/gml-v_3_1_1-schema-1.0-SNAPSHOT.jar:lib/jaxb-api.jar:lib/jaxb-impl.jar:lib/jaxb-xjc.jar:lib/joda-time-2.3.jar:lib/junit-4.5.jar:lib/log4j-1.2.15.jar:lib/ows-v_1_0_0-schema-1.0-SNAPSHOT.jar:lib/postgresql-9.3-1101.jdbc4.jar:../../java/dist/rasj.jar:lib/servlet-2_5-api.jar:lib/slf4j-api-1.7.7.jar:lib/slf4j-log4j12-1.7.7.jar:lib/sqlite-jdbc-3.7.15-M1.jar:lib/uuid-3.2.jar:lib/wcs-v_1_1_0-schema-1.0-SNAPSHOT.jar:lib/xercesImpl-2.7.1.jar:lib/xom-1.2.6.jar:lib/hsqldb.jar
-JJARS_PATHS = lib/gt9.jar lib/ormlite-core-4.48.jar lib/ormlite-jdbc-4.48.jar  lib/annotations-9.0.4.jar lib/commons-lang3-3.1.jar lib/antlr-4.1-complete.jar lib/antlrworks-1.3.1.jar lib/commons-fileupload-1.2.jar lib/commons-io-1.3.2.jar lib/commons-math-1.1.jar lib/mockito-all-1.10.19.jar lib/gml-v_3_1_1-schema-1.0-SNAPSHOT.jar lib/jaxb-api.jar lib/jaxb-impl.jar lib/jaxb-xjc.jar lib/joda-time-2.3.jar lib/junit-4.5.jar lib/log4j-1.2.15.jar lib/ows-v_1_0_0-schema-1.0-SNAPSHOT.jar lib/postgresql-9.3-1101.jdbc4.jar ../../java/dist/rasj.jar lib/servlet-2_5-api.jar lib/slf4j-api-1.7.7.jar lib/slf4j-log4j12-1.7.7.jar lib/sqlite-jdbc-3.7.15-M1.jar lib/uuid-3.2.jar lib/wcs-v_1_1_0-schema-1.0-SNAPSHOT.jar lib/xercesImpl-2.7.1.jar lib/xom-1.2.6.jar lib/hsqldb.jar
+JJARS_CP  = lib/gt9.jar:lib/ormlite-core-4.48.jar:lib/ormlite-jdbc-4.48.jar:lib/annotations-9.0.4.jar:lib/commons-lang3-3.1.jar:lib/antlr-4.1-complete.jar:lib/antlrworks-1.3.1.jar:lib/commons-fileupload-1.2.jar:lib/commons-io-1.3.2.jar:lib/commons-math-1.1.jar:lib/mockito-all-1.10.19.jar:lib/gml-v_3_1_1-schema-1.0-SNAPSHOT.jar:lib/jaxb-api.jar:lib/jaxb-impl.jar:lib/jaxb-xjc.jar:lib/joda-time-2.3.jar:lib/junit-4.5.jar:lib/log4j-1.2.15.jar:lib/ows-v_1_0_0-schema-1.0-SNAPSHOT.jar:lib/postgresql-9.3-1101.jdbc4.jar:../../java/dist/rasj.jar:lib/servlet-2_5-api.jar:lib/slf4j-api-1.7.7.jar:lib/slf4j-log4j12-1.7.7.jar:lib/sqlite-jdbc-3.7.15-M1.jar:lib/uuid-3.2.jar:lib/wcs-v_1_1_0-schema-1.0-SNAPSHOT.jar:lib/xercesImpl-2.7.1.jar:lib/xom-1.2.6.jar:lib/hsqldb.jar:lib/jts-1.11.jar
+JJARS_PATHS = lib/gt9.jar lib/ormlite-core-4.48.jar lib/ormlite-jdbc-4.48.jar  lib/annotations-9.0.4.jar lib/commons-lang3-3.1.jar lib/antlr-4.1-complete.jar lib/antlrworks-1.3.1.jar lib/commons-fileupload-1.2.jar lib/commons-io-1.3.2.jar lib/commons-math-1.1.jar lib/mockito-all-1.10.19.jar lib/gml-v_3_1_1-schema-1.0-SNAPSHOT.jar lib/jaxb-api.jar lib/jaxb-impl.jar lib/jaxb-xjc.jar lib/joda-time-2.3.jar lib/junit-4.5.jar lib/log4j-1.2.15.jar lib/ows-v_1_0_0-schema-1.0-SNAPSHOT.jar lib/postgresql-9.3-1101.jdbc4.jar ../../java/dist/rasj.jar lib/servlet-2_5-api.jar lib/slf4j-api-1.7.7.jar lib/slf4j-log4j12-1.7.7.jar lib/sqlite-jdbc-3.7.15-M1.jar lib/uuid-3.2.jar lib/wcs-v_1_1_0-schema-1.0-SNAPSHOT.jar lib/xercesImpl-2.7.1.jar lib/xom-1.2.6.jar lib/hsqldb.jar lib/jts-1.11.jar
 
 JFLAGS    = -sourcepath $(SRC_MAIN) \
                -d $(CLASSES)        \
@@ -235,6 +235,7 @@ endif
 		echo "$@ is copying log4j.properties: $$NEW_LOG4JCONF to $$OLD_LOG4JCONF"; \
 		cp $$NEW_LOG4JCONF $$OLD_LOG4JCONF; \
 	fi;
+
 # run any JUnit tests
 .PHONY: test
 test:

@@ -173,7 +173,8 @@ public abstract class AbstractFormatExtension implements FormatExtension {
                             // Append updated pixel bounds
                             String decimalsExp = "\\.[0-9]+";
                             long[] cellDom = (CrsUtil.GRID_CRS.equals(subset.getCrs()) || // : subset=x,CRS:1(x1,x2) || subsettingCrs=CRS:1
-                                    m.getCoverageType().equals(XMLSymbols.LABEL_GRID_COVERAGE))
+                                    m.getCoverageType().equals(XMLSymbols.LABEL_GRID_COVERAGE) ||
+                                    (request.getCrsExt() != null && CrsUtil.GRID_CRS.equals(request.getCrsExt().getSubsettingCrs())))
                                     ? new long[] { // NOTE: e.g. parseInt("10.0") throws exception: need to remove decimals.
                                         Integer.parseInt(trimLow.replaceAll( decimalsExp, "").trim()),
                                         Integer.parseInt(trimHigh.replaceAll(decimalsExp, "").trim())} // subsets are already grid indexes

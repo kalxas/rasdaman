@@ -10,6 +10,7 @@
     <ows:Profile>http://www.opengis.net/spec/WCS_service-extension_processing/2.0/conf/processing</ows:Profile>
     <ows:Profile>http://www.opengis.net/spec/GMLCOV/1.0/conf/gml-coverage</ows:Profile>
     <ows:Profile>http://www.opengis.net/spec/WCS_protocol-binding_post-xml/1.0</ows:Profile>
+    <ows:Profile>http://www.opengis.net/spec/WCS_service-extension_crs/1.0/conf/crs</ows:Profile>
     <ows:Profile>http://www.opengis.net/spec/WCS_protocol-binding_soap/1.0</ows:Profile>
     <ows:Profile>http://www.opengis.net/spec/WCS_coverage-encoding_netcdf/1.0/</ows:Profile>
     <ows:Profile>http://www.opengis.net/spec/WCS_service-extension_range-subsetting/1.0/conf/record-subsetting</ows:Profile>

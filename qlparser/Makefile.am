@@ -87,6 +87,7 @@ libqlparser_a_SOURCES=oql.yy lex.ll alloca.c\
                       qtnode.cc qtnode.hh qtnode.icc \
                       querytree.cc querytree.hh querytree.icc \
                       qtexecute.hh qtdelete.icc \
+                      qtproject.cc qtproject.hh \
                       qtmddconfig.hh qtmddconfig.cc \
                       qtmddcfgop.hh qtmddcfgop.cc \
                       qtencode.hh qtencode.cc \

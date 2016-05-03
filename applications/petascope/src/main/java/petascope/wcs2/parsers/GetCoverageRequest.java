@@ -23,11 +23,16 @@ package petascope.wcs2.parsers;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
-
+import java.util.Map;
+import petascope.exceptions.ExceptionCode;
+import petascope.exceptions.PetascopeException;
+import petascope.exceptions.WCSException;
 import petascope.util.ListUtil;
 import petascope.util.Pair;
+import petascope.util.TimeUtil;
 import petascope.wcs2.extensions.FormatExtension;
 import petascope.wcs2.helpers.rangesubsetting.RangeSubset;
 import petascope.wcs2.parsers.subsets.DimensionSlice;
@@ -84,6 +89,7 @@ public class GetCoverageRequest extends BaseRequest {
     private List<DimensionSubset> subsets;
     private final RangeSubset rangeSubset;
     private final Scaling scale;
+    private final CrsExt crsExt;
 
     public GetCoverageRequest(String coverageId) {
         this(coverageId, FormatExtension.MIME_GML, false); // GML is default
@@ -96,6 +102,7 @@ public class GetCoverageRequest extends BaseRequest {
         this.subsets = new ArrayList<DimensionSubset>();
         this.rangeSubset = new RangeSubset();
         this.scale = new Scaling();
+        crsExt = new CrsExt();
     }
 
     public String getCoverageId() {
@@ -148,6 +155,10 @@ public class GetCoverageRequest extends BaseRequest {
         return multipart;
     }
 
+    public CrsExt getCrsExt() {
+        return crsExt;
+    }
+
     public RangeSubset getRangeSubset() {
         return rangeSubset;
     }
@@ -172,6 +183,63 @@ public class GetCoverageRequest extends BaseRequest {
             ret.append(this.rangeSubset.toString());
         }
         return ret.toString();
+    }
+
+    // CrsExt-extension additional (optional) parameters
+    public class CrsExt {
+        private String subsettingCrs;
+        private String outputCrs;
+        // Dictionary <axis;outpurCrs> to build up the WCPS query
+        // only containing the *reprojection* needed (see CRSExtension.java)
+        private HashMap<String, String> outputAxisCrsMap;
+
+        {
+            outputAxisCrsMap = new HashMap<String, String>();
+        }
+
+        // Interface
+        public String getSubsettingCrs() {
+            return subsettingCrs;
+        }
+
+        public String getOutputCrs() {
+            return outputCrs;
+        }
+
+        // Returns axis name(s) associated to a certain CrsExt among the subsets
+        // 1+ axes can be associated to the same CrsExt for output reprojection (e.g. xy!)
+        public List<String> getAxisNames(String crsUri) {
+            List<String> names = new ArrayList<String>();
+            Iterator it = outputAxisCrsMap.entrySet().iterator();
+            while (it.hasNext()) {
+                Map.Entry<String, String> entry = (Map.Entry<String, String>)it.next();
+                if (entry.getValue().equals(crsUri)) {
+                    names.add(entry.getKey());
+                }
+            }
+            return names;
+        }
+
+        // Returns the subsettingCrs URI associated to a certain axis
+        public String getCrsUriReprojection(String axisName) {
+            return outputAxisCrsMap.get(axisName);
+        }
+
+        // NOTE(campalani): initial null values (when no CrsExt values as specified
+        //  need to be replaced with default values, relative to requested coverage.
+        public void setSubsettingCrs(String value) {
+            subsettingCrs = value;
+        }
+
+        public void setOutputCrs(String value) {
+            outputCrs = value;
+        }
+
+        // Methods
+        // Add en entry in the output reprojection dictionary
+        public void addAxisOutputReprojection(String axisName, String crsUri) {
+            outputAxisCrsMap.put(axisName, crsUri);
+        }
     }
 
     public static class Scaling {

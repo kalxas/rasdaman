@@ -47,6 +47,7 @@ static const char rcsid[] = "@(#)qlparser, yacc parser: $Header: /home/rasdev/CV
 #include "qlparser/qtmintervalop.hh"
 #include "qlparser/qtunaryfunc.hh"
 #include "qlparser/qtupdate.hh"
+#include "qlparser/qtproject.hh"
 #include "qlparser/qtinsert.hh"
 #include "qlparser/qtdelete.hh"
 #include "qlparser/qtjoiniterator.hh"
@@ -257,7 +258,7 @@ struct QtUpdateSpecElement
 %type <qtUnaryOperationValue> reduceIdent structSelection trimExp
 %type <qtOperationValue>      mddExp inductionExp generalExp resultList reduceExp functionExp spatialOp
                               integerExp mintervalExp namedMintervalExp intervalExp namedIntervalExp condenseExp variable mddConfiguration mintervalList concatExp rangeConstructorExp
-                              caseExp typeAttribute
+                              caseExp typeAttribute projectExp
 %type <tilingType>            tilingAttributes  tileTypes tileCfg statisticParameters tilingSize
                               borderCfg interestThreshold dirdecompArray dirdecomp dirdecompvals intArray
 %type <indexType> 	      indexingAttributes indexTypes
@@ -1159,6 +1160,7 @@ generalExp: caseExp                         { $$ = $1;}
 	| variable                          { $$ = $1; }
 	| mintervalExp                      { $$ = $1; }
 	| intervalExp                       { $$ = $1; }
+	| projectExp			    		{ $$ = $1; }
         | generalLit
 	{
 	  $$ = new QtConst( $1 );
@@ -3080,6 +3082,36 @@ scalarLitList: scalarLitList COMMA scalarLit
 	  $$->push_back($1);
 	}; 
 
+projectExp: PROJECT LRPAR generalExp COMMA StringLit COMMA StringLit RRPAR
+	{
+	  $$ = new QtProject( (QtOperation *)$3, $5.value, $7.value );
+	  parseQueryTree->addDynamicObject($$);
+
+	  FREESTACK($1);
+	  FREESTACK($2);
+	  parseQueryTree->removeDynamicObject($3);
+  	  FREESTACK($4)
+	  FREESTACK($5)
+	  FREESTACK($6)
+	  FREESTACK($7)
+ 	  FREESTACK($8)
+	}
+	| PROJECT LRPAR generalExp COMMA StringLit COMMA StringLit COMMA StringLit RRPAR
+	{		
+	  $$ = new QtProject( (QtOperation *)$3, $5.value, $7.value, $9.value );
+	  parseQueryTree->addDynamicObject($$);
+
+	  FREESTACK($1);
+	  FREESTACK($2);
+	  parseQueryTree->removeDynamicObject($3);
+  	  FREESTACK($4)
+	  FREESTACK($5)
+	  FREESTACK($6)
+	  FREESTACK($7)
+ 	  FREESTACK($8)
+	  FREESTACK($9)
+	  FREESTACK($10)
+	};
 
 trimExp: generalExp mintervalExp           
 	{
