@@ -1,0 +1,1 @@
+for c in (test_time3d) return encode(c[Lat(-37.5:-35.5), Long(148:149), time("1950-01-02")], "tiff")

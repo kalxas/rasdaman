@@ -57,9 +57,9 @@ class DateTimeUtil:
         Returns the datetime as a string, formatted depending on the time CRS code
         :return:
         """
-        if self.time_crs_code == self.CRS_CODE_ANSI_DATE:
+        if self.CRS_CODE_ANSI_DATE in self.time_crs_code:
             return self.to_ansi()
-        elif self.time_crs_code == self.CRS_CODE_UNIX_TIME:
+        elif self.CRS_CODE_UNIX_TIME in self.time_crs_code:
             return self.to_unix()
         else:
             return self.to_unknown()

@@ -114,16 +114,22 @@ for TEST_CASE in $TEST_DATA/*; do
                     log "+ Pass 2_WMS: Coverage ID: "$COVERAGE_ID" does exist in WMS Service."
                 fi
             fi
+
+            # Keep test_time3d for using later on with WCPS query
+            if [[ $COVERAGE_ID != "test_time3d" ]]; then
                 # 2.7 it is good when coverage does exist then now delete coverage
                 DELETE_COVERAGE_URL="$PETASCOPE_URL?service=WCS&request=DeleteCoverage&version=2.0.1&coverageId=$COVERAGE_ID"
                 RETURN=$(wget --spider -S "$DELETE_COVERAGE_URL" 2>&1 | grep "HTTP/" | awk '{print $2}')
-            if [[ $RETURN != 200 ]]; then
-                log "+ Error: Coverage ID: "$COVERAGE_ID" could not be deleted in Petascope."
-                NUM_FAIL=$(($NUM_FAIL + 1))
-            else # 2.8 coverage is deleted (return HTTP 200)
-                log "+ Pass 3: Coverage ID: "$COVERAGE_ID" could be deleted in Petascope."
-                # Only when delete successfully then could say test is passed 100%
-                NUM_SUC=$(($NUM_SUC + 1))
+                if [[ $RETURN != 200 ]]; then
+                    log "+ Error: Coverage ID: "$COVERAGE_ID" could not be deleted in Petascope."
+                    NUM_FAIL=$(($NUM_FAIL + 1))
+                else # 2.8 coverage is deleted (return HTTP 200)
+                    log "+ Pass 3: Coverage ID: "$COVERAGE_ID" could be deleted in Petascope."
+                    # Only when delete successfully then could say test is passed 100%
+                    NUM_SUC=$(($NUM_SUC + 1))
+                fi
+            else
+                log "+ Pass 3: Keep Coverage ID: $COVERAGE_ID for other test."
             fi
         fi
     fi
