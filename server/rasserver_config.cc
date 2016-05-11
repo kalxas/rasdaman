@@ -267,7 +267,7 @@ Configuration::makeLogFileName(const char *srvName,const char *desExt)
     static char logfilePath[ FILENAME_MAX ];
     int pid =getpid();
     mkdir( LOGDIR, S_IRWXU + S_IRGRP+S_IXGRP + S_IROTH+S_IXOTH ); // create if not exist, rwxr-xr-x
-    int pathLen = snprintf( logfilePath, FILENAME_MAX, "%s/%s.%06d.%s", LOGDIR, srvName, pid, desExt );
+    int pathLen = snprintf( logfilePath, FILENAME_MAX, "%s/rasserver.%s.%06d.%s", LOGDIR, srvName, pid, desExt );
     if (pathLen >= FILENAME_MAX)
     {
         logfilePath[FILENAME_MAX-1] = '\0'; // force-terminate string before printing
