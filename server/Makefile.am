@@ -48,7 +48,7 @@ rasserver_LDADD=../servercomm/libservercomm.a ../qlparser/libqlparser.a ../conve
                 ../relcatalogif/librelcatalogif.a ../indexmgr/libindexmgr.a ../relblobif/librelblobif.a \
                 ../relindexif/librelindexif.a ../httpserver/libhttpserver.a \
                 ../network/libnetwork.a ../commline/libcommline.a ../lockmgr/liblockmanager.a \
-                ../servercomm/libservercomm.a ../relcatalogif/librelcatalogif.a ../raslib/libraslib.a @BASEDBLDFLAGS@ @GDAL_LDFLAGS@
+                ../servercomm/libservercomm.a ../relcatalogif/librelcatalogif.a ../raslib/libraslib.a $(JSON_LIB) @BASEDBLDFLAGS@ @GDAL_LDFLAGS@
 
 if RMANRASNET
     rasserver_LDADD += ../rasserver_x/src/librasnetserver.a ../rasnetprotocol/librasnetprotocol.a ../rasnet/librasnet.a ../common/src/libcommon.a @GRPC_LIBS@ @PROTOBUF_LIBS@ @BOOST_LDFLAGS@ -lboost_thread -lboost_regex -lboost_program_options -lboost_system

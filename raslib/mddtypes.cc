@@ -94,6 +94,7 @@ const char *format_name_pack_bits = "PACKBITS";
 const char *format_name_ecw = "ECW";
 const char *format_name_tmc = "TMC";
 const char *format_name_ntf = "NTF";
+const char *format_name_grib = "GRIB";
 
 const char *all_data_format_names[r_Data_Format_NUMBER] =
 {
@@ -141,7 +142,8 @@ const char *all_data_format_names[r_Data_Format_NUMBER] =
     format_name_pack_bits,
     format_name_ecw,
     format_name_tmc,
-    format_name_ntf
+    format_name_ntf,
+    format_name_grib
 };
 
 

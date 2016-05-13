@@ -57,7 +57,7 @@ public:
     ~QtProject();
 
     /// method for evaluating the node
-    QtData* evaluate( QtDataList* inputList ) throw (r_Error);
+    QtData* evaluate( QtDataList* inputList );
 
     /// test if the edge to the parent node is of type mdd or atomic
     virtual QtAreaType getAreaType();

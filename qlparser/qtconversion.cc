@@ -50,6 +50,7 @@ static const char rcsid[] = "@(#)qlparser, QtConversion: $Header: /home/rasdev/C
 #include "relcatalogif/chartype.hh"
 
 #include <easylogging++.h>
+#include <boost/algorithm/string.hpp>
 
 #include <iostream>
 #ifndef CPPSTDLIB
@@ -72,6 +73,7 @@ QtConversion::QtConversion( QtOperation* newInput, QtConversionType
 void
 QtConversion::setConversionTypeByName( string formatName )
 {
+    boost::algorithm::to_lower(formatName);
     if(string("bmp") == formatName)
         conversionType = QtConversion::QT_TOBMP;
     else if(string("hdf") == formatName )
@@ -112,6 +114,8 @@ QtConversion::setConversionTypeByName( string formatName )
         conversionType = QtConversion::QT_FROMDEM;
     else if(string("inv_netcdf") == formatName )
         conversionType = QtConversion::QT_FROMNETCDF;
+    else if(string("inv_grib") == formatName )
+        conversionType = QtConversion::QT_FROMGRIB;
     else
         conversionType = QtConversion::QT_UNKNOWN;
 }
@@ -128,7 +132,8 @@ QtConversion::lookupConversionTypeByName( string formatName )
             ( string("inv_png")  == formatName ) || ( string("inv_jpeg") == formatName ) ||
             ( string("inv_dem")  == formatName ) || ( string("inv_tor")  == formatName ) ||
             ( string("inv_tiff") == formatName ) || ( string("inv_vff")  == formatName ) ||
-            ( string("netcdf")   == formatName ) || ( string("inv_netcdf") == formatName ));
+            ( string("netcdf")   == formatName ) || ( string("inv_netcdf") == formatName ) ||
+            ( string("inv_grib")  == formatName ));
 }
 
 bool
@@ -330,6 +335,10 @@ QtConversion::evaluate( QtDataList* inputList )
             convType = r_NETCDF;
             convFormat = r_Array;
             break;
+        case QT_FROMGRIB:
+            convType = r_GRIB;
+            convFormat = r_Array;
+            break;
         case QT_FROMCSV:
             convType = r_CSV;
             convFormat = r_Array;
@@ -409,8 +418,15 @@ QtConversion::evaluate( QtDataList* inputList )
                 delete convertor;
                 convertor=NULL;
             }
-
-            parseInfo.setErrorNo(381);
+            
+            if (err.get_kind() == r_Error::r_Error_FeatureNotSupported)
+            {
+                parseInfo.setErrorNo(218);
+            }
+            else
+            {
+                parseInfo.setErrorNo(381);
+            }
             throw parseInfo;
         }
         if (convertor != NULL)
@@ -538,6 +554,9 @@ QtConversion::printTree( int tab, ostream& s, QtChildType mode )
         break;
     case QT_FROMNETCDF:
         s << "from NETCDF";
+        break;
+    case QT_FROMGRIB:
+        s << "from GRIB";
         break;
     case QT_FROMCSV:
         s << "from CSV";
@@ -690,6 +709,9 @@ operator<< (std::ostream& os, QtConversion::QtConversionType type)
         break;
     case QtConversion::QT_FROMNETCDF:
         os << "inv_netcdf";
+        break;
+    case QtConversion::QT_FROMGRIB:
+        os << "inv_grib";
         break;
     default:
         os << "unknown Conversion";

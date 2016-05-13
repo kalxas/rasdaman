@@ -74,7 +74,7 @@ public:
     ~QtEncode();
 
     /// method for evaluating the node
-    QtData* evaluate( QtDataList* inputList ) throw (r_Error);
+    QtData* evaluate( QtDataList* inputList );
 
     /// test if the edge to the parent node is of type mdd or atomic
     virtual QtAreaType getAreaType();
@@ -99,8 +99,6 @@ private:
 
     // convert rasdaman tile to GDAL dataset
     GDALDataset* convertTileToDataset(Tile* sourceTile, int nBands, r_Type* bandType);
-
-	r_Data_Format getDataFormat(char* format);
     
     /// attribute for identification of nodes
     static const QtNodeType nodeType;
@@ -110,6 +108,8 @@ private:
 	void setString(const char* paramName, std::string* value);
 
 	void setGDALParameters(GDALDataset *gdalDataSet, int width, int height, int nBands);
+    
+    bool isInternalFormat(r_Data_Format df);
 
 	char* format;
 	char** fParams;

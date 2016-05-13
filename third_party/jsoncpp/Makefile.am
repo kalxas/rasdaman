@@ -1,4 +1,5 @@
-# -*-Makefile-*- (for Emacs)
+#
+# MAKEFILE FOR:
 #
 # This file is part of rasdaman community.
 #
@@ -19,19 +20,10 @@
 # rasdaman GmbH.
 #
 # For more information please see <http://www.rasdaman.org>
-# or contact Peter Baumann via <baumann@rasdaman.com>. 
-# 
-# MAKEFILE FOR:  
-#   module conversion
-# 
+# or contact Peter Baumann via <baumann@rasdaman.com>.
 #
-# COMMENTS: 
-# 
 ##################################################################
 
-lib_LIBRARIES=libconversion.a
-libconversion_a_SOURCES= convertor.cc convfactory.cc tiff.cc hdf.cc png.cc jpeg.cc \
-                         csv.cc bmp.cc vff.cc tor.cc dem.cc ecw.cc memfs.cc netcdf.cc \
-                         convertor.hh convfactory.hh tiff.hh hdf.hh png.hh jpeg.hh \
-                         csv.hh bmp.hh vff.hh tor.hh dem.hh ecw.hh memfs.hh \
-                         ntf.hh netcdf.hh grib.cc grib.hh mimetypes.cc mimetypes.hh
+noinst_LIBRARIES=libjsoncpp.a
+
+libjsoncpp_a_SOURCES=jsoncpp.cpp

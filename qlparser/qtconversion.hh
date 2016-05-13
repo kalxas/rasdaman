@@ -71,7 +71,8 @@ public:
         QT_FROMPNG,
         QT_FROMVFF,
         QT_FROMTOR,
-        QT_FROMDEM
+        QT_FROMDEM,
+        QT_FROMGRIB
     };
 
     /// constructor getting operand and format conversion type

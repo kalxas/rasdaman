@@ -51,6 +51,7 @@ rasdaman GmbH.
 #include "ntf.hh"
 #include "csv.hh"
 #include "netcdf.hh"
+#include "grib.hh"
 
 
 bool r_Convertor_Factory::is_supported( r_Data_Format fmt )
@@ -71,6 +72,7 @@ bool r_Convertor_Factory::is_supported( r_Data_Format fmt )
 #endif
         // case r_NTF:
     case r_NETCDF:
+    case r_GRIB:
         retval=true;
         break;
     default:
@@ -95,6 +97,9 @@ r_Convertor *r_Convertor_Factory::create( r_Data_Format fmt, const char *src, co
         result = new r_Conv_NETCDF(src, interv, tp);
         break;
 #endif
+    case r_GRIB:
+        result = new r_Conv_GRIB(src, interv, tp);
+        break;
     case r_PNG:
         result = new r_Conv_PNG(src, interv, tp);
         break;
@@ -152,6 +157,9 @@ r_Convertor *r_Convertor_Factory::create( r_Data_Format fmt, const char *src, co
         result = new r_Conv_NETCDF(src, interv, type);
         break;
 #endif
+    case r_GRIB:
+        result = new r_Conv_GRIB(src, interv, type);
+        break;
     case r_PNG:
         result = new r_Conv_PNG(src, interv, type);
         break;

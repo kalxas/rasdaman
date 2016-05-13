@@ -48,6 +48,16 @@ public:
 	 */
     static void getTileCells(GDALDataset* poDataSet, /* out */ r_Bytes& size, /* out */ char*& contents);
 
+    /**
+     * Convert format string to r_Data_Format
+     */
+	static r_Data_Format getDataFormat(char* format);
+
+    /**
+     * Guess data format from input file
+     */
+	static r_Data_Format guessDataFormat(char* data, r_Bytes dataSize);
+
 	virtual ~GDALDataConverter();
 private:
 

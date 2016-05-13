@@ -33,6 +33,7 @@ rasdaman GmbH.
 #include "raslib/type.hh"
 #include "relcatalogif/mdddimensiontype.hh"
 
+class QtConversion;
 
 #ifndef PARAM_SEPARATOR
 #define PARAM_SEPARATOR ";"
@@ -57,7 +58,7 @@ public:
 	 * Transform the input file received by decode into rasdaman format and passes
 	 * it for later processing (i.e. insert into database)
      */
-	QtData* evaluate(QtDataList* inputList) throw (r_Error);
+	QtData* evaluate(QtDataList* inputList);
 
 
 	const QtTypeElement& checkType(QtTypeTuple* typeTuple);
@@ -74,6 +75,8 @@ private:
 	char* format;
 	char** gdalParams;
 
+    QtConversion *builtinConvertor;
+
 	/**
 	 * Creates a temporary file with the information received via the MDD object sent along
 	 * with the query representing the import file.
@@ -88,9 +91,9 @@ private:
 	 * separator PARAM_SEPARATOR
      * @param params string representation of gdal parameters separated by PARAM_SEPARATOR
      */
-	void initGdalParamas(char* params);
+	void initParams(char* params);
 
-
+    bool isInternalFormat(r_Data_Format dataFormat);
 };
 
 #endif	/* _QTDECODE_ */

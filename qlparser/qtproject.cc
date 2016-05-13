@@ -110,7 +110,7 @@ void QtProject::testCrsTransformation(const char* in, const char *out) throw (r_
     }
 }
 
-QtData* QtProject::evaluate(QtDataList* inputList) throw (r_Error)
+QtData* QtProject::evaluate(QtDataList* inputList)
 {
     RMDBCLASS( "QtProject", "evaluate( QtDataList* )", "qlparser", __FILE__, __LINE__ )
 

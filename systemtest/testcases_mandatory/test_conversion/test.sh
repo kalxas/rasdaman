@@ -136,15 +136,7 @@ else
   cmp $TESTDATA_PATH/$f.$ext $f.$ext > /dev/null
 fi
 
-if [ $? != "0" ]
-then
-  echo input and output do not match
-  NUM_FAIL=$(($NUM_FAIL + 1))
-else
-  echo input and output match
-  NUM_SUC=$(($NUM_SUC + 1))
-fi
-NUM_TOTAL=$(($NUM_TOTAL + 1))
+check_result 0 $? "input and output match"
 
 drop_colls test_tmp
 rm -f $f*
@@ -165,16 +157,7 @@ export_to_file test_tmp "$f" "csv"
 
 logn "comparing images: "
 cmp $ORACLE_PATH/$f.csv $f.csv > /dev/null
-
-if [ $? != "0" ]
-then
-  echo input and output do not match
-  NUM_FAIL=$(($NUM_FAIL + 1))
-else
-  echo input and output match
-  NUM_SUC=$(($NUM_SUC + 1))
-fi
-NUM_TOTAL=$(($NUM_TOTAL + 1))
+check_result 0 $? "input and output match"
 
 drop_colls test_tmp
 rm -f $f*
@@ -188,25 +171,12 @@ insert_into test_tmp "$TESTDATA_PATH/rgb.png" "" "decode"
 
 $RASQL -q 'select encode(c, "GTiff") from test_tmp as c' --out file --outfile nodata > /dev/null
 res=`gdalinfo nodata.tif | grep "NoData Value=0" | wc -l`
-if [ $res -eq 3 ]; then
-  log "default nodata value test failed."
-  NUM_FAIL=$(($NUM_FAIL + 1))
-else
-  log "default nodata value test passed."
-  NUM_SUC=$(($NUM_SUC + 1))
-fi
-NUM_TOTAL=$(($NUM_TOTAL + 1))
+check_result 0 $res "default nodata test"
 rm -f nodata*
+
 $RASQL -q 'select encode(c, "GTiff", "nodata=200") from test_tmp as c' --out file --outfile nodata > /dev/null
 res=`gdalinfo nodata.tif | grep "NoData Value=200" | wc -l`
-if [ $res -eq 3 ]; then
-  log "custom nodata value test passed."
-  NUM_SUC=$(($NUM_SUC + 1))
-else
-  log "custom nodata value test failed."
-  NUM_FAIL=$(($NUM_FAIL + 1))
-fi
-NUM_TOTAL=$(($NUM_TOTAL + 1))
+check_result 3 $res "custom nodata test"
 rm -f nodata*
 
 drop_colls test_tmp
@@ -234,33 +204,16 @@ run_test tiff decode tif tif DoubleSet
 log ----- user-defined type conversion ------
 
 create_coll test_tmp TestSet
+
 $RASQL -q 'insert into test_tmp values (TestPixel) inv_tiff($1)' -f "$TESTDATA_PATH/multiband.tif" > /dev/null
-if [ $? -eq 0 ]; then
-  log "user-defined base type cast inv_tiff test passed."
-  NUM_SUC=$(($NUM_SUC + 1))
-else
-  log "user-defined base type cast inv_tiff test failed."
-  NUM_FAIL=$(($NUM_FAIL + 1))
-fi
-NUM_TOTAL=$(($NUM_TOTAL + 1))
+check_result 0 $? "user-defined base type cast inv_tiff test"
+
 $RASQL -q 'insert into test_tmp values (TestPixel) decode($1)' -f "$TESTDATA_PATH/multiband.tif" > /dev/null
-if [ $? -eq 0 ]; then
-  log "user-defined base type cast decode test passed."
-  NUM_SUC=$(($NUM_SUC + 1))
-else
-  log "user-defined base type cast decode test failed."
-  NUM_FAIL=$(($NUM_FAIL + 1))
-fi
-NUM_TOTAL=$(($NUM_TOTAL + 1))
+check_result 0 $? "user-defined base type cast decode test."
+
 $RASQL -q 'select inv_tiff($1)' -f "$TESTDATA_PATH/multiband.tif" > /dev/null
-if [ $? -eq 0 ]; then
-  log "user-defined base type inv_tiff test passed."
-  NUM_SUC=$(($NUM_SUC + 1))
-else
-  log "user-defined base type inv_tiff test failed."
-  NUM_FAIL=$(($NUM_FAIL + 1))
-fi
-NUM_TOTAL=$(($NUM_TOTAL + 1))
+check_result 0 $? "user-defined base type inv_tiff test."
+
 drop_colls test_tmp
 
 ################## png() and inv_png() #######################
@@ -308,6 +261,7 @@ else
   log "exporting large format-encoded data test failed."
   NUM_FAIL=$(($NUM_FAIL + 1))
 fi
+NUM_TOTAL=$(($NUM_TOTAL + 1))
 rm -f $f
 $RASQL -q "drop collection $COLL" > /dev/null 2>&1
 
@@ -387,22 +341,27 @@ log ----- csv with inner_outer order conversion ------
 create_coll test_tmp GreySet
 insert_into test_tmp "$TESTDATA_PATH/mr_1.png" "" "inv_png"
 export_to_file test_tmp "mr_1" "csv" ', "order=inner_outer"'
+
 logn "comparing images: "
 cmp $TESTDATA_PATH/mr_1_inner_outer.csv mr_1.csv > /dev/null
-if [ $? != "0" ]
-then
-  echo input and output do not match
-  NUM_FAIL=$(($NUM_FAIL + 1))
-else
-  echo input and output match
-  NUM_SUC=$(($NUM_SUC + 1))
-fi
-NUM_TOTAL=$(($NUM_TOTAL + 1))
+check_result 0 $? "input and output match"
 drop_colls test_tmp
 rm -f mr_1.csv
+
+############ built-in decode ################
+log ----- built-in decode test -----------------------
+drop_colls test_builtin_decode
+create_coll test_builtin_decode FloatSet3
+f=csv_float3
+$RASQL -q 'insert into test_builtin_decode values decode($1, "CSV", "domain=[0:2,1:2,4:6];basetype=float")' -f $TESTDATA_PATH/$f.csv > /dev/null
+export_to_file test_builtin_decode "$f" "csv"
+cmp $ORACLE_PATH/$f.csv $f.csv > /dev/null
+check_result 0 $? "input and output match"
+rm -f $f*
 
 # ------------------------------------------------------------------------------
 # test summary
 #
 print_summary
+
 exit $RC

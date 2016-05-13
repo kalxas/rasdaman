@@ -48,7 +48,7 @@ directql_LDADD = ../../rasodmg/librasodmg.a ../../clientcomm/libclientcomm.a \
                ../../mddmgr/libmddmgr.a ../../relmddif/librelmddif.a \
                ../../indexmgr/libindexmgr.a ../../qlparser/libqlparser.a ../../conversion/libconversion.a \
                ../../catalogmgr/libcatalogmgr.a ../../lockmgr/liblockmanager.a \
-               ../../raslib/libraslib.a ../../tilemgr/libtilemgr.a ../../server/rasserver_config.o ../../reladminif/libreladminif.a @GDAL_LDFLAGS@ @CLIENTLDFLAGS@ @BASEDBLDFLAGS@
+               ../../raslib/libraslib.a ../../tilemgr/libtilemgr.a ../../server/rasserver_config.o ../../reladminif/libreladminif.a $(JSON_LIB) @GDAL_LDFLAGS@ @CLIENTLDFLAGS@ @BASEDBLDFLAGS@
 
 if RMANRASNET
   directql_LDADD += ../../rasnet/librasnet.a ../../common/src/libcommon.a @GRPC_LIBS@ @PROTOBUF_LIBS@ @BOOST_LDFLAGS@ -lboost_thread -lboost_regex -lboost_program_options -lboost_system

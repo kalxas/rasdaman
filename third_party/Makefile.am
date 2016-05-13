@@ -130,3 +130,5 @@ install-exec-hook:
 	cp ${GMOCK_LIB} $(DESTDIR)$(libdir)
 
 endif
+
+SUBDIRS = jsoncpp

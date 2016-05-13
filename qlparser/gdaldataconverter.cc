@@ -23,6 +23,7 @@ rasdaman GmbH.
 
 #include "qlparser/gdalincludes.hh"
 #include "qlparser/gdaldataconverter.hh"
+#include "raslib/mddtypes.hh"
 #include "mymalloc/mymalloc.h"
 
 
@@ -116,6 +117,57 @@ void GDALDataConverter::resolveTileCellsByType(GDALDataset* poDataset, /* out */
 	//Free resources
 	GDALClose(poDataset);
     free(gdalBand);
+}
+
+#ifndef STR_EQUAL
+#define STR_EQUAL(a, b) (strcmp(a, b) == 0)
+#endif
+
+r_Data_Format
+GDALDataConverter::getDataFormat(char* formatArg)
+{
+	r_Data_Format ret = r_Array;
+
+	if (formatArg)
+	{
+		char* f = strdup(formatArg);
+		for (int i = 0; formatArg[i]; i++)
+		{
+			if (isalpha(formatArg[i]))
+				f[i] = tolower(formatArg[i]);
+		}
+
+		if (STR_EQUAL(f, "png"))
+			ret = r_PNG;
+		else if (STR_EQUAL(f, "netcdf"))
+			ret = r_NETCDF;
+		else if (STR_EQUAL(f, "gtiff") || STR_EQUAL(f, "tiff"))
+			ret = r_TIFF;
+		else if (STR_EQUAL(f, "jpeg"))
+			ret = r_JPEG;
+		else if (STR_EQUAL(f, "jpeg2000") || STR_EQUAL(f, "jp2openjpeg"))
+			ret = r_JP2;
+		else if (STR_EQUAL(f, "nitf"))
+			ret = r_NTF;
+		else if (STR_EQUAL(f, "hdf") || STR_EQUAL(f, "hdf4") || STR_EQUAL(f, "hdf4image") || STR_EQUAL(f, "hdf5"))
+			ret = r_HDF;
+		else if (STR_EQUAL(f, "bmp"))
+			ret = r_BMP;
+		else if (STR_EQUAL(f, "csv"))
+			ret = r_CSV;
+		else if (STR_EQUAL(f, "grib"))
+			ret = r_GRIB;
+		free(f);
+	}
+	return ret;
+}
+
+r_Data_Format
+GDALDataConverter::guessDataFormat(char* data, r_Bytes dataSize)
+{
+	r_Data_Format ret = r_Array;
+
+	return ret;
 }
 
 GDALDataConverter::~GDALDataConverter()

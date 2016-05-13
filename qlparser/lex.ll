@@ -254,6 +254,7 @@ int string_yyinput( char* buf, int max_size )
 "inv_vff"                                    { SETTOKEN( INV_VFF, commandToken, INV_VFF ) }
 "inv_tor"                                    { SETTOKEN( INV_TOR, commandToken, INV_TOR ) }
 "inv_dem"                                    { SETTOKEN( INV_DEM, commandToken, INV_DEM ) }
+"inv_grib"                                   { SETTOKEN( INV_GRIB, commandToken, INV_GRIB ) }
 
 "abs"                                    { SETTOKEN( ABS, commandToken, ABS ) }
 "exp"                                    { SETTOKEN( EXP, commandToken, EXP ) }

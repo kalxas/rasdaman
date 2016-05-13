@@ -158,6 +158,7 @@ AC_CHECK_FUNCS([alarm bzero clock_gettime dup2 floor getcwd gethostbyaddr gethos
 
 AC_CONFIG_HEADERS([config.h])
 AC_CONFIG_FILES([third_party/Makefile
+                 third_party/jsoncpp/Makefile
                  Makefile
                  catalogmgr/Makefile         
                  relblobif/Makefile
@@ -233,6 +234,7 @@ AH_TEMPLATE([RMANDEBUG], [Enables debug functionality])
 AH_TEMPLATE([_DISABLE_TRACE_LOGS], [Disable debug functionality])
 AH_TEMPLATE([HAVE_HDF], [Checks whether HDF4 is installed])
 AH_TEMPLATE([HAVE_NETCDF], [Checks whether NetCDF is installed])
+AH_TEMPLATE([HAVE_GRIB], [Checks whether GRIB support is installed])
 AH_TEMPLATE([BASEDB_PGSQL], [If defined we are compiling over PostgreSQL])
 AH_TEMPLATE([BASEDB_SQLITE], [If defined we are compiling over SQLite])
 AH_TEMPLATE([PETASCOPEDB_PGSQL], [If defined we are compiling petascope over PostgreSQL])
@@ -282,6 +284,19 @@ if test "$with_netcdf" == yes; then
   AC_CHECK_LIB([netcdf], [main], ,[AC_MSG_FAILURE([libnetcdf.a was not found! Please install.])])
   AC_CHECK_LIB([netcdf_c++], [main], , [AC_MSG_FAILURE([libnetcdf_c++.a not found! Please install.])])
   AC_DEFINE([HAVE_NETCDF], [1])
+fi
+
+AC_ARG_WITH([grib],
+	    [AS_HELP_STRING([--with-grib],
+	      [this feature enables the inclusion of the GRIB library during installation.])],
+	    [],
+	    [with_grib=no])
+
+AC_MSG_NOTICE(checking for GRIB library...$with_grib)
+
+if test "$with_grib" == yes; then
+  AC_CHECK_LIB([grib_api], [main], ,[AC_MSG_FAILURE([libgrib_api was not found, please install.])])
+  AC_DEFINE([HAVE_GRIB], [1])
 fi
 
 AC_ARG_WITH([docs],
@@ -492,6 +507,15 @@ AC_SUBST(GMOCK_LIB, "$GMOCK_LIB")
 # GoogleMock include flags. GoogleMock is treated as a system dependency.
 CXXFLAGS="$CXXFLAGS -isystem ${GMOCK_DIR}/include -I${GMOCK_DIR} "
 
+# JSON library
+JSON_DIR="$THIRD_PARTY_DIR/jsoncpp"
+AC_SUBST(JSON_DIR, "$JSON_DIR")
+
+JSON_LIB="$JSON_DIR/libjsoncpp.a"
+AC_SUBST(JSON_LIB, "$JSON_LIB")
+
+CXXFLAGS="$CXXFLAGS -isystem ${JSON_DIR} -I${JSON_DIR} "
+
 ### End - Configuration of third party libraries ###
 
 ### Start - Check for rasnet ###
@@ -687,7 +711,7 @@ AC_DEFINE([RASARCHITECTURE], ["X86"])
 AC_DEFINE([RASSCHEMAVERSION], [5])
 AC_DEFINE([NOPRE], [], [Description])
 # if not on DEC Alpha
-BASEDBLDFLAGS+=" -lnsl"
+BASEDBLDFLAGS+=" -lnsl -L$JSON_DIR"
 STATICBASEDBLDFLAGS+=" -lnsl"
 # endif
 AC_DEFINE([NO_in_addr_t])

@@ -311,11 +311,12 @@ check_result()
   if [ "$exp" != "$res" ]; then
     NUM_FAIL=$(($NUM_FAIL + 1))
     echo failed.
-    log "expected: $exp, got $res"
+    log "expected: '$exp', got '$res'"
   else
     NUM_SUC=$(($NUM_SUC + 1))
     echo ok.
   fi
+  NUM_TOTAL=$(($NUM_TOTAL + 1))
 }
 
 check()
