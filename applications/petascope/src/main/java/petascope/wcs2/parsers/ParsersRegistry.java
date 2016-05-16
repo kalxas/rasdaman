@@ -26,6 +26,7 @@ import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import petascope.ConfigManager;
 import petascope.HTTPRequest;
 import petascope.wcs2.parsers.wcst.KVPWCSTParser;
 
@@ -59,7 +60,10 @@ public class ParsersRegistry {
         registerParser(new RESTGetCapabilitiesParser());
         registerParser(new RESTDescribeCoverageParser());
         registerParser(new RESTGetCoverageParser());
-        registerParser(new KVPWCSTParser());
+        //add only when writes are not disabled
+        if(!ConfigManager.DISABLE_WRITE_OPERATIONS) {
+            registerParser(new KVPWCSTParser());
+        }
     }
 
     /**

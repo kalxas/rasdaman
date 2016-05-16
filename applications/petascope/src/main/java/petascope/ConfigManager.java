@@ -152,6 +152,9 @@ public class ConfigManager {
     public static final String SETTINGS_FILE = "petascope.properties";
     public static final String LOG_PROPERTIES_FILE = "log4j.properties";
 
+    // disable write operations (WCST)
+    public static boolean DISABLE_WRITE_OPERATIONS = false;
+
     // keys
     public static final String KEY_BBOX_IN_COVSUMMARY = "bbox_in_covsummary";
     public static final String KEY_DESCRIPTION_IN_COVSUMMARY = "description_in_covsummary";
@@ -179,6 +182,7 @@ public class ConfigManager {
     public static final String KEY_XML_VALIDATION = "xml_validation";
     public static final String KEY_PETASCOPE_SERVLET_URL = "petascope_servlet_url";
     public static final String KEY_RASDAMAN_BIN_PATH = "rasdaman_bin_path";
+    public static final String KEY_DISABLE_WRITE_OPERATIONS = "disable_write_operations";
 
     public static final String TEMPLATES_PATH = "../templates/";
     public static final String GETCAPABILITIES_XML = "GetCapabilities.xml";
@@ -315,6 +319,9 @@ public class ConfigManager {
         METADATA_IN_COVSUMMARY    = Boolean.parseBoolean(get(KEY_METADATA_IN_COVSUMMARY));
         // XML-encoded request schema validation
         XML_VALIDATION            = Boolean.parseBoolean(KEY_XML_VALIDATION);
+
+        // Disable write operations
+        DISABLE_WRITE_OPERATIONS = Boolean.parseBoolean(get(KEY_DISABLE_WRITE_OPERATIONS));
 
         // CCIP hack
         CCIP_HACK = Boolean.parseBoolean(get(KEY_CCIP_VERSION));

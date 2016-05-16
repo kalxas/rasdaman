@@ -191,3 +191,8 @@ petascope_admin_user=petauser
 # purpose:       password for petascope_admin_user login, as above.
 # need to adapt: yes
 petascope_admin_pass=petapasswd
+
+# parameter:     disable_write_operations
+# purpose:       disables access to WCST (InsertCoverage, UpdateCoverage and DeleteCoverage) operations.
+# need to adapt: no
+disable_write_operations=false

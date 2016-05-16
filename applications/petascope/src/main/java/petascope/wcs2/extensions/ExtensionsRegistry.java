@@ -25,6 +25,7 @@ import java.util.HashSet;
 import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import petascope.ConfigManager;
 import petascope.HTTPRequest;
 import petascope.wcs2.parsers.GetCoverageRequest;
 
@@ -85,7 +86,10 @@ public class ExtensionsRegistry {
         registerExtension(new CRSExtension());
         registerExtension(new ScalingExtension());
         registerExtension(new ProcessCoverageExtension());
-        registerExtension(new WCSTExtension());
+        //add only when writes are not disabled
+        if(!ConfigManager.DISABLE_WRITE_OPERATIONS) {
+            registerExtension(new WCSTExtension());
+        }
     }
 
     /**
