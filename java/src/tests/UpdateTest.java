@@ -56,11 +56,12 @@ public class UpdateTest {
 
     RasImplementation rasImpl = new RasImplementation(RASDAMAN_URL);
     Transaction transaction = null;
+    Database rasDb = null;
 
     try {
 
       rasImpl.setUserIdentification(RASDAMAN_USER, RASDAMAN_PASS);
-      Database rasDb = rasImpl.newDatabase();
+      rasDb = rasImpl.newDatabase();
 
       rasDb.open(RASDAMAN_DATABASE, Database.OPEN_READ_WRITE);
 
@@ -108,10 +109,11 @@ public class UpdateTest {
         myQu.create("drop collection " + COLL);
         myQu.execute();
         transaction.commit();
+        if (transaction.isOpen()) {
+          transaction.commit();
+        }
+        rasDb.close();
       } catch (Exception ex) {
-      }
-      if (transaction.isOpen()) {
-        transaction.commit();
       }
     }
 

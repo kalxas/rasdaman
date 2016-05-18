@@ -599,21 +599,21 @@ HttpServer::processRequest( unsigned long callingClientId, char* baseName, int r
         ExecuteQueryRes resultError;
         // needed for result type MDD collection
         r_Minterval resultDom;
-        char* typeName;
-        char* typeStructure;
-        char* currentPos;
+        char* typeName = NULL;
+        char* typeStructure = NULL;
+        char* currentPos = NULL;
         r_OId oid;
         bool valid;
         unsigned short currentFormat;
         // vector with mdds in transfer encoding
         vector<HttpServer::MDDEncoding*> transferredMDDs;
-        Tile* resultTile; // temporary tile with the whole MDD
+        Tile* resultTile = NULL; // temporary tile with the whole MDD
         unsigned int i;
         unsigned short objType;
-        r_OId *roid;
+        r_OId *roid = NULL;
         int totalLength;
         long l;
-        ClientTblElt* context;
+        ClientTblElt* context = NULL;
         // server endianess
         r_Endian::r_Endianness serverEndian;
         if(capability)
@@ -1113,7 +1113,7 @@ HttpServer::processRequest( unsigned long callingClientId, char* baseName, int r
                         if(transferredMDDs.back()->tileSize != NULL)
                         {
                             splitInterval = new r_Minterval(transferredMDDs.back()->tileSize);
-                            LINFO << "Splitinterval is " << splitInterval;
+                            LDEBUG << "Splitinterval is " << splitInterval;
                         }
                         // now insert the tile(s)
                         if(valid)
@@ -1367,17 +1367,17 @@ HttpServer::processRequest( unsigned long callingClientId, char* baseName, int r
                         rpcMarray->data.confarray_len = static_cast<u_int>(transferredMDDs.back()->dataSize);
                         rpcMarray->data.confarray_val = transferredMDDs.back()->binData;
 
-                        /*
-                        LINFO << "Creating RPCMarray with domain " << rpcMarray->domain << ", size " <<
+                        
+                        LDEBUG << "Creating RPCMarray with domain " << rpcMarray->domain << ", size " <<
                           rpcMarray->data.confarray_len << ", typeLength " << rpcMarray->cellTypeLength << " ...";
-                        */
+                        
 
                         // split tile if a tileSize (an MInterval) has been specified
                         r_Minterval* splitInterval = NULL;
                         if(transferredMDDs.back()->tileSize != NULL)
                         {
                             splitInterval = new r_Minterval(transferredMDDs.back()->tileSize);
-                            LINFO << "Splitinterval is " << splitInterval;
+                            LDEBUG << "Splitinterval is " << splitInterval;
                         }
                         // now insert the tile(s)
                         if(valid)
