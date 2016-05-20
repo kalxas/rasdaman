@@ -216,13 +216,24 @@ public:
 protected:
     /// initialize internal structures
     void initShare( const char *src, const r_Minterval &interv );
-
-    /// true if we should free the src area (in case the input was converted to rgb)
-    bool destroySrc;
+    
+    /// transpose src 2D array of size NxM to dst of size MxN
+    template <class baseType>
+    void transpose(baseType *src, baseType *dst, const int N, const int M)
+    {
+        for(int n = 0; n<N*M; n++) {
+            int i = n/N;
+            int j = n%N;
+            dst[n] = src[M*j + i];
+        }
+    }
 
     /// convert unsupported type to rgb by applying the default color scheme
     template <class baseType>
     void applyColorScheme();
+
+    /// true if we should free the src area (in case the input was converted to rgb)
+    bool destroySrc;
 
     /// conversion context
     r_convDesc desc;

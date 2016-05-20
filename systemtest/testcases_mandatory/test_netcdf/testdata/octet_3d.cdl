@@ -1,0 +1,61 @@
+netcdf byte_3d {
+
+dimensions:
+  lat = 10;
+  lon = 5;
+  time = unlimited;
+
+variables:
+  int   lat(lat);
+    lat:standard_name = "latitude" ;
+	lat:long_name = "latitude" ;
+	lat:units = "degrees_north" ;
+	lat:axis = "Y" ;
+	lat:bounds = "lat_bnds" ;
+	lat:original_units = "degrees_north" ;
+    
+  int   lon(lon); 
+    lon:standard_name = "longitude" ;
+	lon:long_name = "longitude" ;
+	lon:units = "degrees_east" ;
+	lon:axis = "X" ;
+	lon:bounds = "lon_bnds" ;
+	lon:original_units = "degrees_east" ;
+    
+  int   time(time);
+    time:standard_name = "time" ;
+	time:long_name = "time" ;
+	time:units = "days since 2001-1-1" ;
+	time:axis = "T" ;
+	time:calendar = "360_day" ;
+	time:bounds = "time_bnds" ;
+	time:original_units = "seconds since 2001-1-1" ;
+    
+  byte values(time,lat,lon);
+	values:standard_name = "sea_surface_temperature" ;
+	values:long_name = "Sea Surface Temperature" ;
+	values:units = "K" ;
+	values:cell_methods = "time: mean (interval: 30 minutes)" ;
+	values:_FillValue = 0 ;
+	values:missing_value = 0 ;
+	values:original_name = "sosstsst" ;
+	values:original_units = "degC" ;
+	values:history = "History" ;
+	
+// global attributes:
+	:title = "data for the rasdaman systemtest" ;
+	:institution = "rasdaman.org" ;
+	:source = "rasdaman.org" ;
+	:contact = "Dimitar Misev" ;
+	:Conventions = "CF-1.0" ;
+	:comment = "Test drive" ;
+    
+data:
+  lat    = 0, 10, 20, 30, 40, 50, 60, 70, 80, 90;
+  
+  lon    = -140, -118, -96, -84, -52;
+  
+  time   = 1, 2;
+  
+  values = -1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90, 91, 92, 93, 94, 95, 96, 97, 98, 99, 100;
+}

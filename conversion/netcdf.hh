@@ -43,10 +43,13 @@ rasdaman GmbH.
 #include "conversion/convertor.hh"
 
 #ifdef HAVE_NETCDF
-#include "netcdfcpp.h"
+#include <netcdfcpp.h>
 #endif
 
+#include <json/json.h>
 #include <string>
+#include <vector>
+#include <memory>
 
 //@ManMemo: Module {\bf conversion}
 
@@ -78,22 +81,149 @@ public:
     virtual const char *get_name(void) const;
     virtual r_Data_Format get_data_format(void) const;
 
-
 private:
-
-    /// init NetCDF class
-    void initNETCDF(void);
-    /// For test use
-    template <class baseType, class castType> void print(baseType* val, int bufferZise);
-    /// parameters
-    const char *Conventions;
-    const char *Institution;
-    char *variable;
     
-    // for supporting more than one variable 
-    char **vars;
-    int varsSize;
-    void getVars(void);
+    struct RasType
+    {
+        unsigned int cellSize;
+        std::string cellType;
+    };
+
+    /**
+     * Read data from tmpFile into desc.dest and return the file size.
+     */
+    size_t readTmpFile(const char* tmpFile) throw (r_Error);
+    
+    void parseDecodeOptions(const char* options) throw (r_Error);
+    
+    void validateDecodeOptions(const NcFile& dataFile) throw (r_Error);
+    
+    void parseEncodeOptions(const char* options) throw (r_Error);
+    
+    void validateJsonEncodeOptions() throw (r_Error);
+    
+    /**
+     * read single variable data
+     */
+    void readSingleVar(const NcFile &dataFile) throw (r_Error);
+    
+    /**
+     * read multiple variable data into a struct
+     */
+    void readMultipleVars(const NcFile &dataFile) throw (r_Error);
+    
+    /**
+     * read single variable data
+     */
+    template <class T>
+    void readData(NcVar *var, r_Convertor::convert_type_e) throw (r_Error);
+    
+    /**
+     * read struct variable data
+     */
+    template <class T>
+    void readDataStruct(NcVar *var, long* dimSizes, size_t dataSize, 
+                        size_t structSize, size_t &offset) throw (r_Error);
+    
+    /**
+     * Build struct type
+     */
+    std::unique_ptr<long[]> buildStructType(const NcFile &dataFile, size_t& dataSize, size_t& structSize, int& numDims) throw (r_Error);
+    
+    /**
+     * Get a rasdaman type from a netcdf variable type.
+     */
+    RasType getRasType(NcVar *var);
+    
+    /**
+     * write single variable data
+     */
+    void writeSingleVar(NcFile &dataFile, int dimNo, 
+                        const NcDim** dims, long* dimSizes, size_t dataSize) throw (r_Error);
+    
+    /**
+     * write multiple variables from a struct
+     */
+    void writeMultipleVars(NcFile &dataFile, int dimNo, 
+                           const NcDim** dims, long* dimSizes, size_t dataSize) throw (r_Error);
+    
+    /**
+     * write extra metadata (specified by json parameters)
+     */
+    void writeMetadata(NcFile &dataFile) throw (r_Error);
+    
+    /**
+     * add metadata attributes to var if not null, otherwise to dataFile.
+     */
+    void addJsonAttributes(NcFile &dataFile, const Json::Value& metadata, NcVar* var = NULL) throw (r_Error);
+    
+    /**
+     * Convert type to a NcType; returns ncNoType in case of invalid type.
+     */
+    NcType stringToNcType(std::string type);
+    
+    /**
+     * Add json array values to a netCDF variable.
+     */
+    void jsonArrayToNcVar(NcVar* var, Json::Value jsonArray);
+    
+    /**
+     * Unsigned data has to be transformed to data of 2x more bytes
+     * as NetCDF only supports exporting signed data;
+     * so unsigned char is transformed to short for example, and we add the
+     * valid_min/valid_max attributes to describe the range.
+     */
+    template <class S, class T>
+    void writeData(NcFile &dataFile, std::string& varName, int dimNo, const NcDim** dims, long* dimSizes, 
+                   size_t dataSize, NcType ncType, long validMin, long validMax,
+                   const char* missingValue = NULL) throw (r_Error);
+    
+    /**
+     * write struct variable data
+     */
+    template <class S, class T>
+    void writeDataStruct(NcFile &dataFile, std::string& varName, int dimNo, const NcDim** dims, long* dimSizes, 
+                         size_t dataSize, size_t structSize, size_t offset, NcType ncType, 
+                         long validMin, long validMax, const char* missingValue = NULL) throw (r_Error);
+    
+    /**
+     * @return dimension name given it's index
+     */
+    std::string getDimensionName(unsigned int dimId) throw (r_Error);
+    
+    /**
+     * @return single variable name for exporting to netcdf
+     */
+    std::string getVariableName() throw (r_Error);
+    
+    // variable names
+    std::vector<std::string> varNames;
+    
+    // dimension names
+    std::vector<std::string> dimNames;
+    
+    // dimension variables
+    std::vector<std::string> dimVarNames;
+    
+    Json::Value encodeOptions;
+    
+    
+
+    static const char* DEFAULT_VAR;
+    static const char* DEFAULT_DIM_NAME_PREFIX;
+    static const char* VAR_SEPARATOR_STR;
+    static const char* VARS_KEY;
+    static const char* VALID_MIN;
+    static const char* VALID_MAX;
+    static const char* MISSING_VALUE;
+    
+    static const char* JSON_KEY_DIMS;
+    static const char* JSON_KEY_VARS;
+    static const char* JSON_KEY_GLOBAL;
+    static const char* JSON_KEY_NAME;
+    static const char* JSON_KEY_DATA;
+    static const char* JSON_KEY_METADATA;
+    static const char* JSON_KEY_TYPE;
 };
 
 #endif

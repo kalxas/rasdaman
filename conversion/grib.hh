@@ -88,9 +88,6 @@ private:
     /// get an r_Minterval object for domain in string representation
     r_Minterval domainStringToMinterval(const  char* domain) throw (r_Error);
     
-    /// transpose src 2D array of size NxM to dst of size MxN
-    void transpose(double *src, double *dst, const int N, const int M);
-    
     /// the first dims-2 bounds must be slices (low == high); the last two (x/y) must be trims
     void checkDomain(const r_Minterval& domain) throw (r_Error);
     

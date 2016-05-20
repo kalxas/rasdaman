@@ -202,7 +202,7 @@ r_convDesc &r_Conv_GRIB::convertFrom(const char *options) throw(r_Error)
         err = grib_get_double_array(h, "values", (double*) tmpValues, &xyLen);
         VALIDATE_MSG_ERRCODE(err, "failed getting the values in message " << messageIndex);
         
-        transpose((double*) tmpValues, (double*) (desc.dest + sliceOffset), y, x);
+        transpose<double>((double*) tmpValues, (double*) (desc.dest + sliceOffset), y, x);
 
         LTRACE << "processed grib message " << messageIndex << ": x size = " << x << ", y size = " << y <<
             ", number of values = " << xyLen << ", slice offset = " << sliceOffset;
@@ -258,15 +258,6 @@ FILE* r_Conv_GRIB::getFileHandle() throw (r_Error)
         throw r_Error(r_Error::r_Error_Conversion);
     }
     return in;
-}
-
-void r_Conv_GRIB::transpose(double *src, double *dst, const int N, const int M)
-{
-    for(int n = 0; n<N*M; n++) {
-        int i = n/N;
-        int j = n%N;
-        dst[n] = src[M*j + i];
-    }
 }
 
 size_t r_Conv_GRIB::getSliceOffset(const r_Minterval& domain, const r_Minterval& messageDomain, size_t xyLen)

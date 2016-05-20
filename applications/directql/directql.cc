@@ -1092,6 +1092,7 @@ void doStuff() throw(RasqlError, r_Error)
         ObjectBroker::clearBroker();
         throw err;
     }
+    SECURE_FREE_PTR(fileContents);
     if (marray)
     {
         SECURE_FREE_PTR(marray->domain);
