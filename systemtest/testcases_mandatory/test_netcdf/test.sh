@@ -137,6 +137,7 @@ check_output()
 {
     if [ -f rasql_1.nc ]; then
         mv rasql_1.nc "$out_file"
+        check_netcdf
         ncdump "$out_file" > "$out_cdl_file"
         grep "$test_filename" known_fails > /dev/null
         if [ $? -ne 0 ]; then

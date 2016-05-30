@@ -5,7 +5,11 @@ dimensions:
 	dim_2 = 5 ;
 variables:
 	short v1(dim_0, dim_1, dim_2) ;
+		v1:valid_min = -32768s ;
+		v1:valid_max = 32767s ;
 	short v2(dim_0, dim_1, dim_2) ;
+		v2:valid_min = -32768s ;
+		v2:valid_max = 32767s ;
 data:
 
  v1 =
