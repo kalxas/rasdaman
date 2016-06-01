@@ -86,6 +86,27 @@ using std::string;
   They are used to compute the position of current image in RasDaMan coordinates.
 */
 
+/*
+Format specification:
+int16/dem
+
+input parameters:
+- geox    geo reference x of upper left point (float >0)
+- geoy    geo reference y of upper left point (float >0)
+- resx    horizontal resolution (pixel distance) in meters (float >0)
+- resy    vertical resolution (pixel distance) in meters (float >0)
+- hstep   factor by which pixel values have to be multiplied to obtain real height in meters (float >0)
+
+An int16 file contains a sequence of sizex*sizey height values, advancing from west to east and from north to south. 
+Each pixel consists of a 16 bit integer where the lower byte comes first in sequence (i.e., pixel value is byte[i]+byte[i+1]*256).
+There is no file header, pixels start immediately at the beginning.
+
+Points are defined as follows for pixel position (i,j) in file (starting with (0/0):
+- geo position x = geox + i*resx
+- geo position y = geoy + j*resy
+- height = ( byte[ 2*i + 2*j*sizex] + byte[ 2*i + 2*j*sizex + 1] * 256 ) * hstep
+*/
+
 // r_Error code for "empty DEM result generated"; this def should go into a central list
 // -- PB 2003-dec-03
 #define E_DEM_EMPTY 3000
@@ -111,9 +132,9 @@ public:
 
     r_Conv_DEM(const char* source, const r_Minterval& lengthordomain, int tp) throw(r_Error);
 
-    r_convDesc& convertFrom(const char* options = NULL) throw (r_Error);
+    r_Conv_Desc& convertFrom(const char* options = NULL) throw (r_Error);
 
-    r_convDesc& convertTo(const char* options = NULL) throw (r_Error);
+    r_Conv_Desc& convertTo(const char* options = NULL) throw (r_Error);
 
     const char* get_name() const throw();
 

@@ -76,15 +76,15 @@ int test_picture(int width, int height, int bpp, int (*init)(int))
     switch (bpp)
     {
     case 1:
-        baseType = r_Convertor::ctype_bool;
+        baseType = ctype_bool;
         bytespp = 1;
         break;
     case 8:
-        baseType = r_Convertor::ctype_char;
+        baseType = ctype_char;
         bytespp = 1;
         break;
     case 24:
-        baseType = r_Convertor::ctype_rgb;
+        baseType = ctype_rgb;
         bytespp = 3;
         break;
     default:
@@ -134,7 +134,7 @@ int test_picture(int width, int height, int bpp, int (*init)(int))
         r_Minterval destInterv(desc.destInterv);
         delete desc.destType;
         delete png;
-        png = new r_Conv_PNG(dest, destInterv, r_Convertor::ctype_char);
+        png = new r_Conv_PNG(dest, destInterv, ctype_char);
         desc = png->convertFrom();
         cout << "\tConverted from PNG, domain " << desc.destInterv << endl;
 
@@ -224,7 +224,7 @@ int main(int argc, char *argv[])
             r_Minterval interv(1);
             interv << r_Sinterval((r_Range)0, (r_Range)fsize-1);
 
-            png = new r_Conv_PNG(data, interv, r_Convertor::ctype_char);
+            png = new r_Conv_PNG(data, interv, ctype_char);
             cout << "Converting file <" << pngfile << "> to MDD..." << endl;
             desc = png->convertFrom();
 

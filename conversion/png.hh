@@ -59,9 +59,9 @@ public:
     ~r_Conv_PNG( void );
 
     /// convert to PNG
-    virtual r_convDesc &convertTo( const char *options=NULL ) throw(r_Error);
+    virtual r_Conv_Desc &convertTo( const char *options=NULL ) throw(r_Error);
     /// convert from PNG
-    virtual r_convDesc &convertFrom( const char *options=NULL ) throw(r_Error);
+    virtual r_Conv_Desc &convertFrom( const char *options=NULL ) throw(r_Error);
     /// cloning
     virtual r_Convertor *clone( void ) const;
     /// identification

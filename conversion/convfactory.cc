@@ -44,14 +44,13 @@ rasdaman GmbH.
 #include "png.hh"
 #include "jpeg.hh"
 #include "bmp.hh"
-#include "vff.hh"
-#include "tor.hh"
 #include "dem.hh"
 #include "ecw.hh"
-#include "ntf.hh"
+#include "nitf.hh"
 #include "csv.hh"
 #include "netcdf.hh"
 #include "grib.hh"
+#include "gdal.hh"
 
 
 bool r_Convertor_Factory::is_supported( r_Data_Format fmt )
@@ -63,16 +62,15 @@ bool r_Convertor_Factory::is_supported( r_Data_Format fmt )
     case r_PNG:
     case r_JPEG:
     case r_BMP:
-    case r_VFF:
-    case r_TOR:
     case r_DEM:
     case r_ECW:
 #ifdef HAVE_HDF
     case r_HDF:
 #endif
-        // case r_NTF:
+    // case r_NITF:
     case r_NETCDF:
     case r_GRIB:
+    case r_GDAL:
         retval=true;
         break;
     default:
@@ -100,6 +98,9 @@ r_Convertor *r_Convertor_Factory::create( r_Data_Format fmt, const char *src, co
     case r_GRIB:
         result = new r_Conv_GRIB(src, interv, tp);
         break;
+    case r_GDAL:
+        result = new r_Conv_GDAL(src, interv, tp);
+        break;
     case r_PNG:
         result = new r_Conv_PNG(src, interv, tp);
         break;
@@ -112,12 +113,6 @@ r_Convertor *r_Convertor_Factory::create( r_Data_Format fmt, const char *src, co
     case r_BMP:
         result = new r_Conv_BMP(src, interv, tp);
         break;
-    case r_VFF:
-        result = new r_Conv_VFF(src, interv, tp);
-        break;
-    case r_TOR:
-        result = new r_Conv_TOR(src, interv, tp);
-        break;
     case r_DEM:
         result = new r_Conv_DEM(src, interv, tp);
         break;
@@ -129,9 +124,9 @@ r_Convertor *r_Convertor_Factory::create( r_Data_Format fmt, const char *src, co
         result = new r_Conv_HDF(src, interv, tp);
         break;
 #endif
-        // case r_NTF:
+        // case r_NITF:
         //   LDEBUG << "creating NTF converter...";
-        //   result = new r_Conv_NTF(src, interv, tp);
+        //   result = new r_Conv_NITF(src, interv, tp);
         //   break;
     default:
         LFATAL << "Error: in conversion factory during create: unsupported format: " << fmt;
@@ -160,6 +155,9 @@ r_Convertor *r_Convertor_Factory::create( r_Data_Format fmt, const char *src, co
     case r_GRIB:
         result = new r_Conv_GRIB(src, interv, type);
         break;
+    case r_GDAL:
+        result = new r_Conv_GDAL(src, interv, type);
+        break;
     case r_PNG:
         result = new r_Conv_PNG(src, interv, type);
         break;
@@ -168,12 +166,6 @@ r_Convertor *r_Convertor_Factory::create( r_Data_Format fmt, const char *src, co
         break;
     case r_BMP:
         result = new r_Conv_BMP(src, interv, type);
-        break;
-    case r_VFF:
-        result = new r_Conv_VFF(src, interv, type);
-        break;
-    case r_TOR:
-        result = new r_Conv_TOR(src, interv, type);
         break;
     case r_DEM:
         result = new r_Conv_DEM(src, interv, type);
@@ -186,9 +178,9 @@ r_Convertor *r_Convertor_Factory::create( r_Data_Format fmt, const char *src, co
         result = new r_Conv_HDF(src, interv, type);
         break;
 #endif
-        // case r_NTF:
+        // case r_NITF:
         //   LDEBUG << "creating NTF converter...";
-        //   result = new r_Conv_NTF(src, interv, type);
+        //   result = new r_Conv_NITF(src, interv, type);
         //   break;
     default:
         LFATAL << "Error: in conversion factory during create: unsupported format: " << fmt;

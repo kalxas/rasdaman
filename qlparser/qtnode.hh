@@ -20,7 +20,7 @@
 
 // define used in lots of qlparser files to indent output
 #ifdef CPPSTDLIB
-#define SPACE_STR(numSpace) std::string(numSpace,' ')
+#define SPACE_STR(numSpace) std::string((size_t)numSpace,' ')
 #else
 #define SPACE_STR(numSpace) std::string(' ',numSpace)
 #endif

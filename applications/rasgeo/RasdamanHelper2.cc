@@ -23,8 +23,8 @@
 /*
  * Contributed to rasdaman by Alexander Herzig, Landcare Research New Zealand
  */
-#include "qlparser/gdalincludes.hh"
 #include "config.h"
+#include "conversion/gdalincludes.hh"
 #include "RasdamanHelper2.hh"
 
 // rasdaman

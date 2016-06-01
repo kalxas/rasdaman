@@ -41,7 +41,7 @@ if ENABLE_JAVA
 endif
 
 nobase_include_HEADERS=raslib/*.h raslib/*.hh raslib/*.icc raslib/*.cc \
-		rasodmg/*.hh rasodmg/*.cc rasodmg/*.icc conversion/*.h conversion/*.hh \
+		rasodmg/*.hh rasodmg/*.cc rasodmg/*.icc conversion/*.hh \
 		clientcomm/*.h clientcomm/*.hh commline/*.hh commline/*.cc debug/*.hh config.h
 
 SUBDIRS = third_party relblobif relindexif relmddif relcatalogif reladminif relstorageif \

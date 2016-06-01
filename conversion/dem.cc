@@ -582,7 +582,7 @@ r_Conv_DEM::writeToDestStream(ofstream& oFile) throw(r_Error)
     }
 }
 
-r_convDesc&
+r_Conv_Desc&
 r_Conv_DEM::convertFrom(const char* options) throw (r_Error)
 {
     bool hasSrcType=true;
@@ -712,7 +712,7 @@ r_Conv_DEM::convertFrom(const char* options) throw (r_Error)
 }
 
 
-r_convDesc&
+r_Conv_Desc&
 r_Conv_DEM::convertTo(const char* options) throw (r_Error)
 {
     bool hasSrcType=true;

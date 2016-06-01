@@ -399,7 +399,7 @@ QtRangeConstructor::checkType(QtTypeTuple *typeTuple)
             else
             {
                 char elementName[50];
-                sprintf(elementName, "%d\0", i);
+                sprintf(elementName, "%d", i);
                 structType->addElement(elementName, ((BaseType*)inputType.getType()));
             }
         }

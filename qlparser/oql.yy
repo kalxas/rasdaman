@@ -62,8 +62,6 @@ static const char rcsid[] = "@(#)qlparser, yacc parser: $Header: /home/rasdev/CV
 #include "servercomm/servercomm.hh"
 #include "qlparser/parseinfo.hh"
 #include "qlparser/qtmddcfgop.hh"
-#include "qlparser/qtencode.hh"
-#include "qlparser/qtdecode.hh"
 #include "qlparser/qtconcat.hh"
 #include "qlparser/qtcaseop.hh"
 #include "qlparser/qtcaseequality.hh"
@@ -2178,7 +2176,8 @@ functionExp: OID LRPAR collectionIterator RRPAR
 	}
 	| ENCODE LRPAR generalExp COMMA StringLit RRPAR
 	{
-	  $$ = new QtEncode( $3, $5.value );
+	  std::string format($5.value);
+	  $$ = new QtConversion( $3, QtConversion::QT_TOGDAL, format, NULL );
 	  $$->setParseInfo( *($1.info) );
 	  parseQueryTree->removeDynamicObject( $3 );
 	  parseQueryTree->addDynamicObject( $$ );
@@ -2189,7 +2188,8 @@ functionExp: OID LRPAR collectionIterator RRPAR
 	}
 	| ENCODE LRPAR generalExp COMMA StringLit COMMA StringLit RRPAR
 	{
-	  $$ = new QtEncode( $3, $5.value, $7.value );
+	  std::string format($5.value);
+	  $$ = new QtConversion( $3, QtConversion::QT_TOGDAL, format, $7.value );
 	  $$->setParseInfo( *($1.info) );
 	  parseQueryTree->removeDynamicObject( $3 );
 	  parseQueryTree->addDynamicObject( $$ );
@@ -2201,7 +2201,7 @@ functionExp: OID LRPAR collectionIterator RRPAR
 	}
 	| DECODE LRPAR generalExp RRPAR
     {
-        $$ = new QtDecode($3);
+        $$ = new QtConversion( $3, QtConversion::QT_FROMGDAL );
         $$->setParseInfo( *($1.info) );
         parseQueryTree->removeDynamicObject( $3 );
         parseQueryTree->addDynamicObject( $$ );
@@ -2211,7 +2211,8 @@ functionExp: OID LRPAR collectionIterator RRPAR
     }
     | DECODE LRPAR generalExp COMMA StringLit COMMA StringLit RRPAR
 	{
-	  $$ = new QtDecode( $3, $5.value, $7.value );
+	  std::string format($5.value);
+	  $$ = new QtConversion( $3, QtConversion::QT_FROMGDAL, format, $7.value );
 	  $$->setParseInfo( *($1.info) );
 	  parseQueryTree->removeDynamicObject( $3 );
 	  parseQueryTree->addDynamicObject( $$ );

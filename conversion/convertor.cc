@@ -134,6 +134,12 @@ r_Convertor::~r_Convertor(void)
 }
 
 
+void r_Convertor::set_format( const std::string& formatArg )
+{
+    format = formatArg;
+}
+
+
 void r_Convertor::set_storage_handler( const r_Storage_Man &newStore )
 {
     mystore = newStore;
@@ -232,10 +238,10 @@ void r_Convertor::applyColorScheme()
     desc.src = (char*)img;
 }
 
-r_Convertor::convert_type_e
+convert_type_e
 r_Convertor::get_internal_type(const r_Type* tp, bool fullTypes) throw(r_Error)
 {
-    r_Convertor::convert_type_e retval=ctype_void;
+    convert_type_e retval=ctype_void;
 
     if (tp == NULL)
         return retval;
@@ -357,54 +363,54 @@ r_Convertor::get_internal_type(const r_Type* tp, bool fullTypes) throw(r_Error)
     return retval;
 }
 
-std::ostream& operator<<(std::ostream& os, r_Convertor::convert_type_e& cte)
+std::ostream& operator<<(std::ostream& os, convert_type_e& cte)
 {
     switch(cte)
     {
-    case r_Convertor::ctype_bool:
+    case ctype_bool:
         os << "bool";
         break;
-    case r_Convertor::ctype_char:
+    case ctype_char:
         os << "char";
         break;
-    case r_Convertor::ctype_uint8:
+    case ctype_uint8:
         os << "uint8";
         break;
-    case r_Convertor::ctype_int8:
+    case ctype_int8:
         os << "int8";
         break;
-    case r_Convertor::ctype_int16:
+    case ctype_int16:
         os << "int16";
         break;
-    case r_Convertor::ctype_uint16:
+    case ctype_uint16:
         os << "uint16";
         break;
-    case r_Convertor::ctype_int32:
+    case ctype_int32:
         os << "int32";
         break;
-    case r_Convertor::ctype_uint32:
+    case ctype_uint32:
         os << "uint32";
         break;
-    case r_Convertor::ctype_int64:
+    case ctype_int64:
         os << "int64";  // currently unsupported
         break;
-    case r_Convertor::ctype_uint64:
+    case ctype_uint64:
         os << "uint64"; // currently unsupported
         break;
-    case r_Convertor::ctype_float32:
+    case ctype_float32:
         os << "float32";
         break;
-    case r_Convertor::ctype_float64:
+    case ctype_float64:
         os << "float64";
         break;
-    case r_Convertor::ctype_rgb:
+    case ctype_rgb:
         os << "rgb";
         break;
-    case r_Convertor::ctype_struct:
+    case ctype_struct:
         os << "struct";
         break;
     default:
-        os  << "r_Convertor::convert_type_e unknown type: " << cte << endl;
+        os  << "convert_type_e unknown type: " << cte << endl;
         break;
     }
 

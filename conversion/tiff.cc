@@ -222,7 +222,7 @@ r_Conv_TIFF::~r_Conv_TIFF(void)
 // Compression modes recommended:
 // Bitmap, Greyscales:  COMPRESSION_LZW, COMPRESSION_DEFLATE
 // RGB:                 COMPRESSION_JPEG, COMPRESSION_SGILOG24
-r_convDesc &r_Conv_TIFF::convertTo( const char *options ) throw(r_Error)
+r_Conv_Desc &r_Conv_TIFF::convertTo( const char *options ) throw(r_Error)
 {
     TIFF *tif = NULL;
     char dummyFile[256];
@@ -554,7 +554,7 @@ r_convDesc &r_Conv_TIFF::convertTo( const char *options ) throw(r_Error)
 
 
 /// convert TIFF stream into array
-r_convDesc &r_Conv_TIFF::convertFrom(const char *options) throw(r_Error) // CONVERTION FROM TIFF TO DATA
+r_Conv_Desc &r_Conv_TIFF::convertFrom(const char *options) throw(r_Error) // CONVERTION FROM TIFF TO DATA
 {
     params->process(options); //==> CHECK THIS "IMP"
     TIFF *tif=NULL;

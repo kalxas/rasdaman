@@ -704,9 +704,6 @@ void printResult(Tile* tile, int resultIndex) throw(RasqlError)
         case r_BMP:
             strcat(defFileName, ".bmp");
             break;
-        case r_VFF:
-            strcat(defFileName, ".vff");
-            break;
         case r_NETCDF:
             strcat(defFileName, ".nc");
             break;

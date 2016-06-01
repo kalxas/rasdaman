@@ -70,9 +70,9 @@ public:
     ~r_Conv_NETCDF(void);
 
     /// convert to NETCDF
-    virtual r_convDesc &convertTo(const char *options = NULL) throw (r_Error);
+    virtual r_Conv_Desc &convertTo(const char *options = NULL) throw (r_Error);
     /// convert from NETCDF
-    virtual r_convDesc &convertFrom(const char *options = NULL) throw (r_Error);
+    virtual r_Conv_Desc &convertFrom(const char *options = NULL) throw (r_Error);
 
     /// cloning
     virtual r_Convertor *clone(void) const;
@@ -92,8 +92,6 @@ private:
     /**
      * Read data from tmpFile into desc.dest and return the file size.
      */
-    size_t readTmpFile(const char* tmpFile) throw (r_Error);
-    
     void parseDecodeOptions(const char* options) throw (r_Error);
     
     void validateDecodeOptions(const NcFile& dataFile) throw (r_Error);
@@ -116,7 +114,7 @@ private:
      * read single variable data
      */
     template <class T>
-    void readData(NcVar *var, r_Convertor::convert_type_e) throw (r_Error);
+    void readData(NcVar *var, convert_type_e) throw (r_Error);
     
     /**
      * read struct variable data

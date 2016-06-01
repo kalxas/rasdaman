@@ -139,7 +139,7 @@ r_Conv_PNG::~r_Conv_PNG(void)
 }
 
 
-r_convDesc &r_Conv_PNG::convertTo( const char *options ) throw(r_Error)
+r_Conv_Desc &r_Conv_PNG::convertTo( const char *options ) throw(r_Error)
 {
     png_struct *write_ptr=NULL;
     png_info *info_ptr = NULL;
@@ -489,7 +489,7 @@ r_convDesc &r_Conv_PNG::convertTo( const char *options ) throw(r_Error)
 }
 
 
-r_convDesc &r_Conv_PNG::convertFrom(const char *options) throw(r_Error)
+r_Conv_Desc &r_Conv_PNG::convertFrom(const char *options) throw(r_Error)
 {
     png_struct *read_ptr=NULL;
     png_info *info_ptr = NULL;

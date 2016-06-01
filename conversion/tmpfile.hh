@@ -44,9 +44,14 @@ public:
     std::string getFileName() const;
     /// return temporary file descriptor
     int getFileDescriptor() const;
+    /// write the given data with dataSize (bytes)
+    void writeData(const char* data, size_t dataSize) throw (r_Error);
+    /// write the given data with dataSize (bytes)
+    char* readData(long& dataSize) throw (r_Error);
 
 private:
     
+    void initTmpFile() throw (r_Error);
     std::string fileName;
     int fd;
     static const int INVALID_FILE_DESCRIPTOR;

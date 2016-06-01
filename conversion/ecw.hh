@@ -57,9 +57,9 @@ public:
 
     r_Conv_ECW(const char* source, const r_Minterval& lengthordomain, int tp) throw(r_Error);
 
-    r_convDesc& convertFrom(const char* options = NULL) throw (r_Error);
+    r_Conv_Desc& convertFrom(const char* options = NULL) throw (r_Error);
 
-    r_convDesc& convertTo(const char* options = NULL) throw (r_Error);
+    r_Conv_Desc& convertTo(const char* options = NULL) throw (r_Error);
 
     const char* get_name() const;
 

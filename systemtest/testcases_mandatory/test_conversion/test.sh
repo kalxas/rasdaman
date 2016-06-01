@@ -225,13 +225,10 @@ run_test png decode png png GreySet ", \"png\", \"ZLEVEL=1;\""
 run_test bmp inv_bmp bmp bmp GreySet
 run_test bmp decode bmp bmp GreySet
 
-################## vff() and inv_vff() #######################
-run_test vff inv_vff vff vff GreySet
-
 ################## hdf() and inv_hdf() #######################
 
 # run hdf test only if hdf was compiled in
-grep 'HAVE_HDF 1' $SCRIPT_DIR/../../../config.h
+grep 'HAVE_HDF 1' $SCRIPT_DIR/../../../config.h > /dev/null
 
 if [ $? -eq 0 ]; then
   run_test hdf inv_hdf hdf hdf GreySet

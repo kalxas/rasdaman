@@ -199,14 +199,8 @@ SystemQuery::doStuff(int argc, char** argv)
                                 // special treatment only for DEFs
                                 switch (tmpfmt)
                                 {
-                                case r_TOR:
-                                    defExt = "tor";
-                                    break;
                                 case r_DEM:
                                     defExt = "dem";
-                                    break;
-                                case r_VFF:
-                                    defExt = "vff";
                                     break;
                                 case r_TIFF:
                                     defExt = "tif";

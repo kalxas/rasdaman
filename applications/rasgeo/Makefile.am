@@ -30,10 +30,12 @@
 
 # extend the AM_CXXFLAGS since it is set in configure.ac
 AM_CXXFLAGS=@AM_CXXFLAGS@ @CLIENTCXXFLAGS@ @BASEDBCXXFLAGS@ @GDAL_CXXFLAGS@
+AM_CFLAGS=$(CXXFLAGS)
 AM_LDFLAGS=@CLIENTLDFLAGS@
 
+if ENABLE_JAVA
+if HAVE_GDAL
 
-if  ENABLE_JAVA
 bin_PROGRAMS=rasimport raserase
 
 rasimport_SOURCES= rasimport.cc rasimport.hh RasdamanConnector.cc RasdamanHelper2.cc rasgeo_template_inst.hh RasdamanConnector.hh RasdamanHelper2.hh ../../debug/debug-clt.hh
@@ -60,19 +62,12 @@ endif
 
 SUBDIRS= ../../rasodmg ../../clientcomm \
          ../../raslib ../../conversion ../../commline ../../network
-endif
-
-if ENABLE_JAVA
-   ALLOW_INSTALL = TRUE
-else
-   ALLOW_INSTALL = FALSE
-endif
 
 install-data-hook:
-	if [ $(ALLOW_INSTALL) = TRUE ] ; then \
 		mkdir -p $(HOME)/.rasdaman; \
 		if [ ! -f $(HOME)/.rasdaman/rasconnect ]; then \
 			cp rasconnect $(HOME)/.rasdaman/; \
 			echo "rasimport configuration file installed successfully in $(HOME)/.rasdaman/rasconnect"; \
-		fi; \
-	fi
+		fi
+endif
+endif

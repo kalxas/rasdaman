@@ -112,9 +112,9 @@ public:
     ~r_Conv_TIFF( void );
 
     /// convert to TIFF
-    virtual r_convDesc &convertTo( const char *options=NULL) throw(r_Error);
+    virtual r_Conv_Desc &convertTo( const char *options=NULL) throw(r_Error);
     /// convert from TIFF
-    virtual r_convDesc &convertFrom( const char *options=NULL ) throw(r_Error);
+    virtual r_Conv_Desc &convertFrom( const char *options=NULL ) throw(r_Error);
     /// cloning
     virtual r_Convertor *clone( void ) const;
     /// identification

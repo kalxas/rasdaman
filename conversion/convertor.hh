@@ -36,15 +36,14 @@ rasdaman GmbH.
 #ifndef _R_CONVERTOR_
 #define _R_CONVERTOR_
 
-#include <stdlib.h>
-
+#include "conversion/convtypes.hh"
 #include "raslib/error.hh"
 #include "raslib/minterval.hh"
 #include "raslib/type.hh"
 #include "raslib/mddtypes.hh"
 #include "raslib/storageman.hh"
-//#include "conversion/memfs.h"
 
+#include <string>
 
 
 // Declare to avoid including memfs.h (and with that tiffio.h)
@@ -53,16 +52,16 @@ struct memFSContext;
 class r_Parse_Params;
 
 
-typedef struct r_convDesc
+typedef struct r_Conv_Desc
 {
-    const char *src;      // pointer to source data
-    char *dest;           // pointer to destination data
-    r_Minterval srcInterv;    // dimensions of source data
+    const char *src;              // pointer to source data
+    char *dest;                   // pointer to destination data
+    r_Minterval srcInterv;        // dimensions of source data
     r_Minterval destInterv;       // dimensions of destination data
-    int baseType;         // shortcut to src basetype
-    const r_Type *srcType;    // basetypes of src data
+    int baseType;                 // shortcut to src basetype
+    const r_Type *srcType;        // basetypes of src data
     r_Type *destType;             // basetypes of dest data
-} r_convDesc;
+} r_Conv_Desc;
 
 
 
@@ -118,42 +117,16 @@ public:
                  bool fullTypes=false) throw(r_Error);
     /// constructor using convert_type_e shortcut
     r_Convertor( const char *src, const r_Minterval &interv, int type ) throw(r_Error);
-    /**
-       convert_type_e is an enumerator that acts as a shortcut to base types
-       relevant for DEFs. The values and what they correspond to are listed
-       below (the types below the line are for HDF):
-
-       \begin{tabular}{ll}
-       ctype_void && No type, used for errors\\
-       ctype_bool && bool\\
-       ctype_char && char\\
-       ctype_rgb && struct {char, char, char}\\
-       \hline
-       ctype_int8 && signed char\\
-       ctype_uint8 && unsigned char\\
-       ctype_int16 && short\\
-       ctype_uint16 && unsigned short\\
-       ctype_int32 && int\\
-       ctype_uint32 && unsigned int\\
-       ctype_int64 && (unsupported)\\
-       ctype_uint64 && (unsupported)\\
-       ctype_float32 && float\\
-       ctype_float64 && double\\
-       ctype_struct && struct \\
-       ctype_complex1 && single precision complex \\
-       ctype_complex2 && double precision complex
-       \end{tabular}
-    */
 
     /// destructor
     virtual ~r_Convertor( void );
 
     //@Man: Interface
-    /// convert array to DEF
-    virtual r_convDesc &convertTo( const char *options=NULL ) throw(r_Error) = 0;
+    /// convert array to a specific format
+    virtual r_Conv_Desc &convertTo( const char *options = NULL ) throw(r_Error) = 0;
 
-    /// convert DEF to array
-    virtual r_convDesc &convertFrom( const char *options=NULL ) throw(r_Error) = 0;
+    /// convert data in a specific format to array
+    virtual r_Conv_Desc &convertFrom( const char *options = NULL ) throw(r_Error) = 0;
 
     /// cloning
     virtual r_Convertor *clone( void ) const = 0;
@@ -161,40 +134,15 @@ public:
     /// identification
     virtual const char *get_name( void ) const = 0;
     virtual r_Data_Format get_data_format( void ) const = 0;
+    
+    /// set conversion format, used only by r_Conv_GDAL at the moment
+    virtual void set_format( const std::string& formatArg );
 
     /// set storage handler, default is malloc/free
     void set_storage_handler( const r_Storage_Man &newStore );
 
     /// get storage handler, default is malloc/free
     const r_Storage_Man& get_storage_handler( ) const;
-
-
-    /// base type shortcuts
-    enum convert_type_e
-    {
-        // undefined type
-        ctype_void,
-        // Shortcut for the three important base types r_Boolean, r_Char and RGBPixel
-        ctype_bool,
-        ctype_char,
-        ctype_rgb,
-        // More generic types for HDF
-        ctype_int8,
-        ctype_uint8,
-        ctype_int16,
-        ctype_uint16,
-        ctype_int32,
-        ctype_uint32,
-        ctype_int64,
-        ctype_uint64,
-        ctype_float32,
-        ctype_float64,
-        // shortcut for structures
-        ctype_struct,
-        // complex types
-        ctype_complex1,
-        ctype_complex2
-    };
 
     //@{ helper structure for encoding string-to-int parameters
     typedef struct convert_string_s
@@ -236,17 +184,20 @@ protected:
     bool destroySrc;
 
     /// conversion context
-    r_convDesc desc;
+    r_Conv_Desc desc;
 
     /// parameter parser
     r_Parse_Params *params;
 
     /// storage manager
     r_Storage_Man mystore;
+    
+    // format identifier, used only by the GDAL converter
+    std::string format;
 };
 
 ///ostream operator for convert_type_e
-std::ostream& operator<<(std::ostream& os, r_Convertor::convert_type_e& cte);
+std::ostream& operator<<(std::ostream& os, convert_type_e& cte);
 
 /*@Doc:
   Abstract base class for all memory-to-memory conversion classes,

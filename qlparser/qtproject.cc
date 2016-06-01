@@ -20,8 +20,6 @@
 #include "raslib/rmdebug.hh"
 #include "debug.hh"
 
-#include "qlparser/gdalincludes.hh"
-
 #include "config.h"
 #include "qlparser/qtproject.hh"
 #include "qlparser/qtmdd.hh"
@@ -31,6 +29,7 @@
 #include "raslib/primitivetype.hh"
 #include "raslib/structuretype.hh"
 #include "catalogmgr/ops.hh"
+#include "conversion/convutil.hh"
 #include "relcatalogif/basetype.hh"
 #include "tilemgr/tile.hh"
 #include "mddmgr/mddobj.hh"
@@ -46,26 +45,35 @@ using namespace std;
 
 const QtNode::QtNodeType QtProject::nodeType = QtNode::QT_PROJECT;
 
-QtProject::QtProject( QtOperation *mddOp, const char *initBounds, const char* crsIn, const char* crsOut) throw (r_Error)
-    : QtUnaryOperation(mddOp), xmin(-1), ymin(-1), xmax(-1), ymax(-1), wktCrsIn(NULL), wktCrsOut(NULL)
+QtProject::QtProject( QtOperation *mddOpArg, const char *initBounds, const char* crsIn, const char* crsOut) throw (r_Error)
+    : QtUnaryOperation(mddOpArg), xmin(-1), ymin(-1), xmax(-1), ymax(-1), wktCrsIn(NULL), wktCrsOut(NULL)
 {
     initialBounds = std::string(initBounds);
     initialCrsIn = std::string(crsIn);
-    initialCrsOut = std::string(crsOut);  
+    initialCrsOut = std::string(crsOut);
+#ifdef HAVE_GDAL
     GDALAllRegister();
     parseNumbers(initBounds);
     testCrsTransformation(crsIn, crsOut);
+#endif
 }
 
-QtProject::QtProject( QtOperation *mddOp, const char* crsIn, const char* crsOut) throw (r_Error)
-    : QtUnaryOperation(mddOp), xmin(-1), ymin(-1), xmax(-1), ymax(-1), wktCrsIn(NULL), wktCrsOut(NULL)
+QtProject::QtProject( QtOperation *mddOpArg, const char* crsIn, const char* crsOut) throw (r_Error)
+    : QtUnaryOperation(mddOpArg), xmin(-1), ymin(-1), xmax(-1), ymax(-1), wktCrsIn(NULL), wktCrsOut(NULL)
 {
     initialCrsIn = std::string(crsIn);
     initialCrsOut = std::string(crsOut);
+#ifdef HAVE_GDAL
     GDALAllRegister();
     testCrsTransformation(crsIn, crsOut);
+#endif
 }
 
+QtProject::~QtProject()
+{
+}
+
+#ifdef HAVE_GDAL
 void QtProject::parseNumbers(const char* str) throw (r_Error)
 {
     char* split = strtok((char*)str, ", ");
@@ -78,41 +86,35 @@ void QtProject::parseNumbers(const char* str) throw (r_Error)
     ymax = parseOneNumber(split);
 }
 
-
-
 float QtProject::parseOneNumber(char* str) throw (r_Error)
 {
     char *end;
     float f = strtof(str, &end);
     if (end != strlen(str) + str)
     {
-        RMInit::logOut<<"Invalid number as project bounds: '"<<str<<"'"<<endl;
+        LERROR << "Invalid number as project bounds: '" << str << "'";
         throw r_Error(r_Error::r_Error_InvalidBoundsStringContents);
     }
     return f;
-}
-
-QtProject::~QtProject()
-{
 }
 
 void QtProject::testCrsTransformation(const char* in, const char *out) throw (r_Error)
 {
     if (setCrsWKT(in, wktCrsIn) == false)
     {
-        RMInit::logOut<< "Error: Input string '"<<in<<"' is not a valid Coordinate Reference System that GDAL can understand" << endl;
+        LERROR << "Input string '" << in << "' is not a valid Coordinate Reference System that GDAL can understand";
         throw r_Error(r_Error::r_Error_InvalidSourceCRS);
     }
     if (setCrsWKT(out, wktCrsOut) == false)
     {
-        RMInit::logOut<< "Error: Input string '"<<out<<"' is not a valid Coordinate Reference System that GDAL can understand" << endl;
+        LERROR << "Input string '" << out << "' is not a valid Coordinate Reference System that GDAL can understand";
         throw r_Error(r_Error::r_Error_InvalidTargetCRS);
     }
 }
+#endif // HAVE_GDAL
 
 QtData* QtProject::evaluate(QtDataList* inputList)
 {
-    RMDBCLASS( "QtProject", "evaluate( QtDataList* )", "qlparser", __FILE__, __LINE__ )
 
     QtData* returnValue = NULL;
     QtData* operand = NULL;
@@ -124,8 +126,7 @@ QtData* QtProject::evaluate(QtDataList* inputList)
 #ifdef QT_RUNTIME_TYPE_CHECK
         if( operand->getDataType() != QT_MDD )
         {
-            RMInit::logOut << "Internal error in QtProject::evaluate() - "
-                           << "runtime type checking failed (MDD)." << std::endl;
+            LERROR << "runtime type checking failed (not an MDD).";
 
             // delete old operand
             if( operand ) operand->deleteRef();
@@ -143,7 +144,7 @@ QtData* QtProject::evaluate(QtDataList* inputList)
         return returnValue;
     }
     else
-        RMInit::logOut << "Error: QtProject::evaluate() - operand is not provided." << std::endl;
+        LERROR << "operand is not provided.";
 
     return returnValue;
 }
@@ -159,8 +160,8 @@ QtProject::getAreaType()
 const QtTypeElement&
 QtProject::checkType( QtTypeTuple* typeTuple )
 {
-    RMDBCLASS( "QtProject", "checkType( QtTypeTuple* )", "qlparser", __FILE__, __LINE__ )
-
+#ifdef HAVE_GDAL
+    
     dataStreamType.setDataType( QT_TYPE_UNKNOWN );
 
     // check operand branches
@@ -169,16 +170,9 @@ QtProject::checkType( QtTypeTuple* typeTuple )
 
         // get input types
         const QtTypeElement& inputType = input->checkType( typeTuple );
-
-        RMDBGIF(3, RMDebug::module_qlparser, "QtProject", \
-                RMInit::dbgOut << "Class..: QtProject" << endl; \
-                RMInit::dbgOut << "Operand: " << flush; \
-                inputType.printStatus( RMInit::dbgOut ); \
-                RMInit::dbgOut << endl; )
-
         if( inputType.getDataType() != QT_MDD )
         {
-            RMInit::logOut << "Error: QtProject::evaluate() - operand must be multidimensional." << endl;
+            LERROR << "operand must be multidimensional.";
             parseInfo.setErrorNo(353);
             throw parseInfo;
         }
@@ -186,14 +180,21 @@ QtProject::checkType( QtTypeTuple* typeTuple )
         dataStreamType.setDataType( QT_MDD );
     }
     else
-        RMInit::logOut << "Error: QtProject::checkType() - operand branch invalid." << endl;
+        LERROR << "operand branch invalid.";
 
     return dataStreamType;
+#else // HAVE_GDAL
+    LERROR << "GDAL support has been disabled, hence the project function is not available.";
+    parseInfo.setErrorNo(499);
+    throw parseInfo;
+#endif // HAVE_GDAL
 }
 
 
 QtData* QtProject::evaluateMDD(QtMDD* qtMDD) throw (r_Error)
 {
+#ifdef HAVE_GDAL
+    
     QtData* returnValue = NULL;
     MDDObj* currentMDDObj = qtMDD->getMDDObject();
     Tile*   sourceTile    = NULL;
@@ -201,7 +202,7 @@ QtData* QtProject::evaluateMDD(QtMDD* qtMDD) throw (r_Error)
     
     if (currentMDDObj->getDimension() != 2)
     {
-        RMInit::logOut << "Error: MDD dimension is not 2D. Aborting CRS transformation." << endl;
+        LERROR << "MDD dimension is not 2D. Aborting CRS transformation.";
         throw r_Error(r_Error::r_Error_ObjectInvalid);
     }
     else
@@ -223,14 +224,14 @@ QtData* QtProject::evaluateMDD(QtMDD* qtMDD) throw (r_Error)
     }
     else
     {
-        RMDBGONCE(2, RMDebug::module_qlparser, "QtProject", "evaluate() - no tile available to project." )
+        LWARNING << "no tile available to project.";
         return qtMDD;
     }
 
     // check the number of tiles
     if( !tiles->size() )
     {
-        RMDBGONCE(2, RMDebug::module_qlparser, "QtProject", "evaluate() - no tile available to project." )
+        LWARNING << "no tile available to project.";
         return qtMDD;
     }
 
@@ -253,20 +254,17 @@ QtData* QtProject::evaluateMDD(QtMDD* qtMDD) throw (r_Error)
 
     if (baseSchema->isPrimitiveType())      // = one band
     {
-        RMInit::logOut << "Found 1-band MDD... ok. " << endl;
         numBands = 1;
         bandType = baseSchema;
     }
     else if (baseSchema->isStructType())    // = multiple bands
     {
-        RMInit::logOut << "\nFound multi-band MDD... checking... ";
         r_Structure_Type *myStruct = (r_Structure_Type*) baseSchema;
         r_Structure_Type::attribute_iterator iter(myStruct->defines_attribute_begin());
         while (iter != myStruct->defines_attribute_end())
         {
             r_Type *newType = (*iter).type_of().clone();
             numBands++;
-            RMInit::logOut << "band " << numBands << "...";
             // check the band types, they have to be of the same type
             if ((*iter).type_of().isPrimitiveType())
             {
@@ -275,7 +273,7 @@ QtData* QtProject::evaluateMDD(QtMDD* qtMDD) throw (r_Error)
                 {
                     if (bandType->type_id() != pt.type_id())
                     {
-                        RMInit::logOut << "QtProject::evaluateMDD - Error: Can not handle bands of different types." << endl;
+                        LERROR << "Can not handle bands of different types.";
                         throw r_Error(r_Error::r_Error_General);
                     }
                 }
@@ -285,12 +283,11 @@ QtData* QtProject::evaluateMDD(QtMDD* qtMDD) throw (r_Error)
             }
             else
             {
-                RMInit::logOut << "QtEncode::evaluateMDD - Error: Can not handle composite bands." << endl;
+                LERROR << "Can not handle composite bands.";
                 throw r_Error(r_Error::r_Error_General);
             }
             iter++;
         }
-        RMInit::logOut << " ok." << endl;
     }
 
     /* Now the core of the reprojection */
@@ -299,7 +296,7 @@ QtData* QtProject::evaluateMDD(QtMDD* qtMDD) throw (r_Error)
     GDALDataset* gdalSource = convertTileToDataset(sourceTile, numBands, bandType);
     if (gdalSource == NULL)
     {
-        RMInit::logOut << "Error: Could not convert tile to a GDAL dataset. " << endl;
+        LERROR << "Could not convert tile to a GDAL dataset. ";
         throw r_Error(r_Error::r_Error_RuntimeProjectionError);
     }
 
@@ -309,7 +306,7 @@ QtData* QtProject::evaluateMDD(QtMDD* qtMDD) throw (r_Error)
     GDALDataset* gdalResult = performGdalReprojection(gdalSource);
     if (gdalResult == NULL)
     {
-        RMInit::logOut << "Error: GDAL Reprojection Result is a null dataset." << endl;
+        LERROR << "GDAL Reprojection Result is a null dataset.";
         throw r_Error(r_Error::r_Error_RuntimeProjectionError);
     }
 
@@ -319,7 +316,7 @@ QtData* QtProject::evaluateMDD(QtMDD* qtMDD) throw (r_Error)
     Tile* resultTile = convertDatasetToTile(gdalResult, numBands, sourceTile, bandType);
     if (resultTile == NULL)
     {
-        RMInit::logOut << "Error: Could not read the projection results from GDAL." << endl;
+        LERROR << "Could not read the projection results from GDAL.";
         throw r_Error(r_Error::r_Error_RuntimeProjectionError);
     }
 
@@ -339,16 +336,10 @@ QtData* QtProject::evaluateMDD(QtMDD* qtMDD) throw (r_Error)
     returnValue = new QtMDD( (MDDObj*)resultMDD );
 
     return returnValue;
-}
-
-
-void QtProject::saveDatasetToFile(GDALDataset *ds, const char* filename, const char* driverName)
-{
-    GDALAllRegister();
-    GDALDriver *driver = GetGDALDriverManager()->GetDriverByName(driverName);
-    GDALDataset* copyDS = driver->CreateCopy(filename, ds, FALSE, NULL, NULL, NULL);
-    if (copyDS != NULL)
-        GDALClose(copyDS);
+#else // HAVE_GDAL
+    LERROR << "GDAL support has been disabled, hence the project function is not available.";
+    return NULL;
+#endif // HAVE_GDAL
 }
 
 void
@@ -359,47 +350,14 @@ QtProject::printTree( int tab, ostream& s, QtChildType mode )
     QtUnaryOperation::printTree( tab, s, mode );
 }
 
-GDALDataType QtProject::getGdalType(r_Type* rasType)
-{    
-    GDALDataType ret = GDT_Unknown;
-    switch (rasType->type_id())
-    {
-    case r_Type::BOOL:
-        ret = GDT_Byte;
-        break;
-    case r_Type::CHAR:
-        ret = GDT_Byte;
-        break;
-    case r_Type::USHORT:
-        ret = GDT_UInt16;
-        break;
-    case r_Type::SHORT:
-        ret = GDT_Int16;
-        break;
-    case r_Type::ULONG:
-        ret = GDT_UInt32;
-        break;
-    case r_Type::LONG:
-        ret = GDT_Int32;
-        break;
-    case r_Type::FLOAT:
-        ret = GDT_Float32;
-        break;
-    case r_Type::DOUBLE:
-        ret = GDT_Float64;
-        break;
-    case r_Type::COMPLEXTYPE1:
-        ret = GDT_CFloat32;
-        break;
-    case r_Type::COMPLEXTYPE2:
-        ret = GDT_CFloat64;
-        break;
-    default:
-        RMInit::logOut << "Error: Unable to convert rasdaman type " << 
-                rasType->name() << " to GDAL type." << endl;
-        throw r_Error(r_Error::r_Error_General);
-    }
-    return ret;
+#ifdef HAVE_GDAL
+void QtProject::saveDatasetToFile(GDALDataset *ds, const char* filename, const char* driverName)
+{
+    GDALAllRegister();
+    GDALDriver *driver = GetGDALDriverManager()->GetDriverByName(driverName);
+    GDALDataset* copyDS = driver->CreateCopy(filename, ds, FALSE, NULL, NULL, NULL);
+    if (copyDS != NULL)
+        GDALClose(copyDS);
 }
 
 GDALDataset* QtProject::convertTileToDataset(Tile* tile, int nBands, r_Type* bandType)
@@ -408,27 +366,28 @@ GDALDataset* QtProject::convertTileToDataset(Tile* tile, int nBands, r_Type* ban
     r_Bytes typeSize = ((r_Primitive_Type*) bandType)->size();
     bool isNotBoolean = ((r_Primitive_Type*) bandType)->type_id() != r_Type::BOOL;
     r_Minterval domain = tile->getDomain();
-    int width = domain[0].high() - domain[0].low() + 1;
-    int height = domain[1].high() - domain[1].low() + 1;
+    r_Range width = domain[0].high() - domain[0].low() + 1;
+    r_Range height = domain[1].high() - domain[1].low() + 1;
 
     /* Create a in-memory dataset */
     GDALDriver *hMemDriver = (GDALDriver*) GDALGetDriverByName( "MEM" );
     if( hMemDriver == NULL )
     {
-        RMInit::logOut << "ERROR: Could not init GDAL driver. " << endl;
+        LERROR << "Could not init GDAL driver.";
         return NULL;
     }
     
     // convert rasdaman type to GDAL type
-    GDALDataType gdalBandType = getGdalType(bandType);
+    GDALDataType gdalBandType = ConvUtil::rasTypeToGdalType(bandType);
 
-    GDALDataset *hMemDS = hMemDriver->Create( "in_memory_image", width, height, nBands, gdalBandType, NULL );
+    GDALDataset *hMemDS = hMemDriver->Create( "in_memory_image", (int)width, (int)height, nBands, gdalBandType, NULL );
 
     char* tileCells = tile->getContents();
-    char* datasetCells = (char*) malloc(typeSize * height * width);
+    size_t tileSize = typeSize * (size_t)height * (size_t)width;
+    char* datasetCells = (char*) malloc(tileSize);
     if (datasetCells == NULL)
     {
-        RMInit::logOut << "ERROR: Could not allocate memory. " << endl;
+        LERROR << "Could not allocate memory.";
         return NULL;
     }
     char* dst;
@@ -465,7 +424,7 @@ GDALDataset* QtProject::convertTileToDataset(Tile* tile, int nBands, r_Type* ban
                                                      width, height, gdalBandType, 0, 0);
         if (error != CE_None)
         {
-            RMInit::logOut << "QtEncode::convertTileToDataset - Error: Could not write data to GDAL raster band " << band << endl;
+            LERROR << "Could not write data to GDAL raster band " << band;
             free(datasetCells);
             return NULL;
         }
@@ -499,24 +458,26 @@ Tile* QtProject::convertDatasetToTile(GDALDataset* gdalResult, int nBands, Tile 
     testInterval << r_Sinterval((r_Range)1, (r_Range)height);
 
     /* Allocate memory */
-    r_Bytes typeSize = ((r_Primitive_Type*) bandType)->size();
+    int typeSize = (int)((r_Primitive_Type*) bandType)->size();
     bool isNotBoolean = ((r_Primitive_Type*) bandType)->type_id() != r_Type::BOOL;
-    char* tileCells = (char*) malloc(width*height*typeSize*nBands);
+    size_t tileSize = (size_t)(width*height*typeSize*nBands);
+    char* tileCells = (char*) malloc(tileSize);
     if (tileCells == NULL)
     {
-        RMInit::logOut << "ERROR while allocating memory for the result data Tile !" << endl;
+        LERROR << "failed allocating memory for the result data Tile.";
         return NULL;
     }
 
-    char* gdalBand = (char*) malloc(width*height*typeSize);
+    size_t gdalBandSize = (size_t)(width*height*typeSize);
+    char* gdalBand = (char*) malloc(gdalBandSize);
     if (gdalBand == NULL)
     {
-        RMInit::logOut << "ERROR while allocating memory for transfer between GDAL and rasdaman !" << endl;
+        LERROR << "failed allocating memory for transfer between GDAL and rasdaman.";
         return NULL;
     }
 
     // convert rasdaman type to GDAL type
-    GDALDataType gdalBandType = getGdalType(bandType);
+    GDALDataType gdalBandType = ConvUtil::rasTypeToGdalType(bandType);
 
     /* Copy data from all GDAL bands to rasdaman */
     for (int band = 0; band < nBands; band ++)
@@ -524,8 +485,8 @@ Tile* QtProject::convertDatasetToTile(GDALDataset* gdalResult, int nBands, Tile 
         CPLErr error = gdalResult->GetRasterBand(band+1)->RasterIO(GF_Read, 0, 0, width, height, gdalBand, width, height, gdalBandType, 0, 0);
         if ( error != CE_None )
         {
-            RMInit::logOut << endl<<endl << "Error reading the raster band data from GDAL ! " <<endl<<endl;
-            CPLError(error, 0, "");
+            LERROR << "failed reading the raster band data from GDAL.";
+            LERROR << "reason: " << CPLGetLastErrorMsg();
             GDALClose(gdalResult);
             free(gdalBand);
             return NULL;
@@ -546,7 +507,7 @@ Tile* QtProject::convertDatasetToTile(GDALDataset* gdalResult, int nBands, Tile 
                 src = tileCells + col_offset;
                 if (isNotBoolean)
                 {
-                    memcpy(src, dst, typeSize);
+                    memcpy(src, dst, (size_t)typeSize);
                 }
                 else
                 {
@@ -571,7 +532,7 @@ GDALDataset* QtProject::performGdalReprojection(GDALDataset* hSrcDS) throw (r_Er
 {
     if (xmin==-1 || ymin==-1 || xmax==-1 || ymax==-1)
     {
-        RMInit::logOut << "FATAL error ! This should never happen. Bounds were not properly parsed. " << endl;
+        LERROR << "Bounds were not properly parsed.";
         throw r_Error(r_Error::r_Error_InvalidBoundsStringContents);
     }
 
@@ -596,8 +557,7 @@ bool QtProject::setCrsWKT(const char* srsin, char*& wkt)
 
     if (err != OGRERR_NONE)
     {
-        RMInit::logOut << "error: " << err << endl;
-        RMInit::logOut << "GDAL could not understand coordinate reference system from string '" << srsin << "'" << endl;
+        LERROR << "GDAL could not understand coordinate reference system from string '" << srsin << "'";
         return false;
     }
 
@@ -620,6 +580,7 @@ void QtProject::setBounds(GDALDataset* dataset)
 
     dataset->SetGeoTransform(adfGeoTransform);
 }
+#endif // HAVE_GDAL
 
 float QtProject::getMinX() const
 {

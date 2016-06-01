@@ -66,9 +66,9 @@ public:
     ~r_Conv_BMP( void );
 
     /// convert to BMP
-    virtual r_convDesc &convertTo( const char *options=NULL ) throw(r_Error);
+    virtual r_Conv_Desc &convertTo( const char *options=NULL ) throw(r_Error);
     /// convert from BMP
-    virtual r_convDesc &convertFrom( const char *options=NULL ) throw(r_Error);
+    virtual r_Conv_Desc &convertFrom( const char *options=NULL ) throw(r_Error);
     /// cloning
     virtual r_Convertor *clone( void ) const;
     /// identification

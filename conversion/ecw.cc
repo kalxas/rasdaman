@@ -120,7 +120,7 @@ r_Conv_ECW::r_Conv_ECW(const char* source, const r_Minterval& lengthordomain, in
     initECW();
 }
 
-r_convDesc&
+r_Conv_Desc&
 r_Conv_ECW::convertFrom(const char* options) throw (r_Error)
 {
 #ifdef ECW
@@ -300,7 +300,7 @@ r_Conv_ECW::convertFrom(const char* options) throw (r_Error)
 #endif
 }
 
-r_convDesc&
+r_Conv_Desc&
 r_Conv_ECW::convertTo(const char* options) throw (r_Error)
 {
     LFATAL << "r_Conv_ECW::convertTo(" << options << ") compression not supported";

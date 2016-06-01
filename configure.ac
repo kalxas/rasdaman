@@ -105,15 +105,6 @@ if test "$enable_r" = "yes"; then
     # TODO(vliaukevich): check for needed R packages
 fi
 
-### Due to a strange bug with fnmatch.h, we cannot search for libgdal with AC_CHECK_LIB. 
-### We add the linking flags manually
-AC_PATH_PROG(GDAL_CONFIG, gdal-config, no)
-if test "$GDAL_CONFIG" = "no" ; then
-   AC_MSG_ERROR([could not find gdal-config. Please install libgdal-dev, and add gdal-config to your PATH variable.])
-fi
-GDAL_LDFLAGS=`$GDAL_CONFIG --libs`
-GDAL_CXXFLAGS=`$GDAL_CONFIG --cflags`
-
 # default, changed by --enable-debug, --with-optimization
 GCC_OPTIMIZATION_FLAG="-O3"
 GCC_DEBUG_SYMBOLS_FLAG="-g0"
@@ -235,6 +226,7 @@ AH_TEMPLATE([_DISABLE_TRACE_LOGS], [Disable debug functionality])
 AH_TEMPLATE([HAVE_HDF], [Checks whether HDF4 is installed])
 AH_TEMPLATE([HAVE_NETCDF], [Checks whether NetCDF is installed])
 AH_TEMPLATE([HAVE_GRIB], [Checks whether GRIB support is installed])
+AH_TEMPLATE([HAVE_GDAL], [Checks whether GDAL support is installed])
 AH_TEMPLATE([BASEDB_PGSQL], [If defined we are compiling over PostgreSQL])
 AH_TEMPLATE([BASEDB_SQLITE], [If defined we are compiling over SQLite])
 AH_TEMPLATE([PETASCOPEDB_PGSQL], [If defined we are compiling petascope over PostgreSQL])
@@ -298,6 +290,29 @@ if test "$with_grib" == yes; then
   AC_CHECK_LIB([grib_api], [main], ,[AC_MSG_FAILURE([libgrib_api was not found, please install.])])
   AC_DEFINE([HAVE_GRIB], [1])
 fi
+
+AC_ARG_ENABLE([gdal],
+	    [AS_HELP_STRING([--disable-gdal],
+	      [this feature disables using GDAL in rasdaman.])],
+	    [with_gdal=no],
+	    [with_gdal=yes])
+
+AC_MSG_NOTICE(checking for GDAL library... $with_gdal)
+
+if test "$with_gdal" == yes; then
+  ### Due to a strange bug with fnmatch.h, we cannot search for libgdal with AC_CHECK_LIB. 
+  ### We add the linking flags manually
+  AC_PATH_PROG(GDAL_CONFIG, gdal-config, no)
+  if test "$GDAL_CONFIG" = "no" ; then
+    AC_MSG_ERROR([could not find gdal-config. Please install libgdal-dev, and add gdal-config to your PATH variable.])
+  fi
+  GDAL_LDFLAGS=`$GDAL_CONFIG --libs`
+  GDAL_CXXFLAGS=`$GDAL_CONFIG --cflags`
+  AC_SUBST(GDAL_LDFLAGS)
+  AC_SUBST(GDAL_CXXFLAGS)
+  AC_DEFINE([HAVE_GDAL], [1])
+fi
+AM_CONDITIONAL([HAVE_GDAL], [test "$with_gdal" == yes])
 
 AC_ARG_WITH([docs],
 	    [AS_HELP_STRING([--with-docs],
@@ -743,8 +758,6 @@ AC_SUBST(BASEDBCXXFLAGS)
 AC_SUBST(BASEDBLDFLAGS)
 AC_SUBST(CLIENTCXXFLAGS)
 AC_SUBST(CLIENTLDFLAGS)
-AC_SUBST(GDAL_LDFLAGS)
-AC_SUBST(GDAL_CXXFLAGS)
 AC_SUBST(DB2_INC)
 AC_SUBST(DB2_INSTANCEPATH)
 AC_SUBST(DB2_CPPLIBS)

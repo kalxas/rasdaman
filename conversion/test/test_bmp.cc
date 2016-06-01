@@ -69,7 +69,7 @@ int main(int argc, char *argv[])
     interv << r_Sinterval((r_Range)0, (r_Range)fsize-1);
 
     cout << "Convert from BMP..." << endl;
-    bmp = new r_Conv_BMP(data, interv, r_Convertor::ctype_char);
+    bmp = new r_Conv_BMP(data, interv, ctype_char);
     desc = bmp->convertFrom();
     baseType = desc.destType;
     imgData = desc.dest;

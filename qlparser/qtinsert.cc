@@ -549,12 +549,14 @@ QtInsert::getDataFormat(QtMDDConfig* config)
         return r_HDF;
     case QtMDDConfig::r_NETCDF_STG :
         return r_NETCDF;
+    case QtMDDConfig::r_GDAL_STG :
+        return r_GDAL;
         //        case QtMDDConfig::r_HDF5_STG://need review
         //            return r_HDF;
     case QtMDDConfig::r_JPEG_STG :
         return r_JPEG;
-    case QtMDDConfig::r_NTF_STG :
-        return r_NTF;
+    case QtMDDConfig::r_NITF_STG :
+        return r_NITF;
     case QtMDDConfig::r_PACKBITS_STG :
         return r_Pack_Bits;
     case QtMDDConfig::r_PNG_STG :
@@ -567,10 +569,6 @@ QtInsert::getDataFormat(QtMDDConfig* config)
         return r_Sep_RLE;
     case QtMDDConfig::r_TIFF_STG :
         return r_TIFF;
-    case QtMDDConfig::r_TOR_STG :
-        return r_TOR;
-    case QtMDDConfig::r_VFF_STG :
-        return r_VFF;
     case QtMDDConfig::r_WLTCOIFLETINT_STG :
         if (config->getWltValue() == 6)
             return r_Wavelet_Coiflet6;

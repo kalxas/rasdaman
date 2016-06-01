@@ -4,7 +4,7 @@
 #include "qlparser/qtunaryoperation.hh"
 #include "raslib/structuretype.hh"
 #include "catalogmgr/typefactory.hh"
-
+#include <string>
 /*
 * This file is part of rasdaman community.
 *
@@ -56,6 +56,7 @@ public:
         QT_TOBMP,
         QT_TOHDF,
         QT_TONETCDF,
+        QT_TOGDAL,
         QT_TOCSV,
         QT_TOJPEG,
         QT_TOPNG,
@@ -72,17 +73,18 @@ public:
         QT_FROMVFF,
         QT_FROMTOR,
         QT_FROMDEM,
-        QT_FROMGRIB
+        QT_FROMGRIB,
+        QT_FROMGDAL
     };
 
     /// constructor getting operand and format conversion type
     QtConversion( QtOperation* newInput, QtConversionType newConversionType, const char* = NULL );
 
+    /// constructor getting operand and format conversion type, along with a format id/mimetype
+    QtConversion( QtOperation* newInput, QtConversionType newConversionType, const std::string& format, const char* params );
+
     /// set the format conversion type by name
     void setConversionTypeByName( std::string formatName );
-
-    /// look up the format conversion type by name
-    static bool lookupConversionTypeByName( std::string formatName );
 
     /// test if the two nodes have an equal meaning in a subtree
     virtual bool equalMeaning( QtNode* node );
@@ -103,6 +105,14 @@ public:
     virtual const QtTypeElement& checkType( QtTypeTuple* typeTuple = NULL );
 
 private:
+    
+    /// set convType and convFormat based on the conversionType
+    void setConversionTypeAndResultFormat(r_Data_Format& convType, r_Data_Format& convFormat);
+    
+    /// return true if internally implemented convertors should be used, otherwise
+    /// false if GDAL should be used.
+    bool isInternalFormat(r_Data_Format dataFormat);
+    
     /// attribute storing conversion type
     QtConversionType conversionType;
 
@@ -110,6 +120,10 @@ private:
     static const QtNodeType nodeType;
 
     const char* paramStr;
+    
+    std::string format;
+    
+    bool gdalConversion;
 };
 
 extern std::ostream& operator<<(std::ostream& os, QtConversion::QtConversionType t);

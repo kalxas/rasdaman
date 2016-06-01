@@ -27,6 +27,7 @@ rasdaman GmbH.
 #include <unistd.h>
 #include <errno.h>
 #include <stdlib.h>
+#include <sys/stat.h>
 
 #define TMP_FILENAME_TEMPLATE "/tmp/rasdaman.XXXXXX\0"
 
@@ -36,15 +37,7 @@ const int r_TmpFile::INVALID_FILE_DESCRIPTOR = -1;
 
 r_TmpFile::r_TmpFile() throw (r_Error)
 {
-    char tmpFileName[] = TMP_FILENAME_TEMPLATE;
-    if((fd = mkstemp(tmpFileName)) == INVALID_FILE_DESCRIPTOR)
-    {
-        LERROR << "failed creating a temporary file.";
-        LERROR << "reason: " << strerror(errno);
-        throw r_Error(r_Error::r_Error_General);
-    }
-    fileName = string(tmpFileName);
-    unlink(tmpFileName);
+    initTmpFile();
 }
 
 r_TmpFile::~r_TmpFile(void)
@@ -57,6 +50,19 @@ r_TmpFile::~r_TmpFile(void)
     }
 }
 
+void r_TmpFile::initTmpFile() throw (r_Error)
+{
+    char tmpFileName[] = TMP_FILENAME_TEMPLATE;
+    if((fd = mkstemp(tmpFileName)) == INVALID_FILE_DESCRIPTOR)
+    {
+        LERROR << "failed creating a temporary file.";
+        LERROR << "reason: " << strerror(errno);
+        throw r_Error(r_Error::r_Error_General);
+    }
+    fileName = string(tmpFileName);
+    unlink(tmpFileName);
+}
+
 std::string r_TmpFile::getFileName() const
 {
     return fileName;
@@ -65,4 +71,55 @@ std::string r_TmpFile::getFileName() const
 int r_TmpFile::getFileDescriptor() const
 {
     return fd;
+}
+
+void r_TmpFile::writeData(const char* data, size_t dataSize) throw (r_Error)
+{
+    if (fd != INVALID_FILE_DESCRIPTOR)
+    {
+        ofstream file(fileName);
+        file.write(data, (streamsize) dataSize);
+        file.close();
+    }
+    else
+    {
+        LERROR << "invalid temporary file '" << fileName << "'.";
+        throw r_Error(r_Error::r_Error_General);
+    }
+}
+
+char* r_TmpFile::readData(long& dataSize) throw (r_Error)
+{
+    char* fileContents = NULL;
+    if (fd != INVALID_FILE_DESCRIPTOR)
+    {
+        struct stat fstat;
+        if (stat(fileName.c_str(), &fstat) == 0)
+        {
+            dataSize = fstat.st_size;
+        }
+        else
+        {
+            LERROR << "failed reading temporary file '" << fileName << "'.";
+            LERROR << "reason: " << strerror(errno);
+            throw r_Error(r_Error::r_Error_General);
+        }
+        
+        ifstream file(fileName, ios::in | ios::binary);
+        fileContents = (char*) malloc(static_cast<size_t>(dataSize));
+        if (fileContents == NULL)
+        {
+            LERROR << "failed allocating " << dataSize << 
+                " bytes for reading temporary file '" << fileName << "'.";
+            throw r_Error(r_Error::r_Error_MemoryAllocation);
+        }
+        file.read(fileContents, dataSize);
+        file.close();
+    }
+    else
+    {
+        LERROR << "invalid temporary file '" << fileName << "'.";
+        throw r_Error(r_Error::r_Error_General);
+    }
+    return fileContents;
 }

@@ -20,7 +20,7 @@
  *
  ************************************************************/
 
-#include "qlparser/gdalincludes.hh"
+#include "conversion/gdalincludes.hh"
 
 #include "raslib/error.hh"
 #include "qlparser/qtmdd.hh"
@@ -28,7 +28,9 @@
 #include "tilemgr/tile.hh"
 #include "raslib/type.hh"
 
+#ifdef HAVE_GDAL
 class GDALDataset;
+#endif
 
 /**************************************************************
  *
@@ -82,6 +84,8 @@ public:
 
 private:
 
+#ifdef HAVE_GDAL
+    
     // Conversion methods between rasdaman and GDAL
     GDALDataset* convertTileToDataset(Tile* sourceTile, int nBands, r_Type* bandType);
     Tile* convertDatasetToTile(GDALDataset* gdalResult, int nBands, Tile *sourceTile, r_Type* bandType);
@@ -90,9 +94,6 @@ private:
 
     // Perform reprojection with the help of GDAL library
     GDALDataset* performGdalReprojection(GDALDataset *gdalSource) throw (r_Error);
-    
-    /// convert rasdaman type to GDAL type
-    GDALDataType getGdalType(r_Type* rasType);
 
     // For checking the "bounds" input string
     void parseNumbers(const char* str) throw(r_Error);
@@ -104,6 +105,7 @@ private:
     void setBounds(GDALDataset* dataset);
 
     void testCrsTransformation(const char *in, const char* out) throw (r_Error);
+#endif
 
 
     /// attribute for identification of nodes

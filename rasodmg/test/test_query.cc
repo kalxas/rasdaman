@@ -621,9 +621,6 @@ int main( int argc, char** argv )
                         case r_BMP:
                             defExt = "bmp";
                             break;
-                        case r_VFF:
-                            defExt = "vff";
-                            break;
                         default:
                             defExt = NULL;
                         }

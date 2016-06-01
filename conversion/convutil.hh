@@ -21,38 +21,64 @@ rasdaman GmbH.
  * or contact Peter Baumann via <baumann@rasdaman.com>.
  */
 
-#ifndef TYPERESOLVERUTIL_HH
-#define	TYPERESOLVERUTIL_HH
+#ifndef CONVUTIL_HH
+#define	CONVUTIL_HH
 
 #include "relcatalogif/basetype.hh"
-#include "qlparser/gdalincludes.hh"
+#include "raslib/type.hh"
+#include "conversion/gdalincludes.hh"
+#include "conversion/hdfincludes.hh"
+#include "conversion/convtypes.hh"
 
 /**
  * Helper class transforming the provided types into rasdaman types.
  */
-class TypeResolverUtil {
+class ConvUtil {
 public:
-	TypeResolverUtil();
+	ConvUtil();
 
+#ifdef HAVE_GDAL
+    
 	/**
 	 * Converts the GDALDataType to a literal rasdaman supported type.
 	 * @param dataType The GDALDataType of the current raster band.
 	 * @return A literal type supported by rasdaman.
 	 */
-	static const char* getLiteralTypeFromGDAL(GDALDataType dataType);
-	/**
-	 * Decides the base type the MDD should have before inserting in the database.
+	static std::string gdalTypeToRasTypeString(GDALDataType dataType);
+    
+    /**
 	 * The type decision is made based on the GDALDataType of the bands and of the number of bands.
-	 *
-	 * @param poDataSet GDALDataSet read from the temporary file.
-	 * @return A BaseType for the inserted MDD.
-	 */
-	static BaseType* getBaseType(GDALDataset* poDataSet);
+     * 
+     * @param poDataSet GDALDataSet read from the temporary file.
+     * @return an r_Type for the dataset
+     */
+    static r_Type* gdalTypeToRasType(GDALDataset* poDataSet);
+    
+    /// convert rasdaman type to GDAL type
+    static GDALDataType rasTypeToGdalType(r_Type* rasType);
+    
+#endif // HAVE_GDAL
+    
+#ifdef HAVE_HDF
+    /// translate an internal type into an HDF type and return the size.
+    static int ctypeToHdfType(int intType, int &size);
+    
+    /// translate an HDF type into an internal type and return the size
+    static int hdfTypeToCtype( int hdfType, int &size );
+#endif
+    
+    /// convert rasdaman type to base type
+    static const BaseType* rasTypeToBaseType(r_Type* rasType);
 
-	virtual ~TypeResolverUtil();
+    /**
+     * Convert format string to r_Data_Format
+     */
+	static r_Data_Format getDataFormat(std::string format);
+
+	virtual ~ConvUtil();
 
 private:
 
 };
 
-#endif	/* TYPERESOLVERUTIL_HH */
+#endif	/* CONVUTIL_HH */

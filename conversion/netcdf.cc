@@ -93,7 +93,7 @@ r_Conv_NETCDF::~r_Conv_NETCDF(void)
 }
 
 /// convert to NETCDF
-r_convDesc &r_Conv_NETCDF::convertTo(const char *options) throw (r_Error)
+r_Conv_Desc &r_Conv_NETCDF::convertTo(const char *options) throw (r_Error)
 {
     parseEncodeOptions(options);
 
@@ -130,9 +130,8 @@ r_convDesc &r_Conv_NETCDF::convertTo(const char *options) throw (r_Error)
     writeMetadata(dataFile);
     dataFile.close();
     
-    size_t fileSize = readTmpFile(tmpFilePath.c_str());
-    
-    // Set the interval and type
+    long fileSize = 0;
+    desc.dest = tmpFileObj.readData(fileSize);
     desc.destInterv = r_Minterval(1);
     desc.destInterv << r_Sinterval((r_Range) 0, (r_Range) fileSize - 1);
     desc.destType = r_Type::get_any_type("char");
@@ -141,17 +140,14 @@ r_convDesc &r_Conv_NETCDF::convertTo(const char *options) throw (r_Error)
 }
 
 /// convert from NETCDF
-r_convDesc &r_Conv_NETCDF::convertFrom(const char *options) throw (r_Error)
+r_Conv_Desc &r_Conv_NETCDF::convertFrom(const char *options) throw (r_Error)
 {
     parseDecodeOptions(options);
 
     // write the data to temp file, netcdf wants a file path unfortunately
     r_TmpFile tmpFileObj;
+    tmpFileObj.writeData(desc.src, (size_t) desc.srcInterv.cell_count());
     string tmpFilePath = tmpFileObj.getFileName();
-    ofstream file(tmpFilePath);
-    file.write(desc.src, (streamsize) desc.srcInterv.cell_count());
-    file.close();
-    
     NcFile dataFile(tmpFilePath.c_str(), NcFile::ReadOnly);
     if (!dataFile.is_valid())
     {
@@ -267,44 +263,6 @@ void r_Conv_NETCDF::validateJsonEncodeOptions() throw (r_Error)
             dimVarNames.push_back(varName);
         }
     }
-}
-
-size_t r_Conv_NETCDF::readTmpFile(const char* tmpFile) throw (r_Error)
-{
-    // Pass the NetCDF file as a stream of char
-    FILE *fp = NULL;
-    if ((fp = fopen(tmpFile, "rb")) == NULL)
-    {
-        LFATAL << "unable to open temporary file: " << tmpFile;
-        LFATAL << "reason: " << strerror(errno);
-        throw r_Error(r_Error::r_Error_Conversion);
-    }
-    // Get the file size
-    long tmpFileSize = 0;
-    if (fseek(fp, 0, SEEK_END) != 0 || (tmpFileSize = ftell(fp)) < 0)
-    {
-        LFATAL << "unable to read temporary file: " << tmpFile;
-        LFATAL << "reason: " << strerror(errno);
-        fclose(fp);
-        throw r_Error(r_Error::r_Error_Conversion);
-    }
-    size_t fileSize = (size_t) tmpFileSize;
-    if ((desc.dest = (char*) mystore.storage_alloc(fileSize)) == NULL)
-    {
-        LFATAL << "failed allocating " << fileSize << " bytes of memory.";
-        fclose(fp);
-        throw r_Error(r_Error::r_Error_MemoryAllocation);
-    }
-    // Set the desc.dest content
-    if (fseek(fp, 0, SEEK_SET) != 0 || fread(desc.dest, 1, fileSize, fp) < fileSize)
-    {
-        LFATAL << "failed reading temporary file: " << tmpFile;
-        LFATAL << "reason: " << strerror(errno);
-        fclose(fp);
-        throw r_Error(r_Error::r_Error_Conversion);
-    }
-    fclose(fp);
-    return fileSize;
 }
 
 void r_Conv_NETCDF::readSingleVar(const NcFile &dataFile) throw (r_Error)
@@ -527,7 +485,7 @@ r_Conv_NETCDF::RasType r_Conv_NETCDF::getRasType(NcVar *var)
 }
 
 template<class T>
-void r_Conv_NETCDF::readData(NcVar *var, r_Convertor::convert_type_e ctype) throw (r_Error)
+void r_Conv_NETCDF::readData(NcVar *var, convert_type_e ctype) throw (r_Error)
 {
     size_t numDims = (size_t)var->num_dims();
     unique_ptr<long[]> dimSizes(new long[numDims]);

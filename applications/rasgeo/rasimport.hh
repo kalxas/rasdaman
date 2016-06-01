@@ -47,7 +47,7 @@
 #define __rasimport_hh
 
 #include <cstring>
-#include "qlparser/gdalincludes.hh"
+#include "conversion/gdalincludes.hh"
 
 /// RASDAMAN includes
 #ifdef EARLY_TEMPLATE

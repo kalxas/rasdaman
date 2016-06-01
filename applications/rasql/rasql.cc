@@ -679,9 +679,6 @@ void printResult( /* r_Set< r_Ref_Any > result_set */ ) throw(RasqlError)
                 case r_BMP:
                     strcat( defFileName, ".bmp" );
                     break;
-                case r_VFF:
-                    strcat( defFileName, ".vff" );
-                    break;
                 case r_NETCDF:
                     strcat( defFileName, ".nc" );
                     break;

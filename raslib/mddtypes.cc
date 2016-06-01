@@ -55,7 +55,7 @@ const char *format_name_jpeg = "JPEG";
 const char *format_name_jp2 = "JP2";
 const char *format_name_hdf = "HDF";
 const char *format_name_netcdf = "NETCDF";
-const char *format_name_cvs = "CVS";
+const char *format_name_cvs = "CSV";
 const char *format_name_png = "PNG";
 const char *format_name_zlib = "ZLib";
 const char *format_name_auto_compression = "AutoCompression";
@@ -93,8 +93,9 @@ const char *format_name_dem = "DEM";
 const char *format_name_pack_bits = "PACKBITS";
 const char *format_name_ecw = "ECW";
 const char *format_name_tmc = "TMC";
-const char *format_name_ntf = "NTF";
+const char *format_name_nitf = "NTF";
 const char *format_name_grib = "GRIB";
+const char *format_name_gdal = "GDAL";
 
 const char *all_data_format_names[r_Data_Format_NUMBER] =
 {
@@ -102,9 +103,9 @@ const char *all_data_format_names[r_Data_Format_NUMBER] =
     format_name_tiff,
     format_name_jpeg,
     format_name_jp2,
-    format_name_cvs,
     format_name_hdf,
     format_name_netcdf,
+    format_name_cvs,
     format_name_png,
     format_name_zlib,
     format_name_auto_compression,
@@ -134,16 +135,15 @@ const char *all_data_format_names[r_Data_Format_NUMBER] =
     format_name_wavelet_coiflet18,
     format_name_wavelet_coiflet24,
     format_name_wavelet_coiflet30,
-    format_name_vff,
     format_name_wavelet_qhaar,
     format_name_ppm,
-    format_name_tor,
     format_name_dem,
     format_name_pack_bits,
     format_name_ecw,
     format_name_tmc,
-    format_name_ntf,
-    format_name_grib
+    format_name_nitf,
+    format_name_grib,
+    format_name_gdal
 };
 
 

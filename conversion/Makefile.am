@@ -30,9 +30,10 @@
 ##################################################################
 
 lib_LIBRARIES=libconversion.a
+AM_CXXFLAGS=@AM_CXXFLAGS@ @GDAL_CXXFLAGS@
 libconversion_a_SOURCES= convertor.cc convfactory.cc tiff.cc hdf.cc png.cc jpeg.cc \
-                         csv.cc bmp.cc vff.cc tor.cc dem.cc ecw.cc memfs.cc netcdf.cc \
+                         csv.cc bmp.cc dem.cc ecw.cc memfs.cc netcdf.cc \
                          convertor.hh convfactory.hh tiff.hh hdf.hh png.hh jpeg.hh \
-                         csv.hh bmp.hh vff.hh tor.hh dem.hh ecw.hh memfs.hh \
-                         ntf.hh netcdf.hh grib.cc grib.hh mimetypes.cc mimetypes.hh \
-                         tmpfile.cc tmpfile.hh
+                         csv.hh bmp.hh dem.hh ecw.hh memfs.hh \
+                         nitf.hh netcdf.hh grib.cc grib.hh mimetypes.cc mimetypes.hh \
+                         tmpfile.cc tmpfile.hh gdal.hh gdal.cc convutil.cc convutil.hh

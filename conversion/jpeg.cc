@@ -270,7 +270,7 @@ r_Conv_JPEG::~r_Conv_JPEG(void)
 }
 
 
-r_convDesc &r_Conv_JPEG::convertTo( const char *options) throw(r_Error)
+r_Conv_Desc &r_Conv_JPEG::convertTo( const char *options) throw(r_Error)
 {
     struct jpeg_destination_mgr destMgr;
     struct jpeg_compress_struct *cptr=NULL;
@@ -430,7 +430,7 @@ r_convDesc &r_Conv_JPEG::convertTo( const char *options) throw(r_Error)
 }
 
 
-r_convDesc &r_Conv_JPEG::convertFrom(const char *options) throw(r_Error)
+r_Conv_Desc &r_Conv_JPEG::convertFrom(const char *options) throw(r_Error)
 {
     struct jpeg_source_mgr srcMgr;
     struct jpeg_decompress_struct *dptr=NULL;

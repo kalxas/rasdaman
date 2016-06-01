@@ -84,7 +84,7 @@ r_Conv_GRIB::~r_Conv_GRIB(void)
 
 /// convert to GRIB
 
-r_convDesc &r_Conv_GRIB::convertTo(const char *options) throw(r_Error)
+r_Conv_Desc &r_Conv_GRIB::convertTo(const char *options) throw(r_Error)
 {
     LERROR << "converting to GRIB is not supported.";
     throw r_Error(r_Error::r_Error_FeatureNotSupported);
@@ -107,7 +107,7 @@ r_convDesc &r_Conv_GRIB::convertTo(const char *options) throw(r_Error)
 
 /// convert from GRIB
 
-r_convDesc &r_Conv_GRIB::convertFrom(const char *options) throw(r_Error)
+r_Conv_Desc &r_Conv_GRIB::convertFrom(const char *options) throw(r_Error)
 {
     grib_context *ctx = NULL; // use default context
     grib_handle *h = NULL;
@@ -384,7 +384,7 @@ r_Minterval r_Conv_GRIB::domainStringToMinterval(const char* domain) throw (r_Er
 
 #else // !HAVE_GRIB
 
-r_convDesc &r_Conv_GRIB::convertFrom(const char *options) throw(r_Error)
+r_Conv_Desc &r_Conv_GRIB::convertFrom(const char *options) throw(r_Error)
 {
     LERROR << "support for decoding GRIB file is not supported; rasdaman should be configured with option --with-grib to enable it.";
     throw r_Error(r_Error::r_Error_FeatureNotSupported);

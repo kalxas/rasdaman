@@ -259,7 +259,7 @@ int main (int argc, char *argv[])
     ConvertToTIFF(data, iv, type, tiffnames[0].write, paramptr);
     delete type;
 #else
-    ConvertToTIFF(data, iv, (int)(r_Convertor::ctype_char), tiffnames[0].write, paramptr);
+    ConvertToTIFF(data, iv, (int)(ctype_char), tiffnames[0].write, paramptr);
 #endif
 
     cout << "Bitmap:" << endl;
@@ -278,7 +278,7 @@ int main (int argc, char *argv[])
     ConvertToTIFF(data, iv, type, tiffnames[1].write, paramptr);
     delete type;
 #else
-    ConvertToTIFF(data, iv, (int)(r_Convertor::ctype_bool), tiffnames[1].write, paramptr);
+    ConvertToTIFF(data, iv, (int)(ctype_bool), tiffnames[1].write, paramptr);
 #endif
 
     cout << "RGB:" << endl;
@@ -299,7 +299,7 @@ int main (int argc, char *argv[])
     ConvertToTIFF(data, iv, type, tiffnames[2].write, paramptr);
     delete type;
 #else
-    ConvertToTIFF(data, iv, (int)(r_Convertor::ctype_rgb), tiffnames[2].write, paramptr);
+    ConvertToTIFF(data, iv, (int)(ctype_rgb), tiffnames[2].write, paramptr);
 #endif
 
     delete [] data;

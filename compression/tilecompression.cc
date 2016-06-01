@@ -254,10 +254,9 @@ r_Tile_Compression::Support_Format r_Tile_Compression::check_data_format( r_Data
     case r_HDF:
     case r_PNG:
     case r_BMP:
-    case r_VFF:
-    case r_TOR:
     case r_DEM:
     case r_NETCDF:
+    case r_GDAL:
         return r_Tile_Compression::CONVERSION;
     default:
         return r_Tile_Compression::COMPRESSION;
@@ -280,8 +279,6 @@ r_Tile_Compression *r_Tile_Compression::create( r_Data_Format fmt, const r_Minte
     case r_HDF:
     case r_PNG:
     case r_BMP:
-    case r_VFF:
-    case r_TOR:
     case r_DEM:
     case r_CSV:
         result = new r_Tile_Comp_Other(fmt, dom, type);

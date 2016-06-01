@@ -78,15 +78,15 @@ int test_picture(int width, int height, int bpp, const char *params, int (*init)
     switch (bpp)
     {
     case 1:
-        baseType = r_Convertor::ctype_bool;
+        baseType = ctype_bool;
         bytespp = 1;
         break;
     case 8:
-        baseType = r_Convertor::ctype_char;
+        baseType = ctype_char;
         bytespp = 1;
         break;
     case 24:
-        baseType = r_Convertor::ctype_rgb;
+        baseType = ctype_rgb;
         bytespp = 3;
         break;
     default:
@@ -135,7 +135,7 @@ int test_picture(int width, int height, int bpp, const char *params, int (*init)
         r_Minterval destInterv(desc.destInterv);
         delete desc.destType;
         delete jpeg;
-        jpeg = new r_Conv_JPEG(dest, destInterv, r_Convertor::ctype_char);
+        jpeg = new r_Conv_JPEG(dest, destInterv, ctype_char);
         desc = jpeg->convertFrom();
         cout << "\tConverted from JPEG, domain " << desc.destInterv << endl;
 
@@ -147,7 +147,7 @@ int test_picture(int width, int height, int bpp, const char *params, int (*init)
             int i;
 
             // Bitmaps get expanded to greyscale...
-            if (baseType == r_Convertor::ctype_bool)
+            if (baseType == ctype_bool)
             {
                 for (i=0; i<datasize; i++)
                 {
@@ -172,7 +172,7 @@ int test_picture(int width, int height, int bpp, const char *params, int (*init)
             FILE *fp;
             int errType;
 
-            errType = (baseType == r_Convertor::ctype_bool) ? r_Convertor::ctype_char : baseType;
+            errType = (baseType == ctype_bool) ? ctype_char : baseType;
             sprintf(errfile, "jerror%d.jpg", JpegErrorFileNumber++);
             cout << "\tCreating error file <" << errfile << "> ..." << endl;
             cout << "\t(max error = " << (int)maxError << ", avg error = "

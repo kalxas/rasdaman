@@ -38,7 +38,6 @@ rasdaman GmbH.
 
 #include "conversion/convertor.hh"
 
-
 //@ManMemo: Module {\bf conversion}
 
 /*@Doc:
@@ -74,9 +73,9 @@ public:
     ~r_Conv_HDF( void );
 
     /// convert to HDF
-    virtual r_convDesc &convertTo( const char *options=NULL ) throw(r_Error);
+    virtual r_Conv_Desc &convertTo( const char *options=NULL ) throw(r_Error);
     /// convert from HDF
-    virtual r_convDesc &convertFrom( const char *options=NULL ) throw(r_Error);
+    virtual r_Conv_Desc &convertFrom( const char *options=NULL ) throw(r_Error);
     /// cloning
     virtual r_Convertor *clone( void ) const;
     /// identification
@@ -87,10 +86,6 @@ public:
 private:
     /// init HDF module
     void initHDF( void );
-    /// translate an internal type into an HDF type and return the size.
-    static int getHDFtype(int intType, int &size);
-    /// translate an HDF type into an internal type and return the size
-    static int getIntType(int hdfType, int &size);
     /// variables
     int datatype, datasize;
     /// parameters

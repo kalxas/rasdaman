@@ -168,16 +168,15 @@ enum r_Data_Format
     r_Wavelet_Coiflet18,
     r_Wavelet_Coiflet24,
     r_Wavelet_Coiflet30,
-    r_VFF,
     r_Wavelet_QHaar,
     r_PPM,
-    r_TOR,
     r_DEM,
     r_Pack_Bits,
     r_ECW,
     r_TMC,
-    r_NTF,
+    r_NITF,
     r_GRIB,
+    r_GDAL,
     r_Data_Format_NUMBER
 };
 
@@ -193,14 +192,13 @@ enum r_Data_Format
   {\ttr_HDF}                && HDF  format (see \Ref{r_Conv_HDF})\\
   {\ttr_PNG}                && PNG  format (see \Ref{r_Conv_PNG})\\
   {\ttr_BMP}                && BMP  format (see \Ref{r_Conv_BMP})\\
-  {\ttr_VFF}                && VFF  format (see \Ref{r_Conv_VFF})\\
   {\ttr_PPM}            && PPM  format (see \Ref{r_Conv_PPM})\\
-  {\ttr_TOR}            && TOR  format (see \Ref{r_Conv_TOR})\\
   {\ttr_DEM}            && DEM  format (see \Ref{r_Conv_DEM})\\
   {\ttr_ECW}            && ECW  format (see \Ref{r_Conv_ECW})\\
-  {\ttr_NTF}            && NITF  format (see \Ref{r_Conv_NTF})\\
+  {\ttr_NITF}           && NITF  format (see \Ref{r_Conv_NITF})\\
   {\ttr_NETCDF}             && NETCDF  format (see \Ref{r_Conv_NETCDF})\\
   {\ttr_GRIB}               && GRIB  format (see \Ref{r_Conv_GRIB})\\
+  {\ttr_GDAL}               && GDAL supported format (see \Ref{r_Conv_GDAL})\\
 
   {\ttr_Auto_Compression}   && automatic compression\\
   {\ttr_ZLib}               && ZLIB compresion  (see \Ref{r_Tile_Comp_RLE})\\
@@ -264,14 +262,13 @@ extern const char *format_name_wavelet_coiflet12;
 extern const char *format_name_wavelet_coiflet18;
 extern const char *format_name_wavelet_coiflet24;
 extern const char *format_name_wavelet_coiflet30;
-extern const char *format_name_vff;
-extern const char *format_name_tor;
 extern const char *format_name_dem;
 extern const char *format_name_pack_bits;
 extern const char *format_name_wavelet_qhaar;
 extern const char *format_name_tmc;
-extern const char *format_name_ntf;
+extern const char *format_name_nitf;
 extern const char *format_name_grib;
+extern const char *format_name_gdal;
 
 extern const char *all_data_format_names[r_Data_Format_NUMBER];
 

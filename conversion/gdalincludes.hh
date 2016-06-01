@@ -35,6 +35,10 @@
 #ifndef GDALINCLUDES_H
 #define	GDALINCLUDES_H
 
+#include "config.h"
+
+#ifdef HAVE_GDAL
+
 #pragma GCC diagnostic ignored "-Wredundant-decls"
 #pragma GCC diagnostic ignored "-Wshadow"
 
@@ -63,5 +67,7 @@
 
 #pragma GCC diagnostic warning "-Wredundant-decls"
 #pragma GCC diagnostic warning "-Wshadow"
+
+#endif
 
 #endif	/* GDALINCLUDES_H */

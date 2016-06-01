@@ -90,10 +90,6 @@ libqlparser_a_SOURCES=oql.yy lex.ll alloca.c\
                       qtproject.cc qtproject.hh \
                       qtmddconfig.hh qtmddconfig.cc \
                       qtmddcfgop.hh qtmddcfgop.cc \
-                      qtencode.hh qtencode.cc \
-                      qtdecode.hh qtdecode.cc \
-                      typeresolverutil.hh typeresolverutil.cc \
-                      gdaldataconverter.hh gdaldataconverter.cc \
                       qtconcat.hh qtconcat.cc qtconcat.icc \
                       qtsimplecaseop.cc qtsimplecaseop.hh \
 		      qtcaseop.cc qtcaseop.hh qtcaseop.icc \
@@ -101,11 +97,11 @@ libqlparser_a_SOURCES=oql.yy lex.ll alloca.c\
                       qtinfo.cc qtinfo.hh qtinfo.icc \
                       qtemptystream.cc qtemptystream.hh qtemptystream.icc \
                       qtrangeconstructor.cc qtrangeconstructor.hh qtrangeconstructor.icc \
-					  qtcreatecelltype.hh qtcreatecelltype.cc \
-					  qtcreatemarraytype.hh qtcreatemarraytype.cc \
-					  qtdroptype.hh qtdroptype.cc \
-					  qtcelltypeattributes.hh qtcelltypeattributes.cc \
-					  qtcreatesettype.hh qtcreatesettype.cc
+                      qtcreatecelltype.hh qtcreatecelltype.cc \
+                      qtcreatemarraytype.hh qtcreatemarraytype.cc \
+                      qtdroptype.hh qtdroptype.cc \
+                      qtcelltypeattributes.hh qtcelltypeattributes.cc \
+                      qtcreatesettype.hh qtcreatesettype.cc
 
 EXTRA_libqlparser_a_SOURCES = autogen_qtui.hh autogen_qtui.icc autogen_qtui.cc
 

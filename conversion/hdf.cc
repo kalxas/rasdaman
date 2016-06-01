@@ -33,47 +33,24 @@ rasdaman GmbH.
  *
  */
 
-/* Added by Sorin Stancu-Mara. Definition clashed for type int8, define in both
- * /usr/include/hdf.h and in /usr/include/tiff.h
- * This will supress the tiff.h definition.
- * Both definitions are similar
- */
-
 #include "config.h"
-#ifdef HAVE_HDF
-
-#define HAVE_INT8
 
 #include "conversion/hdf.hh"
+#include "conversion/hdfincludes.hh"
+#include "conversion/convutil.hh"
 #include "raslib/error.hh"
 #include "raslib/parseparams.hh"
 #include "raslib/primitivetype.hh"
 #include <easylogging++.h>
 
-#ifdef HAVE_HDF_H
-#include "hdf.h"
-#elif HAVE_HDF_HDF_H
-#include "hdf/hdf.h"
-#else
-#error "No hdf.h header available."
-#endif
-
-#ifdef HAVE_MFHDF_H
-#include "mfhdf.h"
-#elif HAVE_HDF_MFHDF_H
-#include "hdf/mfhdf.h"
-#else
-#error "No mfhdf.h header available."
-#endif
+#include <stdio.h>
+#include <iostream>
 
 // HDF changed from MAX_VAR_DIMS to H4_MAX_VAR_DIMS around 9/5/2007
 // to avoid potential conflicts with NetCDF-3 library
 #ifndef H4_MAX_VAR_DIMS
 #define H4_MAX_VAR_DIMS MAX_VAR_DIMS
 #endif
-
-#include <stdio.h>
-#include <iostream>
 
 // make this code robust against different HDF versions and trouble:
 #ifndef MAX_VAR_DIMS
@@ -93,8 +70,6 @@ const r_Convertor::convert_string_t r_Conv_HDF::compNames[] =
 const int r_Conv_HDF::MaxSwapBufferSize = 0x10000;
 
 
-
-
 void r_Conv_HDF::initHDF( void )
 {
     compType = NULL;
@@ -108,119 +83,6 @@ void r_Conv_HDF::initHDF( void )
     params->add("quality", &quality, r_Parse_Params::param_type_int);
     params->add("skiphuff", &skiphuff, r_Parse_Params::param_type_int);
 }
-
-
-int r_Conv_HDF::getHDFtype(int intType, int &size)
-{
-    int result=0;
-
-    switch (intType)
-    {
-    case ctype_int8:
-        result = DFNT_CHAR8;
-        size = 1;
-        break;
-    case ctype_uint8:
-    case ctype_char:
-    case ctype_bool:
-        result = DFNT_UCHAR8;
-        size = 1;
-        break;
-    case ctype_int16:
-        result = DFNT_INT16;
-        size = 2;
-        break;
-    case ctype_uint16:
-        result = DFNT_UINT16;
-        size = 2;
-        break;
-    case ctype_int32:
-        result = DFNT_INT32;
-        size = 4;
-        break;
-    case ctype_uint32:
-        result = DFNT_UINT32;
-        size = 4;
-        break;
-    case ctype_int64:
-        result = DFNT_INT64;
-        size = 8;
-        break;
-    case ctype_uint64:
-        result = DFNT_UINT64;
-        size = 8;
-        break;
-    case ctype_float32:
-        result = DFNT_FLOAT32;
-        size = 4;
-        break;
-    case ctype_float64:
-        result = DFNT_FLOAT64;
-        size = 8;
-        break;
-    default:
-        result = 0;
-        size = 1;
-        break;
-    }
-    return result;
-}
-
-
-int r_Conv_HDF::getIntType( int hdfType, int &size )
-{
-    int result=0;
-
-    switch (hdfType)
-    {
-    case DFNT_CHAR8:
-        result = ctype_int8;
-        size = 1;
-        break;
-    case DFNT_UCHAR8:
-        result = ctype_uint8;
-        size = 1;
-        break;
-    case DFNT_INT16:
-        result = ctype_int16;
-        size = 2;
-        break;
-    case DFNT_UINT16:
-        result = ctype_uint16;
-        size = 2;
-        break;
-    case DFNT_INT32:
-        result = ctype_int32;
-        size = 4;
-        break;
-    case DFNT_UINT32:
-        result = ctype_uint32;
-        size = 4;
-        break;
-    case DFNT_INT64:
-        result = ctype_int64;
-        size = 8;
-        break;
-    case DFNT_UINT64:
-        result = ctype_uint64;
-        size = 8;
-        break;
-    case DFNT_FLOAT32:
-        result = ctype_float32;
-        size = 4;
-        break;
-    case DFNT_FLOAT64:
-        result = ctype_float64;
-        size = 8;
-        break;
-    default:
-        result = ctype_void;
-        size = 1;
-        break;
-    }
-    return result;
-}
-
 
 
 r_Conv_HDF::r_Conv_HDF(const char *src, const r_Minterval &interv, const r_Type *tp) throw(r_Error)
@@ -256,8 +118,9 @@ r_Conv_HDF::~r_Conv_HDF(void)
 
 
 
-r_convDesc &r_Conv_HDF::convertTo( const char *options ) throw(r_Error)
+r_Conv_Desc &r_Conv_HDF::convertTo( const char *options ) throw(r_Error)
 {
+#ifdef HAVE_HDF
     char name[] = "hdfTempXXXXXX";
     int32 handle=0, sds_id=0, rank=0;
     comp_coder_t comp_type=COMP_CODE_NONE;
@@ -286,7 +149,7 @@ r_convDesc &r_Conv_HDF::convertTo( const char *options ) throw(r_Error)
 
     dimsizes = new int32[rank];
     start = new int32[rank];
-    datatype = getHDFtype(desc.baseType, datasize);
+    datatype = ConvUtil::ctypeToHdfType(desc.baseType, datasize);
 
     for (i=0; i<rank; i++)
     {
@@ -365,12 +228,21 @@ r_convDesc &r_Conv_HDF::convertTo( const char *options ) throw(r_Error)
     desc.destType = r_Type::get_any_type("char");
 
     return desc;
+    
+#else // HAVE_HDF
+    
+    LERROR << "support for encoding HDF4 is not enabled; rasdaman should be configured with option --with-hdf4 to enable it.";
+    throw r_Error(r_Error::r_Error_FeatureNotSupported);
+    
+#endif
 }
 
 
 
-r_convDesc &r_Conv_HDF::convertFrom(const char *options) throw(r_Error)
+r_Conv_Desc &r_Conv_HDF::convertFrom(const char *options) throw(r_Error)
 {
+#ifdef HAVE_HDF
+    
     char name[] = "HDFtempXXXXXX";
     int32 handle=0, sds_id=0, rank=0, dtype=0, numattr=0, array_size=0;
     int32 dimsizes[H4_MAX_VAR_DIMS];
@@ -429,7 +301,7 @@ r_convDesc &r_Conv_HDF::convertFrom(const char *options) throw(r_Error)
     // Ignore native datatype flag
     dtype &= ~DFNT_NATIVE;
 
-    desc.destType = get_external_type(getIntType(dtype, dsize));
+    desc.destType = get_external_type(ConvUtil::hdfTypeToCtype(dtype, dsize));
 
     start = new int32[rank];
     desc.destInterv = r_Minterval(rank);
@@ -470,6 +342,13 @@ r_convDesc &r_Conv_HDF::convertFrom(const char *options) throw(r_Error)
     remove(name);
 
     return desc;
+    
+#else // HAVE_HDF
+    
+    LERROR << "support for decoding HDF4 is not enabled; rasdaman should be configured with option --with-hdf4 to enable it.";
+    throw r_Error(r_Error::r_Error_FeatureNotSupported);
+    
+#endif // HAVE_HDF
 }
 
 
@@ -490,4 +369,4 @@ r_Convertor *r_Conv_HDF::clone( void ) const
 {
     return new r_Conv_HDF(desc.src, desc.srcInterv, desc.baseType);
 }
-#endif
+

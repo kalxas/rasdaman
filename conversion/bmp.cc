@@ -182,7 +182,7 @@ unsigned char *r_Conv_BMP::flushLiterals(int numLit, int pixelAdd, unsigned char
 }
 
 
-r_convDesc &r_Conv_BMP::convertTo( const char *options) throw(r_Error)
+r_Conv_Desc &r_Conv_BMP::convertTo( const char *options) throw(r_Error)
 {
     void *handle=NULL;
     bitmap_info_header_t ihead;
@@ -494,7 +494,7 @@ r_convDesc &r_Conv_BMP::convertTo( const char *options) throw(r_Error)
 #define BMP_RLE_LINEFEED \
   destLine -= lineAdd; destPtr = destLine; j++; i = 0;
 
-r_convDesc &r_Conv_BMP::convertFrom(__attribute__ ((unused)) const char *options) throw(r_Error)
+r_Conv_Desc &r_Conv_BMP::convertFrom(__attribute__ ((unused)) const char *options) throw(r_Error)
 {
     bitmap_file_header_t fhead;
     bitmap_info_header_t ihead;

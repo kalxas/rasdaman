@@ -461,7 +461,7 @@ void r_Conv_CSV::constructDest(const r_Base_Type& type, unsigned int numElem)
         }
 }
 
-r_convDesc &r_Conv_CSV::convertTo( const char *options ) throw(r_Error)
+r_Conv_Desc &r_Conv_CSV::convertTo( const char *options ) throw(r_Error)
 {
     processOptions(options);
     std::stringstream csvtemp;
@@ -477,7 +477,10 @@ r_convDesc &r_Conv_CSV::convertTo( const char *options ) throw(r_Error)
         dimsizes[i] = desc.srcInterv[i].high() - desc.srcInterv[i].low() + 1;
     offsets[rank - 1] = 1;
     for (i = rank - 1; i > 0; --i)
-        offsets[i - 1] = offsets[i] * static_cast<unsigned long>(dimsizes[i]);
+    {
+        size_t dimSize = static_cast<size_t>(dimsizes[i]);
+        offsets[i - 1] = offsets[i] * dimSize;
+    }
     if (order == r_Conv_CSV::INNER_OUTER) {
         std::reverse(dimsizes.begin(), dimsizes.end());
         std::reverse(offsets.begin(), offsets.end());
@@ -518,7 +521,7 @@ r_convDesc &r_Conv_CSV::convertTo( const char *options ) throw(r_Error)
     return desc;
 }
 
-r_convDesc &r_Conv_CSV::convertFrom(const char *options) throw(r_Error)
+r_Conv_Desc &r_Conv_CSV::convertFrom(const char *options) throw(r_Error)
 {
 
     // process the arguments domain and basetype

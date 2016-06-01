@@ -76,9 +76,9 @@ public:
     ~r_Conv_CSV( void );
 
     /// convert to CSV
-    virtual r_convDesc &convertTo( const char *options=NULL ) throw(r_Error);
+    virtual r_Conv_Desc &convertTo( const char *options=NULL ) throw(r_Error);
     /// convert from CSV
-    virtual r_convDesc &convertFrom( const char *options=NULL ) throw(r_Error);
+    virtual r_Conv_Desc &convertFrom( const char *options=NULL ) throw(r_Error);
     /// cloning
     virtual r_Convertor *clone( void ) const;
     /// identification
