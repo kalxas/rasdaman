@@ -231,12 +231,12 @@ const string help_tiling_p = string( "<params> parameters for tiling strategy, o
 #define DEFAULT_STOR_STR_DEM    format_name_zlib
 #define DEFAULT_STOR_TK     r_ZLib
 #define DEFAULT_STOR_STR_TK format_name_zlib
-#define HELP_STOR   "<format> server storage format, one of: Array, ECW, Auto_Compression, ZLib, Pack_Bits, RLE, Sep_ZLib, Sep_RLE (see documentation for more choices)"
+#define HELP_STOR   "<format> server storage format, one of: Array, Auto_Compression, ZLib, Pack_Bits, RLE, Sep_ZLib, Sep_RLE (see documentation for more choices)"
 
 #define PARAM_STOR_P    "storageformatparams"
 #define HELP_STOR_P "<params> parameters used for database storage (see documentation)"
 
-#define HELP_TRANS  "<format> client/server transfer format, one of: Array, ECW, Auto_Compression, ZLib, Pack_Bits, RLE, Sep_ZLib, Sep_RLE (see documentation for more choices)"
+#define HELP_TRANS  "<format> client/server transfer format, one of: Array, Auto_Compression, ZLib, Pack_Bits, RLE, Sep_ZLib, Sep_RLE (see documentation for more choices)"
 #define HELP_TRANS_P    "<params> parameters used for transfer; see documentation"
 
 #define PARAM_DATAFORMAT    "inputformat"
@@ -244,7 +244,7 @@ const string help_tiling_p = string( "<params> parameters for tiling strategy, o
 #define DEFAULT_DATAFORMAT  r_TIFF
 #define DEFAULT_DATAFORMAT_DEM_STR  format_name_dem
 #define DEFAULT_DATAFORMAT_DEM  r_DEM
-#define HELP_DATAFORMAT "input format, one of TIFF, PNG, BMP, JPEG, TOR, DEM, HDF, VFF"
+#define HELP_DATAFORMAT "input format, one of TIFF, PNG, BMP, JPEG, DEM, HDF"
 
 #define PARAM_DATAFORMAT_P  "inputformatparams"
 #define HELP_DATAFORMAT_P   "input file format parameters (see documentation)"

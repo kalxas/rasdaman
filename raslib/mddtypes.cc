@@ -86,14 +86,12 @@ const char *format_name_wavelet_coiflet12 = "Coiflet12Wavelet";
 const char *format_name_wavelet_coiflet18 = "Coiflet18Wavelet";
 const char *format_name_wavelet_coiflet24 = "Coiflet24Wavelet";
 const char *format_name_wavelet_coiflet30 = "Coiflet30Wavelet";
-const char *format_name_vff = "VFF";
 const char *format_name_wavelet_qhaar = "QHaarWavelet";
-const char *format_name_tor = "TOR";
 const char *format_name_dem = "DEM";
 const char *format_name_pack_bits = "PACKBITS";
 const char *format_name_ecw = "ECW";
 const char *format_name_tmc = "TMC";
-const char *format_name_nitf = "NTF";
+const char *format_name_nitf = "NITF";
 const char *format_name_grib = "GRIB";
 const char *format_name_gdal = "GDAL";
 
@@ -162,7 +160,6 @@ r_Data_Format get_data_format_from_name( const char *name )
 {
     if(!name)
     {
-        LINFO << "get_data_format_from_name(" << (name?name: "NULL") << ")";
         return r_Data_Format_NUMBER;
     }
 
@@ -215,7 +212,6 @@ r_Scale_Function get_scale_function_from_name(const char *name)
 {
     if(!name)
     {
-        LINFO << "get_scale_function_from_name(" << (name?name: "NULL") << ")";
         return r_Scale_Function_NUMBER;
     }
 
@@ -276,7 +272,6 @@ r_Index_Type get_index_type_from_name( const char *name )
 {
     if(!name)
     {
-        LINFO << "get_index_type_from_name(" << (name?name: "NULL") << ")";
         return r_Index_Type_NUMBER;
     }
 
@@ -364,7 +359,6 @@ r_Tiling_Scheme get_tiling_scheme_from_name( const char *name )
 {
     if(!name)
     {
-        LINFO << "get_tiling_scheme_from_name(" << (name?name: "NULL") << ")";
         return r_Tiling_Scheme_NUMBER;
     }
 

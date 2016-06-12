@@ -250,7 +250,7 @@ void
 RasgeoUtil::saveData(const char* fileNamePat, const char* data, r_Bytes length, const r_Minterval& dom) throw (ImportError)
 {
     r_Primitive_Type* tp = new r_Primitive_Type("Char", r_Type::CHAR);
-    r_Convertor* conv = r_Convertor_Factory::create(r_PNG, data, dom, tp);
+    r_Convertor* conv = r_Convertor_Factory::create(r_TIFF, data, dom, tp);
     r_convDesc desc = conv->convertTo(NULL);
     size_t dtaSize=desc.destInterv.cell_count()*tp->size();
     std::ofstream o;

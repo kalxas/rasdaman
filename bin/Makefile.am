@@ -33,9 +33,9 @@ if BASEDB_PGSQL
   DBCONN = RASBASE
 endif
 
-bin_SCRIPTS = start_rasdaman.sh stop_rasdaman.sh create_db.sh update_db.sh
-EXTRA_DIST = stop_rasdaman.sh.in start_rasdaman.sh.in create_db.sh.in rasmgr.conf.in update_db.sh.in
-CLEANFILES = start_rasdaman.sh stop_rasdaman.sh create_db.sh rasmgr.conf update_db.sh
+bin_SCRIPTS = start_rasdaman.sh stop_rasdaman.sh create_db.sh update_db.sh rasdaman_insertdemo.sh
+EXTRA_DIST = stop_rasdaman.sh.in start_rasdaman.sh.in create_db.sh.in rasmgr.conf.in update_db.sh.in rasdaman_insertdemo.sh.in
+CLEANFILES = start_rasdaman.sh stop_rasdaman.sh create_db.sh rasmgr.conf update_db.sh rasdaman_insertdemo.sh
 dist_pkgdata_DATA=errtxts_en errtxts_de errtxts_fr errtxts
 
 script_edit = $(SED) \
@@ -51,7 +51,7 @@ script_edit = $(SED) \
      -e 's|@java_server[@]|$(JAVA_SERVER)|g' \
      -e 's|@petascopedb[@]|$(PETASCOPEDB)|g'
 
-start_rasdaman.sh stop_rasdaman.sh create_db.sh update_db.sh: Makefile
+start_rasdaman.sh stop_rasdaman.sh create_db.sh update_db.sh rasdaman_insertdemo.sh: Makefile
 	rm -f $@
 	$(script_edit) '$@.in' >$@
 	chmod +x $@

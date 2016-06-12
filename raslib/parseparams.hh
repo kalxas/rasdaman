@@ -34,6 +34,8 @@ rasdaman GmbH.
 #define _PARSE_PARAMS_HH_
 
 #include <iosfwd>
+#include <string>
+//#include <json/json.h>
 
 //@ManMemo: Module {\bf raslib}
 
@@ -70,6 +72,7 @@ public:
     ~r_Parse_Params( void );
     /// add parameters to the list
     int add( const char *key, void *store, parse_param_type type );
+    int add( const std::string& key, void *store, parse_param_type type );
     /**
        Add a parameter to the list. key is the keyword, e.g. ``quality'', type
        is one of the available types and describes the data type of the parameter
@@ -87,6 +90,33 @@ public:
        process the parameter string. Returns the number of keywords found
        or -1 for error.
     */
+    
+    /**
+     * @return a json representation of the format parameters. This generally looks like this:
+     * 
+{
+  // Absolute path to input file(s). This improves ingestion performance if the data is on the same machine as the rasdaman server, as the network transport is bypassed;
+  // It is possible that a format could have multiple files associated to each other, so this argument is an array of filepaths.
+  "filePaths": [ "/path/to/file.tif", ... ],
+
+  // Only the given subset needs to be extracted from the input file.
+  "subsetDomain": "[0:100,0:100]",
+
+  // Indicate if x/y should be transposed or is it not relevant (comes up in netCDF and GRIB and has a performance penalty, so avoid if possible);
+  // The argument is an array of 0-based axis ids indicating the axes that need to be transposed, e.g. the first axis is 0, second is 1, etc; must be contiguous, [N,N+1]
+  "transpose": [0,1],
+
+  // Specify variable names, band ids (0-based), etc.
+  "datasets": [ "var1", "var2", ... ],
+
+  // Extra format parameters
+  "formatParameters": {
+    "key": "value",
+    ..
+  }
+}
+     */
+//    Json::Value toJson();
 
 
 protected:

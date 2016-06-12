@@ -24,7 +24,7 @@
 EXTRA_DIST = *.cfg manuals
 
 nobase_dist_pkgdata_DATA=examples/images/* \
-			 examples/c++/query.cc examples/c++/insertppm.cc examples/c++/basictypes.hh examples/c++/Makefile* \
+			 examples/c++/basictypes.hh examples/c++/Makefile* \
                          examples/java/* examples/queries/* \
                          examples/rasdl/basictypes.dl
 

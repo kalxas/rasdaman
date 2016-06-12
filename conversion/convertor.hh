@@ -37,6 +37,7 @@ rasdaman GmbH.
 #define _R_CONVERTOR_
 
 #include "conversion/convtypes.hh"
+#include "conversion/formatparams.hh"
 #include "raslib/error.hh"
 #include "raslib/minterval.hh"
 #include "raslib/type.hh"
@@ -78,10 +79,10 @@ typedef struct r_Conv_Desc
   \item
   the member function convertFrom() performs the conversion DEF -> MDD
   \item
-  the r_convDesc reference returned from this call is only valid while
+  the r_Conv_Desc reference returned from this call is only valid while
   the convertor object is.
   \item
-  after successful execution the returned r_convDesc structure contains
+  after successful execution the returned r_Conv_Desc structure contains
   the following information:
     \begin{itemize}
     \item
@@ -188,12 +189,17 @@ protected:
 
     /// parameter parser
     r_Parse_Params *params;
+    
+    /// new-style format params
+    r_Format_Params formatParams;
 
     /// storage manager
     r_Storage_Man mystore;
     
     // format identifier, used only by the GDAL converter
     std::string format;
+    
+    
 };
 
 ///ostream operator for convert_type_e

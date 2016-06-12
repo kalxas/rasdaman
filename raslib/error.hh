@@ -558,6 +558,7 @@ public:
 #define OVERLAYPATTERNTOOSMALL          239
 #define INSERTINTORCINDEX           240
 #define NOTILINGDEFINED             241
+#define INVALIDFORMATPARAMETER           242
 #define UNSATISFIEDMDDCONSTANT           373
 #define DIVISION_BY_ZERO            433
 #define DATABASE_EXISTS             708

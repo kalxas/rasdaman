@@ -29,10 +29,13 @@ oracle="$2"
 grep irr_cube_2 "$out" -B3 -A12 > "$out".tmp
 prepare_xml_file "$out".tmp
 
+sort "$out".tmp > "$out".tmp2
+sort "$oracle" > "$oracle".tmp2
+
 # diff
-diff -b "$out".tmp "$oracle" > /dev/null 2>&1
+diff -b "$out".tmp2 "$oracle".tmp2 > /dev/null 2>&1
 
 rc=$?
-cp "$out".tmp "$out" # for post-test manual verifications
-rm -f "$out".tmp
+cp "$out".tmp2 "$out" # for post-test manual verifications
+rm -f "$out".tmp* "$oracle".tmp*
 exit $rc

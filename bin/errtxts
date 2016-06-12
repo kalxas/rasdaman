@@ -1,4 +1,4 @@
-215
+216
 # Increment the number above every time you add a new exception
 # (no of error codes - 1)
 #
@@ -60,6 +60,7 @@
 239^E^Exception: Standard overlay using types larger than 16 bytes is not supported.
 240^E^Exception: Insert into a RC index is not allowed.
 241^E^Exception: No tiling defined at that region.  Update not possible.
+242^E^Exception: Invalid format parameter.
 #
 300^E^Parsing error $errorNo in line $lineNo, column $columnNo: Unexpected name $token.
 301^E^Parsing error $errorNo in line $lineNo, column $columnNo, token $token: All cell values of an MDD must be of the same type. 

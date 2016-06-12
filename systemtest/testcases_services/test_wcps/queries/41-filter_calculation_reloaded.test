@@ -1,8 +1,8 @@
 for c in (mr) return
 encode((unsigned char)
   coverage filteredImage
-    over $px x(1:100),
-         $py y(1:100)
+    over $px x(1:10),
+         $py y(1:10)
     values
         sqrt(abs(
           condense +

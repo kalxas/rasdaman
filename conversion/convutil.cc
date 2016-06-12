@@ -24,10 +24,8 @@ rasdaman GmbH.
 #include "conversion/convutil.hh"
 #include "raslib/attribute.hh"
 #include "raslib/structuretype.hh"
-#include "catalogmgr/typefactory.hh"
-#include "relcatalogif/structtype.hh"
-#include "relcatalogif/typeiterator.hh"
 
+#include <easylogging++.h>
 #include <sstream>
 #include <string>
 #include <boost/algorithm/string.hpp>
@@ -126,25 +124,41 @@ string ConvUtil::gdalTypeToRasTypeString(GDALDataType dataType)
 
 #ifdef HAVE_GDAL
 
-r_Type* ConvUtil::gdalTypeToRasType(GDALDataset* poDataSet)
+r_Type* ConvUtil::gdalTypeToRasType(GDALDataset* poDataset, const vector<int>& bandIds) throw (r_Error)
 {
-    int nBands = poDataSet->GetRasterCount();
+    size_t nBands = bandIds.size();
     r_Type* baseType = NULL;
-    if (nBands == 1) // primitive type
+    if (nBands == 1 || nBands == 0) // primitive type
     {
-        GDALDataType gdalType = poDataSet->GetRasterBand(1)->GetRasterDataType();
-        string rasType = gdalTypeToRasTypeString(gdalType);
-        baseType = r_Type::get_any_type(rasType.c_str());
+        if (poDataset->GetRasterCount())
+        {
+            GDALDataType gdalType = poDataset->GetRasterBand(1)->GetRasterDataType();
+            string rasType = gdalTypeToRasTypeString(gdalType);
+            baseType = r_Type::get_any_type(rasType.c_str());
+        }
+        else
+        {
+            LERROR << "empty GDAL dataset.";
+            throw r_Error(r_Error::r_Error_Conversion);
+        }
     }
     else if (nBands > 1) // struct type
     {
         stringstream destType(stringstream::out);
         destType << "struct { ";
-        for (int band = 1; band <= nBands; ++band)
+        for (size_t i = 0; i < nBands; ++i)
         {
-            if (band > 1)
+            int bandId = bandIds[i];
+            if (bandId < 0 || bandId >= poDataset->GetRasterCount())
+            {
+                LERROR << "band id '" << bandId << "' out of range 0 - " << (poDataset->GetRasterCount() - 1) << ".";
+                throw r_Error(INVALIDFORMATPARAMETER);
+            }
+            if (i > 0)
+            {
                 destType << ", ";
-            GDALDataType gdalType = poDataSet->GetRasterBand(band)->GetRasterDataType();
+            }
+            GDALDataType gdalType = poDataset->GetRasterBand(bandId + 1)->GetRasterDataType();
             string rasType = gdalTypeToRasTypeString(gdalType);
             destType << rasType;
         }
@@ -226,6 +240,8 @@ ConvUtil::getDataFormat(string formatName)
         ret = r_JP2;
     else if (formatName == "nitf")
         ret = r_NITF;
+    else if (formatName == "ecw")
+        ret = r_ECW;
     else if (formatName == "hdf" || formatName == "hdf4" || formatName == "hdf4image" || formatName == "hdf5")
         ret = r_HDF;
     else if (formatName == "bmp")
@@ -234,54 +250,44 @@ ConvUtil::getDataFormat(string formatName)
         ret = r_CSV;
     else if (formatName == "grib")
         ret = r_GRIB;
+    else if (formatName == "ppm")
+        ret = r_PPM;
+    else if (formatName == "dem")
+        ret = r_DEM;
     return ret;
 }
 
-const BaseType* ConvUtil::rasTypeToBaseType(r_Type* type)
+size_t ConvUtil::getBandBaseTypeSize(r_Type* type, int bandId)
 {
-    const BaseType *result = NULL;
-    if (type->isPrimitiveType())
+    size_t ret = 0;
+    if (type->isStructType())
     {
-        result = TypeFactory::mapType(type->name());
-        if (!result)
-        {
-            LFATAL << "no base type for ODMG primitive type '"
-                << type->name() << "' was found";
-            throw r_Error(BASETYPENOTSUPPORTED);
-        }
+        r_Attribute att = ((r_Structure_Type*) type)->resolve_attribute((unsigned int) bandId);
+        ret = att.type_of().size();
     }
-    else if (type->isStructType())
+    else
     {
-        r_Structure_Type *structType = static_cast<r_Structure_Type *> (const_cast<r_Type*> (type));
-        StructType *restype = new StructType("tmp_struct_type", structType->count_elements());
-        r_Structure_Type::attribute_iterator iter(structType->defines_attribute_begin());
-        while (iter != structType->defines_attribute_end())
-        {
-            try
-            {
-                r_Attribute attr = (*iter);
-                const r_Base_Type &attr_type = attr.type_of();
-                restype->addElement(attr.name(), rasTypeToBaseType((r_Type*) & attr_type));
-            }
-            catch (r_Error &e)
-            {
-                LERROR << "failed converting band type: " << e.what();
-                delete restype;
-                throw;
-            }
-            ++iter;
-        }
-        TypeFactory::addTempType(restype);
-        result = restype;
+        ret = ((r_Base_Type*) type)->size();
     }
-    return result;
+    return ret;
 }
 
-    
+unsigned int ConvUtil::getNumberOfBands(const r_Type* type)
+{    
+    unsigned int ret = 1;
+    if (type->isStructType())
+    {
+        ret = ((r_Structure_Type*) type)->count_elements();
+    }
+    return ret;
+}
+
+
 #ifdef HAVE_HDF
+
 int ConvUtil::ctypeToHdfType(int ctype, int &size)
 {
-    int result=0;
+    int result = 0;
 
     switch (ctype)
     {
@@ -335,9 +341,9 @@ int ConvUtil::ctypeToHdfType(int ctype, int &size)
     return result;
 }
 
-int ConvUtil::hdfTypeToCtype( int hdfType, int &size )
+int ConvUtil::hdfTypeToCtype(int hdfType, int &size)
 {
-    int result=0;
+    int result = 0;
 
     switch (hdfType)
     {

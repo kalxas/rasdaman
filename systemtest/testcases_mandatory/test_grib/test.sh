@@ -42,7 +42,7 @@ EXIT_CODE_OK=0
 
 drop_data()
 {
-  drop_colls test_grib2_3d
+#  drop_colls test_grib2_3d
   drop_colls test_grib2_4d
   $RASQL -q "drop type DoubleSet4D_SystemTest" > /dev/null 2>&1
   $RASQL -q "drop type DoubleArray4D_SystemTest" > /dev/null 2>&1
@@ -69,7 +69,7 @@ drop_data
 # if GRIB is not configured, don't execute the test
 #
 $RASQL -q "create collection test_grib2_3d DoubleSet3" > /dev/null
-$RASQL -q 'insert into test_grib2_3d values inv_grib($1, "{ \"messageDomains\": [ { \"msgId\": 1, \"domain\": \"[0:0,0:719,0:360]\" },{ \"msgId\": 2, \"domain\": \"[1:1,0:719,0:360]\" },{ \"msgId\": 3, \"domain\": \"[2:2,0:719,0:360]\" },{ \"msgId\": 4, \"domain\": \"[3:3,0:719,0:360]\" },{ \"msgId\": 5, \"domain\": \"[4:4,0:719,0:360]\" } ] }")' -f "$TEST_FILE" --quiet 2>&1 | grep "rasdaman error 218: Exception: Conversion format is not supported." > /dev/null
+$RASQL -q 'insert into test_grib2_3d values inv_grib($1, "{ \"internalStructure\": { \"messageDomains\": [ { \"msgId\": 1, \"domain\": \"[0:0,0:719,0:360]\" },{ \"msgId\": 2, \"domain\": \"[1:1,0:719,0:360]\" },{ \"msgId\": 3, \"domain\": \"[2:2,0:719,0:360]\" },{ \"msgId\": 4, \"domain\": \"[3:3,0:719,0:360]\" },{ \"msgId\": 5, \"domain\": \"[4:4,0:719,0:360]\" } ] } }")' -f "$TEST_FILE" --quiet 2>&1 | grep "rasdaman error 218: Exception: Conversion format is not supported." > /dev/null
 if [ $? -eq 0 ]; then
     log "GRIB format support not supported, skipping test."
     drop_colls test_grib2_3d
@@ -94,10 +94,8 @@ $RASQL -q "create collection test_grib2_4d DoubleSet4D_SystemTest" > /dev/null
 # test 3D
 #
 
-log "3D insertion"
-$RASQL -q 'insert into test_grib2_3d values decode($1, "application/x-ogc-grib", "{ \"messageDomains\": [ { \"msgId\": 1, \"domain\": \"[0:0,0:719,0:360]\" },{ \"msgId\": 2, \"domain\": \"[1:1,0:719,0:360]\" },{ \"msgId\": 3, \"domain\": \"[2:2,0:719,0:360]\" },{ \"msgId\": 4, \"domain\": \"[3:3,0:719,0:360]\" },{ \"msgId\": 5, \"domain\": \"[4:4,0:719,0:360]\" } ] }")' -f "$TEST_FILE" > /dev/null
-update_result
-
+check_3D_insertion()
+{
 expected="  Result element 1: [0:4,0:719,0:360]"
 result=$($RASQL -q 'select sdom(c) from test_grib2_3d as c' --out string | grep Result)
 check_result "$expected" "$result" "check array domain"
@@ -117,11 +115,91 @@ check_result "$expected" "$result" "check array row"
 expected="  Result element 1: -1.08333"
 result=$($RASQL -q 'select avg_cells(c[1,2,5:10]) from test_grib2_3d as c' --out string | grep Result)
 check_result "$expected" "$result" "check array column"
+}
+
+log "3D insertion"
+$RASQL -q 'insert into test_grib2_3d values decode($1, "application/x-ogc-grib", "{ \"internalStructure\": { \"messageDomains\": [ { \"msgId\": 1, \"domain\": \"[0:0,0:719,0:360]\" },{ \"msgId\": 2, \"domain\": \"[1:1,0:719,0:360]\" },{ \"msgId\": 3, \"domain\": \"[2:2,0:719,0:360]\" },{ \"msgId\": 4, \"domain\": \"[3:3,0:719,0:360]\" },{ \"msgId\": 5, \"domain\": \"[4:4,0:719,0:360]\" } ] } }")' -f "$TEST_FILE" > /dev/null
+update_result
+check_3D_insertion
+drop_colls test_grib2_3d
+
+log ""
+log "test filePaths parameter"
+$RASQL -q "create collection test_grib2_3d DoubleSet3" > /dev/null
+$RASQL -q 'insert into test_grib2_3d values decode($1, "application/x-ogc-grib", "{ \"filePaths\": [\"'$TEST_FILE'\"], \"internalStructure\": { \"messageDomains\": [ { \"msgId\": 1, \"domain\": \"[0:0,0:719,0:360]\" },{ \"msgId\": 2, \"domain\": \"[1:1,0:719,0:360]\" },{ \"msgId\": 3, \"domain\": \"[2:2,0:719,0:360]\" },{ \"msgId\": 4, \"domain\": \"[3:3,0:719,0:360]\" },{ \"msgId\": 5, \"domain\": \"[4:4,0:719,0:360]\" } ] } }")' -f "$SCRIPT_DIR/test.sh" > /dev/null
+update_result
+check_3D_insertion
+drop_colls test_grib2_3d
+
+log ""
+log "test subsetDomain parameter"
+$RASQL -q "create collection test_grib2_3d DoubleSet3" > /dev/null
+$RASQL -q 'insert into test_grib2_3d values decode($1, "application/x-ogc-grib", "{ \"filePaths\": [\"'$TEST_FILE'\"], \"subsetDomain\": \"[1:1,0:719,0:360]\", \"internalStructure\": { \"messageDomains\": [ { \"msgId\": 1, \"domain\": \"[0:0,0:719,0:360]\" },{ \"msgId\": 2, \"domain\": \"[1:1,0:719,0:360]\" },{ \"msgId\": 3, \"domain\": \"[2:2,0:719,0:360]\" },{ \"msgId\": 4, \"domain\": \"[3:3,0:719,0:360]\" },{ \"msgId\": 5, \"domain\": \"[4:4,0:719,0:360]\" } ] } }")' -f "$SCRIPT_DIR/test.sh" > /dev/null
+update_result
+
+expected="  Result element 1: [1:1,0:719,0:360]"
+result=$($RASQL -q 'select sdom(c) from test_grib2_3d as c' --out string | grep Result)
+check_result "$expected" "$result" "check array domain"
+
+expected="  Result element 1: 0.103524"
+result=$($RASQL -q 'select avg_cells(c) from test_grib2_3d as c' --out string | grep Result)
+check_result "$expected" "$result" "check full array contents"
+
+expected="  Result element 1: 0.103524"
+result=$($RASQL -q 'select avg_cells(c[1,*:*,*:*]) from test_grib2_3d as c' --out string | grep Result)
+check_result "$expected" "$result" "check array slice contents"
+
+expected="  Result element 1: -1.08333"
+result=$($RASQL -q 'select avg_cells(c[1,2,5:10]) from test_grib2_3d as c' --out string | grep Result)
+check_result "$expected" "$result" "check array column"
+drop_colls test_grib2_3d
+
+log ""
+log "test subsetDomain parameter non-slice"
+$RASQL -q "create collection test_grib2_3d DoubleSet3" > /dev/null
+$RASQL -q 'insert into test_grib2_3d values decode($1, "application/x-ogc-grib", "{ \"filePaths\": [\"'$TEST_FILE'\"], \"subsetDomain\": \"[1:2,0:719,0:360]\", \"internalStructure\": { \"messageDomains\": [ { \"msgId\": 1, \"domain\": \"[0:0,0:719,0:360]\" },{ \"msgId\": 2, \"domain\": \"[1:1,0:719,0:360]\" },{ \"msgId\": 3, \"domain\": \"[2:2,0:719,0:360]\" },{ \"msgId\": 4, \"domain\": \"[3:3,0:719,0:360]\" },{ \"msgId\": 5, \"domain\": \"[4:4,0:719,0:360]\" } ] } }")' -f "$SCRIPT_DIR/test.sh" > /dev/null
+update_result
+
+expected="  Result element 1: [1:2,0:719,0:360]"
+result=$($RASQL -q 'select sdom(c) from test_grib2_3d as c' --out string | grep Result)
+check_result "$expected" "$result" "check array domain"
+
+expected="  Result element 1: 0.117361"
+result=$($RASQL -q 'select avg_cells(c) from test_grib2_3d as c' --out string | grep Result)
+check_result "$expected" "$result" "check full array contents"
+
+expected="  Result element 1: 0.103524"
+result=$($RASQL -q 'select avg_cells(c[1,*:*,*:*]) from test_grib2_3d as c' --out string | grep Result)
+check_result "$expected" "$result" "check array slice contents"
+
+expected="  Result element 1: -1.08333"
+result=$($RASQL -q 'select avg_cells(c[1,2,5:10]) from test_grib2_3d as c' --out string | grep Result)
+check_result "$expected" "$result" "check array column"
+
+expected="  Result element 1: -0.196"
+result=$($RASQL -q 'select avg_cells(c[1:1,0:4,0:4]) from test_grib2_3d as c' --out string | grep Result)
+check_result "$expected" "$result" "check subset contents"
+drop_colls test_grib2_3d
+
+log ""
+log "test subsetDomain parameter region"
+$RASQL -q "create collection test_grib2_3d DoubleSet3" > /dev/null
+$RASQL -q 'insert into test_grib2_3d values decode($1, "application/x-ogc-grib", "{ \"filePaths\": [\"'$TEST_FILE'\"], \"subsetDomain\": \"[1:1,0:4,0:4]\", \"internalStructure\": { \"messageDomains\": [ { \"msgId\": 1, \"domain\": \"[0:0,0:719,0:360]\" },{ \"msgId\": 2, \"domain\": \"[1:1,0:719,0:360]\" },{ \"msgId\": 3, \"domain\": \"[2:2,0:719,0:360]\" },{ \"msgId\": 4, \"domain\": \"[3:3,0:719,0:360]\" },{ \"msgId\": 5, \"domain\": \"[4:4,0:719,0:360]\" } ] } }")' -f "$SCRIPT_DIR/test.sh" > /dev/null
+update_result
+
+expected="  Result element 1: [1:1,0:4,0:4]"
+result=$($RASQL -q 'select sdom(c) from test_grib2_3d as c' --out string | grep Result)
+check_result "$expected" "$result" "check array domain"
+
+expected="  Result element 1: -0.196"
+result=$($RASQL -q 'select avg_cells(c) from test_grib2_3d as c' --out string | grep Result)
+check_result "$expected" "$result" "check full array contents"
+drop_colls test_grib2_3d
 
 
 log ""
 log "4D insertion"
-$RASQL -q 'insert into test_grib2_4d values decode($1, "GRIB", "{ \"messageDomains\": [ { \"msgId\": 1, \"domain\": \"[0:0,0:0,0:719,0:360]\" }, { \"msgId\": 2, \"domain\": \"[0:0,1:1,0:719,0:360]\" }, { \"msgId\": 3, \"domain\": \"[1:1,0:0,0:719,0:360]\" }, { \"msgId\": 4, \"domain\": \"[2:2,0:0,0:719,0:360]\" }, { \"msgId\": 5, \"domain\": \"[2:2,2:2,0:719,0:360]\" } ] }")' -f "$TEST_FILE" > /dev/null
+$RASQL -q 'insert into test_grib2_4d values decode($1, "GRIB", "{ \"internalStructure\": { \"messageDomains\": [ { \"msgId\": 1, \"domain\": \"[0:0,0:0,0:719,0:360]\" }, { \"msgId\": 2, \"domain\": \"[0:0,1:1,0:719,0:360]\" }, { \"msgId\": 3, \"domain\": \"[1:1,0:0,0:719,0:360]\" }, { \"msgId\": 4, \"domain\": \"[2:2,0:0,0:719,0:360]\" }, { \"msgId\": 5, \"domain\": \"[2:2,2:2,0:719,0:360]\" } ] } }")' -f "$TEST_FILE" > /dev/null
 update_result
 
 expected="  Result element 1: [0:2,0:2,0:719,0:360]"
@@ -153,19 +231,19 @@ log "---------------------------------------------------------------------------
 log "Test error conditions:"
 log ""
 
-$RASQL -q 'insert into test_grib2_3d values inv_grib($1, "{ \"messageDomains\": [ { \"msgId\": 1, \"domain\": \"[0:0,0:360,0:719]\" },{ \"msgId\": 2, \"domain\": \"[1:1,0:360,0:719]\" },{ \"msgId\": 3, \"domain\": \"[2:2,0:360,0:719]\" },{ \"msgId\": 4, \"domain\": \"[3:3,0:360,0:719]\" },{ \"msgId\": 5, \"domain\": \"[4:4,0:360,0:719]\" } ] }")' -f "$TEST_FILE" > /dev/null 2>&1
+$RASQL -q 'insert into test_grib2_3d values inv_grib($1, "{ \"internalStructure\": { \"messageDomains\": [ { \"msgId\": 1, \"domain\": \"[0:0,0:360,0:719]\" },{ \"msgId\": 2, \"domain\": \"[1:1,0:360,0:719]\" },{ \"msgId\": 3, \"domain\": \"[2:2,0:360,0:719]\" },{ \"msgId\": 4, \"domain\": \"[3:3,0:360,0:719]\" },{ \"msgId\": 5, \"domain\": \"[4:4,0:360,0:719]\" } ] } }")' -f "$TEST_FILE" > /dev/null 2>&1
 check_result $EXIT_CODE_FAIL $? "swapped x and y"
 
-$RASQL -q 'insert into test_grib2_3d values inv_grib($1, "{ messageDomains: [ { \"msgId\": 1, \"domain\": \"[0:0,0:360,0:719]\" },{ \"msgId\": 2, \"domain\": \"[1:1,0:360,0:719]\" },{ \"msgId\": 3, \"domain\": \"[2:2,0:360,0:719]\" },{ \"msgId\": 4, \"domain\": \"[3:3,0:360,0:719]\" },{ \"msgId\": 5, \"domain\": \"[4:4,0:360,0:719]\" } ] }")' -f "$TEST_FILE" > /dev/null 2>&1
+$RASQL -q 'insert into test_grib2_3d values inv_grib($1, "{ \"internalStructure\": { messageDomains: [ { \"msgId\": 1, \"domain\": \"[0:0,0:360,0:719]\" },{ \"msgId\": 2, \"domain\": \"[1:1,0:360,0:719]\" },{ \"msgId\": 3, \"domain\": \"[2:2,0:360,0:719]\" },{ \"msgId\": 4, \"domain\": \"[3:3,0:360,0:719]\" },{ \"msgId\": 5, \"domain\": \"[4:4,0:360,0:719]\" } ] } }")' -f "$TEST_FILE" > /dev/null 2>&1
 check_result $EXIT_CODE_FAIL $? "invalid json (unquoted fields)"
 
-$RASQL -q 'insert into test_grib2_3d values inv_grib($1, "{ \"messageDomains\": \"[0:0,0:360,0:719]\",\"[1:1,0:360,0:719]\",\"[2:2,0:360,0:719]\",\"[3:3,0:360,0:719]\",\"[4:4,0:360,0:719]\" ] }")' -f "$TEST_FILE" > /dev/null 2>&1
+$RASQL -q 'insert into test_grib2_3d values inv_grib($1, "{ \"internalStructure\": { \"messageDomains\": \"[0:0,0:360,0:719]\",\"[1:1,0:360,0:719]\",\"[2:2,0:360,0:719]\",\"[3:3,0:360,0:719]\",\"[4:4,0:360,0:719]\" ] } }")' -f "$TEST_FILE" > /dev/null 2>&1
 check_result $EXIT_CODE_FAIL $? "invalid json (missing bracket)"
 
-$RASQL -q 'insert into test_grib2_3d values decode($1, "GRIB", "{ \"messageDomains\": [ { \"msgId\": 1, \"domain\": \"[0,0:719,0:360]\" },{ \"msgId\": 2, \"domain\": \"[1:1,0:719,0:360]\" },{ \"msgId\": 3, \"domain\": \"[2:2,0:719,0:360]\" },{ \"msgId\": 4, \"domain\": \"[3:3,0:719,0:360]\" },{ \"msgId\": 5, \"domain\": \"[4:4,0:719,0:360]\" } ] }")' -f "$TEST_FILE" > /dev/null 2>&1
+$RASQL -q 'insert into test_grib2_3d values decode($1, "GRIB", "{ \"internalStructure\": { \"messageDomains\": [ { \"msgId\": 1, \"domain\": \"[0,0:719,0:360]\" },{ \"msgId\": 2, \"domain\": \"[1:1,0:719,0:360]\" },{ \"msgId\": 3, \"domain\": \"[2:2,0:719,0:360]\" },{ \"msgId\": 4, \"domain\": \"[3:3,0:719,0:360]\" },{ \"msgId\": 5, \"domain\": \"[4:4,0:719,0:360]\" } ] } }")' -f "$TEST_FILE" > /dev/null 2>&1
 check_result $EXIT_CODE_FAIL $? "invalid message domain (contains slices)"
 
-$RASQL -q 'insert into test_grib2_3d values decode($1, "GRIB", "{ \"messageDomains\": [ { \"msgId\": 1, \"domain\": \"[0:0,0:719,0:360]\" },{ \"msgId\": 2, \"domain\": \"[1:1,0:709,0:360]\" },{ \"msgId\": 3, \"domain\": \"[2:2,0:719,0:350]\" },{ \"msgId\": 4, \"domain\": \"[3:3,0:719,0:360]\" },{ \"msgId\": 5, \"domain\": \"[4:4,0:719,0:360]\" } ] }")' -f "$TEST_FILE" > /dev/null 2>&1
+$RASQL -q 'insert into test_grib2_3d values decode($1, "GRIB", "{ \"internalStructure\": { \"messageDomains\": [ { \"msgId\": 1, \"domain\": \"[0:0,0:719,0:360]\" },{ \"msgId\": 2, \"domain\": \"[1:1,0:709,0:360]\" },{ \"msgId\": 3, \"domain\": \"[2:2,0:719,0:350]\" },{ \"msgId\": 4, \"domain\": \"[3:3,0:719,0:360]\" },{ \"msgId\": 5, \"domain\": \"[4:4,0:719,0:360]\" } ] } }")' -f "$TEST_FILE" > /dev/null 2>&1
 check_result $EXIT_CODE_FAIL $? "mismatching message domains (different x/y)"
 
 

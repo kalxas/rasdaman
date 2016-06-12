@@ -547,6 +547,8 @@ public:
     void delete_dimension( r_Dimension ) throw( r_Eindex_violation );
     /// calculate the size of the storage space occupied
     r_Bytes get_storage_size( ) const;
+    /// transpose two axes
+    void transpose( r_Dimension a, r_Dimension b ) throw( r_Eindex_violation );
     ///
     //@}
 

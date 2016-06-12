@@ -53,25 +53,15 @@ public:
     {
         QT_UNKNOWN,
         QT_TOTIFF,
-        QT_TOBMP,
         QT_TOHDF,
         QT_TONETCDF,
         QT_TOGDAL,
         QT_TOCSV,
-        QT_TOJPEG,
-        QT_TOPNG,
-        QT_TOVFF,
-        QT_TOTOR,
         QT_TODEM,
         QT_FROMTIFF,
-        QT_FROMBMP,
         QT_FROMHDF,
         QT_FROMNETCDF,
         QT_FROMCSV,
-        QT_FROMJPEG,
-        QT_FROMPNG,
-        QT_FROMVFF,
-        QT_FROMTOR,
         QT_FROMDEM,
         QT_FROMGRIB,
         QT_FROMGDAL
@@ -112,6 +102,9 @@ private:
     /// return true if internally implemented convertors should be used, otherwise
     /// false if GDAL should be used.
     bool isInternalFormat(r_Data_Format dataFormat);
+
+    /// convert rasdaman type to base type
+    const BaseType* rasTypeToBaseType(r_Type* rasType);
     
     /// attribute storing conversion type
     QtConversionType conversionType;

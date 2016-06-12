@@ -461,8 +461,13 @@ run_test()
   # check if rasdaman is running and exit if not
   $RASQL -q 'select c from RAS_COLLECTIONNAMES as c' --out string > /dev/null 2>&1
   if [ $? -ne 0 ]; then
-    log "rasdaman down, exiting..."
-    cleanup
+    # retry test
+    sleep 2
+    $RASQL -q 'select c from RAS_COLLECTIONNAMES as c' --out string > /dev/null
+    if [ $? -ne 0 ]; then
+        log "rasdaman down, exiting..."
+        cleanup
+    fi
   fi
 
   # if testcase marked as fixed temporarily we remove the .fixed extension

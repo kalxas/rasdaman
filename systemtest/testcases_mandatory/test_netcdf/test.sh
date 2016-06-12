@@ -88,15 +88,23 @@ create_collection()
     $RASQL -q "create collection $cn ${base_type}_Set${dim}D_SystemTest" > /dev/null 2>&1
 }
 
+drop_collection()
+{
+    local -r base_type="$1"
+    local -r dim="$2"
+    local -r cn="$(get_collname $base_type $dim)"
+    $RASQL -q "drop collection $cn" > /dev/null 2>&1
+    $RASQL -q "drop type ${base_type}_Set${dim}D_SystemTest" > /dev/null 2>&1
+    $RASQL -q "drop type ${base_type}_Array${dim}D_SystemTest" > /dev/null 2>&1
+}
+
 drop_data()
 {
     log ""
     log "dropping testdata"
     for base_type in $BASETYPES; do
         for dim in 3 4; do
-            $RASQL -q "drop collection $(get_collname $base_type $dim)" > /dev/null 2>&1
-            $RASQL -q "drop type ${base_type}_Set${dim}D_SystemTest" > /dev/null 2>&1
-            $RASQL -q "drop type ${base_type}_Array${dim}D_SystemTest" > /dev/null 2>&1
+            drop_collection "$base_type" "$dim"
         done
     done
     log "done."
@@ -155,6 +163,54 @@ update_filenames()
     out_cdl_file="$OUTPUT_PATH/$filename.cdl"
 }
 
+
+
+
+# ------------------------------------------------------------------------------
+# Test JSON decode parameters
+#
+
+run_json_import_test()
+{
+    local -r insert_func="$1"
+    local -r base_type=octet
+    local -r dim=3
+    local -r desc="$2"
+    
+    log "-----------------------------------------------------------------------------"
+    log "testing JSON import: $desc, $base_type ${dim}D"
+    coll_name="$(get_collname $base_type $dim)"
+    filename="${base_type}_${dim}d_json_import_$desc"
+    update_filenames
+    test_file="$TESTDATA_PATH/${base_type}_${dim}d.nc"
+    vars="values"
+    [ "$base_type" == "struct" ] && vars="v1;v2"
+    
+    create_collection "$base_type" "$dim"
+    $insert_func
+    check_result 0 $? "inserting generated $base_type data with $desc parameter"
+    $RASQL -q 'select encode(c, "netcdf", "vars='$vars'") from '$coll_name' as c' --out file > /dev/null
+    check_result 0 $? "exporting $coll_name to netcdf"
+    check_output
+    drop_collection "$base_type" "$dim"
+}
+
+insert_variables() {
+$RASQL -q 'insert into '$coll_name' values decode($1, "netCDF", "{ \"variables\": [\"'$vars'\"] }")' -f "$test_file" > /dev/null
+}
+run_json_import_test insert_variables variables
+
+insert_filepath() {
+$RASQL -q 'insert into '$coll_name' values decode($1, "netCDF", "{ \"variables\": [\"'$vars'\"], \"filePaths\": [\"'$test_file'\"] }")' -f "$SCRIPT_DIR/test.sh" > /dev/null
+}
+run_json_import_test insert_filepath filepath
+
+insert_subsetDomain() {
+$RASQL -q 'insert into '$coll_name' values decode($1, "netCDF", "{ \"variables\": [\"'$vars'\"], \"filePaths\": [\"'$test_file'\"], \"subsetDomain\": \"[0:0,0:9,0:2]\" }")' -f "$SCRIPT_DIR/test.sh" > /dev/null
+}
+run_json_import_test insert_subsetDomain subsetDomain
+
+
 for dim in 3 4; do
     for base_type in $BASETYPES; do
         #[ "$base_type" == "octet" ] || continue
@@ -171,7 +227,7 @@ for dim in 3 4; do
         vars="values"
         [ "$base_type" == "struct" ] && vars="v1;v2"
         if [ -f "$test_file" ]; then
-            $RASQL -q 'insert into '$coll_name' values inv_netcdf($1, "vars='$vars'")' -f "$test_file" > /dev/null
+            $RASQL -q 'insert into '$coll_name' values decode($1, "netCDF", "vars='$vars'")' -f "$test_file" > /dev/null
             check_result 0 $? "inserting $filename"
         else
             if [ $dim -eq 3 ]; then
@@ -188,13 +244,13 @@ for dim in 3 4; do
             echo "$json_params" > $json_file.ql
         fi
         $RASQL -q 'select encode(c, "netcdf", "vars='$vars'") from '$coll_name' as c' --out file > /dev/null
-        check_result 0 $? "exporting ${base_type}_${dim}d_systemtest to netcdf"
+        check_result 0 $? "exporting $coll_name to netcdf"
         
         check_output
     done
 done
 
-#
+# ------------------------------------------------------------------------------
 # Test JSON export
 #
 # It seems impossible to make this work by loading the JSON format parameters from a 
@@ -213,13 +269,13 @@ setup_json_export()
 base_type=octet
 dim=3
 setup_json_export
-$RASQL -q 'select encode(c, "netcdf", "{ \"dimensions\": [\"time\", \"lat\", \"lon\"], \"variables\": { \"time\": { \"type\": \"double\", \"metadata\": { \"standard_name\": \"time\", \"long_name\": \"time\", \"units\": \"days since 2001-1-1\", \"axis\": \"T\", \"calendar\": \"360_day\", \"bounds\": \"time_bnds\", \"original_units\": \"seconds since 2001-1-1\" }, \"data\": [15, 45] }, \"lat\": { \"type\": \"double\", \"metadata\": { \"standard_name\": \"latitude\", \"long_name\": \"latitude\", \"units\": \"degrees_north\", \"axis\": \"Y\", \"bounds\": \"lat_bnds\", \"original_units\": \"degrees_north\" }, \"data\": [-79.5, -78.5, -77.5, -76.5, -75.5, -74.5, -73.5, -72.5, -71.5, -70.5] }, \"lon\": { \"type\": \"double\", \"metadata\": { \"standard_name\": \"longitude\", \"long_name\": \"longitude\", \"units\": \"degrees_east\", \"axis\": \"X\", \"bounds\": \"lon_bnds\", \"original_units\": \"degrees_east\" }, \"data\": [1, 3, 5, 7, 9] }, \"tos\": { \"type\": \"byte\", \"metadata\": { \"standard_name\": \"sea_surface_temperature\", \"long_name\": \"Sea Surface Temperature\", \"units\": \"K\", \"cell_methods\": \"time: mean (interval: 30 minutes)\", \"_FillValue\": 1e20, \"missing_value\": 1e20, \"original_name\": \"sosstsst\", \"original_units\": \"degC\", \"history\": \" At 16:37:23 on 01/11/2005: CMOR altered the data in the following ways: added 2.73150E+02 to yield output units; Cyclical dimension was output starting at a different lon;\" } } }, \"global\": { \"metadata\": { \"title\": \"IPSL model output prepared for IPCC Fourth Assessment SRES A2 experiment\", \"institution\": \"IPSL (Institut Pierre Simon Laplace, Paris, France)\", \"source\": \"IPSL-CM4_v1 (2003) : atmosphere : LMDZ (IPSL-CM4_IPCC, 96x71x19), ocean ORCA2 (ipsl_cm4_v1_8, 2x2L31); sea ice LIM (ipsl_cm4_v\", \"contact\": \"Sebastien Denvil, sebastien.denvil@ipsl.jussieu.fr\", \"project_id\": \"IPCC Fourth Assessment\", \"table_id\": \"Table O1 (13 November 2004)\", \"experiment_id\": \"SRES A2 experiment\", \"realization\": 1, \"cmor_version\": 0.96, \"Conventions\": \"CF-1.0\", \"history\": \"YYYY/MM/JJ: data generated; YYYY/MM/JJ+1 data transformed At 16:37:23 on 01/11/2005, CMOR rewrote data to comply with CF standards and IPCC Fourth Assessment requirements\", \"references\": \"Dufresne et al, Journal of Climate, 2015, vol XX, p 136\", \"comment\": \"Test drive\" } }}") from '$coll_name' as c' --out file > /dev/null
+$RASQL -q 'select encode(c, "netcdf", "{ \"dimensions\": [\"time\", \"lat\", \"lon\"], \"variables\": { \"time\": { \"type\": \"double\", \"metadata\": { \"standard_name\": \"time\", \"long_name\": \"time\", \"units\": \"days since 2001-1-1\", \"axis\": \"T\", \"calendar\": \"360_day\", \"bounds\": \"time_bnds\", \"original_units\": \"seconds since 2001-1-1\" }, \"data\": [15, 45] }, \"lat\": { \"type\": \"double\", \"metadata\": { \"standard_name\": \"latitude\", \"long_name\": \"latitude\", \"units\": \"degrees_north\", \"axis\": \"Y\", \"bounds\": \"lat_bnds\", \"original_units\": \"degrees_north\" }, \"data\": [-79.5, -78.5, -77.5, -76.5, -75.5, -74.5, -73.5, -72.5, -71.5, -70.5] }, \"lon\": { \"type\": \"double\", \"metadata\": { \"standard_name\": \"longitude\", \"long_name\": \"longitude\", \"units\": \"degrees_east\", \"axis\": \"X\", \"bounds\": \"lon_bnds\", \"original_units\": \"degrees_east\" }, \"data\": [1, 3, 5, 7, 9] }, \"tos\": { \"type\": \"byte\", \"metadata\": { \"standard_name\": \"sea_surface_temperature\", \"long_name\": \"Sea Surface Temperature\", \"units\": \"K\", \"cell_methods\": \"time: mean (interval: 30 minutes)\", \"_FillValue\": 1e20, \"missing_value\": 1e20, \"original_name\": \"sosstsst\", \"original_units\": \"degC\", \"history\": \" At 16:37:23 on 01/11/2005: CMOR altered the data in the following ways: added 2.73150E+02 to yield output units; Cyclical dimension was output starting at a different lon;\" } } }, \"metadata\": { \"title\": \"IPSL model output prepared for IPCC Fourth Assessment SRES A2 experiment\", \"institution\": \"IPSL (Institut Pierre Simon Laplace, Paris, France)\", \"source\": \"IPSL-CM4_v1 (2003) : atmosphere : LMDZ (IPSL-CM4_IPCC, 96x71x19), ocean ORCA2 (ipsl_cm4_v1_8, 2x2L31); sea ice LIM (ipsl_cm4_v\", \"contact\": \"Sebastien Denvil, sebastien.denvil@ipsl.jussieu.fr\", \"project_id\": \"IPCC Fourth Assessment\", \"table_id\": \"Table O1 (13 November 2004)\", \"experiment_id\": \"SRES A2 experiment\", \"realization\": 1, \"cmor_version\": 0.96, \"Conventions\": \"CF-1.0\", \"history\": \"YYYY/MM/JJ: data generated; YYYY/MM/JJ+1 data transformed At 16:37:23 on 01/11/2005, CMOR rewrote data to comply with CF standards and IPCC Fourth Assessment requirements\", \"references\": \"Dufresne et al, Journal of Climate, 2015, vol XX, p 136\", \"comment\": \"Test drive\" } }") from '$coll_name' as c' --out file > /dev/null
 check_output
 
 base_type=octet
 dim=4
 setup_json_export
-$RASQL -q 'select encode(c, "netcdf", "{ \"dimensions\": [\"time\", \"depth\", \"lat\", \"lon\"], \"variables\": { \"time\": { \"type\": \"double\", \"metadata\": { \"standard_name\": \"time\", \"long_name\": \"time\", \"units\": \"days since 2001-1-1\", \"axis\": \"T\", \"calendar\": \"360_day\", \"bounds\": \"time_bnds\", \"original_units\": \"seconds since 2001-1-1\" }, \"data\": [15] }, \"depth\": { \"type\": \"float\", \"metadata\": { \"standard_name\": \"depth\", \"long_name\": \"depth\", \"units\": \"meters\", \"axis\": \"Z\" }, \"data\": [45.2] }, \"lat\": { \"type\": \"double\", \"metadata\": { \"standard_name\": \"latitude\", \"long_name\": \"latitude\", \"units\": \"degrees_north\", \"axis\": \"Y\", \"bounds\": \"lat_bnds\", \"original_units\": \"degrees_north\" }, \"data\": [-79.5, -78.5, -77.5, -76.5, -75.5, -74.5, -73.5, -72.5, -71.5, -70.5] }, \"lon\": { \"type\": \"double\", \"metadata\": { \"standard_name\": \"longitude\", \"long_name\": \"longitude\", \"units\": \"degrees_east\", \"axis\": \"X\", \"bounds\": \"lon_bnds\", \"original_units\": \"degrees_east\" }, \"data\": [1, 3, 5, 7, 9] }, \"tos\": { \"type\": \"byte\", \"metadata\": { \"standard_name\": \"sea_surface_temperature\", \"long_name\": \"Sea Surface Temperature\", \"units\": \"K\", \"cell_methods\": \"time: mean (interval: 30 minutes)\", \"_FillValue\": 1e20, \"missing_value\": 1e20, \"original_name\": \"sosstsst\", \"original_units\": \"degC\", \"history\": \" At 16:37:23 on 01/11/2005: CMOR altered the data in the following ways: added 2.73150E+02 to yield output units; Cyclical dimension was output starting at a different lon;\" } } }, \"global\": { \"metadata\": { \"title\": \"IPSL model output prepared for IPCC Fourth Assessment SRES A2 experiment\", \"institution\": \"IPSL (Institut Pierre Simon Laplace, Paris, France)\", \"source\": \"IPSL-CM4_v1 (2003) : atmosphere : LMDZ (IPSL-CM4_IPCC, 96x71x19), ocean ORCA2 (ipsl_cm4_v1_8, 2x2L31); sea ice LIM (ipsl_cm4_v\", \"contact\": \"Sebastien Denvil, sebastien.denvil@ipsl.jussieu.fr\", \"project_id\": \"IPCC Fourth Assessment\", \"table_id\": \"Table O1 (13 November 2004)\", \"experiment_id\": \"SRES A2 experiment\", \"realization\": 1, \"cmor_version\": 0.96, \"Conventions\": \"CF-1.0\", \"history\": \"YYYY/MM/JJ: data generated; YYYY/MM/JJ+1 data transformed At 16:37:23 on 01/11/2005, CMOR rewrote data to comply with CF standards and IPCC Fourth Assessment requirements\", \"references\": \"Dufresne et al, Journal of Climate, 2015, vol XX, p 136\", \"comment\": \"Test drive\" } }}") from '$coll_name' as c' --out file > /dev/null
+$RASQL -q 'select encode(c, "netcdf", "{ \"dimensions\": [\"time\", \"depth\", \"lat\", \"lon\"], \"variables\": { \"time\": { \"type\": \"double\", \"metadata\": { \"standard_name\": \"time\", \"long_name\": \"time\", \"units\": \"days since 2001-1-1\", \"axis\": \"T\", \"calendar\": \"360_day\", \"bounds\": \"time_bnds\", \"original_units\": \"seconds since 2001-1-1\" }, \"data\": [15] }, \"depth\": { \"type\": \"float\", \"metadata\": { \"standard_name\": \"depth\", \"long_name\": \"depth\", \"units\": \"meters\", \"axis\": \"Z\" }, \"data\": [45.2] }, \"lat\": { \"type\": \"double\", \"metadata\": { \"standard_name\": \"latitude\", \"long_name\": \"latitude\", \"units\": \"degrees_north\", \"axis\": \"Y\", \"bounds\": \"lat_bnds\", \"original_units\": \"degrees_north\" }, \"data\": [-79.5, -78.5, -77.5, -76.5, -75.5, -74.5, -73.5, -72.5, -71.5, -70.5] }, \"lon\": { \"type\": \"double\", \"metadata\": { \"standard_name\": \"longitude\", \"long_name\": \"longitude\", \"units\": \"degrees_east\", \"axis\": \"X\", \"bounds\": \"lon_bnds\", \"original_units\": \"degrees_east\" }, \"data\": [1, 3, 5, 7, 9] }, \"tos\": { \"type\": \"byte\", \"metadata\": { \"standard_name\": \"sea_surface_temperature\", \"long_name\": \"Sea Surface Temperature\", \"units\": \"K\", \"cell_methods\": \"time: mean (interval: 30 minutes)\", \"_FillValue\": 1e20, \"missing_value\": 1e20, \"original_name\": \"sosstsst\", \"original_units\": \"degC\", \"history\": \" At 16:37:23 on 01/11/2005: CMOR altered the data in the following ways: added 2.73150E+02 to yield output units; Cyclical dimension was output starting at a different lon;\" } } }, \"metadata\": { \"title\": \"IPSL model output prepared for IPCC Fourth Assessment SRES A2 experiment\", \"institution\": \"IPSL (Institut Pierre Simon Laplace, Paris, France)\", \"source\": \"IPSL-CM4_v1 (2003) : atmosphere : LMDZ (IPSL-CM4_IPCC, 96x71x19), ocean ORCA2 (ipsl_cm4_v1_8, 2x2L31); sea ice LIM (ipsl_cm4_v\", \"contact\": \"Sebastien Denvil, sebastien.denvil@ipsl.jussieu.fr\", \"project_id\": \"IPCC Fourth Assessment\", \"table_id\": \"Table O1 (13 November 2004)\", \"experiment_id\": \"SRES A2 experiment\", \"realization\": 1, \"cmor_version\": 0.96, \"Conventions\": \"CF-1.0\", \"history\": \"YYYY/MM/JJ: data generated; YYYY/MM/JJ+1 data transformed At 16:37:23 on 01/11/2005, CMOR rewrote data to comply with CF standards and IPCC Fourth Assessment requirements\", \"references\": \"Dufresne et al, Journal of Climate, 2015, vol XX, p 136\", \"comment\": \"Test drive\" } }") from '$coll_name' as c' --out file > /dev/null
 check_output
 
 # ------------------------------------------------------------------------------

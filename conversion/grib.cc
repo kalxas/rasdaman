@@ -36,12 +36,14 @@ rasdaman GmbH.
 
 #include "conversion/grib.hh"
 #include "conversion/memfs.hh"
+#include "conversion/formatparamkeys.hh"
 #include "raslib/error.hh"
 #include "raslib/parseparams.hh"
 #include "raslib/primitivetype.hh"
 #include "raslib/attribute.hh"
 #include "raslib/structuretype.hh"
 #include "raslib/odmgtypes.hh"
+#include "raslib/miterd.hh"
 #include "mymalloc/mymalloc.h"
 
 #include <easylogging++.h>
@@ -49,15 +51,8 @@ rasdaman GmbH.
 #include <string.h>
 #include <errno.h>
 
-#ifdef HAVE_GRIB
-#include <grib_api.h>
-#endif
-
+#include <utility>
 #include <boost/algorithm/string/replace.hpp>
-
-#define FORMAT_PARAMETER_MSG_DOMAINS "messageDomains"
-#define FORMAT_PARAMETER_MSG_ID "msgId"
-#define FORMAT_PARAMETER_MSG_DOMAIN "domain"
 
 using namespace std;
 
@@ -100,7 +95,6 @@ r_Conv_Desc &r_Conv_GRIB::convertTo(const char *options) throw(r_Error)
         LERROR << "reason: " << grib_get_error_message(err); \
         grib_handle_delete(h); \
         if (desc.dest) { free(desc.dest); desc.dest = NULL; } \
-        if (tmpValues) { free(tmpValues); tmpValues = NULL; } \
         fclose(in); \
         throw r_Error(r_Error::r_Error_Conversion); \
     }
@@ -109,42 +103,40 @@ r_Conv_Desc &r_Conv_GRIB::convertTo(const char *options) throw(r_Error)
 
 r_Conv_Desc &r_Conv_GRIB::convertFrom(const char *options) throw(r_Error)
 {
-    grib_context *ctx = NULL; // use default context
-    grib_handle *h = NULL;
-    int err = GRIB_SUCCESS;
-    
-    Json::Value decodeOptions = parseOptions(options);
-    const Json::Value& messageDomains = decodeOptions[FORMAT_PARAMETER_MSG_DOMAINS];
-    map<int, r_Minterval> messageDomainsMap = getMessageDomainsMap(messageDomains);
-    desc.destInterv = computeBoundingBox(messageDomainsMap);
-    LDEBUG << "computed bounding box from the specified messageDomains: " << desc.destInterv;
+    if (options == NULL)
+    {
+        LERROR << "mandatory format options have not been specified.";
+        throw r_Error(INVALIDFORMATPARAMETER);
+    }
+    Json::Value messageDomains = getMessageDomainsJson(string(options));
+    unordered_map<int, r_Minterval> messageDomainsMap = getMessageDomainsMap(messageDomains);
+    r_Minterval fullBoundingBox = computeBoundingBox(messageDomainsMap);
+    LDEBUG << "computed bounding box from the specified messageDomains: " << fullBoundingBox;
     
     //
     // prepare output structure
     //
-    r_Range xLen = desc.destInterv[desc.destInterv.dimension() - 2].get_extent();
-    r_Range yLen = desc.destInterv[desc.destInterv.dimension() - 1].get_extent();
-    size_t xyLen = (size_t)(xLen * yLen);
-    LDEBUG << "x size: " << xLen << ", y size: " << yLen << ", number of values per message: " << xyLen;
+    r_Dimension dimNo = fullBoundingBox.dimension();
+    setTargetDomain(fullBoundingBox);
     
-    size_t xySize = (size_t) xyLen * sizeof(double);
-    char* tmpValues = (char*) mymalloc(xySize);
-    if (!tmpValues)
+    r_Range targetWidth = desc.destInterv[dimNo - 2].get_extent();
+    r_Range targetHeight = desc.destInterv[dimNo - 1].get_extent();
+    size_t targetArea = (size_t)(targetWidth * targetHeight);
+    r_Range messageWidth = fullBoundingBox[dimNo - 2].get_extent();
+    r_Range messageHeight = fullBoundingBox[dimNo - 1].get_extent();
+    size_t messageArea = (size_t)(messageWidth * messageHeight);
+    
+    LDEBUG << "x size: " << targetWidth << ", y size: " << targetHeight << ", number of values per message: " << targetArea;
+    
+    size_t messageSize = (size_t) messageArea * sizeof(double);
+    unique_ptr<char[]> messageData(new (nothrow) char[messageSize]);
+    if (!messageData)
     {
-        LERROR << "failed allocating " << xySize << " bytes of memory.";
+        LERROR << "failed allocating " << messageSize << " bytes of memory.";
         throw r_Error(r_Error::r_Error_MemoryAllocation);
     }
     
-    r_Area totalSize = desc.destInterv.cell_count() * sizeof(double);
-    LDEBUG << "allocating " << totalSize << " bytes for the result array with domain " << desc.destInterv;
-    desc.dest = (char*) mymalloc(totalSize);
-    if (!desc.dest)
-    {
-        LERROR << "failed allocating " << totalSize << " bytes of memory.";
-        throw r_Error(r_Error::r_Error_MemoryAllocation);
-    }
-    memset(desc.dest, 0, totalSize);
-    desc.destType = get_external_type(ctype_float64);
+    setTargetDataAndType();
 
     //
     // open grib file and go through all messages
@@ -152,8 +144,9 @@ r_Conv_Desc &r_Conv_GRIB::convertFrom(const char *options) throw(r_Error)
     FILE* in = getFileHandle();
 
     int messageIndex = 1;
-    long x = 0, y = 0;
-    size_t valuesLen = 0;
+    grib_handle *h = NULL;
+    grib_context *ctx = NULL; // use default context
+    int err = GRIB_SUCCESS;
     while (h = grib_handle_new_from_file(ctx, in, &err))
     {
         VALIDATE_MSG_ERRCODE(err, "unable to create grib file handle for message " << messageIndex);
@@ -162,95 +155,74 @@ r_Conv_Desc &r_Conv_GRIB::convertFrom(const char *options) throw(r_Error)
             // skip message, it was not specified for ingestion in the format parameters
             continue;
         }
-        
-        err = grib_get_long(h, "Ni", &x);
-        VALIDATE_MSG_ERRCODE(err, "failed determining the X size of message " << messageIndex);
-        if (x != xLen)
-        {
-            LERROR << "the x grid size of the grib message (Ni) '" << x <<
-                "' does not match the x bound specified in the message domains '" << xLen << "'";
-            grib_handle_delete(h);
-            fclose(in);
-            throw r_Error(r_Error::r_Error_Conversion);
-        }
-
-        err = grib_get_long(h, "Nj", &y);
-        VALIDATE_MSG_ERRCODE(err, "failed determining the Y size of message " << messageIndex);
-        if (y != yLen)
-        {
-            LERROR << "the y grid size of the grib message (Nj) '" << y <<
-                "' does not match the y bound specified in the message domains '" << yLen << "'";
-            grib_handle_delete(h);
-            fclose(in);
-            throw r_Error(r_Error::r_Error_Conversion);
-        }
-
-        err = grib_get_size(h, "values", &valuesLen);
-        VALIDATE_MSG_ERRCODE(err, "failed determining the number of values in message " << messageIndex);
-        if (valuesLen != xyLen)
-        {
-            LERROR << "the number of values in the grib message '" << valuesLen <<
-                "' does not match the number of values specified in the message domains '" << xyLen << "'";
-            grib_handle_delete(h);
-            fclose(in);
-            throw r_Error(r_Error::r_Error_Conversion);
-        }
+        validateMessageDomain(in, h, messageIndex, messageWidth, messageHeight, messageArea);
         
         r_Minterval messageDomain = messageDomainsMap[messageIndex];
-        size_t sliceOffset = getSliceOffset(desc.destInterv, messageDomain, xyLen);
+        if (!subsetSpecified || desc.destInterv.intersects_with(messageDomain))
+        {
+            r_Minterval targetDomain;
+            if (subsetSpecified)
+            {
+                targetDomain = desc.destInterv.create_intersection(messageDomain);
+            }
+            else
+            {
+                targetDomain = messageDomain;
+            }
 
-        err = grib_get_double_array(h, "values", (double*) tmpValues, &xyLen);
-        VALIDATE_MSG_ERRCODE(err, "failed getting the values in message " << messageIndex);
-        
-        transpose<double>((double*) tmpValues, (double*) (desc.dest + sliceOffset), y, x);
+            size_t sliceOffset = getSliceOffset(desc.destInterv, targetDomain, targetArea);
+            err = grib_get_double_array(h, "values", (double*) messageData.get(), &messageArea);
+            VALIDATE_MSG_ERRCODE(err, "failed getting the values in message " << messageIndex);
+            if (subsetSpecified && (targetWidth != messageWidth || targetHeight != messageHeight))
+            {
+                decodeSubset(messageData.get(), messageDomain, targetDomain, sliceOffset, targetWidth, targetHeight, targetArea);
+            }
+            else
+            {
+                transpose<double>((double*) messageData.get(), (double*) (desc.dest + sliceOffset), targetHeight, targetWidth);
+            }
 
-        LTRACE << "processed grib message " << messageIndex << ": x size = " << x << ", y size = " << y <<
-            ", number of values = " << xyLen << ", slice offset = " << sliceOffset;
+            LTRACE << "processed grib message " << messageIndex << ": x size = " << targetWidth << ", y size = " << targetHeight <<
+                ", number of values = " << targetArea << ", slice offset = " << sliceOffset;
+        }
 
         ++messageIndex;
         grib_handle_delete(h);
     }
 
     fclose(in);
-    if (tmpValues)
-    {
-        free(tmpValues);
-        tmpValues = NULL;
-    }
-
     return desc;
 }
 
-Json::Value r_Conv_GRIB::parseOptions(const char* options) throw(r_Error)
+Json::Value r_Conv_GRIB::getMessageDomainsJson(const string& options) throw(r_Error)
 {
-    if (options == NULL)
+    formatParams.parse(options, true);
+    Json::Value val = formatParams.getParams();
+    if (val.isMember(FormatParamKeys::Decode::INTERNAL_STRUCTURE) &&
+        val[FormatParamKeys::Decode::INTERNAL_STRUCTURE].isMember(FormatParamKeys::Decode::Grib::MESSAGE_DOMAINS))
     {
-        LERROR << "mandatory format options have not been specified.";
-        throw r_Error(r_Error::r_Error_Conversion);
+        return val[FormatParamKeys::Decode::INTERNAL_STRUCTURE][FormatParamKeys::Decode::Grib::MESSAGE_DOMAINS];
     }
-
-    string json(options);
-    // rasql transmits \" from the cmd line literally; this doesn't work
-    // in json, so we unescape them below
-    boost::algorithm::replace_all(json, "\\\"", "\"");
-
-    Json::Value val;
-    Json::Reader reader;
-    if (!reader.parse(json, val))
+    else
     {
-        LERROR << "failed parsing the JSON options: " << reader.getFormattedErrorMessages();
-        LERROR << "original options string: " << options;
-        throw r_Error(r_Error::r_Error_Conversion);
+        LERROR << "invalid format options, messageDomains have not been specified.";
+        throw r_Error(INVALIDFORMATPARAMETER);
     }
-
-    return val;
 }
 
 FILE* r_Conv_GRIB::getFileHandle() throw (r_Error)
 {
     size_t srcSize = (size_t) (desc.srcInterv[0].high() - desc.srcInterv[0].low() + 1);
 
-    FILE *in = fmemopen((void*) desc.src, srcSize, "r");
+    FILE *in = NULL;
+    if (formatParams.getFilePaths().empty())
+    {
+        in = fmemopen((void*) desc.src, srcSize, "r");
+    }
+    else
+    {
+        in = fopen(formatParams.getFilePath().c_str(), "r");
+    }
     if (in == NULL)
     {
         LERROR << "failed opening GRIB file.";
@@ -263,40 +235,44 @@ FILE* r_Conv_GRIB::getFileHandle() throw (r_Error)
 size_t r_Conv_GRIB::getSliceOffset(const r_Minterval& domain, const r_Minterval& messageDomain, size_t xyLen)
 {
     size_t ret = 0;
+
     size_t prevDimsTotal = xyLen;
-    for (int i = (int)domain.dimension() - 3; i >= 0; i--)
+    for (int i = (int) domain.dimension() - 3; i >= 0; i--)
     {
         r_Dimension dim = (r_Dimension) i; // silence warnings; using 'unsigned int i' is a bad idea in this case
         size_t dimExtent = (size_t)(messageDomain[dim].low() - domain[dim].low());
         ret += dimExtent * prevDimsTotal;
-        prevDimsTotal *= (size_t) domain[dim].get_extent();
+        prevDimsTotal *= (size_t)domain[dim].get_extent();
     }
-    ret *= sizeof(double);
+    ret *= sizeof (double);
     return ret;
 }
 
-map<int, r_Minterval> r_Conv_GRIB::getMessageDomainsMap(const Json::Value& messageDomains) throw (r_Error)
+unordered_map<int, r_Minterval> r_Conv_GRIB::getMessageDomainsMap(const Json::Value& messageDomains) throw (r_Error)
 {
     if (messageDomains.empty())
     {
         LERROR << "invalid format options, messageDomains must have at least one message domain.";
-        throw r_Error(r_Error::r_Error_Conversion);
+        throw r_Error(INVALIDFORMATPARAMETER);
     }
     
-    map<int, r_Minterval> ret;
+    unordered_map<int, r_Minterval> ret;
     for (int messageIndex = 0; messageIndex < messageDomains.size(); messageIndex++)
     {
-        int msgId = messageDomains[messageIndex][FORMAT_PARAMETER_MSG_ID].asInt();
-        const char* msgDomain = messageDomains[messageIndex][FORMAT_PARAMETER_MSG_DOMAIN].asCString();
+        int msgId = messageDomains[messageIndex][FormatParamKeys::Decode::Grib::MESSAGE_ID].asInt();
+        const char* msgDomain = messageDomains[messageIndex][FormatParamKeys::Decode::Grib::MESSAGE_DOMAIN].asCString();
         r_Minterval domain = domainStringToMinterval(msgDomain);
-        ret[msgId] = domain;
+        if (!ret.insert(make_pair(msgId, domain)).second)
+        {
+            LWARNING << "duplicate message domain in format parameters for message id " << msgId << ", ignoring.";
+        }
     }
     return ret;
 }
 
-r_Minterval r_Conv_GRIB::computeBoundingBox(const map<int, r_Minterval>& messageDomains) throw (r_Error)
+r_Minterval r_Conv_GRIB::computeBoundingBox(const unordered_map<int, r_Minterval>& messageDomains) throw (r_Error)
 {
-    map<int, r_Minterval>::const_iterator messageDomainIt = messageDomains.begin();
+    unordered_map<int, r_Minterval>::const_iterator messageDomainIt = messageDomains.begin();
     r_Minterval ret = messageDomainIt->second;
     checkDomain(ret);
     r_Dimension dims = ret.dimension();
@@ -337,6 +313,107 @@ r_Minterval r_Conv_GRIB::computeBoundingBox(const map<int, r_Minterval>& message
     }
     
     return ret;
+}
+
+void r_Conv_GRIB::setTargetDomain(const r_Minterval& fullBoundingBox) throw (r_Error)
+{
+    if (formatParams.getSubsetDomain().dimension() == 0)
+    {
+        subsetSpecified = false;
+        desc.destInterv = fullBoundingBox;
+    }
+    else
+    {
+        subsetSpecified = true;
+        desc.destInterv = formatParams.getSubsetDomain();
+        if (!desc.destInterv.intersects_with(fullBoundingBox))
+        {
+            LERROR << "invalid subsetDomain parameter '" << desc.destInterv << 
+                "', does not intersect with the file domain '" << fullBoundingBox << "'.";
+            throw r_Error(INVALIDFORMATPARAMETER);
+        }
+    }
+}
+
+void r_Conv_GRIB::setTargetDataAndType() throw (r_Error)
+{
+    r_Area totalSize = desc.destInterv.cell_count() * sizeof(double);
+    LDEBUG << "allocating " << totalSize << " bytes for the result array with domain " << desc.destInterv;
+    desc.dest = (char*) mymalloc(totalSize);
+    if (!desc.dest)
+    {
+        LERROR << "failed allocating " << totalSize << " bytes of memory.";
+        throw r_Error(r_Error::r_Error_MemoryAllocation);
+    }
+    memset(desc.dest, 0, totalSize);
+    desc.destType = get_external_type(ctype_float64);
+}
+
+void r_Conv_GRIB::validateMessageDomain(FILE* in, grib_handle* h, int messageIndex, 
+                     r_Range messageWidth, r_Range messageHeight, size_t messageArea) throw (r_Error)
+{
+    long x = 0;
+    int err = grib_get_long(h, "Ni", &x);
+    VALIDATE_MSG_ERRCODE(err, "failed determining the X size of message " << messageIndex);
+    if (x != messageWidth)
+    {
+        LERROR << "the x grid size of the grib message (Ni) '" << x <<
+            "' does not match the x bound specified in the message domains '" << messageWidth << "'";
+        grib_handle_delete(h);
+        fclose(in);
+        throw r_Error(r_Error::r_Error_Conversion);
+    }
+
+    long y = 0;
+    err = grib_get_long(h, "Nj", &y);
+    VALIDATE_MSG_ERRCODE(err, "failed determining the Y size of message " << messageIndex);
+    if (y != messageHeight)
+    {
+        LERROR << "the y grid size of the grib message (Nj) '" << y <<
+            "' does not match the y bound specified in the message domains '" << messageHeight << "'";
+        grib_handle_delete(h);
+        fclose(in);
+        throw r_Error(r_Error::r_Error_Conversion);
+    }
+
+    size_t valuesLen = 0;
+    err = grib_get_size(h, "values", &valuesLen);
+    VALIDATE_MSG_ERRCODE(err, "failed determining the number of values in message " << messageIndex);
+    if (valuesLen != messageArea)
+    {
+        LERROR << "the number of values in the grib message '" << valuesLen <<
+            "' does not match the number of values specified in the message domains '" << messageArea << "'";
+        grib_handle_delete(h);
+        fclose(in);
+        throw r_Error(r_Error::r_Error_Conversion);
+    }
+}
+
+void r_Conv_GRIB::decodeSubset(char* messageData, r_Minterval messageDomain, r_Minterval targetDomain, 
+                               size_t subsetOffset, r_Range subsetWidth, r_Range subsetHeight, size_t subsetArea)
+{
+    r_Dimension dimNo = targetDomain.dimension();
+    // these iterators iterate last dimension first, i.e. minimal step size
+    targetDomain.transpose(dimNo - 1, dimNo - 2);
+    messageDomain.transpose(dimNo - 1, dimNo - 2);
+
+    r_MiterDirect resTileIter(static_cast<void*> (desc.dest + subsetOffset), targetDomain, targetDomain, sizeof (double));
+    r_MiterDirect opTileIter(static_cast<void*> (messageData), messageDomain, targetDomain, sizeof (double));
+
+    r_Range lastDimExtent = targetDomain[dimNo - 1].get_extent();
+    while (!resTileIter.isDone())
+    {
+        // copy entire line (continuous chunk in last dimension) in one go
+        memcpy(resTileIter.getData(), opTileIter.getData(), static_cast<size_t> (lastDimExtent) * sizeof (double));
+        // force overflow of last dimension
+        resTileIter.id[dimNo - 1].pos += lastDimExtent;
+        opTileIter.id[dimNo - 1].pos += lastDimExtent;
+        // iterate; the last dimension will always overflow now
+        ++resTileIter;
+        ++opTileIter;
+    }
+    transpose<double>((double*) (desc.dest + subsetOffset), (double*) messageData, subsetHeight, subsetWidth);
+    memcpy((desc.dest + subsetOffset), messageData, subsetArea * sizeof (double));
 }
 
 void r_Conv_GRIB::checkDomain(const r_Minterval& domain) throw (r_Error)

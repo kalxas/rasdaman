@@ -457,7 +457,6 @@ parseParams(int argc, char** argv) throw(RasqlError, r_Error)
                 mddDomain = r_Minterval(cmlInter.getValueAsString(PARAM_DOMAIN));
                 mddDomainDef = true;
             }
-
             catch(r_Error & e) // Minterval constructor had syntax problems
             {
                 throw RasqlError(NOVALIDDOMAIN);
@@ -481,7 +480,6 @@ parseParams(int argc, char** argv) throw(RasqlError, r_Error)
         SET_OUTPUT(cmlInter.isPresent(PARAM_DEBUG));
 
     }
-
     catch(CmlException & err)
     {
         cerr << err.what() << endl;
@@ -649,7 +647,6 @@ void printScalar(char* buffer, QtData* data, unsigned int resultIndex)
 
 
 // result_set should be parameter, but is global -- see def for reason
-
 void printResult(Tile* tile, int resultIndex) throw(RasqlError)
 {
     const char* theStuff = tile->getContents();
@@ -834,7 +831,6 @@ r_Marray_Type * getTypeFromDatabase(const char *mddTypeName2) throw(RasqlError, 
         }
         LDEBUG << "type structure is " << typeStructure;
     }
-
     catch(r_Error & err)
     {
         if (err.get_kind() == r_Error::r_Error_DatabaseClassUndefined)
@@ -872,7 +868,6 @@ r_Marray_Type * getTypeFromDatabase(const char *mddTypeName2) throw(RasqlError, 
             throw RasqlError(MDDTYPEINVALID);
         }
     }
-
     catch(r_Error & err)
     {
         LDEBUG << "Error during retrieval of MDD type structure (" << typeStructure << "): " << err.get_errorno() << " " << err.what();

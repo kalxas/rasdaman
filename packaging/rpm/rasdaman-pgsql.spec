@@ -267,7 +267,6 @@ fi
 %files
 %defattr(-,root,root,-)
 %{_bindir}/rasdaman_insertdemo.sh
-%{_bindir}/insertppm
 %{_bindir}/rascontrol
 %{_bindir}/rasdl
 %{_bindir}/rasmgr

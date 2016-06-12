@@ -61,9 +61,6 @@ ORACLE_PATH="$SCRIPT_DIR/oracle"
 [ -d "$ORACLE_PATH" ] || error "Expected results directory not found: $ORACLE_PATH"
 
 
-
-
-
 # ------------------------------------------------------------------------------
 # test dependencies
 #
@@ -90,78 +87,85 @@ drop_colls test_tmp
 #
 function run_test()
 {
-local fun=$1
-local inv_fun=$2
-local ext=$3
-local inv_ext=$4
-local colltype=$5
-local f="mr_1"
-if [ "$colltype" == RGBSet ]; then
-  f=rgb
-elif [ "$colltype" == TestSet ]; then
-  f=multiband
-elif [ "$colltype" == Gauss2Set ]; then
-  f=gauss
-elif [ "$colltype" == BoolSet ]; then
-  f=bool_image
-elif [ "$colltype" == ULongSet ]; then
-  f=ulong_image
-elif [ "$colltype" == ShortSet ]; then
-  f=short_image
-elif [ "$colltype" == UShortSet ]; then
-  f=ushort_image
-elif [ "$colltype" == LongSet ]; then
-  f=long_image
-elif [ "$colltype" == FloatSet ]; then
-  f=float_image
-elif [ "$colltype" == DoubleSet ]; then
-  f=double_image
-fi
+    local fun=$1
+    local inv_fun=$2
+    local ext=$3
+    local inv_ext=$4
+    local colltype=$5
+    local f="mr_1"
+    if [ "$colltype" == RGBSet ]; then
+      f=rgb
+    elif [ "$colltype" == TestSet ]; then
+      f=multiband
+    elif [ "$colltype" == Gauss2Set ]; then
+      f=gauss
+    elif [ "$colltype" == BoolSet ]; then
+      f=bool_image
+    elif [ "$colltype" == ULongSet ]; then
+      f=ulong_image
+    elif [ "$colltype" == ShortSet ]; then
+      f=short_image
+    elif [ "$colltype" == UShortSet ]; then
+      f=ushort_image
+    elif [ "$colltype" == LongSet ]; then
+      f=long_image
+    elif [ "$colltype" == FloatSet ]; then
+      f=float_image
+    elif [ "$colltype" == DoubleSet ]; then
+      f=double_image
+    fi
 
-local decodeopts="$6"   # used on data insertion
-local encodeopts="$7"   # used on data selection
-local rasqlopts="$8"
+    local decodeopts="$6"   # used on data insertion
+    local encodeopts="$7"   # used on data selection
+    local rasqlopts="$8"
 
-log ----- $fun and $inv_fun $colltype conversion ------
+    log ----- $fun and $inv_fun $colltype conversion ------
 
-create_coll test_tmp $colltype
-insert_into test_tmp "$TESTDATA_PATH/$f.$inv_ext" "$decodeopts" "$inv_fun" "$rasqlopts"
-export_to_file test_tmp "$f" "$fun" "$encodeopts"
+    create_coll test_tmp $colltype
+    insert_into test_tmp "$TESTDATA_PATH/$f.$inv_ext" "$decodeopts" "$inv_fun" "$rasqlopts"
+    export_to_file test_tmp "$f" "$fun" "$encodeopts"
 
-logn "comparing images: "
-if [ -f "$ORACLE_PATH/$f.$ext.checksum" ]; then
-  $GDALINFO $f.$ext | grep 'Checksum' > $f.$ext.result
-  diff $ORACLE_PATH/$f.$ext.checksum $f.$ext.result > /dev/null
-else
-  cmp $TESTDATA_PATH/$f.$ext $f.$ext > /dev/null
-fi
+    logn "comparing images: "
+    if [ -f "$ORACLE_PATH/$f.$ext.checksum" ]; then
+      $GDALINFO $f.$ext | grep 'Checksum' > $f.$ext.result
+      diff $ORACLE_PATH/$f.$ext.checksum $f.$ext.result > /dev/null
+    else
+      cmp $TESTDATA_PATH/$f.$ext $f.$ext > /dev/null
+    fi
 
-check_result 0 $? "input and output match"
+    check_result 0 $? "input and output match"
 
-drop_colls test_tmp
-rm -f $f*
+    drop_colls test_tmp
+    rm -f $f*
 }
 
 
 function run_csv_test()
 {
-local colltype=$1
-local f=$2
-local decodeopts=$3   # used on data insertion
+    local colltype=$1
+    local f=$2
+    local decodeopts=$3   # used on data insertion
 
-log ----- $fun and $inv_fun $colltype conversion ------
+    log ----- $fun and $inv_fun $colltype conversion ------
 
-create_coll test_tmp $colltype
-insert_into test_tmp "$TESTDATA_PATH/$f.csv" "$decodeopts" "inv_csv"
-export_to_file test_tmp "$f" "csv"
+    create_coll test_tmp $colltype
+    insert_into test_tmp "$TESTDATA_PATH/$f.csv" "$decodeopts" "inv_csv"
+    export_to_file test_tmp "$f" "csv"
 
-logn "comparing images: "
-cmp $ORACLE_PATH/$f.csv $f.csv > /dev/null
-check_result 0 $? "input and output match"
+    logn "comparing images: "
+    cmp $ORACLE_PATH/$f.csv $f.csv > /dev/null
+    check_result 0 $? "input and output match"
 
-drop_colls test_tmp
-rm -f $f*
+    drop_colls test_tmp
+    rm -f $f*
 }
+
+
+################################################################################
+#
+#                               TESTS start below
+#
+################################################################################
 
 
 ################## test nodata ###############################
@@ -179,18 +183,69 @@ res=`gdalinfo nodata.tif | grep "NoData Value=200" | wc -l`
 check_result 3 $res "custom nodata test"
 rm -f nodata*
 
+$RASQL -q 'select encode(c, "GTiff", "{ \"nodata\": 200 }") from test_tmp as c' --out file --outfile nodata > /dev/null
+res=`gdalinfo nodata.tif | grep "NoData Value=200" | wc -l`
+check_result 3 $res "custom nodata test"
+rm -f nodata*
+
+################## test georeference ###############################
+
+$RASQL -q 'select encode(c, "GTiff", "{ \"nodata\": [200,201,202], \"geoReference\": { \"bbox\": { \"xmin\": 0.5, \"xmax\": 30, \"ymin\": -15, \"ymax\": 50.3}, \"crs\": \"EPSG:4326\" }, \"metadata\": \"metadata test\" }") from test_tmp as c' --out file --outfile geo > /dev/null
+res=`gdalinfo geo.tif | grep "4326" | wc -l`
+check_result 1 $res "test crs in encode"
+res=`gdalinfo geo.tif | grep "0.5" | wc -l`
+check_result 3 $res "test xmin in encode"
+res=`gdalinfo geo.tif | grep "30.0" | wc -l`
+check_result 3 $res "test xmax in encode"
+res=`gdalinfo geo.tif | grep "\-15.00" | wc -l`
+check_result 2 $res "test ymin in encode"
+res=`gdalinfo geo.tif | grep "50.30" | wc -l`
+check_result 2 $res "test ymax in encode"
+res=`gdalinfo geo.tif | grep "metadata test" | wc -l`
+check_result 1 $res "test metadata in encode"
+res=`gdalinfo geo.tif | grep "200" | wc -l`
+check_result 4 $res "test nodata values"
+res=`gdalinfo geo.tif | grep "200 201 202" | wc -l`
+check_result 1 $res "test nodata values"
+
+rm -f geo*
+
+drop_colls test_tmp
+
+################## test color table, gcps ######################
+
+create_coll test_tmp GreySet
+insert_into test_tmp "$TESTDATA_PATH/mr_1.png" "" "decode"
+
+$RASQL -q 'select encode(c, "GTiff", "{ \"nodata\": 0, \"geoReference\": { \"GCPs\": [ { \"pixel\": 0, \"info\": \"gcp left\", \"line\": 0, \"x\": 15.5, \"y\": 12.3 } ], \"crs\": \"EPSG:4326\" }, \"colorPalette\": { \"paletteInterp\": \"RGB\", \"colorTable\": [[255,0,0], [255,0,0]], \"colorInterp\": [ \"Red\" ] } }") from test_tmp as c' --out file --outfile geo > /dev/null
+res=`gdalinfo geo.tif | grep "4326" | wc -l`
+check_result 1 $res "test gcp crs in encode"
+res=`gdalinfo geo.tif | grep "Id=1, Info=" | wc -l`
+check_result 1 $res "test gcp id and info in encode"
+res=`gdalinfo geo.tif | grep '(0,0) -> (15.5,12.3,0)' | wc -l`
+check_result 1 $res "test gcp ref in encode"
+res=`gdalinfo geo.tif | grep 'Color Table (RGB with 256 entries)' | wc -l`
+check_result 1 $res "test color table in encode"
+res=`gdalinfo geo.tif | grep "255,0,0,255" | wc -l`
+check_result 2 $res "test color entries in encode"
+
+rm -f geo*
+
 drop_colls test_tmp
 
 ################## jpeg() and inv_jpeg() #######################
 run_test jpeg inv_jpeg jpg jpg GreySet
 run_test jpeg decode jpg jpg GreySet
 run_test jpeg decode jpg jpg GreySet ", \"jpeg2000\", \"QUALITY=10;\""
+run_test jpeg decode jpg jpg GreySet ', "jpeg2000", "{ \"formatParameters\": { \"QUALITY\": \"10\" } }"'
+
 
 ################## tiff() and inv_tiff() #######################
 run_test tiff inv_tiff tif tif GreySet
 run_test tiff inv_tiff tif tif TestSet ", \"sampletype=octet\""
 run_test tiff decode tif tif GreySet
 run_test tiff decode tif tif GreySet ", \"gtiff\", \"ZLEVEL=1;\""
+run_test tiff decode tif tif GreySet ', "gtiff", "{ \"formatParameters\": { \"ZLEVEL\": \"1\" } }"'
 
 run_test tiff decode tif tif BoolSet
 run_test tiff decode tif tif ULongSet
@@ -228,10 +283,12 @@ run_test bmp decode bmp bmp GreySet
 ################## hdf() and inv_hdf() #######################
 
 # run hdf test only if hdf was compiled in
-grep 'HAVE_HDF 1' $SCRIPT_DIR/../../../config.h > /dev/null
+if [ -f "$SCRIPT_DIR/../../../config.h" ]; then
+    grep 'HAVE_HDF 1' "$SCRIPT_DIR/../../../config.h" > /dev/null
 
-if [ $? -eq 0 ]; then
-  run_test hdf inv_hdf hdf hdf GreySet
+    if [ $? -eq 0 ]; then
+      run_test hdf inv_hdf hdf hdf GreySet
+    fi
 fi
 
 ############### export large data (ticket 240) ###############
@@ -318,7 +375,6 @@ run_test csv decode csv png GreySet
 run_test csv decode csv png RGBSet
 run_test encode inv_png csv png GreySet '' ', "csv"'
 
-run_test csv "" csv binary Gauss2Set "" "" "--mddtype Gauss2Image --mdddomain [0:1,-1:1]"
 
 run_csv_test FloatSet1 csv_float1 ",\"domain=[0:5];basetype=float\""
 run_csv_test FloatSet csv_float2 ",\"domain=[0:2,1:3];basetype=float\""
@@ -332,6 +388,7 @@ run_csv_test LongSet3 csv_long3 ",\"domain=[0:0,1:1,2:2];basetype=long\""
 run_csv_test RGBSet csv_rgb2 ",\"domain=[0:0,0:1];basetype=struct{char red, char green, char blue}\""
 run_csv_test RGBSet3 csv_rgb3 ",\"domain=[0:1,0:1,0:1];basetype=struct{char red, char green, char blue}\""
 run_csv_test TestFLSet csv_testfl2 ",\"domain=[0:1,0:2];basetype=struct{ float f, long l }\""
+run_csv_test TestFLSet csv_testfl2 ',"{ \"formatParameters\": { \"domain\": \"[0:1,0:2]\", \"basetype\": \"struct{ float f, long l }\" } }"'
 
 ############## csv(order=inner_outer) #######
 log ----- csv with inner_outer order conversion ------
@@ -342,6 +399,13 @@ export_to_file test_tmp "mr_1" "csv" ', "order=inner_outer"'
 logn "comparing images: "
 cmp $TESTDATA_PATH/mr_1_inner_outer.csv mr_1.csv > /dev/null
 check_result 0 $? "input and output match"
+
+export_to_file test_tmp "mr_1" "csv" ', "{ \"formatParameters\": { \"order\": \"inner_outer\" } }"'
+
+logn "comparing images: "
+cmp $TESTDATA_PATH/mr_1_inner_outer.csv mr_1.csv > /dev/null
+check_result 0 $? "input and output match"
+
 drop_colls test_tmp
 rm -f mr_1.csv
 

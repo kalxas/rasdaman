@@ -77,7 +77,7 @@ int TestHDF(r_Minterval &domain, r_Type *tp, const char *params=NULL)
     r_Minterval destInterv;
     r_Conv_HDF *hdf;
     r_Type *destType;
-    r_convDesc desc;
+    r_Conv_Desc desc;
     int i, j, k;
     int rank, array_size, datasize;
     int *dimsizes, *dimsteps, *dimidx;

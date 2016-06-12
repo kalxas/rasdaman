@@ -24,7 +24,6 @@ rasdaman GmbH.
 #ifndef CONVUTIL_HH
 #define	CONVUTIL_HH
 
-#include "relcatalogif/basetype.hh"
 #include "raslib/type.hh"
 #include "conversion/gdalincludes.hh"
 #include "conversion/hdfincludes.hh"
@@ -50,9 +49,10 @@ public:
 	 * The type decision is made based on the GDALDataType of the bands and of the number of bands.
      * 
      * @param poDataSet GDALDataSet read from the temporary file.
+     * @param bandIds a vector of the band ids to be considered for the type translation (0-indexed)
      * @return an r_Type for the dataset
      */
-    static r_Type* gdalTypeToRasType(GDALDataset* poDataSet);
+    static r_Type* gdalTypeToRasType(GDALDataset* poDataSet, const std::vector<int>& bandIds) throw (r_Error);
     
     /// convert rasdaman type to GDAL type
     static GDALDataType rasTypeToGdalType(r_Type* rasType);
@@ -66,14 +66,24 @@ public:
     /// translate an HDF type into an internal type and return the size
     static int hdfTypeToCtype( int hdfType, int &size );
 #endif
-    
-    /// convert rasdaman type to base type
-    static const BaseType* rasTypeToBaseType(r_Type* rasType);
 
     /**
      * Convert format string to r_Data_Format
      */
 	static r_Data_Format getDataFormat(std::string format);
+    
+    /**
+     * Get the base type size of the bandId-th band in type.
+     * @param type rasdaman type, could be primitive or struct
+     * @param bandId the band index, 0-based
+     * @return the base type size
+     */
+    static size_t getBandBaseTypeSize(r_Type* type, int bandId);
+    
+    /**
+     * @return the number of bands in type, 1 if type is primitive, more than 1 if struct.
+     */
+    static unsigned int getNumberOfBands(const r_Type* type);
 
 	virtual ~ConvUtil();
 

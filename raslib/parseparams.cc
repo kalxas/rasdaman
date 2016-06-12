@@ -42,6 +42,7 @@ rasdaman GmbH.
 
 #include "raslib/parseparams.hh"
 
+#include <string>
 #include <easylogging++.h>
 
 
@@ -97,6 +98,12 @@ int r_Parse_Params::add( const char *key, void *store, parse_param_type type )
     number++;
 
     return 0;
+}
+
+
+int r_Parse_Params::add( const std::string& key, void *store, parse_param_type type )
+{
+    return add(key.c_str(), store, type);
 }
 
 
@@ -274,6 +281,46 @@ int r_Parse_Params::process( const char *str, char separator, bool withWhiteSpac
 
     return numkeys;
 }
+
+    /**
+     * @return a json representation of the format parameters. This generally looks like this:
+     * 
+{
+  // Absolute path to input file(s). This improves ingestion performance if the data is on the same machine as the rasdaman server, as the network transport is bypassed;
+  // It is possible that a format could have multiple files associated to each other, so this argument is an array of filepaths.
+  "filePaths": [ "/path/to/file.tif", ... ],
+
+  // Only the given subset needs to be extracted from the input file.
+  "subsetDomain": "[0:100,0:100]",
+
+  // Indicate if x/y should be transposed or is it not relevant (comes up in netCDF and GRIB and has a performance penalty, so avoid if possible);
+  // The argument is an array of 0-based axis ids indicating the axes that need to be transposed, e.g. the first axis is 0, second is 1, etc; must be contiguous, [N,N+1]
+  "transpose": [0,1],
+
+  // Specify variable names, band ids (0-based), etc.
+  "datasets": [ "var1", "var2", ... ],
+
+  // Extra format parameters
+  "formatParameters": {
+    "key": "value",
+    ..
+  }
+}
+     */
+//Json::Value r_Parse_Params::toJson()
+//{
+//    Json::Value ret;
+//    for (unsigned int i = 0; i < number; i++)
+//    {
+//        if (strcmp("filePaths", params[i].key) == 0)
+//        {
+//            Json::Value v(Json::ValueType::arrayValue);
+//            v[0] = std::string((const char*) params[i].store);
+//            ret["filePaths"] = v;
+//        }
+//    }
+//    return ret;
+//}
 
 std::ostream& operator<<( std::ostream& s, const r_Parse_Params::parse_param_type& d )
 {

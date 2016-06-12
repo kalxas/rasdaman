@@ -69,35 +69,13 @@ AS_IF([test x$AR = no],
 AC_PROG_BISON
 
 # Checks for libraries.
-# FIXME: Replace `main' with a function in `-lcrypt':
 AC_CHECK_LIB([crypt], [main], , [AC_MSG_FAILURE([libcrypt.a not found! Please install.])])
 AC_CHECK_LIB([crypto], [EVP_DigestFinal], , [AC_MSG_FAILURE([libcrypto.a not found! Please install.])])
-# FIXME: Replace `main' with a function in `-ldf':
-#AC_CHECK_LIB([df], [main], , [AC_MSG_FAILURE([libdf.a not found! Please install.])])
-# FIXME: Replace `main' with a function in `-ldl':
 AC_CHECK_LIB([dl], [main], , [AC_MSG_FAILURE([libdl.a not found! Please install.])])
-# FIXME: Replace `main' with a function in `-lfl':
 AC_CHECK_LIB([fl], [main], , [AC_MSG_FAILURE([libfl.a not found! Please install.])])
-# FIXME: Replace `main' with a function in `-ljpeg':
-AC_CHECK_LIB([jpeg], [main], , [AC_MSG_FAILURE([libjpeg.a not found! Please install.])])
-# FIXME: Replace `main' with a function in `-lm':
-#AC_CHECK_LIB([m], [main], , [AC_MSG_FAILURE([libm.a not found! Please install.])])
-# FIXME: Replace `main' with a function in `-lmfhdf':
-#AC_CHECK_LIB([mfhdf], [main], , [AC_MSG_FAILURE([libmfhdf.a not found! Please install.])])
-# FIXME: Replace `main' with a function in `-lncurses':
-AC_CHECK_LIB([ncurses], [main], , [AC_MSG_FAILURE([libncurses.a not found! Please install.])])
-AC_CHECK_LIB([png], [png_write_row], , [AC_MSG_FAILURE([libpng.a not found! Please install.])])
-AC_CHECK_LIB([netpbm], [ppm_readppm], , [AC_MSG_FAILURE([libnetpbm.a not found! Please install.])])
-# AC_CHECK_LIB([dfalt], [main], , [AC_MSG_FAILURE([libdf.a not found! Please install.])])
-# FIXME: Replace `main' with a function in `-lreadline':
 AC_CHECK_LIB([edit], [main], , [AC_MSG_FAILURE([libedit.a not found! Please install.])])
-# FIXME: Replace `main' with a function in `-lsocket':
-AC_CHECK_LIB([socket], [main])
-# FIXME: Replace `main' with a function in `-lssl':
-AC_CHECK_LIB([storagemgr], [main])
 AC_CHECK_LIB([tiff], [TIFFGetField], , [AC_MSG_FAILURE([libtiff.a not found! Please install.])])
-# FIXME: Replace `main' with a function in `-lz':
-AC_CHECK_LIB([z], [main], , [AC_MSG_FAILURE([libz.a not found! Please install.])])
+#AC_CHECK_LIB([z], [main], , [AC_MSG_FAILURE([libz.a not found! Please install.])])
 
 if test "$enable_r" = "yes"; then
     AC_CHECK_PROG([RBIN], [R], [R])
@@ -198,7 +176,6 @@ AC_CONFIG_FILES([third_party/Makefile
                  bin/Makefile
                  manuals_and_examples/Makefile
                  manuals_and_examples/examples/c++/Makefile
-                 insertutils/Makefile
                  include/Makefile
                  java/Makefile
                  systemtest/Makefile
@@ -683,23 +660,6 @@ AM_COND_IF([ENABLE_R], [
                      Do not use --enable-r and --disable-java flags simultaneously.])
     ])
   ],)
-
-# ----------------
-# check for netpbm headers
-
-AC_MSG_CHECKING([for NetPBM header files])
-CPATH_NO_COLON=`echo $CPATH | sed -e "s/:/ /g"`
-for DIR in ${prefix}/include /usr/local/include/ /usr/include /opt/local/include $CPATH_NO_COLON; do
-    test -d "$DIR" && NETPBM_PPMH=`find $DIR -name ppm.h`
-    if test -n "$NETPBM_PPMH"; then
-      CXXFLAGS+=" -I ${NETPBM_PPMH%%ppm.h} "
-      AC_MSG_RESULT([yes])
-      break
-    fi
-done
-
-# end netpbm check
-# ----------------
 
 # General definitions.
 if [ test "x$RMANDEBUG" != "x" || test "x$with_debug_symbols" == "xyes" ]; then

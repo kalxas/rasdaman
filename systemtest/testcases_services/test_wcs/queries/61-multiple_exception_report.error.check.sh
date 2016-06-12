@@ -30,13 +30,14 @@ prepare_xml_file "$out"
 # replace OID with 0 \(\) for group match
 sed -r 's/(oid\(c\)=[0-9]*)/oid\(c\)=0/' "$out" > "$out".tmp
 
+sort "$out".tmp > "$out".tmp2
+sort "$oracle" > "$oracle".tmp2
+
 # diff
-diff -b "$out".tmp "$oracle" > /dev/null 2>&1
+diff -b "$out".tmp2 "$oracle".tmp2 > /dev/null 2>&1
 rc=$?
 
 # remove out file
-rm -f "$out"
-# move replaced file to out file
-mv "$out".tmp "$out"
+rm -f "$out".tmp* "$oracle".tmp*
 
 exit $rc

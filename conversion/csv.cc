@@ -67,11 +67,11 @@ rasdaman GmbH.
 #include <stack>
 
 #include "debug/debug-srv.hh"
+#include "formatparamkeys.hh"
 #include <easylogging++.h>
 
 #define DIM_BOUNDARY -1
 
-#define ORDER_OPTION_KEY "order"
 #define ORDER_OUTER_INNER "outer_inner"
 #define ORDER_INNER_OUTER "inner_outer"
 
@@ -83,14 +83,8 @@ const char *r_Conv_CSV::TRUE = "t";
 /// internal initialization, common to all constructors
 void r_Conv_CSV::initCSV( void )
 {
-    basetype = NULL;
-    domain = NULL;
-
     if (params == NULL)
         params = new r_Parse_Params();
-
-    params->add("domain", &domain, r_Parse_Params::param_type_string);
-    params->add("basetype", &basetype, r_Parse_Params::param_type_string);
 }
 
 
@@ -225,29 +219,95 @@ void r_Conv_CSV::printArray(std::stringstream &f, int *dims, size_t *offsets, in
     }
 }
 
-void r_Conv_CSV::processOptions(const char *options)
+void r_Conv_CSV::processEncodeOptions(const string& options)
 {
     char *order_option = NULL;
-    if (options) {
-        params->add(ORDER_OPTION_KEY, &order_option, r_Parse_Params::param_type_string);
-        params->process(options);
+    bool allocated = false;
+    if (formatParams.parse(options))
+    {
+        for (const pair<string, string>& configParam : formatParams.getFormatParameters())
+        {
+            if (configParam.first == FormatParamKeys::Encode::CSV::ORDER)
+            {
+                order_option = (char*)configParam.second.c_str();
+            }
+        }
+    }
+    else
+    {
+        params->add(FormatParamKeys::Encode::CSV::ORDER, &order_option, r_Parse_Params::param_type_string);
+        params->process(options.c_str());
+        allocated = true;
     }
 
-    if (!options) {
+    if (order_option && strcmp(order_option, ORDER_OUTER_INNER) == 0)
+    {
         order = r_Conv_CSV::OUTER_INNER;
-    } else if (order_option && strcmp(order_option, ORDER_OUTER_INNER) == 0) {
-        order = r_Conv_CSV::OUTER_INNER;
-    } else if (order_option && strcmp(order_option, ORDER_INNER_OUTER) == 0) {
-        order = r_Conv_CSV::INNER_OUTER;
-    } else {
-        LFATAL << "Error: illegal CSV option string: \"" << options << "\", "
-                       << "only " ORDER_OPTION_KEY "=(" ORDER_OUTER_INNER "|" ORDER_INNER_OUTER ") "
-                       << "is supported";
-        throw r_Error(r_Error::r_Error_General);
     }
-    if (order_option) {
+    else if (order_option && strcmp(order_option, ORDER_INNER_OUTER) == 0)
+    {
+        order = r_Conv_CSV::INNER_OUTER;
+    }
+    else
+    {
+        LFATAL << "illegal CSV option string: \"" << options << "\", "
+            << "only " << FormatParamKeys::Encode::CSV::ORDER << "=(" ORDER_OUTER_INNER "|" ORDER_INNER_OUTER ") "
+            << "is supported";
+        throw r_Error(INVALIDFORMATPARAMETER);
+    }
+    if (allocated && order_option)
+    {
         delete [] order_option;
         order_option = NULL;
+    }
+}
+
+void r_Conv_CSV::processDecodeOptions(const string& options)
+{
+    // process the arguments domain and basetype
+    if (formatParams.parse(options))
+    {
+        for (const pair<string, string>& configParam : formatParams.getFormatParameters())
+        {
+            if (configParam.first == FormatParamKeys::Decode::CSV::BASETYPE)
+            {
+                basetype = configParam.second;
+            }
+            else if (configParam.first == FormatParamKeys::Decode::CSV::DATA_DOMAIN)
+            {
+                domain = configParam.second;
+            }
+        }
+    }
+    else
+    {
+        char* domainStr = NULL;
+        char* basetypeStr = NULL;
+        params->add(FormatParamKeys::Decode::CSV::DATA_DOMAIN, &domainStr, r_Parse_Params::param_type_string);
+        params->add(FormatParamKeys::Decode::CSV::BASETYPE, &basetypeStr, r_Parse_Params::param_type_string);
+        params->process(options.c_str(), ';', true);
+        if (domainStr)
+        {
+            domain = string{domainStr};
+            delete[] domainStr;
+            domainStr = NULL;
+        }
+        if (basetypeStr)
+        {
+            basetype = string{basetypeStr};
+            delete[] basetypeStr;
+            basetypeStr = NULL;
+        }
+    }
+    if (domain.empty())
+    {
+        LFATAL << "mandatory parameter '" << FormatParamKeys::Decode::CSV::DATA_DOMAIN << "' must be specified.";
+        throw r_Error(INVALIDFORMATPARAMETER);
+    }
+    if (basetype.empty())
+    {
+        LFATAL << "mandatory parameter '" << FormatParamKeys::Decode::CSV::BASETYPE << "' must be specified.";
+        throw r_Error(INVALIDFORMATPARAMETER);
     }
 }
 
@@ -463,7 +523,11 @@ void r_Conv_CSV::constructDest(const r_Base_Type& type, unsigned int numElem)
 
 r_Conv_Desc &r_Conv_CSV::convertTo( const char *options ) throw(r_Error)
 {
-    processOptions(options);
+    order = r_Conv_CSV::OUTER_INNER;
+    if (options)
+    {
+        processEncodeOptions(string{options});
+    }
     std::stringstream csvtemp;
 
     unsigned long rank, i;
@@ -523,17 +587,20 @@ r_Conv_Desc &r_Conv_CSV::convertTo( const char *options ) throw(r_Error)
 
 r_Conv_Desc &r_Conv_CSV::convertFrom(const char *options) throw(r_Error)
 {
-
-    // process the arguments domain and basetype
-    params->process(options, ';', true);
-    if(domain == NULL || basetype == NULL)
+    if (options)
     {
-        LFATAL << "r_Conv_CSV::convertFrom(): NULL parameters error!";
-        throw r_Error(r_Error::r_Error_General);
+        processDecodeOptions(string{options});
+    }
+    else
+    {
+        LERROR << "mandatory decode format options missing: '" <<
+            FormatParamKeys::Decode::CSV::BASETYPE << "' and '" <<
+            FormatParamKeys::Decode::CSV::DATA_DOMAIN << "'.";
+        throw r_Error(INVALIDFORMATPARAMETER);
     }
 
-    desc.destInterv = r_Minterval(domain);
-    desc.destType = r_Type::get_any_type(basetype);
+    desc.destInterv = r_Minterval(domain.c_str());
+    desc.destType = r_Type::get_any_type(basetype.c_str());
     desc.dest = NULL;
 
     unsigned int totalSize = 0;

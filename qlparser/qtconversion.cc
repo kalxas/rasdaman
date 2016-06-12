@@ -101,44 +101,24 @@ void
 QtConversion::setConversionTypeByName(string formatName)
 {
     boost::algorithm::to_lower(formatName);
-    if (string("bmp") == formatName)
-        conversionType = QtConversion::QT_TOBMP;
-    else if (string("hdf") == formatName)
+    if (string("hdf") == formatName)
         conversionType = QtConversion::QT_TOHDF;
-    else if (string("png") == formatName)
-        conversionType = QtConversion::QT_TOPNG;
-    else if (string("jpeg") == formatName)
-        conversionType = QtConversion::QT_TOJPEG;
     else if (string("tiff") == formatName)
         conversionType = QtConversion::QT_TOTIFF;
-    else if (string("vff") == formatName)
-        conversionType = QtConversion::QT_TOVFF;
     else if (string("csv") == formatName)
         conversionType = QtConversion::QT_TOCSV;
-    else if (string("tor") == formatName)
-        conversionType = QtConversion::QT_TOTOR;
     else if (string("dem") == formatName)
         conversionType = QtConversion::QT_TODEM;
     else if (string("netcdf") == formatName)
         conversionType = QtConversion::QT_TONETCDF;
     else if (string("gdal") == formatName)
         conversionType = QtConversion::QT_TOGDAL;
-    else if (string("inv_bmp") == formatName)
-        conversionType = QtConversion::QT_FROMBMP;
     else if (string("inv_hdf") == formatName)
         conversionType = QtConversion::QT_FROMHDF;
     else if (string("inv_csv") == formatName)
         conversionType = QtConversion::QT_FROMCSV;
-    else if (string("inv_png") == formatName)
-        conversionType = QtConversion::QT_FROMPNG;
-    else if (string("inv_jpeg") == formatName)
-        conversionType = QtConversion::QT_FROMJPEG;
     else if (string("inv_tiff") == formatName)
         conversionType = QtConversion::QT_FROMTIFF;
-    else if (string("inv_vff") == formatName)
-        conversionType = QtConversion::QT_FROMVFF;
-    else if (string("inv_tor") == formatName)
-        conversionType = QtConversion::QT_FROMTOR;
     else if (string("inv_dem") == formatName)
         conversionType = QtConversion::QT_FROMDEM;
     else if (string("inv_netcdf") == formatName)
@@ -244,12 +224,10 @@ QtConversion::evaluate(QtDataList* inputList)
             }
             if (conversionType < QT_FROMTIFF)
             {
-                LDEBUG << "convertor '" << convType << "' converting to '" << convFormat << "'...";
                 convDesc = convertor->convertTo(paramStr);
             }
             else
             {
-                LDEBUG << "convertor '" << convType << "' converting from '" << convFormat << "'...";
                 convDesc = convertor->convertFrom(paramStr);
             }
         }
@@ -277,7 +255,7 @@ QtConversion::evaluate(QtDataList* inputList)
         sourceTile.reset();
 
         // create a transient tile for the compressed data
-        const BaseType* baseType = ConvUtil::rasTypeToBaseType(convDesc.destType);
+        const BaseType* baseType = rasTypeToBaseType(convDesc.destType);
 
         // here we have to update the dataStreamType.getType(), as it has changed since checkType
         if (strcasecmp(dataStreamType.getType()->getTypeName(), baseType->getTypeName()))
@@ -327,6 +305,46 @@ QtConversion::evaluate(QtDataList* inputList)
     return returnValue;
 }
 
+const BaseType* QtConversion::rasTypeToBaseType(r_Type* type)
+{
+    const BaseType *result = NULL;
+    if (type->isPrimitiveType())
+    {
+        result = TypeFactory::mapType(type->name());
+        if (!result)
+        {
+            LFATAL << "no base type for ODMG primitive type '"
+                << type->name() << "' was found";
+            throw r_Error(BASETYPENOTSUPPORTED);
+        }
+    }
+    else if (type->isStructType())
+    {
+        r_Structure_Type *structType = static_cast<r_Structure_Type *> (const_cast<r_Type*> (type));
+        StructType *restype = new StructType("tmp_struct_type", structType->count_elements());
+        r_Structure_Type::attribute_iterator iter(structType->defines_attribute_begin());
+        while (iter != structType->defines_attribute_end())
+        {
+            try
+            {
+                r_Attribute attr = (*iter);
+                const r_Base_Type &attr_type = attr.type_of();
+                restype->addElement(attr.name(), rasTypeToBaseType((r_Type*) & attr_type));
+            }
+            catch (r_Error &e)
+            {
+                LERROR << "failed converting band type: " << e.what();
+                delete restype;
+                throw;
+            }
+            ++iter;
+        }
+        TypeFactory::addTempType(restype);
+        result = restype;
+    }
+    return result;
+}
+
 void
 QtConversion::setConversionTypeAndResultFormat(r_Data_Format& convType, r_Data_Format& convFormat)
 {
@@ -338,14 +356,6 @@ QtConversion::setConversionTypeAndResultFormat(r_Data_Format& convType, r_Data_F
         break;
     case QT_FROMTIFF:
         convType = r_TIFF;
-        convFormat = r_Array;
-        break;
-    case QT_TOBMP:
-        convType = r_BMP;
-        convFormat = r_BMP;
-        break;
-    case QT_FROMBMP:
-        convType = r_BMP;
         convFormat = r_Array;
         break;
     case QT_TOHDF:
@@ -382,22 +392,6 @@ QtConversion::setConversionTypeAndResultFormat(r_Data_Format& convType, r_Data_F
         break;
     case QT_FROMCSV:
         convType = r_CSV;
-        convFormat = r_Array;
-        break;
-    case QT_TOJPEG:
-        convType = r_JPEG;
-        convFormat = r_JPEG;
-        break;
-    case QT_FROMJPEG:
-        convType = r_JPEG;
-        convFormat = r_Array;
-        break;
-    case QT_TOPNG:
-        convType = r_PNG;
-        convFormat = r_PNG;
-        break;
-    case QT_FROMPNG:
-        convType = r_PNG;
         convFormat = r_Array;
         break;
     case QT_TODEM:
@@ -443,9 +437,6 @@ QtConversion::printTree(int tab, ostream& s, QtChildType mode)
     case QT_TOTIFF:
         s << "to TIFF";
         break;
-    case QT_TOBMP:
-        s << "to BMP";
-        break;
     case QT_TOHDF:
         s << "to HDF";
         break;
@@ -458,26 +449,11 @@ QtConversion::printTree(int tab, ostream& s, QtChildType mode)
     case QT_TOCSV:
         s << "to CSV";
         break;
-    case QT_TOJPEG:
-        s << "to JPEG";
-        break;
-    case QT_TOPNG:
-        s << "to PNG";
-        break;
-    case QT_TOVFF:
-        s << "to VFF";
-        break;
-    case QT_TOTOR:
-        s << "to TOR";
-        break;
     case QT_TODEM:
         s << "to DEM";
         break;
     case QT_FROMTIFF:
         s << "from TIFF";
-        break;
-    case QT_FROMBMP:
-        s << "from BMP";
         break;
     case QT_FROMHDF:
         s << "from HDF";
@@ -493,18 +469,6 @@ QtConversion::printTree(int tab, ostream& s, QtChildType mode)
         break;
     case QT_FROMCSV:
         s << "from CSV";
-        break;
-    case QT_FROMJPEG:
-        s << "from JPEG";
-        break;
-    case QT_FROMPNG:
-        s << "from PNG";
-        break;
-    case QT_FROMVFF:
-        s << "from VFF";
-        break;
-    case QT_FROMTOR:
-        s << "from TOR";
         break;
     case QT_FROMDEM:
         s << "from DEM";
@@ -573,26 +537,11 @@ operator<<(std::ostream& os, QtConversion::QtConversionType type)
     case QtConversion::QT_TOTIFF:
         os << "tiff";
         break;
-    case QtConversion::QT_TOBMP:
-        os << "bmp";
-        break;
     case QtConversion::QT_TOHDF:
         os << "hdf";
         break;
     case QtConversion::QT_TOCSV:
         os << "csv";
-        break;
-    case QtConversion::QT_TOJPEG:
-        os << "jpeg";
-        break;
-    case QtConversion::QT_TOPNG:
-        os << "png";
-        break;
-    case QtConversion::QT_TOVFF:
-        os << "vff";
-        break;
-    case QtConversion::QT_TOTOR:
-        os << "tor";
         break;
     case QtConversion::QT_TODEM:
         os << "dem";
@@ -606,26 +555,11 @@ operator<<(std::ostream& os, QtConversion::QtConversionType type)
     case QtConversion::QT_FROMTIFF:
         os << "inv_tiff";
         break;
-    case QtConversion::QT_FROMBMP:
-        os << "inv_bmp";
-        break;
     case QtConversion::QT_FROMHDF:
         os << "inv_hdf";
         break;
     case QtConversion::QT_FROMCSV:
         os << "inv_csv";
-        break;
-    case QtConversion::QT_FROMJPEG:
-        os << "inv_jpeg";
-        break;
-    case QtConversion::QT_FROMPNG:
-        os << "inv_png";
-        break;
-    case QtConversion::QT_FROMVFF:
-        os << "inv_vff";
-        break;
-    case QtConversion::QT_FROMTOR:
-        os << "inv_tor";
         break;
     case QtConversion::QT_FROMDEM:
         os << "inv_dem";

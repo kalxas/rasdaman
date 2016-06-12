@@ -59,11 +59,13 @@ rasdaman GmbH.
 
 const r_Convertor::convert_string_t r_Conv_HDF::compNames[] =
 {
+#ifdef HAVE_HDF
     {"none", COMP_CODE_NONE},
     {"rle", COMP_CODE_RLE},
     {"huffman", COMP_CODE_SKPHUFF},
     {"deflate", COMP_CODE_DEFLATE},
     {NULL, COMP_CODE_NONE}
+#endif
 };
 
 // Buffer used for switching the majorness (column <--> row) of the array data

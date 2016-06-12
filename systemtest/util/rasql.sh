@@ -186,6 +186,7 @@ function insert_into()
   fi
 
   logn "inserting data... "
+  #echo "insert into $coll_name values $values, file: $file_name"
   $RASQL --quiet -q "insert into $coll_name values $values" -f $file_name $rasql_opts > /dev/null
   feedback
 }
@@ -249,6 +250,9 @@ function import_rasql_data()
   if [ ! -f "$TESTDATA_PATH/mr2_1.png" ]; then
     error "testdata file $TESTDATA_PATH/mr2_1.png not found"
   fi
+  if [ ! -f "$TESTDATA_PATH/50k.bin" ]; then
+    error "testdata file $TESTDATA_PATH/50k.bin not found"
+  fi
   
   # check data types
   check_type GreySet
@@ -267,7 +271,7 @@ function import_rasql_data()
   insert_into $TEST_RGB2 "$TESTDATA_PATH/rgb.png" "" "decode"
 
   create_coll $TEST_GREY3D GreySet3
-  $RASQL -q "insert into $TEST_GREY3D values marray i in [0:99,0:99,0:4] values (char)(i[0] + i[1])"
+  $RASQL -q "insert into $TEST_GREY3D values \$1" -f "$TESTDATA_PATH/50k.bin" --mdddomain "[0:99,0:99,0:4]" --mddtype GreyCube > /dev/null
 }
 
 

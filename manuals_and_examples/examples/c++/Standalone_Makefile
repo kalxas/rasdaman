@@ -21,7 +21,7 @@
 # or contact Peter Baumann via <baumann@rasdaman.com>.
 #
 # MAKEFILE FOR:
-#   insertppm query
+#   query
 #
 #
 # COMMENTS:
@@ -30,11 +30,8 @@
 
 
 
-all: insertppm query
+all: query
 
-
-EXEC_FILE1 				= 	insertppm
-SOURCE_FILES1			= 	insertppm.cc
 EXEC_FILE2 				= 	query
 SOURCE_FILES2			= 	query.cc
 COMPILER				= 	g++
@@ -62,11 +59,7 @@ LIBS=-L$(RASDAMAN_INSTALLATION)/lib -lcatalogmgr  -llockmanager  -lqlparser  -lr
 
 #compile: 		$(EXEC_FILE)
 
-insertppm: 	$(EXEC_FILE1)
 query: 		$(EXEC_FILE2)
-
-$(EXEC_FILE1):
-	$(COMPILER) $(FLAGS) -o $(EXEC_FILE1) $(SOURCE_FILES1) $(LIBS) $(INCS) $(LIBS)
 
 
 $(EXEC_FILE2):
@@ -75,4 +68,4 @@ $(EXEC_FILE2):
 
 clean:
 	-rm -f *.o
-	-rm -f $(EXEC_FILE1) $(EXEC_FILE2)
+	-rm -f $(EXEC_FILE2)

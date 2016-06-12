@@ -49,7 +49,7 @@ SUBDIRS = third_party relblobif relindexif relmddif relcatalogif reladminif rels
           common rasnet rasmgr_x rascontrol_x clientcomm rasserver_x rasnetprotocol \
           raslib servercomm rasodmg qlparser conversion \
           mddmgr httpserver mymalloc server rasmgr rascontrol rasdl lockmgr \
-          bin insertutils manuals_and_examples include \
+          bin manuals_and_examples include \
           systemtest $(JAVA_DIR) applications
 
 dist_log_DATA=empty

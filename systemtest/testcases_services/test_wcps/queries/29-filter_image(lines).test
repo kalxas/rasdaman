@@ -1,7 +1,7 @@
 for c in (rgb) return encode((unsigned char)
 		coverage filteredImage
-		over $px x(10:240),
-                     $py y(10:230)
+		over $px x(10:24),
+                     $py y(10:23)
 		values
 			condense +
 			over $kx x(-1:1),

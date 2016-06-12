@@ -1,16 +1,3 @@
-#ifndef _QTSCALARDATA_HH_
-#define _QTSCALARDATA_HH_
-
-#ifndef CPPSTDLIB
-#include <ospace/string.h> // STL<ToolKit>
-#else
-#include <string>
-#endif
-
-#include "qlparser/qtdata.hh"
-#include "catalogmgr/typefactory.hh"
-
-
 /*
 * This file is part of rasdaman community.
 *
@@ -33,6 +20,7 @@ rasdaman GmbH.
 * For more information please see <http://www.rasdaman.org>
 * or contact Peter Baumann via <baumann@rasdaman.com>.
 */
+
 /*************************************************************
  *
  *
@@ -49,6 +37,13 @@ rasdaman GmbH.
  or complex (\Ref{QtComplexData}).
 
 */
+
+#ifndef _QTSCALARDATA_HH_
+#define _QTSCALARDATA_HH_
+
+#include <string>
+#include "qlparser/qtdata.hh"
+#include "catalogmgr/typefactory.hh"
 
 class QtScalarData : public QtData
 {

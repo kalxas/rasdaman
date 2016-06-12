@@ -41,7 +41,7 @@ rasdaman GmbH.
 
 void ConvertToTIFFCore(r_Conv_TIFF *tiff, const char *save, const char *params)
 {
-    r_convDesc desc;
+    r_Conv_Desc desc;
     FILE *tfile;
     long size;
 
@@ -115,7 +115,7 @@ void ConvertFromTIFF(char *name, const char *params, const char *save_as = NULL)
 {
     FILE *fp;
     long size;
-    r_convDesc desc;
+    r_Conv_Desc desc;
     r_Conv_TIFF *tiff;
     char *data;
     r_Minterval iv;

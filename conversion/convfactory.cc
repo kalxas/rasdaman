@@ -41,12 +41,7 @@ rasdaman GmbH.
 // all the conversion types, for easy creation
 #include "tiff.hh"
 #include "hdf.hh"
-#include "png.hh"
-#include "jpeg.hh"
-#include "bmp.hh"
 #include "dem.hh"
-#include "ecw.hh"
-#include "nitf.hh"
 #include "csv.hh"
 #include "netcdf.hh"
 #include "grib.hh"
@@ -59,15 +54,8 @@ bool r_Convertor_Factory::is_supported( r_Data_Format fmt )
     switch (fmt)
     {
     case r_TIFF:
-    case r_PNG:
-    case r_JPEG:
-    case r_BMP:
     case r_DEM:
-    case r_ECW:
-#ifdef HAVE_HDF
     case r_HDF:
-#endif
-    // case r_NITF:
     case r_NETCDF:
     case r_GRIB:
     case r_GDAL:
@@ -90,44 +78,24 @@ r_Convertor *r_Convertor_Factory::create( r_Data_Format fmt, const char *src, co
     case r_TIFF:
         result = new r_Conv_TIFF(src, interv, tp);
         break;
-#ifdef HAVE_NETCDF
     case r_NETCDF:
         result = new r_Conv_NETCDF(src, interv, tp);
         break;
-#endif
     case r_GRIB:
         result = new r_Conv_GRIB(src, interv, tp);
         break;
     case r_GDAL:
         result = new r_Conv_GDAL(src, interv, tp);
         break;
-    case r_PNG:
-        result = new r_Conv_PNG(src, interv, tp);
-        break;
     case r_CSV:
         result = new r_Conv_CSV(src, interv, tp);
-        break;
-    case r_JPEG:
-        result = new r_Conv_JPEG(src, interv, tp);
-        break;
-    case r_BMP:
-        result = new r_Conv_BMP(src, interv, tp);
         break;
     case r_DEM:
         result = new r_Conv_DEM(src, interv, tp);
         break;
-    case r_ECW:
-        result = new r_Conv_ECW(src, interv, tp);
-        break;
-#ifdef HAVE_HDF
     case r_HDF:
         result = new r_Conv_HDF(src, interv, tp);
         break;
-#endif
-        // case r_NITF:
-        //   LDEBUG << "creating NTF converter...";
-        //   result = new r_Conv_NITF(src, interv, tp);
-        //   break;
     default:
         LFATAL << "Error: in conversion factory during create: unsupported format: " << fmt;
         r_Error err(CONVERSIONFORMATNOTSUPPORTED);
@@ -147,41 +115,21 @@ r_Convertor *r_Convertor_Factory::create( r_Data_Format fmt, const char *src, co
     case r_TIFF:
         result = new r_Conv_TIFF(src, interv, type);
         break;
-#ifdef HAVE_NETCDF
     case r_NETCDF:
         result = new r_Conv_NETCDF(src, interv, type);
         break;
-#endif
     case r_GRIB:
         result = new r_Conv_GRIB(src, interv, type);
         break;
     case r_GDAL:
         result = new r_Conv_GDAL(src, interv, type);
         break;
-    case r_PNG:
-        result = new r_Conv_PNG(src, interv, type);
-        break;
-    case r_JPEG:
-        result = new r_Conv_JPEG(src, interv, type);
-        break;
-    case r_BMP:
-        result = new r_Conv_BMP(src, interv, type);
-        break;
     case r_DEM:
         result = new r_Conv_DEM(src, interv, type);
         break;
-    case r_ECW:
-        result = new r_Conv_ECW(src, interv, type);
-        break;
-#ifdef HAVE_HDF
     case r_HDF:
         result = new r_Conv_HDF(src, interv, type);
         break;
-#endif
-        // case r_NITF:
-        //   LDEBUG << "creating NTF converter...";
-        //   result = new r_Conv_NITF(src, interv, type);
-        //   break;
     default:
         LFATAL << "Error: in conversion factory during create: unsupported format: " << fmt;
         r_Error err(CONVERSIONFORMATNOTSUPPORTED);

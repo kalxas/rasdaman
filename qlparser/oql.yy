@@ -1766,7 +1766,8 @@ functionExp: OID LRPAR collectionIterator RRPAR
 	}
 	| BMP LRPAR generalExp COMMA StringLit RRPAR
 	{
-	  $$ = new QtConversion( $3, QtConversion::QT_TOBMP, $5.value );
+	  std::string format{"BMP"};
+	  $$ = new QtConversion( $3, QtConversion::QT_TOGDAL, format, $5.value );
 	  $$->setParseInfo( *($1.info) );
 	  parseQueryTree->removeDynamicObject( $3 );
 	  parseQueryTree->addDynamicObject( $$ );
@@ -1777,7 +1778,8 @@ functionExp: OID LRPAR collectionIterator RRPAR
 	}
 	| BMP LRPAR generalExp  RRPAR
 	{
-	  $$ = new QtConversion( $3, QtConversion::QT_TOBMP );
+	  std::string format{"BMP"};
+	  $$ = new QtConversion( $3, QtConversion::QT_TOGDAL, format, NULL );
 	  $$->setParseInfo( *($1.info) );
 	  parseQueryTree->removeDynamicObject( $3 );
 	  parseQueryTree->addDynamicObject( $$ );
@@ -1829,7 +1831,8 @@ functionExp: OID LRPAR collectionIterator RRPAR
 	}
 	| JPEG LRPAR generalExp COMMA StringLit RRPAR
 	{
-	  $$ = new QtConversion( $3, QtConversion::QT_TOJPEG, $5.value );
+	  std::string format{"JPEG"};
+	  $$ = new QtConversion( $3, QtConversion::QT_TOGDAL, format, $5.value );
 	  $$->setParseInfo( *($1.info) );
 	  parseQueryTree->removeDynamicObject( $3 );
 	  parseQueryTree->addDynamicObject( $$ );
@@ -1840,7 +1843,8 @@ functionExp: OID LRPAR collectionIterator RRPAR
 	}
 	| JPEG LRPAR generalExp  RRPAR
 	{
-	  $$ = new QtConversion( $3, QtConversion::QT_TOJPEG );
+	  std::string format{"JPEG"};
+	  $$ = new QtConversion( $3, QtConversion::QT_TOGDAL, format, NULL );
 	  $$->setParseInfo( *($1.info) );
 	  parseQueryTree->removeDynamicObject( $3 );
 	  parseQueryTree->addDynamicObject( $$ );
@@ -1850,7 +1854,8 @@ functionExp: OID LRPAR collectionIterator RRPAR
 	}
 	| PNG LRPAR generalExp COMMA StringLit RRPAR
 	{
-	  $$ = new QtConversion( $3, QtConversion::QT_TOPNG, $5.value );
+	  std::string format{"PNG"};
+	  $$ = new QtConversion( $3, QtConversion::QT_TOGDAL, format, $5.value );
 	  $$->setParseInfo( *($1.info) );
 	  parseQueryTree->removeDynamicObject( $3 );
 	  parseQueryTree->addDynamicObject( $$ );
@@ -1861,49 +1866,8 @@ functionExp: OID LRPAR collectionIterator RRPAR
 	}
 	| PNG LRPAR generalExp  RRPAR
 	{
-	  $$ = new QtConversion( $3, QtConversion::QT_TOPNG );
-	  $$->setParseInfo( *($1.info) );
-	  parseQueryTree->removeDynamicObject( $3 );
-	  parseQueryTree->addDynamicObject( $$ );
-	  FREESTACK($1)
-	  FREESTACK($2)
-	  FREESTACK($4)
-	}	
-	| VFF LRPAR generalExp COMMA StringLit RRPAR
-	{
-	  $$ = new QtConversion( $3, QtConversion::QT_TOVFF, $5.value );
-	  $$->setParseInfo( *($1.info) );
-	  parseQueryTree->removeDynamicObject( $3 );
-	  parseQueryTree->addDynamicObject( $$ );
-	  FREESTACK($1)
-	  FREESTACK($2)
-	  FREESTACK($4)
-	  FREESTACK($6)
-	}
-	| VFF LRPAR generalExp  RRPAR
-	{
-	  $$ = new QtConversion( $3, QtConversion::QT_TOVFF );
-	  $$->setParseInfo( *($1.info) );
-	  parseQueryTree->removeDynamicObject( $3 );
-	  parseQueryTree->addDynamicObject( $$ );
-	  FREESTACK($1)
-	  FREESTACK($2)
-	  FREESTACK($4)
-	}
-	| TOR LRPAR generalExp COMMA StringLit RRPAR
-	{
-	  $$ = new QtConversion( $3, QtConversion::QT_TOTOR, $5.value );
-	  $$->setParseInfo( *($1.info) );
-	  parseQueryTree->removeDynamicObject( $3 );
-	  parseQueryTree->addDynamicObject( $$ );
-	  FREESTACK($1)
-	  FREESTACK($2)
-	  FREESTACK($4)
-	  FREESTACK($6)
-	}
-	| TOR LRPAR generalExp  RRPAR
-	{
-	  $$ = new QtConversion( $3, QtConversion::QT_TOTOR );
+	  std::string format{"PNG"};
+	  $$ = new QtConversion( $3, QtConversion::QT_TOGDAL, format, NULL );
 	  $$->setParseInfo( *($1.info) );
 	  parseQueryTree->removeDynamicObject( $3 );
 	  parseQueryTree->addDynamicObject( $$ );
@@ -1976,7 +1940,8 @@ functionExp: OID LRPAR collectionIterator RRPAR
 	}
 	| INV_BMP LRPAR generalExp COMMA StringLit RRPAR
 	{
-	  $$ = new QtConversion( $3, QtConversion::QT_FROMBMP, $5.value );
+	  std::string format{"BMP"};
+	  $$ = new QtConversion( $3, QtConversion::QT_FROMGDAL, format, $5.value );
 	  $$->setParseInfo( *($1.info) );
 	  parseQueryTree->removeDynamicObject( $3 );
 	  parseQueryTree->addDynamicObject( $$ );
@@ -1987,7 +1952,8 @@ functionExp: OID LRPAR collectionIterator RRPAR
 	}
 	| INV_BMP LRPAR generalExp  RRPAR
 	{
-	  $$ = new QtConversion( $3, QtConversion::QT_FROMBMP );
+	  std::string format{"BMP"};
+	  $$ = new QtConversion( $3, QtConversion::QT_FROMGDAL, format, NULL );
 	  $$->setParseInfo( *($1.info) );
 	  parseQueryTree->removeDynamicObject( $3 );
 	  parseQueryTree->addDynamicObject( $$ );
@@ -2039,7 +2005,8 @@ functionExp: OID LRPAR collectionIterator RRPAR
 	}
 	| INV_JPEG LRPAR generalExp COMMA StringLit RRPAR
 	{
-	  $$ = new QtConversion( $3, QtConversion::QT_FROMJPEG, $5.value );
+	  std::string format{"JPEG"};
+	  $$ = new QtConversion( $3, QtConversion::QT_FROMGDAL, format, $5.value );
 	  $$->setParseInfo( *($1.info) );
 	  parseQueryTree->removeDynamicObject( $3 );
 	  parseQueryTree->addDynamicObject( $$ );
@@ -2050,7 +2017,8 @@ functionExp: OID LRPAR collectionIterator RRPAR
 	}
 	| INV_JPEG LRPAR generalExp  RRPAR
 	{
-	  $$ = new QtConversion( $3, QtConversion::QT_FROMJPEG );
+	  std::string format{"JPEG"};
+	  $$ = new QtConversion( $3, QtConversion::QT_FROMGDAL, format, NULL );
 	  $$->setParseInfo( *($1.info) );
 	  parseQueryTree->removeDynamicObject( $3 );
 	  parseQueryTree->addDynamicObject( $$ );
@@ -2060,7 +2028,8 @@ functionExp: OID LRPAR collectionIterator RRPAR
 	}
 	| INV_PNG LRPAR generalExp COMMA StringLit RRPAR
 	{
-	  $$ = new QtConversion( $3, QtConversion::QT_FROMPNG, $5.value );
+	  std::string format{"PNG"};
+	  $$ = new QtConversion( $3, QtConversion::QT_FROMGDAL, format, $5.value );
 	  $$->setParseInfo( *($1.info) );
 	  parseQueryTree->removeDynamicObject( $3 );
 	  parseQueryTree->addDynamicObject( $$ );
@@ -2071,49 +2040,8 @@ functionExp: OID LRPAR collectionIterator RRPAR
 	}
 	| INV_PNG LRPAR generalExp  RRPAR
 	{
-	  $$ = new QtConversion( $3, QtConversion::QT_FROMPNG );
-	  $$->setParseInfo( *($1.info) );
-	  parseQueryTree->removeDynamicObject( $3 );
-	  parseQueryTree->addDynamicObject( $$ );
-	  FREESTACK($1)
-	  FREESTACK($2)
-	  FREESTACK($4)
-	}	
-	| INV_VFF LRPAR generalExp COMMA StringLit RRPAR
-	{
-	  $$ = new QtConversion( $3, QtConversion::QT_FROMVFF, $5.value );
-	  $$->setParseInfo( *($1.info) );
-	  parseQueryTree->removeDynamicObject( $3 );
-	  parseQueryTree->addDynamicObject( $$ );
-	  FREESTACK($1)
-	  FREESTACK($2)
-	  FREESTACK($4)
-	  FREESTACK($6)
-	}
-	| INV_VFF LRPAR generalExp  RRPAR
-	{
-	  $$ = new QtConversion( $3, QtConversion::QT_FROMVFF );
-	  $$->setParseInfo( *($1.info) );
-	  parseQueryTree->removeDynamicObject( $3 );
-	  parseQueryTree->addDynamicObject( $$ );
-	  FREESTACK($1)
-	  FREESTACK($2)
-	  FREESTACK($4)
-	}
-	| INV_TOR LRPAR generalExp COMMA StringLit RRPAR
-	{
-	  $$ = new QtConversion( $3, QtConversion::QT_FROMTOR, $5.value );
-	  $$->setParseInfo( *($1.info) );
-	  parseQueryTree->removeDynamicObject( $3 );
-	  parseQueryTree->addDynamicObject( $$ );
-	  FREESTACK($1)
-	  FREESTACK($2)
-	  FREESTACK($4)
-	  FREESTACK($6)
-	}
-	| INV_TOR LRPAR generalExp  RRPAR
-	{
-	  $$ = new QtConversion( $3, QtConversion::QT_FROMTOR );
+	  std::string format{"PNG"};
+	  $$ = new QtConversion( $3, QtConversion::QT_FROMGDAL, format, NULL );
 	  $$->setParseInfo( *($1.info) );
 	  parseQueryTree->removeDynamicObject( $3 );
 	  parseQueryTree->addDynamicObject( $$ );

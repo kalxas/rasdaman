@@ -41,8 +41,12 @@ rasdaman GmbH.
 
 #include <json/json.h>
 #include <stdio.h>
-#include <map>
+#include <unordered_map>
 #include <string>
+
+#ifdef HAVE_GRIB
+#include <grib_api.h>
+#endif
 
 //@ManMemo: Module {\bf conversion}
 
@@ -72,18 +76,42 @@ public:
     virtual r_Data_Format get_data_format(void) const;
 
 private:
-
+    
+#ifdef HAVE_GRIB
+    
     /// parse the options to a JSON object
-    Json::Value parseOptions(const char* options) throw (r_Error);
+    Json::Value getMessageDomainsJson(const std::string& options) throw (r_Error);
     
     /// get a handle to the GRIB file
     FILE* getFileHandle() throw (r_Error);
     
     /// collect the message ids from the format parameters
-    std::map<int, r_Minterval> getMessageDomainsMap(const Json::Value& messageDomains) throw (r_Error);
+    std::unordered_map<int, r_Minterval> getMessageDomainsMap(const Json::Value& messageDomains) throw (r_Error);
     
     /// compute final bounding box from all message domains
-    r_Minterval computeBoundingBox(const std::map<int, r_Minterval>& messageDomains) throw (r_Error);
+    r_Minterval computeBoundingBox(const std::unordered_map<int, r_Minterval>& messageDomains) throw (r_Error);
+    
+    /// set the target domain of the decode result
+    void setTargetDomain(const r_Minterval& fullBoundingBox) throw (r_Error);
+    
+    /// set the target data and type of the decode result
+    void setTargetDataAndType() throw (r_Error);
+    
+    /// check if the message bounds correspond to the bounds given by the format parameters
+    void validateMessageDomain(FILE* in, grib_handle* h, int messageIndex, 
+                               r_Range messageWidth, r_Range messageHeight, size_t messageArea) throw (r_Error);
+    
+    /**
+     * Convert a subset of a GRIB message to the right sliceOffset in the rasddaman
+     * nD array.
+     * 
+     * @param messageData the message values array
+     * @param messageDomain domain of the whole message
+     * @param targetDomain domain of the subset of the message
+     * @param subsetOffset offset in the nD rasdaman array
+     */
+    void decodeSubset(char* messageData, r_Minterval messageDomain, r_Minterval targetDomain, 
+                      size_t subsetOffset, r_Range subsetWidth, r_Range subsetHeight, size_t subsetArea);
     
     /// get an r_Minterval object for domain in string representation
     r_Minterval domainStringToMinterval(const  char* domain) throw (r_Error);
@@ -96,6 +124,11 @@ private:
     
     /// return the offset in bytes of messageDomain within domain
     size_t getSliceOffset(const r_Minterval& domain, const r_Minterval& messageDomain, size_t xyLen);
+    
+    bool subsetSpecified;
+    
+#endif // HAVE_GRIB
+    
 };
 
 #endif

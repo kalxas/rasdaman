@@ -42,25 +42,6 @@ rasdaman GmbH.
 
 /*@Doc:
   HDF convertor class.
-
-  Supported parameters are
-
-  \begin{tabular}{lcl}
-  comptype && string && the compression type to use (see below)\\
-  quality && int && quality parameter for JPEG compression\\
-  skiphuff && int && skipping parameter for Huffman coding\\
-  \end{tabular}
-
-  The compression type defaults to deflate but may be one of the
-  following
-
-  \begin{tabular}{ll}
-  none && no compression\\
-  rle && Run Length Coding\\
-  huffman && Huffman coding\\
-  deflate && ZIP deflate\\
-  \end{tabular}
-
 */
 class r_Conv_HDF : public r_Convertor
 {

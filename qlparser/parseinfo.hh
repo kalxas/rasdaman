@@ -23,11 +23,7 @@ rasdaman GmbH.
 #ifndef _PARSEINFO_
 #define _PARSEINFO_
 
-#ifndef CPPSTDLIB
-#include <ospace/string.h> // STL<ToolKit>
-#else
 #include <string>
-#endif
 
 /*************************************************************
  *

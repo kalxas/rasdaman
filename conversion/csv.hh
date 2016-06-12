@@ -45,25 +45,6 @@ rasdaman GmbH.
 
 /*@Doc:
   CSV convertor class.
-
-  Supported parameters are
-
-  \begin{tabular}{lcl}
-  comptype && string && the compression type to use (see below)\\
-  quality && int && quality parameter for JPEG compression\\
-  skiphuff && int && skipping parameter for Huffman coding\\
-  \end{tabular}
-
-  The compression type defaults to deflate but may be one of the
-  following
-
-  \begin{tabular}{ll}
-  none && no compression\\
-  rle && Run Length Coding\\
-  huffman && Huffman coding\\
-  deflate && ZIP deflate\\
-  \end{tabular}
-
 */
 class r_Conv_CSV : public r_Convertor
 {
@@ -111,7 +92,8 @@ private:
     void printArray(std::stringstream &f, int *dims, size_t *offsets, int dim, const char *val,
         const r_Base_Type &type);
 
-    void processOptions(const char *options);
+    void processEncodeOptions(const std::string& options);
+    void processDecodeOptions(const std::string& options);
 
     void addStructElem(char** dest, r_Structure_Type &st, std::istringstream &str );
 
@@ -127,8 +109,8 @@ private:
     void constructDest(const r_Base_Type& type, unsigned int numElem);
 
     Order order;
-    char* basetype;
-    char* domain;
+    std::string basetype;
+    std::string domain;
 };
 
 /// Description of constructPrimitive - Construct desc.dest when the type of the array

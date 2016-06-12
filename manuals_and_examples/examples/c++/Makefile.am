@@ -21,7 +21,7 @@
 # or contact Peter Baumann via <baumann@rasdaman.com>.
 #
 # MAKEFILE FOR:
-#   insertppm query
+#   query
 #
 #
 # COMMENTS:
@@ -32,13 +32,7 @@
 AM_CXXFLAGS= @AM_CXXFLAGS@ -w @CLIENTCXXFLAGS@ -DLINUX -DEARLY_TEMPLATE -DONCRPC -DDEBUG
 AM_LDFLAGS= @CLIENTLDFLAGS@
 
-bin_PROGRAMS = insertppm query
-
-insertppm_SOURCES = insertppm.cc
-insertppm_LDADD = ../../../rasodmg/librasodmg.a ../../../clientcomm/libclientcomm.a \
-        ../../../raslib/libraslib.a \
-        ../../../conversion/libconversion.a ../../../network/libnetwork.a ../../../commline/libcommline.a \
-         -lnetpbm -ljpeg -lpng -ltiff -lcrypto -lm -lz
+bin_PROGRAMS = query
 
 query_SOURCES = query.cc
 query_LDADD = ../../../rasodmg/librasodmg.a ../../../clientcomm/libclientcomm.a \

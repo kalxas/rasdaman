@@ -36,9 +36,12 @@ do
   sed -i '/<ows:HTTP>/,/<\/ows:HTTP>/d' "$file"
 done
 
-diff -b "$out".tmp "$oracle".tmp > /dev/null 2>&1
+sort "$out".tmp > "$out".tmp2
+sort "$oracle".tmp > "$oracle".tmp2
+
+diff -b "$out".tmp2 "$oracle".tmp2 > /dev/null 2>&1
 rc=$?
-cp "$out".tmp "$out" # for post-test manual verifications
-rm -f "$out".tmp "$oracle".tmp
+cp "$out".tmp2 "$out" # for post-test manual verifications
+rm -f "$out".tmp* "$oracle".tmp*
 
 exit $rc

@@ -35,10 +35,12 @@ do
   sed -i 's/<\(wcs:\)\?formatSupported>.*<\/\(wcs:\)\?formatSupported>/%formatSupported%/g' "$file" # it's a Set in Java, order is not fixed.
   sed -i '/<ows:HTTP>/,/<\/ows:HTTP>/d' "$file"
 done
+sort "$out".tmp > "$out".tmp2
+sort "$oracle".tmp > "$oracle".tmp2
 
-diff -b "$out".tmp "$oracle".tmp > /dev/null 2>&1
+diff -b "$out".tmp2 "$oracle".tmp2 > /dev/null 2>&1
 rc=$?
 cp "$out".tmp "$out" # for post-test manual verifications
-rm -f "$out".tmp "$oracle".tmp
+rm -f "$out".tmp* "$oracle".tmp*
 
 exit $rc

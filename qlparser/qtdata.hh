@@ -1,18 +1,3 @@
-#ifndef _QTDATA_
-#define _QTDATA_
-
-#include <iostream>
-
-#include "qlparser/parseinfo.hh"
-#include "raslib/rminit.hh"
-#include "catalogmgr/nullvalues.hh"
-
-#ifndef CPPSTDLIB
-#include <ospace/string.h> // STL<ToolKit>
-#else
-#include <string>
-#endif
-
 /*
 * This file is part of rasdaman community.
 *
@@ -35,6 +20,17 @@ rasdaman GmbH.
 * For more information please see <http://www.rasdaman.org>
 * or contact Peter Baumann via <baumann@rasdaman.com>.
 */
+#ifndef _QTDATA_
+#define _QTDATA_
+
+#include <iostream>
+
+#include "qlparser/parseinfo.hh"
+#include "raslib/rminit.hh"
+#include "catalogmgr/nullvalues.hh"
+
+#include <string>
+
 /*************************************************************
  *
  *

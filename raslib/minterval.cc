@@ -985,6 +985,26 @@ r_Minterval::delete_dimension(r_Dimension dim) throw(r_Eindex_violation)
     intervals = newIntervals;
 }
 
+void r_Minterval::transpose( r_Dimension a, r_Dimension b ) throw( r_Eindex_violation )
+{
+    if (a >= dimensionality)
+    {
+        LFATAL << "dimension " << a << " is out of range (" << dimensionality << ")";
+        throw r_Eindex_violation(0, dimensionality-1, a);
+    }
+    if (b >= dimensionality)
+    {
+        LFATAL << "dimension " << b << " is out of range (" << dimensionality << ")";
+        throw r_Eindex_violation(0, dimensionality-1, b);
+    }
+    if (a != b)
+    {
+        r_Sinterval tmp = intervals[a];
+        intervals[a] = intervals[b];
+        intervals[b] = tmp;
+    }
+}
+
 r_Bytes
 r_Minterval::get_storage_size() const
 {

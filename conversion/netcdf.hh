@@ -92,13 +92,18 @@ private:
     /**
      * Read data from tmpFile into desc.dest and return the file size.
      */
-    void parseDecodeOptions(const char* options) throw (r_Error);
+    void parseDecodeOptions(const std::string& options) throw (r_Error);
     
     void validateDecodeOptions(const NcFile& dataFile) throw (r_Error);
     
-    void parseEncodeOptions(const char* options) throw (r_Error);
+    void parseEncodeOptions(const std::string& options) throw (r_Error);
     
     void validateJsonEncodeOptions() throw (r_Error);
+    
+    /**
+     * read single variable data
+     */
+    void readDimSizes(const NcFile &dataFile) throw (r_Error);
     
     /**
      * read single variable data
@@ -118,15 +123,16 @@ private:
     
     /**
      * read struct variable data
+     * 
+     * @param bandOffset offset bytes at the current variable.
      */
     template <class T>
-    void readDataStruct(NcVar *var, long* dimSizes, size_t dataSize, 
-                        size_t structSize, size_t &offset) throw (r_Error);
+    void readDataStruct(NcVar *var, size_t structSize, size_t &bandOffset) throw (r_Error);
     
     /**
      * Build struct type
      */
-    std::unique_ptr<long[]> buildStructType(const NcFile &dataFile, size_t& dataSize, size_t& structSize, int& numDims) throw (r_Error);
+    size_t buildStructType(const NcFile &dataFile) throw (r_Error);
     
     /**
      * Get a rasdaman type from a netcdf variable type.
@@ -136,14 +142,12 @@ private:
     /**
      * write single variable data
      */
-    void writeSingleVar(NcFile &dataFile, int dimNo, 
-                        const NcDim** dims, long* dimSizes, size_t dataSize) throw (r_Error);
+    void writeSingleVar(NcFile &dataFile, const NcDim** dims) throw (r_Error);
     
     /**
      * write multiple variables from a struct
      */
-    void writeMultipleVars(NcFile &dataFile, int dimNo, 
-                           const NcDim** dims, long* dimSizes, size_t dataSize) throw (r_Error);
+    void writeMultipleVars(NcFile &dataFile, const NcDim** dims) throw (r_Error);
     
     /**
      * write extra metadata (specified by json parameters)
@@ -172,16 +176,16 @@ private:
      * valid_min/valid_max attributes to describe the range.
      */
     template <class S, class T>
-    void writeData(NcFile &dataFile, std::string& varName, int dimNo, const NcDim** dims, long* dimSizes, 
-                   size_t dataSize, NcType ncType, long validMin, long validMax,
-                   const char* missingValue = NULL) throw (r_Error);
+    void writeData(NcFile &dataFile, std::string& varName, const NcDim** dims, NcType ncType, 
+                   long validMin, long validMax, const char* missingValue = NULL) throw (r_Error);
     
     /**
      * write struct variable data
+     * 
+     * @param bandOffset offset bytes in the rasdaman struct at the current variable.
      */
     template <class S, class T>
-    void writeDataStruct(NcFile &dataFile, std::string& varName, int dimNo, const NcDim** dims, long* dimSizes, 
-                         size_t dataSize, size_t structSize, size_t offset, NcType ncType, 
+    void writeDataStruct(NcFile &dataFile, std::string& varName, const NcDim** dims, size_t structSize, size_t bandOffset, NcType ncType, 
                          long validMin, long validMax, const char* missingValue = NULL) throw (r_Error);
     
     /**
@@ -205,23 +209,18 @@ private:
     
     Json::Value encodeOptions;
     
-    
+    size_t numDims;
+    size_t dataSize;
+    std::vector<long> dimSizes;
+    std::vector<long> dimOffsets;
 
-    static const char* DEFAULT_VAR;
-    static const char* DEFAULT_DIM_NAME_PREFIX;
-    static const char* VAR_SEPARATOR_STR;
-    static const char* VARS_KEY;
-    static const char* VALID_MIN;
-    static const char* VALID_MAX;
-    static const char* MISSING_VALUE;
-    
-    static const char* JSON_KEY_DIMS;
-    static const char* JSON_KEY_VARS;
-    static const char* JSON_KEY_GLOBAL;
-    static const char* JSON_KEY_NAME;
-    static const char* JSON_KEY_DATA;
-    static const char* JSON_KEY_METADATA;
-    static const char* JSON_KEY_TYPE;
+    static const std::string DEFAULT_VAR;
+    static const std::string DEFAULT_DIM_NAME_PREFIX;
+    static const std::string VAR_SEPARATOR_STR;
+    static const std::string VARS_KEY;
+    static const std::string VALID_MIN;
+    static const std::string VALID_MAX;
+    static const std::string MISSING_VALUE;
 };
 
 #endif
