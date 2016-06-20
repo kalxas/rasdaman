@@ -64,13 +64,13 @@
       <name>Ellipsoidal 2D CS. Axes: latitude, longitude. Orientations: north, east. UoM: degree</name>
       <remarks>Coordinates referenced to this CS are in degrees. Any degree representation (e.g. DMSH, decimal, etc.) may be used but that used must be declared for the user by the supplier of data. Used in geographic 2D coordinate reference systems.</remarks>
       <axis>
-        <CoordinateSystemAxis id="epsg-axis-106" uom="/uom/EPSG/0/9122">
+        <CoordinateSystemAxis id="epsg-axis-106" uom="/uom/EPSG/8.5/9122">
           <axisAbbrev>Lat</axisAbbrev>
           <axisDirection codeSpace="EPSG">north</axisDirection>
         </CoordinateSystemAxis>
       </axis>
       <axis>
-        <CoordinateSystemAxis id="epsg-axis-107" uom="/uom/EPSG/0/9122">
+        <CoordinateSystemAxis id="epsg-axis-107" uom="/uom/EPSG/8.5/9122">
           <axisAbbrev>Long</axisAbbrev>
           <axisDirection codeSpace="EPSG">east</axisDirection>
         </CoordinateSystemAxis>
@@ -82,8 +82,8 @@
       <metaDataProperty>
         <epsg:CommonMetaData>
           <epsg:type>geodetic</epsg:type>
-          <epsg:alias code="332" codeSpace="/naming-system/EPSG/0/7302" alias="WGS 84"/>
-          <epsg:informationSource>NIMA TR8350.2 June 2004 revision. http://earth-info.nga.mil/GandG/publications/tr8350.2/tr8350_2.html and
+          <epsg:alias code="332" codeSpace="/naming-system/EPSG/8.5/7302" alias="WGS 84"/>
+          <epsg:informationSource>NIMA TR8350.2 June 2004 revision. http://earth-info.nga.mil/GandG/publications/tr8350.2/tr8350_2.html and 
 http://gis-lab.info/docs/nima-tr8350.2-addendum.pdf</epsg:informationSource>
           <epsg:revisionDate>2013-06-15</epsg:revisionDate>
           <epsg:changes>
@@ -140,14 +140,14 @@ http://gis-lab.info/docs/nima-tr8350.2-addendum.pdf</epsg:informationSource>
             </epsg:CommonMetaData>
           </metaDataProperty>
           <name>Greenwich</name>
-          <greenwichLongitude uom="/uom/EPSG/0/9102">9.0</greenwichLongitude>
+          <greenwichLongitude uom="/uom/EPSG/8.5/9102">9.0</greenwichLongitude>
         </PrimeMeridian>
       </primeMeridian>
       <ellipsoid>
         <Ellipsoid id="epsg-ellipsoid-7030">
           <metaDataProperty>
             <epsg:CommonMetaData>
-              <epsg:alias alias="WGS84" code="67" codeSpace="/naming-system/EPSG/0/7301"/>
+              <epsg:alias alias="WGS84" code="67" codeSpace="/naming-system/EPSG/8.5/7301"/>
               <epsg:informationSource>DMA Technical Manual 8350.2-B</epsg:informationSource>
               <epsg:revisionDate>1998-11-11</epsg:revisionDate>
               <epsg:changes>
@@ -157,10 +157,10 @@ http://gis-lab.info/docs/nima-tr8350.2-addendum.pdf</epsg:informationSource>
           </metaDataProperty>
           <name>WGS 84</name>
           <remarks>Inverse flattening derived from four defining parameters (semi-major axis; C20 = -484.16685*10e-6; earth's angular velocity w = 7292115e11 rad/sec; gravitational constant GM = 3986005e8 m*m*m/s/s).</remarks>
-          <semiMajorAxis uom="/uom/EPSG/0/9001">6378137</semiMajorAxis>
+          <semiMajorAxis uom="/uom/EPSG/8.5/9001">6378137</semiMajorAxis>
           <secondDefiningParameter>
             <SecondDefiningParameter>
-              <inverseFlattening uom="/uom/EPSG/0/9201">298.257223563</inverseFlattening>
+              <inverseFlattening uom="/uom/EPSG/8.5/9201">298.257223563</inverseFlattening>
             </SecondDefiningParameter>
           </secondDefiningParameter>
         </Ellipsoid>

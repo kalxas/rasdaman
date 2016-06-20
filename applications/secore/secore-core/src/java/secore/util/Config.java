@@ -64,6 +64,8 @@ public class Config {
   // singleton
   private static Config instance;
   private static Properties props;
+  
+  public static String configDir;
 
   private Config() {
     // setup logging
@@ -81,8 +83,17 @@ public class Config {
     props = new Properties();
     InputStream is = null;
     try {
-      is = new FileInputStream(IOUtil.findFile(CONF_FILE));
+      File configFile = IOUtil.findFile(CONF_FILE);
+      is = new FileInputStream(configFile);
       props.load(is);
+      
+      // Set the absolute to the etc/ directory for using later.
+      String configFilePath = configFile.getAbsolutePath();
+      log.debug("config file path: " + configFilePath);
+      // it is set to ../etc/
+      configDir = configFilePath.substring(0, configFilePath.lastIndexOf("/") + 1);
+      log.debug("config directory path: " + configDir);
+      
     } catch (IOException ex) {
       log.error("Failed loading settings", ex);
       throw new RuntimeException("Failed loading settings", ex);
@@ -126,6 +137,7 @@ public class Config {
     return get(PASSWORD_KEY);
   }
 
+  // e.g: etc/gml (need to load all EPSG database folders here), default is 8.5
   public String getGmlDefPath() {
     String ret = get(GML_DEF_KEY);
     if (ret != null && !ret.endsWith(File.separator)) {

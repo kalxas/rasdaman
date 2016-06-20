@@ -215,7 +215,8 @@ public class GeneralHandlerTest extends BaseTest {
   public void testDuplicateGmlIdentifierInAreaDefinition() throws Exception {
     System.out.println("Test invalid area definition.");
     String url = "EPSG/0/1283";
-    String data = SecoreUtil.queryDef(url, true, false, false);
+    String versionNumber = DbManager.FIX_GML_VERSION_NUMBER;
+    String data = SecoreUtil.queryDef(url, true, false, false, versionNumber);
     String lastElement = data.substring(data.length() - 17);
 
     // If data last 18 characters contains "AreaOfUse" then it is error, it should be "ExtentDefinition>"

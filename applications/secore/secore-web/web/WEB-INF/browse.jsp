@@ -19,7 +19,10 @@
  * For more information please see <http://www.rasdaman.org>
  * or contact Peter Baumann via <baumann@rasdaman.com>.
 --%>
-<%-- 
+<%@page import="secore.db.DbKeyValue"%>
+<%@page import="java.util.ArrayList"%>
+<%@page import="java.util.List"%>
+<%--
     Document   : browse
     Created on : Dec 21, 2011, 10:06:30 AM
     Author     : Mihaela Rusu, Dimitar Misev
@@ -78,10 +81,10 @@
 </script>
 
 
-<html>  
+<html>
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-    <title>Browse</title>
+    <title>SECORE - Browse Definitions Page</title>
 
   </head>
   <body>
@@ -89,12 +92,50 @@
 
     <%
 
+      // NOTE: It only allow to add/update/delete definition on userdb (User Dictionary)
+      // Then it will not change in GML Dictionary versions.
+      String versionNumber = DbManager.FIX_GML_VERSION_NUMBER;
+
       // NOTE: If not ?add=true then need to load any entries in list (and handle up one level when add new definition also)
       String toadd = request.getParameter("add");
 
       // Future work: assure a smooth transition between URNs and URLs for the new identifiers
       String url = (String) request.getAttribute("url");
+      // return the string without first "/", e.g: def/crs/EPSG/
       String defURL = url.substring(url.lastIndexOf("def"));
+
+      // when use with browse page, the URL is followed by URN format with maximum 4 parameters (/def/crs/EPSG/0/4326).
+      // try if request URI has the version number value
+      String urlTmp = "";
+      String[] tmp = defURL.split("/");
+
+      // NOTE: in case of version number is missing but has authorityName (e.g: /def/crs/EPSG), it need to load all the versions
+      // e.g: http://localhost:8088/def/crs/EPSG/8.5/browse.jsp
+      //      http://localhost:8088/def/crs/EPSG/8.6/browse.jsp
+      boolean isShowAllVersions = false;
+
+      // Normally, only add definition to userdb, only when request to a definition from userdb, the button will be changed to update
+      boolean isAddOnUserDB = true;
+
+      if(tmp.length > 3) {
+        versionNumber = tmp[3];
+        
+        // then create a urlTmp with versionNumber will be changed later when query in user and gml dictionaries.
+        // due to before both User and Gml dictionaries were used version "0".
+        tmp[3] = Constants.VERSION_NUMBER;
+        for(int i = 0; i < tmp.length; i++) {
+          urlTmp += tmp[i] + "/";
+        }
+
+      } else {
+        // if URI don't have *versionNumber* then it is as same as url (/def/crs/EPSG/)
+        urlTmp = url;
+
+        if(tmp.length == 3) {
+          isShowAllVersions = true;
+        }
+      }
+
 
       // -------------------------------- Page Header --------------------------------
       // ------ Go to index.jsp -----
@@ -130,14 +171,45 @@
       // Check if not ?add = true then load all the entries of list
       if (toadd == null) {
 
-        result = SecoreUtil.queryDef(url, false, true, true);
+        // Query all the definition which contains the id.
+        List<String> versionNumbers = new ArrayList<String>();
+        // if the version number is specific then just query with this version.
+        if(isShowAllVersions == false) {
+          versionNumbers.add(versionNumber);
+        } else {
+          // if ther version number is not specific then query all the versions
+          // e.g(8.5, gml_85)
+          for(DbKeyValue coll: DbManager.collections.keySet()) {
+            if(!coll.getValue().equals(DbManager.USER_DB)) {
+              // Only add the gml dictionary version numbers.
+              versionNumbers.add(coll.getKey());
+            }
+          }
+        }
+
+        // Query with all the needed GML version numbers.
+        for(String verNum: versionNumbers) {
+          result += SecoreUtil.queryDef(urlTmp, false, true, true, verNum);
+        }
 
         // Note: if it is max level of URN then it will change to view definition instead of entries list
         // sort elements at this level in a tree set
-        Set<Pair<String, Boolean>> res = SecoreUtil.sortElements(url, result);
+        Set<Pair<String, Boolean>> res = SecoreUtil.sortElements(urlTmp, versionNumber, result);
         // If res is Empty mean this is max level of entries then go to view definition detail
         if (res.isEmpty()) {
-          result = SecoreUtil.queryDef(url, true, false, false);
+          // NOTE: the definition can be from userdb or gml_*
+          // Because of user can insert a definition /def/crs/EPSG/0/2000 into userdb
+          // and it support backwards with /def/crs/EPSG/0/2000 as gmldb in /def/crs/EPSG/8.5/2000
+          // then in this case if userdb has this id (/crs/EPSG/0/2000) then it will show its definition, otherwise show the original from gml_db.
+          String retUserDB = SecoreUtil.queryDef(urlTmp, true, true, false, versionNumber);
+          if(!retUserDB.equals(Constants.EMPTY_XML)) {
+            // Get definition from userdb
+            result = retUserDB;
+          } else {
+            // Get definition from gml_db*
+            result = SecoreUtil.queryDef(urlTmp, true, false, true, versionNumber);
+            isAddOnUserDB = false;
+          }
 
           // This mean definition has been deleted and does not exist in DB then go to upper level (Use when user delete a parent entry)
           // NOTE: if countSeperator = 1 (def/) then don't need to go upper as it is root entry
@@ -200,40 +272,55 @@
             // assum definition is valid then check it does exist in DB.
             // Should check newUrl does exist in userDictionary or GmlDictionary or does not exist in both (return error)
             String retUser = Constants.EMPTY;
-            String retEPSG = Constants.EMPTY;
-            String db = Constants.EMPTY; // to updateQuery with right DB
+            String db = DbManager.USER_DB; // to updateQuery with the userdb
 
-            retUser = SecoreUtil.queryDef(newUrl, true, true, false);
-            // If it is exist in userDictionary then it should not be in GmlDictionary
-            if (!retUser.equals(Constants.EMPTY_XML)) {
-              db = DbManager.USER_DB;
-            } else // try to check it is exist in EPSG
-            {
-              retEPSG = SecoreUtil.queryDef(newUrl, true, false, true);
-              if (!retEPSG.equals(Constants.EMPTY_XML)) {
-                db = DbManager.EPSG_DB;
-              }
-            }
+            // Check if the identifier does exist in userdb, if not then insert else update.
+            retUser = SecoreUtil.queryDef(newUrl, true, true, false, versionNumber);
 
-            // If identifier does not exist in User, Gml Dictionary then it is not valid to update
-            if (db.equals(Constants.EMPTY)) {
-              errorUpdate = "<span style='color:red;'>GML identifier does not exist in "
-                  + DbManager.USER_DB + " or " + DbManager.EPSG_DB + " dictionaries. The database remains unchanged.</span><br/><br/>";
+            String error = Constants.EMPTY;
+            boolean isInsert = true;
+
+            // get gml:identifier to check that user is used the correct version of userdb for definition
+            String identifierUri = StringUtil.getElementValue(mod, Constants.IDENTIFIER_LABEL);
+            //e.g: 8.5
+            String identifierVersionNumber = StringUtil.getVersionNumber(identifierUri);
+
+            if(!StringUtil.isValidIdentifierURI(identifierUri)) {
+              errorUpdate = "<span style='color:red'>GML Identifier URI: <b> $URI </b> is not valid.</span><br/>";
+              errorUpdate = errorUpdate.replace("$URI", identifierUri);
+            } else if(!identifierVersionNumber.equals(DbManager.FIX_USER_VERSION_NUMBER)) {
+              // NOTE: it can only add/update with the versionNumber of userDB (e.g: 0)
+              // not: http://localhost:8080/def/crs/EPSG/8.5/4326
+              errorUpdate = "<span style='color:red'>GML Identifier URI: <b> $URI </b> <br/> with version <b>: $versionNumber </b>"
+                           + " is not valid (must use current userdb version: <b> $userDBVersion </b>).</span><br/>";
+              errorUpdate = errorUpdate.replace("$URI", identifierUri)
+                                       .replace("$versionNumber", identifierVersionNumber)
+                                       .replace("$userDBVersion", DbManager.FIX_USER_VERSION_NUMBER);
             } else {
-              String error = Constants.EMPTY;
-              // NOTE: If definition does exist in User Dictionary then go and update normally (only change anything inside User Dictionary)
-              if (db.equals(DbManager.USER_DB)) {
+              // the GML Identifier is correct can add/update in userdb
+              // If it does exist in userDictionary then should update it
+              if (!retUser.equals(Constants.EMPTY_XML)) {
                 error = SecoreUtil.updateDef(mod, newUrl, db);
+                isInsert = false;
               } else {
-                // If definition does exist in Gml Dictionary but not in User Dictionary then *have to* add it (don't update to Gml Dictionary)
+                // or insert to userDictionary
                 error = SecoreUtil.insertDef(mod, newUrl);
               }
+
+              // Check if update/insert sucessfully
               if (error.equals(Constants.EMPTY)) {
-                errorUpdate = "<span style='font-size:large; color:green;'>The database has been updated successfully.</span><br/><br/>";
+                // return success
+                errorUpdate = "<span style='font-size:large; color:green;'>The definiton has been <u>$MODIFICATION</u>. The database has been updated successfully.</span><br/><br/>";
+                if(isInsert) {
+                  errorUpdate = errorUpdate.replace("$MODIFICATION", "inserted");
+                } else {
+                  errorUpdate = errorUpdate.replace("$MODIFICATION", "updated");
+                }
               } else {
+                // return error
                 errorUpdate = "<span style='color:red;'>Error: " + error + " when update, see log file for more detail. The database remains unchanged.</span><br/><br/>";
               }
-            } // end check GML Identifier exist in User or Gml Dictionaries
+            }  // end check identifier has correct userdb version number
           } // end check newURL is null
         } else {
           errorUpdate = "<span style='color:red'>Empty definition submitted. The database remains unchanged.<span><br/>";
@@ -256,9 +343,18 @@
 
     <form action="<%=url + Constants.ADMIN_FILE + "?update=true"%>" method="post" name="gmlform">
       <textarea cols="150" rows="25" name="changedef" wrap="virtual"><%=mod%></textarea><br/>
-      <span style="color: blue">Note: you should check definition valid before submitting.<br/><br/></span>
+      <span style="color: blue">Note: Check definition valid before submitting. If identifier does exist then update, else insert. Only add/update this definition to <b>user dictionary</b>.<br/><br/></span>
       <input type="submit" style="margin-right:20px; float:left;" name="checkValidUpdate" value="Valid GML" onclick="return checkTextEmpty(this)" />
-      <input type="submit" name="Update" onclick="return checkTextEmpty(this);" value="Update" />
+      <%
+        // if definition is from userdb, then it is update
+        if(isAddOnUserDB) {
+          out.print("<input type='submit' name='Update' onclick='return checkTextEmpty(this);' value='Update' />");
+        } else {
+          // if defintion is from gml_db*, then it is add
+          out.print("<input type='submit' name='Update' onclick='return checkTextEmpty(this);' value='Add' />");
+        }
+
+      %>
     </form>
 
 
@@ -301,12 +397,30 @@
       // 2. Handle newly added GML deffinitions  (when only ?add=true and user has submitted new definition and not "checkValidAdd")
       if (null != toadd && toadd.equals("true") && checkValidAdd == null && newd != null) {
         if (!newd.equals(Constants.EMPTY)) {
-          // It is up to user to decide to insert definition to User Dictionary (so just insert definition)
-          errorAdd = SecoreUtil.insertDef(newd, url);
-          if (errorAdd.equals(Constants.EMPTY)) {
-            errorAdd = "<span style='font-size: large; color:green;'>The database has been updated successfully.</span><br/><br/>";
-          } else {
-            errorAdd = "<span style='color:red;'>Error: " + errorAdd + " when insert, see log file for more detail. The database remains unchanged.</span><br/><br/>";
+          // get gml:identifier to check that user is used the correct version of userdb for definition
+          String identifierUri = StringUtil.getElementValue(newd, Constants.IDENTIFIER_LABEL);
+          //e.g: 8.5
+          String identifierVersionNumber = StringUtil.getVersionNumber(identifierUri);
+
+          if(!StringUtil.isValidIdentifierURI(identifierUri)) {
+            errorAdd = "<span style='color:red'>GML Identifier URI: <b> $URI </b> is not valid.</span><br/>";
+            errorAdd = errorAdd.replace("$URI", identifierUri);
+          } else if(!identifierVersionNumber.equals(DbManager.FIX_USER_VERSION_NUMBER)) {
+            // NOTE: it can only add/update with the versionNumber of userDB (e.g: 0)
+            // not: http://localhost:8080/def/crs/EPSG/8.5/4326
+            errorAdd = "<span style='color:red'>GML Identifier URI: <b> $URI </b> <br/> with version <b>: $versionNumber </b>"
+                         + " is not valid (must use current userdb version: <b> $userDBVersion </b>).</span><br/>";
+            errorAdd = errorAdd.replace("$URI", identifierUri)
+                                     .replace("$versionNumber", identifierVersionNumber)
+                                     .replace("$userDBVersion", DbManager.FIX_USER_VERSION_NUMBER);
+          } else { 
+            // It is up to user to decide to insert definition to User Dictionary (so just insert definition)
+            errorAdd = SecoreUtil.insertDef(newd, url);
+            if (errorAdd.equals(Constants.EMPTY)) {
+              errorAdd = "<span style='font-size: large; color:green;'>The database has been updated successfully.</span><br/><br/>";
+            } else {
+              errorAdd = "<span style='color:red;'>Error: " + errorAdd + " when insert, see log file for more detail. The database remains unchanged.</span><br/><br/>";
+            }
           }
 
         } else {
@@ -356,7 +470,9 @@
     // 2. Handles removal of definitions
     String todel = request.getParameter("delete");
     if (null != todel) {
-      errorDel = SecoreUtil.deleteDef(url, todel);
+      // NOTE: only delete in userdb then need to use userdb version.
+      String idUrlTmp = urlTmp.replace(Constants.VERSION_NUMBER, DbManager.FIX_USER_VERSION_NUMBER);
+      errorDel = SecoreUtil.deleteDef(idUrlTmp, todel);
 
       if (errorDel.equals(Constants.EMPTY)) {
         errorDel = "<span style='font-size: large; color:green;'>The database has been updated sucessfully.</span><br/><br/>";
@@ -365,7 +481,7 @@
       }
 
       // Note: After removing, need to load all the entries again by reloading the current page
-      response.sendRedirect(url + "/browse.jsp");
+      response.sendRedirect(url + "browse.jsp");
 
     }
 

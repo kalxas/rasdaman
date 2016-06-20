@@ -161,5 +161,13 @@ public class ExceptionCode {
   // For GML Parser and Validation
   public static final ExceptionCode ParserConfigurationException = new ExceptionCode("ParserConfiguration", null);
   public static final ExceptionCode SAXParserException = new ExceptionCode("SAXParser", null);
+  
+  // For multiple GML versions (e.g: 8.5, 8.7,...)
+  public static final ExceptionCode GMLDictionaryFileNotFoundException = new ExceptionCode("InternalComponentError", null);
+  public static final ExceptionCode UserDictionaryFileNotFoundException = new ExceptionCode("InternalComponentError", null);
+  // e.g: 8.5, 0
+  public static final ExceptionCode VersionNotFoundException = new ExceptionCode("InternalComponentError", null);
+  // e.g: gml_85, userdb
+  public static final ExceptionCode CollectionNameNotFoundException = new ExceptionCode("InternalComponentError", null);
 
 }

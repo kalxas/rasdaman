@@ -63,7 +63,8 @@ public class ParameterizedCrsHandlerTest extends BaseTest {
   public void testXQuery() throws Exception {
     System.out.println("xquery");
     String query = getData("parameterized.xquery");
-    String result = DbManager.getInstance().getDb().query(query);
+    String versionNumber = DbManager.FIX_GML_COLLECTION_NAME;
+    String result = DbManager.getInstance().getDb().queryBothDB(query, versionNumber);
     putData("parameterized.exp2", result);
     String expResult = getData("parameterized.exp");
     assertEquals(expResult, result);

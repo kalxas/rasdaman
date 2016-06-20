@@ -13,6 +13,7 @@ import static org.junit.Assert.*;
 import secore.db.BaseX;
 import secore.db.DbManager;
 import secore.util.Config;
+import secore.util.SecoreException;
 
 /**
  *
@@ -24,7 +25,7 @@ public class IncompleteUrlHandlerTest extends BaseTest {
   private static BaseX db;
   
   @BeforeClass
-  public static void setUpClass() {
+  public static void setUpClass() throws SecoreException {
     Config.getInstance();
     handler = new IncompleteUrlHandler();
     DbManager.getInstance().getDb();

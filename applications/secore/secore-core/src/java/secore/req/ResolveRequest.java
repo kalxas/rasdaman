@@ -258,6 +258,26 @@ public class ResolveRequest implements ParamValue {
   }
   
   /**
+   * Get the param value from param key
+   * e.g: crs?authority=EPSG&code=4327&version=0
+   * key is: authority and value is: EPSG
+   * @param key
+   * @return 
+   */
+  public String getParamValueByKey(String key) {
+    // NOTE: in case of rest request 
+    // e.g: def/crs/EPSG/8.5/4327, param key is NULL, param value is (e.g: epsg)
+    
+    String value = "";
+    for (RequestParam param: this.params) {
+      if (param.key.equals(key)) {
+        value = param.val.toString();
+      }
+    }
+    return value;
+  }
+  
+  /**
    * @return the parameters as a string
    */
   public String paramsToString() {
@@ -326,6 +346,19 @@ public class ResolveRequest implements ParamValue {
   public boolean isLocal() {
     return local;
   }
+  
+  /** 
+   * Check if request is rest (/def/crs/EPSG/0/4326) or KVP (/def/crs?authority=EPSG&version=0&code=4326)
+   * @return 
+   */
+  public boolean isRest() {
+    for (RequestParam param:this.params) {
+      if (param.key == null) {
+        return true;
+      }
+    }
+    return false;
+  }
 
   @Override
   public String toString() {
@@ -342,5 +375,5 @@ public class ResolveRequest implements ParamValue {
         "\n\toriginalUri=" + originalRequest +
         "\n\texpand=" + expand +
         "\n}";
-  }
+  } 
 }

@@ -59,7 +59,8 @@ public class StringUtilTest {
   @Test
   public void testFixLinks() {
     String arg = "<gml:identifier codeSpace=\"OGP\">urn:ogc:def:cs:OGC:0.1:Cartesian2D</gml:identifier>";
-    String result = StringUtil.fixLinks(arg);
+    String versionNumber = "0.1";
+    String result = StringUtil.fixLinks(arg, versionNumber);
     System.out.println(result);
     String expResult = "<gml:identifier codeSpace=\"OGP\">http://www.opengis.net/def/cs/OGC/0.1/Cartesian2D</gml:identifier>";
     assertEquals(expResult, result);

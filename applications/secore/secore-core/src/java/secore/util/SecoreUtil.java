@@ -4,7 +4,9 @@
  */
 package secore.util;
 
+import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
 import org.slf4j.Logger;
@@ -36,7 +38,7 @@ public class SecoreUtil {
   public static String insertDef(String newd, String id) throws SecoreException {
     log.trace("Insert definition with identifier: " + id);
 
-    newd = StringUtil.fixDef(newd, StringUtil.SERVICE_URI);
+    newd = StringUtil.fixDef(newd, StringUtil.SERVICE_URI, DbManager.FIX_USER_VERSION_NUMBER);
     String newdId = StringUtil.getElementValue(newd, IDENTIFIER_LABEL);
     if (newdId != null) {
       id = newdId;
@@ -44,7 +46,10 @@ public class SecoreUtil {
 
     String error = Constants.EMPTY;
 
-    String result = queryDef(id, true, true, false);
+    // version in epsg database is FIX_VERSION (
+    String versionNumber = DbManager.FIX_GML_COLLECTION_NAME;        
+    String result = queryDef(id, true, true, false, versionNumber);
+    
     if (StringUtil.emptyQueryResult(result)) {
       String query = "declare namespace gml = \"" + NAMESPACE_GML + "\";" + NEW_LINE
           + "let $x := collection('" + COLLECTION_NAME + "')" + NEW_LINE
@@ -59,25 +64,24 @@ public class SecoreUtil {
         error = e.getMessage();
       }
     } else {
-      // If user try to insert but with same identifier then update definition
-      error = updateDef(newd, id, DbManager.USER_DB); // Only allow user to add in userdb
+      // If user try to insert but with same identifier then update the existing definition.
+      error = updateDef(newd, id, DbManager.USER_DB); // Only allow user to add/edit in userdb.
     }
     return error;
   }
 
   /**
-   * Update definition in User or Gml dictionaries by identifier isnide DB
-   * (User, Gml)
-   *
+   * Update definition in User dictionaries by identifier inside DB
+   * NOTE: no edit in any GML versions dictionaries
    * @param mod String "new definition"
    * @param id String "identifier"
-   * @param db String "DB name"
+   * @param collectionName the database's name of User dictionary
    * @return error != "" if can not update
    * @throws SecoreException
    */
-  public static String updateDef(String mod, String id, String db) throws SecoreException {
+  public static String updateDef(String mod, String id, String collectionName) throws SecoreException {
     log.trace("Update definition with identifier: " + id);
-    mod = StringUtil.fixDef(mod, StringUtil.SERVICE_URI);
+    mod = StringUtil.fixDef(mod, StringUtil.SERVICE_URI, DbManager.FIX_USER_VERSION_NUMBER);
     id = StringUtil.removeLastColon(id);
     String query = "declare namespace gml = \"" + NAMESPACE_GML + "\";" + NEW_LINE
         + "let $x := collection('" + COLLECTION_NAME + "')//gml:identifier[text() = '" + id + "']/.." + NEW_LINE
@@ -86,7 +90,7 @@ public class SecoreUtil {
     String error = Constants.EMPTY;
     DbManager.clearCache();
     try {
-      DbManager.getInstance().getDb().updateQuery(query, db);
+      DbManager.getInstance().getDb().updateQuery(query, collectionName);
     } catch (Exception e) {
       StringUtil.printStackTraceWhenEditDB("updating", e);
       error = e.getMessage();
@@ -105,11 +109,12 @@ public class SecoreUtil {
    * substring of the definition identifier
    * @param user query the user database
    * @param epsg query the epsg database
+   * @param versionNumber the version of epsg database should query (e.g: gml: 8.5 or userdb: 0)
    * @return the result definition
    * @throws SecoreException
    */
-  public static String queryDef(String id, boolean equality, boolean user, boolean epsg) throws SecoreException {
-    return queryDef(id, equality, user, epsg, null);
+  public static String queryDef(String id, boolean equality, boolean user, boolean epsg, String versionNumber) throws SecoreException {
+    return queryDef(id, equality, user, epsg, versionNumber, null);
   }
 
   /**
@@ -123,11 +128,12 @@ public class SecoreUtil {
    * substring of the definition identifier
    * @param user query the user database
    * @param epsg query the epsg database
+   * @param versionNumber the version of epsg database should query (e.g: gml: 8.5 or 0)
    * @param elname element name to use in the list output
    * @return the result definition
    * @throws SecoreException
    */
-  public static String queryDef(String id, boolean equality, boolean user, boolean epsg, String elname) throws SecoreException {
+  public static String queryDef(String id, boolean equality, boolean user, boolean epsg, String versionNumber, String elname) throws SecoreException {
     log.trace("Query definition with identifier: " + id);
     id = StringUtil.unwrapUri(id);
 
@@ -160,8 +166,9 @@ public class SecoreUtil {
     }
 
     if (user && epsg) {
-      String userRes = DbManager.getInstance().getDb().queryUser(query.replace(USER_FLAG_KEY, USER_FLAG));
-      String epsgRes = DbManager.getInstance().getDb().queryEpsg(query.replace(USER_FLAG_KEY, EPSG_FLAG));
+      // In case of listing CRS definitions from both kind of DB (userdb, gml_*) it will query from both DB.
+      String userRes = DbManager.getInstance().getDb().queryUser(query.replace(USER_FLAG_KEY, USER_FLAG), versionNumber);
+      String epsgRes = DbManager.getInstance().getDb().queryEpsg(query.replace(USER_FLAG_KEY, EPSG_FLAG), versionNumber);
       String ret = Constants.EMPTY;
       if (!StringUtil.emptyQueryResult(userRes)) {
         ret += userRes;
@@ -174,12 +181,35 @@ public class SecoreUtil {
       }
       return ret;
     } else if (user) {
-      return DbManager.getInstance().getDb().queryUser(query.replace(USER_FLAG_KEY, USER_FLAG));
+      return DbManager.getInstance().getDb().queryUser(query.replace(USER_FLAG_KEY, USER_FLAG), versionNumber);
     } else if (epsg) {
-      return DbManager.getInstance().getDb().queryEpsg(query.replace(USER_FLAG_KEY, EPSG_FLAG));
+      return DbManager.getInstance().getDb().queryEpsg(query.replace(USER_FLAG_KEY, EPSG_FLAG), versionNumber);
     } else {
-      return DbManager.getInstance().getDb().query(query.replace(USER_FLAG_KEY, USER_FLAG));
+      return DbManager.getInstance().getDb().queryBothDB(query.replace(USER_FLAG_KEY, USER_FLAG), versionNumber);
     }
+  }
+  
+  /**
+   * Check if a crs URI (e.g: crs/EPSG/0/4326) exist in user db.
+   * @param id
+   * @param versionNumber
+   * @return 
+   * @throws secore.util.SecoreException 
+   */
+  public static boolean existsDefInUserDB(String id, String versionNumber) throws SecoreException {
+    // NOTE: userdb version number is not consistent (e.g: it can has def/crs/OGC/0 or def/crs/AUTO/1.3), not as GML Dictionary.    
+    String query = "declare namespace gml = \"" + NAMESPACE_GML + "\";" + NEW_LINE
+          + "let $d := (collection('" + DbManager.USER_DB + "')//gml:identifier[contains(.,'" + id + "')]/..)[1]" + NEW_LINE
+          + "return" + NEW_LINE
+          + " if (exists($d)) then $d" + NEW_LINE
+          + " else <empty/>";
+    
+    String ret = DbManager.getInstance().getDb().queryUser(query, versionNumber);
+    if (ret.equals(Constants.EMPTY_XML)) {
+      return false;
+    }
+    
+    return true;    
   }
 
   /**
@@ -215,10 +245,11 @@ public class SecoreUtil {
    * Sort Element (URI of entries)
    *
    * @param url
+   * @param versionNumber the version of dictionaries which want to query (e.g: 8.5, 0 )
    * @param result
    * @return Set
    */
-  public static Set<Pair<String, Boolean>> sortElements(String url, String result) {
+  public static Set<Pair<String, Boolean>> sortElements(String url, String versionNumber, String result) {
     url = StringUtil.wrapUri(url);
     log.debug("sortElements: " + url);
     result = result.replace("</el>", "");
@@ -233,6 +264,20 @@ public class SecoreUtil {
         }
       }
     });
+    
+    
+    List<String> urlTmps = new ArrayList<String>();
+    // Try every requested and default versions to make sure it don't ignore any result.
+    String urlTmp0 = url.replace(Constants.VERSION_NUMBER, versionNumber);
+    String urlTmp1 = url.replace(Constants.VERSION_NUMBER, DbManager.FIX_GML_VERSION_NUMBER);
+    String urlTmp2 = url.replace(Constants.VERSION_NUMBER, DbManager.FIX_GML_VERSION_ALIAS);
+
+    // try with requested version
+    urlTmps.add(urlTmp0);
+    // try with version 8.5
+    urlTmps.add(urlTmp1);
+    // try with version 0
+    urlTmps.add(urlTmp2);
 
     for (String tmpid : ids) {
       String[] pair = tmpid.split(" ");
@@ -243,18 +288,32 @@ public class SecoreUtil {
       } catch (Exception ex) {
       }
 
+      // NOTE: if url has contain VERSION_NUMBER (e.g: /def/crs/EPSG/0), it will get the result's version to change.
+      // e.g: /def/crs/EPSG/8.5/4326 (replace VERSION_NUMBER by 8.5)
       if (!id.isEmpty()) {
         id = StringUtil.wrapUri(id);
         String tmp = id;
-        int ind = tmp.indexOf(url);
+        
+        int ind = 0;
+        String urlTmp = "";
+        
+        // Check if the result CRS has the identifier
+        for (String s: urlTmps) {
+          ind = tmp.indexOf(s);
+          if (ind != -1 ) {
+            urlTmp = s;
+            break;
+          }
+        }
+        // If the result does not contain the identifier (it can be "").
         if (ind == -1) {
-          continue;
+            continue;
         } else {
-          tmp = tmp.substring(ind + url.length());
+          tmp = tmp.substring(ind + urlTmp.length());
           if (tmp.startsWith(REST_SEPARATOR)) {
             tmp = tmp.substring(1);
           }
-          if (tmp.indexOf(REST_SEPARATOR) >= 0) {
+          if (tmp.contains(REST_SEPARATOR)) {
             tmp = tmp.substring(0, tmp.indexOf(REST_SEPARATOR));
           }
           if (tmp.equals(EMPTY)) {

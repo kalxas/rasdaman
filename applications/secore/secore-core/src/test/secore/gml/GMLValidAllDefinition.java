@@ -28,6 +28,7 @@ import secore.db.*;
 
 import static org.junit.Assert.*;
 import org.junit.Test;
+import static secore.db.DbManager.FIX_GML_COLLECTION_NAME;
 import secore.handler.GeneralHandler;
 import secore.req.ResolveRequest;
 import secore.req.ResolveResponse;
@@ -59,18 +60,18 @@ public class GMLValidAllDefinition {
   @Test
   public void testUserDb() throws Exception {
     // test with userdb first
-    testAllDefinitionInDb("userdb");
+    testAllDefinitionInDb(DbManager.USER_DB);
   }
 
   /**
    * This function will check all definition in gml db output file is
-   * etc/testdata/gml_valid_all_definition_gmldb.txt
+   * etc/testdata/gml_valid_all_definition_gmldb.txt (it takes *long* time to test all the definition).
    *
    * @throws Exception
    */
   @Test
   public void testGMLDb() throws Exception {
-    testAllDefinitionInDb("gml");
+    //testAllDefinitionInDb(FIX_GML_COLLECTION_NAME);
   }
 
   /**
@@ -92,7 +93,8 @@ public class GMLValidAllDefinition {
         + " else <empty/>";
 
     // Need to do this as when run this test if DbManager has no cache then all returns null
-    String initData = SecoreUtil.queryDef("/def", false, true, true);
+    String versionNumber = DbManager.FIX_GML_VERSION_NUMBER;
+    String initData = SecoreUtil.queryDef("/def", false, true, true, versionNumber);
 
     // Check test with userdb or gml db(default)
     String queryKey = getAllGMLDbDefinition;
@@ -103,7 +105,7 @@ public class GMLValidAllDefinition {
     }
 
     // Get all definition URL by key (XQUERY) from cached DbManager
-    Pair<String, Boolean> tmpPair = DbManager.getCached(queryKey);
+    Pair<String, String> tmpPair = DbManager.getCached(queryKey);
     String allURL = tmpPair.fst;
 
     String[] urlArray = allURL.split("\n");

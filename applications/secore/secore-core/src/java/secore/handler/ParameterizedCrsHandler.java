@@ -37,15 +37,18 @@ import java.util.regex.Pattern;
 import net.n3.nanoxml.IXMLElement;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import secore.db.DbManager;
 import static secore.handler.ParameterizedCrsHandler.*;
 import secore.req.RequestParam;
 import static secore.util.Constants.*;
+import secore.util.Pair;
+import secore.util.SecoreUtil;
 
 
 /**
- * Handle parameterized CRSs. An example of a parameterized CRS is the 
+ * Handle parameterized CRSs. An example of a parameterized CRS is the
  * auto universal transverse mercator layer CRS (AUTO:42001):
- * 
+ *
   <ParameterizedCRS>
     <parameters>
         <parameter name="lon"/>
@@ -76,9 +79,9 @@ import static secore.util.Constants.*;
  * @author Dimitar Misev
  */
 public class ParameterizedCrsHandler extends GeneralHandler {
-  
+
   private static Logger log = LoggerFactory.getLogger(ParameterizedCrsHandler.class);
-  
+
   // element names in a parameterized CRS GML definition
   public static final String PARAMETERIZED_CRS = "ParameterizedCRS";
   public static final String PARAMETERS = "parameters";
@@ -88,7 +91,7 @@ public class ParameterizedCrsHandler extends GeneralHandler {
   public static final String PARAMETER_TARGET = "target";
   public static final String TARGET_CRS = "targetCRS";
   public static final String TARGET_CRS_HREF = "href";
-  
+
   // the definition of the parameterized CRS may be resolved previously
   // by the general handler.
   private ResolveResponse definition = null;
@@ -104,7 +107,7 @@ public class ParameterizedCrsHandler extends GeneralHandler {
   @Override
   public ResolveResponse handle(ResolveRequest request) throws SecoreException {
     log.debug("Handling resolve request...");
-    
+
     // first resolve the parameterized CRS
     ResolveRequest req = new ResolveRequest(request.getOperation(),
         request.getServiceUri(), request.getOriginalRequest());
@@ -132,11 +135,15 @@ public class ParameterizedCrsHandler extends GeneralHandler {
     }
     ResolveResponse gml = definition;
     if (gml == null) {
-      gml = resolveId(parseRequest(req),
-          req.getExpandDepth(), new ArrayList<Parameter>());
+      // Parsed URL to get the version number and modified URL
+      Pair<String,String> obj = parseRequest(req);
+      String versionNumber = obj.fst;
+      String url = obj.snd;
+
+      gml = resolveId(url, versionNumber, req.getExpandDepth(), new ArrayList<Parameter>() {});
     }
     log.trace(gml.getData());
-    
+
     // check if the result is a ParameterizedCRS
     String rootElementName = StringUtil.getRootElementName(gml.getData());
     if (!PARAMETERIZED_CRS.equals(rootElementName)) {
@@ -147,10 +154,10 @@ public class ParameterizedCrsHandler extends GeneralHandler {
           + " supposed to contain extra parameters, aside from the authority,"
           + " version and code.");
     }
-    
+
     // handling of parameterized CRS
     IXMLElement root = XMLUtil.parse(gml.getData());
-    
+
     // extract needed data from the XML, doing various validity checks
     Parameters parameters = new Parameters();
     String identifier = null;
@@ -173,14 +180,14 @@ public class ParameterizedCrsHandler extends GeneralHandler {
       throw new SecoreException(ExceptionCode.XmlNotValid,
           "Mandatory target CRS missing from the GML definition");
     }
-    
+
     // parse the query parameters, and accordingly update the template parameters
     for (RequestParam p : request.getParams()) {
       String name = p.key;
       String value = p.val.toString();
-      
+
       log.debug("key: " + name + ", value: " + value);
-      
+
       if (name != null) {
         if (name.equalsIgnoreCase(RESOLVE_TARGET_KEY) && value != null) {
           if (value.equalsIgnoreCase(RESOLVE_TARGET_NO)) {
@@ -202,10 +209,10 @@ public class ParameterizedCrsHandler extends GeneralHandler {
         }
       }
     }
-    
+
     // do the actual work
     parameters.evaluateParameters();
-    
+
     // extract parameters with targets
     List<Parameter> params = new ArrayList<Parameter>();
     for (Parameter parameter : parameters.values()) {
@@ -213,17 +220,41 @@ public class ParameterizedCrsHandler extends GeneralHandler {
         params.add(parameter);
       }
     }
-    
+
     // resolve the target CRS
     ResolveRequest targetCRSRequest = new ResolveRequest(targetCRS);
-    String url = parseRequest(targetCRSRequest);
-    ResolveResponse ret = resolveId(url, request.getExpandDepth(), params); // set expand depth from the original request URL
+    // NOTE: URN in dictionary, e.g: urn:ogc:def:crs:OGC::_Temporal_template will be changed to def/crs/OGC/0/_Temporal_template
+    // when it is translated and create collection database. Then, all the URN in user dictionary will have version 0 (even they are from
+    // EPSG database, e.g: /def/crs/EPSG/0/4326).
+    // the targetCrs (e.g: need to check if it is from userdb).
+    String id = StringUtil.stripDef(targetCRS);
+    id = StringUtil.unWrapUri(id);
+    Boolean existDefInUserDB = SecoreUtil.existsDefInUserDB(id, DbManager.FIX_USER_VERSION_NUMBER);
     
+    String versionNumber = "";
+    String url = "";
+    // If the crs exist in userDB then nothing need to change here.
+    if (existDefInUserDB) {
+      Pair<String,String> versionUrlPair = parseRequest(targetCRSRequest);
+      versionNumber = versionUrlPair.fst;
+      url = versionUrlPair.snd;
+    } else {
+      // URN from EPSG database, need to use fixed gml version.
+      versionNumber = DbManager.FIX_GML_VERSION_NUMBER;
+      if (StringUtil.hasDefaultUserDbVersion(id)) {
+        // Only change if in the URN of a definition of userdb did not set the specific version.
+        url = StringUtil.replaceVersionNumber(targetCRS, versionNumber);
+      }
+    }
+    
+    // set expand depth from the original request URL
+    ResolveResponse ret = resolveId(url, versionNumber, request.getExpandDepth(), params);
+
     // update identifier to include parameters
     String xml = StringUtil.replaceElementValue(
         ret.getData(), IDENTIFIER_LABEL, request.getOriginalRequest());
     ret = new ResolveResponse(xml);
-    
+
     return ret;
   }
 
@@ -234,16 +265,16 @@ public class ParameterizedCrsHandler extends GeneralHandler {
   public void setDefinition(ResolveResponse definition) {
     this.definition = definition;
   }
-  
+
   public static boolean isParameterizedCrsDefinition(String def) {
     return PARAMETERIZED_CRS.equals(StringUtil.getRootElementName(def));
   }
-  
+
 }
 class Parameters extends HashMap<String, Parameter> {
-  
+
   private static Logger log = LoggerFactory.getLogger(Parameters.class);
-  
+
   // used to detect circular references
   private Set<String> stack = new HashSet<String>();
 
@@ -266,7 +297,7 @@ class Parameters extends HashMap<String, Parameter> {
         throw new SecoreException(ExceptionCode.XmlNotValid,
             "Duplicate parameter " + name);
       }
-      
+
       String value = null;
       String target = null;
       for (int j = 0; j < parameter.getChildrenCount(); j++) {
@@ -281,11 +312,11 @@ class Parameters extends HashMap<String, Parameter> {
               + PARAMETER_VALUE + " or " + PARAMETER_TARGET);
         }
       }
-      
+
       put(name, new Parameter(name, value, target));
     }
   }
-  
+
   /**
    * Substitute the value expression with computed values.
    * @throws SecoreException in case of an error while evaluating a value
@@ -297,11 +328,11 @@ class Parameters extends HashMap<String, Parameter> {
       evaluateParameter(parameter);
     }
   }
-  
+
   /**
-   * 
+   *
    * @param parameter
-   * @throws SecoreException 
+   * @throws SecoreException
    */
   private void evaluateParameter(Parameter parameter) throws SecoreException {
     if (stack.contains(parameter.getName())) {
@@ -311,9 +342,9 @@ class Parameters extends HashMap<String, Parameter> {
     if (parameter.isEvaluated()) {
       return;
     }
-    
+
     stack.add(parameter.getName());
-    
+
     // substitute references
     Set<String> refs = parameter.getRefs();
     for (String refName : refs) {
@@ -321,10 +352,10 @@ class Parameters extends HashMap<String, Parameter> {
       evaluateParameter(refParameter);
       parameter.substituteReference(refName, refParameter.getValue());
     }
-    
+
     // now evaluate this parameter's value
     parameter.evaluateValue();
-    
+
     stack.remove(parameter.getName());
   }
 }
@@ -332,22 +363,22 @@ class Parameters extends HashMap<String, Parameter> {
 /**
  * Class representing a paramater. Holds the parameters name, value, and target
  * XPath expression.
- * 
+ *
  * @author Dimitar Misev
  */
 class Parameter {
-  
+
   private static Logger log = LoggerFactory.getLogger(Parameter.class);
-  
+
   public static final Pattern PATTERN = Pattern.compile("\\$\\{?\\{([^\\}]+)\\}\\}?");
-  
+
   private final String name;
   private String value;
   private final String target;
-  
+
   // parameters referenced from a value
   private final Set<String> refs;
-  
+
   // flags whether value has been evaluated, in order to avoid re-evaluations
   private boolean evaluated;
 
@@ -364,7 +395,7 @@ class Parameter {
     this.value = value;
     this.target = target;
     this.refs = new HashSet<String>();
-    
+
     // extract referenced parameters
     if (value != null) {
       value = value.replaceAll("&gt;", ">").replaceAll("&lt;", "<").replaceAll("&amp;", "&");
@@ -378,14 +409,14 @@ class Parameter {
       }
     }
   }
-  
+
   public void substituteReference(String name, String value) {
     this.value = this.value.replaceAll("\\$\\{?\\{" + name + "\\}\\}?", value);
   }
-  
+
   /**
    * Update the value of the parameter.
-   * 
+   *
    * @throws SecoreException in case of an error while evaluating the value
    *  expression
    */
@@ -428,12 +459,12 @@ class Parameter {
 
   @Override
   public String toString() {
-    return "Parameter{" 
-        + "\n\tname=" + name 
-        + "\n\tvalue=" + value 
-        + "\n\ttarget=" + target 
-        + "\n\trefs=" + refs 
-        + "\n\tevaluated=" + evaluated 
+    return "Parameter{"
+        + "\n\tname=" + name
+        + "\n\tvalue=" + value
+        + "\n\ttarget=" + target
+        + "\n\trefs=" + refs
+        + "\n\tevaluated=" + evaluated
         + "\n}";
   }
 }

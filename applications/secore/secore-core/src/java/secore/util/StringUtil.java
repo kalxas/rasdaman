@@ -38,6 +38,7 @@ import javax.script.ScriptEngineManager;
 import javax.script.ScriptException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import secore.db.DbManager;
 import static secore.util.Constants.*;
 
 /**
@@ -82,13 +83,15 @@ public class StringUtil {
 
   /**
    * URL-decode a string, if needed
+   * @param encodedText
+   * @return 
    */
   public static String urldecode(String encodedText) {
     if (encodedText == null) {
       return null;
     }
     String decoded = encodedText;
-    if (encodedText.indexOf(WHITESPACE) == -1) {
+    if (!encodedText.contains(WHITESPACE)) {
       try {
         decoded = URLDecoder.decode(encodedText, UTF8_ENCODING);
       } catch (UnsupportedEncodingException ex) {
@@ -101,6 +104,11 @@ public class StringUtil {
     return s != null && s.startsWith(URN_PREFIX);
   }
 
+  /**
+   * Return the substring after the "def" from URI)   
+   * @param s
+   * @return (e.g: crs/EPSG/0/4326)
+   */
   public static String stripDef(String s) {
     String servletContext = SERVLET_CONTEXT + REST_SEPARATOR;
     s = wrapUri(s);
@@ -120,12 +128,105 @@ public class StringUtil {
     }
     return s;
   }
+  
+  
+  /**
+   * Strip the service URL and def (e.g: http://localhost:8080/.../4326)
+   * @param url
+   * @return /crs/EPSG/0/4326
+   */
+  public static String stripServiceURI(String url) {
+    int index = url.indexOf(Constants.WEB_APPLICATION_NAME);
+    return url.substring(index + Constants.WEB_APPLICATION_NAME.length(), url.length());
+  }
+  
+  /**
+   * Get the version number from URI (with 4 parameters)
+   * //e.g: http://localhost:8080/def/crs/EPSG/0/4326
+   * @param s (0)
+   * @return 
+   */
+  public static String getVersionNumber(String s) {
+    String versionNumber = "";
+    String stripDef = stripDef(s);
+    
+    // e.g: crs/EPSG/0/4326
+    String[] tmp = stripDef.split(REST_SEPARATOR);
+    if(tmp.length > 2) {
+      versionNumber = tmp[2];
+    }     
+    return versionNumber;
+  }
+  
+  
+  /**
+   * Check if a URI is a standard URN after the service address
+   * with 4 parameters: (e.g: crs/AUTO/1.3/42001).
+   * 
+   * Use to check when insert/update gml identifier in definition correctly.
+   * @param s
+   * @return 
+   */
+  public static boolean isValidIdentifierURI(String s) {
+    String stripDef = stripDef(s);
+    String[] tmp = stripDef.split(REST_SEPARATOR);
+    if (tmp.length != 4) {
+      return false;
+    }
+    return true;
+  }
+  
+  /**
+   * Replace the versionNumber from source to target with a full 4 parameters URL
+   * (e.g: http://localhost:8080/def/crs/EPSG/0/4326)
+   * Used when change the version number of URN in userdb which is belonged to EPSG database.
+   * @param s
+   * @param targetVersionNumber
+   * @return 
+   */
+  public static String replaceVersionNumber(String s, String targetVersionNumber) {
+    String stripDef = stripDef(s);
+    // e.g: crs/EPSG/0/4326
+    String[] tmp = stripDef.split(REST_SEPARATOR);   
+    tmp[2] = targetVersionNumber;
+    String ret = getServiceUri(s);
+   
+    for (int i = 0; i < tmp.length; i++) {
+      ret = ret + tmp[i];
+      if ( i < tmp.length - 1) {
+        ret = ret + REST_SEPARATOR;
+      }      
+    }
+    
+    return ret;
+  }
+  
+  /**
+   * Check if a 4 full parameters CRS URI has default userdb version (e.g: 0)   
+   * @param s
+   * @return 
+   */
+  public static boolean hasDefaultUserDbVersion(String s) {
+    String stripDef = stripDef(s);
+    // e.g: crs/EPSG/0/4326
+    String[] tmp = stripDef.split(REST_SEPARATOR);
+    
+    if (tmp[2].equals(DbManager.FIX_USER_VERSION_NUMBER)) {
+      return true;
+    }
+    return false;    
+  }
 
   public static String removeDuplicateDef(String s) {
     int ind = s.indexOf(SERVLET_CONTEXT);
     return s.substring(0, ind) + s.substring(ind + SERVLET_CONTEXT.length());
   }
 
+  /**
+   * Return the service substring from a URL
+   * @param s
+   * @return (e.g: http://opengis.net/def/)
+   */  
   public static String getServiceUri(String s) {
     String servletContext = SERVLET_CONTEXT + REST_SEPARATOR;
     String ret = s;
@@ -149,7 +250,7 @@ public class StringUtil {
   }
 
   /**
-   * Only supports simple definition URNs. No support for compund or
+   * Only supports simple definition URNs. No support for compound or
    * parameterized URNs.
    *
    * @param uri a URN to be converted into a URI
@@ -168,6 +269,22 @@ public class StringUtil {
       ret += REST_SEPARATOR;
     }
     return ret;
+  }
+  
+  /**
+   * Utility to check if collection name does exist.
+   * //e.g: userdb, gml_85
+   * @param query XQuery (e.g: declare ... let $x := collection('') ...)
+   * @return String
+   */
+  public static String getCollectionNameFromXQuery(String query) {    
+    String collectionName = "";
+    Pattern p = Pattern.compile(Constants.COLLECTION + "\\('(.*?)'\\)");
+    Matcher m = p.matcher(query);
+    if (m.find()) {
+      collectionName = m.group(1);
+    }
+    return collectionName;
   }
 
   /**
@@ -189,10 +306,11 @@ public class StringUtil {
   }
 
   /**
-   * Get the text content of an element in given xml.
-   *
+   * Get the text content of an element in given xml. 
+   * // e.g:  <gml:identifier codeSpace="OGP">http://www.opengis.net/def/axis/EPSG/0/1_54698797</gml:identifier>
+   * // return http://www.opengis.net/def/axis/EPSG/0/1_54698797
    * @param xml xml
-   * @param elname element name
+   * @param elname element name (e.g: identifier)
    * @return the text content of elname
    */
   public static String getElementValue(String xml, String elname) {
@@ -296,22 +414,26 @@ public class StringUtil {
   }
 
   /**
-   * Replace all URNs in s with URLs in REST format.
-   *
+   * Replace all URNs in s with URLs in REST format.   
    * @param s a GML definition
+   * @param versionNumber
+   * @param url
    * @return the definition with the fixed links
    */
-  public static String fixLinks(String s) {
-    return fixLinks(s, Config.getInstance().getServiceUrl());
+  public static String fixLinks(String s, String versionNumber) {
+    return fixLinks(s, Config.getInstance().getServiceUrl(), versionNumber);
   }
 
   /**
-   * Replace all URNs in s with URLs in REST format, given a service URI.
+   * Replace all URNs in s with URLs in REST format, given a service URI and version 
+   * (e.g: 8.5, 8.6 with gml dictionary or 0 with user dictionary)
    *
    * @param s a GML definition
+   * @param serviceUri
+   * @param versionNumber
    * @return the definition with the fixed links
    */
-  public static String fixLinks(String s, String serviceUri) {
+  public static String fixLinks(String s, String serviceUri, String versionNumber) {
     // $1 = operation
     // $2 = authority
     // $3 = code
@@ -320,7 +442,7 @@ public class StringUtil {
     if (serviceUri != null) {
       serviceUri = wrapUri(serviceUri);
       ret = ret.replaceAll(URN_PREFIX + ":([^:]+):([^:]+):([^:]+):([^<>'\"]+)", serviceUri + "$1/$2/$3/$4");
-      ret = ret.replaceAll(URN_PREFIX + ":([^:]+):([^:]+)::([^<>'\"]+)", serviceUri + "$1/$2/0/$3");
+      ret = ret.replaceAll(URN_PREFIX + ":([^:]+):([^:]+)::([^<>'\"]+)", serviceUri + "$1/$2/" + versionNumber + "/$3");
     }
     return ret;
   }
@@ -331,15 +453,16 @@ public class StringUtil {
    * the XML database.
    *
    * @param s a GML definition
+   * @param serviceUri
+   * @param versionNumber
    * @return the definition with the fixed links and curly braces
    */
-  public static String fixDef(String s, String serviceUri) {
-    return fixLinks(s, serviceUri).replaceAll("\\{", "{{").replaceAll("\\}", "}}");
+  public static String fixDef(String s, String serviceUri, String versionNumber) {
+    return fixLinks(s, serviceUri, versionNumber).replaceAll("\\{", "{{").replaceAll("\\}", "}}");
   }
 
   /**
    * @return the GML namespace used in the underlying database
-   * @throws SecoreException
    */
   public static String getGmlNamespace() {
 //    String ret = EMPTY;
@@ -391,8 +514,21 @@ public class StringUtil {
     }
     return uri;
   }
+  
+  /**
+   * return uri without appended / if it is already
+   * @param uri
+   * @return 
+   */
+  public static String unWrapUri(String uri) {
+    if (uri.endsWith(REST_SEPARATOR)) {
+      return uri.substring(0, uri.length() - 1);
+    }
+    return uri;
+  }
 
   /**
+   * @param uri
    * @return uri with the last '/' removed.
    */
   public static String unwrapUri(String uri) {
@@ -413,6 +549,7 @@ public class StringUtil {
    *
    * @param uri input URL, can be null, absolute, relative
    * @return the path+query portions of url
+   * @throws secore.util.SecoreException
    */
   public static String uriToPath(String uri) throws SecoreException {
     String ret = uri;

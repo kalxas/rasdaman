@@ -23,22 +23,21 @@ package secore.handler;
 
 import secore.req.ResolveResponse;
 import secore.req.ResolveRequest;
-import secore.util.Config;
 import secore.util.StringUtil;
 import secore.util.SecoreException;
 import secore.util.ExceptionCode;
-import java.net.URL;
 import java.util.Arrays;
 import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import secore.Resolver;
 import secore.db.DbManager;
-import secore.req.RequestParam;
-import static secore.util.Constants.*;
 
 /**
- * Execute XQuery received from a post request.
+ * Execute XQuery received from a get/post request.
+ * 
+ * e.g: localhost:8080/def/query?query=declare namespace gml="http://www.opengis.net/gml/3.2"; 
+  let $x :=collection('gml')//gml:identifier[contains(.,'/crs/EPSG/0/3857')]/text() 
+  return if (exists($x)) then for $i in $x return <el>{$i}</el> else <empty/>
  *
  * @author Alireza
  */
@@ -52,17 +51,28 @@ public class QueryHandler extends AbstractHandler {
     String originalReq = request.getOriginalRequest();
     originalReq = StringUtil.urldecode(originalReq);
     // extract the query from the url
-    String query = "";
+    String query = "";    
+    
+    // NOTE: Only support to query on the userdb and the fixed GML dictionary version (e.g: 8.5))
+    String versionNumber = DbManager.FIX_GML_VERSION_NUMBER;
     int startIdx = originalReq.indexOf("=");
-    if(startIdx != -1)
+    if (startIdx != -1) 
       query = originalReq.substring(startIdx + 1, originalReq.length());
 
     if (request.getOperation().equals(getOperation()) && query.length() != 0) {
       // Check if the query is a read query
-      if(!isUpdateXQ(query)) {
-        String res =  DbManager.getInstance().getDb().query(query);
-        log.debug("Done, returning response.");
-        return new ResolveResponse(res);
+      // NOTE: only support to use read query with ?query="", not insert/update/delete inside the Xquery
+      if (!isUpdateXQ(query)) {
+        // Check if the Xquery collection('') does exist.
+        String collectionName = StringUtil.getCollectionNameFromXQuery(query);
+        boolean collectionNameExists = DbManager.collectionExistByCollectionName(collectionName);
+        if (collectionNameExists) {        
+          String res =  DbManager.getInstance().getDb().queryBothDB(query, versionNumber);
+          log.debug("Done, returning response.");
+          return new ResolveResponse(res);
+        } else {
+          throw new SecoreException(ExceptionCode.CollectionNameNotFoundException, "XQuery uses non-existing collection name: " + collectionName);
+        }
       } else {
         throw new SecoreException(ExceptionCode.MissingParameterValue,
           "Can't run xquery update queries on secored-dbs.");
@@ -91,13 +101,13 @@ public class QueryHandler extends AbstractHandler {
     List<String> updateKeywords = Arrays.asList("add", "delete", "rename",
         "store", "flush");
 
-    for(String s: updateKeywords) {
-      if(query.contains(s))
+    for (String s: updateKeywords) {
+      if (query.contains(s))
         isUpdate = true;
     }
 
     // The query can contain "replace node" operation but not only "replace"
-    if(query.contains("replace") && !query.contains("replace node"))
+    if (query.contains("replace") && !query.contains("replace node"))
       isUpdate = true;
 
     return isUpdate;

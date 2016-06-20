@@ -88,7 +88,7 @@
         <epsg:CommonMetaData>
           <epsg:type>geodetic</epsg:type>
           <epsg:alias code="332" codeSpace="/naming-system/EPSG/0/7302" alias="WGS 84"/>
-          <epsg:informationSource>NIMA TR8350.2 June 2004 revision. http://earth-info.nga.mil/GandG/publications/tr8350.2/tr8350_2.html and
+          <epsg:informationSource>NIMA TR8350.2 June 2004 revision. http://earth-info.nga.mil/GandG/publications/tr8350.2/tr8350_2.html and 
 http://gis-lab.info/docs/nima-tr8350.2-addendum.pdf</epsg:informationSource>
           <epsg:revisionDate>2013-06-15</epsg:revisionDate>
           <epsg:changes>

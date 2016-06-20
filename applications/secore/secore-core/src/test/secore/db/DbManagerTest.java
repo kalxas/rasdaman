@@ -23,6 +23,7 @@ package secore.db;
 
 import org.junit.Test;
 import static org.junit.Assert.*;
+import secore.util.SecoreException;
 import secore.util.StringUtil;
 
 /**
@@ -35,7 +36,7 @@ public class DbManagerTest {
    * Test of getInstance method, of class DbManager.
    */
   @Test
-  public void testGetInstance() {
+  public void testGetInstance() throws SecoreException {
     assertNotNull(DbManager.getInstance().getDb());
   }
 
@@ -43,9 +44,11 @@ public class DbManagerTest {
   public void testQuery() throws Exception {
     String query =
             "declare namespace gml = \"" + StringUtil.getGmlNamespace() + "\";\n"
-          + "let $d := doc('gml')\n"
+          + "let $d := doc('" + DbManager.FIX_GML_COLLECTION_NAME + "')\n"
           + "return $d//gml:identifier[contains(text(), '/crs/EPSG/0/4326')]";
-    String result = DbManager.getInstance().getDb().query(query);
+    
+    String versionNumber = DbManager.FIX_GML_VERSION_NUMBER;
+    String result = DbManager.getInstance().getDb().queryBothDB(query, versionNumber);
     assertTrue(result.matches("<gml:identifier [^>]+>.+/crs/EPSG/0/4326</gml:identifier>"));
   }
 
@@ -53,7 +56,8 @@ public class DbManagerTest {
   public void testDocumentNames() throws Exception {
     String query =
            "for $doc in collection() return base-uri($doc)";
-    String result = DbManager.getInstance().getDb().query(query);
+    String versionNumber = DbManager.FIX_USER_VERSION_NUMBER;
+    String result = DbManager.getInstance().getDb().queryBothDB(query, versionNumber);
     assertEquals("userdb/userdb.xml", result);
   }
 }

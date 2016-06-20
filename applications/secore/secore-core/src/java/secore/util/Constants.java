@@ -28,6 +28,7 @@ package secore.util;
  */
 public interface Constants {
   
+  String WEB_APPLICATION_NAME = "def";
   String URN_SEPARATOR = ":";
   String URN_PREFIX = "urn:ogc:def";
   String URN_SHORT_PREFIX = "urn:ogc";
@@ -94,4 +95,9 @@ public interface Constants {
   long MAX_UPLOAD_FILE_SIZE = 100000000;
   String UTF8_ENCODING = "UTF-8";
   int DEFAULT_HTTP_ERROR_CODE = 500;
+  
+  // Constant for version for the collectionName (e.g: gml_8.5)
+  String VERSION_NUMBER = "VERSION_NUMBER";  
+  String VERSION = "version";
+  String COLLECTION = "collection";
 }

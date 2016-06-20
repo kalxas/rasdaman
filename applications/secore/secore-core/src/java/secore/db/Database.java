@@ -31,28 +31,30 @@ import secore.util.SecoreException;
 public interface Database {
   
   /**
-   * Query the database
+   * Query the database with both type of database (userdb, gmldb)
    * @param query XQuery query
    * @return a the result as a string
    * @throws Exception in case of an error in the query evaluation
    */
-  String query(String query) throws SecoreException;
+  String queryBothDB(String query, String versionNumber) throws SecoreException;
   
   /**
    * Query the EPSG database
    * @param query XQuery query
+   * @param versionNumber (e.g: gml: 8.5, userdb: 0)
    * @return a the result as a string
    * @throws Exception in case of an error in the query evaluation
    */
-  String queryEpsg(String query) throws SecoreException;
+  String queryEpsg(String query, String versionNumber) throws SecoreException;
   
   /**
    * Query the user-defined database
    * @param query XQuery query
+   * @param versionNumber (e.g: gml: 8.5, userdb: 0)
    * @return a the result as a string
    * @throws Exception in case of an error in the query evaluation
    */
-  String queryUser(String query) throws SecoreException;
+  String queryUser(String query, String versionNumber) throws SecoreException;
   
   /**
    * Submit query that updates the database

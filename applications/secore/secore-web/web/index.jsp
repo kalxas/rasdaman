@@ -32,7 +32,7 @@
 <html>
     <head>
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-        <title>Index</title>
+        <title>SECORE Home Page</title>
     </head>
     <body>
      <% // Handle the direct queries
@@ -40,7 +40,8 @@
         if (null != query) {
           out.println("<br/><span style=\"font-size:x-large;\"><a href='"+ Constants.INDEX_FILE +"'>Index</a></span><br/>");
           if (!query.equals(Constants.EMPTY)) {
-            String result = DbManager.getInstance().getDb().query(query);
+            String versionNumber = DbManager.FIX_GML_VERSION_NUMBER;
+            String result = DbManager.getInstance().getDb().queryBothDB(query, versionNumber);
             out.println("<br/><span style=\"font-size:x-large;\">Result:</span><br/>");
             out.println("<form name=mf><textarea name=mt cols=150 rows=30 readonly>" + result + "</textarea></form>");
           } else {

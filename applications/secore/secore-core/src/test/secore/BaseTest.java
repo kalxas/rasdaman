@@ -77,7 +77,7 @@ public abstract class BaseTest {
     }
   }
   
-  public static BaseX resetDb() {
+  public static BaseX resetDb() throws SecoreException {
     BaseX db = ((BaseX) DbManager.getInstance().getDb());
     try {
       db.executeCommand(new DropDB(DbManager.EPSG_DB));

@@ -28,6 +28,7 @@ import secore.util.ExceptionCode;
 import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import secore.db.DbManager;
 import secore.req.RequestParam;
 import secore.util.Constants;
 
@@ -46,11 +47,15 @@ public class AxisHandler extends AbstractHandler {
   public ResolveResponse handle(ResolveRequest request) throws SecoreException {
     log.debug("Handling resolve request...");
     List<RequestParam> params = request.getParams();
+    
+    // NOTE: default search is fix version gml dictionary.
+    String versionNumber = DbManager.FIX_GML_VERSION_NUMBER;
+        
     if (request.getOperation().equals(getOperation()) && params.size() == 1) {
-      String name = params.get(0).val + "";
-      String id = resolveAttribute(ELEMENT, name);
+      String name = params.get(0).val + "";      
+      String id = resolveAttribute(ELEMENT, name, versionNumber);
       log.debug("Retrieved the identifier '" + id + "' of the synonym for " + name);
-      String res = resolve(IDENTIFIER, id, Constants.ZERO);
+      String res = resolve(IDENTIFIER, id, versionNumber, Constants.ZERO);
       log.debug("Done, returning response.");
       return new ResolveResponse(res);
     } else {

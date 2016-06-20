@@ -1,1 +1,1 @@
-/crs/EPSG/0/4327?foo=qwerty
+/crs/EPSG/8.5/4327?foo=qwerty
