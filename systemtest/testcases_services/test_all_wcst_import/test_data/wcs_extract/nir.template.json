@@ -14,8 +14,8 @@
   "recipe": {
     "name": "wcs_extract",
     "options": {
-      "coverage_id": "NIR",
-      "wcs_endpoint" : "http://kahlua.eecs.jacobs-university.de:8080/petascope_earthlook9",
+      "coverage_id": "test_time3d",
+      "wcs_endpoint" : "PETASCOPE_URL",
       "partitioning_scheme" : [2720, 2361],
       "tiling": "ALIGNED [0:2000, 0:2000]"
     }

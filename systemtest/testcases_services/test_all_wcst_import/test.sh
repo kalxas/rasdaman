@@ -91,7 +91,7 @@ for TEST_CASE in $TEST_DATA/*; do
         rm $RESUME_FILE
 
         # 2.4 Get coverage id from ingest.json
-        COVERAGE_ID=$(grep -Po '"coverage_id":.*?[^\\]",' $RECIPE_FILE | awk -F'"' '{print $4}')
+        COVERAGE_ID=$(grep -Po -m 1 '"coverage_id":.*?[^\\]".*' $RECIPE_FILE | awk -F'"' '{print $4}')
 
         # 2.4.1 using WCS to check coverage does exist in Petascope
         DESCRIBE_COVERAGE_URL="$PETASCOPE_URL?service=WCS&request=DescribeCoverage&version=2.0.1&coverageId=$COVERAGE_ID"
