@@ -510,12 +510,11 @@ CXXFLAGS="$CXXFLAGS -isystem ${JSON_DIR} -I${JSON_DIR} "
 
 ### End - Configuration of third party libraries ###
 
+CXXFLAGS="$CXXFLAGS -std=c++11"
+
 ### Start - Check for rasnet ###
 if test "$protocol" = "rasnet"; then
     AC_DEFINE([RMANRASNET], [], [Flag which is true when the rasnet protocol is enabled.])
-
-    # We need C++ 11 for RASNET
-    CXXFLAGS="$CXXFLAGS -std=c++11"
 
     # Configuration for Google Protobuf
     PROTOBUF_BIN="$THIRD_PARTY_DIR/bin/protobuf"
