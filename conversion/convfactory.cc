@@ -43,6 +43,7 @@ rasdaman GmbH.
 #include "hdf.hh"
 #include "dem.hh"
 #include "csv.hh"
+#include "json.hh"
 #include "netcdf.hh"
 #include "grib.hh"
 #include "gdal.hh"
@@ -90,6 +91,9 @@ r_Convertor *r_Convertor_Factory::create( r_Data_Format fmt, const char *src, co
     case r_CSV:
         result = new r_Conv_CSV(src, interv, tp);
         break;
+    case r_JSON:
+        result = new r_Conv_JSON(src, interv, tp);
+        break;
     case r_DEM:
         result = new r_Conv_DEM(src, interv, tp);
         break;
@@ -123,6 +127,12 @@ r_Convertor *r_Convertor_Factory::create( r_Data_Format fmt, const char *src, co
         break;
     case r_GDAL:
         result = new r_Conv_GDAL(src, interv, type);
+        break;
+    case r_CSV:
+        result = new r_Conv_CSV(src, interv, type);
+        break;
+    case r_JSON:
+        result = new r_Conv_JSON(src, interv, type);
         break;
     case r_DEM:
         result = new r_Conv_DEM(src, interv, type);

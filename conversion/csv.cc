@@ -80,11 +80,20 @@ using namespace std;
 const char *r_Conv_CSV::FALSE = "f";
 const char *r_Conv_CSV::TRUE = "t";
 
+const string r_Conv_CSV::LEFT_PAREN{"{"};
+const string r_Conv_CSV::RIGHT_PAREN{"}"};
+const string r_Conv_CSV::SEPARATOR{","};
+
 /// internal initialization, common to all constructors
 void r_Conv_CSV::initCSV( void )
 {
     if (params == NULL)
         params = new r_Parse_Params();
+    
+    leftParen = LEFT_PAREN;
+    rightParen = RIGHT_PAREN;
+    outerParens = false;
+    valueSeparator = SEPARATOR;
 }
 
 
@@ -210,12 +219,12 @@ void r_Conv_CSV::printArray(std::stringstream &f, int *dims, size_t *offsets, in
         if (dim == 1) {
             printValue(f, type, ptr);
         } else {
-            f << "{";
+            f << leftParen;
             printArray(f, dims + 1, offsets + 1, dim - 1, ptr, type);
-            f << "}";
+            f << rightParen;
         }
         if (i < dims[0] - 1)
-            f << ",";
+            f << valueSeparator;
     }
 }
 
@@ -252,9 +261,10 @@ void r_Conv_CSV::processEncodeOptions(const string& options)
     {
         LFATAL << "illegal CSV option string: \"" << options << "\", "
             << "only " << FormatParamKeys::Encode::CSV::ORDER << "=(" ORDER_OUTER_INNER "|" ORDER_INNER_OUTER ") "
-            << "is supported";
+            << "is supported.";
         throw r_Error(INVALIDFORMATPARAMETER);
     }
+    
     if (allocated && order_option)
     {
         delete [] order_option;
@@ -554,11 +564,19 @@ r_Conv_Desc &r_Conv_CSV::convertTo( const char *options ) throw(r_Error)
     try
     {
         if (rank == 1) {
-            csvtemp << "{";
+            csvtemp << leftParen;
             printArray(csvtemp, &dimsizes[0], &offsets[0], rank, const_cast<char*>(desc.src), *base_type);
-            csvtemp << "}";
+            csvtemp << rightParen;
         } else {
+            if (outerParens)
+            {
+                csvtemp << leftParen;
+            }
             printArray(csvtemp, &dimsizes[0], &offsets[0], rank, const_cast<char*>(desc.src), *base_type);
+            if (outerParens)
+            {
+                csvtemp << rightParen;
+            }
         }
     }
     catch (r_Error &err)
@@ -625,7 +643,7 @@ r_Conv_Desc &r_Conv_CSV::convertFrom(const char *options) throw(r_Error)
 
 const char *r_Conv_CSV::get_name( void ) const
 {
-    return "csv";
+    return format_name_csv;
 }
 
 

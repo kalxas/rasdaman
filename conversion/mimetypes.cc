@@ -50,6 +50,7 @@ std::map<std::string, std::string> r_MimeTypes::initMimeTypeToFormatNameMap()
 {
     std::map<std::string, std::string> ret;
     ret["text/csv"] = "csv";
+    ret["application/json"] = "json";
     ret["text/x-r"] = "R";
     ret["image/x-sgi"] = "SGI";
     ret["image/xpm"] = "XPM";

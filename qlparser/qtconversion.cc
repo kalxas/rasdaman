@@ -85,6 +85,7 @@ QtConversion::QtConversion(QtOperation* newInput, QtConversionType
 bool QtConversion::isInternalFormat(r_Data_Format dataFormat)
 {
     bool ret = dataFormat == r_CSV;
+    ret = ret || dataFormat == r_JSON;
 #ifdef HAVE_NETCDF
     ret = ret || dataFormat == r_NETCDF;
 #endif
@@ -107,6 +108,8 @@ QtConversion::setConversionTypeByName(string formatName)
         conversionType = QtConversion::QT_TOTIFF;
     else if (string("csv") == formatName)
         conversionType = QtConversion::QT_TOCSV;
+    else if (string("json") == formatName)
+        conversionType = QtConversion::QT_TOJSON;
     else if (string("dem") == formatName)
         conversionType = QtConversion::QT_TODEM;
     else if (string("netcdf") == formatName)
@@ -117,6 +120,8 @@ QtConversion::setConversionTypeByName(string formatName)
         conversionType = QtConversion::QT_FROMHDF;
     else if (string("inv_csv") == formatName)
         conversionType = QtConversion::QT_FROMCSV;
+    else if (string("inv_json") == formatName)
+        conversionType = QtConversion::QT_FROMJSON;
     else if (string("inv_tiff") == formatName)
         conversionType = QtConversion::QT_FROMTIFF;
     else if (string("inv_dem") == formatName)
@@ -153,7 +158,7 @@ QtConversion::evaluate(QtDataList* inputList)
         char* typeStructure = NULL;
         unique_ptr<Tile> sourceTile = NULL;
 
-        if (conversionType == QT_TOCSV && operand->isScalarData())
+        if ((conversionType == QT_TOCSV || conversionType == QT_TOJSON) && operand->isScalarData())
         {
             QtScalarData* qtScalar = static_cast<QtScalarData*> (operand);
             r_Minterval domain = r_Minterval(2) << r_Sinterval(0LL, 0LL) << r_Sinterval(0LL, 0LL);
@@ -374,6 +379,10 @@ QtConversion::setConversionTypeAndResultFormat(r_Data_Format& convType, r_Data_F
         convType = r_CSV;
         convFormat = r_CSV;
         break;
+    case QT_TOJSON:
+        convType = r_JSON;
+        convFormat = r_JSON;
+        break;
     case QT_FROMHDF:
         convType = r_HDF;
         convFormat = r_Array;
@@ -392,6 +401,10 @@ QtConversion::setConversionTypeAndResultFormat(r_Data_Format& convType, r_Data_F
         break;
     case QT_FROMCSV:
         convType = r_CSV;
+        convFormat = r_Array;
+        break;
+    case QT_FROMJSON:
+        convType = r_JSON;
         convFormat = r_Array;
         break;
     case QT_TODEM:
@@ -449,6 +462,9 @@ QtConversion::printTree(int tab, ostream& s, QtChildType mode)
     case QT_TOCSV:
         s << "to CSV";
         break;
+    case QT_TOJSON:
+        s << "to JSON";
+        break;
     case QT_TODEM:
         s << "to DEM";
         break;
@@ -469,6 +485,9 @@ QtConversion::printTree(int tab, ostream& s, QtChildType mode)
         break;
     case QT_FROMCSV:
         s << "from CSV";
+        break;
+    case QT_FROMJSON:
+        s << "from JSON";
         break;
     case QT_FROMDEM:
         s << "from DEM";
@@ -543,6 +562,9 @@ operator<<(std::ostream& os, QtConversion::QtConversionType type)
     case QtConversion::QT_TOCSV:
         os << "csv";
         break;
+    case QtConversion::QT_TOJSON:
+        os << "json";
+        break;
     case QtConversion::QT_TODEM:
         os << "dem";
         break;
@@ -560,6 +582,9 @@ operator<<(std::ostream& os, QtConversion::QtConversionType type)
         break;
     case QtConversion::QT_FROMCSV:
         os << "inv_csv";
+        break;
+    case QtConversion::QT_FROMJSON:
+        os << "inv_json";
         break;
     case QtConversion::QT_FROMDEM:
         os << "inv_dem";

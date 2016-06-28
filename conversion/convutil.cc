@@ -248,6 +248,8 @@ ConvUtil::getDataFormat(string formatName)
         ret = r_BMP;
     else if (formatName == "csv")
         ret = r_CSV;
+    else if (formatName == "json")
+        ret = r_JSON;
     else if (formatName == "grib")
         ret = r_GRIB;
     else if (formatName == "ppm")

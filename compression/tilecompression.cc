@@ -281,6 +281,7 @@ r_Tile_Compression *r_Tile_Compression::create( r_Data_Format fmt, const r_Minte
     case r_BMP:
     case r_DEM:
     case r_CSV:
+    case r_JSON:
         result = new r_Tile_Comp_Other(fmt, dom, type);
         break;
     default:

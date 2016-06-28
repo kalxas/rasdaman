@@ -419,6 +419,19 @@ export_to_file test_builtin_decode "$f" "csv"
 cmp $ORACLE_PATH/$f.csv $f.csv > /dev/null
 check_result 0 $? "input and output match"
 rm -f $f*
+drop_colls test_builtin_decode
+
+############# json ##########################
+log ----- json conversion ----------------------------
+f=json_float3
+create_coll test_tmp "FloatSet3"
+insert_into test_tmp "$TESTDATA_PATH/$f.json" ", \"json\", \"domain=[0:2,1:2,4:6];basetype=float\"" "decode"
+export_to_file test_tmp "$f" "encode" ', "json"'
+logn "comparing images: "
+cmp $ORACLE_PATH/$f.json $f.json > /dev/null
+check_result 0 $? "input and output match"
+rm -f $f*
+drop_colls test_tmp
 
 # ------------------------------------------------------------------------------
 # test summary

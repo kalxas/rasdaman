@@ -57,11 +57,13 @@ public:
         QT_TONETCDF,
         QT_TOGDAL,
         QT_TOCSV,
+        QT_TOJSON,
         QT_TODEM,
         QT_FROMTIFF,
         QT_FROMHDF,
         QT_FROMNETCDF,
         QT_FROMCSV,
+        QT_FROMJSON,
         QT_FROMDEM,
         QT_FROMGRIB,
         QT_FROMGDAL

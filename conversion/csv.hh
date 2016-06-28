@@ -68,6 +68,13 @@ public:
 
     static const char *FALSE;
     static const char *TRUE;
+    
+protected:
+    
+    std::string leftParen;
+    std::string rightParen;
+    std::string valueSeparator;
+    bool outerParens;
 
 private:
     enum Order {
@@ -111,6 +118,10 @@ private:
     Order order;
     std::string basetype;
     std::string domain;
+    
+    static const std::string LEFT_PAREN;
+    static const std::string RIGHT_PAREN;
+    static const std::string SEPARATOR;
 };
 
 /// Description of constructPrimitive - Construct desc.dest when the type of the array

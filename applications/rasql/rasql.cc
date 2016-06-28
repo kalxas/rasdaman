@@ -685,6 +685,9 @@ void printResult( /* r_Set< r_Ref_Any > result_set */ ) throw(RasqlError)
                 case r_CSV:
                     strcat( defFileName, ".csv" );
                     break;
+                case r_JSON:
+                    strcat( defFileName, ".json" );
+                    break;
                 case r_DEM:
                     strcat( defFileName, ".dem" );
                     break;

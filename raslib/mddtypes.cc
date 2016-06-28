@@ -30,9 +30,6 @@ rasdaman GmbH.
  *
 */
 
-
-static const char rcsid[] = "@(#)raslib, mddtypes: $Header: /home/rasdev/CVS-repository/rasdaman/raslib/mddtypes.cc,v 1.26 2005/09/03 20:33:10 rasdev Exp $";
-
 #include "config.h"
 
 
@@ -55,7 +52,8 @@ const char *format_name_jpeg = "JPEG";
 const char *format_name_jp2 = "JP2";
 const char *format_name_hdf = "HDF";
 const char *format_name_netcdf = "NETCDF";
-const char *format_name_cvs = "CSV";
+const char *format_name_csv = "CSV";
+const char *format_name_json = "JSON";
 const char *format_name_png = "PNG";
 const char *format_name_zlib = "ZLib";
 const char *format_name_auto_compression = "AutoCompression";
@@ -103,7 +101,8 @@ const char *all_data_format_names[r_Data_Format_NUMBER] =
     format_name_jp2,
     format_name_hdf,
     format_name_netcdf,
-    format_name_cvs,
+    format_name_csv,
+    format_name_json,
     format_name_png,
     format_name_zlib,
     format_name_auto_compression,

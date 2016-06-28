@@ -139,6 +139,7 @@ enum r_Data_Format
     r_HDF,
     r_NETCDF,
     r_CSV,
+    r_JSON,
     r_PNG,
     r_ZLib,
     r_Auto_Compression,
@@ -232,6 +233,8 @@ extern const char *format_name_jpeg;
 extern const char *format_name_jp2;
 extern const char *format_name_hdf;
 extern const char *format_name_netcdf;
+extern const char *format_name_csv;
+extern const char *format_name_json;
 extern const char *format_name_png;
 extern const char *format_name_zlib;
 extern const char *format_name_auto_compression;
