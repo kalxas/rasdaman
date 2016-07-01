@@ -78,7 +78,7 @@ public class DeleteCoverageHandler extends AbstractRequestHandler<DeleteCoverage
                 throw new PetascopeException(ExceptionCode.InternalSqlError);
             }
         }
-        return new Response("");
+        return new Response(new String[]{""});
     }
 
     private void checkCoverageId(String coverageId) throws WCSException{

@@ -126,6 +126,6 @@ public class MetadataRollbackTest {
     }
 
     private String parseCoverageName(Response response){
-        return response.getXml().split("<coverageId>")[1].replace("</coverageId>", "").trim();
+        return response.getXml()[0].split("<coverageId>")[1].replace("</coverageId>", "").trim();
     }
 }

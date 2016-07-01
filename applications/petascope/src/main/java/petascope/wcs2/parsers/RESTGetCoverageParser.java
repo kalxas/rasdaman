@@ -35,8 +35,6 @@ import petascope.exceptions.ExceptionCode;
 import petascope.exceptions.PetascopeException;
 import petascope.exceptions.WCSException;
 import petascope.util.AxisTypes;
-import petascope.util.CrsUtil;
-import petascope.wcs2.extensions.CRSExtension;
 import petascope.util.ListUtil;
 import petascope.util.TimeUtil;
 import petascope.wcs2.extensions.FormatExtension;
@@ -141,38 +139,6 @@ public class RESTGetCoverageParser extends RESTParser<GetCoverageRequest> {
     }
 
     /**
-     * Parses the parameters needed for the CRS extension
-     *
-     * @param rUrl the REST url
-     * @param ret the GetCoverage request
-     * @throws WCSException
-     */
-    public void parseCRS(RESTUrl rUrl, GetCoverageRequest ret) throws WCSException {
-        /* CRS-extension parameters: */
-        // subsettingCrs
-        String subCrs = ListUtil.head(rUrl.getByKey(CRSExtension.REST_SUBSETTING_PARAM));
-        if (!(subCrs == null) && !CrsUtil.CrsUri.isValid(subCrs)) {
-            throw new WCSException(ExceptionCode.NotASubsettingCrs, "subsettingCrs " + subCrs + " is not valid.");
-        }
-        if (!(subCrs == null) && !CrsUtil.isSupportedCrsCode(subCrs)) {
-            throw new WCSException(ExceptionCode.SubsettingCrsNotSupported, "subsettingCrs " + subCrs + " is not supported.");
-        }
-        // outputCrs
-
-        String outCrs = ListUtil.head(rUrl.getByKey(CRSExtension.REST_OUTPUT_PARAM));
-        if (!(outCrs == null) && !CrsUtil.CrsUri.isValid(outCrs)) {
-            throw new WCSException(ExceptionCode.NotAnOutputCrs, "outputCrs " + outCrs + " is not valid.");
-        }
-        if (!(outCrs == null) && !CrsUtil.isSupportedCrsCode(outCrs)) {
-            throw new WCSException(ExceptionCode.SubsettingCrsNotSupported, "outputCrs " + outCrs + " is not supported.");
-        }
-        if (!(subCrs == null) || !(outCrs == null)) {
-            ret.getCrsExt().setSubsettingCrs(subCrs);
-            ret.getCrsExt().setOutputCrs(outCrs);
-        }
-    }
-
-    /**
      * Parses the HTTPRequest into a GetCoverage request
      *
      * @param request
@@ -208,9 +174,6 @@ public class RESTGetCoverageParser extends RESTParser<GetCoverageRequest> {
          * binding it should be the other way around, see
          * RangeSubsettingExtension as an example
          */
-
-        this.parseCRS(rUrl, ret);
-
         this.parseSubsets(rUrl, ret);
         RangeSubsettingExtension.parseGetCoverageRESTRequest(rUrl, ret);
 

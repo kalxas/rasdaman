@@ -200,7 +200,7 @@ public class StringUtil {
             } catch (UnsupportedEncodingException ex) {
             }
         }
-        return decoded;
+        return decoded.trim();
     }
 
     public static String urlencode(String text) {

@@ -1,1 +1,0 @@
-select png(extend(c,[0:500,0:500])) from rgb AS c

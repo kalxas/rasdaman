@@ -30,9 +30,8 @@ import petascope.exceptions.SecoreException;
 import petascope.util.AxisTypes;
 import petascope.util.CrsUtil;
 import petascope.wcps.metadata.DomainElement;
-import petascope.wcps2.metadata.Coverage;
-import petascope.wcps2.metadata.CoverageRegistry;
-import petascope.wcps2.metadata.Interval;
+import petascope.wcps2.metadata.legacy.Coverage;
+import petascope.wcps2.metadata.legacy.CoverageRegistry;
 import petascope.wcps2.util.CrsComputer;
 import petascope.wms2.metadata.*;
 import petascope.wms2.service.exception.error.WMSInvalidBbox;
@@ -44,6 +43,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static petascope.util.CrsUtil.getAxesLabels;
+import petascope.wcps2.metadata.model.ParsedSubset;
 
 /**
  * A merged layer is a layer composed of other layers that were requested in the get map request. What we do is
@@ -135,8 +135,8 @@ public class MergedLayer {
                             max = String.valueOf(boundingBox.getMaxy());
                         }
                         CrsComputer crsComputer = new CrsComputer(dom.getLabel(), crs,
-                            new Interval<String>(min, max), coverage, coverageRegistry);
-                        Interval<Long> indices = crsComputer.getPixelIndices(true);
+                            new ParsedSubset<String>(min, max), coverage, coverageRegistry);
+                        ParsedSubset<Long> indices = crsComputer.getPixelIndices(true);
                         rasdamanSubsets.add(new RasdamanSubset(dom.getOrder(), indices.getLowerLimit(), indices.getUpperLimit()));
                         index += 1;
                     }

@@ -42,6 +42,7 @@ import petascope.exceptions.rasdaman.RasdamanException;
 import petascope.exceptions.SecoreException;
 import petascope.exceptions.WCPSException;
 import petascope.exceptions.WCSException;
+import petascope.util.AxisTypes;
 import petascope.util.BigDecimalUtil;
 import petascope.util.CrsUtil;
 import petascope.util.ListUtil;
@@ -54,6 +55,15 @@ import petascope.util.ras.RasUtil;
 import petascope.wcps.metadata.CellDomainElement;
 import petascope.wcps.metadata.DomainElement;
 import petascope.wcps.server.core.Wcps;
+import petascope.wcps2.metadata.service.CoordinateTranslationService;
+import petascope.wcps2.metadata.service.CoverageRegistry;
+import petascope.wcps2.metadata.service.RasqlTranslationService;
+import petascope.wcps2.metadata.service.SubsetParsingService;
+import petascope.wcps2.metadata.service.WcpsCoverageMetadataService;
+import petascope.wcps2.parser.WcpsTranslator;
+import petascope.wcps2.result.VisitorResult;
+import petascope.wcps2.result.WcpsMetadataResult;
+import petascope.wcps2.result.WcpsResult;
 import petascope.wcs2.parsers.GetCoverageMetadata;
 import petascope.wcs2.parsers.GetCoverageRequest;
 import static petascope.wcs2.parsers.subsets.DimensionSubset.ASTERISK;
@@ -295,7 +305,7 @@ public abstract class AbstractFormatExtension implements FormatExtension {
      * @throws WCSException
      */
     protected Pair<Object, String> executeRasqlQuery(GetCoverageRequest request,
-            CoverageMetadata covmeta, DbMetadataSource meta, String format, String params)
+            GetCoverageMetadata covmeta, DbMetadataSource meta, String format, String params)
             throws PetascopeException, RasdamanException, WCPSException, WCSException {
 
         //This variable is now local to the method to avoid concurrency problems
@@ -315,9 +325,32 @@ public abstract class AbstractFormatExtension implements FormatExtension {
         // Proceed to WCPS:
         String rquery = null;
         Pair<String, String> pair;
+
+        CoverageRegistry coverageRegistry = new CoverageRegistry(meta);
+        CoordinateTranslationService coordinateTranslationService = new CoordinateTranslationService(coverageRegistry);
+        WcpsCoverageMetadataService wcpsCoverageMetadataService = new WcpsCoverageMetadataService(coordinateTranslationService);
+        RasqlTranslationService rasqlTranslationService = new RasqlTranslationService();
+        SubsetParsingService subsetParsingService = new SubsetParsingService();
+        WcpsTranslator wcpsTranslator = new WcpsTranslator(coverageRegistry, wcpsCoverageMetadataService,
+                                                           rasqlTranslationService, subsetParsingService);
+
         try {
             pair = constructWcpsQuery(request, meta, covmeta, format, params);
-            rquery = RasUtil.abstractWCPSToRasql(pair.fst, wcps);
+            String wcpsQuery = pair.fst;
+            // NOTE: wcpsQuery generated from XML (e.g: in case of WCS still use "CRS:1" which is error in WCPS 1.5)
+            // need to remove it later correctly (e.g: i:"CRS:1")
+            // now, just use the pair.snd (axes)
+            String[] axes = pair.snd.split(" ");
+            String indexCrs = CrsUtil.OPENGIS_INDEX_ND_PATTERN.replace("%d", String.valueOf(axes.length));
+            wcpsQuery = wcpsQuery.replace(CrsUtil.GRID_CRS, indexCrs);
+
+            VisitorResult wcpsResult = wcpsTranslator.translate(wcpsQuery);
+            // NOTE: result should be Rasql Query which is generated from WCPS 1.5
+            if (wcpsResult instanceof WcpsMetadataResult) {
+                throw new WCSException(ExceptionCode.InvalidRequest, "This server does not support return metadata value for the request.");
+            } else {
+                rquery = ((WcpsResult)wcpsResult).getRasql();
+            }
         } catch (PetascopeException ex) {
             throw new PetascopeException(ex.getExceptionCode(), "Error converting WCPS query to rasql query: " + ex.getMessage(), ex);
         }
@@ -340,7 +373,7 @@ public abstract class AbstractFormatExtension implements FormatExtension {
      * Given a GetCoverage request, construct an abstract WCPS query.
      *
      * @param req GetCoverage request
-     * @param cov coverage metadata
+     * @param covMeta
      * @param dbMeta
      * @param format
      * @param params
@@ -349,12 +382,13 @@ public abstract class AbstractFormatExtension implements FormatExtension {
      * @throws PetascopeException
      */
     protected Pair<String, String> constructWcpsQuery(GetCoverageRequest req, DbMetadataSource dbMeta,
-            CoverageMetadata cov, String format, String params)
+            GetCoverageMetadata covMeta, String format, String params)
             throws WCSException, PetascopeException {
+
         String axes = "";
         //keep a list of the axes defined in the coverage
         ArrayList<String> axesList = new ArrayList<String>();
-        Iterator<DomainElement> dit = cov.getDomainIterator();
+        Iterator<DomainElement> dit = covMeta.getMetadata().getDomainIterator();
         while (dit.hasNext()) {
             String axis = dit.next().getLabel();
             axes += axis + " ";
@@ -373,7 +407,7 @@ public abstract class AbstractFormatExtension implements FormatExtension {
         // process subsetting operations
         for (DimensionSubset subset : req.getSubsets()) {
             String dim = subset.getDimension();
-            DomainElement de = cov.getDomainByName(dim);
+            DomainElement de = covMeta.getMetadata().getDomainByName(dim);
 
             //Check if the supplied axis is in the coverage axes and throw exception if not
             if (!axesList.contains(dim)) {
@@ -388,6 +422,9 @@ public abstract class AbstractFormatExtension implements FormatExtension {
             // accept direct internal index subsets even if no CRS extension is provided (this is not a geo-reprojection)
             if (null != subset.getCrs() && subset.getCrs().equals(CrsUtil.GRID_CRS)) {
                 crs = subset.getCrs(); // replace native with grid crs
+            } else if (covMeta.getSubsettingCrs() != null) {
+                // CRSExestion with subsettingCrs parameters then all subsets need to be used with this CRS
+                crs = covMeta.getSubsettingCrs();
             }
 
             if (subset instanceof DimensionTrim) {
@@ -400,22 +437,22 @@ public abstract class AbstractFormatExtension implements FormatExtension {
                 DimensionSlice slice = (DimensionSlice) subset;
                 proc = "slice(" + proc + ",{" + dim + ":\"" + crs + "\" (" + slice.getSlicePoint() + ")})";
                 newdim.put(dim, new Pair(slice.getSlicePoint(), slice.getSlicePoint()));
-                log.debug("Dimension" + dim);
+                log.debug("Dimension " + dim);
                 log.debug(axes);
                 axes = axes.replaceFirst(dim + " ?", ""); // remove axis
             }
         }
 
         if (req.isScaled()) {
-            if (!WcsUtil.isGrid(cov.getCoverageType())) {
+            if (!WcsUtil.isGrid(covMeta.getMetadata().getCoverageType())) {
                 throw new WCSException(ExceptionCode.InvalidCoverageType.locator(req.getCoverageId()));
             }
             Scaling scaling = req.getScaling();
             int axesNumber = 0; // for checking if all axes in the query were used
             String crs = CrsUtil.GRID_CRS; // scaling involves pixels
             proc = "scale(" + proc + ", {";
-            Iterator<DomainElement> it = cov.getDomainIterator();
-            Iterator<CellDomainElement> cit = cov.getCellDomainIterator();
+            Iterator<DomainElement> it = covMeta.getMetadata().getDomainIterator();
+            Iterator<CellDomainElement> cit = covMeta.getMetadata().getCellDomainIterator();
             // Need to loop through all dimensions to set scaling dims for un-trimmed axes too
             while (it.hasNext() && cit.hasNext()) {
                 DomainElement el = it.next();
@@ -434,7 +471,7 @@ public abstract class AbstractFormatExtension implements FormatExtension {
                     long hi = cel.getHiInt();
                     long scaledExtent;
                     if (newdim.containsKey(dim)) {
-                        long[] lohi = CrsUtil.convertToInternalGridIndices(cov, dbMeta, dim,
+                        long[] lohi = CrsUtil.convertToInternalGridIndices(covMeta.getMetadata(), dbMeta, dim,
                                 newdim.get(dim).fst, req.getSubset(dim).isNumeric(),
                                 newdim.get(dim).snd, req.getSubset(dim).isNumeric());
                         lo = lohi[0];
@@ -534,11 +571,43 @@ public abstract class AbstractFormatExtension implements FormatExtension {
             format += "\", \"" + params;
         }
 
-        String query = "for c in (" + req.getCoverageId() + ") return encode(" + proc + ", \"" + format + "\")";
+
+        String wcpsQuery = "";
+        // If outputCrs is not null then use crsTransform() with this CRS
+        if(covMeta.getOutputCrs() != null || covMeta.getSubsettingCrs() != null) {
+            String crs = covMeta.getOutputCrs() != null ? covMeta.getOutputCrs() : covMeta.getSubsettingCrs();
+            String axisOutputCrs2D = getAxisOutputCrs2D(covMeta, req.getSubsets(), crs);
+            wcpsQuery =  "for c in (" + req.getCoverageId() + ") return encode( crsTransform( " + proc + ", { " + axisOutputCrs2D + " }, {} ), \"" + format + "\")";
+        } else {
+            // Otherwise use the default native CRS without crsTransform()
+            wcpsQuery =  "for c in (" + req.getCoverageId() + ") return encode(" + proc + ", \"" + format + "\")";
+        }
+
         log.debug("==========================================================");
-        log.debug(query);
+        log.debug(wcpsQuery);
         log.debug("==========================================================");
-        return Pair.of(query, axes.trim());
+        return Pair.of(wcpsQuery, axes.trim());
+    }
+
+    /**
+     * If subsettingCrs or outputCrs is used in WCS then add this parameter as outputCrs in WCPS crsTransform() as well
+     * @return String
+     */
+    private String getAxisOutputCrs2D(GetCoverageMetadata covMeta, List<DimensionSubset> subsets, String crs) throws WCSException {
+        String outputCrs = "AXIS_X: \" "  + crs + " \", AXIS_Y: \" " + crs + " \" ";
+
+        // Then create a 2D output CRS for 2 axes (e.g: Long/E, Lat/N)
+        for(DimensionSubset subset:subsets) {
+            String dim = subset.getDimension();
+            DomainElement de = covMeta.getMetadata().getDomainByName(dim);
+            if(de.getType().equals(AxisTypes.X_AXIS)) {
+                outputCrs = outputCrs.replace("AXIS_X", dim);
+            } else if(de.getType().equals(AxisTypes.Y_AXIS)) {
+                outputCrs = outputCrs.replace("AXIS_Y", dim);
+            }
+        }
+
+        return outputCrs;
     }
 
     /**

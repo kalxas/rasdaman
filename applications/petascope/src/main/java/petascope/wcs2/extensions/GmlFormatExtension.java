@@ -58,7 +58,7 @@ public class GmlFormatExtension extends AbstractGmlcovFormatExtension {
     public boolean canHandle(GetCoverageRequest req) {
         // convert back from application/gml xml -> application/gml+xml
         String regFormat = req.getFormat().replace(" ", "+");
-        return req.getFormat() == null || (!req.isMultipart() && getMimeType().equals(regFormat));
+        return req.getFormat() == null || (!req.isMultiPart() && getMimeType().equals(regFormat));
         //return false;
     }
 
@@ -72,9 +72,8 @@ public class GmlFormatExtension extends AbstractGmlcovFormatExtension {
         rsubExt.handle(request, m);
 
         if (WcsUtil.isMultiPoint(m.getCoverageType())) {
-            Response r = handleMultiPoint(request, request.getCoverageId(), meta, m);
-            String xml = r.getXml();
-            return new Response(r.getData(), xml, r.getMimeType());
+            Response r = handleMultiPoint(request, request.getCoverageId(), meta, m);            
+            return new Response(r.getData(), r.getXml(), r.getFormatType());
 
         } else if (WcsUtil.isGrid(m.getCoverageType())) {
 
@@ -87,7 +86,7 @@ public class GmlFormatExtension extends AbstractGmlcovFormatExtension {
             }
 
             String gml = WcsUtil.getGML(m, Templates.COVERAGE, meta);
-            gml = addCoverageData(gml, request, meta, m.getMetadata());
+            gml = addCoverageData(gml, request, meta, m);
 
             // RGBV coverages
             if (m.getCoverageType().equals(XMLSymbols.LABEL_REFERENCEABLE_GRID_COVERAGE)) {
@@ -98,7 +97,7 @@ public class GmlFormatExtension extends AbstractGmlcovFormatExtension {
             }
 
 
-            return new Response(null, gml, FormatExtension.MIME_XML);
+            return new Response(null, new String[] { gml }, FormatExtension.MIME_XML);
             // TODO : use XOM serializer (current problem: license header is trimmed to one line and namespaces need to be added)
             //Builder xmlBuilder = new Builder();
             //try {
@@ -126,7 +125,7 @@ public class GmlFormatExtension extends AbstractGmlcovFormatExtension {
      * @throws WCSException
      * @throws PetascopeException
      */
-    protected String addCoverageData(String gml, GetCoverageRequest request, DbMetadataSource meta, CoverageMetadata m)
+    protected String addCoverageData(String gml, GetCoverageRequest request, DbMetadataSource meta, GetCoverageMetadata m)
             throws WCSException, PetascopeException {
         RasQueryResult res = new RasQueryResult(executeRasqlQuery(request, m, meta, CSV_ENCODING, null).fst);
         if (!res.getMdds().isEmpty()) {
@@ -203,7 +202,7 @@ public class GmlFormatExtension extends AbstractGmlcovFormatExtension {
         } catch (PetascopeException ex) {
             log.error("Error", ex);
         }
-        return new Response(sb.toString());
+        return new Response(new String[] { sb.toString() });
     }
 
     @Override

@@ -1,0 +1,1 @@
+for c in ( mean_summer_airtemp ) return encode( (abs(c - c + 500 + 500)) [ Lat(-44:-43), Long(155:156) ], "csv")

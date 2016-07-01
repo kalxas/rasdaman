@@ -25,7 +25,11 @@ import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintWriter;
+import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
+import java.util.Stack;
+import java.util.logging.Level;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -40,14 +44,29 @@ import org.slf4j.LoggerFactory;
 import petascope.ConfigManager;
 import petascope.core.DbMetadataSource;
 import petascope.exceptions.ExceptionCode;
+import petascope.exceptions.PetascopeException;
 import petascope.exceptions.SecoreException;
 import petascope.exceptions.WCPSException;
 import petascope.util.PostgisQueryResult;
 import petascope.util.WcpsConstants;
 import petascope.util.ras.RasQueryResult;
 import petascope.util.ras.RasUtil;
+import petascope.util.response.MultipartResponse;
 import petascope.wcps.server.core.ProcessCoveragesRequest;
 import petascope.wcps.server.core.Wcps;
+import petascope.wcps2.error.managed.processing.WCPSProcessingError;
+import petascope.wcps2.executor.WcpsExecutor;
+import petascope.wcps2.executor.WcpsExecutorFactory;
+import petascope.wcps2.metadata.service.CoordinateTranslationService;
+import petascope.wcps2.metadata.service.CoverageRegistry;
+import petascope.wcps2.metadata.service.RasqlRewriteMultipartQueriesService;
+import petascope.wcps2.metadata.service.RasqlTranslationService;
+import petascope.wcps2.metadata.service.SubsetParsingService;
+import petascope.wcps2.metadata.service.WcpsCoverageMetadataService;
+import petascope.wcps2.parser.WcpsTranslator;
+import petascope.wcps2.result.VisitorResult;
+import petascope.wcps2.result.WcpsMetadataResult;
+import petascope.wcps2.result.WcpsResult;
 
 //important limitation: this will only return the first result if several are available.
 //The reason is that WCPS currently has no standardized way to return multiple byte streams to
@@ -103,141 +122,74 @@ public class WcpsServlet extends HttpServlet {
     public void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         log.debug("WCPS: invoked with POST");
-        OutputStream webOut = null;
 
-        meta.clearCache();
-        Wcps wcps;
+        response.setHeader("Access-Control-Allow-Origin", "*");
 
-        try{
-            meta.ensureConnection();
-            wcps = new Wcps(new File(getServletContext().getRealPath(WCPS_PROCESS_COVERAGE_XSD)), meta);
-        } catch (Exception e) {
-            throw new ServletException("Error initializing WCPS",e);
-        }
+        CoverageRegistry coverageRegistry = new CoverageRegistry(meta);
+        CoordinateTranslationService coordinateTranslationService = new CoordinateTranslationService(coverageRegistry);
+        WcpsCoverageMetadataService wcpsCoverageMetadataService = new WcpsCoverageMetadataService(coordinateTranslationService);
+        RasqlTranslationService rasqlTranslationService = new RasqlTranslationService();
+        SubsetParsingService subsetParsingService = new SubsetParsingService();
+        WcpsTranslator wcpsTranslator = new WcpsTranslator(coverageRegistry, wcpsCoverageMetadataService,
+                                            rasqlTranslationService, subsetParsingService);
 
+        String query = request.getParameter(WcpsConstants.MSG_QUERY);
+
+        OutputStream os = response.getOutputStream();
+
+        boolean isMultiPart = false;
+        List<byte[]> results = new ArrayList<byte[]>();
+        VisitorResult wcpsResult = null;
         try {
-            String xmlRequest = null;
-            response.setHeader("Access-Control-Allow-Origin", "*");
+            wcpsResult = wcpsTranslator.translate(query);
+            WcpsExecutor executor = WcpsExecutorFactory.getExecutor(wcpsResult);
 
-            if (ServletFileUpload.isMultipartContent(request)) {
-                @SuppressWarnings("unchecked")
-                        Iterator<FileItem> fileItems =
-                        (Iterator<FileItem>) (new ServletFileUpload(
-                        new DiskFileItemFactory())).parseRequest(
-                        request).iterator();
+            // Handle Multipart by rewriting multiple queries if it is necessary
+            // NOTE: not support multipart if return metadata value (e.g: identifier())
+            RasqlRewriteMultipartQueriesService multipartService =
+                                        new RasqlRewriteMultipartQueriesService(wcpsTranslator.getCoverageAliasRegistry(), wcpsResult);
+            isMultiPart = multipartService.isMultiPart();
 
-                if (!fileItems.hasNext()) {
-                    throw new IOException(
-                            "Multipart POST request contains no parts");
-                }
-
-                FileItem fileItem = fileItems.next();
-
-                if (fileItems.hasNext()) {
-                    throw new IOException(
-                            "Multipart POST request contains too many parts");
-                }
-
-                if (!fileItem.isFormField()
-                        && fileItem.getContentType().equals("text/xml")) {
-                    xmlRequest = fileItem.getString();
-                }
-
-                if (xmlRequest == null) {
-                    log.warn(
-                            "WCPS: no XML file was uploaded within multipart POST request");
-                    printUsage(response);
-                    return;
-                }
-
-                log.debug("WCPS: received XML via a multipart POST request");
+            if (wcpsResult instanceof WcpsMetadataResult) {
+                results.add(executor.execute(wcpsResult));
             } else {
-                String xml = request.getParameter(WcpsConstants.MSG_XML);
-                String query = request.getParameter(WcpsConstants.MSG_QUERY);
+                // create multiple rasql queries from a Rasql query result (if it is multipart)
+                Stack<String> rasqlQueries = multipartService.rewriteQuery(wcpsTranslator.getCoverageAliasRegistry(),
+                                            ((WcpsResult)wcpsResult).getRasql());
+                // Run all the Rasql queries and get result
+                while(!rasqlQueries.isEmpty()) {
+                    // Execute multiple Rasql queries with different coverageID to get List of byte arrays
+                    String rasql = rasqlQueries.pop();
+                    log.debug("Executing rasql query: " + rasql);
 
-                if (xml != null) {
-                    log.debug("WCPS: received XML via a 'xml' parameter in a POST request");
-                    xmlRequest = xml;
-                } else if (query != null) {
-                    log.debug("WCPS: received the following  query via a 'query' "
-                            + "parameter in a POST request:");
-                    log.debug(query);
-
-                    xmlRequest = RasUtil.abstractWCPStoXML(query);
-                } else {
-                    log.debug("WCPS: no request was received");
-                    printUsage(response);
-                    return;
+                    ((WcpsResult)wcpsResult).setRasql(rasql);
+                    results.add(executor.execute(wcpsResult));
                 }
             }
 
-            log.debug("-------------------------------------------------------");
-            log.debug("Converting to rasql");
-            ProcessCoveragesRequest processCoverageRequest = wcps.pcPrepare(
-                    ConfigManager.RASDAMAN_URL, ConfigManager.RASDAMAN_DATABASE, IOUtils.toInputStream(xmlRequest));
-            log.debug("-------------------------------------------------------");
+            String mimeType = wcpsResult.getMimeType();
 
-            String query = processCoverageRequest.getRasqlQuery();
-            String mime = processCoverageRequest.getMime();
-
-            response.setContentType(mime);
-            webOut = response.getOutputStream();
-
-            /* Alireza
-            Object res = processCoverageRequest.execute();
-            if (res instanceof RasQueryResult){
-                log.debug("executing request");
-                log.debug("[" + mime + "] " + query);
-
-                for (String s : ((RasQueryResult) res).getScalars()) {
-                    webOut.write(s.getBytes());
+            if(isMultiPart) {
+                MultipartResponse multi = new MultipartResponse(response);
+                for (byte[] data : results) {
+                    multi.startPart(mimeType);
+                    IOUtils.write(data, os);
+                    multi.endPart();
                 }
-                for (byte[] bs : ((RasQueryResult) res).getMdds()) {
-                    webOut.write(bs);
-                }
-
-            } else if (res instanceof String){
-                webOut.write(out.getBytes());
-            }
-            */
-
-            if (processCoverageRequest.isRasqlQuery()) {
-                log.debug("executing request");
-                log.debug("[" + mime + "] " + query);
-
-                RasQueryResult res = new RasQueryResult(processCoverageRequest.execute());
-                for (String s : res.getScalars()) {
-                    webOut.write(s.getBytes());
-                }
-                for (byte[] bs : res.getMdds()) {
-                    webOut.write(bs);
-                }
-            // Execute the query ... (?)
-            } else if(processCoverageRequest.isPostGISQuery()){
-                PostgisQueryResult res = new PostgisQueryResult(processCoverageRequest.execute());
-                webOut.write(res.toCSV(res.getValues()).getBytes());
-
+                multi.finish();
             } else {
-                log.debug("metadata result, no rasql to execute");
-                webOut.write(query.getBytes());
+                response.setContentType(mimeType);
+                IOUtils.write(results.get(0), os);
             }
-            log.debug("WCPS: done");
-        } catch (WCPSException e) {
-            response.setStatus(e.getExceptionCode().getHttpErrorCode());
-            printError(response, "WCPS Error: " + e.getMessage(), e);
-        } catch (SecoreException e) {
-            response.setStatus(e.getExceptionCode().getHttpErrorCode());
-            printError(response, "SECORE Error: " + e.getMessage(), e);
-        } catch (Exception e) {
-            response.setStatus(ExceptionCode.DEFAULT_EXIT_CODE);
-            printError(response, "Error: " + e.getMessage(), e);
+
+        } catch (WCPSProcessingError ex) {
+            response.setStatus(ExceptionCode.WcpsError.getHttpErrorCode());
+            printError(response, "WCPS Error: " + ex.getMessage(), ex);
+        } catch (PetascopeException ex) {
+            response.setStatus(ExceptionCode.WcpsError.getHttpErrorCode());
+            printError(response, "Petascope Error: " + ex.getMessage(), ex);
         } finally {
-            if (webOut != null) {
-                try {
-                    webOut.close();
-                } catch (IOException e) {
-                }
-            }
+            IOUtils.closeQuietly(os);
         }
     }
 

@@ -34,20 +34,8 @@ public class InvalidAxisNameException extends WCPSProcessingError {
      * @param axisName the name of the axis that is invalid
      */
     public InvalidAxisNameException(String axisName) {
-        this.axisName = axisName;
+        super(ERROR_TEMPLATE.replace("$axisName", axisName));
     }
-
-
-    /**
-     * Getter for the axis name
-     *
-     * @return
-     */
-    public String getAxisName() {
-        return axisName;
-    }
-
-    private final String axisName;
-
-    private static final String TEMPLATE = "Invalid axis name: $axisName";
+    
+    private static final String ERROR_TEMPLATE = "Invalid axis name '$axisName'.";
 }

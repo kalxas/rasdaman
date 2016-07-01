@@ -116,9 +116,11 @@ public class GetCapabilitiesHandler extends AbstractRequestHandler<GetCapabiliti
 
             // Profiles
             for (String id : ExtensionsRegistry.getExtensionIds()) {
-                fatherEl = new Element(PREFIX_OWS + ":" + LABEL_PROFILE, NAMESPACE_OWS);
-                fatherEl.appendChild(id);
-                serviceIdentification.appendChild(fatherEl);
+                if (!id.trim().equals("")) {
+                    fatherEl = new Element(PREFIX_OWS + ":" + LABEL_PROFILE, NAMESPACE_OWS);
+                    fatherEl.appendChild(id);
+                    serviceIdentification.appendChild(fatherEl);
+                }
             }
 
             // Fees and constraints
@@ -388,7 +390,7 @@ public class GetCapabilitiesHandler extends AbstractRequestHandler<GetCapabiliti
         root.appendChild(contents);
 
         try {
-            return new Response(null, XMLUtil.serialize(ret), FormatExtension.MIME_XML);
+            return new Response(null, new String[] { XMLUtil.serialize(ret) }, FormatExtension.MIME_XML);
         } catch (IOException ex) {
             throw new WCSException(ExceptionCode.IOConnectionError,
                     "Error serializing constructed document", ex);

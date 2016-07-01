@@ -1,0 +1,1 @@
+for c in (mr) return encode(c [i:"http://localhost:8080/def/crs/OGC/0/Index2D/" (1:100), j:"http://localhost:8080/def/crs/OGC/0/Index2D/" (1:100) ], "png", "nodata=0")

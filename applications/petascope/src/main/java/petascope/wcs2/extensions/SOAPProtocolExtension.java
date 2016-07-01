@@ -60,21 +60,21 @@ public class SOAPProtocolExtension extends AbstractProtocolExtension {
             request.setRequestString(extractWcsRequest(request.getRequestString()));
             Response ret = super.handle(request, meta);
             if (ret.getXml() != null) {
-                ret = new Response(ret.getData(), Templates.getTemplate(Templates.SOAP_MESSAGE,
-                        Pair.of("\\{body\\}", XMLUtil.removeXmlDecl(ret.getXml()))), ret.getMimeType());
+                ret = new Response(ret.getData(), new String[] { Templates.getTemplate(Templates.SOAP_MESSAGE,
+                        Pair.of("\\{body\\}", XMLUtil.removeXmlDecl(ret.getXml()[0]))) }, ret.getFormatType());
             }
             return ret;
         } catch (WCSException ex) {
             log.error("WCS error", ex);
             return new Response(
-                    Templates.getTemplate(Templates.SOAP_FAULT, Pair.of("\\{exceptionReport\\}",
-                    XMLUtil.removeXmlDecl(WcsUtil.exceptionToXml((PetascopeException) ex)))),
+                    new String[] { Templates.getTemplate(Templates.SOAP_FAULT, Pair.of("\\{exceptionReport\\}",
+                    XMLUtil.removeXmlDecl(WcsUtil.exceptionToXml((PetascopeException) ex)))) },
                     ex.getExceptionCode().getHttpErrorCode());
         } catch (Exception ex) {
             log.error("Error", ex);
             return new Response(
-                    Templates.getTemplate(Templates.SOAP_FAULT, Pair.of("\\{exceptionReport\\}",
-                    XMLUtil.removeXmlDecl(WcsUtil.exceptionToXml((PetascopeException) ex)))),
+                    new String[] { Templates.getTemplate(Templates.SOAP_FAULT, Pair.of("\\{exceptionReport\\}",
+                    XMLUtil.removeXmlDecl(WcsUtil.exceptionToXml((PetascopeException) ex)))) },
                     ExceptionCode.DEFAULT_EXIT_CODE);
         }
     }

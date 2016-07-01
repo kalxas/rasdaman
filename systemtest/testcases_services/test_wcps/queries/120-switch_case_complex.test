@@ -1,0 +1,26 @@
+for c in ( mr )return encode({
+	red: ( (unsigned char) ( 
+		coverage greyImage 
+		over $x1 x(0:150), 
+		     $y1 y(0:99) 
+                values 
+                     switch case c[ i($x1), j($y1)] > 50 
+                            return (unsigned char) (c[ i($x1), j($y1)] * 3) 
+                            default return (unsigned char) (c[ i($x1), j($y1)] * 5) ) ); 
+        green: ( (unsigned char) ( 
+                coverage greyImage 
+                over $x2 x(0:150), 
+                     $y2 y(0:99) 
+                values 
+                     switch case c[ i($x2), j($y2)] > 20 
+                            return (unsigned char) (c[ i($x2), j($y2)] * 6) 
+                            default return (unsigned char) (c[ i($x2), j($y2)] * 10) ) ); 
+        blue: ( (unsigned char) ( 
+                coverage greyImage
+                over $x3 x(0:150),
+                     $y3 y(0:99) 
+                values 
+                     switch case c[ i($x3), j($y3)] > 30
+                           return (unsigned char) (c[ i($x3), j($y3)] * 6)
+                            default return (unsigned char) (c[ i($x3), j($y3)] * 10) ) )}
+, "png", "nodata=0" )

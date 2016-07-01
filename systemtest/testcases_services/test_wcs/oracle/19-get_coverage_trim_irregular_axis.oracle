@@ -11,18 +11,18 @@
   <boundedBy>
     <Envelope srsName="/crs/OGC/0/Index3D" axisLabels="i j k" uomLabels="GridSpacing GridSpacing GridSpacing" srsDimension="3">
       <lowerCorner>0 3 3</lowerCorner>
-      <upperCorner>2 5 8</upperCorner>
+      <upperCorner>2 5 5</upperCorner>
     </Envelope>
   </boundedBy>
 
   <domainSet>
     <gmlrgrid:ReferenceableGridByVectors dimension="3" id="irr_cube_1-grid"
-
+        
         >
       <limits>
         <GridEnvelope>
           <low>0 3 3</low>
-          <high>2 5 5</high>
+          <high>2 5 4</high>
         </GridEnvelope>
       </limits>
       <axisLabels>i j k</axisLabels>
@@ -50,7 +50,7 @@
       <gmlrgrid:generalGridAxis>
         <gmlrgrid:GeneralGridAxis>
           <gmlrgrid:offsetVector srsName="/crs/OGC/0/Index3D" axisLabels="i j k" uomLabels="GridSpacing GridSpacing GridSpacing" srsDimension="3">0 0 1</gmlrgrid:offsetVector>
-          <gmlrgrid:coefficients>0 2 5</gmlrgrid:coefficients>
+          <gmlrgrid:coefficients>0 2</gmlrgrid:coefficients>
           <gmlrgrid:gridAxesSpanned>k</gmlrgrid:gridAxesSpanned>
           <gmlrgrid:sequenceRule axisOrder="+1">Linear</gmlrgrid:sequenceRule>
         </gmlrgrid:GeneralGridAxis>

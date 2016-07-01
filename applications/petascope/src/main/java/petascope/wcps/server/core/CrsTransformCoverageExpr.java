@@ -31,9 +31,22 @@ import petascope.exceptions.SecoreException;
 import petascope.wcps.metadata.CoverageInfo;
 import petascope.util.WcpsConstants;
 import org.w3c.dom.*;
+import petascope.core.EncodeCrsProperties;
+import petascope.util.AxisTypes;
 import petascope.util.CrsUtil;
+import petascope.wcps.metadata.DomainElement;
 
-//TODO(smsorin): how do we do combine this ?
+/**
+ * Handle crsTransform() in WCPS
+ * 
+ * e.g: 
+ * crsTransform(c[ansi(148654)]
+ * ,{ E:"http://www.opengis.net/def/crs/EPSG/0/3542", N:"http://www.opengis.net/def/crs/EPSG/0/3542"}, {})
+ * then will convert the 2D coverage with outputCrs (3542) instead of nativeCRS (e.g: 32633, 4326)
+ * NOTE: It cannot convert any coverage which is not 2D and native CRS should be geo-referenced CRS (not GridAxis).
+ * 
+ * @author <a href="mailto:bphamhuu@jacobs-university.de">Bang Pham Huu</a>
+ */
 
 /** NOTE(campalani): rasdaman enterprise already implements reprojection of coverage
  *  through 'project' function.
@@ -45,6 +58,10 @@ public class CrsTransformCoverageExpr extends AbstractRasNode implements ICovera
     
     private CoverageExpr coverageExprType;
     private CoverageInfo coverageInfo;
+    
+    // NOTE: if coverage has compoundCrs 
+    // (e.g: http://localhost:8080/def/crs-compound?1=http://localhost:8080/def/crs/EPSG/0/32633&2=http://localhost:8080/def/crs/OGC/0/AnsiDate)
+    // Only store the geo-referenced CRS (http://localhost:8080/def/crs/EPSG/0/32633)
     private String sourceCrsName;
     private String targetCrsName;
     private String bbox; // geo bbox
@@ -100,16 +117,21 @@ public class CrsTransformCoverageExpr extends AbstractRasNode implements ICovera
         // Add children to let the XML query be re-traversed
         super.children.addAll(axisList);  
         
-        CrsUtil.CrsProperties crsProperties = new CrsUtil.CrsProperties((CoverageExpr)coverageExprType, 2);
+        EncodeCrsProperties encodeCrsProperties = new EncodeCrsProperties((CoverageExpr)coverageExprType, 2);
         if (coverageInfo != null) {
             // Build the whole string (dimensions of reqBounds are already checked inside getRequestBounds)
             if (coverageInfo.getBbox() != null) {
-                //sourceCrsName=coverageInfo.getCoverageCrs();
-                sourceCrsName = coverageInfo.getBbox().getCrsName();
-                crsProperties.setCrs(sourceCrsName);
+                // NOTE: only get CRS for axis which is geo-referenced (not time, high, pressure,...)
+                for(DomainElement element:coverageInfo.getDomains()) {
+                    if(element.getType().equals(AxisTypes.X_AXIS)) {
+                        sourceCrsName = element.getNativeCrs();
+                        break;
+                    }
+                }                
+                encodeCrsProperties.setCrs(sourceCrsName);
             }
         }
-        bbox = crsProperties.toRasqlProjectBbox();
+        bbox = encodeCrsProperties.toRasqlProjectBbox();
     }
 
     public String toRasQL() {

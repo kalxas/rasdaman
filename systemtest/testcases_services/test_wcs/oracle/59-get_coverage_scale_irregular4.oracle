@@ -17,7 +17,7 @@
 
   <domainSet>
     <gmlrgrid:ReferenceableGridByVectors dimension="2" id="irr_cube_2-grid"
-
+        
         >
       <limits>
         <GridEnvelope>
@@ -54,7 +54,7 @@
   <rangeSet>
     <DataBlock>
       <rangeParameters/>
-      <tupleList ts="," cs=" ">9.55874 4.17515,9.63844 4.17907,9.69735 4.18183</tupleList>
+      <tupleList ts="," cs=" ">9.63844 4.17907,9.63844 4.17907,9.63844 4.17907</tupleList>
     </DataBlock>
   </rangeSet>
 

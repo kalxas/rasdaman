@@ -32,18 +32,18 @@ public class IrregularAxisFetchingFailedException extends WCPSProcessingError {
     /**
      * Constructor for the class
      *
-     * @param coverageName  the name of the coverage
-     * @param axisName      the name of the axis whose fetching failed
+     * @param coverageName the name of the coverage
+     * @param axisName the name of the axis whose fetching failed
      * @param originalCause the original exception cause
      */
     public IrregularAxisFetchingFailedException(String coverageName, String axisName, Exception originalCause) {
-        this.coverageName = coverageName;
-        this.axisName = axisName;
-        this.originalCause = originalCause;
+        super(ERROR_TEMPLATE.replace("$axisName", axisName) + originalCause.getMessage());
     }
 
-    private final String coverageName;
-    private final String axisName;
-    private final Exception originalCause;
+    public IrregularAxisFetchingFailedException(Exception originalExceptionCause) {
+        super(originalExceptionCause.getMessage());
+    }
+
+    public static final String ERROR_TEMPLATE = "Irregular axis cannot be fetched in axis '$axisName'.";
 
 }

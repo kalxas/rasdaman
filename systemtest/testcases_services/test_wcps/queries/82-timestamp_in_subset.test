@@ -1,6 +1,6 @@
 for c in (eobstest) return encode(
   (c[
     t("1950-01-02"),
-    Long(20:35),
+    Long(25:30),
     Lat(10:15)]),
 "tiff", "nodata=0")

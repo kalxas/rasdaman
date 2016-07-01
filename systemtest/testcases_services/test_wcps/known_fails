@@ -1,5 +1,3 @@
 31-Discrete_Fourier.test
-86-get_metadata_domain.test
 53-jpeg2000-params-filling.test
-102-scaled_irr_series.test
-101-max_delta_px_history.test
+58-overlay_performance.test

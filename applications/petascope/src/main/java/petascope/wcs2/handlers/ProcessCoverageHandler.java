@@ -22,7 +22,6 @@
 package petascope.wcs2.handlers;
 
 import org.apache.commons.io.IOUtils;
-import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.xml.sax.SAXException;
 import petascope.ConfigManager;
@@ -33,14 +32,23 @@ import petascope.util.ras.RasQueryResult;
 import petascope.util.ras.RasUtil;
 import petascope.wcps.server.core.ProcessCoveragesRequest;
 import petascope.wcps.server.core.Wcps;
-import petascope.wcps2.translator.WcpsTranslator;
+import petascope.wcps2.executor.WcpsExecutor;
+import petascope.wcps2.executor.WcpsExecutorFactory;
+import petascope.wcps2.metadata.service.*;
+import petascope.wcps2.parser.WcpsTranslator;
+import petascope.wcps2.result.VisitorResult;
 import petascope.wcs2.extensions.ProcessCoverageExtension;
 import petascope.wcs2.parsers.ProcessCoverageRequest;
 
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
+import java.util.Stack;
+import petascope.wcps2.result.WcpsMetadataResult;
+import petascope.wcps2.result.WcpsResult;
 
 /**
  * Handler for the Process Coverages Extension
@@ -50,6 +58,10 @@ import java.util.Map;
  */
 public class ProcessCoverageHandler extends AbstractRequestHandler<ProcessCoverageRequest> {
 
+    private final WcpsTranslator wcpsTranslator;
+
+    private static org.slf4j.Logger log = LoggerFactory.getLogger(ProcessCoverageHandler.class);
+
     /**
      * Constructor for the class.
      *
@@ -57,6 +69,13 @@ public class ProcessCoverageHandler extends AbstractRequestHandler<ProcessCovera
      */
     public ProcessCoverageHandler(DbMetadataSource meta) {
         super(meta);
+        CoverageRegistry coverageRegistry = new CoverageRegistry(meta);
+        CoordinateTranslationService coordinateTranslationService = new CoordinateTranslationService(coverageRegistry);
+        WcpsCoverageMetadataService wcpsCoverageMetadataService = new WcpsCoverageMetadataService(coordinateTranslationService);
+        RasqlTranslationService rasqlTranslationService = new RasqlTranslationService();
+        SubsetParsingService subsetParsingService = new SubsetParsingService();
+        wcpsTranslator = new WcpsTranslator(coverageRegistry, wcpsCoverageMetadataService,
+                                            rasqlTranslationService, subsetParsingService);
     }
 
     /**
@@ -71,11 +90,12 @@ public class ProcessCoverageHandler extends AbstractRequestHandler<ProcessCovera
      */
     @Override
     public Response handle(ProcessCoverageRequest request) throws PetascopeException, WCSException, SecoreException {
-        if (request.getWcpsVersion().equals(ProcessCoverageExtension.WCPS_20_VERSION_STRING)) {
+        /*if (request.getWcpsVersion().equals(ProcessCoverageExtension.WCPS_20_VERSION_STRING)) {
             return handleWCPS2Request(request);
         } else {
             return handleWCPS1Request(request);
-        }
+        } */
+        return handleWCPS2Request(request);
     }
 
     /**
@@ -88,7 +108,7 @@ public class ProcessCoverageHandler extends AbstractRequestHandler<ProcessCovera
      */
     private Response handleWCPS1Request(ProcessCoverageRequest request) throws SecoreException, PetascopeException {
         String xmlRequest = RasUtil.abstractWCPStoXML(substituteExtraParametersInQuery(request));
-        byte[] result = new byte[0];
+        List<byte[]> results = new ArrayList<byte[]>();
         String mime;
         try {
             Wcps wcps1Service = new Wcps(null, meta);
@@ -109,19 +129,19 @@ public class ProcessCoverageHandler extends AbstractRequestHandler<ProcessCovera
                 }
                 if (!res.getMdds().isEmpty() || !res.getScalars().isEmpty()) {
                     for (String s : res.getScalars()) {
-                        result = s.getBytes(Charset.forName("UTF-8"));
+                        results.add(s.getBytes(Charset.forName("UTF-8")));
                     }
                     for (byte[] bs : res.getMdds()) {
-                        result = bs;
+                        results.add(bs);
                     }
                 } else {
 
                 }
             } else if (processCoverageRequest.isPostGISQuery()) {
                 PostgisQueryResult res = new PostgisQueryResult(processCoverageRequest.execute());
-                result = res.toCSV(res.getValues()).getBytes();
+                results.add(res.toCSV(res.getValues()).getBytes());
             } else {
-                result = query.getBytes();
+                results.add(query.getBytes());
             }
         } catch (WCPSException e) {
             throw new WCSException(e.getExceptionCode(), e.getMessage(), e);
@@ -133,9 +153,8 @@ public class ProcessCoverageHandler extends AbstractRequestHandler<ProcessCovera
             throw new WCSException(ExceptionCode.InternalSqlError, e.getMessage(), e);
         }
 
-        Response ret = new Response(result, null, mime);
-        ret.setProcessCoverage(true);
-        return ret;
+        // No GML return with WCPS query
+        return new Response(results, null, mime, true);
     }
 
     /**
@@ -146,29 +165,37 @@ public class ProcessCoverageHandler extends AbstractRequestHandler<ProcessCovera
      * @throws WCSException
      * @todo Implement it as soon as WCPS2.0 fixes are done.
      */
-    private Response handleWCPS2Request(ProcessCoverageRequest request) throws WCSException {
-        WcpsTranslator translator = new WcpsTranslator(request.getQuery());
-        String rasqlQuery = translator.translate();
-        RasQueryResult res = null;
-        String mime = "";
-        byte[] result = new byte[0];
-        try {
-            res = new RasQueryResult(RasUtil.executeRasqlQuery(rasqlQuery));
+    private Response handleWCPS2Request(ProcessCoverageRequest request) throws WCSException, PetascopeException {
+        boolean isMultiPart = false;
+        List<byte[]> results = new ArrayList<byte[]>();
+        String query = request.getQuery();
+        VisitorResult wcpsResult = wcpsTranslator.translate(query);
+        WcpsExecutor executor = WcpsExecutorFactory.getExecutor(wcpsResult);
+        // Handle Multipart by rewriting multiple queries if it is necessary
+        // NOTE: not support multipart if return metadata value (e.g: identifier())
+        RasqlRewriteMultipartQueriesService multipartService =
+                                    new RasqlRewriteMultipartQueriesService(wcpsTranslator.getCoverageAliasRegistry(), wcpsResult);
+        isMultiPart = multipartService.isMultiPart();
 
-            if (!res.getMdds().isEmpty() || !res.getScalars().isEmpty()) {
-                for (String s : res.getScalars()) {
-                    result = s.getBytes(Charset.forName("UTF-8"));
-                }
-                for (byte[] bs : res.getMdds()) {
-                    result = bs;
-                }
-            } else {
+        if (wcpsResult instanceof WcpsMetadataResult) {
+            results.add(executor.execute(wcpsResult));
+        } else {
+            // create multiple rasql queries from a Rasql query result (if it is multipart)
+            Stack<String> rasqlQueries = multipartService.rewriteQuery(wcpsTranslator.getCoverageAliasRegistry(),
+                                        ((WcpsResult)wcpsResult).getRasql());
+            // Run all the Rasql queries and get result
+            while(!rasqlQueries.isEmpty()) {
+                // Execute multiple Rasql queries with different coverageID to get List of byte arrays
+                String rasql = rasqlQueries.pop();
+                log.debug("Executing rasql query: " + rasql);
 
+                ((WcpsResult)wcpsResult).setRasql(rasql);
+                results.add(executor.execute(wcpsResult));
             }
-        } catch (Exception ex) {
-            throw new WCSException(ExceptionCode.SemanticError, ex);
         }
-        return new Response(result, null, mime);
+
+        String mimeType = wcpsResult.getMimeType();
+        return new Response(results, null, mimeType, true, isMultiPart);
     }
 
     /**
@@ -184,6 +211,4 @@ public class ProcessCoverageHandler extends AbstractRequestHandler<ProcessCovera
         }
         return query;
     }
-
-    private static final Logger log = LoggerFactory.getLogger(ProcessCoverageHandler.class);
 }

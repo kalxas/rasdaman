@@ -34,17 +34,8 @@ public class CoverageAxisNotFoundExeption extends WCPSProcessingError {
      * @param axisName the axis that was provided
      */
     public CoverageAxisNotFoundExeption(String axisName) {
-        this.axisName = axisName;
+        super(ERROR_TEMPLATE.replace(("$axisName"), axisName));
     }
 
-    /**
-     * Getter for the axis name
-     * @return
-     */
-    public String getAxisName() {
-        return axisName;
-    }
-
-    private final String axisName;
-    private static final String TEMPLATE = "Coverage Axis not found: $axisName";
+    private static final String ERROR_TEMPLATE = "Coverage's Axis not found '$axisName'.";
 }

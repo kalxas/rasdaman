@@ -125,7 +125,7 @@ public class DescribeCoverageHandler extends AbstractRequestHandler<DescribeCove
         }
 
         try {
-            return new Response(null, serialize(ret), FormatExtension.MIME_XML);
+            return new Response(null, new String[] { serialize(ret) }, FormatExtension.MIME_XML);
         } catch (IOException ex) {
             throw new WCSException(ExceptionCode.IOConnectionError,
                     "Error serializing constructed document", ex);

@@ -1,4 +1,6 @@
 for c in (irr_cube_2) return encode (
-   scale( slice( (c[ansi("2008-01-01T00Z":"2008-01-01T12Z")]).b2, {ansi:"CRS:1"(0)}),
-          { N:"CRS:1"(0:1), E:"CRS:1"(0:2) } )
+    scale( 
+	slice( (c[ansi("2008-01-01T00Z":"2008-01-01T12Z")]).b2, 
+	{ansi:"http://localhost:8080/def/crs/OGC/0/Index3D"(0)}),
+    { N:"http://localhost:8080/def/crs/OGC/0/Index3D"(0:1), E:"http://localhost:8080/def/crs/OGC/0/Index3D"(0:2) } )
 , "csv")

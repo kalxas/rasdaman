@@ -1,1 +1,0 @@
-select png((m).red) from rgb AS m

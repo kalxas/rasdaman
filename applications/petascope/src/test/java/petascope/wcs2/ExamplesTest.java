@@ -123,11 +123,11 @@ public class ExamplesTest extends BaseTestCase {
     private String humanReadableResponse(File input, Response res) throws IOException {
         String ret = "";
         
-        if (res.getMimeType() != null) {
-            if (res.getData() != null && res.getXml() != null && res.getMimeType() != null) {
-                ret += "MEDIATYPE=multipart/mixed, FORMAT=" + res.getMimeType();
+        if (res.getFormatType() != null) {
+            if (res.getData() != null && res.getXml() != null && res.getFormatType() != null) {
+                ret += "MEDIATYPE=multipart/mixed, FORMAT=" + res.getFormatType();
             } else {
-                ret += "MEDIATYPE=" + res.getMimeType();
+                ret += "MEDIATYPE=" + res.getFormatType();
             }
             ret += "\n\n";
         }
@@ -137,7 +137,7 @@ public class ExamplesTest extends BaseTestCase {
         }
         if (res.getData() != null) {
             File output = new File(IOUtil.removeExtension(input.getPath()) + ".dat");
-            FileUtils.writeByteArrayToFile(output, res.getData());
+            FileUtils.writeByteArrayToFile(output, res.getData().get(0));
             ret += "Binary data of length " + output.length() + " in " + output + "\n";
         }
         

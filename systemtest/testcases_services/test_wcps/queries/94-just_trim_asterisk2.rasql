@@ -1,1 +1,0 @@
-select csv((c) [0:256,0]) from mr AS c

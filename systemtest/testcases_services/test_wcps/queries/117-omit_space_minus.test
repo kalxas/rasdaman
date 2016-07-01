@@ -1,0 +1,1 @@
+for c in (eobstest) return encode ((c[Long(25.5:26), Lat(23:24)])*-1*5/-5+9999, "csv")

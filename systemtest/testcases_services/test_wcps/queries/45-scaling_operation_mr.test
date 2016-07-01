@@ -1,5 +1,6 @@
 for c in (mr) return encode(
-    scale(
-        trim(c, { i (120:130), j (50:60) }),
-        { i (0:100), j (0:100) }, { }),
-"png", "nodata=0")
+   scale(
+	trim(c, { i (120:130), j (50:60) })
+        ,{ i (0:10), j (0:10) }
+      )
+  ,"csv")

@@ -271,13 +271,15 @@ public class GdalParameters {
     public String toString() {
         String ret = null;
         if (crs != null && !CrsUtil.GRID_CRS.equals(crs)) {
+            // NOTE: crsParam can be crs=ansiDate?axis-label="time", it is not valid in Rasql then need to replace "" by empty
+            String crsParam = CrsUtil.CrsUri.getAuthority(crs) + ":" + CrsUtil.CrsUri.getCode(crs);
             ret = appendToParamList(appendToParamList(appendToParamList(appendToParamList(appendToParamList(
                     extraParams,
                     XMIN_PARAM, lowX + ""),
                     XMAX_PARAM, highX + ""),
                     YMIN_PARAM, lowY + ""),
                     YMAX_PARAM, highY + ""),
-                    CRS_PARAM, CrsUtil.CrsUri.getAuthority(crs) + ":" + CrsUtil.CrsUri.getCode(crs));
+                    CRS_PARAM, crsParam.replace("\"", ""));
             // FIXME: pass on the WKT form of CRS definition (not AUTH:CODE) otherwise non-conventional CRSs are skipped by GDAL.
         } else {
             // return empty in case of CRS:1

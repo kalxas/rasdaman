@@ -35,10 +35,8 @@ public class RangeFieldNotFound extends WCPSProcessingError {
      * @param rangeField the range field that was not found
      */
     public RangeFieldNotFound(String rangeField) {
-        this.rangeField = rangeField;
-
+        super(ERROR_TEMPLATE.replace("$rangeField", rangeField));
     }
 
-    private String rangeField;
-
+    private static final String ERROR_TEMPLATE = "Range field not found '$rangeField'.";
 }

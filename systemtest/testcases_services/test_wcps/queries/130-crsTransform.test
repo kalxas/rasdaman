@@ -1,0 +1,1 @@
+for c in (eobstest)  return encode(crsTransform(c[t(0), Lat(0:20), Long(25:30)],{Lat:"http://localhost:8080/def/crs/EPSG/0/4269", Long:"http://localhost:8080/def/crs/EPSG/0/4269"}, {}), "tiff")

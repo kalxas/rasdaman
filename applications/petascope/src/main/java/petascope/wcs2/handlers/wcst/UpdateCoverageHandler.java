@@ -43,9 +43,6 @@ import petascope.util.ras.TypeResolverUtil;
 import petascope.wcps.metadata.CellDomainElement;
 import petascope.wcps.metadata.CoverageInfo;
 import petascope.wcps.metadata.DomainElement;
-import petascope.wcps2.metadata.Coverage;
-import petascope.wcps2.metadata.CoverageRegistry;
-import petascope.wcps2.metadata.Interval;
 import petascope.wcps2.util.CrsComputer;
 import petascope.wcs2.handlers.AbstractRequestHandler;
 import petascope.wcs2.handlers.Response;
@@ -68,6 +65,9 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import petascope.exceptions.wcst.WCSTCoverageNotFound;
 import petascope.exceptions.wcst.WCSTInvalidXML;
+import petascope.wcps2.metadata.legacy.Coverage;
+import petascope.wcps2.metadata.legacy.CoverageRegistry;
+import petascope.wcps2.metadata.model.ParsedSubset;
 
 
 public class UpdateCoverageHandler extends AbstractRequestHandler<UpdateCoverageRequest> {
@@ -115,7 +115,7 @@ public class UpdateCoverageHandler extends AbstractRequestHandler<UpdateCoverage
             //handle cell values
             Element rangeSet = GMLParserUtil.parseRangeSet(xmlInputCoverage.getRootElement());
 
-            Map<Integer, Interval<Long>> pixelIndices = getPixelIndicesByCoordinate(currentCoverage, request.getSubsets());
+            Map<Integer, ParsedSubset<Long>> pixelIndices = getPixelIndicesByCoordinate(currentCoverage, request.getSubsets());
             String affectedDomain = getAffectedDomain(currentCoverage, request.getSubsets(), pixelIndices);
             String shiftDomain = getShiftDomain(inputCoverage, pixelIndices);
             RasdamanUpdater updater;
@@ -175,7 +175,7 @@ public class UpdateCoverageHandler extends AbstractRequestHandler<UpdateCoverage
             throw new PetascopeException(ExceptionCode.InternalSqlError);
         }
 
-        return new Response("");
+        return new Response(new String[]{""});
     }
 
     private void handleSubsetCoefficients(CoverageMetadata currentCoverageMetadata, List<DimensionSubset> subsets) throws PetascopeException {
@@ -258,7 +258,7 @@ public class UpdateCoverageHandler extends AbstractRequestHandler<UpdateCoverage
      * @return the string representation of the rasdaman domain affected by the update op.
      * @throws PetascopeException
      */
-    private String getAffectedDomain(CoverageMetadata currentCoverage, List<DimensionSubset> subsets, Map<Integer, Interval<Long>> pixelIndices) throws PetascopeException {
+    private String getAffectedDomain(CoverageMetadata currentCoverage, List<DimensionSubset> subsets, Map<Integer, ParsedSubset<Long>> pixelIndices) throws PetascopeException {
         String ret = "";
         if (!subsets.isEmpty()) {
             //construct the rasdaman domain starting from cellDomains and replace the values where subsets are given
@@ -298,7 +298,7 @@ public class UpdateCoverageHandler extends AbstractRequestHandler<UpdateCoverage
      * @param pixelIndices  the list of pixel indices corresponding to each subset indicated in the request.
      * @return the string representation of the rasdaman domain with which the array must be shifted.
      */
-    private String getShiftDomain(CoverageMetadata inputCoverage, Map<Integer, Interval<Long>> pixelIndices) {
+    private String getShiftDomain(CoverageMetadata inputCoverage, Map<Integer, ParsedSubset<Long>> pixelIndices) {
         String shiftDomain = "[";
         for (int i = 0; i < inputCoverage.getDimension(); i++) {
             Long shift = (long) 0;
@@ -321,11 +321,11 @@ public class UpdateCoverageHandler extends AbstractRequestHandler<UpdateCoverage
      * @param subsets         the list of subsets indicated in the update coverage request.
      * @return map indicating the pixel indices for each dimension.
      */
-    private Map<Integer, Interval<Long>> getPixelIndicesByCoordinate(CoverageMetadata currentCoverage, List<DimensionSubset> subsets) {
+    private Map<Integer, ParsedSubset<Long>> getPixelIndicesByCoordinate(CoverageMetadata currentCoverage, List<DimensionSubset> subsets) throws WCSException {
         CoverageInfo coverageInfo = new CoverageInfo(currentCoverage);
         Coverage currentWcpsCoverage = new Coverage(currentCoverage.getCoverageName(), coverageInfo, currentCoverage);
         CoverageRegistry coverageRegistry = new CoverageRegistry(meta);
-        Map<Integer, Interval<Long>> result = new HashMap<Integer, Interval<Long>>();
+        Map<Integer, ParsedSubset<Long>> result = new HashMap<Integer, ParsedSubset<Long>>();
         for (DimensionSubset i : subsets) {
             String low = "";
             String high = "";
@@ -336,10 +336,16 @@ public class UpdateCoverageHandler extends AbstractRequestHandler<UpdateCoverage
                 low = ((DimensionSlice) i).getSlicePoint();
                 high = ((DimensionSlice) i).getSlicePoint();
             }
-            Interval<String> currentInterval = new Interval<String>(low, high);
+            ParsedSubset<String> currentInterval = new ParsedSubset<String>(low, high);
             String crs = i.getCrs() != null ? i.getCrs() : currentWcpsCoverage.getCoverageMetadata().getDomainByName(i.getDimension()).getNativeCrs();
-            CrsComputer crsComputer = new CrsComputer(i.getDimension(), crs, currentInterval, currentWcpsCoverage, coverageRegistry);
-            Interval<Long> pixelIndices = crsComputer.getPixelIndices(true);
+            CrsComputer crsComputer = new CrsComputer(i.getDimension(), crs, currentInterval, currentWcpsCoverage, coverageRegistry);            
+            ParsedSubset<Long> pixelIndices = crsComputer.getPixelIndices(true);
+            // NOTE: if DimensionSubset is slicing then lower is equal upper
+            if (i instanceof DimensionSlice) {
+                Long lowerLimit = pixelIndices.getLowerLimit();
+                pixelIndices.setLowerLimit(lowerLimit);
+                pixelIndices.setUpperLimit(lowerLimit);
+            }
             result.put(currentWcpsCoverage.getCoverageMetadata().getDomainIndexByName(i.getDimension()), pixelIndices);
         }
         return result;

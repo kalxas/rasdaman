@@ -1,1 +1,0 @@
-select png((((c).red) * {1c,0c,0c,0c} + ((c).green) * {0c,1c,0c,0c} + ((c).blue) * {0c,0c,1c,0c} + ((c).blue) * {0c,0c,0c,1c})) from rgb AS c

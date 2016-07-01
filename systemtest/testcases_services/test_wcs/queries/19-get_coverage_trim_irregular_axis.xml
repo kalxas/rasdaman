@@ -19,6 +19,6 @@
   <wcs:DimensionTrim>
     <wcs:Dimension>k</wcs:Dimension>
     <wcs:TrimLow>3</wcs:TrimLow>
-    <wcs:TrimHigh>8</wcs:TrimHigh>
+    <wcs:TrimHigh>5</wcs:TrimHigh>
   </wcs:DimensionTrim>
 </wcs:GetCoverage>

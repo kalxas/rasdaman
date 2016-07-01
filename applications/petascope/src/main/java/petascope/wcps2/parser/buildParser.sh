@@ -31,11 +31,12 @@ PATH_TO_ANTLR_TOOL="/usr/local/lib/antlr-4.1-complete.jar"
 
 #Backup the visitor classes that define the actions to be taken on parsing
 mkdir -p backupEvaluator
-mv wcpsEvaluator.java backupEvaluator
+mv WcpsEvaluator.java backupEvaluator
 mv ParserErrorHandler.java backupEvaluator
+mv WcpsTranslator.java backupEvaluator
 
 #Clean any existing files from the existent parser
-rm *.class *.tokens *.java
+rm *.java
 
 #Build the parser
 export antlr4="java -jar $PATH_TO_ANTLR_TOOL"
@@ -47,8 +48,11 @@ $antlr4 -package petascope.wcps2.parser -no-listener -visitor wcps.g4
 javac *.java
 
 #Put back the visitor classes into the folder
-mv backupEvaluator/wcpsEvaluator.java .
+mv backupEvaluator/WcpsEvaluator.java .
 mv backupEvaluator/ParserErrorHandler.java .
+mv backupEvaluator/WcpsTranslator.java .
 
 #Cleanup
 rm -r backupEvaluator
+rm *.class
+rm *.tokens

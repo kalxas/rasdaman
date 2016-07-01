@@ -1,1 +1,0 @@
-select csv(m[10,*:*]) from mr AS m

@@ -1,1 +1,0 @@
-select avg_cells(c) from mr AS c

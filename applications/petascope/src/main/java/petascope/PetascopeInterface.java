@@ -236,7 +236,7 @@ public class PetascopeInterface extends HttpServlet {
             ConfigManager.PETASCOPE_SERVLET_URL = req.getRequestURL().toString();
         }
     }
-    
+
     private void setCORSHeader(HttpServletResponse httpResponse) throws ServletException {
         httpResponse.setHeader("Access-Control-Allow-Origin", CORS_ACCESS_CONTROL_ALLOW_ORIGIN);
     }
@@ -670,36 +670,62 @@ public class PetascopeInterface extends HttpServlet {
 
             OutputStream os = response.getOutputStream();
             response.setStatus(res.getExitCode());
-            if (res.getXml() != null && res.getData() != null) {
+
+            // Convert from encoding format type to MIME type (e.g: tiff -> image/tiff)
+            // In case of WCS query, "res" converted from formatType to mimeType (not as WCPS query)
+            String mimeType = "";
+            if(res.getFormatType().contains("/")) {
+                mimeType = res.getFormatType();
+            } else {
+                mimeType = meta.formatToMimetype(res.getFormatType());
+            }
+
+            // WCS multipart
+            if (res.isMultiPart() && !res.isProcessCoverage()) {
                 MultipartResponse multi = new MultipartResponse(response);
-                multi.startPart(FormatExtension.MIME_GML);
-                IOUtils.write(res.getXml(), os);
+                // WCS jp2000 multipart encoded GML into the coverage result
+                if(res.getXml() != null) {
+                    multi.startPart(FormatExtension.MIME_GML);
+                    IOUtils.write(res.getXml()[0], os);
+                    multi.endPart();
+                }
+                // Write byte array to output stream
+                multi.startPart(mimeType);
+                IOUtils.write(res.getData().get(0), os);
                 multi.endPart();
-                multi.startPart(res.getMimeType());
-                IOUtils.write(res.getData(), os);
-                multi.endPart();
+
                 multi.finish();
-            } else if (res.isProcessCoverage()) {
+            }
+            // WCPS
+            else if (res.isProcessCoverage()) {
                 try {
-                    response.setContentType(res.getMimeType());
-                    IOUtils.write(res.getData(), os);
-                } catch (IOException e) {
-                    throw new WCSException(ExceptionCode.IOConnectionError, e.getMessage(), e);
+                    if(res.isMultiPart()) {
+                        MultipartResponse multi = new MultipartResponse(response);
+                        for (byte[] data : res.getData()) {
+                            multi.startPart(mimeType);
+                            IOUtils.write(data, os);
+                            multi.endPart();
+                        }
+                        multi.finish();
+                    } else {
+                        response.setContentType(mimeType);
+                        IOUtils.write(res.getData().get(0), os);
+                    }
                 } finally {
                     IOUtils.closeQuietly(os);
                 }
             } else {
                 try {
-                    if (res.getMimeType() != null) {
-                        response.setContentType(res.getMimeType());
+                    // WCS
+                    if (mimeType != null) {
+                        response.setContentType(mimeType);
                     } else {
-                        //                    response.setContentType(WcsUtil.MIME_GML);
                         response.setContentType(FormatExtension.MIME_TEXT);
                     }
                     if (res.getXml() != null) {
-                        IOUtils.write(res.getXml(), os);
+                        IOUtils.write(res.getXml()[0], os);
                     } else if (res.getData() != null) {
-                        IOUtils.write(res.getData(), os);
+                        IOUtils.write(res.getData().get(0), os);
                     }
                 } finally {
                     IOUtils.closeQuietly(os);

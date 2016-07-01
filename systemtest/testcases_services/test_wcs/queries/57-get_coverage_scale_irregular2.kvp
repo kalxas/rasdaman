@@ -4,5 +4,5 @@ request=GetCoverage&
 coverageId=irr_cube_2&
 subset=E(80000,90000)&
 subset=N(5100000,5110000)&
-subset=ansi(148653,148655)&
+subset=ansi(148654,148655)&
 scaleaxes=E(2)

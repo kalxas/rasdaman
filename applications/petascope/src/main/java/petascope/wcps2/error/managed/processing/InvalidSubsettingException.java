@@ -21,7 +21,7 @@
  */
 package petascope.wcps2.error.managed.processing;
 
-import petascope.wcps2.metadata.Interval;
+import petascope.wcps2.metadata.model.ParsedSubset;
 
 /**
  * General error for invalid subsetting
@@ -32,39 +32,29 @@ import petascope.wcps2.metadata.Interval;
 public class InvalidSubsettingException extends WCPSProcessingError {
 
     /**
-     * Constructor for the class
+     * Constructor for the class default
      *
      * @param axisName the axis on which the subset is being made
-     * @param subset   the offending subset
+     * @param subset the offending subset
      */
-    public InvalidSubsettingException(String axisName, Interval<String> subset) {
-        super(TEMPLATE.replace("$lowerBound", subset.getLowerLimit()).replace("$upperBound", subset.getUpperLimit()).replace("$axis", axisName));
-        this.axisName = axisName;
-        this.subset = subset;
+    public InvalidSubsettingException(String axisName, ParsedSubset<String> subset) {
+        super(ERROR_TEMPLATE.replace("$lowerBound", subset.getLowerLimit()).replace("$upperBound", subset.getUpperLimit()).replace("$axis", axisName));
     }
 
     /**
-     * Getter for axis name
+     * Constructor for the class when subclass send its appropriate
+     * exceptionMessage for trimming/slicing
      *
-     * @return
+     * @param axisName the axis on which the subset is being made
+     * @param subset the offending subset
+     * @param exceptionMessage the appropriate exception message (e.g: unordered
+     * interval, time error,..)
      */
-    public String getAxisName() {
-        return axisName;
+    public InvalidSubsettingException(String axisName, ParsedSubset<String> subset, String exceptionMessage) {
+        super(subset.isTrimming() ? exceptionMessage.replace("$subsetDomainType", "subsetting").replace("$subsetBound", subset.getLowerLimit() + ":" + subset.getUpperLimit()).replace("$axis", axisName)
+                : exceptionMessage.replace("$subsetDomainType", "slicing").replace("$subsetBound", subset.getSlicingCoordinate()).replace("$axis", axisName));
     }
 
-    /**
-     * Returns the offendingSubset
-     *
-     * @return
-     */
-    public Interval<String> getSubset() {
-        return subset;
-    }
-
-    private final String axisName;
-    private final Interval<String> subset;
-
-    private static final String TEMPLATE = "Invalid subsetting coordinates: $lowerBound:$upperBound for axis $axis.";
-
+    private static final String ERROR_TEMPLATE = "Invalid subsetting coordinates '$lowerBound:$upperBound' for axis '$axis'.";
 
 }

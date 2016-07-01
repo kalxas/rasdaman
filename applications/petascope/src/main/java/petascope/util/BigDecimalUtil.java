@@ -84,6 +84,17 @@ public class BigDecimalUtil {
         return BigDecimalUtil.stripDecimalZeros(quotient);
     }
 
+    /**
+     * Computes the multiply between two BigDecimals number
+     * @param numberA
+     * @param numberB
+     * @return
+     */
+    public static BigDecimal multiple(BigDecimal numberA, BigDecimal numberB) {
+        BigDecimal result = numberA.multiply(numberB);
+        return BigDecimalUtil.stripDecimalZeros(result);
+    }
+
     public static int listContains(List<BigDecimal> list, BigDecimal value){
         int counter = 0;
         for(BigDecimal element : list){

@@ -1022,6 +1022,20 @@ public class CoverageMetadata implements Cloneable {
     }
 
     /**
+     * Check if coverage crsList contains gridCRS
+     * @return boolean
+     */
+    public boolean isGeoReferenced() {
+        for(String crs:crsUris) {
+            // If coverage has a grid CRS then it is not geo-referenced CRS and cannot project (transform)
+            if(crs.contains(CrsUtil.INDEX_CRS_PREFIX) || crs.equals(CrsUtil.GRID_CRS)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    /**
      * Takes a GML coverage and translates it into a CoverageMetadata object.
      * The created coverage doesn't have a coverageId or a rasdamanCollection yet.
      *

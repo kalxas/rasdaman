@@ -4,4 +4,4 @@ request=GetCoverage&
 coverageId=irr_cube_1&
 subset=i(2)&
 subset=j(5)&
-subset=k(8)
+subset=k(5)

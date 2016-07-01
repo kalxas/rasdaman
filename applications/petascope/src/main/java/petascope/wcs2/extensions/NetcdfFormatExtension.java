@@ -21,6 +21,8 @@
  */
 package petascope.wcs2.extensions;
 
+import java.util.ArrayList;
+import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import petascope.core.DbMetadataSource;
@@ -59,7 +61,7 @@ public class NetcdfFormatExtension extends AbstractFormatExtension {
     /* Methods */
     @Override
     public boolean canHandle(GetCoverageRequest req) {
-        return !req.isMultipart() && getMimeType().equals(req.getFormat());
+        return !req.isMultiPart() && getMimeType().equals(req.getFormat());
         //return true;
     }
 
@@ -70,7 +72,7 @@ public class NetcdfFormatExtension extends AbstractFormatExtension {
 
         // First, transform possible non-native CRS subsets
         CRSExtension crsExtension = (CRSExtension) ExtensionsRegistry.getExtension(ExtensionsRegistry.CRS_IDENTIFIER);
-        crsExtension.handle(request, m, meta);
+        crsExtension.handle(request, m);
         
         //Handle the range subset feature
         RangeSubsettingExtension rsubExt = (RangeSubsettingExtension) ExtensionsRegistry.getExtension(ExtensionsRegistry.RANGE_SUBSETTING_IDENTIFIER);
@@ -91,7 +93,7 @@ public class NetcdfFormatExtension extends AbstractFormatExtension {
         if (m.getCoverageType().equals(XMLSymbols.LABEL_GRID_COVERAGE)) {
             // return plain Netcdf
             gdalParams = new GdalParameters();
-            p = executeRasqlQuery(request, m.getMetadata(), meta, NETCDF_ENCODING, null);
+            p = executeRasqlQuery(request, m, meta, NETCDF_ENCODING, null);
         } else {
             // RectifiedGrid: geometry is associated with a CRS -> return Netcdf with geo-metadata
             // Need to use the GetCoverage metadata which has updated bounds [see super.setBounds()]
@@ -99,14 +101,16 @@ public class NetcdfFormatExtension extends AbstractFormatExtension {
             String[] domHi = m.getGisDomHigh().split(" ");
 
             gdalParams = new GdalParameters(domLo[0], domHi[0], domLo[1], domHi[1], m.getCrs());
-            p = executeRasqlQuery(request, m.getMetadata(), meta, NETCDF_ENCODING, gdalParams.toString());
+            p = executeRasqlQuery(request, m, meta, NETCDF_ENCODING, gdalParams.toString());
         }
 
         RasQueryResult res = new RasQueryResult(p.fst);
         if (res.getMdds().isEmpty()) {
             return new Response(null, null, getMimeType());
         } else {
-            return new Response(res.getMdds().get(0), null, getMimeType());
+            List<byte[]> data = new ArrayList<byte[]>();
+            data.add(res.getMdds().get(0));
+            return new Response(data, null, getMimeType());
         }
     }
 

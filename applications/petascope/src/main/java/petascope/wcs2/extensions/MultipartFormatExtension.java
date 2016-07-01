@@ -31,6 +31,7 @@ import petascope.exceptions.SecoreException;
 import petascope.exceptions.WCSException;
 import static petascope.wcs2.extensions.ExtensionsRegistry.GMLJP2_IDENTIFIER;
 import petascope.wcs2.handlers.Response;
+import petascope.wcs2.parsers.GetCoverageMetadata;
 import petascope.wcs2.parsers.GetCoverageRequest;
 
 /**
@@ -40,12 +41,12 @@ import petascope.wcs2.parsers.GetCoverageRequest;
  */
 public class MultipartFormatExtension extends  GmlFormatExtension {
 
-    public static final String[] SET_VALUES = new String[] { MIME_TIFF, MIME_JP2, MIME_NETCDF };
+    public static final String[] SET_VALUES = new String[] { MIME_TIFF, MIME_JP2, MIME_NETCDF, MIME_PNG };
     public static final Set<String> SUPPORTED_FORMATS = new HashSet<String>(Arrays.asList(SET_VALUES));
 
     @Override
     public boolean canHandle(GetCoverageRequest req) {
-        return req.isMultipart() && SUPPORTED_FORMATS.contains(req.getFormat());
+        return req.isMultiPart() && SUPPORTED_FORMATS.contains(req.getFormat());
     }
 
     @Override
@@ -63,19 +64,22 @@ public class MultipartFormatExtension extends  GmlFormatExtension {
             // get the GeoTIFF file
             Response image = ExtensionsRegistry.getFormatExtension(false, req.getFormat()).handle(req, meta);
             // return multipart response
-            String xml = gml.getXml().replace("{coverageData}",
+            String xml = gml.getXml()[0].replace("{coverageData}",
                     "<File>"
                     + "<fileName>" + "file" + "</fileName>"
                     + "<fileStructure>Record Interleaved</fileStructure>"
                     + "<mimeType>" + req.getFormat() + "</mimeType>"
                     + "</File>");
-            multipartResponse = new Response(image.getData(), xml, req.getFormat());
+            multipartResponse = new Response(image.getData(), new String[] { xml }, req.getFormat());
         }
+        
+        // set multipart to true
+        multipartResponse.setMultipart(true);
         return multipartResponse;
     }
 
     @Override
-    protected String addCoverageData(String gml, GetCoverageRequest request, DbMetadataSource meta, CoverageMetadata covmeta)
+    protected String addCoverageData(String gml, GetCoverageRequest request, DbMetadataSource meta, GetCoverageMetadata m)
             throws WCSException {
         return gml;
     }

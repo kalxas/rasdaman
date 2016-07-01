@@ -64,6 +64,8 @@ public class GetCoverageMetadata {
     private Integer gridDimension;
     private List<RangeField> rangeFields;
     private String crs;     // dynamically adapt to coverage slicing
+    private String outputCrs; // dynamically adapt based on (WCS: outputCrs or WCPS: crsTransform($COVERAGE, {2D geo-referenced CRS}, {})
+    private String subsettingCrs; // dynmaically adapt based on (WCS: subsettingCrs or WCPS, e.g: Lat:"http://.../4326(0:20))
     private Bbox bbox;
     // <gml:axisLabels> : grid (rasdaman) order
     private String gridAxisLabels;
@@ -76,7 +78,8 @@ public class GetCoverageMetadata {
     // GeoTiff/JP2000/NetCDF/etc encoding: LONG first = rasdaman order (common GIS practice)
     // http://www.remotesensing.org/geotiff/faq.html?What%20is%20the%20purpose%20of%20GeoTIFF%20format%20for%20satellite%20data#AxisOrder
     private String gisDomLow;  // Domain request lower bound (always easting first)
-    private String gisDomHigh; // Domain request upper bound (always easting first)
+    private String gisDomHigh; // Domain request upper bound (always easting first)   
+    
     /**
      * Map of axis labels and their scale factors.
      * Only axes that are explicitly scaled in a WCS request appear here.
@@ -277,6 +280,14 @@ public class GetCoverageMetadata {
     public String getCrs() {
         return crs;
     }
+    
+    public String getOutputCrs() {
+        return outputCrs;
+    }
+    
+    public String getSubsettingCrs() { 
+        return subsettingCrs;
+    }
 
     /**
      * Get the scaling factor applied to a grid axis.
@@ -348,6 +359,26 @@ public class GetCoverageMetadata {
         crs = newUri;
         // Changing CRS means 1+ slices have been requested: trigger an update of coverage type
         //updateCoverageType();
+    }
+    
+    /**
+     * Update the outputCrs of a coverage
+     * In can change when user want to transform from nativeCRS (e.g: 4326) to (3857)
+     * with WCS (outputCrs="http://...crs/EPSG/0/3857) or WCPS (crsTransform(c, {Lat:".../3857"(1110:11120), Long:".../3857"(1223:32323)
+     * @param newUri 
+     */
+    public void setOutputCrs(String newUri) {
+        outputCrs = newUri;
+    }
+    
+    /**
+     * Update the subsettingCrs of a coverage
+     * with WCS (subsettingCrs="http://..../0/3857") or WCPS (Lat:"http://.../3857"(1230:2330))
+     * It will transform the subset(e.g: 1230:2330) with the input CRS (e.g: 3857) without using the native CRS (e.g: 4326)
+     * @param newUri 
+     */
+    public void setSubsettingCrs(String newUri) {
+        subsettingCrs = newUri;
     }
 
     /**

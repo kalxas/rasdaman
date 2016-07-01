@@ -21,7 +21,7 @@
  */
 package petascope.wcps2.error.managed.processing;
 
-import petascope.wcps2.metadata.Interval;
+import petascope.wcps2.metadata.model.ParsedSubset;
 
 /**
  * Error occurring when the given time subset cannot be correctly parsed
@@ -36,8 +36,10 @@ public class InvalidDateTimeSubsetException extends InvalidSubsettingException {
      * @param axisName the axis on which the subset is being made
      * @param subset   the offending subset
      */
-    public InvalidDateTimeSubsetException(String axisName, Interval<String> subset) {
-        super(axisName, subset);
+    public InvalidDateTimeSubsetException(String axisName, ParsedSubset<String> subset) {
+        super(axisName, subset, ERROR_TEMPLATE);
     }
+
+    private static final String ERROR_TEMPLATE = "Invalid '$subsetDomainType' coordinate(s): '$subsetBound' is not valid Datetime for axis '$axis'.";
 
 }

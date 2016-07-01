@@ -2,11 +2,8 @@
 <ows:ExceptionReport version="2.0.0"
     xsd:schemaLocation="http://www.opengis.net/ows/2.0 http://schemas.opengis.net/ows/2.0/owsExceptionReport.xsd"
       >
-    <ows:Exception exceptionCode="InvalidSubsetting">
-        <ows:ExceptionText>Cannot use asterisk in slicing expression.</ows:ExceptionText>
-    </ows:Exception>
-    <ows:Exception exceptionCode="InvalidSubsetting">
-        <ows:ExceptionText>Cannot use asterisk in slicing expression.</ows:ExceptionText>
+    <ows:Exception exceptionCode="WcpsError">
+        <ows:ExceptionText>Invalid slicing coordinate '*' for axis 'j'.</ows:ExceptionText>
     </ows:Exception>
 
 </ows:ExceptionReport>

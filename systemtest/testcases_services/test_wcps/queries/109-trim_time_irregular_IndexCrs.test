@@ -1,0 +1,2 @@
+for c in (irr_cube_2) return encode(c[ansi:"http://localhost:8080/def/crs/OGC/0/Index3D"(3)], "csv")
+

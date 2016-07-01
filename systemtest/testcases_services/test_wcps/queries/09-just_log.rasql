@@ -1,1 +1,0 @@
-select png(log((s).2[0:100,0:100])) from rgb AS s

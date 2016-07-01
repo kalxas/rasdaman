@@ -1,1 +1,1 @@
-for c in (eobstest) return encode ( coverage averaged_pixel_history over $t t(0:1)   values max(c[Lat(0), Long(51), t:"CRS:1"($t:$t)]), "csv")
+for c in (eobstest) return encode ( coverage averaged_pixel_history over $t t(0:1)   values max(c[Lat(0), Long(51), t($t:$t)]), "csv")

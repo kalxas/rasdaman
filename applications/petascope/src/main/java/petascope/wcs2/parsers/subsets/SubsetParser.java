@@ -27,6 +27,7 @@ import petascope.exceptions.WCSException;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import petascope.util.KVPSymbols;
 
 import static petascope.util.KVPSymbols.KEY_SUBSET;
 import static petascope.wcs2.parsers.subsets.DimensionSubset.QUOTED_SUBSET;
@@ -108,8 +109,8 @@ public class SubsetParser {
                 if (key.equalsIgnoreCase(KEY_SUBSET)) {
                     ret.put(key + value, value);
                 }
-                //Backward compatibility
-                else if (key.toLowerCase().startsWith(KEY_SUBSET)) {
+                //Backward compatibility (but not consider subsettingcrs is a subset)
+                else if (key.toLowerCase().startsWith(KEY_SUBSET) && !key.toLowerCase().equals(KVPSymbols.KEY_SUBSETCRS)) {
                     ret.put(key + value, value);
                 }
             }

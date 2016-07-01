@@ -205,27 +205,32 @@ public class Wcs2Servlet extends HttpServlet {
 
             OutputStream os = response.getOutputStream();
             response.setStatus(res.getExitCode());
-            if (res.getXml() != null && res.getData() != null) {
+            if (res.getData() != null) {
                 MultipartResponse multi = new MultipartResponse(response);
-                multi.startPart(FormatExtension.MIME_GML);
-                IOUtils.write(res.getXml(), os);
-                multi.endPart();
-                multi.startPart(res.getMimeType());
-                IOUtils.write(res.getData(), os);
-                multi.endPart();
+                for(int i = 0; i < res.getData().size(); i++) {                    
+                    if(res.getXml() != null) {
+                        multi.startPart(FormatExtension.MIME_GML);
+                        IOUtils.write(res.getXml()[i], os);
+                        multi.endPart();
+                    }
+                
+                    // Return multiple coverages
+                    multi.startPart(res.getFormatType());
+                    IOUtils.write(res.getData().get(i), os);
+                    multi.endPart();
+                }                
                 multi.finish();
             } else {
                 try {
-                    if (res.getMimeType() != null) {
-                        response.setContentType(res.getMimeType());
+                    if (res.getFormatType() != null) {
+                        response.setContentType(res.getFormatType());
                     } else {
-    //                    response.setContentType(WcsUtil.MIME_GML);
                         response.setContentType(FormatExtension.MIME_TEXT);
                     }
                     if (res.getXml() != null) {
-                        IOUtils.write(res.getXml(), os);
+                        IOUtils.write(res.getXml()[0], os);
                     } else if (res.getData() != null) {
-                        IOUtils.write(res.getData(), os);
+                        IOUtils.write(res.getData().get(0), os);
                     }
                 } finally {
                     if (os != null) {

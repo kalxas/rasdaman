@@ -30,10 +30,11 @@ package petascope.wcps2.error.managed.processing;
 public class CoverageMetadataNotInitializedException extends CoverageMetadataException {
     /**
      * Constructor for the class
+     * @param originalCause Original cause of exception.
      */
     public CoverageMetadataNotInitializedException(Exception originalCause) {
-        super(originalCause);
+         super(originalCause, ERROR_TEMPLATE.replace("$e",originalCause.getMessage()));
     }
 
-    public static final String ERROR_MESSAGE = "The metadata registry could not be initialized. Please check your database connection.\nFull error message: $e";
+    public static final String ERROR_TEMPLATE = "The metadata registry could not be initialized. Please check your database connection, $e.";
 }

@@ -10,4 +10,6 @@
 58-get_coverage_scale_irregular3.xml
 59-get_coverage_scale_irregular4.kvp
 59-get_coverage_scale_irregular4.xml
+60-get_capabilities_covsummary.kvp
+60-get_capabilities_covsummary.xml
 61-multiple_exception_report.error.kvp

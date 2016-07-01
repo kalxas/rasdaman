@@ -101,7 +101,7 @@ public class InsertCoverageHandler extends AbstractRequestHandler<InsertCoverage
     }
 
     private Response handleGMLCoverageInsert(InsertCoverageRequest request) throws PetascopeException, SecoreException {
-        return new Response(null, insertGMLCoverage(request.getGMLCoverage(), request), FormatExtension.MIME_XML);
+        return new Response(null, new String[] { insertGMLCoverage(request.getGMLCoverage(), request) }, FormatExtension.MIME_XML);
     }
 
     /**
@@ -117,7 +117,7 @@ public class InsertCoverageHandler extends AbstractRequestHandler<InsertCoverage
         //for now assuming only GML
 
         //finally process it
-        return new Response(null, insertGMLCoverage(coverage, request), FormatExtension.MIME_XML);
+        return new Response(null, new String[] { insertGMLCoverage(coverage, request) }, FormatExtension.MIME_XML);
     }
 
     /**

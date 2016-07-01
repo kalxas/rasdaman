@@ -26,7 +26,9 @@ import java.util.Arrays;
 import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import petascope.util.AxisTypes;
 import petascope.util.CrsUtil;
+import petascope.wcps2.metadata.model.AxisDirection;
 
 /**
  * Class to host the info of a (GML) Coordinate Reference System (CRS) definition
@@ -156,6 +158,46 @@ public class CrsDefinition {
         }
         return out;
     }
+
+    /**
+     * Ultility function to get axis type (x or y)
+     * @param axisName
+     * @return
+     */
+    public static String getAxisTypeByName(String axisName) {
+        for(String str : X_ALIASES) {
+            if(str.equals(axisName)) {
+                return AxisTypes.X_AXIS;
+            }
+        }
+
+        for(String str : Y_ALIASES) {
+            if(str.equals(axisName)) {
+                return AxisTypes.Y_AXIS;
+            }
+        }
+        return AxisTypes.UNKNOWN;
+    }
+
+    /**
+     * Based on axisName to set correct axisDirection (mostly for geo-referenced axis), now.
+     * @param axisName
+     * @return
+     */
+    public static AxisDirection getAxisDirection(String axisName) {
+        AxisDirection direction;
+        String axisType = getAxisTypeByName(axisName);
+        // If axisType == "x" -> East, axisType == "y" -> North
+        if(axisType.equals(AxisTypes.X_AXIS)) {
+            direction = AxisDirection.EASTING;
+        } else if (axisType.equals(AxisTypes.Y_AXIS)) {
+            direction = AxisDirection.NORTHING;
+        } else {
+            direction = AxisDirection.UNKNOWN;
+        }
+        return direction;
+    }
+
 
     // Inner class
     public class Axis implements Cloneable {

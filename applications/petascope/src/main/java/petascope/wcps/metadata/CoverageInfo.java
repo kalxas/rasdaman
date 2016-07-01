@@ -41,7 +41,7 @@ public class CoverageInfo {
     private final List<CellDomainElement> cellDomains;
     private final List<DomainElement> domains;
     private final String coverageName;
-    private final String coverageCrs;
+    private String coverageCrs;
     private final Bbox bbox;
     private final boolean gridded;
     //empty constructor
@@ -164,6 +164,10 @@ public class CoverageInfo {
 
     public String getCoverageCrs() {
         return coverageCrs;
+    }
+    
+    public void setCoverageCrs(String coverageCrs) {
+        this.coverageCrs = coverageCrs;
     }
 
     public Bbox getBbox() {

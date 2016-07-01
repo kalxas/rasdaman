@@ -1,0 +1,1 @@
+for r in (rgb) return encode (r * ((r.green > 130) and (r.red < 100) and (r.blue < 140)),"png", "nodata = 0, 1, 2, 3, 4, 5;")

@@ -35,18 +35,8 @@ public class CoverageNotFoundException extends WCPSProcessingError {
      * @param coverageName the coverage that was not found
      */
     public CoverageNotFoundException(String coverageName) {
-        this.coverageName = coverageName;
+        super(ERROR_TEMPLATE.replace("$coverage", coverageName));
     }
 
-    /**
-     * Getter for the coverage name
-     *
-     * @return
-     */
-    public String getCoverageName() {
-        return coverageName;
-    }
-
-    private final String coverageName;
-    private static final String TEMPLATE = "Coverage $coverage was not found.";
+    private static final String ERROR_TEMPLATE = "Coverage '$coverage' was not found.";
 }

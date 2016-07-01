@@ -1,0 +1,2 @@
+for c in (eobstest) return encode(c[t(4:6),Lat(0:0), Long(25)], "csv")
+

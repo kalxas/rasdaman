@@ -19,7 +19,7 @@
   </wcs:DimensionTrim>
   <wcs:DimensionTrim>
     <wcs:Dimension>ansi</wcs:Dimension>
-    <wcs:TrimLow>148653</wcs:TrimLow>
+    <wcs:TrimLow>148654</wcs:TrimLow>
     <wcs:TrimHigh>148655</wcs:TrimHigh>
   </wcs:DimensionTrim>
   <wcs:Extension>

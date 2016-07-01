@@ -85,7 +85,7 @@ public class GetCoverageRequest extends BaseRequest {
 
     private final String coverageId;
     private final String format;
-    private final boolean multipart;
+    private final boolean multiPart;
     private List<DimensionSubset> subsets;
     private final RangeSubset rangeSubset;
     private final Scaling scale;
@@ -95,10 +95,10 @@ public class GetCoverageRequest extends BaseRequest {
         this(coverageId, FormatExtension.MIME_GML, false); // GML is default
     }
 
-    public GetCoverageRequest(String coverageId, String format, boolean multipart) {
+    public GetCoverageRequest(String coverageId, String format, boolean multiPart) {
         this.coverageId = coverageId;
         this.format = (null == format || format.isEmpty()) ? FormatExtension.MIME_GML : format ; // GML is default
-        this.multipart = multipart;
+        this.multiPart = multiPart;
         this.subsets = new ArrayList<DimensionSubset>();
         this.rangeSubset = new RangeSubset();
         this.scale = new Scaling();
@@ -151,8 +151,8 @@ public class GetCoverageRequest extends BaseRequest {
         return format;
     }
 
-    public boolean isMultipart() {
-        return multipart;
+    public boolean isMultiPart() {
+        return multiPart;
     }
 
     public CrsExt getCrsExt() {

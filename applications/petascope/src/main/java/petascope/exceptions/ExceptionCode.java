@@ -221,7 +221,7 @@ public class ExceptionCode {
             "One or more of the available coverages is not queryable due to unimplemented service features.", SC_NOT_IMPLEMENTED);
     public static final ExceptionCode VersionNegotiationFailed = new ExceptionCode("VersionNegotiationFailed",
             "List of versions in AcceptVersions parameter value in GetCapabilities operation "
-            + "request did not include any version supported by this server", SC_BAD_REQUEST);
+            + "request did not include any version supported by this server.", SC_BAD_REQUEST);
     public static final ExceptionCode XmlNotValid = new ExceptionCode("XmlNotValid");
     public static final ExceptionCode XmlStructuresError = new ExceptionCode("XmlStructuresError");
     public static final ExceptionCode WcpsError = new ExceptionCode("WcpsError");
@@ -229,17 +229,17 @@ public class ExceptionCode {
     public static final ExceptionCode WcstError = new ExceptionCode("WcstError");
     public static final ExceptionCode WpsError = new ExceptionCode("WpsError");
     public static final ExceptionCode MultipleRangeSubsets = new ExceptionCode("Invalid RangeSubsets parameters",
-            "Multiple RangeSubset parameters have been provided, only one can be accepted", SC_BAD_REQUEST);
+            "Multiple RangeSubset parameters have been provided, only one can be accepted.", SC_BAD_REQUEST);
     public static final ExceptionCode NoSuchField = new ExceptionCode("NoSuchField",
-            "One or more range field names indicated in the request are not defined in range type of the coverage addressed", SC_BAD_REQUEST);
+            "One or more range field names indicated in the request are not defined in range type of the coverage addressed.", SC_BAD_REQUEST);
     public static final ExceptionCode InvalidCoverageType = new ExceptionCode("InvalidCoverageType",
             "Coverage addressed is not a grid coverage", SC_BAD_REQUEST);
     public static final ExceptionCode InvalidScaleFactor = new ExceptionCode("InvalidScaleFactor",
-            "Scale factor passed is not valid (no number or less than or equal to zero)", SC_BAD_REQUEST);
+            "Scale factor passed is not valid (no number or less than or equal to zero.)", SC_BAD_REQUEST);
     public static final ExceptionCode InvalidExtent = new ExceptionCode("InvalidExtent",
-            "Extent interval passed has upper bound smaller than lower bound", SC_BAD_REQUEST);
+            "Extent interval passed has upper bound smaller than lower bound.", SC_BAD_REQUEST);
     public static final ExceptionCode ScaleAxisUndefined = new ExceptionCode("ScaleAxisUndefined",
-            "CRS axis indicated is not an axis occurring in this coverage", SC_BAD_REQUEST);
+            "CRS axis indicated is not an axis occurring in this coverage.", SC_BAD_REQUEST);
     public static final ExceptionCode WCSPMissingQueryParameter = new ExceptionCode("WCSPMissingQueryParameter",
             "No query parameter was found in the request.", SC_BAD_REQUEST);
     public static final ExceptionCode WCSTMissingCoverageParameter = new ExceptionCode("WCSTMissingCoverageParameter",
@@ -287,9 +287,9 @@ public class ExceptionCode {
             "The number of \"" + XMLSymbols.LABEL_OFFSET_VECTOR + "\" elements is different from the number of axes");
     public static final ExceptionCode WCSTWrongInervalFormat = new ExceptionCode("WCSTWrongIntervalFormat",
             "The number of points in at least one of the \"" + XMLSymbols.LABEL_INTERVAL + "\" elements is wrong "
-                    + "(exactly 2 expected)");
+                    + "(exactly 2 expected).");
     public static final ExceptionCode WCSTWrongNumberOfTupleLists = new ExceptionCode("WCSTWrongNumberOfTupleLists",
-            "The number of \"" + XMLSymbols.LABEL_TUPLELIST + "\" elements is wrong (exactly 1 expected)");
+            "The number of \"" + XMLSymbols.LABEL_TUPLELIST + "\" elements is wrong (exactly 1 expected).");
     public static final ExceptionCode WCSTWrongNumberOfPixels = new ExceptionCode("WCSTWrongNumberOfPixels",
             "The number of pixels provided in the \"" + XMLSymbols.LABEL_TUPLELIST + "\" element doesn't correspond to the coverage size");
     public static final ExceptionCode WCSTWrongNumberOfRangeSetElements = new ExceptionCode("WCSTWrongNumberOfRangeSetElements",
@@ -310,16 +310,18 @@ public class ExceptionCode {
             "Only rectified grids are supported in the domainSet element.");
 
     public static final ExceptionCode InconsistentChange = new ExceptionCode("InconsistentChange", SC_NOT_FOUND);
-    public static final ExceptionCode CollectionExists = new ExceptionCode("CollectionExists", "Collection name already exists in rasdaman");
+    public static final ExceptionCode CollectionExists = new ExceptionCode("CollectionExists", "Collection name already exists in rasdaman.");
 
     // WCS CRS-extension
-    public static final ExceptionCode NotASubsettingCrs = new ExceptionCode("NotASubsettingCrs",
-            "Parameter indicated in the subsettingCrs parameter is not a valid CRS", 400);
+    public static final ExceptionCode NotASubsettingCrs = new ExceptionCode("InvalidSubsettingCrs",
+            "Parameter indicated in the subsettingCrs parameter is not a valid CRS.", 400);
     public static final ExceptionCode SubsettingCrsNotSupported = new ExceptionCode("SubsettingCrsNotSupported",
-            "CRS indicated in the subsettingCrs parameter is not supported by this server", 501);
-    public static final ExceptionCode NotAnOutputCrs = new ExceptionCode("NotAnOutputCrs",
-            "Parameter indicated in the outputCrs parameter is not a valid CRS", 400);
+            "CRS indicated in the subsettingCrs parameter is not supported by this server.", 501);
+    public static final ExceptionCode NotAnOutputCrs = new ExceptionCode("InvalidOutputCrs",
+            "Parameter indicated in the outputCrs parameter is not a valid CRS.", 400);
     public static final ExceptionCode OutputCrsNotSupported = new ExceptionCode("OutputCrsNotSupported",
-            "CRS indicated in the outputCrs parameter is not supported by this server", 501);
+            "CRS indicated in the outputCrs parameter is not supported by this server.", 501);
+    public static final ExceptionCode GridCoverageNotSupported = new ExceptionCode("GridCoverageNotSupported",
+            "Grid coverage cannot be used to project (transform) by this server.", 501);
 
 }

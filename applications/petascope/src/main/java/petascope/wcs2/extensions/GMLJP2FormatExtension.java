@@ -25,6 +25,8 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.ArrayList;
+import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import petascope.core.DbMetadataSource;
@@ -78,7 +80,7 @@ public class GMLJP2FormatExtension extends AbstractFormatExtension {
     /* Methods */
     @Override
     public boolean canHandle(GetCoverageRequest req) {
-        return req.isMultipart() && getMimeType().equals(req.getFormat());
+        return req.isMultiPart() && getMimeType().equals(req.getFormat());
     }
 
     @Override
@@ -88,7 +90,7 @@ public class GMLJP2FormatExtension extends AbstractFormatExtension {
 
         // First, transform possible non-native CRS subsets
         CRSExtension crsExtension = (CRSExtension) ExtensionsRegistry.getExtension(ExtensionsRegistry.CRS_IDENTIFIER);
-        crsExtension.handle(request, m, meta);
+        crsExtension.handle(request, m);
 
         //Handle the range subset feature
         RangeSubsettingExtension rsubExt = (RangeSubsettingExtension) ExtensionsRegistry.getExtension(ExtensionsRegistry.RANGE_SUBSETTING_IDENTIFIER);
@@ -110,7 +112,7 @@ public class GMLJP2FormatExtension extends AbstractFormatExtension {
         if (m.getCoverageType().equals(XMLSymbols.LABEL_GRID_COVERAGE)) {
             // return plain JPEG
             gdalParams = new GdalParameters();
-            p = executeRasqlQuery(request, m.getMetadata(), meta, OPENJP2_ENCODING, null);
+            p = executeRasqlQuery(request, m, meta, JP2_ENCODING, null);
         } else {
 
             // RectifiedGrid: geometry is associated with a CRS -> return JPEG2000 with geo-metadata
@@ -133,7 +135,7 @@ public class GMLJP2FormatExtension extends AbstractFormatExtension {
             String gml = WcsUtil.getGML(m, Templates.GMLJP2_COVERAGE_COLLECTION, meta);
             File gmlFile;
             try {
-                gmlFile = File.createTempFile(m.getCoverageId() + '_' + OPENJP2_ENCODING, null); // arbitrary prefix (at least 3 chars)
+                gmlFile = File.createTempFile(m.getCoverageId() + '_' + JP2_ENCODING, null); // arbitrary prefix (at least 3 chars)
                 if (gmlFile.canWrite()) {
                     PrintWriter gmlWriter = new PrintWriter(gmlFile.getAbsolutePath());
                     gmlWriter.println(gml);
@@ -148,7 +150,7 @@ public class GMLJP2FormatExtension extends AbstractFormatExtension {
                 gdalParams.setConfigKeyValue(GMLJP2OVERRIDE_COPTION_KEY, gmlFile.getAbsolutePath());
 
                 // get the data
-                p = executeRasqlQuery(request, m.getMetadata(), meta, OPENJP2_ENCODING, gdalParams.toString());
+                p = executeRasqlQuery(request, m, meta, JP2_ENCODING, gdalParams.toString());
                 gmlFile.delete();
 
             } catch (SecurityException ex) {
@@ -166,7 +168,9 @@ public class GMLJP2FormatExtension extends AbstractFormatExtension {
         if (res.getMdds().isEmpty()) {
             return new Response(null, null, getMimeType());
         } else {
-            return new Response(res.getMdds().get(0), null, getMimeType());
+            List<byte[]> data = new ArrayList<byte[]>();
+            data.add(res.getMdds().get(0));
+            return new Response(data, null, getMimeType());
         }
     }
 

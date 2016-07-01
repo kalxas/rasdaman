@@ -47,11 +47,14 @@ public interface FormatExtension extends  Extension {
 
     // GDAL drivers
     String CSV_ENCODING = "csv";
+    String DEM_ENCODING = "dem";
     String TIFF_ENCODING = "tiff";
+    String GEO_TIFF_ENCODING = "gtiff";
     String JP2_ENCODING = "jpeg2000";
     String OPENJP2_ENCODING = "jp2openjpeg";
     String PNG_ENCODING = "png";
-    String NETCDF_ENCODING = "netcdf";
+    String NETCDF_ENCODING = "netcdf";   
+    
 
     /**
      * Check if this format extension is the right one for req

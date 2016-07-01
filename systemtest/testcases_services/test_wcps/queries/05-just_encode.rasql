@@ -1,1 +1,0 @@
-select png(c) from rgb AS c

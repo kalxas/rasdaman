@@ -21,14 +21,13 @@
  */
 package petascope.wcps2.cli;
 
-import org.apache.commons.io.IOUtils;
 import petascope.exceptions.rasdaman.RasdamanException;
 import petascope.util.ras.RasQueryResult;
 import petascope.util.ras.RasUtil;
-import petascope.wcps2.error.managed.processing.WCPSProcessingError;
-import petascope.wcps2.translator.WcpsTranslator;
 
-import java.io.*;
+import java.io.DataOutputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
 
 /**
  * This class provides a method to run wcps queries directly from the cli. Useful for testing and debugging
@@ -49,20 +48,21 @@ public class Wcps {
      * @throws RasdamanException
      */
     public static void main(String[] args) throws IOException, RasdamanException {
-        FileInputStream inputStream = new FileInputStream(args[0]);
-
-        String query;
-        try {
-            query = IOUtils.toString(inputStream);
-            System.out.println("Executing query: " + query);
-        } finally {
-            inputStream.close();
-        }
-        try {
-            executeQuery(run(query), args[1]);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+//        FileInputStream inputStream = new FileInputStream(args[0]);
+//        CoordinateTranslationService coordinateTranslationService = new CoordinateTranslationService();
+//        WcpsCoverageMetadataService wcpsCoverageMetadataService = new WcpsCoverageMetadataService();
+//        String query;
+//        try {
+//            query = IOUtils.toString(inputStream);
+//            System.out.println("Executing query: " + query);
+//        } finally {
+//            inputStream.close();
+//        }
+//        try {
+//            executeQuery(run(query), args[1]);
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//        }
 
     }
 
@@ -72,13 +72,18 @@ public class Wcps {
      *
      * @param query
      */
-    public static String run(String query) throws WCPSProcessingError {
-        long startTime = System.nanoTime();
-        WcpsTranslator translator = new WcpsTranslator(query);
-        String rasqlQuery = translator.translate();
-        long endTime = System.nanoTime();
-        return rasqlQuery;
-    }
+//    public static String run(String query) throws WCPSProcessingError {
+//        long startTime = System.nanoTime();
+//        WcpsTranslator translator = new WcpsTranslator(query);
+//        WcpsResult wcpsResult = translator.translate();
+//        // Check if wcpsResult return directly meta value then should not execute the result
+//        if(wcpsResult instanceof WCPSMetaResult) {
+//            throw new NotRasqlException(query, wcpsResult.getResult());
+//        }
+//        long endTime = System.nanoTime();
+//        // Return Rasql query
+//        return wcpsResult.getResult();
+//    }
 
     /**
      * Executes a rasql query and dumps the results into a file

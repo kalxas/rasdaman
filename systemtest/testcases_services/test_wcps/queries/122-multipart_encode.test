@@ -1,0 +1,1 @@
+for c in (mean_summer_airtemp, mean_summer_airtemp_repeat), d in (mean_summer_airtemp, mean_summer_airtemp_repeat) return encode(c[Lat(-20:-10), Long(120:130)] + d[Lat(-20:-10), Long(120:130)], "tiff")

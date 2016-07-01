@@ -1,1 +1,0 @@
-select png(tan((c).1[0:100, 0:100])) from rgb AS c

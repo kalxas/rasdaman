@@ -62,11 +62,11 @@ public class GetCoverageOld2 extends AbstractRequestHandler<GetCoverageRequest> 
 
         String subsetting = computeRequestSubsettingLimits(req, cov);
         String coverageData = buildCoverageData(req, cov, subsetting);
-        return new Response(descr
+        return new Response(new String[] { descr
                 .replaceAll("\\{low\\}", lowPoint)
                 .replaceAll("\\{high\\}", highPoint)
                 .replaceAll("\\{axisLabels\\}", newAxesLabels)
-                .replaceAll("\\{coverageData\\}", coverageData));
+                .replaceAll("\\{coverageData\\}", coverageData) });
     }
 
     /**

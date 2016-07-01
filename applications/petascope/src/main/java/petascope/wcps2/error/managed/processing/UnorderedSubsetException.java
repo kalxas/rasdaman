@@ -21,7 +21,7 @@
  */
 package petascope.wcps2.error.managed.processing;
 
-import petascope.wcps2.metadata.Interval;
+import petascope.wcps2.metadata.model.ParsedSubset;
 
 /**
  * Error occurring when the lowerBound is larger than the upperBound
@@ -35,9 +35,11 @@ public class UnorderedSubsetException extends InvalidSubsettingException {
      * Constructor for the class
      *
      * @param axisName the axis on which the subset is being made
-     * @param subset   the offending subset
+     * @param subset the offending subset
      */
-    public UnorderedSubsetException(String axisName, Interval<String> subset) {
-        super(axisName, subset);
+    public UnorderedSubsetException(String axisName, ParsedSubset<String> subset) {
+        super(axisName, subset, ERROR_TEMPLATE.replace("$lowerBound", subset.getLowerLimit()).replace("$upperBound", subset.getUpperLimit()).replace("$axis", axisName));
     }
+
+    private static final String ERROR_TEMPLATE = "Invalid subsetting coordinates '$lowerBound' is greater than '$upperBound' for axis '$axis'.";
 }

@@ -30,6 +30,7 @@ import petascope.wcs2.parsers.Request;
  * Handles a {@link Request}
  * 
  * @author Dimitar Misev
+ * @param <T>
  */
 public interface RequestHandler<T> {
     
@@ -43,6 +44,7 @@ public interface RequestHandler<T> {
 
     /**
      * Execute the operation given the request, and return the result.
+     * @param request
      */
     public Response handle(T request) throws PetascopeException, WCSException, SecoreException;
 }

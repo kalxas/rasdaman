@@ -16,6 +16,6 @@
   </wcs:DimensionSlice>
   <wcs:DimensionSlice>
     <wcs:Dimension>k</wcs:Dimension>
-    <wcs:SlicePoint>8</wcs:SlicePoint>
+    <wcs:SlicePoint>5</wcs:SlicePoint>
   </wcs:DimensionSlice>
 </wcs:GetCoverage>
