@@ -20,7 +20,7 @@
  * or contact Peter Baumann via <baumann@rasdaman.com>.
  */
 
-#include "messages/rasmgrmess.pb.h"
+#include "rasmgr_x/src/messages/rasmgrmess.pb.h"
 #include "useradminrights.hh"
 
 namespace rasmgr

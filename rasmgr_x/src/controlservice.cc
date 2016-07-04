@@ -25,7 +25,7 @@
 #include <boost/spirit/include/phoenix.hpp>
 
 #include <easylogging++.h>
-#include "../../common/src/grpc/grpcutils.hh"
+#include "common/src/grpc/grpcutils.hh"
 
 #include "controlservice.hh"
 #include "controlcommandexecutor.hh"

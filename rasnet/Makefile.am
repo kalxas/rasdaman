@@ -11,11 +11,11 @@ PROTOBUF_FILES_SERVER= protomessages/rasmgr_rasctrl_service.proto \
 				protomessages/rassrvr_rasmgr_service.proto \
 				protomessages/rasmgr_rasmgr_service.proto
 
-PROTO_SRC_JAVA_CLIENT = ../java/src/org/rasdaman/rasnet/service/RasMgrClientServiceGrpc.java \
-                        ../java/src/org/rasdaman/rasnet/service/RasmgrClientService.java \
-                        ../java/src/org/rasdaman/rasnet/service/CommonService.java \
-                        ../java/src/org/rasdaman/rasnet/service/ClientRasServerService.java \
-                        ../java/src/org/rasdaman/rasnet/service/ClientRassrvrServiceGrpc.java
+PROTO_SRC_JAVA_CLIENT = ../java/src/main/java/org/rasdaman/rasnet/service/RasmgrClientServiceGrpc.java \
+                        ../java/src/main/java/org/rasdaman/rasnet/service/RasmgrClientService.java \
+                        ../java/src/main/java/org/rasdaman/rasnet/service/CommonService.java \
+                        ../java/src/main/java/org/rasdaman/rasnet/service/ClientRasServerService.java \
+                        ../java/src/main/java/org/rasdaman/rasnet/service/ClientRassrvrServiceGrpc.java
 
 PROTO_SRC_CLIENT= messages/client_rassrvr_service.pb.cc \
            messages/client_rassrvr_service.grpc.pb.cc \
@@ -47,9 +47,9 @@ if ENABLE_JAVA
 all-local: $(PROTO_SRC_JAVA_CLIENT)
 
 $(PROTO_SRC_JAVA_CLIENT): $(PROTOBUF_FILES_CLIENT)
-	$(PROTOC) --proto_path=protomessages --java_out=../java/src/ $?
+	$(PROTOC) --proto_path=protomessages --java_out=../java/src/main/java $?
 	$(PROTOC) --plugin=protoc-gen-grpc-java=${GRPCJAVAPLUGIN} \
-		 --grpc-java_out=../java/src --proto_path=protomessages $?
+		 --grpc-java_out=../java/src/main/java --proto_path=protomessages $?
 endif
 
 $(PROTO_SRC_SERVER): $(PROTOBUF_FILES_SERVER)

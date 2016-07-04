@@ -1,7 +1,7 @@
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>
-#include "../../common/src/grpc/healthserviceimpl.hh"
-#include "../../common/src/grpc/grpcutils.hh"
+#include "common/src/grpc/healthserviceimpl.hh"
+#include "common/src/grpc/grpcutils.hh"
 
 #include "dummies/dummyrasmgrservice.hh"
 #include "../src/peermanager.hh"

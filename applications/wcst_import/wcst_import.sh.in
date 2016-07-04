@@ -22,4 +22,4 @@
 # *
 #
 # Call the wcst_import.py from the share directory
-WCST_IMPORT_PY_SCRIPT $1
+python @WCST_IMPORT_PY_SCRIPT@ $1

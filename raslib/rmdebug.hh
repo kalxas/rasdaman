@@ -193,7 +193,6 @@ public:
         module_httpserver,
         module_indexif,
         module_indexmgr,
-        module_insertutils,
         module_mddif,
         module_mddmgr,
         module_qlparser,

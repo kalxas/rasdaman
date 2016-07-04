@@ -21,7 +21,7 @@
  */
 
 
-#include "../../common/src/exceptions/rasexceptions.hh"
+#include "common/src/exceptions/rasexceptions.hh"
 
 #include "exceptions/rasmgrexceptions.hh"
 

@@ -26,9 +26,9 @@ rasdaman GmbH.
 
 #include <boost/smart_ptr.hpp>
 
-#include "../rasserver_x/src/clientmanager.hh"
-#include "../rasnet/messages/client_rassrvr_service.grpc.pb.h"
-#include "../raslib/error.hh"
+#include "rasserver_x/src/clientmanager.hh"
+#include "rasnet/messages/client_rassrvr_service.grpc.pb.h"
+#include "raslib/error.hh"
 
 class RasnetServerComm : public rasnet::service::ClientRassrvrService::Service
 {

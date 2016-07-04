@@ -33,9 +33,10 @@ rasdaman GmbH.
 
 #include <grpc++/grpc++.h>
 
-#include "../../common/src/grpc/healthserviceimpl.hh"
-#include "../../server/rasserver_config.hh"
-#include "../../rasnetprotocol/rasnetservercomm.hh"
+
+#include "common/src/grpc/healthserviceimpl.hh"
+#include "server/rasserver_config.hh"
+#include "rasnetprotocol/rasnetservercomm.hh"
 
 #include "rasserverserviceimpl.hh"
 

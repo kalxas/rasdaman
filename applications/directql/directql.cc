@@ -42,14 +42,6 @@ rasdaman GmbH.
 #error "Please specify RMANVERSION variable!"
 #endif
 
-#ifndef COMPDATE
-#error "Please specify the COMPDATE variable!"
-/*
-COMPDATE=`date +"%d.%m.%Y %H:%M:%S"`
-and -DCOMPDATE="\"$(COMPDATE)\"" when compiling
- */
-#endif
-
 #ifdef EARLY_TEMPLATE
 #define __EXECUTABLE__
 #define DEBUG_MAIN
@@ -1130,7 +1122,7 @@ int main(int argc, char** argv)
         parseParams(argc, argv);
 
         // put INFO after parsing parameters to respect a '--quiet'
-        INFO(argv[0] << ": rasdaman query tool v1.0, rasdaman " << RMANVERSION << " -- generated on " << COMPDATE << "." << endl);
+        INFO(argv[0] << ": rasdaman query tool v1.0, rasdaman " << RMANVERSION << "." << endl);
 
         openDatabase();
         doStuff();

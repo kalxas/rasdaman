@@ -23,7 +23,7 @@
 #ifndef RASMGR_X_SRC_EXCEPTIONS_DUPLICATEDBSESSIONEXCEPTION_HH
 #define RASMGR_X_SRC_EXCEPTIONS_DUPLICATEDBSESSIONEXCEPTION_HH
 
-#include "../../../common/src/exceptions/rasexceptions.hh"
+#include "common/src/exceptions/rasexceptions.hh"
 
 namespace rasmgr
 {

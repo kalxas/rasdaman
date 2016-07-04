@@ -3,7 +3,7 @@
 
 #include <gmock/gmock.h>
 
-#include "../src/servergroupfactory.hh"
+#include "rasmgr_x/src/servergroupfactory.hh"
 
 namespace rasmgr
 {

@@ -54,7 +54,7 @@ rasdaman GmbH.
 
 #ifndef _RPCIF_
 #define _RPCIF_
-#include "clientcomm/rpcif.h"
+#include "servercomm/rpcif.h"
 #endif
 
 #ifdef DECALPHA

@@ -27,7 +27,7 @@
 
 #include <boost/shared_ptr.hpp>
 
-#include "../../rasnet/messages/rasmgr_rasctrl_service.grpc.pb.h"
+#include "rasnet/messages/rasmgr_rasctrl_service.grpc.pb.h"
 
 namespace rasmgr
 {

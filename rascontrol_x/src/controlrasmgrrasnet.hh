@@ -25,8 +25,8 @@
 
 #include <memory>
 #include <boost/smart_ptr.hpp>
-#include "../../rasnet/messages/rasmgr_rasctrl_service.grpc.pb.h"
-#include "../../common/src/grpc/messages/healthservice.grpc.pb.h"
+#include "rasnet/messages/rasmgr_rasctrl_service.grpc.pb.h"
+#include "common/src/grpc/messages/health_service.grpc.pb.h"
 
 #include "controlrasmgrcomm.hh"
 #include "usercredentials.hh"

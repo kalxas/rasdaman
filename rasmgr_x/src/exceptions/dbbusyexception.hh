@@ -23,7 +23,7 @@
 #ifndef RASMGR_X_SRC_EXCEPTIONS_DBBUSYEXCEPTION_HH
 #define RASMGR_X_SRC_EXCEPTIONS_DBBUSYEXCEPTION_HH
 
-#include "../../common/src/exceptions/resourcebusyexception.hh"
+#include "common/src/exceptions/resourcebusyexception.hh"
 
 namespace rasmgr
 {

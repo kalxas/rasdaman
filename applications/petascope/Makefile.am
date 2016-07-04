@@ -43,6 +43,11 @@ if GENERATE_DOCS
 endif
 
 # Location of trees.
+
+PROJECT_VERSION=@VERSION@
+PETASCOPE_TARGET_DIR=target
+RASJ_JAR=\$${project.basedir}/lib/rasj.jar
+
 SRC       = src/main
 SRC_MAIN  = $(SRC)/java
 SRC_RES   = $(SRC)/resources
@@ -55,7 +60,7 @@ WEB       = $(BUILD)/web
 CLASSES   = $(WEB)/WEB-INF/classes
 NAME      = rasdaman
 WAR_NAME  = $(NAME).war
-WAR       = $(DIST)/$(WAR_NAME)
+WAR       = $(PETASCOPE_TARGET_DIR)/$(WAR_NAME)
 
 JETTY     = jetty
 
@@ -119,12 +124,18 @@ JDFLAGS   = -sourcepath $(SRC_MAIN) \
 #                                 TARGETS
 # ------------------------------------------------------------------------------
 
-
 # Create war
 .PHONY: war
-war: compileit
-	$(MKDIR) $(DIST)
-	$(CD) $(WEB); $(JAR) $(JARFLAGS) ../../$(WAR) .
+war: 
+	cp pom.xml.in pom.xml
+	$(SED) -i "s|@PROJECT_VERSION@|${PROJECT_VERSION}|g" pom.xml
+	$(SED) -i "s|@PETASCOPE_TARGET_DIR@|${PETASCOPE_TARGET_DIR}|g" pom.xml
+	$(SED) -i "s|@RASJ_PATH@|${RASJ_JAR}|g" pom.xml
+	$(SED) 's|@CONF_DIR@|$(DESTDIR)$(sysconfdir)/|g' $(SRC_WEB)/WEB-INF/web.xml.in > $(SRC_WEB)/WEB-INF/web.xml
+	mvn package -Ppetascope
+if JAVA_SERVER_EMBEDDED
+	mvn package -Pjetty
+endif
 
 # Print the targets
 .PHONY: help
@@ -140,37 +151,6 @@ help:
 	@echo "    clean    remove all build files"
 	@echo "    wps      build 52n WPS server with petascope support and copy to wardir"
 	@echo
-
-# all_javas - Temp file for holding source file list
-all_javas = $(CLASSES)/all.javas
-
-# Gather source file list, excluding n52 which are exclusively compiled with maven
-.INTERMEDIATE: $(all_javas)
-$(all_javas):
-	$(MKDIR) $(CLASSES)
-	$(FIND) $(SRC_MAIN) $(TEST) -name '*.java' | grep -v 'n52' > $@
-
-# compileit - Compile the source
-.PHONY: compileit
-compileit: $(all_javas) $(GEN_DOCS)
-	$(MAKE) -C ../../java $(MAKECMDGOALS)
-	$(MKDIR) $(BUILD)
-	$(SED) 's|@confdir@|$(DESTDIR)$(sysconfdir)/|g' $(SRC_WEB)/WEB-INF/web.xml.in > $(SRC_WEB)/WEB-INF/web.xml
-	$(CP) $(SRC_WEB)/* $(WEB)
-	$(CP) templates xml $(WEB)
-	$(MKDIR) $(WCS_CLIENT_DEST)
-	$(CP) $(WCS_CLIENT_SRC) $(WCS_CLIENT_DEST)
-	$(MKDIR) $(WEB)/WEB-INF/lib
-	test -f ../../java/dist/rasj.jar || make -C ../../java
-	$(CP) $(JJARS_PATHS) $(WEB)/WEB-INF/lib
-	$(CP) $(SRC_MAIN)/* $(CLASSES) # copy resources (xml, xsd, properties)
-	$(MKDIR) $(CLASSES)/templates
-	$(CP) templates/wms $(CLASSES)/templates/
-	$(MKDIR) $(WEB)/WEB-INF/wms-messages
-	$(CP) $(WMS_MES)/* $(WEB)/WEB-INF/wms-messages/ # copy WMS error messages
-	$(FIND) $(BUILD) -name '*.java' | xargs $(RM)
-	$(FIND) $(BUILD) -name '.svn' | xargs $(RM) # remove .svn directories
-	$(JAVAC) $(JFLAGS) @$<
 
 # Generate the Java doc from sources
 .PHONY: javadoc
@@ -198,8 +178,8 @@ install: war service
 		echo 'Update java_server=embedded Petascope in petascope properties file'; \
 		sed -i 's|java_server=external|java_server=embedded|g' $(SETTINGS_FILE_EDIT); \
 		sed -i 's|start_embedded_petascope=false|start_embedded_petascope=true|g' $(SETTINGS_FILE_EDIT); \
-		javac -cp $(JETTY)/jetty.jar $(JETTY)/start_petascope.java; \
-		$(CP) $(JETTY)/* $(DESTDIR)$(wardir); \
+		$(CP) $(PETASCOPE_TARGET_DIR)/petascope-standalone.jar ${DESTDIR}$(wardir);\
+		$(CP) jetty/jetty.jar ${DESTDIR}$(wardir);\
 	fi;
 # If user's petascope.properties file has no option 'java_server' or 'start_embedded_petascope', it will be added automatically.
 # If user's petascope.properties has option 'java_server' then it will update to 'embedded/external' based on user's configuration.  (./configure --with-java-server=embedded/external)
@@ -217,7 +197,7 @@ endif
 	NEW_CONF=$(SETTINGS_FILE_EDIT); \
 	OLD_LOG4JCONF=$(DESTDIR)$(sysconfdir)/log4j.properties; \
 	NEW_LOG4JCONF=src/main/resources/log4j.properties; \
-	sed -i "s|GENERATED_rasdaman_bin_path|$(bindir)/|g" $(SETTINGS_FILE_EDIT); \
+	sed -i "s|@GENERATED_rasdaman_bin_path@|$(bindir)/|g" $(SETTINGS_FILE_EDIT); \
 	if test -f $$OLD_CONF; then \
 		echo "$@ is updating petascope.properties: $$OLD_CONF from $$NEW_CONF"; \
 		./update_properties.sh $$OLD_CONF $$NEW_CONF; \
@@ -255,7 +235,11 @@ service:
 # clean up
 .PHONY: clean
 clean:
+	mvn clean -Ppetascope
+	mvn clean -Pjetty
 	$(RM) $(BUILD) dist
+	$(RM) $(PETASCOPE_TARGET_DIR)
+	$(RM) pom.xml
 
 # build jar file
 .PHONY: jar
@@ -271,7 +255,7 @@ wps: jar
 	$(CP) $(BUILD)/petascope.jar lib/*.jar $(BUILD)/wps/WEB-INF/lib
 	$(CD) $(BUILD)/wps; $(JAR) $(JARFLAGS) ../wps.war .
 	$(CP) $(BUILD)/wps.war $(DESTDIR)$(wardir)
-	$(SED) -e 's|@confDir@|$(sysconfdir)|g' $(SRC_RES)/n52/ProcessCoverages.java.in > $(SRC_RES)/n52/ProcessCoverages.java
+	$(SED) -e 's|@CONF_DIR@|$(sysconfdir)|g' $(SRC_RES)/n52/ProcessCoverages.java.in > $(SRC_RES)/n52/ProcessCoverages.java
 
 .PHONY: all
 all: war

@@ -13,3 +13,4 @@
 60-get_capabilities_covsummary.kvp
 60-get_capabilities_covsummary.xml
 61-multiple_exception_report.error.kvp
+69-get_capabilities_sections_coverageSummary.error.kvp 

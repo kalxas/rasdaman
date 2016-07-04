@@ -74,7 +74,6 @@ const char* RMDebug::allModuleNames[] =
     "httpserver",
     "indexif",
     "indexmgr",
-    "insertutils",
     "mddif",
     "mddmgr",
     "qlparser",

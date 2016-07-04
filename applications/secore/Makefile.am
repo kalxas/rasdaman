@@ -28,4 +28,29 @@
 # 
 ##################################################################
 
-SUBDIRS = secore-web
+SECORE_TARGET_DIR=`pwd`/target
+WAR_DIR=$(DESTIRD)$(wardir)
+
+
+if GENERATE_DOCS
+secore_doc:
+	mvn javadoc:javadoc 2>&1 > /dev/null || exit 0
+endif
+
+all-local:
+	cp secore-core/pom.xml.in secore-core/pom.xml
+	cp secore-web/pom.xml.in secore-web/pom.xml
+	sed -i "s|@SECORE_TARGET_DIR@|${SECORE_TARGET_DIR}|g" secore-core/pom.xml
+	sed -i "s|@SECORE_TARGET_DIR@|${SECORE_TARGET_DIR}|g" secore-web/pom.xml
+	mvn package
+
+install-exec-hook:
+	mkdir -p ${WAR_DIR}/secoredb
+	chmod -R 777 ${WAR_DIR}/secoredb
+	cp ${SECORE_TARGET_DIR}/def.war ${WAR_DIR}/ 
+
+clean-local:
+	mvn clean
+	rm -rf ${SECORE_TARGET_DIR}
+	rm -f secore-core/pom.xml
+	rm -f secore-web/pom.xml

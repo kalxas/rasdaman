@@ -55,7 +55,9 @@ librelcatalogif_a_SOURCES= type.C type.hh basetype.C basetype.hh atomictype.C ul
                        mdddimensiontypecommon.cc mdddimensiontype.hh dbminterval.hh inlineminterval.cc inlineminterval.hh \
                        typeiterator.hh atomictype.hh uintegraltype.hh uintegraltype.icc integraltype.hh \
                        integraltype.icc realtype.hh realtype.icc alltypes.hh complextype.hh complextype.icc
+
 EXTRA_librelcatalogif_a_SOURCES= settype.pgc mddtype.pgc mddbasetype.pgc mdddomaintype.pgc mdddimensiontype.pgc structtype.pgc dbminterval.pgc
+
 librelcatalogif_a_LIBADD= settype.$(OBJEXT) mddtype.$(OBJEXT) mddbasetype.$(OBJEXT) mdddimensiontype.$(OBJEXT) \
                       structtype.$(OBJEXT) dbminterval.$(OBJEXT) mdddomaintype.$(OBJEXT)
 librelcatalogif_a_DEPENDENCIES= settype.$(OBJEXT) mddtype.$(OBJEXT) mddbasetype.$(OBJEXT) mdddimensiontype.$(OBJEXT) \

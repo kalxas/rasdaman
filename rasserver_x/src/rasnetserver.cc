@@ -27,15 +27,15 @@ rasdaman GmbH.
 #include <grpc++/grpc++.h>
 #include <chrono>
 
-#include "../../rasnet/messages/rasmgr_rassrvr_service.grpc.pb.h"
+#include "rasnet/messages/rasmgr_rassrvr_service.grpc.pb.h"
 
 #include <easylogging++.h>
-#include "../../common/src/grpc/grpcutils.hh"
-#include "../../common/src/exceptions/rasexceptions.hh"
-#include "../../rasnetprotocol/rasnetservercomm.hh"
+#include "common/src/grpc/grpcutils.hh"
+#include "common/src/exceptions/rasexceptions.hh"
+#include "rasnetprotocol/rasnetservercomm.hh"
 
-#include "../../server/rasserver_entry.hh"
-#include "../../include/globals.hh"
+#include "server/rasserver_entry.hh"
+#include "include/globals.hh"
 
 #include "clientmanager.hh"
 

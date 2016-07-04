@@ -23,11 +23,11 @@
 #include <boost/cstdlib.hpp>
 
 #include <easylogging++.h>
-#include "../../common/src/crypto/crypto.hh"
-#include "../../common/src/logging/loggingutils.hh"
+#include "common/src/crypto/crypto.hh"
+#include "common/src/logging/loggingutils.hh"
 
-#include "../../config.h"
-#include "../../version.h"
+#include "config.h"
+#include "version.h"
 
 #include "rascontrolconfig.hh"
 #include "usercredentials.hh"
@@ -37,15 +37,6 @@
 
 #ifndef RMANVERSION
 #error "Please specify RMANVERSION variable!"
-#endif
-
-#ifndef COMPDATE
-#error "Please specify the COMPDATE variable!"
-/*
-COMPDATE=`date +"%d.%m.%Y %H:%M:%S"`
-
-and -DCOMPDATE="\"$(COMPDATE)\"" when compiling
-*/
 #endif
 
 _INITIALIZE_EASYLOGGINGPP
@@ -80,7 +71,7 @@ int main(int argc, char** argv)
 
         if(!config.isQuietMode())
         {
-            std::cout << "rascontrol: rasdaman server remote control utility. rasdaman " << RMANVERSION << " -- generated on " << COMPDATE << "." << std::endl;
+            std::cout << "rascontrol: rasdaman server remote control utility. rasdaman " << RMANVERSION << "." << std::endl;
             std::cout << " Copyright 2003, 2004, 2005, 2006, 2007, 2008, 2009 Peter Baumann rasdaman GmbH." << std::endl
                       << "Rasdaman community is free software: you can redistribute it and/or modify "
                       "it under the terms of the GNU General Public License as published by "

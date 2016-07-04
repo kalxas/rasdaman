@@ -33,7 +33,6 @@ rasdaman GmbH.
  */
 
 #include "config.h"
-#ifdef HAVE_NETCDF
 
 #include "conversion/netcdf.hh"
 #include "conversion/tmpfile.hh"
@@ -88,6 +87,7 @@ r_Conv_NETCDF::~r_Conv_NETCDF(void)
 /// convert to NETCDF
 r_Conv_Desc &r_Conv_NETCDF::convertTo(const char *options) throw (r_Error)
 {
+#ifdef HAVE_NETCDF
     if (options)
     {
         parseEncodeOptions(string{options});
@@ -133,11 +133,19 @@ r_Conv_Desc &r_Conv_NETCDF::convertTo(const char *options) throw (r_Error)
     desc.destType = r_Type::get_any_type("char");
 
     return desc;
+
+#else
+
+    LERROR << "encoding netCDF is not supported; rasdaman should be configured with option --with-netcdf to enable it.";
+    throw r_Error(r_Error::r_Error_FeatureNotSupported);
+
+#endif
 }
 
 /// convert from NETCDF
 r_Conv_Desc &r_Conv_NETCDF::convertFrom(const char *options) throw (r_Error)
 {
+#ifdef HAVE_NETCDF
     if (options)
     {
         parseDecodeOptions(string{options});
@@ -179,7 +187,16 @@ r_Conv_Desc &r_Conv_NETCDF::convertFrom(const char *options) throw (r_Error)
     }
     
     return desc;
+
+#else
+
+    LERROR << "decoding netCDF is not supported; rasdaman should be configured with option --with-netcdf to enable it.";
+    throw r_Error(r_Error::r_Error_FeatureNotSupported);
+
+#endif
 }
+
+#ifdef HAVE_NETCDF
 
 void r_Conv_NETCDF::readDimSizes(const NcFile &dataFile) throw (r_Error)
 {
@@ -1018,6 +1035,8 @@ string r_Conv_NETCDF::getVariableName() throw (r_Error)
     return ret;
 }
 
+#endif
+
 r_Convertor *r_Conv_NETCDF::clone(void) const
 {
     return new r_Conv_NETCDF(desc.src, desc.srcInterv, desc.baseType);
@@ -1033,4 +1052,3 @@ r_Data_Format r_Conv_NETCDF::get_data_format(void) const
     return r_NETCDF;
 }
 
-#endif

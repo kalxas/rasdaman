@@ -5,8 +5,8 @@
 
 #include <gmock/gmock.h>
 
-#include "../../src/usermanager.hh"
-#include "../../src/messages/rasmgrmess.pb.h"
+#include "rasmgr_x/src/usermanager.hh"
+#include "rasmgr_x/src/messages/rasmgrmess.pb.h"
 
 namespace rasmgr
 {

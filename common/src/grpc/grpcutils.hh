@@ -30,7 +30,7 @@
 
 #include <grpc++/grpc++.h>
 
-#include "messages/healthservice.grpc.pb.h"
+#include "common/src/grpc/messages/health_service.grpc.pb.h"
 
 namespace common
 {

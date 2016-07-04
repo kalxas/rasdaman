@@ -8,10 +8,10 @@
 
 #include <easylogging++.h>
 
-#include "../../config.h"
-#include "../../include/globals.hh"
-#include "../../common/src/exceptions/missingresourceexception.hh"
-#include "../../common/src/uuid/uuid.hh"
+#include "config.h"
+#include "include/globals.hh"
+#include "common/src/exceptions/missingresourceexception.hh"
+#include "common/src/uuid/uuid.hh"
 
 #include "constants.hh"
 #include "controlcommandexecutor.hh"

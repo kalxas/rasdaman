@@ -67,7 +67,7 @@ extern int noTimeOut;
 
 #ifndef _RPCIF_
 #define _RPCIF_
-#include "clientcomm/rpcif.h"
+#include "servercomm/rpcif.h"
 #endif
 
 #include "raslib/minterval.hh"

@@ -5,9 +5,9 @@
 
 #include <boost/thread.hpp>
 
-#include "../../common/src/time/timer.hh"
+#include "common/src/time/timer.hh"
 
-#include "messages/rasmgrmess.pb.h"
+#include "rasmgr_x/src/messages/rasmgrmess.pb.h"
 
 #include "servergroup.hh"
 

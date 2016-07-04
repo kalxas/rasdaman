@@ -22,11 +22,11 @@
 
 #include <stdexcept>
 
-#include "../../common/src/uuid/uuid.hh"
+#include "common/src/uuid/uuid.hh"
 #include <easylogging++.h>
 
 #include "exceptions/rasmgrexceptions.hh"
-#include "messages/rasmgrmess.pb.h"
+#include "rasmgr_x/src/messages/rasmgrmess.pb.h"
 #include "rasmgrconfig.hh"
 #include "server.hh"
 #include "user.hh"

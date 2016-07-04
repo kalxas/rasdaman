@@ -40,7 +40,7 @@ rasdaman GmbH.
 #include <string.h>
 #include <stdio.h>
 
-#include "debug.hh"
+#include "debug/debug.hh"
 
 #include "servercomm/callbackmgr.hh"
 

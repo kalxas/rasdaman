@@ -5,7 +5,7 @@
 #include <boost/cstdint.hpp>
 
 #include <easylogging++.h>
-#include "../../rasnet/messages/rasmgr_rasmgr_service.grpc.pb.h"
+#include "rasnet/messages/rasmgr_rasmgr_service.grpc.pb.h"
 
 namespace rasmgr
 {

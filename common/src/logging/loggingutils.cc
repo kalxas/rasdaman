@@ -23,18 +23,25 @@
 #include <string>
 #include <fstream>
 
-#include <grpc/support/log.h>
-
 #include <easylogging++.h>
 
 #include "globals.hh"
+#include "config.h"
 
 #include "loggingutils.hh"
+
+#ifdef RMANRASNET
+
+#include <grpc/support/log.h>
+
+#endif
 
 namespace common
 {
 using std::string;
 
+#ifdef RMANRASNET
+void gpr_replacement_log(gpr_log_func_args *args);
 void gpr_replacement_log(gpr_log_func_args *args)
 {
     string prefix = "GRPC:";
@@ -76,9 +83,15 @@ void gpr_replacement_log(gpr_log_func_args *args)
     }
 }
 
+#endif
+
 void common::LoggingUtils::redirectGRPCLogToEasyLogging()
 {
+    #ifdef RMANRASNET
+
     gpr_set_log_function(gpr_replacement_log);
+    
+    #endif    
 }
 
 easyloggingpp::Configurations LoggingUtils::getClientLoggingConfiguration()
@@ -175,7 +188,7 @@ easyloggingpp::Configurations LoggingUtils::getServerLoggingConfiguration(const 
 
 bool LoggingUtils::doesFileExist(const std::string &filePath)
 {
-    std::ifstream f(filePath);
+    std::ifstream f(filePath.c_str());
     if (f.good())
     {
         f.close();

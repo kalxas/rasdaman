@@ -28,8 +28,8 @@
 #include <gmock/gmock.h>
 #include <easylogging++.h>
 
-#include "../../common/src/grpc/grpcutils.hh"
-#include "../../common/src/grpc/healthserviceimpl.hh"
+#include "common/src/grpc/grpcutils.hh"
+#include "common/src/grpc/healthserviceimpl.hh"
 
 #include "dummies/dummyrasmgrservice.hh"
 

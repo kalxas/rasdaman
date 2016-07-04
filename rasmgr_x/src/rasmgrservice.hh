@@ -26,7 +26,7 @@
 #include <boost/smart_ptr.hpp>
 #include <boost/thread.hpp>
 
-#include "../../rasnet/messages/rasmgr_rasmgr_service.grpc.pb.h"
+#include "rasnet/messages/rasmgr_rasmgr_service.grpc.pb.h"
 
 namespace rasmgr
 {

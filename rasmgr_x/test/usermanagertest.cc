@@ -28,12 +28,12 @@
 #include <gmock/gmock.h>
 #include <easylogging++.h>
 
-#include "../src/user.hh"
-#include "../src/useradminrights.hh"
-#include "../src/userdatabaserights.hh"
-#include "../src/usermanager.hh"
+#include "rasmgr_x/src/user.hh"
+#include "rasmgr_x/src/useradminrights.hh"
+#include "rasmgr_x/src/userdatabaserights.hh"
+#include "rasmgr_x/src/usermanager.hh"
 
-#include "../src/messages/rasmgrmess.pb.h"
+#include "rasmgr_x/src/messages/rasmgrmess.pb.h"
 
 #include "util/testutil.hh"
 

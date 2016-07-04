@@ -1,15 +1,15 @@
 noinst_LIBRARIES = libcommon.a
 
 PROTOBUF_FILES= grpc/protomessages/error.proto \
-				grpc/protomessages/healthservice.proto
+				grpc/protomessages/health_service.proto
 
 PROTO_SRC= grpc/messages/error.pb.cc \
-		   grpc/messages/healthservice.pb.cc \
-		   grpc/messages/healthservice.grpc.pb.cc
+		   grpc/messages/health_service.pb.cc \
+		   grpc/messages/health_service.grpc.pb.cc
 
-PROTO_JAVA_SRC = ../../java/src/org/rasdaman/rasnet/service/Healthservice.java \
-                ../../java/src/org/rasdaman/rasnet/service/HealthServiceGrpc.java \
-                ../../java/src/org/rasdaman/rasnet/service/Error.java
+PROTO_JAVA_SRC = ../../java/src/main/java/org/rasdaman/rasnet/service/Healthservice.java \
+                ../../java/src/main/java/org/rasdaman/rasnet/service/HealthServiceGrpc.java \
+                ../../java/src/main/java/org/rasdaman/rasnet/service/Error.java
 
 libcommon_a_SOURCES = crypto/crypto.cc \
 					  exceptions/connectionfailedexception.cc \
@@ -48,8 +48,8 @@ if ENABLE_JAVA
 all-local: $(PROTO_JAVA_SRC)
 
 $(PROTO_JAVA_SRC): $(PROTOBUF_FILES)
-	$(PROTOC) --proto_path=grpc/protomessages --java_out=../../java/src/ $?
-	$(PROTOC) --plugin=protoc-gen-grpc-java=${GRPCJAVAPLUGIN} --grpc-java_out=../../java/src --proto_path=grpc/protomessages $?
+	$(PROTOC) --proto_path=grpc/protomessages --java_out=../../java/src/main/java $?
+	$(PROTOC) --plugin=protoc-gen-grpc-java=${GRPCJAVAPLUGIN} --grpc-java_out=../../java/src/main/java --proto_path=grpc/protomessages $?
 
 endif
 

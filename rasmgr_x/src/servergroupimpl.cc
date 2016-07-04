@@ -29,7 +29,7 @@
 #include <boost/cstdint.hpp>
 
 #include <easylogging++.h>
-#include "../../common/src/exceptions/rasexceptions.hh"
+#include "common/src/exceptions/rasexceptions.hh"
 
 #include "constants.hh"
 #include "databasehost.hh"

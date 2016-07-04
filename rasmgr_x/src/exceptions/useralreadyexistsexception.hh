@@ -23,7 +23,7 @@
 #ifndef RASMGR_X_SRC_EXCEPTIONS_USERALREADYEXISTSEXCEPTION_HH_
 #define RASMGR_X_SRC_EXCEPTIONS_USERALREADYEXISTSEXCEPTION_HH_
 
-#include "../../../common/src/exceptions/rasexceptions.hh"
+#include "common/src/exceptions/rasexceptions.hh"
 
 namespace rasmgr
 {

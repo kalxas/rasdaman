@@ -77,7 +77,7 @@ message KeepAliveReq
     string clientUUID = 1;
 }
 
-service RasMgrClientService
+service RasmgrClientService
 {
     rpc Connect(ConnectReq) returns (ConnectRepl);
     rpc Disconnect(DisconnectReq) returns (rasnet.service.Void);

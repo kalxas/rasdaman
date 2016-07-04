@@ -34,14 +34,14 @@
 #include <grpc++/grpc++.h>
 #include <grpc++/security/credentials.h>
 
-#include "../../include/globals.hh"
-#include "../../common/src/exceptions/rasexceptions.hh"
+#include "include/globals.hh"
+#include "common/src/exceptions/rasexceptions.hh"
 
-#include "../../common/src/grpc/grpcutils.hh"
-#include "../../common/src/uuid/uuid.hh"
+#include "common/src/grpc/grpcutils.hh"
+#include "common/src/uuid/uuid.hh"
 #include <easylogging++.h>
 
-#include "../../rasnet/messages/rassrvr_rasmgr_service.pb.h"
+#include "rasnet/messages/rassrvr_rasmgr_service.pb.h"
 
 #include "exceptions/rasmgrexceptions.hh"
 

@@ -95,7 +95,7 @@ rasdaman_retry_timeout=10
 # parameter:     rasdaman_bin_path
 # purpose:       path to rasdaman binaries
 # need to adapt: no
-rasdaman_bin_path=GENERATED_rasdaman_bin_path
+rasdaman_bin_path=@GENERATED_rasdaman_bin_path@
 
 # parameter:    xml_validation
 # purpose:      If set to `true', input XML requests will be validated against OGC WCS schema definitions.
@@ -160,7 +160,7 @@ jetty_port=8080
 # description:   Jetty will extract war files to this directory before starting up petascope.
 #                Default is $RMANHOME/share/rasdaman/war/jetty_tmp.
 # need to adapt: no
-jetty_extracted_path=
+jetty_extracted_path=@GENERATED_jetty_extracted_path@
 
 # parameter:     java_server
 # purpose:       Allow user to start Petascope with embedded (Jetty) or external (Tomcat) mode.
@@ -168,7 +168,7 @@ jetty_extracted_path=
 # description:   When set to external, all settings (jetty_port, jetty_extracted_path, start_embedded_petascope)
 #                for embedded petascope will be disabled.
 # need to adapt: no
-java_server=external
+java_server=@GENERATED_java_server@
 
 # parameter:     start_emdedded_petascope
 # purpose:       Allow user to start embedded petascope after executing start_rasdaman.sh.
@@ -176,7 +176,7 @@ java_server=external
 #                or temporarily enable/disable before starting script start_rasdaman.sh,
 #                e.g: start_rasdaman.sh --stop-embedded-petascope" or "start_rasdaman --start-embedded-petascope"
 # need to adapt:  no
-start_embedded_petascope=false
+start_embedded_petascope=@GENERATED_embedded_petascope@
 
 # parameter:     petascope_admin_user
 # purpose:       Login account has r/w access to petascope's service introduction information in metadata tables

@@ -38,8 +38,8 @@
 
 #include <grpc++/grpc++.h>
 
-#include "../../rasnet/messages/rassrvr_rasmgr_service.grpc.pb.h"
-#include "../../common/src/grpc/messages/healthservice.grpc.pb.h"
+#include "rasnet/messages/rassrvr_rasmgr_service.grpc.pb.h"
+#include "common/src/grpc/messages/health_service.grpc.pb.h"
 
 #include "databasehost.hh"
 

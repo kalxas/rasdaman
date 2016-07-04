@@ -27,13 +27,13 @@
 #include <gmock/gmock.h>
 #include <easylogging++.h>
 
-#include "../src/messages/rasmgrmess.pb.h"
-#include "../src/client.hh"
-#include "../src/user.hh"
-#include "../src/userdatabaserights.hh"
-#include "../src/useradminrights.hh"
-#include "../src/rasmgrconfig.hh"
-#include "../src/server.hh"
+#include "rasmgr_x/src/messages/rasmgrmess.pb.h"
+#include "rasmgr_x/src/client.hh"
+#include "rasmgr_x/src/user.hh"
+#include "rasmgr_x/src/userdatabaserights.hh"
+#include "rasmgr_x/src/useradminrights.hh"
+#include "rasmgr_x/src/rasmgrconfig.hh"
+#include "rasmgr_x/src/server.hh"
 
 #include "mocks/mockrasserver.hh"
 

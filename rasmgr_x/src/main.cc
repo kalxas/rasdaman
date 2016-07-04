@@ -31,8 +31,8 @@
 #include "../../version.h"
 
 #include <easylogging++.h>
-#include "../../common/src/crypto/crypto.hh"
-#include "../../common/src/logging/loggingutils.hh"
+#include "common/src/crypto/crypto.hh"
+#include "common/src/logging/loggingutils.hh"
 
 #include "configuration.hh"
 #include "rasmanager.hh"
@@ -96,7 +96,7 @@ int main ( int argc, char** argv )
     else
     {
         std::cout<< "rasmgr: rasdaman server manager tool. rasdaman "
-                 << RMANVERSION << " -- generated on " << COMPDATE << "." << std::endl
+                 << RMANVERSION << "." << std::endl
                  << "Copyright 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014 Peter Baumann, rasdaman GmbH.\n"
                  << "Rasdaman community is free software: you can redistribute it and/or modify "
                  "it under the terms of the GNU General Public License as published by "

@@ -5,10 +5,10 @@
 
 #include <gmock/gmock.h>
 
-#include "../../src/server.hh"
-#include "../../src/databasehost.hh"
-#include "../../src/userdatabaserights.hh"
-#include "../../src/messages/rasmgrmess.pb.h"
+#include "rasmgr_x/src/server.hh"
+#include "rasmgr_x/src/databasehost.hh"
+#include "rasmgr_x/src/userdatabaserights.hh"
+#include "rasmgr_x/src/messages/rasmgrmess.pb.h"
 
 namespace rasmgr
 {

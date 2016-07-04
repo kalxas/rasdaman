@@ -26,7 +26,6 @@ syntax = "proto3";
 package rasnet.service;
 
 option java_package = "org.rasdaman.rasnet.service";
-option java_outer_classname = "ClientRasServerService";
 
 option cc_generic_services = false;
 option java_generic_services = false;

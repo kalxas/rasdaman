@@ -42,14 +42,6 @@ static const char rasql_rcsid[] = "@(#)rasql,rasql.cc: $Id: rasql.cc,v 1.3 2006/
 #error "Please specify RMANVERSION variable!"
 #endif
 
-#ifndef COMPDATE
-#error "Please specify the COMPDATE variable!"
-/*
-COMPDATE=`date +"%d.%m.%Y %H:%M:%S"`
-and -DCOMPDATE="\"$(COMPDATE)\"" when compiling
-*/
-#endif
-
 #ifdef EARLY_TEMPLATE
 #define __EXECUTABLE__
 #include "raslib/template_inst.hh"
@@ -1035,7 +1027,7 @@ int main(int argc, char** argv)
         parseParams( argc, argv );
 
         // put INFO after parsing parameters to respect a '--quiet'
-        INFO( argv[0] << ": rasdaman query tool v1.0, rasdaman " << RMANVERSION << " -- generated on " << COMPDATE << "." << endl );
+        INFO( argv[0] << ": rasdaman query tool v1.0, rasdaman " << RMANVERSION << "." << endl );
 
         openDatabase();
         doStuff( argc, argv );

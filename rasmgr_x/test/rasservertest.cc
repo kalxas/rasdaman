@@ -30,11 +30,11 @@
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>
 #include <easylogging++.h>
-#include "../../common/src/grpc/grpcutils.hh"
+#include "common/src/grpc/grpcutils.hh"
 
-#include "../../rasnet/messages/rassrvr_rasmgr_service.grpc.pb.h"
+#include "rasnet/messages/rassrvr_rasmgr_service.grpc.pb.h"
 
-#include "../src/serverrasnet.hh"
+#include "rasmgr_x/src/serverrasnet.hh"
 
 namespace rasmgr
 {

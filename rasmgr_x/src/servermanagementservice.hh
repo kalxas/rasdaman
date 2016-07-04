@@ -28,7 +28,7 @@
 #include <google/protobuf/service.h>
 #include <google/protobuf/stubs/common.h>
 
-#include "../../rasnet/messages/rasmgr_rassrvr_service.grpc.pb.h"
+#include "rasnet/messages/rasmgr_rassrvr_service.grpc.pb.h"
 
 namespace rasmgr
 {

@@ -28,7 +28,7 @@
 #include <iostream>
 #include <stdexcept>
 
-#include "../../common/src/crypto/crypto.hh"
+#include "common/src/crypto/crypto.hh"
 #include <easylogging++.h>
 
 #include "../include/globals.hh"

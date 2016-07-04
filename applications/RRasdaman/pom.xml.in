@@ -1,0 +1,53 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <groupId>org.rasdaman</groupId>
+    <artifactId>rrasdaman</artifactId>
+    <version>1.0.0</version>
+    <packaging>jar</packaging>
+
+    <name>rrasdaman</name>
+    <description>RRasdaman Library</description>
+    <url>http://maven.apache.org</url>
+
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    </properties>
+
+    <build>
+        <directory>@RRASDAMAN_JAVA_TARGET_DIR@</directory>
+        <plugins>
+            <!-- plugin used to specify the java version-->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>2.1</version>
+                <configuration combine.children="append">
+                    <source>1.7</source>
+                    <target>1.7</target>
+                </configuration>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <version>2.3.2</version>
+                <configuration>
+                    <finalName>RRasdaman</finalName>                   
+                </configuration>
+            </plugin>  
+        </plugins>
+    </build>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.rasdaman</groupId>
+            <artifactId>rasj</artifactId>
+            <version> @PROJECT_VERSION@ </version>
+            <scope>system</scope>
+            <systemPath>@RASJ_TARGET_DIR@/rasj-jar-with-dependencies.jar</systemPath>
+        </dependency>
+    </dependencies>
+
+</project>

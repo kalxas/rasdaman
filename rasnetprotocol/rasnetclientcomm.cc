@@ -49,9 +49,9 @@ rasdaman GmbH.
 
 #include "../debug/debug.hh"
 
-#include "../common/src/crypto/crypto.hh"
-#include "../common/src/uuid/uuid.hh"
-#include "../common/src/grpc/grpcutils.hh"
+#include "common/src/crypto/crypto.hh"
+#include "common/src/uuid/uuid.hh"
+#include "common/src/grpc/grpcutils.hh"
 #include <easylogging++.h>
 
 #include "common/src/grpc/messages/error.pb.h"
@@ -828,7 +828,7 @@ void RasnetClientComm::closeRasserverService()
     }
 }
 
-boost::shared_ptr<rasnet::service::RasMgrClientService::Stub> RasnetClientComm::getRasMgrService(bool throwIfConnectionFailed)
+boost::shared_ptr<rasnet::service::RasmgrClientService::Stub> RasnetClientComm::getRasMgrService(bool throwIfConnectionFailed)
 {
     this->initRasmgrService();
 
@@ -850,7 +850,7 @@ void RasnetClientComm::initRasmgrService()
         try
         {
             std::shared_ptr<Channel> channel( grpc::CreateChannel(rasmgrHost, grpc::InsecureChannelCredentials()));
-            this->rasmgrService.reset(new ::rasnet::service::RasMgrClientService::Stub(channel));
+            this->rasmgrService.reset(new ::rasnet::service::RasmgrClientService::Stub(channel));
             this->rasmgrHealthService.reset(new common::HealthService::Stub(channel));
 
             this->initializedRasMgrService = true;

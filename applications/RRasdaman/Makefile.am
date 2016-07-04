@@ -66,7 +66,7 @@ install: build
 ######## Java compilation ########
 
 RJAVADIR=inst/java/
-JAVA_SRC=java
+JAVA_SRC=src/main/java
 JAVA_OUT=$(BUILD)/out
 RRASDAMAN_JAR=$(RJAVADIR)/RRasdaman.jar
 source_dirs_list=. rrasdaman

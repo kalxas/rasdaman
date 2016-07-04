@@ -23,7 +23,7 @@
 #include <stdexcept>
 
 #include <easylogging++.h>
-#include "../../common/src/exceptions/logicexception.hh"
+#include "common/src/exceptions/logicexception.hh"
 
 #include "exceptions/rasmgrexceptions.hh"
 

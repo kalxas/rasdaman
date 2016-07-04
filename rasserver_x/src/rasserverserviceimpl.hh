@@ -30,7 +30,7 @@ rasdaman GmbH.
 
 #include <boost/smart_ptr.hpp>
 
-#include "../../rasnet/messages/rassrvr_rasmgr_service.grpc.pb.h"
+#include "rasnet/messages/rassrvr_rasmgr_service.grpc.pb.h"
 
 namespace rasserver
 {

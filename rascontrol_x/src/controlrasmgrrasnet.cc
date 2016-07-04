@@ -25,11 +25,11 @@
 #include <grpc++/grpc++.h>
 #include <grpc++/security/credentials.h>
 
-#include "../../rasnet/messages/rasmgr_rasctrl_service.pb.h"
+#include "rasnet/messages/rasmgr_rasctrl_service.pb.h"
 
 #include <easylogging++.h>
-#include "../../common/src/grpc/grpcutils.hh"
-#include "../../common/src/exceptions/rasexceptions.hh"
+#include "common/src/grpc/grpcutils.hh"
+#include "common/src/exceptions/rasexceptions.hh"
 
 #include "controlrasmgrrasnet.hh"
 

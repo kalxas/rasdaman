@@ -32,13 +32,13 @@ rasdaman GmbH.
 #include <google/protobuf/service.h>
 #include <google/protobuf/stubs/common.h>
 
-#include "../rasnet/messages/rasmgr_client_service.grpc.pb.h"
-#include "../rasnet/messages/client_rassrvr_service.grpc.pb.h"
-#include "../common/src/grpc/messages/healthservice.grpc.pb.h"
+#include "rasnet/messages/rasmgr_client_service.grpc.pb.h"
+#include "rasnet/messages/client_rassrvr_service.grpc.pb.h"
+#include "common/src/grpc/messages/health_service.grpc.pb.h"
 
-#include "../clientcomm/clientcomm.hh"
-#include "../clientcomm/rpcif.h"
-#include "../rasodmg/ref.hh"
+#include "clientcomm/clientcomm.hh"
+#include "clientcomm/rpcif.h"
+#include "rasodmg/ref.hh"
 
 class RasnetClientComm : public ClientComm
 {
@@ -99,7 +99,7 @@ private:
     boost::shared_mutex rasServerServiceMtx;
     boost::shared_ptr<common::HealthService::Stub> rasserverHealthService;
 
-    boost::shared_ptr<rasnet::service::RasMgrClientService::Stub> rasmgrService; /*! Service stub used to communicate with the RasServer process */
+    boost::shared_ptr<rasnet::service::RasmgrClientService::Stub> rasmgrService; /*! Service stub used to communicate with the RasServer process */
     bool initializedRasMgrService; /*! Flag used to indicate if the service was initialized */
     boost::shared_mutex rasMgrServiceMtx;
     boost::shared_ptr<common::HealthService::Stub> rasmgrHealthService;
@@ -131,7 +131,7 @@ private:
     /* END: KEEP ALIVE */
 
     ::boost::shared_ptr<rasnet::service::ClientRassrvrService::Stub> getRasServerService(bool throwIfConnectionFailed=true);
-    ::boost::shared_ptr<rasnet::service::RasMgrClientService::Stub> getRasMgrService(bool throwIfConnectionFailed=true);
+    ::boost::shared_ptr<rasnet::service::RasmgrClientService::Stub> getRasMgrService(bool throwIfConnectionFailed=true);
 
     void initRasserverService();
     void initRasmgrService();

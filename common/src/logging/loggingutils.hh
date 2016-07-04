@@ -23,14 +23,10 @@
 #ifndef COMMON_SRC_LOGGING_LOGGINGUTILS_HH
 #define COMMON_SRC_LOGGING_LOGGINGUTILS_HH
 
-#include <grpc/support/log.h>
 #include <easylogging++.h>
 
 namespace common
 {
-
-void gpr_replacement_log(gpr_log_func_args *args);
-
 class LoggingUtils
 {
 public:

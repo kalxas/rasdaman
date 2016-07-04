@@ -5,7 +5,7 @@
     <context-param>
         <description>Directory containing the configuration files</description>
         <param-name>confDir</param-name>
-        <param-value>@confdir@</param-value>
+        <param-value>@CONF_DIR@</param-value>
     </context-param>
     <servlet>
         <description>WCS 2.0 Service</description>

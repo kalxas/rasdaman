@@ -1,0 +1,105 @@
+#cmakedefine HAVE_ARPA_INET_H 1
+#cmakedefine HAVE_FCNTL_H 1
+#cmakedefine HAVE_FLOAT_H 1
+#cmakedefine HAVE_LIMITS_H 1
+#cmakedefine HAVE_MALLOC_H 1
+#cmakedefine HAVE_MEMORY_H 1
+#cmakedefine HAVE_NETDB_H 1
+#cmakedefine HAVE_NETINET_IN_H 1
+#cmakedefine HAVE_STDLIB_H 1
+#cmakedefine HAVE_STRING_H 1
+#cmakedefine HAVE_STRINGS_H 1
+#cmakedefine HAVE_SYS_SOCKET_H 1
+#cmakedefine HAVE_SYS_TIME_H 1
+#cmakedefine HAVE_UNISTD_H 1
+#cmakedefine HAVE_VALUES_H 1
+
+#cmakedefine HAVE_HDF_H 1
+#cmakedefine HAVE_HDF_HDF_H 1
+
+#cmakedefine HAVE_HDF_MFHDF_H  1
+#cmakedefine HAVE_MFHDF_H 1
+
+#cmakedefine HAVE_NETCDFCPP_H 1
+
+#cmakedefine HAVE_ALLOCA_H  1
+
+#cmakedefine HAVE_ALARM 1
+
+#cmakedefine HAVE_GDAL 1
+#cmakedefine HAVE_GRIB 1
+
+#cmakedefine HAVE_BZERO 1
+#cmakedefine HAVE_CLOCK_GETTIME 1
+#cmakedefine HAVE_DUP2 1
+#cmakedefine HAVE_FLOOR 1
+#cmakedefine HAVE_GETCWD 1
+#cmakedefine HAVE_GETHOSTBYADDR 1
+#cmakedefine HAVE_GETHOSTBYNAME 1
+#cmakedefine HAVE_GETHOSTNAME 1
+#cmakedefine HAVE_GETPASS 1
+#cmakedefine HAVE_GETTIMEOFDAY 1
+#cmakedefine HAVE_INET_NTOA 1
+#cmakedefine HAVE_LOCALTIME_R 1
+#cmakedefine HAVE_MEMMOVE 1
+#cmakedefine HAVE_MEMSET 1
+#cmakedefine HAVE_MKDIR 1
+#cmakedefine HAVE_PATHCONF 1
+#cmakedefine HAVE_POW 1
+#cmakedefine HAVE_RINT 1
+#cmakedefine HAVE_SELECT 1
+#cmakedefine HAVE_SOCKET 1
+#cmakedefine HAVE_SQRT 1
+#cmakedefine HAVE_STRCASECMP 1
+#cmakedefine HAVE_STRCHR 1
+#cmakedefine HAVE_STRDUP 1
+#cmakedefine HAVE_STRERROR 1
+#cmakedefine HAVE_STRNCASECMP 1
+#cmakedefine HAVE_STRRCHR 1
+#cmakedefine HAVE_STRSTR 1
+#cmakedefine HAVE_STRTOL 1
+#cmakedefine HAVE_STRTOUL 1
+
+#cmakedefine HAVE_HDF  1
+
+#cmakedefine RMANDEBUG  1
+#cmakedefine DEBUG  1
+
+#cmakedefine _DISABLE_TRACE_LOGS 1
+#cmakedefine __NO_MATH_INLINES 1
+
+#cmakedefine JAVA_SERVER "@JAVA_SERVER@"
+#cmakedefine JAVA_SERVER_EXTERNAL 1
+#cmakedefine JAVA_SERVER_EMBEDDED 1
+
+#cmakedefine RMANRASNET 1
+
+#cmakedefine HAVE_NETCDF 1
+
+#cmakedefine CPPSTDLIB 1
+#cmakedefine RASARCHITECTURE "@RASARCHITECTURE@"
+#cmakedefine X86 1
+
+#cmakedefine HAVE_LIBFL 1
+#cmakedefine HAVE_LIBDF
+#cmakedefine HAVE_LIBDFALT 1
+#cmakedefine HAVE_LIBMFHDF 1
+#cmakedefine HAVE_LIBMFHDFALT 1
+
+#cmakedefine BASEDB_PGSQL 1
+#cmakedefine HAVE_LIBPQ 1
+#cmakedefine HAVE_LIBPGTYPES 1
+#cmakedefine BASEDB_SQLITE 1
+#cmakedefine BASEDBSTRING "@BASEDBSTRING@"
+
+#cmakedefine PETASCOPEDB_PGSQL 1
+#cmakedefine PETASCOPEDB_HSQLDB 1
+#cmakedefine PETASCOPEDB_SQLITE 1
+#cmakedefine PETASCOPEDB "@PETASCOPEDB@"
+#cmakedefine EARLY_TEMPLATE 1
+#cmakedefine RASSCHEMAVERSION 5
+#cmakedefine NOPRE 1
+#cmakedefine NO_in_addr_t 1
+
+#cmakedefine IS_BIG_ENDIAN 1
+#cmakedefine IS_LITTLE_ENDIAN 1

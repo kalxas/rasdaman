@@ -42,7 +42,7 @@ endif
 
 # Location of trees.
 SRC       = src
-SRC_MAIN  = $(SRC)/java
+SRC_MAIN  = $(SRC)/main/java
 SRC_TEST  = $(SRC)/test
 BUILD     = build
 DIST      = $(BUILD)/dist
@@ -117,7 +117,7 @@ compileit: $(all_javas) $(GEN_DOCS)
 # Generate the Java doc from sources
 .PHONY: javadoc
 javadoc: $(all_javas)
-	$(JAVADOC) $(JDFLAGS) @$<
+	$(JAVADOC) $(JDFLAGS) @$< || exit 0
 
 # clean up
 .PHONY: clean

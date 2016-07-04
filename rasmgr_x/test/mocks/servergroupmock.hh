@@ -3,7 +3,7 @@
 
 #include <gmock/gmock.h>
 
-#include "../src/servergroup.hh"
+#include "rasmgr_x/src/servergroup.hh"
 namespace rasmgr
 {
 namespace test

@@ -21,8 +21,8 @@
  */
 
 #include <gtest/gtest.h>
-#include "../src/userdatabaserights.hh"
-#include "../src/messages/rasmgrmess.pb.h"
+#include "rasmgr_x/src/userdatabaserights.hh"
+#include "rasmgr_x/src/messages/rasmgrmess.pb.h"
 #include "util/testutil.hh"
 
 namespace rasmgr

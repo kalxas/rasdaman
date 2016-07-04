@@ -61,14 +61,29 @@ endif
 
 libservercomm_a_CPPFLAGS=-I../rnprotocol                        
 
-BUILT_SOURCES=../clientcomm/rpcif_xdr.c ../clientcomm/rpcif.h ../clientcomm/rpcif_svc.cc
+EXTRA_libservercomm_a_SOURCES = rpcif.x    
+BUILT_SOURCES= rpcif_clnt.cc rpcif_xdr.c rpcif.h rpcif_svc.cc
+CLEANFILES=rpcif_clnt.cc rpcif_xdr.c rpcif.h rpcif.h.tmp rpcif_clnt.c.tmp \
+           rpcif_svc.cc.tmp rpcif_svc.cc rpcif_clnt.cc.tmp
 
-#.PHONY: ../clientcomm/rpcif_xdr.c ../clientcomm/rpcif.h ../clientcomm/rpcif_svc.cc
-../clientcomm/rpcif_xdr.c:
-	cd ../clientcomm ; $(MAKE) rpcif_xdr.c
+rpcif.h: rpcif.x    
+	$(RPCGEN) -h -o rpcif.h.tmp rpcif.x
+	$(AWK) -f rpcif.h.awk rpcif.h.tmp > rpcif.h
+	rm -f rpcif.h.tmp
 
-../clientcomm/rpcif.h:
-	cd ../clientcomm ; $(MAKE) rpcif.h
+rpcif_clnt.cc: rpcif.x
+	$(RPCGEN) -l -o rpcif_clnt.cc.tmp rpcif.x
+	$(AWK) -f rpcif_clnt.c.awk rpcif_clnt.cc.tmp > rpcif_clnt.cc
+	rm -f rpcif_clnt.cc.tmp
 
-../clientcomm/rpcif_svc.cc:
-	cd ../clientcomm ; $(MAKE) rpcif_svc.cc
+rpcif_xdr.c: rpcif.x
+	-rm -f rpcif_xdr.c
+	$(RPCGEN) -c -o rpcif_xdr.c rpcif.x
+
+rpcif_svc.cc: rpcif.x
+	$(RPCGEN) -m -o rpcif_svc.cc.tmp rpcif.x
+	$(AWK) -f rpcif_svc.c.awk rpcif_svc.cc.tmp > rpcif_svc.cc
+	rm -f rpcif_svc.cc.tmp
+
+EXTRA_DIST = rpcif*
+

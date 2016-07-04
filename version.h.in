@@ -1,0 +1,3 @@
+#cmakedefine RMANVERSION "@RMANVERSION@"
+#cmakedefine GCCVERSION "@GCCVERSION@"
+#cmakedefine GCCTARGET "@GCCTARGET@"

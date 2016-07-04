@@ -33,7 +33,7 @@ rasdaman GmbH.
 
 
 #include "config.h"
-#include <cmlparser.hh>
+#include "cmlparser.hh"
 
 #include <stdio.h>
 #include <iostream>

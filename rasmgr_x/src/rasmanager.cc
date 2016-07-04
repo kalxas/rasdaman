@@ -25,15 +25,15 @@
 #include <grpc++/grpc++.h>
 #include <grpc/support/time.h>
 
-#include "../../include/globals.hh"
-#include "../../common/src/crypto/crypto.hh"
-#include "../../common/src/grpc/grpcutils.hh"
-#include "../../common/src/grpc/healthserviceimpl.hh"
+#include "include/globals.hh"
+#include "common/src/crypto/crypto.hh"
+#include "common/src/grpc/grpcutils.hh"
+#include "common/src/grpc/healthserviceimpl.hh"
 #include <easylogging++.h>
-#include "../../rasnet/messages/rasmgr_rasctrl_service.grpc.pb.h"
-#include "../../rasnet/messages/rasmgr_rassrvr_service.grpc.pb.h"
-#include "../../rasnet/messages/rasmgr_client_service.grpc.pb.h"
-#include "messages/rasmgrmess.pb.h"
+#include "rasnet/messages/rasmgr_rasctrl_service.grpc.pb.h"
+#include "rasnet/messages/rasmgr_rassrvr_service.grpc.pb.h"
+#include "rasnet/messages/rasmgr_client_service.grpc.pb.h"
+#include "rasmgr_x/src/messages/rasmgrmess.pb.h"
 
 #include "clientmanagementservice.hh"
 #include "clientmanagerconfig.hh"
@@ -54,8 +54,8 @@
 #include "servermanagerconfig.hh"
 #include "servermanager.hh"
 #include "usermanager.hh"
-#include "../../common/src/grpc/grpcutils.hh"
-#include "../../common/src/exceptions/resourcebusyexception.hh"
+#include "common/src/grpc/grpcutils.hh"
+#include "common/src/exceptions/resourcebusyexception.hh"
 
 #include "rasmanager.hh"
 
@@ -113,7 +113,7 @@ void RasManager::start()
 
     boost::shared_ptr<rasnet::service::RasMgrRasServerService::Service> serverManagementService ( new rasmgr::ServerManagementService ( serverManager ) );
     boost::shared_ptr<rasnet::service::RasMgrRasCtrlService::Service> rasctrlService ( new rasmgr::ControlService ( commandExecutor ) );
-    boost::shared_ptr<rasnet::service::RasMgrClientService::Service> clientService ( new rasmgr::ClientManagementService ( clientManager) );
+    boost::shared_ptr<rasnet::service::RasmgrClientService::Service> clientService ( new rasmgr::ClientManagementService ( clientManager) );
     boost::shared_ptr<rasnet::service::RasmgrRasmgrService::Service> rasmgrService(new rasmgr::RasmgrService(clientManager));
 
     //The health service will only be used to report on the health of the server.

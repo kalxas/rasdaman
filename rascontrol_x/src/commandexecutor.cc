@@ -49,11 +49,11 @@ bool CommandExecutor::isExitCommand(std::string command)
 {
     boost::trim(command);
 
-    return (command == RasCtrlGrammarConstants::quit) || (command == RasCtrlGrammarConstants::bye) || (command == RasCtrlGrammarConstants::exit);
+    return (command == "quit") || (command == "bye") || (command == "exit");
 }
 
 void CommandExecutor::executeLogin(std::string &reply)
 {
-    reply = this->communication->processCommand(RasCtrlGrammarConstants::login);
+    reply = this->communication->processCommand("login");
 }
 }

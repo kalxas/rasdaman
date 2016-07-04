@@ -44,21 +44,6 @@ rasdaman GmbH.
 #include "debug/debug.hh"
 #include "globals.hh"
 
-
-//#ifndef RMANVERSION
-//#error "Please specify RMANVERSION variable!"
-//#endif
-//
-//#ifndef COMPDATE
-//#error "Please specify the COMPDATE variable!"
-///*
-//COMPDATE=`date +"%d.%m.%Y %H:%M:%S"`
-//
-//and -DCOMPDATE="\"$(COMPDATE)\"" when compiling
-//*/
-//#endif
-
-
 #ifdef EARLY_TEMPLATE
 #define __EXECUTABLE__
 #ifdef __GNUG__
@@ -738,7 +723,7 @@ main( int argc, char* argv[] )
 
     int result = EXIT_FAILURE;  // program exit code
 
-    cout << "rasdl: rasdaman schema and database manipulation tool, rasdaman " << RMANVERSION << " on base DBMS "  << BASEDBSTRING << " -- generated on " << COMPDATE << "." << endl;
+    cout << "rasdl: rasdaman schema and database manipulation tool, rasdaman " << RMANVERSION << " on base DBMS "  << BASEDBSTRING << "." << endl;
 
     try
     {

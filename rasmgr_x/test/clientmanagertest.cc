@@ -39,7 +39,7 @@
 #include "../src/exceptions/rasmgrexceptions.hh"
 #include "../src/constants.hh"
 
-#include "../src/messages/rasmgrmess.pb.h"
+#include "rasmgr_x/src/messages/rasmgrmess.pb.h"
 
 #include "mocks/mockrasserver.hh"
 #include "mocks/usermanagermock.hh"

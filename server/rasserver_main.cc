@@ -38,16 +38,6 @@ using namespace std;
 #error "Please specify RMANVERSION variable!"
 #endif
 
-#ifndef COMPDATE
-#error "Please specify the COMPDATE variable!"
-/*
-COMPDATE=`date +"%d.%m.%Y %H:%M:%S"`
-
-and -DCOMPDATE="\"$(COMPDATE)\"" when compiling
-*/
-#endif
-
-
 #ifdef EARLY_TEMPLATE
 #define __EXECUTABLE__
 #ifdef __GNUG__
@@ -83,7 +73,7 @@ RMINITGLOBALS('C')
 #include "rasserver_entry.hh"
 
 #ifdef RMANRASNET
-#include "../rasserver_x/src/rasnetserver.hh"
+#include "rasserver_x/src/rasnetserver.hh"
 #endif
 
 #include <easylogging++.h>
@@ -184,7 +174,7 @@ int main ( int argc, char** argv )
     SET_OUTPUT( true );     // enable debug output, if compiled so
 
     //print startup text (this line will still go into forking rasmgr's log!)
-    cout << "Spawned rasserver " << RMANVERSION << " on base DBMS "  << BASEDBSTRING  << " -- generated on " << COMPDATE << "." << endl;
+    cout << "Spawned rasserver " << RMANVERSION << " on base DBMS "  << BASEDBSTRING  << "." << endl;
 
     if(configuration.parseCommandLine(argc, argv) == false)
     {
@@ -192,7 +182,7 @@ int main ( int argc, char** argv )
         return RC_ERROR;
     }
 
-    LINFO << "rasserver: rasdaman server " << RMANVERSION << " on base DBMS "  << BASEDBSTRING  << " -- generated on " << COMPDATE << ".";
+    LINFO << "rasserver: rasdaman server " << RMANVERSION << " on base DBMS "  << BASEDBSTRING  << ".";
     LINFO << " Copyright 2003, 2004, 2005, 2006, 2007, 2008, 2009 Peter Baumann rasdaman GmbH. \n"
           << "Rasdaman community is free software: you can redistribute it and/or modify "
           << "it under the terms of the GNU General Public License as published by "

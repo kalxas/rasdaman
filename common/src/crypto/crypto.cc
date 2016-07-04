@@ -30,7 +30,7 @@
 
 #include <stdexcept>
 
-#include "../../config.h"
+#include "config.h"
 #include "../exceptions/missingresourceexception.hh"
 #include "crypto.hh"
 

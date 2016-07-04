@@ -24,7 +24,7 @@
 #include <boost/smart_ptr.hpp>
 
 #include <easylogging++.h>
-#include "../../common/src/exceptions/rasexceptions.hh"
+#include "common/src/exceptions/rasexceptions.hh"
 
 #include "exceptions/rasmgrexceptions.hh"
 #include "databasehost.hh"

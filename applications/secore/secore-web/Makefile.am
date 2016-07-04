@@ -43,9 +43,9 @@ if GENERATE_DOCS
 endif
 
 # Location of trees.
-SRC	      = src
+SRC	      = src/main
 SRC_MAIN  = $(SRC)/java
-SRC_WEB   = web
+SRC_WEB   = $(SRC)/webapp
 BUILD     = build
 DIST      = $(BUILD)/dist
 WEB       = $(BUILD)/web
@@ -135,7 +135,7 @@ compileit: $(all_javas) $(GEN_DOCS)
 # Generate the Java doc from sources
 .PHONY: javadoc
 javadoc: $(all_javas)
-	$(JAVADOC) $(JDFLAGS) @$<
+	$(JAVADOC) $(JDFLAGS) @$< || exit 0
 
 # copy WAR to TOMCAT
 .PHONY: install

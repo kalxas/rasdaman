@@ -22,9 +22,9 @@ rasdaman GmbH.
 */
 
 #include "rasnetservercomm.hh"
-#include "../mymalloc/mymalloc.h"
-#include "../server/rasserver_entry.hh"
-#include "../debug/debug-srv.hh"
+#include "mymalloc/mymalloc.h"
+#include "server/rasserver_entry.hh"
+#include "debug/debug-srv.hh"
 #include "common/src/grpc/messages/error.pb.h"
 #include "common/src/uuid/uuid.hh"
 

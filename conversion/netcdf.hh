@@ -82,7 +82,8 @@ public:
     virtual r_Data_Format get_data_format(void) const;
 
 private:
-    
+
+#ifdef HAVE_NETCDF
     struct RasType
     {
         unsigned int cellSize;
@@ -93,6 +94,7 @@ private:
      * Read data from tmpFile into desc.dest and return the file size.
      */
     void parseDecodeOptions(const std::string& options) throw (r_Error);
+
     
     void validateDecodeOptions(const NcFile& dataFile) throw (r_Error);
     
@@ -213,6 +215,7 @@ private:
     size_t dataSize;
     std::vector<long> dimSizes;
     std::vector<long> dimOffsets;
+#endif
 
     static const std::string DEFAULT_VAR;
     static const std::string DEFAULT_DIM_NAME_PREFIX;

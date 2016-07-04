@@ -57,6 +57,8 @@ rasdaman GmbH.
 #define MAX_VAR_DIMS 32
 #endif
 
+#ifdef HAVE_HDF
+
 const r_Convertor::convert_string_t r_Conv_HDF::compNames[] =
 {
 #ifdef HAVE_HDF
@@ -67,6 +69,13 @@ const r_Convertor::convert_string_t r_Conv_HDF::compNames[] =
     {NULL, COMP_CODE_NONE}
 #endif
 };
+
+#else
+
+const r_Convertor::convert_string_t r_Conv_HDF::compNames[] =
+{};
+
+#endif
 
 // Buffer used for switching the majorness (column <--> row) of the array data
 const int r_Conv_HDF::MaxSwapBufferSize = 0x10000;

@@ -7,15 +7,19 @@ autom4te.cache
 *.o
 *.a
 *.patch
+applications/petascope/pom.xml
+applications/secore/secore-core/pom.xml
+applications/secore/secore-web/pom.xml
 #These are all generated files under openrasdaman
 applications/rasql/rasql
+applications/secore/secore-core/etc/gml/
+applications/RRasdaman/pom.xml
 clientcomm/rpcif.h
 clientcomm/rpcif_clnt.cc
 clientcomm/rpcif_svc.cc
 clientcomm/rpcif_xdr.c
 config.log
 config.status
-insertutils/insertppm
 lockmgr/ecpg_lockmanager.cc
 qlparser/lex.cc
 qlparser/oql.cc
@@ -54,7 +58,6 @@ bin/create_db.sh
 bin/start_rasdaman.sh
 bin/stop_rasdaman.sh
 bin/rasmgr.conf
-insertutils/insertdemo.sh
 *.class
 *.war
 dbparams.properties
@@ -72,14 +75,12 @@ applications/secore/secore-web/build
 update_petascopedb.sh
 petascope_insertdemo.sh
 rasdaman_insertdemo.sh
-web.xml
 applications/raswct/bin
 glassfish-web.xml
 java/dist/
 java/src/org/rasdaman/rasnet/message
-java/src/org/rasdaman/rasnet/service
+java/src/main/java/org/rasdaman/rasnet/service
 java/src/rasj/RasImplementation.java
-web.xml
 fillpyramid
 initpyramid
 config.h
@@ -116,6 +117,7 @@ sun-web.xml
 ProcessCoverages.java
 applications/RRasdaman/build
 applications/RRasdaman/inst/java
+java/pom.xml
 
 #rasnet protocol
 common/src/grpc/messages/
@@ -139,13 +141,13 @@ test-driver
 petascope.log*
 .idea
 .project
-CMakeLists.txt
 *.astylerc
 rasdaman2.creator.user
 rasdaman2.creator.user.3.2-pre1
 rasdaman2.files
 rasdaman2.includes
 .autotools
+CMakeLists.txt.user
 *.pyc
 .cproject
 java/src/rasj/RasImplementation.java
@@ -167,7 +169,6 @@ applications/petascope/out
 Makefile.am.user
 config.guess
 config.sub
-config.h.in
 
 # testing
 core

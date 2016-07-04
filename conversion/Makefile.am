@@ -31,6 +31,7 @@
 
 lib_LIBRARIES=libconversion.a
 AM_CXXFLAGS=@AM_CXXFLAGS@ @GDAL_CXXFLAGS@
+
 libconversion_a_SOURCES= convertor.cc convfactory.cc tiff.cc hdf.cc \
                          csv.cc json.cc dem.cc memfs.cc netcdf.cc \
                          convertor.hh convfactory.hh tiff.hh hdf.hh \

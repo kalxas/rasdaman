@@ -26,7 +26,7 @@
 #include <boost/smart_ptr.hpp>
 #include <boost/thread.hpp>
 
-#include "../../rasnet/messages/rasmgr_client_service.grpc.pb.h"
+#include "rasnet/messages/rasmgr_client_service.grpc.pb.h"
 
 namespace rasmgr
 {
@@ -38,7 +38,7 @@ class ClientManager;
  * keeps track of active clients sessions and removes clients that have
  * not reported activity in a predefined amount of time.
  */
-class ClientManagementService : public rasnet::service::RasMgrClientService::Service
+class ClientManagementService : public rasnet::service::RasmgrClientService::Service
 {
 public:
 

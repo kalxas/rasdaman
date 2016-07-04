@@ -26,11 +26,11 @@
 #include <boost/thread/locks.hpp>
 
 #include <easylogging++.h>
-#include "../../common/src/uuid/uuid.hh"
-#include "../../common/src/grpc/grpcutils.hh"
+#include "common/src/uuid/uuid.hh"
+#include "common/src/grpc/grpcutils.hh"
 
-#include "../../rasnet/messages/rasmgr_client_service.grpc.pb.h"
-#include "../../rasnet/messages/rasmgr_client_service.pb.h"
+#include "rasnet/messages/rasmgr_client_service.grpc.pb.h"
+#include "rasnet/messages/rasmgr_client_service.pb.h"
 
 #include "clientmanager.hh"
 #include "constants.hh"

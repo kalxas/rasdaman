@@ -48,6 +48,7 @@ libclientcomm_a_SOURCES = rpcif_clnt.cc rpcif_xdr.c rpcif.h \
                           ../rnprotocol/rnpclientcomm.cc \
                           ../rnprotocol/rnpclientcomm2.cc \
                           ../rnprotocol/rnpclientcomm.hh
+
 libclientcomm_a_CPPFLAGS=-I../rnprotocol
 
 if RMANRASNET

@@ -26,12 +26,12 @@
 
 #include <grpc/support/log.h>
 
-#include "../exceptions/rasexceptions.hh"
+#include "common/src/exceptions/rasexceptions.hh"
 
-#include "messages/healthservice.grpc.pb.h"
+#include "messages/health_service.grpc.pb.h"
 #include "messages/error.pb.h"
 
-#include "../network/networkresolverfactory.hh"
+#include "common/src/network/networkresolverfactory.hh"
 
 #include "grpcutils.hh"
 

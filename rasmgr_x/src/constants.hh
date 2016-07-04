@@ -2,7 +2,7 @@
 #define RASMGR_X_SRC_CONSTANTS_HH
 
 #include <boost/cstdint.hpp>
-#include "../../config.h"
+#include "config.h"
 
 namespace rasmgr
 {

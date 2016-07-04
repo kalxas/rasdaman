@@ -131,8 +131,8 @@ import_coverage()
   cp "$RECIPE_TEMPLATE_FILE" "$RECIPE_FILE"
 
   # 1.2 Replace PETASCOPE_URL and SECORE_URL in petascope_insertdemo.template.json
-  sed -i "s@PETASCOPE_URL@$PETASCOPE_URL@g" "$RECIPE_FILE"
-  sed -i "s@SECORE_URL@$SECORE_URL@g" "$RECIPE_FILE"
+  sed -i "s|PETASCOPE_URL|$PETASCOPE_URL|g" "$RECIPE_FILE"
+  sed -i "s|SECORE_URL|$SECORE_URL|g" "$RECIPE_FILE"
 
   # 1.3 Run wcst_import with petascope_insertdemo.json recipe
   logn "Ingesting $COVERAGE_ID to petascope by wcst_import..."

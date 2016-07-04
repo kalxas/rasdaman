@@ -28,10 +28,10 @@
 #include <easylogging++.h>
 #include "util/testutil.hh"
 
-#include "../../rasmgr_x/src/database.hh"
-#include "../../rasmgr_x/src/databasehost.hh"
-#include "../../rasmgr_x/src/databasehostmanager.hh"
-#include "../src/messages/rasmgrmess.pb.h"
+#include "rasmgr_x/src/database.hh"
+#include "rasmgr_x/src/databasehost.hh"
+#include "rasmgr_x/src/databasehostmanager.hh"
+#include "rasmgr_x/src/messages/rasmgrmess.pb.h"
 
 namespace rasmgr
 {
