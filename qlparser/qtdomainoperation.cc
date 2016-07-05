@@ -205,28 +205,22 @@ QtDomainOperation::optimizeLoad( QtTrimList* trimList )
                 r_Minterval   domain    = (static_cast<QtMintervalData*>(operand))->getMintervalData();
                 vector<bool>* trimFlags = new vector<bool>( *((static_cast<QtMintervalData*>(operand))->getTrimFlags()) );
 
-                if( trimList && trimList->empty() )
+
+                // no previous specification for that dimension
+                trimming = true;
+                for( unsigned int i=0; i!=domain.dimension(); i++ )
                 {
-                    // no previous specification for that dimension
-                    trimming = true;
-                    for( unsigned int i=0; i!=domain.dimension(); i++ )
-                    {
-                        // create a new element
-                        QtTrimElement* elem = new QtTrimElement;
+                    // create a new element
+                    QtTrimElement* elem = new QtTrimElement;
 
-                        elem->interval     = domain[i];
-                        elem->intervalFlag = (*trimFlags)[i];
-                        elem->dimension    = i;
+                    elem->interval     = domain[i];
+                    elem->intervalFlag = (*trimFlags)[i];
+                    elem->dimension    = i;
 
-                        // and add it to the list
-                        trimList->push_back( elem );
+                    // and add it to the list
+                    trimList->push_back( elem );
 
-                        trimming &= (*trimFlags)[i];
-                    }
-                }
-                else
-                {
-                    // previous specification exists, test for compatibility
+                    trimming &= (*trimFlags)[i];
                 }
 
                 if( trimFlags )
