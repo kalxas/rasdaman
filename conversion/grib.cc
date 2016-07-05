@@ -53,6 +53,7 @@ rasdaman GmbH.
 
 #include <utility>
 #include <boost/algorithm/string/replace.hpp>
+#include <memory>
 
 using namespace std;
 
