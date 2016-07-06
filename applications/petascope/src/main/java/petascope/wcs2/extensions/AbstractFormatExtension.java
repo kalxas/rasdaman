@@ -576,8 +576,8 @@ public abstract class AbstractFormatExtension implements FormatExtension {
         // If outputCrs is not null then use crsTransform() with this CRS
         if(covMeta.getOutputCrs() != null || covMeta.getSubsettingCrs() != null) {
             String crs = covMeta.getOutputCrs() != null ? covMeta.getOutputCrs() : covMeta.getSubsettingCrs();
-            String axisOutputCrs2D = getAxisOutputCrs2D(covMeta, req.getSubsets(), crs);
-            wcpsQuery =  "for c in (" + req.getCoverageId() + ") return encode( crsTransform( " + proc + ", { " + axisOutputCrs2D + " }, {} ), \"" + format + "\")";
+            String outputCrsAxes = getOutputCrsAxes(covMeta, crs);
+            wcpsQuery =  "for c in (" + req.getCoverageId() + ") return encode( crsTransform( " + proc + ", { " + outputCrsAxes + " }, {} ), \"" + format + "\")";
         } else {
             // Otherwise use the default native CRS without crsTransform()
             wcpsQuery =  "for c in (" + req.getCoverageId() + ") return encode(" + proc + ", \"" + format + "\")";
@@ -593,17 +593,16 @@ public abstract class AbstractFormatExtension implements FormatExtension {
      * If subsettingCrs or outputCrs is used in WCS then add this parameter as outputCrs in WCPS crsTransform() as well
      * @return String
      */
-    private String getAxisOutputCrs2D(GetCoverageMetadata covMeta, List<DimensionSubset> subsets, String crs) throws WCSException {
+    private String getOutputCrsAxes(GetCoverageMetadata covMeta, String crs) throws WCSException {
         String outputCrs = "AXIS_X: \" "  + crs + " \", AXIS_Y: \" " + crs + " \" ";
 
         // Then create a 2D output CRS for 2 axes (e.g: Long/E, Lat/N)
-        for(DimensionSubset subset:subsets) {
-            String dim = subset.getDimension();
-            DomainElement de = covMeta.getMetadata().getDomainByName(dim);
-            if(de.getType().equals(AxisTypes.X_AXIS)) {
-                outputCrs = outputCrs.replace("AXIS_X", dim);
-            } else if(de.getType().equals(AxisTypes.Y_AXIS)) {
-                outputCrs = outputCrs.replace("AXIS_Y", dim);
+        for (DomainElement domainElement:covMeta.getMetadata().getDomainList()) {
+            String axisLabel = domainElement.getLabel();
+            if (domainElement.getType().equals(AxisTypes.X_AXIS)) {
+                outputCrs = outputCrs.replace("AXIS_X", axisLabel);
+            } else if (domainElement.getType().equals(AxisTypes.Y_AXIS)) {
+                outputCrs = outputCrs.replace("AXIS_Y", axisLabel);
             }
         }
 
