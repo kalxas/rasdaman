@@ -647,17 +647,6 @@ public interface wcpsListener extends ParseTreeListener {
 	void exitNumericalTrigonometricScalarExpressionLabel(@NotNull wcpsParser.NumericalTrigonometricScalarExpressionLabelContext ctx);
 
 	/**
-	 * Enter a parse tree produced by {@link wcpsParser#DimensionCrsListLabel}.
-	 * @param ctx the parse tree
-	 */
-	void enterDimensionCrsListLabel(@NotNull wcpsParser.DimensionCrsListLabelContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link wcpsParser#DimensionCrsListLabel}.
-	 * @param ctx the parse tree
-	 */
-	void exitDimensionCrsListLabel(@NotNull wcpsParser.DimensionCrsListLabelContext ctx);
-
-	/**
 	 * Enter a parse tree produced by {@link wcpsParser#NumericalRealNumberExpressionLabel}.
 	 * @param ctx the parse tree
 	 */
@@ -667,6 +656,17 @@ public interface wcpsListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitNumericalRealNumberExpressionLabel(@NotNull wcpsParser.NumericalRealNumberExpressionLabelContext ctx);
+
+	/**
+	 * Enter a parse tree produced by {@link wcpsParser#DimensionCrsListLabel}.
+	 * @param ctx the parse tree
+	 */
+	void enterDimensionCrsListLabel(@NotNull wcpsParser.DimensionCrsListLabelContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link wcpsParser#DimensionCrsListLabel}.
+	 * @param ctx the parse tree
+	 */
+	void exitDimensionCrsListLabel(@NotNull wcpsParser.DimensionCrsListLabelContext ctx);
 
 	/**
 	 * Enter a parse tree produced by {@link wcpsParser#imageCrsExpressionLabel}.
@@ -843,17 +843,6 @@ public interface wcpsListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitImageCrsDomainExpressionLabel(@NotNull wcpsParser.ImageCrsDomainExpressionLabelContext ctx);
-
-	/**
-	 * Enter a parse tree produced by {@link wcpsParser#NumericalRealPositiveNumberExpressionLabel}.
-	 * @param ctx the parse tree
-	 */
-	void enterNumericalRealPositiveNumberExpressionLabel(@NotNull wcpsParser.NumericalRealPositiveNumberExpressionLabelContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link wcpsParser#NumericalRealPositiveNumberExpressionLabel}.
-	 * @param ctx the parse tree
-	 */
-	void exitNumericalRealPositiveNumberExpressionLabel(@NotNull wcpsParser.NumericalRealPositiveNumberExpressionLabelContext ctx);
 
 	/**
 	 * Enter a parse tree produced by {@link wcpsParser#BooleanUnaryScalarLabel}.

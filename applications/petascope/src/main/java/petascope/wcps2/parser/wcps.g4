@@ -191,9 +191,8 @@ numericalScalarExpression: numericalUnaryOperation LEFT_PARENTHESIS numericalSca
                          | trigonometricOperator LEFT_PARENTHESIS numericalScalarExpression RIGHT_PARENTHESIS           #NumericalTrigonometricScalarExpressionLabel
                          | numericalScalarExpression numericalOperator numericalScalarExpression                        #NumericalBinaryScalarExpressionLabel
                          | condenseExpression                                                                           #NumericalCondenseExpressionLabel
-			 | numericalOperator REAL_NUMBER_CONSTANT
-#NumericalRealPositiveNumberExpressionLabel
-                         | REAL_NUMBER_CONSTANT                                                                         #NumericalRealNumberExpressionLabel
+                         | (MINUS)? REAL_NUMBER_CONSTANT      
+#NumericalRealNumberExpressionLabel
                          | NAN_NUMBER_CONSTANT                                                                         #NumericalNanNumberExpressionLabel
                          | complexNumberConstant                                                                        #NumericalComplexNumberConstant
                          ;
@@ -201,7 +200,7 @@ numericalScalarExpression: numericalUnaryOperation LEFT_PARENTHESIS numericalSca
  * Example:
  *  (2,5)  //the equivalent of 2 + 5i
  */
-complexNumberConstant: LEFT_PARENTHESIS REAL_NUMBER_CONSTANT COMMA REAL_NUMBER_CONSTANT RIGHT_PARENTHESIS               #ComplexNumberConstantLabel;
+complexNumberConstant: LEFT_PARENTHESIS (MINUS)? REAL_NUMBER_CONSTANT COMMA (MINUS)? REAL_NUMBER_CONSTANT RIGHT_PARENTHESIS               #ComplexNumberConstantLabel;
 numericalOperator: PLUS | MINUS | MULTIPLICATION | DIVISION;
 numericalUnaryOperation: ABSOLUTE_VALUE | SQUARE_ROOT |  REAL_PART | IMAGINARY_PART | ROUND | MINUS | PLUS;
 trigonometricOperator: SIN | COS | TAN | SINH | COSH | TANH | ARCSIN | ARCCOS | ARCTAN;
@@ -686,5 +685,5 @@ axisName: COVERAGE_VARIABLE_NAME;
 
 constant: STRING_LITERAL
         | TRUE | FALSE
-        | REAL_NUMBER_CONSTANT
+        | (MINUS)? REAL_NUMBER_CONSTANT
         | complexNumberConstant;

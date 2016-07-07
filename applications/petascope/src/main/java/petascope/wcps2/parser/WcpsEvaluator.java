@@ -428,14 +428,6 @@ public class WcpsEvaluator extends wcpsBaseVisitor<VisitorResult> {
     }
 
     @Override
-    public VisitorResult visitNumericalRealPositiveNumberExpressionLabel (@NotNull wcpsParser.NumericalRealPositiveNumberExpressionLabelContext ctx) {
-        // numericalOperator REAL_NUMBER_CONSTANT
-        // e.g: + 5, - 5, * 2, / 2
-       WcpsResult result = RealNumberConstantHandler.handle(ctx.getText());
-       return result;
-    }
-
-    @Override
     public VisitorResult visitCoverageExpressionCoverageLabel(@NotNull wcpsParser.CoverageExpressionCoverageLabelContext ctx) {
         // LEFT_PARENTHESIS coverageExpression RIGHT_PARENTHESIS
         // e.g: used when a coverageExpression is surrounded by ().

@@ -418,18 +418,18 @@ public interface wcpsVisitor<T> extends ParseTreeVisitor<T> {
 	T visitNumericalTrigonometricScalarExpressionLabel(@NotNull wcpsParser.NumericalTrigonometricScalarExpressionLabelContext ctx);
 
 	/**
-	 * Visit a parse tree produced by {@link wcpsParser#DimensionCrsListLabel}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitDimensionCrsListLabel(@NotNull wcpsParser.DimensionCrsListLabelContext ctx);
-
-	/**
 	 * Visit a parse tree produced by {@link wcpsParser#NumericalRealNumberExpressionLabel}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
 	T visitNumericalRealNumberExpressionLabel(@NotNull wcpsParser.NumericalRealNumberExpressionLabelContext ctx);
+
+	/**
+	 * Visit a parse tree produced by {@link wcpsParser#DimensionCrsListLabel}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitDimensionCrsListLabel(@NotNull wcpsParser.DimensionCrsListLabelContext ctx);
 
 	/**
 	 * Visit a parse tree produced by {@link wcpsParser#imageCrsExpressionLabel}.
@@ -542,13 +542,6 @@ public interface wcpsVisitor<T> extends ParseTreeVisitor<T> {
 	 * @return the visitor result
 	 */
 	T visitImageCrsDomainExpressionLabel(@NotNull wcpsParser.ImageCrsDomainExpressionLabelContext ctx);
-
-	/**
-	 * Visit a parse tree produced by {@link wcpsParser#NumericalRealPositiveNumberExpressionLabel}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitNumericalRealPositiveNumberExpressionLabel(@NotNull wcpsParser.NumericalRealPositiveNumberExpressionLabelContext ctx);
 
 	/**
 	 * Visit a parse tree produced by {@link wcpsParser#BooleanUnaryScalarLabel}.
