@@ -22,14 +22,16 @@
  *
 """
 
-from abc import ABCMeta, abstractmethod
-
-from master.generator.model.model import Model
+from master.extra_metadata.extra_metadata_slice import ExtraMetadataSlice
 
 
-class RangeSet(Model):
-    __metaclass__ = ABCMeta
+class ExtraMetadata:
+    def __init__(self, global_extra_metadata, slice_extra_metadata):
+        """
+        Representation of the extra metadata extracted from a dataset
+        :param dict global_extra_metadata: a dictionary of global extra metadata values
+        :param list[ExtraMetadataSlice] slice_extra_metadata: the extra metadata slices
+        """
+        self.global_extra_metadata = global_extra_metadata
+        self.slice_extra_metadata = slice_extra_metadata
 
-    @abstractmethod
-    def get_template_name(self):
-        pass

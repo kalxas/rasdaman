@@ -24,7 +24,6 @@
 
 
 class XMLUtil:
-
     @staticmethod
     def escape(xml_content):
         xml_content = xml_content.replace("<", "&lt;")
@@ -32,3 +31,15 @@ class XMLUtil:
         xml_content = xml_content.replace("&", "&amp;")
         xml_content = xml_content.replace("\"", "&quot;")
         return xml_content
+
+    @staticmethod
+    def dict_to_xml_str(dictionary):
+        """
+        Turn a simple dict of key/value pairs into XML
+        :param dict dictionary: the dictionary to use
+        :rtype str
+        """
+        result = ""
+        for key, val in dictionary.iteritems():
+            result += "<{key}>{val}</{key}>\n".format(key=key, val=val)
+        return result

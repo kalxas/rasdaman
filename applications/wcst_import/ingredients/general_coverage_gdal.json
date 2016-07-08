@@ -1,0 +1,44 @@
+{
+  "config": {
+    "service_url": "http://localhost:8080/rasdaman/ows",
+    "tmp_directory": "/tmp/",
+    "crs_resolver": "http://localhost:8080/def/",
+    "default_crs": "http://localhost:8080/def/OGC/0/Index2D",
+    "mock": true,
+    "automated": false,
+    "track_files": false
+  },
+  "input": {
+    "coverage_id": "MyCoverage",
+    "paths": [
+      "/media/elninogordo/Geodata/2D_multiband_image/*.tif"
+    ]
+  },
+  "recipe": {
+    "name": "general_coverage",
+    "options": {
+      "__comment__": "You need to provide the coverage description and the method of building it.",
+      "coverage": {
+        "crs": "EPSG/0/4326",
+        "metadata": {
+          "type": "json",
+          "global": {
+            "resolution": "'${gdal:metadata:TIFFTAG_XRESOLUTION}'"
+          }
+        },
+        "slicer": {
+          "type": "gdal",
+          "bands": "${gdal:bands}",
+          "axes": {
+            "Lat": {
+              "min": "${gdal:minX}",
+              "max": "${gdal:maxX}",
+              "resolution": "${gdal:resolutionX}"
+            }
+          }
+        }
+      },
+      "tiling": "ALIGNED [0:1023, 0:1023] TILE SIZE 4194304"
+    }
+  }
+}

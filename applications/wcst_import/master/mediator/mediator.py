@@ -21,8 +21,10 @@
  * or contact Peter Baumann via <baumann@rasdaman.com>.
  *
 """
+import json
 
 from master.generator.model.bounded_by import BoundedBy
+from master.generator.model.coverage_metadata import CoverageMetadata
 from master.generator.model.domain_set_irregular import DomainSetIrregular
 from master.generator.model.domain_set_regular import DomainSetRegular
 from master.generator.model.range_set_file import RangeSetFile
@@ -56,10 +58,12 @@ class Mediator:
         """
         if self.metadata_provider.is_coverage_irregular():
             return ReferenceableGridCoverage(self.metadata_provider.coverage_id, self._get_bounded_by(),
-                                             self._get_domain_set(), self._get_range_set(), self._get_range_type())
+                                             self._get_domain_set(), self._get_range_set(), self._get_range_type(),
+                                             CoverageMetadata(self.metadata_provider.extra_metadata))
         else:
             return RectifiedGridCoverage(self.metadata_provider.coverage_id, self._get_bounded_by(),
-                                         self._get_domain_set(), self._get_range_set(), self._get_range_type())
+                                         self._get_domain_set(), self._get_range_set(), self._get_range_type(),
+                                         CoverageMetadata(self.metadata_provider.extra_metadata))
 
     def get_gml_file(self):
         """
@@ -73,23 +77,25 @@ class Mediator:
     def _get_bounded_by(self):
         mp = self.metadata_provider
         return BoundedBy(mp.get_crs(), mp.get_axis_labels(), mp.get_axis_uom_labels(),
-            mp.get_no_of_dimensions(), mp.get_lower_corner(), mp.get_upper_corner())
+                         mp.get_no_of_dimensions(), mp.get_lower_corner(), mp.get_upper_corner())
 
     def _get_domain_set(self):
         mp = self.metadata_provider
         if mp.is_coverage_irregular():
             return DomainSetIrregular(mp.get_no_of_dimensions(), mp.get_grid_low(), mp.get_grid_high(),
-                mp.get_axis_labels_grid(), mp.get_axis_labels(), mp.get_crs(), mp.get_axis_uom_labels(),
-                mp.get_origin(), mp.get_offset_vectors())
+                                      mp.get_axis_labels_grid(), mp.get_axis_labels(), mp.get_crs(),
+                                      mp.get_axis_uom_labels(),
+                                      mp.get_origin(), mp.get_offset_vectors())
         else:
             return DomainSetRegular(mp.get_no_of_dimensions(), mp.get_grid_low(), mp.get_grid_high(),
-                mp.get_axis_labels_grid(), mp.get_axis_labels(), mp.get_crs(), mp.get_axis_uom_labels(),
-                mp.get_origin(), mp.get_offset_vectors())
+                                    mp.get_axis_labels_grid(), mp.get_axis_labels(), mp.get_crs(),
+                                    mp.get_axis_uom_labels(),
+                                    mp.get_origin(), mp.get_offset_vectors())
 
     def _get_range_set(self):
         dp = self.data_provider
         if isinstance(dp, FileDataProvider):
-            return RangeSetFile(dp.get_file_url(), dp.get_mimetype())
+            return RangeSetFile(dp.get_file_url(), dp.get_mimetype(), json.dumps(dp.get_structure()))
         if isinstance(dp, UrlDataProvider):
             return RangeSetFile(dp.get_url(), dp.get_mimetype())
         elif isinstance(dp, TupleListDataProvider):

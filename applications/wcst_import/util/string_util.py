@@ -22,14 +22,11 @@
  *
 """
 
-from abc import ABCMeta, abstractmethod
 
-from master.generator.model.model import Model
-
-
-class RangeSet(Model):
-    __metaclass__ = ABCMeta
-
-    @abstractmethod
-    def get_template_name(self):
-        pass
+def stringify(thing):
+    """
+    Adds quotes to the given parameter and casts to string if the object is not a string
+    :param str thing: the thing to stringify
+    :rtype: str
+    """
+    return '"' + str(thing) + '"'

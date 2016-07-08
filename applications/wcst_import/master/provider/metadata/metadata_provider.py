@@ -32,13 +32,14 @@ from util.xml_util import XMLUtil
 
 
 class MetadataProvider:
-    def __init__(self, coverage_id, axes_map, range_fields, crs):
+    def __init__(self, coverage_id, axes_map, range_fields, crs, extra_metadata):
         """
         Class to provide the basis for metadata providers
         :param coverage_id: the id of the coverage
         :param dict[Axis, GridAxis] axes_map: a mapping from axis to grid axis
         :param list[RangeTypeField] range_fields: the range fields for this coverage
         :param str crs: the crs of the coverage
+        :param str | None extra_metadata: any extra metadata that should go in the coverage
         """
         self.coverage_id = coverage_id
         self.axes = axes_map.keys()
@@ -47,6 +48,7 @@ class MetadataProvider:
         self.range_fields = range_fields
         self.axes_map = axes_map
         self.crs = crs
+        self.extra_metadata = extra_metadata
 
     def get_crs(self):
         """
@@ -146,10 +148,10 @@ class MetadataProvider:
             if self.is_coverage_irregular():
                 coefficient = None if axis.coefficient is None else " ".join(map(lambda x: str(x), axis.coefficient))
                 offsets.append(OffsetVectorIrregular(self.get_crs(), self.get_axis_labels(), self.get_axis_uom_labels(),
-                    self.get_no_of_dimensions(), offset_vector, coefficient))
+                                                     self.get_no_of_dimensions(), offset_vector, coefficient))
             else:
                 offsets.append(OffsetVectorRegular(self.get_crs(), self.get_axis_labels(), self.get_axis_uom_labels(),
-                    self.get_no_of_dimensions(), offset_vector))
+                                                   self.get_no_of_dimensions(), offset_vector))
         return offsets
 
     def _get_axis_for_grid_axis(self, grid_axis):
@@ -171,7 +173,6 @@ class MetadataProvider:
         raise RuntimeException(
             "Internal error: no corresponding domain axis found for the given grid axis with order " + grid_axis.order +
             " and label: " + grid_axis.label)
-
 
     def _get_offset_vector_for_axis(self, axis):
         """

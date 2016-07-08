@@ -22,20 +22,22 @@
  *
 """
 
-from master.generator.model.range_set import RangeSet
-
-
-class RangeSetFile(RangeSet):
-    def __init__(self, fileReference, mimetype, rangeParameters=""):
+class UserBand:
+    def __init__(self, name, description, definition, nilReason="", nilValues=None, uomCode=None, identifier=None):
         """
-        Class to represent a range set that has a file as a data container
-        :param str fileReference: the full filepath
-        :param str mimetype: the mimetype of the file
-        :param str rangeParameters: any specific structure
+        Definition of a band as provided by a user in an ingredient file
+        :param str name: the name of the band
+        :param str description: a description for the band
+        :param str definition: the definition of a band
+        :param str nilReason: the reason for which the value is a nil
+        :param list[str] | None nilValues: a list of nil values
+        :param str uomCode: the unit of measure
+        :param str identifier: the identifier of this band in the data provider (e.g. the gdal band id or the netcdf variable name)
         """
-        self.fileReference = fileReference
-        self.mimetype = mimetype
-        self.rangeParameters = rangeParameters
-
-    def get_template_name(self):
-        return "gml_range_set_file_ref.xml"
+        self.name = name
+        self.description = description
+        self.definition = definition
+        self.nilReason = nilReason
+        self.nilValues = nilValues
+        self.uomCode = uomCode
+        self.identifier = identifier

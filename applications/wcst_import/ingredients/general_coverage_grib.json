@@ -1,0 +1,73 @@
+{
+  "config": {
+    "service_url": "http://localhost:8080/rasdaman/ows",
+    "tmp_directory": "/tmp/",
+    "crs_resolver": "http://localhost:8080/def/",
+    "default_crs": "http://localhost:8080/def/OGC/0/Index2D",
+    "mock": true,
+    "automated": false,
+    "track_files": false
+  },
+  "input": {
+    "coverage_id": "MyCoverage",
+    "paths": [
+      "/media/elninogordo/Geodata/grib/mars2.grib"
+    ]
+  },
+  "recipe": {
+    "name": "general_coverage",
+    "options": {
+      "__comment__": "You need to provide the coverage description and the method of building it.",
+      "coverage": {
+        "crs": "EPSG/0/4326@OGC/0/AnsiDate@OGC/0/Index1D?axis-label=\"ensemble\"",
+        "metadata": {
+          "type": "json",
+          "global": {
+            "MarsType": "'${grib:marsType}'",
+            "Experiment": "'${grib:experimentVersionNumber}'"
+          },
+          "local": {
+            "level": "${grib:level}"
+          }
+        },
+        "slicer": {
+          "type": "grib",
+          "bands": [
+            {
+              "name": "temp2m",
+              "definition": "The temperature at 2 meters.",
+              "description": "We measure temperature at 2 meters using sensors and then we process the values using a sophisticated algorithm.",
+              "nilReason": "The nil value represents an error in the sensor."
+            }
+          ],
+          "axes": {
+            "Lat": {
+              "min": "${grib:latitudeOfLastGridPointInDegrees} + (${grib:jDirectionIncrementInDegrees} if bool(${grib:jScansPositively}) else -${grib:jDirectionIncrementInDegrees})",
+              "max": "${grib:latitudeOfFirstGridPointInDegrees}",
+              "resolution": "${grib:jDirectionIncrementInDegrees} if bool(${grib:jScansPositively}) else -${grib:jDirectionIncrementInDegrees}",
+              "gridOrder": 3
+            },
+            "Long": {
+              "min": "${grib:longitudeOfFirstGridPointInDegrees}",
+              "max": "${grib:longitudeOfLastGridPointInDegrees} + (-${grib:iDirectionIncrementInDegrees} if bool(${grib:iScansNegatively}) else ${grib:iDirectionIncrementInDegrees})",
+              "resolution": "-${grib:iDirectionIncrementInDegrees} if bool(${grib:iScansNegatively}) else ${grib:iDirectionIncrementInDegrees}",
+              "gridOrder": 2
+            },
+            "ansi": {
+              "min": "grib_datetime(${grib:dataDate}, ${grib:dataTime})",
+              "resolution": "1.0 / 4.0",
+              "type": "ansidate",
+              "gridOrder": 1
+            },
+            "ensemble": {
+              "min": "${grib:localDefinitionNumber}",
+              "resolution": 1,
+              "gridOrder": 0
+            }
+          }
+        }
+      },
+      "tiling": "REGULAR [0:0, 0:20, 0:1023, 0:1023]"
+    }
+  }
+}

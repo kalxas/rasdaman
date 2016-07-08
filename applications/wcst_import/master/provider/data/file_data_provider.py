@@ -29,12 +29,16 @@ from util.file_obj import File
 
 
 class FileDataProvider(DataProvider):
-    def __init__(self, file):
+    def __init__(self, file, structure=None, mimetype=None):
         """
         Class representing a data provider backed by a local accessible file
         :param File file: the file to back the provider
+        :param object structure: the structure of the file optionally
+        :param str mimetype: the mimetype of the file
         """
         self.file = file
+        self.structure = structure
+        self.mimetype = mimetype
 
     def get_file_path(self):
         """
@@ -55,7 +59,16 @@ class FileDataProvider(DataProvider):
         Returns the mimetype
         :rtype: str
         """
-        mimetypes.guess_type(self.get_file_url())
+        if self.mimetype is None:
+            self.mimetype, _ = mimetypes.guess_type(self.get_file_url())
+        return self.mimetype
+
+    def get_structure(self):
+        """
+        Returns the custom structure of the data provider if it exists
+        :rtype: object
+        """
+        return self.structure
 
     def __str__(self):
         return self.get_file_url()

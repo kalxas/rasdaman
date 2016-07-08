@@ -21,14 +21,10 @@
  * or contact Peter Baumann via <baumann@rasdaman.com>.
  *
 """
-"""
-Utility class for translating certain features from gdal to gml
-"""
 from config_manager import ConfigManager
-from util.crs_util import CRSUtil
-
-from util.gdal_field import GDALField
 from master.error.runtime_exception import RuntimeException
+from util.crs_util import CRSUtil
+from util.gdal_field import GDALField
 
 
 class GDALGmlUtil:
@@ -90,8 +86,6 @@ class GDALGmlUtil:
         :rtype: list[str]
         """
         geo = self.gdal_dataset.GetGeoTransform()
-        # Add 0.5 * size of pixel to make sure there's no error in petascope
-        # Should be removed once petascope handles numeric computations correctly
         return str(geo[0] + 0.5 * self.gdal_dataset.GetGeoTransform()[1]), \
                str(geo[3] + 0.5 * self.gdal_dataset.GetGeoTransform()[5])
 
@@ -265,3 +259,15 @@ class GDALGmlUtil:
             raise RuntimeException(
                 "No tifftag " + time_tag + " for datetime was found in the file: " + self.gdal_file_path)
         return metadata[time_tag]
+
+    def get_metadata_tag(self, tag):
+        """
+        Returns a specific metadata tag
+        :param str tag: the tag to return
+        :return: str
+        """
+        metadata = self.gdal_dataset.GetMetadata()
+        if tag not in metadata:
+            raise RuntimeException(
+                "No tifftag " + tag + " found for " + self.gdal_file_path)
+        return metadata[tag]

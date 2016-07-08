@@ -22,14 +22,17 @@
  *
 """
 
-from abc import ABCMeta, abstractmethod
-
-from master.generator.model.model import Model
+from abc import abstractmethod
 
 
-class RangeSet(Model):
-    __metaclass__ = ABCMeta
+class ExpressionEvaluator:
+    """
+    An expression evaluator evaluates ingredient expressions based on the context of a file
+    """
 
     @abstractmethod
-    def get_template_name(self):
+    def evaluate(self, expression):
         pass
+
+    def evaluate_python_expression(self, expression, locals):
+        return eval(expression, globals(), locals)

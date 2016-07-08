@@ -9,6 +9,7 @@
         gml:id="{{id}}"
         >
 
+{{coverageMetadata}}
 
 {{boundedBy}}
 

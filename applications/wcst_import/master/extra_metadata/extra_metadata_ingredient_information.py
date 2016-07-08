@@ -22,14 +22,13 @@
  *
 """
 
-from abc import ABCMeta, abstractmethod
 
-from master.generator.model.model import Model
-
-
-class RangeSet(Model):
-    __metaclass__ = ABCMeta
-
-    @abstractmethod
-    def get_template_name(self):
-        pass
+class ExtraMetadataIngredientInformation:
+    def __init__(self, global_attributes, slice_attributes):
+        """
+        Contains an extra-metadata description of the fields that need to be collected from the dataset via wcst expressions
+        :param dict global_attributes: the attributes that need to be collected only once per coverage and do not change per slice
+        :param dict slice_attributes: the attributes that should be collected per slice
+        """
+        self.global_attributes = global_attributes
+        self.slice_attributes = slice_attributes

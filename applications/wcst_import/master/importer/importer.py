@@ -170,7 +170,7 @@ class Importer:
         :rtype: File
         """
         metadata_provider = MetadataProvider(self.coverage.coverage_id, self.coverage.get_update_axes(),
-                                             self.coverage.range_fields, self.coverage.crs)
+                                             self.coverage.range_fields, self.coverage.crs, None)
         data_provider = slice.data_provider
         file = Mediator(metadata_provider, data_provider).get_gml_file()
         return file
@@ -199,7 +199,7 @@ class Importer:
                 axis.coefficient = [axis.coefficient[0]]
             axes_map[axis] = GridAxis(grid_axis.order, grid_axis.label, grid_axis.resolution, 0, 0)
         metadata_provider = MetadataProvider(self.coverage.coverage_id, axes_map,
-                                             self.coverage.range_fields, self.coverage.crs)
+                                             self.coverage.range_fields, self.coverage.crs, self.coverage.metadata)
         tuple_list = ",".join(['0'] * len(self.coverage.range_fields))
         data_provider = TupleListDataProvider(tuple_list)
         file = Mediator(metadata_provider, data_provider).get_gml_file()
@@ -211,7 +211,7 @@ class Importer:
         :rtype: File
         """
         metadata_provider = MetadataProvider(self.coverage.coverage_id, self.coverage.get_insert_axes(),
-                                             self.coverage.range_fields, self.coverage.crs)
+                                             self.coverage.range_fields, self.coverage.crs, self.coverage.metadata)
         data_provider = self.coverage.slices[0].data_provider
         file = Mediator(metadata_provider, data_provider).get_gml_file()
         self.processed += 1

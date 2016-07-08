@@ -26,7 +26,7 @@ from master.generator.model.gml_coverage import GMLCoverage
 
 
 class RectifiedGridCoverage(GMLCoverage):
-    def __init__(self, id, boundedBy, domainSet, rangeSet, rangeType):
+    def __init__(self, id, boundedBy, domainSet, rangeSet, rangeType, coverageMetadata=None):
         """
         Model class for a rectified grid coverage
         :param str id: the coverage id
@@ -34,7 +34,9 @@ class RectifiedGridCoverage(GMLCoverage):
         :param DomainSetRegular domainSet: the domain set
         :param RangeSet rangeSet: the range set
         :param RangeType rangeType: the range type
+        :param CoverageMetadata coverageMetadata: the extra metadata of the coverage
         """
-        super(RectifiedGridCoverage, self).__init__(self.__COVERAGE_TYPE, id, boundedBy, domainSet, rangeSet, rangeType)
+        super(RectifiedGridCoverage, self).__init__(self.__COVERAGE_TYPE, id, boundedBy, domainSet, rangeSet, rangeType,
+                                                    coverageMetadata)
 
     __COVERAGE_TYPE = "RectifiedGridCoverage"

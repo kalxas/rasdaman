@@ -1,4 +1,7 @@
 <gml:rangeSet>
+    <gml:rangeParameters>
+        {{rangeParameters}}
+    </gml:rangeParameters>
     <gml:File>
         <gml:fileReference><![CDATA[
                 {{fileReference}}

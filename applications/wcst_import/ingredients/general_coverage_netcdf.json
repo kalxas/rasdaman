@@ -1,0 +1,75 @@
+{
+  "config": {
+    "service_url": "http://localhost:8080/rasdaman/ows",
+    "tmp_directory": "/tmp/",
+    "crs_resolver": "http://localhost:8080/def/",
+    "default_crs": "http://localhost:8080/def/OGC/0/Index2D",
+    "mock": true,
+    "automated": false,
+    "track_files": false,
+    "subset_correction": false
+  },
+  "input": {
+    "coverage_id": "MyCoverage",
+    "paths": [
+      "/media/elninogordo/Geodata/netcdf-examples/ESACCI-OC-L3S-CHLOR_A-*.nc"
+    ]
+  },
+  "recipe": {
+    "name": "general_coverage",
+    "options": {
+      "coverage": {
+        "crs": "EPSG/0/4326@OGC/0/AnsiDate",
+        "metadata": {
+          "type": "xml",
+          "global": {
+            "Title": "'${netcdf:metadata:title}'",
+            "Project": "'${netcdf:metadata:project}'",
+            "Creator": "'${netcdf:metadata:creator_name}'"
+          }
+        },
+        "slicer": {
+          "type": "netcdf",
+          "bands": [
+            {
+              "name": "NobsSum",
+              "variable": "MODISA_nobs_sum",
+              "description": "Count of the number of observations from the MERIS sensor contributing to this bin cell",
+              "nilReason": "The nil value represents an error in the sensor.",
+              "identifier": "MERIS_nobs_sum"
+            },
+            {
+              "name": "Chlor",
+              "identifier": "chlor_a",
+              "description": "Count of the number of observations from the SeaWiFS sensor contributing to this bin cell",
+              "nilReason": "The nil value represents an error in the sensor."
+            }
+          ],
+          "axes": {
+            "ansi": {
+              "min": "datetime(${netcdf:variable:time:min} * 24 * 3600)",
+              "max": "datetime(${netcdf:variable:time:max} * 24 * 3600)",
+              "resolution": 1,
+              "gridOrder": 0,
+              "type": "ansidate",
+              "irregular": true
+            },
+            "Long": {
+              "min": "${netcdf:metadata:geospatial_lon_min}",
+              "max": "${netcdf:metadata:geospatial_lon_max}",
+              "gridOrder": 2,
+              "resolution": "${netcdf:metadata:geospatial_lon_resolution}"
+            },
+            "Lat": {
+              "min": "${netcdf:metadata:geospatial_lat_min}",
+              "max": "${netcdf:metadata:geospatial_lat_max}",
+              "gridOrder": 1,
+              "resolution": "-${netcdf:metadata:geospatial_lat_resolution}"
+            }
+          }
+        }
+      },
+      "tiling": "REGULAR [0:0, 0:1023, 0:1023]"
+    }
+  }
+}

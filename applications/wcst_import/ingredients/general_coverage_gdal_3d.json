@@ -1,0 +1,62 @@
+{
+  "config": {
+    "service_url": "http://localhost:8080/rasdaman/ows",
+    "tmp_directory": "/tmp/",
+    "crs_resolver": "http://localhost:8080/def/",
+    "default_crs": "http://localhost:8080/def/OGC/0/Index2D",
+    "mock": true,
+    "automated": false,
+    "track_files": false
+  },
+  "input": {
+    "coverage_id": "MyCoverage",
+    "paths": [
+      "/media/elninogordo/Geodata/AverageTemperatureFloat/*.TIFF"
+    ]
+  },
+  "recipe": {
+    "name": "general_coverage",
+    "options": {
+      "coverage": {
+        "crs": "EPSG/0/4326@OGC/0/AnsiDate",
+        "metadata": {
+          "type": "json",
+          "global": {
+            "resolution": "'${gdal:metadata:TIFFTAG_XRESOLUTION}'"
+          }
+        },
+        "slicer": {
+          "type": "gdal",
+          "bands": [
+            {
+              "name": "Temperature",
+              "definition": "The temperature at 2 meters.",
+              "description": "We measure temperature at 2 meters using sensors and then we process the values using a sophisticated algorithm.",
+              "nilReason": "The nil value represents an error in the sensor.",
+              "identifier": "1",
+              "nilValue": 9999,
+              "uomCode": "degrees C"
+            }
+          ],
+          "axes": {
+            "Lat": {
+              "min": "${gdal:minY}",
+              "max": "${gdal:maxY}",
+              "resolution": "${gdal:resolutionY}"
+            },
+            "Long": {
+              "min": "${gdal:minX}",
+              "max": "${gdal:maxX}",
+              "resolution": "${gdal:resolutionX}"
+            },
+            "ansi": {
+              "min": "datetime(regex_extract('${file:name}', '(.*)_(.*)_(.*)_(\\d\\d\\d\\d-\\d\\d)(.*)', 4), 'YYYY-MM')",
+              "resolution": "1"
+            }
+          }
+        }
+      },
+      "tiling": "ALIGNED [0:1023, 0:1023] TILE SIZE 4194304"
+    }
+  }
+}

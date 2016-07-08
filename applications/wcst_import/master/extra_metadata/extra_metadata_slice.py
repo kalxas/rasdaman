@@ -22,14 +22,25 @@
  *
 """
 
-from abc import ABCMeta, abstractmethod
-
-from master.generator.model.model import Model
+from master.importer.interval import Interval
 
 
-class RangeSet(Model):
-    __metaclass__ = ABCMeta
+class ExtraMetadataSliceSubset:
+    def __init__(self, axis_name, interval):
+        """
+        Represents a subset associated to a slice of extra metadata
+        :param str axis_name: the name of the axis
+        :param Interval interval:
+        """
+        self.axis_name = axis_name
+        self.interval = interval
 
-    @abstractmethod
-    def get_template_name(self):
-        pass
+
+class ExtraMetadataSlice:
+    def __init__(self, subsets, metadata_dictionary):
+        """
+        Represents a slice of extra metadata
+        :param list[ExtraMetadataSliceSubset] subsets: the subsets on each axis defining the position in spacetime of the extra metadata
+        """
+        self.subsets = subsets
+        self.metadata_dictionary = metadata_dictionary

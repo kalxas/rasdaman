@@ -37,7 +37,7 @@ class TemplateProcessor:
         :param Model model: the model to fill the template with
         """
         template = open(self.__TEMPLATE_PATH + model.get_template_name()).read()
-        for variable, value in model.__dict__.iteritems():
+        for variable, value in model.__dict__.items():
             to_replace = self.__TEMPLATE_VARIABLE_WRAPPER.replace("Variable", str(variable))
             replacement = ""
             if value is None:

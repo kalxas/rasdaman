@@ -22,14 +22,28 @@
  *
 """
 
-from abc import ABCMeta, abstractmethod
-
-from master.generator.model.model import Model
+from abc import abstractmethod
 
 
-class RangeSet(Model):
-    __metaclass__ = ABCMeta
+class ExpressionEvaluator:
+    """
+    An expression evaluator evaluates ingredient expressions based on the context of a file
+    """
 
     @abstractmethod
-    def get_template_name(self):
+    def evaluate(self, expression, evaluator_slice):
+        """
+        Evaluates a wcst expression
+        :param str expression: the expression to evaluate
+        :param master.evaluator.evaluator_slice.EvaluatorSlice evaluator_slice: the evaluator slice to apply the expression on
+        """
+        pass
+
+    @abstractmethod
+    def can_evaluate(self, expression):
+        """
+        Returns true if this expression evaluator can evaluate the expression, false otherwise
+        :param str expression: the expression to evaluate
+        :rtype: bool
+        """
         pass

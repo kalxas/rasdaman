@@ -22,10 +22,11 @@
  *
 """
 import functools
+
 from lib.arrow import api as arrow
 from lib.arrow.parser import ParserError
-from util.crs_util import CRSUtil
 from master.error.runtime_exception import RuntimeException
+from util.crs_util import CRSUtil
 
 
 @functools.total_ordering
