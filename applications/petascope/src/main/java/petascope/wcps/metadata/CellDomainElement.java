@@ -77,8 +77,8 @@ public class CellDomainElement implements Cloneable {
         try {
             return Integer.valueOf(hi);
         } catch (NumberFormatException ex) {
-            log.error("Lower bound of interval is not a number: " + hi);
-            throw new RuntimeException("Lower bound of interval is not a number: " + hi);
+            log.error("Lower bound of interval is not an integer: " + hi);
+            throw new RuntimeException("Lower bound of interval is not an integer: " + hi);
         }
     }
 
@@ -94,8 +94,8 @@ public class CellDomainElement implements Cloneable {
         try {
             return Integer.valueOf(lo);
         } catch (NumberFormatException ex) {
-            log.error("Lower bound of interval is not a number: " + lo);
-            throw new RuntimeException("Lower bound of interval is not a number: " + lo);
+            log.error("Lower bound of interval is not an integer: " + lo);
+            throw new RuntimeException("Lower bound of interval is not an integer: " + lo);
         }
     }
 

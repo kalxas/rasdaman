@@ -549,8 +549,7 @@ public class GMLParserUtil {
      * @return the mime type of the file to be inserted
      * @throws WCSException
      */
-    public static String parseMimeType(Element rangeSet)
-            throws WCSTWrongNumberOfFileElements, WCSTWrongNumberOfFileStructureElements, WCSException {
+    public static String parseMimeType(Element rangeSet) throws WCSException {
         //get the File element
         Elements file = rangeSet.getChildElements(XMLSymbols.LABEL_FILE, XMLSymbols.NAMESPACE_GML);
         if(file.size() != 1){
@@ -562,6 +561,22 @@ public class GMLParserUtil {
             throw new WCSTWrongNumberOfFileStructureElements();
         }
         return mimetype.get(0).getValue().trim();
+    }
+
+    /**
+     * Returns the rangeParameters content as String if the elent exist, null otherwise.
+     * @param rangeSet
+     * @return
+     */
+    public static String parseRangeParameters(Element rangeSet){
+        Elements rangeParameters = rangeSet.getChildElements(XMLSymbols.LABEL_RANGEPARAMETERS, XMLSymbols.NAMESPACE_GML);
+        if(rangeParameters.size() == 1){
+            return rangeParameters.get(0).getValue().trim();
+        }
+        else {
+            //rangePrameters might be missing
+            return "";
+        }
     }
 
     /**
@@ -690,9 +705,17 @@ public class GMLParserUtil {
      */
     public static String parseExtraMetadata(Element root){
         String ret = null;
-        Elements metadata = root.getChildElements(XMLSymbols.LABEL_METADATA, XMLSymbols.NAMESPACE_GML);
+        Elements metadata = root.getChildElements(XMLSymbols.LABEL_METADATA, XMLSymbols.NAMESPACE_GMLCOV);
         if(metadata.size() > 0){
-            ret = metadata.get(0).getValue().trim();
+            //since the node can contain xml sometimes, json other times, we need to return
+            //the actual content of the node as string.
+
+            //the string representation of the node
+            String xmlRep = metadata.get(0).toXML();
+
+            //need to remove <gmlcov:metadata> and </gmlcov:metadata> tags
+            ret = xmlRep.replace("<" + XMLSymbols.NAMESPACE_GMLCOV + ":" + XMLSymbols.LABEL_METADATA + ">", "")
+                    .replace("</" + XMLSymbols.NAMESPACE_GMLCOV + ":" + XMLSymbols.LABEL_METADATA + ">", "").trim();
         }
         return ret;
     }

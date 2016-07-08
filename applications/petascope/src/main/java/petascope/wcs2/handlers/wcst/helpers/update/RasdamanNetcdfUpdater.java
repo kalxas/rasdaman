@@ -29,35 +29,25 @@ import java.io.File;
 import java.io.IOException;
 
 /**
- * Class for updating when values are received as file.
- *
- * @author <a href="mailto:merticariu@rasdaman.com">Vlad Merticariu</a>
+ * @author <a href="merticariu@rasdaman.com">Vlad Merticariu</a>
  */
-public class RasdamanFileUpdater implements RasdamanUpdater {
+public class RasdamanNetcdfUpdater implements RasdamanUpdater {
 
     String affectedCollectionName;
     String affectedCollectionOid;
     String affectedDomain;
     File valuesFile;
-    String mimetype;
     String shiftDomain;
+    String rangeParameters;
 
-    /**
-     * Class constructor.
-     * @param affectedCollectionName the name of the rasdaman collection corresponding to the coverage.
-     * @param affectedCollectionOid the oid of the rasdaman array corresponding to the coverage.
-     * @param affectedDomain the rasdaman domain over which the update is executed.
-     * @param valuesFile the file where the cell values are stored.
-     * @param mimetype the mime type of the file.
-     * @param shiftDomain the domain with which the array stored in the file must be shifted.
-     */
-    public RasdamanFileUpdater(String affectedCollectionName, String affectedCollectionOid, String affectedDomain, File valuesFile, String mimetype, String shiftDomain) {
+    public RasdamanNetcdfUpdater(String affectedCollectionName, String affectedCollectionOid, String affectedDomain,
+                                 File valuesFile, String shiftDomain, String rangeParameters) {
         this.affectedCollectionName = affectedCollectionName;
         this.affectedCollectionOid = affectedCollectionOid;
         this.affectedDomain = affectedDomain;
         this.valuesFile = valuesFile;
-        this.mimetype = mimetype;
         this.shiftDomain = shiftDomain;
+        this.rangeParameters = rangeParameters;
     }
 
     @Override
@@ -65,10 +55,11 @@ public class RasdamanFileUpdater implements RasdamanUpdater {
         String queryString = UPDATE_TEMPLATE_FILE.replace("$collection", affectedCollectionName)
                 .replace("$domain", affectedDomain)
                 .replace("$oid", affectedCollectionOid)
-                .replace("$shiftDomain", shiftDomain);
-        RasUtil.executeUpdateFileStatement(queryString, valuesFile.getAbsolutePath(), mimetype,
+                .replace("$shiftDomain", shiftDomain)
+                .replace("$rangeParams", rangeParameters.replace("\"", "\\\""));
+        RasUtil.executeUpdateFileStatement(queryString, valuesFile.getAbsolutePath(),
                 ConfigManager.RASDAMAN_ADMIN_USER, ConfigManager.RASDAMAN_ADMIN_PASS);
     }
 
-    private static final String UPDATE_TEMPLATE_FILE = "UPDATE $collection SET $collection$domain ASSIGN shift(decode($1), $shiftDomain) WHERE oid($collection) = $oid";
+    private static final String UPDATE_TEMPLATE_FILE = "UPDATE $collection SET $collection$domain ASSIGN shift(decode($1, \"NetCDF\", \"$rangeParams\"), $shiftDomain) WHERE oid($collection) = $oid";
 }

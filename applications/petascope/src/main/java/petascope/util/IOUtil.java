@@ -231,4 +231,9 @@ public class IOUtil {
             return null;
         }
     }
+
+    public static final String TIFF_MIMETYPE = "tif";
+    public static final String GRIB_MIMETYPE = "grib";
+    public static final String NETCDF_MIMETYPE = "netcdf";
+    public static final String GDAL_MIMETYPE = "gdal";
 }

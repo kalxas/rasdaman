@@ -115,7 +115,6 @@ public class CoverageMetadata implements Cloneable {
         // Note: i-th grid axis need not be aligned with i-th CRS axis
         List<DomainElement> domainElements = new ArrayList<DomainElement>();
         Iterator<CellDomainElement> cDom   = cellDomain.iterator();
-        List<String>                uris   = new ArrayList<String>();
         int axisOrder = 0;
 
         for (Entry<List<BigDecimal>,BigDecimal> axis : gridAxes.entrySet()) {
@@ -134,11 +133,6 @@ public class CoverageMetadata implements Cloneable {
             Integer crsAxisOrder = axisNonZeroIndices.get(0);
             String crsUri = crsAxes.get(crsAxisOrder).snd;
             CrsDefinition.Axis crsAxis = crsAxes.get(crsAxisOrder).fst;
-
-            // Build the list of non-duplicated CRS URIs
-            if (!uris.contains(crsUri)) {
-                uris.add(crsUri);
-            }
 
             // Get correspondent cellDomain element (grid axes in object gridAxes follow rasdaman storage order)
             CellDomainElement cEl = cDom.next();
@@ -204,6 +198,14 @@ public class CoverageMetadata implements Cloneable {
         for (Pair<RangeElement,Quantity> rangeQuantity : rangeElementQuantities) {
             rangeEls.add(rangeQuantity.fst);
             sweComponents.add(rangeQuantity.snd);
+        }
+
+        //construct the list of unique crs uris, in the order of the geo axes
+        List<String> uris   = new ArrayList<String>();
+        for(Pair<CrsDefinition.Axis, String> crsAxis: crsAxes){
+            if(!uris.contains(crsAxis.snd)){
+                uris.add(crsAxis.snd);
+            }
         }
 
         // fill up the metadata
@@ -789,10 +791,13 @@ public class CoverageMetadata implements Cloneable {
      * @return The set of extra metadata of the specified type.
      */
     public Set<String> getExtraMetadata(String metadataType) {
-        Set<String> selectedExtraMetadata = new HashSet<String>();
-        for (Pair<String,String> metadataPair : extraMetadata) {
-            if (metadataPair.fst.equals(metadataType)) {
-                selectedExtraMetadata.add(metadataPair.snd);
+        Set<String> selectedExtraMetadata = null;
+        if(extraMetadata != null) {
+            selectedExtraMetadata = new HashSet<String>();
+            for (Pair<String, String> metadataPair : extraMetadata) {
+                if (metadataPair.fst.equals(metadataType)) {
+                    selectedExtraMetadata.add(metadataPair.snd);
+                }
             }
         }
         return selectedExtraMetadata;
@@ -1060,7 +1065,7 @@ public class CoverageMetadata implements Cloneable {
         Element domainSet = GMLParserUtil.parseDomainSet(root);
         //from the domain set extract the grid type
         Element gridType = GMLParserUtil.parseGridType(domainSet);
-        List<CellDomainElement> cellDomainElements = GMLParserUtil.parseRectifiedGridCellDomain(gridType);;
+        List<CellDomainElement> cellDomainElements = GMLParserUtil.parseRectifiedGridCellDomain(gridType);
         List<BigDecimal> originPoints = new ArrayList<BigDecimal>();
         LinkedHashMap<List<BigDecimal>, BigDecimal> gridAxes = null;
         //rectified grids
@@ -1109,11 +1114,20 @@ public class CoverageMetadata implements Cloneable {
         //parse the range type information
         List<Pair<RangeElement, Quantity>> rangeQuantities = GMLParserUtil.parseRangeElementQuantities(root);
 
+        //parse extra metadata
+        String extraMetadata = GMLParserUtil.parseExtraMetadata(root);
+        //wrap it in the required data structure
+        Set<Pair<String, String>> extraMetadataStructure = null;
+        if(extraMetadata != null) {
+            extraMetadataStructure = new HashSet<Pair<String, String>>();
+            extraMetadataStructure.add(Pair.of(DbMetadataSource.EXTRAMETADATA_TYPE_GMLCOV, extraMetadata));
+        }
+
         CoverageMetadata result = new CoverageMetadata(
             id,
             coverageType,
             nativeFormat,
-            null, //no extra metadata for now
+            extraMetadataStructure,
             crsAxes,
             cellDomainElements,
             originPoints,

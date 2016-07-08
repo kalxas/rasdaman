@@ -263,7 +263,7 @@ public class CrsComputer {
         long pxMax = cdom.getHiInt();
 
         // Indexed CRSs do not require conversion
-        if (crsName.equals(CrsUtil.GRID_CRS)) {
+        if (crsName.contains(CrsUtil.GRID_CRS)) {
             return new ParsedSubset<Long>((long) numericSubset.getLowerLimit().doubleValue(), (long) numericSubset.getUpperLimit().doubleValue());
         }
 

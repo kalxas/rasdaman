@@ -58,6 +58,7 @@ import petascope.exceptions.rasdaman.RasdamanException;
 import petascope.exceptions.SecoreException;
 import petascope.exceptions.WCSException;
 import petascope.exceptions.wcst.WCSTDuplicatedCoverageName;
+import petascope.exceptions.wcst.WCSTExtraMetadataException;
 import petascope.ows.Description;
 import petascope.ows.ServiceProvider;
 import petascope.swe.datamodel.AbstractSimpleComponent;
@@ -65,12 +66,8 @@ import petascope.swe.datamodel.AllowedValues;
 import petascope.swe.datamodel.NilValue;
 import petascope.swe.datamodel.Quantity;
 import petascope.swe.datamodel.RealPair;
-import petascope.util.CrsUtil;
-import petascope.util.ListUtil;
-import petascope.util.Pair;
-import petascope.util.Vectors;
-import petascope.util.WcsUtil;
-import petascope.util.XMLSymbols;
+import petascope.util.*;
+
 import static petascope.util.ras.RasConstants.RASQL_AS;
 import static petascope.util.ras.RasConstants.RASQL_FROM;
 import static petascope.util.ras.RasConstants.RASQL_OID;
@@ -117,6 +114,7 @@ public class DbMetadataSource implements IMetadataSource {
     public static final String EXTRAMETADATA_TYPE_ID    = "id";
     public static final String EXTRAMETADATA_TYPE_TYPE  = "type";
     public static final String EXTRAMETADATA_TYPE_OWS   = "ows"; // need to know how OWS Metadata is recognized to enable/disable it
+    public static final String EXTRAMETADATA_TYPE_GMLCOV = "gmlcov";
     // TABLE_CRS : list of /single/ Coordinate Reference Systems (no compound CRS)
     public static final String TABLE_CRS                = TABLES_PREFIX + "crs";
     public static final String CRS_ID                   = "id";
@@ -1526,6 +1524,12 @@ public class DbMetadataSource implements IMetadataSource {
             //insert the axes
             insertGridAxes(s, coverageId, meta.getGridAxes());
 
+            //insert the extra metadata
+            Set<String> extraMetadata = meta.getExtraMetadata(EXTRAMETADATA_TYPE_GMLCOV);
+            if(extraMetadata != null) {
+                insertExtraMetadata(coverageId, meta.getExtraMetadata(EXTRAMETADATA_TYPE_GMLCOV));
+            }
+
             //close
             s.close();
             s = null;
@@ -1577,6 +1581,42 @@ public class DbMetadataSource implements IMetadataSource {
         }
         catch(SQLException e){
             conn.rollback(savePoint);
+            throw e;
+        }
+        finally {
+            closeStatement(s);
+        }
+    }
+
+
+    private void insertExtraMetadata(int coverageId, Set<String> extraMetadataSet) throws SQLException, WCSTExtraMetadataException {
+        PreparedStatement s = null;
+        try {
+            //get the type id of gmlcov metadata type
+            int typeId = 0;
+            for(int key: extraMetadataTypes.keySet()){
+                if(extraMetadataTypes.get(key).equals(EXTRAMETADATA_TYPE_GMLCOV)){
+                    typeId = key;
+                    break;
+                }
+            }
+            //check if the type id has been successfully initialized
+            if(typeId == 0){
+                throw new WCSTExtraMetadataException();
+            }
+            //do the insertion, for each extra metadata entry
+            for(String extraMetadata: extraMetadataSet) {
+                s = conn.prepareStatement("INSERT INTO " + TABLE_EXTRAMETADATA +
+                        "(" + EXTRAMETADATA_COVERAGE_ID + ", " + EXTRAMETADATA_METADATA_TYPE_ID + ", " + EXTRAMETADATA_VALUE + ") " +
+                        "VALUES (?, ?, ?)");
+                s.setInt(1, coverageId);
+                s.setInt(2, typeId);
+                s.setString(3, extraMetadata);
+                log.info("Executing prepared statement: " + s.toString());
+                s.executeUpdate();
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
             throw e;
         }
         finally {

@@ -198,7 +198,13 @@ public class InsertCoverageHandler extends AbstractRequestHandler<InsertCoverage
                 }
                 String mimetype = GMLParserUtil.parseMimeType(rangeSet);
                 //pass it to gdal to get the collection type
-                rasCollectionType = TypeResolverUtil.guessCollectionTypeFromFile(tmpFile.getAbsolutePath(), coverage.getDimension(), nullValues);
+                if(pixelDataType != null){
+                    rasCollectionType = TypeResolverUtil.guessCollectionType(coverage.getNumberOfBands(), coverage.getDimension(), nullValues, pixelDataType).getKey();
+                }
+                else {
+                  //read it from file
+                  rasCollectionType = TypeResolverUtil.guessCollectionTypeFromFile(tmpFile.getAbsolutePath(), coverage.getDimension(), nullValues);
+                }
                 //insert it into rasdaman
                 rasdamanCollectionCreator = new RasdamanDefaultCollectionCreator(collectionName, rasCollectionType);
                 rasdamanInserter = new RasdamanFileInserter(collectionName, tmpFile.getAbsolutePath(), mimetype, tiling);

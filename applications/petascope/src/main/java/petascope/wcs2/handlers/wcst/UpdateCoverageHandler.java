@@ -46,9 +46,12 @@ import petascope.wcps.metadata.DomainElement;
 import petascope.wcps2.util.CrsComputer;
 import petascope.wcs2.handlers.AbstractRequestHandler;
 import petascope.wcs2.handlers.Response;
-import petascope.wcs2.handlers.wcst.helpers.update.RasdamanFileUpdater;
+import petascope.wcs2.handlers.wcst.helpers.decodeparameters.RangeParametersConvertor;
+import petascope.wcs2.handlers.wcst.helpers.decodeparameters.RangeParametersConvertorFactory;
 import petascope.wcs2.handlers.wcst.helpers.update.RasdamanUpdater;
-import petascope.wcs2.handlers.wcst.helpers.update.RasdamanValuesUpdater;
+import petascope.wcs2.handlers.wcst.helpers.update.RasdamanUpdaterFactory;
+import petascope.wcs2.handlers.wcst.helpers.validator.SubsetValidator;
+import petascope.wcs2.handlers.wcst.helpers.validator.UpdateCoverageValidator;
 import petascope.wcs2.helpers.wcst.RemoteCoverageUtil;
 import petascope.wcs2.parsers.subsets.DimensionSlice;
 import petascope.wcs2.parsers.subsets.DimensionSubset;
@@ -58,11 +61,11 @@ import petascope.wcs2.parsers.wcst.UpdateCoverageRequest;
 import java.io.File;
 import java.io.IOException;
 import java.math.BigDecimal;
-import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
 import petascope.exceptions.wcst.WCSTCoverageNotFound;
 import petascope.exceptions.wcst.WCSTInvalidXML;
 import petascope.wcps2.metadata.legacy.Coverage;
@@ -72,62 +75,70 @@ import petascope.wcps2.metadata.model.ParsedSubset;
 
 public class UpdateCoverageHandler extends AbstractRequestHandler<UpdateCoverageRequest> {
 
-    private static final org.slf4j.Logger log = LoggerFactory.getLogger(UpdateCoverageHandler.class);
+private static final org.slf4j.Logger log = LoggerFactory.getLogger(UpdateCoverageHandler.class);
 
-    public UpdateCoverageHandler(DbMetadataSource meta) {
-        super(meta);
-    }
+private final RasdamanUpdaterFactory rasdamanUpdaterFactory;
+private final RangeParametersConvertorFactory parametersConvertorFactory;
+private final SubsetValidator subsetValidator;
 
-    /**
-     * Handles the update of an existing WCS coverage.
-     *
-     * @param request the update coverage request.
-     * @return empty response.
-     * @throws petascope.exceptions.wcst.WCSTCoverageNotFound
-     * @throws petascope.exceptions.wcst.WCSTInvalidXML
-     * @throws PetascopeException
-     * @throws WCSException
-     * @throws SecoreException
-     */
-    @Override
-    public Response handle(UpdateCoverageRequest request)
-            throws WCSTCoverageNotFound, WCSTInvalidXML, PetascopeException, SecoreException {
-        log.info("Handling coverage update...");
-        CoverageMetadata currentCoverage = this.meta.read(request.getCoverageId());
-        String affectedCollectionName = getCurrentCollectionName(currentCoverage);
-        String affectedCollectionOid = getCurrentCollectionOid(currentCoverage);
+public UpdateCoverageHandler(DbMetadataSource meta) {
+super(meta);
+rasdamanUpdaterFactory = new RasdamanUpdaterFactory();
+parametersConvertorFactory = new RangeParametersConvertorFactory();
+subsetValidator = new SubsetValidator();
+}
 
-        CoverageMetadata inputCoverage;
-        String gmlInputCoverage = getGmlCoverageFromRequest(request);
+/**
+* Handles the update of an existing WCS coverage.
+*
+* @param request the update coverage request.
+* @return empty response.
+* @throws petascope.exceptions.wcst.WCSTCoverageNotFound
+* @throws petascope.exceptions.wcst.WCSTInvalidXML
+* @throws PetascopeException
+* @throws WCSException
+* @throws SecoreException
+*/
+@Override
+public Response handle(UpdateCoverageRequest request)
+    throws WCSTCoverageNotFound, WCSTInvalidXML, PetascopeException, SecoreException {
+log.info("Handling coverage update...");
+CoverageMetadata currentCoverage = this.meta.read(request.getCoverageId());
+String affectedCollectionName = getCurrentCollectionName(currentCoverage);
+String affectedCollectionOid = getCurrentCollectionOid(currentCoverage);
 
-        try {
-            Document xmlInputCoverage = XMLUtil.buildDocument(null, gmlInputCoverage);
-            inputCoverage = CoverageMetadata.fromGML(xmlInputCoverage);
-            //validation
-            UpdateCoverageValidator validator = new UpdateCoverageValidator(currentCoverage, inputCoverage,
-                    request.getSubsets(), request.getRangeComponent());
-            validator.validate();
+CoverageMetadata inputCoverage;
+String gmlInputCoverage = getGmlCoverageFromRequest(request);
 
-            //handle subset coefficients if necessary
-            //the transaction is not commited unless everything goes well.
-            handleSubsetCoefficients(currentCoverage, request.getSubsets());
+try {
+    Document xmlInputCoverage = XMLUtil.buildDocument(null, gmlInputCoverage);
+    inputCoverage = CoverageMetadata.fromGML(xmlInputCoverage);
+    //validation
+    UpdateCoverageValidator validator = new UpdateCoverageValidator(currentCoverage, inputCoverage,
+	    request.getSubsets(), request.getRangeComponent());
+    validator.validate();
 
-            //handle cell values
-            Element rangeSet = GMLParserUtil.parseRangeSet(xmlInputCoverage.getRootElement());
+    //handle subset coefficients if necessary
+    //the transaction is not commited unless everything goes well.
+    handleSubsetCoefficients(currentCoverage, request.getSubsets());
 
-            Map<Integer, ParsedSubset<Long>> pixelIndices = getPixelIndicesByCoordinate(currentCoverage, request.getSubsets());
+    //handle cell values
+    Element rangeSet = GMLParserUtil.parseRangeSet(xmlInputCoverage.getRootElement());
+
+            Map<Integer, String> pixelIndices = getPixelIndicesByCoordinate(currentCoverage, request.getSubsets());
             String affectedDomain = getAffectedDomain(currentCoverage, request.getSubsets(), pixelIndices);
+            subsetValidator.validate(inputCoverage.getCellDomainList(), affectedDomain);
             String shiftDomain = getShiftDomain(inputCoverage, pixelIndices);
             RasdamanUpdater updater;
 
             if (rangeSet.getChildElements(XMLSymbols.LABEL_DATABLOCK,
                     XMLSymbols.NAMESPACE_GML).size() != 0) {
                 //tuple list given explicitly
-                String values = getReplacementValuesFromTupleList(inputCoverage, rangeSet, request.getPixelDataType());
-                updater = new RasdamanValuesUpdater(affectedCollectionName, affectedCollectionOid, affectedDomain, values, shiftDomain);
+                String values = getReplacementValuesFromTupleList(currentCoverage, rangeSet, request.getPixelDataType());
+                updater = rasdamanUpdaterFactory.getUpdater(affectedCollectionName, affectedCollectionOid, affectedDomain, values, shiftDomain);
                 try {
                     updater.update();
-                } catch (RasdamanException e){
+                } catch (RasdamanException e) {
                     this.meta.abortAndClose();
                     throw e;
                 }
@@ -148,10 +159,18 @@ public class UpdateCoverageHandler extends AbstractRequestHandler<UpdateCoverage
                     valuesFile = getReplacementValuesFromFile(rangeSet);
                 }
                 String mimetype = GMLParserUtil.parseMimeType(rangeSet);
-                updater = new RasdamanFileUpdater(affectedCollectionName, affectedCollectionOid, affectedDomain, valuesFile, mimetype, shiftDomain);
+                String rangeParameters = GMLParserUtil.parseRangeParameters(rangeSet);
+
+                //process the range parameters
+                RangeParametersConvertor convertor = parametersConvertorFactory.getConvertor(mimetype, rangeParameters, currentCoverage, meta);
+                String decodeParameters = convertor.toRasdamanDecodeParameters();
+
+
+                updater = rasdamanUpdaterFactory.getUpdater(affectedCollectionName, affectedCollectionOid,
+                        affectedDomain, valuesFile, mimetype, shiftDomain, decodeParameters);
                 try {
                     updater.update();
-                } catch (RasdamanException e){
+                } catch (RasdamanException e) {
                     this.meta.abortAndClose();
                     throw e;
                 }
@@ -166,13 +185,20 @@ public class UpdateCoverageHandler extends AbstractRequestHandler<UpdateCoverage
             this.meta.commitAndClose();
         } catch (IOException e) {
             Logger.getLogger(UpdateCoverageHandler.class.getName()).log(Level.SEVERE, null, e);
+            abortTransaction();
             throw new WCSTCoverageNotFound();
         } catch (ParsingException e) {
             Logger.getLogger(UpdateCoverageHandler.class.getName()).log(Level.SEVERE, null, e);
+            abortTransaction();
             throw new WCSTInvalidXML(e.getMessage());
         } catch (SQLException e) {
             Logger.getLogger(UpdateCoverageHandler.class.getName()).log(Level.SEVERE, null, e);
+            abortTransaction();
             throw new PetascopeException(ExceptionCode.InternalSqlError);
+        }
+        catch (PetascopeException e){
+            abortTransaction();
+            throw e;
         }
 
         return new Response(new String[]{""});
@@ -192,7 +218,7 @@ public class UpdateCoverageHandler extends AbstractRequestHandler<UpdateCoverage
                     throw new PetascopeException(ExceptionCode.InternalSqlError);
                 }
                 BigDecimal currentCoefficient = computeSubsetCoefficient(currentDom, subset);
-                int coefficientOrder = computeCoefficientOrder(currentCoverageMetadata, currentDom, currentCoefficient, (DimensionSlice) subset);
+                int coefficientOrder = computeCoefficientOrder(currentCoverageMetadata, currentDom, currentCoefficient, subset);
                 try {
                     meta.updateAxisCoefficient(axisId, currentCoefficient, coefficientOrder);
                 } catch (SQLException e) {
@@ -203,7 +229,7 @@ public class UpdateCoverageHandler extends AbstractRequestHandler<UpdateCoverage
         }
     }
 
-    private int computeCoefficientOrder(CoverageMetadata currentCoverageMetadata, DomainElement currentDomain, BigDecimal coefficient, DimensionSlice subset) throws PetascopeException {
+    private int computeCoefficientOrder(CoverageMetadata currentCoverageMetadata, DomainElement currentDomain, BigDecimal coefficient, DimensionSubset subset) throws PetascopeException {
         List<BigDecimal> allCoefficients = meta.getAllCoefficients(currentCoverageMetadata.getCoverageName(), currentDomain.getOrder());
         int currentPosition = BigDecimalUtil.listContains(allCoefficients, coefficient);
         //for now, we only support adding slices on top or updating existing slices
@@ -221,7 +247,12 @@ public class UpdateCoverageHandler extends AbstractRequestHandler<UpdateCoverage
             currentCoverageMetadata.getCellDomain(currentDomain.getOrder()).setHi(String.valueOf(currentDomainHi));
             //increase the pixel domain
             if (subset.isNumeric()) {
-                currentDomain.setMaxValue(new BigDecimal(subset.getSlicePoint()));
+                if(subset instanceof DimensionSlice){
+                    currentDomain.setMaxValue(new BigDecimal(((DimensionSlice)subset).getSlicePoint()));
+                }
+                else {
+                    currentDomain.setMaxValue(new BigDecimal(((DimensionTrim)subset).getTrimHigh()));
+                }
             }
             //coefficient is corresponding to a new slice, added on top
             return allCoefficients.size();
@@ -229,24 +260,29 @@ public class UpdateCoverageHandler extends AbstractRequestHandler<UpdateCoverage
     }
 
     private BigDecimal computeSubsetCoefficient(DomainElement currentDom, DimensionSubset subset) throws PetascopeException {
-        if (subset instanceof DimensionSlice) {
-            String point = ((DimensionSlice) subset).getSlicePoint();
-            BigDecimal normalizedSlicePoint;
-            if (subset.isNumeric()) {
-                normalizedSlicePoint = BigDecimalUtil.divide(new BigDecimal(point), currentDom.getScalarResolution());
+        String point = "";
+        if (subset instanceof DimensionTrim) {
+            DimensionTrim trimSubset = (DimensionTrim) subset;
+            if (!trimSubset.getTrimLow().equals(trimSubset.getTrimHigh())) {
+                throw new WCSTInvalidTrimSubsetOnIrregularAxisException(subset.toString(), currentDom.getLabel());
             } else {
-                //time
-                String datumOrigin = currentDom.getCrsDef().getDatumOrigin();
-                String axisUoM = currentDom.getUom();
-                normalizedSlicePoint = new BigDecimal(TimeUtil.countOffsets(datumOrigin, point, axisUoM, currentDom.getScalarResolution().doubleValue()));
+                point = trimSubset.getTrimLow();
             }
-            BigDecimal normalizedDomMin = BigDecimalUtil.divide(currentDom.getMinValue(), currentDom.getScalarResolution());
-            BigDecimal coefficient = (normalizedSlicePoint.subtract(normalizedDomMin)).multiply(currentDom.getDirectionalResolution());
-            return coefficient;
-        } else {
-            throw new WCSTInvalidTrimSubsetOnIrregularAxisException(subset.toString(), currentDom.getLabel());
+        } else if (subset instanceof DimensionSlice) {
+            point = ((DimensionSlice) subset).getSlicePoint();
         }
-
+        BigDecimal normalizedSlicePoint;
+        if (subset.isNumeric()) {
+            normalizedSlicePoint = BigDecimalUtil.divide(new BigDecimal(point), currentDom.getScalarResolution());
+        } else {
+            //time
+            String datumOrigin = currentDom.getCrsDef().getDatumOrigin();
+            String axisUoM = currentDom.getUom();
+            normalizedSlicePoint = new BigDecimal(TimeUtil.countOffsets(datumOrigin, point, axisUoM, currentDom.getScalarResolution().doubleValue()));
+        }
+        BigDecimal normalizedDomMin = BigDecimalUtil.divide(currentDom.getMinValue(), currentDom.getScalarResolution());
+        BigDecimal coefficient = (normalizedSlicePoint.subtract(normalizedDomMin)).multiply(currentDom.getDirectionalResolution());
+        return coefficient;
     }
 
     /**
@@ -258,7 +294,7 @@ public class UpdateCoverageHandler extends AbstractRequestHandler<UpdateCoverage
      * @return the string representation of the rasdaman domain affected by the update op.
      * @throws PetascopeException
      */
-    private String getAffectedDomain(CoverageMetadata currentCoverage, List<DimensionSubset> subsets, Map<Integer, ParsedSubset<Long>> pixelIndices) throws PetascopeException {
+    private String getAffectedDomain(CoverageMetadata currentCoverage, List<DimensionSubset> subsets, Map<Integer, String> pixelIndices) throws PetascopeException {
         String ret = "";
         if (!subsets.isEmpty()) {
             //construct the rasdaman domain starting from cellDomains and replace the values where subsets are given
@@ -267,11 +303,7 @@ public class UpdateCoverageHandler extends AbstractRequestHandler<UpdateCoverage
                 CellDomainElement currentCellDomain = currentCoverage.getCellDomainByOrder(i);
                 //if a given subset for this cell domain iss give, use that
                 if (pixelIndices.containsKey(i)) {
-                    ret += pixelIndices.get(i).getLowerLimit().toString();
-                    //only add upper bound if not equal lower
-                    if (!pixelIndices.get(i).getUpperLimit().equals(pixelIndices.get(i).getLowerLimit())) {
-                        ret += ":" + pixelIndices.get(i).getUpperLimit().toString();
-                    }
+                    ret += pixelIndices.get(i);
                 }
                 //otherwise, use the entire domain
                 else {
@@ -298,12 +330,17 @@ public class UpdateCoverageHandler extends AbstractRequestHandler<UpdateCoverage
      * @param pixelIndices  the list of pixel indices corresponding to each subset indicated in the request.
      * @return the string representation of the rasdaman domain with which the array must be shifted.
      */
-    private String getShiftDomain(CoverageMetadata inputCoverage, Map<Integer, ParsedSubset<Long>> pixelIndices) {
+    private String getShiftDomain(CoverageMetadata inputCoverage, Map<Integer, String> pixelIndices) {
         String shiftDomain = "[";
         for (int i = 0; i < inputCoverage.getDimension(); i++) {
-            Long shift = (long) 0;
+            String shift = "0";
             if (pixelIndices.containsKey(i)) {
-                shift = pixelIndices.get(i).getLowerLimit();
+                //add the lower limit
+                if (pixelIndices.get(i).contains(":")) {
+                    shift = pixelIndices.get(i).split(":")[0];
+                } else {
+                    shift = pixelIndices.get(i);
+                }
             }
             shiftDomain += shift.toString();
             if (i != inputCoverage.getDimension() - 1) {
@@ -321,11 +358,11 @@ public class UpdateCoverageHandler extends AbstractRequestHandler<UpdateCoverage
      * @param subsets         the list of subsets indicated in the update coverage request.
      * @return map indicating the pixel indices for each dimension.
      */
-    private Map<Integer, ParsedSubset<Long>> getPixelIndicesByCoordinate(CoverageMetadata currentCoverage, List<DimensionSubset> subsets) throws WCSException {
+    private Map<Integer, String> getPixelIndicesByCoordinate(CoverageMetadata currentCoverage, List<DimensionSubset> subsets) {
         CoverageInfo coverageInfo = new CoverageInfo(currentCoverage);
         Coverage currentWcpsCoverage = new Coverage(currentCoverage.getCoverageName(), coverageInfo, currentCoverage);
         CoverageRegistry coverageRegistry = new CoverageRegistry(meta);
-        Map<Integer, ParsedSubset<Long>> result = new HashMap<Integer, ParsedSubset<Long>>();
+        Map<Integer, String> result = new HashMap<Integer, String>();
         for (DimensionSubset i : subsets) {
             String low = "";
             String high = "";
@@ -338,15 +375,15 @@ public class UpdateCoverageHandler extends AbstractRequestHandler<UpdateCoverage
             }
             ParsedSubset<String> currentInterval = new ParsedSubset<String>(low, high);
             String crs = i.getCrs() != null ? i.getCrs() : currentWcpsCoverage.getCoverageMetadata().getDomainByName(i.getDimension()).getNativeCrs();
-            CrsComputer crsComputer = new CrsComputer(i.getDimension(), crs, currentInterval, currentWcpsCoverage, coverageRegistry);            
+            CrsComputer crsComputer = new CrsComputer(i.getDimension(), crs, currentInterval, currentWcpsCoverage, coverageRegistry);
             ParsedSubset<Long> pixelIndices = crsComputer.getPixelIndices(true);
-            // NOTE: if DimensionSubset is slicing then lower is equal upper
+            String resultingDomain;
             if (i instanceof DimensionSlice) {
-                Long lowerLimit = pixelIndices.getLowerLimit();
-                pixelIndices.setLowerLimit(lowerLimit);
-                pixelIndices.setUpperLimit(lowerLimit);
+                resultingDomain = pixelIndices.getLowerLimit().toString();
+            } else {
+                resultingDomain = pixelIndices.getLowerLimit().toString() + ":" + pixelIndices.getUpperLimit().toString();
             }
-            result.put(currentWcpsCoverage.getCoverageMetadata().getDomainIndexByName(i.getDimension()), pixelIndices);
+            result.put(currentWcpsCoverage.getCoverageMetadata().getDomainIndexByName(i.getDimension()), resultingDomain);
         }
         return result;
     }
@@ -417,5 +454,14 @@ public class UpdateCoverageHandler extends AbstractRequestHandler<UpdateCoverage
         //save in a temporary file to pass to gdal and rasdaman
         File tmpFile = RemoteCoverageUtil.copyFileLocally(fileUrl);
         return tmpFile;
+    }
+
+    private void abortTransaction() throws PetascopeException {
+        try {
+            this.meta.abortAndClose();
+        } catch (SQLException e) {
+            Logger.getLogger(UpdateCoverageHandler.class.getName()).log(Level.SEVERE, null, e);
+            throw new PetascopeException(ExceptionCode.InternalSqlError);
+        }
     }
 }

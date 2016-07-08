@@ -34,7 +34,7 @@ import petascope.exceptions.wcst.WCSTRangeFieldNameMismatchException;
 import petascope.exceptions.wcst.WCSTRangeFieldNumberMismatchException;
 import petascope.util.WcpsConstants;
 import petascope.wcps.server.core.RangeElement;
-import petascope.wcs2.handlers.wcst.UpdateCoverageValidator;
+import petascope.wcs2.handlers.wcst.helpers.validator.UpdateCoverageValidator;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;

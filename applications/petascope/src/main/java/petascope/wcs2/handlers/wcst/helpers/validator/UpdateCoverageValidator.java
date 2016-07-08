@@ -19,7 +19,7 @@
  * For more information please see <http://www.rasdaman.org>
  * or contact Peter Baumann via <baumann@rasdaman.com>.
  */
-package petascope.wcs2.handlers.wcst;
+package petascope.wcs2.handlers.wcst.helpers.validator;
 
 import org.apache.commons.lang3.tuple.Pair;
 import org.slf4j.LoggerFactory;
@@ -27,6 +27,7 @@ import petascope.core.CoverageMetadata;
 import petascope.exceptions.wcst.*;
 import petascope.wcps.metadata.DomainElement;
 import petascope.wcps.server.core.RangeElement;
+import petascope.wcs2.handlers.wcst.UpdateCoverageHandler;
 import petascope.wcs2.parsers.subsets.DimensionSubset;
 
 import java.util.Iterator;

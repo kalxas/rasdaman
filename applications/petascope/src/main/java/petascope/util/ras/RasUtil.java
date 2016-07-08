@@ -529,14 +529,9 @@ public class RasUtil {
         return oid;
     }
 
-    public static void executeUpdateFileStatement(String query, String filePath, String mimetype, String username, String password) throws IOException, RasdamanException {
+    public static void executeUpdateFileStatement(String query, String filePath, String username, String password) throws IOException, RasdamanException {
         String rasql = ConfigManager.RASDAMAN_BIN_PATH + RASQL + " --user " + username + " --passwd " + password + " -q "
-                + "'" + query + "' --file '" + filePath + "'"; // BangPH - 986, 1026 fix error with filePath has space or special characters
-        //As decode does not work correctly with geotiffs at the moment, use the old inv_tiff function to insert it
-        //TODO remove this once decode($1) works nicely
-        if (mimetype != null && mimetype.toLowerCase().contains(TIFF_MIMETYPE)) {
-            rasql = rasql.replace("decode", "inv_tiff");
-        }
+                + "'" + query + "' --file '" + filePath + "'";
         log.info("Executing " + rasql);
         Process p = Runtime.getRuntime().exec(new String[]{"bash", "-c", rasql});
         BufferedReader stdError = new BufferedReader(new InputStreamReader(p.getErrorStream()));
