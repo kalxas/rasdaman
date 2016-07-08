@@ -8,8 +8,10 @@ autom4te.cache
 *.a
 *.patch
 applications/petascope/pom.xml
+applications/petascope/target
 applications/secore/secore-core/pom.xml
 applications/secore/secore-web/pom.xml
+applications/secore/target
 #These are all generated files under openrasdaman
 applications/rasql/rasql
 applications/secore/secore-core/etc/gml/
@@ -18,6 +20,9 @@ clientcomm/rpcif.h
 clientcomm/rpcif_clnt.cc
 clientcomm/rpcif_svc.cc
 clientcomm/rpcif_xdr.c
+servercomm/rpcif.h
+servercomm/rpcif_clnt.cc
+servercomm/rpcif_svc.cc
 config.log
 config.status
 lockmgr/ecpg_lockmanager.cc
@@ -78,6 +83,7 @@ rasdaman_insertdemo.sh
 applications/raswct/bin
 glassfish-web.xml
 java/dist/
+java/target
 java/src/org/rasdaman/rasnet/message
 java/src/main/java/org/rasdaman/rasnet/service
 java/src/rasj/RasImplementation.java
