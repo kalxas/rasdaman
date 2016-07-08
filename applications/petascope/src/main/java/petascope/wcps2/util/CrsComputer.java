@@ -267,36 +267,16 @@ public class CrsComputer {
             return new ParsedSubset<Long>((long) numericSubset.getLowerLimit().doubleValue(), (long) numericSubset.getUpperLimit().doubleValue());
         }
 
-        // This part is copied over from CRSUtil.java verbatim TODO: refactor the whole CRS computer ASAP
-        // Indexed CRSs (integer "GridSpacing" UoM): no need for math proportion, coords are just int offsets.
-        // This is not the same as CRS:1 which access direct grid coordinates.
-        // Index CRSs have indexed coordinates, but still offset vectors can determine a different reference (eg origin is UL corner).
-        if (axisUoM.equals(CrsUtil.INDEX_UOM)) {
-            int count = 0;
-            long indexMin = cdom.getLoInt();
-            long indexMax = cdom.getHiInt();
-            // S = subset value, px_s = subset grid index
-            // m = min(grid index), M = max(grid index)
-            // {isPositiveForwards / isNegativeForwards}
-            // Formula : px_s = grid_origin + [{S/M} - {m/S}]
-            long[] subsetGridIndexes = new long[2];
-            for (String subset : (Arrays.asList(new String[]{numericSubset.getLowerLimit().toString(), numericSubset.getUpperLimit().toString()}))) {
-                // NOTE: on subsets.lo the /next/ integer needs to be taken : trunc(stringLo) + 1 (if it is not exact integer)
-                boolean roundUp = subset.equals(numericSubset.getLowerLimit().toString()) && ((double) Double.parseDouble(subset) != (long) Double.parseDouble(subset));
-                long hiBound = dom.isPositiveForwards() ? (long) Double.parseDouble(subset) + (roundUp ? 1 : 0) : indexMax;
-                long loBound = dom.isPositiveForwards() ? indexMin : (long) Double.parseDouble(subset) + (roundUp ? 1 : 0);
-                subsetGridIndexes[count] = domMin.longValue() + (hiBound - loBound);
-                count += 1;
-            }
-            // if offset is negative, the limits are inverted
-            if (subsetGridIndexes[0] > subsetGridIndexes[1]) {
-                return new ParsedSubset<Long>(subsetGridIndexes[1], subsetGridIndexes[0]);
-            }
-            return new ParsedSubset<Long>(subsetGridIndexes[0], subsetGridIndexes[1]);
-        }
+        //use real cell width when more that 1 pixel exists on this dimension
 
-        BigDecimal cellWidth = (domMax.subtract(domMin))
-                .divide((BigDecimal.valueOf(pxMax + 1)).subtract(BigDecimal.valueOf(pxMin)), RoundingMode.UP);
+        BigDecimal cellWidth = null;
+        if(domMax.compareTo(domMin) == 0){
+            cellWidth = coverage.getCoverageMetadata().getDomainDirectionalResolution(axisName);
+        }
+        else {
+            cellWidth = (domMax.subtract(domMin))
+                    .divide((BigDecimal.valueOf(pxMax + 1)).subtract(BigDecimal.valueOf(pxMin)), RoundingMode.UP);
+        }
 
         // Open interval on the right: take away epsilon from upper bound:
 
