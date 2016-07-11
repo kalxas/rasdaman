@@ -100,7 +100,7 @@ public class WcpsCoverageMetadataService {
                     if (subset.getCrs() != null && !subset.getCrs().equals(axis.getCrsUri())) {
                         axis.setCrsUri(subset.getCrs());
                     }
-                    if (axis.getCrsUri().contains(CrsUtil.INDEX_CRS_PREFIX) || axis.getCrsUri().equals(CrsUtil.GRID_CRS)) {
+                    if (axis.getCrsUri().equals(CrsUtil.GRID_CRS)) {
                         // it will need to calculate from grid bound to geo bound (e.g: Lat:"http://.../Index2D"(0:50) -> Lat(0:20))
                         calculateGridBound = false;
                     }
@@ -412,7 +412,7 @@ public class WcpsCoverageMetadataService {
         // check if parsed subset is valid
         if (checkBoundary) {
             // NOTE: if crs is not Index%d then need to check boundary with the geo else check with grid (e.g: Lat:"http://.../Index2D"(0:20))
-            if (!axis.getCrsUri().contains(CrsUtil.INDEX_CRS_PREFIX) && !axis.getCrsUri().equals(CrsUtil.GRID_CRS)) {
+            if (!axis.getCrsUri().equals(CrsUtil.GRID_CRS)) {
                 validParsedSubsetGeoBounds(geoParsedSubset, axis);
             } else {
                 validParsedSubsetGridBounds(geoParsedSubset, axis);

@@ -1,6 +1,6 @@
-for c in (mr) return encode(switch 
-	case c > 1000 
-		return {red: 107; green:17; blue:68} 
-	default 
+for c in (mr) return encode(switch
+	case c > 1000
+		return {red: 107; green:17; blue:68}
+	default
 		return {red: 150; green:103; blue:14}
 , "png")

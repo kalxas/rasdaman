@@ -337,12 +337,6 @@ public abstract class AbstractFormatExtension implements FormatExtension {
         try {
             pair = constructWcpsQuery(request, meta, covmeta, format, params);
             String wcpsQuery = pair.fst;
-            // NOTE: wcpsQuery generated from XML (e.g: in case of WCS still use "CRS:1" which is error in WCPS 1.5)
-            // need to remove it later correctly (e.g: i:"CRS:1")
-            // now, just use the pair.snd (axes)
-            String[] axes = pair.snd.split(" ");
-            String indexCrs = CrsUtil.OPENGIS_INDEX_ND_PATTERN.replace("%d", String.valueOf(axes.length));
-            wcpsQuery = wcpsQuery.replace(CrsUtil.GRID_CRS, indexCrs);
 
             VisitorResult wcpsResult = wcpsTranslator.translate(wcpsQuery);
             // NOTE: result should be Rasql Query which is generated from WCPS 1.5

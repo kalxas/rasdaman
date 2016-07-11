@@ -79,7 +79,7 @@ public class CoordinateTranslationService {
                 returnUpperLimit = returnLowerLimit;
             }
             // NOTE: the if a slice equals the upper bound of a coverage, out[0]=pxHi+1 but still it is a valid subset.
-            if (numericSubset.getLowerLimit().equals(numericSubset.getUpperLimit()) && numericSubset.getUpperLimit().equals(geoDomainMax)) {
+            if ((geoDomainMax.compareTo(geoDomainMin) != 0) && numericSubset.getLowerLimit().equals(numericSubset.getUpperLimit()) && numericSubset.getUpperLimit().equals(geoDomainMax)) {
                 returnLowerLimit = returnLowerLimit.subtract(BigDecimal.ONE);
                 returnUpperLimit = returnLowerLimit;
             }

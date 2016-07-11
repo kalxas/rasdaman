@@ -1,7 +1,7 @@
 for c in (irr_cube_1) return encode (
-	scale( 
-		slice( c[k(0:5)], 
-		{k:"http://localhost:8080/def/crs/OGC/0/Index3D"(4)}),
-		{ i:"http://localhost:8080/def/crs/OGC/0/Index3D"(0:1), 
-		j:"http://localhost:8080/def/crs/OGC/0/Index3D"(0:2) } )
+	scale(
+		slice( c[k(0:5)],
+		{k:"CRS:1"(4)}),
+		{ i:"CRS:1"(0:1),
+		j:"CRS:1"(0:2) } )
 , "csv")

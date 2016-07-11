@@ -1,1 +1,1 @@
-for c in (mr) return encode( c[i:"http://localhost:8080/def/crs/OGC/0/Index2D"(0:30), j:"http://localhost:8080/def/crs/OGC/0/Index2D"(25:40) ] , "csv")
+for c in (mr) return encode( c[i:"CRS:1"(0:30), j:"CRS:1"(25:40) ] , "csv")

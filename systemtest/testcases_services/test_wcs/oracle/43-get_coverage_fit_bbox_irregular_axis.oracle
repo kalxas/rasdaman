@@ -62,7 +62,7 @@
   <rangeSet>
     <DataBlock>
       <rangeParameters/>
-      <tupleList ts="," cs=" ">503,803,504,804,505,805,513,813,514,814,515,815,523,823,524,824,525,825</tupleList>
+      <tupleList ts="," cs=" ">503,504,513,514</tupleList>
     </DataBlock>
   </rangeSet>
 

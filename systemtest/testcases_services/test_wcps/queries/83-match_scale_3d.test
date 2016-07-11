@@ -1,7 +1,7 @@
 for c in ( mr ), d in (eobstest)
-return avg(scale( c[i(120:150),j(120:150)], { 
-		imageCrsDomain(d[t(0),Long:"localhost:8080/def/crs/OGC/0/Index3D/"(10:20),
-		Lat:"localhost:8080/def/crs/OGC/0/Index3D/"(10:20)]) 
-		} 
+return avg(scale( c[i(120:150),j(120:150)], {
+		imageCrsDomain(d[t(0),Long:"CRS:1"(10:20),
+		Lat:"CRS:1"(10:20)])
+		}
 	  )
 	)

@@ -1,2 +1,1 @@
 for c in ( eobstest ) return encode( c[ Long:"http://localhost:8080/def/crs/OGC/0/Index2D"(226:138) ], "csv")
-
