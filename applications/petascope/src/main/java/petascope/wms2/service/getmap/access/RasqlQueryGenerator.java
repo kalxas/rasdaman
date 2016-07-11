@@ -56,8 +56,8 @@ public class RasqlQueryGenerator {
     public String generateQuery() throws WMSInvalidDimensionValue, WMSInvalidBbox {
         String query = QUERY_TEMPLATE;
         query = query.replace("$Select", generateEncodeClause(generateSelectClause()))
-            .replace("$From", generateFromClause())
-            .replace("$Where", generateWhereClause());
+                     .replace("$From", generateFromClause())
+                     .replace("$Where", generateWhereClause());
         logger.info("Executing rasql query: {}", query);
         return query;
     }
@@ -70,9 +70,12 @@ public class RasqlQueryGenerator {
      */
     private String generateEncodeClause(@NotNull String selectClause) {
         String encode = ENCODE_CLAUSE;
-        encode = encode.replace("$Select", selectClause).replace("$Format", mergedLayer.getFormat().getRasdamanFormat());
+        encode = encode.replace("$Select", selectClause)
+                       .replace("$Format", mergedLayer.getFormat().getRasdamanFormat());
+        // BBox (e.g: xmin=25;ymin=-40;xmax=75;ymax=75;crs=EPSG:4326;)
+        encode = encode.replace("$BBox", mergedLayer.getOutputBBoxStr());
         if(mergedLayer.isTransparent()) {
-            encode = encode.replace("$nodata", ", \"nodata=0\"");
+            encode = encode.replace("$nodata", ", \"nodata=null\"");
         }
         else{
             encode = encode.replace("$nodata", "");
@@ -88,9 +91,8 @@ public class RasqlQueryGenerator {
     private String generateWhereClause() {
         List<String> oidWheres = new ArrayList<String>();
         for (RasdamanLayer layer : mergedLayer.getRasdamanLayers()) {
-            String oidWhere = OID_FILTER
-                .replace("$Col", layer.getCollectionName())
-                .replace("$Oid", layer.getOid().toString());
+            String oidWhere = OID_FILTER.replace("$Col", layer.getCollectionName())
+                                        .replace("$Oid", layer.getOid().toString());
             oidWheres.add(oidWhere);
         }
         return StringUtils.join(oidWheres, OID_FILTER_JOINER);
@@ -153,7 +155,8 @@ public class RasqlQueryGenerator {
      */
     private String generateSelectClause() throws WMSInvalidDimensionValue, WMSInvalidBbox {
         List<String> selects = new ArrayList<String>();
-        String subset = generateSubsetClause(mergedLayer.getRasdamanSubsets());
+        List<RasdamanSubset> subsets = mergedLayer.getRasdamanSubsets();
+        String subset = generateSubsetClause(subsets);
         int layerPosition = 0;
         for (RasdamanLayer layer : mergedLayer.getRasdamanLayers()) {
             String select = generateScaleClause(layer);
@@ -164,7 +167,11 @@ public class RasqlQueryGenerator {
             layerPosition += 1;
             selects.add(select);
         }
-        return StringUtils.join(selects, SELECT_JOINER);
+        String selectStr = StringUtils.join(selects, SELECT_JOINER);
+        if (mergedLayer.projection()) {
+            selectStr = PROJECTION + "(" + selectStr + "," + mergedLayer.getProjectionStr() + ")";
+        }
+        return selectStr;
     }
 
     /**
@@ -212,11 +219,12 @@ public class RasqlQueryGenerator {
     private final static String SELECT_JOINER = " OVERLAY ";
     private final static String EXTEND_CLAUSE = "EXTEND($Col, $Subsets)";
     private final static String SCALE_CLAUSE = "SCALE($Extend, [0:$1Axis, 0:$2Axis])";
-    private final static String ENCODE_CLAUSE = "ENCODE($Select, \"$Format\" $nodata)";
+    private final static String ENCODE_CLAUSE = "ENCODE($Select, \"$Format\", \"$BBox\" $nodata)";
     private final static String SUBSET_JOINER = ",";
     private final static String SUBSET_DIMENSION_INTERVAL_SPLIT = ":";
     private final static String SUBSET_START = "[";
     private final static String SUBSET_END = "]";
+    private final static String PROJECTION = "project";
     private final static String QUERY_TEMPLATE = "SELECT $Select FROM $From WHERE $Where";
     private static final Logger logger = LoggerFactory.getLogger(RasqlQueryGenerator.class);
     private static final String STYLE_SELECT_TOKEN = "$Iterator";

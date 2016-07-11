@@ -1154,6 +1154,29 @@ public class CrsUtil {
         return EPSG_AUTH + ":" + CrsUri.getCode(crs);
     }
 
+    /**
+    * Check if a coverage with geo-referenced axes are XY or YX axis order
+    * e.g: EPSG:4326 (YX), EPSG:3857 (XY)
+     * @param axisLabels
+    * @param coverageMetadata
+    * @return
+    */
+   public static boolean isXYCoverage(List<String> axisLabels, CoverageMetadata coverageMetadata) {
+       boolean isXYOrder = true;
+       for (String axisLabel:axisLabels) {
+           DomainElement dom = coverageMetadata.getDomainByName(axisLabel);
+           if (dom.getType().equals(AxisTypes.X_AXIS)) {
+               isXYOrder = true;
+               break;
+           } else if (dom.getType().equals(AxisTypes.Y_AXIS)) {
+               isXYOrder = false;
+               break;
+           }
+               
+       }
+       return isXYOrder;
+   }
+
 
     /**
      * Nested class to offer utilities for CRS *URI* handling.
@@ -1726,5 +1749,5 @@ public class CrsUtil {
             String result = ConfigManager.SECORE_URL_KEYWORD + "/" + CrsUtil.KEY_RESOLVER_CRS + "/" + authority + "/" + version + "/" + code;
             return result;
         }
-    }    
+    }
 }

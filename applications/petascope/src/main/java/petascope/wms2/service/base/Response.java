@@ -43,6 +43,7 @@ public abstract class Response {
      * but just return the intended result.
      *
      * @return a byte array representing the response
+     * @throws petascope.wms2.service.exception.error.WMSException
      */
     public abstract byte[] toBytes() throws WMSException;
 

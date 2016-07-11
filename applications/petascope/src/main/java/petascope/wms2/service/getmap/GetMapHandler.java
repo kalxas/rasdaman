@@ -82,7 +82,8 @@ public class GetMapHandler implements Handler<GetMapRequest, GetMapResponse> {
         int width = request.getWidth();
         int height = request.getHeight();
         GetMapFormat format = getOrThrow(request.getFormat(), "format");
-        return new MergedLayer(layers, bbox, request.getOriginalBbox(), rasdamanLayers, dimensions, styles, width, height, format, transparent);
+        Crs crs = getOrThrow(request.getCrs(), "crs");
+        return new MergedLayer(crs, layers, bbox, request.getOriginalBbox(), rasdamanLayers, dimensions, styles, width, height, format, transparent);
     }
 
     /**

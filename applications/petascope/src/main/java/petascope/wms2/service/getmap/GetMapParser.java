@@ -69,12 +69,25 @@ public class GetMapParser extends Parser<GetMapRequest> {
      *
      * @param rawRequest the raw wms http request
      * @return the typed request
+     * @throws petascope.wms2.service.exception.error.WMSInternalException
+     * @throws petascope.wms2.service.exception.error.WMSInvalidLayerException
+     * @throws petascope.wms2.service.exception.error.WMSInvalidStyleException
+     * @throws petascope.wms2.service.exception.error.WMSInvalidBbox
+     * @throws petascope.wms2.service.exception.error.WMSInvalidWidth
+     * @throws petascope.wms2.service.exception.error.WMSInvalidHeight
+     * @throws petascope.wms2.service.exception.error.WMSInvalidCrsException
+     * @throws petascope.wms2.service.exception.error.WMSInvalidDimensionValue
+     * @throws petascope.wms2.service.exception.error.WMSInvalidFormatException
      */
     @Override
-    public GetMapRequest parse(WMSGetRequest rawRequest) throws WMSInternalException, WMSInvalidLayerException, WMSInvalidStyleException, WMSInvalidBbox, WMSInvalidWidth, WMSInvalidHeight, WMSInvalidCrsException, WMSInvalidDimensionValue, WMSInvalidFormatException {
+    public GetMapRequest parse(WMSGetRequest rawRequest) throws WMSInternalException, WMSInvalidLayerException,
+                                                                WMSInvalidStyleException, WMSInvalidBbox,
+                                                                WMSInvalidWidth, WMSInvalidHeight,
+                                                                WMSInvalidCrsException, WMSInvalidDimensionValue,
+                                                                WMSInvalidFormatException {
         try {
             GetMapRequestBuilder builder = new GetMapRequestBuilder();
-            Crs crs = getCrs(rawRequest.getGetValueByKey(GetMapRequest.getCrsParamName()));
+            Crs crs = new Crs(rawRequest.getGetValueByKey(GetMapRequest.getCrsParamName()));
             GetMapRequest request = builder
                 .setLayers(getLayers(rawRequest.getGetValueByKey(GetMapRequest.getLayerParamName())))
                 .setStyles(getStyles(rawRequest.getGetValueByKey(GetMapRequest.getStyleParamName())))
@@ -130,8 +143,9 @@ public class GetMapParser extends Parser<GetMapRequest> {
             for (String key : allParams.keySet()) {
                 if (key.startsWith(GetMapRequest.getDimensionParamName())) {
                     String dimensionName = key.replaceFirst(GetMapRequest.getDimensionParamName(), "");
-                    List<Dimension> dims = persistentMetadataObjectProvider.getDimension().queryForEq(Dimension.NAME_COLUMN_NAME, dimensionName);
-                    if (dims.size() == 0) {
+                    List<Dimension> dims = persistentMetadataObjectProvider.getDimension()
+                                                                           .queryForEq(Dimension.NAME_COLUMN_NAME, dimensionName);
+                    if (dims.isEmpty()) {
                         throw new WMSInvalidDimensionValue(dimensionName);
                     }
                     String dimVal = allParams.get(key);
@@ -208,7 +222,7 @@ public class GetMapParser extends Parser<GetMapRequest> {
             throw new WMSInvalidCrsException("");
         }
         List<Crs> metaCrses = persistentMetadataObjectProvider.getCrs().queryForEq(Crs.CRS_COLUMN_NAME, crs);
-        if (metaCrses.size() == 0) {
+        if (metaCrses.isEmpty()) {
             throw new WMSInvalidCrsException(crs);
         }
         return metaCrses.get(0);
@@ -232,7 +246,7 @@ public class GetMapParser extends Parser<GetMapRequest> {
         List<Layer> layers = new ArrayList<Layer>(layerStrings.length);
         for (String layerName : layerStrings) {
             List<Layer> currentLayer = persistentMetadataObjectProvider.getLayer().queryForEq(Layer.NAME_COLUMN_NAME, layerName);
-            if (currentLayer.size() == 0) {
+            if (currentLayer.isEmpty()) {
                 throw new WMSInvalidLayerException(layerName);
             }
             layers.add(currentLayer.get(0));

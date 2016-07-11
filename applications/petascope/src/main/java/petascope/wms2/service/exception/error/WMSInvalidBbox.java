@@ -38,6 +38,16 @@ public class WMSInvalidBbox extends WMSException {
     public WMSInvalidBbox(@NotNull String bbox) {
         super(ERROR_MESSAGE.replace("$bbox", bbox));
     }
+    
+    /**
+     * Constructor for the class with the detail error
+     * @param bbox
+     * @param detailError 
+     */
+    public WMSInvalidBbox(@NotNull String bbox, @NotNull String detailError) {
+        super(ERROR_MESSAGE_DETAIL.replace("$bbox", bbox)
+                                  .replace("$detailError", detailError));
+    }
 
     @NotNull
     @Override
@@ -47,4 +57,5 @@ public class WMSInvalidBbox extends WMSException {
 
     private final static String EXCEPTION_CODE = "InvalidBoundingBox";
     private final static String ERROR_MESSAGE = "The requested bounding box $bbox is invalid";
+    private final static String ERROR_MESSAGE_DETAIL = "The requested bounding box $bbox is invalid due to: $detailError";
 }

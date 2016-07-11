@@ -92,6 +92,9 @@ public class BoundingBox implements ISerializableMetadataObject, IPersistentMeta
 
     public BoundingBox(BoundingBox boundingBox){
         this.crs = boundingBox.getCrs();
+        // NOTE: WMS 1.3 use the axis order of CRS to set bounding box (not set by default XY-order as in WMS 1.1.1)
+        // e.g: <BoundingBox CRS="EPSG:4326" minx="-90" miny="-180" maxx="90" maxy="180"> (Lat, Long: YX-order)
+        //      <BoundingBox CRS="CRS:84" minx="-180" miny="-90" maxx="180" maxy="90"> (Long, Lat: XY-order)
         this.minx = boundingBox.minx;
         this.miny = boundingBox.miny;
         this.maxx = boundingBox.maxx;

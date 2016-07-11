@@ -47,6 +47,21 @@ SCRIPT_DIR="$( cd -P "$( dirname "$SOURCE" )" && pwd )"
 # get the test datas and recipes from folder
 TEST_DATA="$SCRIPT_DIR/test_data"
 
+# the coverageIDs need to import but will not delete
+COVERAGE_ID_LIST=("test_time3d" "test_wms_4326" "test_wms_3857")
+
+# Check if coverage ID should be deleted or keep for other test cases
+keepCoverageID() {
+    for COV_ID in "${COVERAGE_ID_LIST[@]}"
+    do
+        if [[ "$COV_ID" == "$1" ]]; then
+            return 0
+        fi
+    done
+
+    return 1
+}
+
 PETASCOPE_URL=$PETASCOPE_URL/'ows'
 # 1. Iterate folders in test data
 for TEST_CASE in $TEST_DATA/*; do
@@ -116,7 +131,11 @@ for TEST_CASE in $TEST_DATA/*; do
             fi
 
             # Keep test_time3d for using later on with WCPS query
-            if [[ $COVERAGE_ID != "test_time3d" ]]; then
+            #      wms_4326 and wms_3857 for wms test
+            keepCoverageID $COVERAGE_ID
+            IS_REMOVE=$?
+
+            if [[ $IS_REMOVE == 1 ]]; then
                 # 2.7 it is good when coverage does exist then now delete coverage
                 DELETE_COVERAGE_URL="$PETASCOPE_URL?service=WCS&request=DeleteCoverage&version=2.0.1&coverageId=$COVERAGE_ID"
                 RETURN=$(wget --spider -S "$DELETE_COVERAGE_URL" 2>&1 | grep "HTTP/" | awk '{print $2}')
@@ -130,6 +149,7 @@ for TEST_CASE in $TEST_DATA/*; do
                 fi
             else
                 log "+ Pass 3: Keep Coverage ID: $COVERAGE_ID for other test."
+                NUM_SUC=$(($NUM_SUC + 1))
             fi
         fi
     fi

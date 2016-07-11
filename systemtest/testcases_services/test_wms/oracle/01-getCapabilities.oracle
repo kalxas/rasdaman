@@ -1,0 +1,131 @@
+<?xml version='1.0' encoding="UTF-8"?>
+<WMS_Capabilities xmlns="http://www.opengis.net/wms"   version="1.3.0" updateSequence="3" >
+    <Service>
+    <Name>WMS</Name>
+    <Title>rasdaman</Title>
+    <Abstract>rasdaman server - free download from www.rasdaman.org</Abstract>
+    <KeywordList>
+        <Keyword></Keyword>
+
+    </KeywordList>
+    <ContactInformation>
+    <ContactPersonPrimary>
+        <ContactPerson>Prof. Dr. Peter Baumann</ContactPerson>
+        <ContactOrganization>Jacobs University Bremen</ContactOrganization>
+    </ContactPersonPrimary>
+    <ContactPosition>Project Leader</ContactPosition>
+    <ContactAddress>
+        <AddressType>postal</AddressType>
+        <Address>Campus Ring 1</Address>
+        <City>Bremen</City>
+        <StateOrProvince>Bremen</StateOrProvince>
+        <PostCode>28759</PostCode>
+        <Country>Germany</Country>
+    </ContactAddress>
+    <ContactVoiceTelephone>+49 421 20040</ContactVoiceTelephone>
+    <ContactFacsimileTelephone>none</ContactFacsimileTelephone>
+    <ContactElectronicMailAddress>p.baumann@jacobs-university.de</ContactElectronicMailAddress>
+</ContactInformation>
+    <Fees></Fees>
+    <AccessConstraints></AccessConstraints>
+</Service>
+    <Capability>
+        <Request>
+            <GetCapabilities>
+                <Format>text/xml</Format>
+
+                <DCPType>
+                    <HTTP>
+                        <Get>
+                        </Get>
+                    </HTTP>
+                </DCPType>
+            </GetCapabilities>
+            <GetMap>
+                <Format>image/png</Format>
+<Format>image/jpeg</Format>
+<Format>image/tiff</Format>
+
+                <DCPType>
+                    <HTTP>
+                        <Get>
+                        </Get>
+                    </HTTP>
+                </DCPType>
+            </GetMap>
+        </Request>
+        <Exception>
+            <Format>application/vnd.ogc.se_inimage</Format>
+<Format>application/vnd.ogc.se_xml</Format>
+<Format>application/vnd.ogc.se_blank</Format>
+
+        </Exception>
+        <Layer queryable="0" cascaded="0" opaque="1" noSubsets="0" fixedWidth="0" fixedHeight="0">
+    <Title>waxlake</Title>
+    <Name>waxlake</Name>
+    <Abstract></Abstract>
+    <CRS>EPSG:32615</CRS>
+
+    <EX_GeographicBoundingBox>
+    <westBoundLongitude>-91.77737627407</westBoundLongitude>
+    <eastBoundLongitude>-91.02464902802697</eastBoundLongitude>
+    <southBoundLatitude>29.176825019238287</southBoundLatitude>
+    <northBoundLatitude>29.817457282136846</northBoundLatitude>
+</EX_GeographicBoundingBox>
+    <BoundingBox CRS="EPSG:32615" minx="618885.0" miny="3228195.0" maxx="690885.0" maxy="3300195.0"/>
+
+    <Style>
+    <Name>waxlake</Name>
+    <Title>Default Raster Style</Title>
+    <Abstract>A default style that returns the layer exactly as it is stored</Abstract>
+</Style>
+
+    
+</Layer>
+<Layer queryable="0" cascaded="0" opaque="1" noSubsets="0" fixedWidth="0" fixedHeight="0">
+    <Title>test_wms_3857</Title>
+    <Name>test_wms_3857</Name>
+    <Abstract></Abstract>
+    <CRS>EPSG:3857</CRS>
+
+    <EX_GeographicBoundingBox>
+    <westBoundLongitude>111.97499999931001</westBoundLongitude>
+    <eastBoundLongitude>156.17211197799045</eastBoundLongitude>
+    <southBoundLatitude>-44.50036058931068</southBoundLatitude>
+    <northBoundLatitude>-8.975000000022966</northBoundLatitude>
+</EX_GeographicBoundingBox>
+    <BoundingBox CRS="EPSG:3857" minx="1.24649999815E7" miny="-5543203.48247" maxx="1.73849999815E7" maxy="-1003203.48247"/>
+
+    <Style>
+    <Name>test_wms_3857</Name>
+    <Title>Default Raster Style</Title>
+    <Abstract>A default style that returns the layer exactly as it is stored</Abstract>
+</Style>
+
+    
+</Layer>
+<Layer queryable="0" cascaded="0" opaque="1" noSubsets="0" fixedWidth="0" fixedHeight="0">
+    <Title>test_wms_4326</Title>
+    <Name>test_wms_4326</Name>
+    <Abstract></Abstract>
+    <CRS>EPSG:4326</CRS>
+
+    <EX_GeographicBoundingBox>
+    <westBoundLongitude>111.975</westBoundLongitude>
+    <eastBoundLongitude>156.375</eastBoundLongitude>
+    <southBoundLatitude>-44.575</southBoundLatitude>
+    <northBoundLatitude>-8.975</northBoundLatitude>
+</EX_GeographicBoundingBox>
+    <BoundingBox CRS="EPSG:4326" minx="-44.575" miny="111.975" maxx="-8.975" maxy="156.375"/>
+
+    <Style>
+    <Name>test_wms_4326</Name>
+    <Title>Default Raster Style</Title>
+    <Abstract>A default style that returns the layer exactly as it is stored</Abstract>
+</Style>
+
+    
+</Layer>
+
+    </Capability>
+</WMS_Capabilities>

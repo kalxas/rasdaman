@@ -26,6 +26,7 @@ import java.util.ArrayList;
 import java.util.List;
 import org.geotools.geometry.jts.JTS;
 import org.geotools.referencing.CRS;
+import org.geotools.referencing.CRS.AxisOrder;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import org.opengis.referencing.operation.MathTransform;
 import org.opengis.referencing.operation.TransformException;
@@ -33,7 +34,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import petascope.exceptions.ExceptionCode;
 import petascope.exceptions.WCSException;
-import static petascope.util.CrsUtil.getEPSGCode;
 
 /**
  * This class will provide utility method for projecting interval in geo-referenced axis
@@ -44,7 +44,7 @@ public class CrsProjectionUtil {
     private static final Logger log = LoggerFactory.getLogger(CrsUtil.class);
 
     /**
-     * Transform a bounding box (e.g: xmin,xmax,ymin,ymax) from sourceCrs to targetCrs
+     * Transform a bounding box (e.g: xmin,ymin,xmax,ymax) from sourceCrs to targetCrs
      * @param sourceCrs
      * @param targetCrs
      * @param srcCoords
@@ -78,9 +78,17 @@ public class CrsProjectionUtil {
 
         try {
             double[] trasfCoords = new double[srcCoords.length];
-
-            CoordinateReferenceSystem sCrsID = CRS.decode(getEPSGCode(sourceCrs));
-            CoordinateReferenceSystem tCrsID = CRS.decode(getEPSGCode(targetCrs));
+            String sourceCrsEPSGCode = sourceCrs;
+            String targetCrsEPSGCode = targetCrs;
+            // NOTE: sourceCrs and targetCrs can be CRS Uri (e.g: http://.../4326) or already EPSG:4326
+            if (!sourceCrsEPSGCode.contains(CrsUtil.EPSG_AUTH + ":")) {
+                sourceCrsEPSGCode = CrsUtil.getEPSGCode(sourceCrsEPSGCode);
+            }
+            if (!targetCrsEPSGCode.contains(CrsUtil.EPSG_AUTH + ":")) {
+                targetCrsEPSGCode = CrsUtil.getEPSGCode(targetCrsEPSGCode);
+            }
+            CoordinateReferenceSystem sCrsID = CRS.decode(sourceCrsEPSGCode);
+            CoordinateReferenceSystem tCrsID = CRS.decode(targetCrsEPSGCode);
             MathTransform transform = CRS.findMathTransform(sCrsID, tCrsID);
 
             // Transform
