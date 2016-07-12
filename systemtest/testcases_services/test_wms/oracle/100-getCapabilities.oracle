@@ -123,6 +123,11 @@
     <Title>Default Raster Style</Title>
     <Abstract>A default style that returns the layer exactly as it is stored</Abstract>
 </Style>
+<Style>
+    <Name>FireMarkup</Name>
+    <Title>FireMarkup</Title>
+    <Abstract>This style marks the areas where fires are in progress with the color red</Abstract>
+</Style>
 
     
 </Layer>

@@ -27,7 +27,9 @@ import java.math.BigInteger;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
@@ -417,5 +419,17 @@ public class StringUtil {
         }
 
         return outList;
+    }
+    
+    /**
+     * Clean all the empty, null elements in string array
+     * @param v
+     * @return 
+     */
+    public static String[] clean(final String[] v) {
+        List<String> list = new ArrayList<String>(Arrays.asList(v));
+        list.removeAll(Collections.singleton(null));
+        list.removeAll(Collections.singleton(""));
+        return list.toArray(new String[list.size()]);
     }
 }
