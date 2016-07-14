@@ -95,7 +95,8 @@ class Mediator:
     def _get_range_set(self):
         dp = self.data_provider
         if isinstance(dp, FileDataProvider):
-            return RangeSetFile(dp.get_file_url(), dp.get_mimetype(), json.dumps(dp.get_structure()))
+            file_structure = json.dumps(dp.get_structure()) if dp.get_structure() is not None else ""
+            return RangeSetFile(dp.get_file_url(), dp.get_mimetype(), file_structure)
         if isinstance(dp, UrlDataProvider):
             return RangeSetFile(dp.get_url(), dp.get_mimetype())
         elif isinstance(dp, TupleListDataProvider):

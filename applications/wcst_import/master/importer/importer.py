@@ -116,7 +116,8 @@ class Importer:
         :rtype: list[Slice]
         """
         slices = []
-        max = ConfigManager.description_max_no_slices if ConfigManager.description_max_no_slices < len(self.coverage.slices) else len(self.coverage.slices)
+        max = ConfigManager.description_max_no_slices if ConfigManager.description_max_no_slices < len(
+            self.coverage.slices) else len(self.coverage.slices)
         for i in range(0, max):
             slices.append(self.coverage.slices[i])
         return slices
@@ -141,9 +142,12 @@ class Importer:
         """
         file = self._generate_initial_gml_slice()
         request = WCSTInsertRequest(file.get_url(), False, self.coverage.pixel_data_type,
-            self.coverage.tiling, ConfigManager.insitu)
+                                    self.coverage.tiling)
         executor = ConfigManager.executor
+        current_insitu_value = executor.insitu
+        executor.insitu = None
         executor.execute(request)
+        executor.insitu = current_insitu_value
         file.release()
 
     def _get_update_subsets_for_slice(self, slice):
@@ -156,7 +160,7 @@ class Importer:
         for axis_subset in slice.axis_subsets:
             low = axis_subset.interval.low
             high = axis_subset.interval.high
-            if ConfigManager.subset_correction and high is not None and low != high:
+            if ConfigManager.subset_correction and high is not None and low != high and type(low) != str:
                 low += float(axis_subset.coverage_axis.grid_axis.resolution) / 2
                 if high is not None:
                     high -= float(axis_subset.coverage_axis.grid_axis.resolution) / 2
@@ -169,21 +173,30 @@ class Importer:
         :param slice: the slice for which the gml should be created
         :rtype: File
         """
-        metadata_provider = MetadataProvider(self.coverage.coverage_id, self.coverage.get_update_axes(),
+        metadata_provider = MetadataProvider(self.coverage.coverage_id, self._get_update_axes(slice),
                                              self.coverage.range_fields, self.coverage.crs, None)
         data_provider = slice.data_provider
         file = Mediator(metadata_provider, data_provider).get_gml_file()
         return file
+
+    def _get_update_axes(self, slice):
+        """
+        Returns the axes for the slices that are bound to the data (e.g. Lat and Long for a 2-D raster)
+        :param slice: the slice for which the gml should be created
+        :rtype: dict[Axis, GridAxis]
+        """
+        axes = OrderedDict()
+        for axis_subset in slice.axis_subsets:
+            if axis_subset.coverage_axis.data_bound:
+                axes[axis_subset.coverage_axis.axis] = axis_subset.coverage_axis.grid_axis
+        return axes
 
     def _generate_initial_gml_slice(self):
         """
         Returns the initial slice in gml format
         :rtype: File
         """
-        if ConfigManager.insitu:
-            return self._generate_initial_gml_inistu()
-        else:
-            return self._generate_initial_gml_db()
+        return self._generate_initial_gml_db()
 
     def _generate_initial_gml_db(self):
         """
