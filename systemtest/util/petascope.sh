@@ -278,8 +278,8 @@ function import_rgb()
   c_covtype='RectifiedGridCoverage'
 
   c_crs="$SECORE_URL"'/crs/OGC/0/Index2D'
-  grid_origin_x=0
-  grid_origin_y=343
+  grid_origin_x='0.5'
+  grid_origin_y='343.5'
   x_res='1'
   y_res='-1'
 
@@ -375,8 +375,8 @@ function import_mr()
   c_covtype='RectifiedGridCoverage'
 
   c_crs="$SECORE_URL"'/crs/OGC/0/Index2D'
-  grid_origin_x=0
-  grid_origin_y=210
+  grid_origin_x='0.5'
+  grid_origin_y='210.5'
   x_res='1'
   y_res='-1'
 
@@ -481,8 +481,8 @@ function import_irr_cube_1()
   c_covtype='ReferenceableGridCoverage' # See GMLCOV
 
   c_crs="$SECORE_URL"'/crs/OGC/0/Index3D'
-  grid_origin_x=0
-  grid_origin_y=0
+  grid_origin_x='0.5'
+  grid_origin_y='0.5'
   grid_origin_t=0
   x_res='1'
   y_res='1'

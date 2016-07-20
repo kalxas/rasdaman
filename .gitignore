@@ -177,7 +177,7 @@ config.guess
 config.sub
 
 # testing
-core
+#core
 systemtest/testcases_manual/test_crash_rasserver/queries_metrics
 systemtest/testcases_manual/test_crash_rasserver/bugs
 test_tilecache

@@ -75,55 +75,55 @@ import petascope.wcps2.metadata.model.ParsedSubset;
 
 public class UpdateCoverageHandler extends AbstractRequestHandler<UpdateCoverageRequest> {
 
-private static final org.slf4j.Logger log = LoggerFactory.getLogger(UpdateCoverageHandler.class);
+    private static final org.slf4j.Logger log = LoggerFactory.getLogger(UpdateCoverageHandler.class);
 
-private final RasdamanUpdaterFactory rasdamanUpdaterFactory;
-private final RangeParametersConvertorFactory parametersConvertorFactory;
-private final SubsetValidator subsetValidator;
+    private final RasdamanUpdaterFactory rasdamanUpdaterFactory;
+    private final RangeParametersConvertorFactory parametersConvertorFactory;
+    private final SubsetValidator subsetValidator;
 
-public UpdateCoverageHandler(DbMetadataSource meta) {
-super(meta);
-rasdamanUpdaterFactory = new RasdamanUpdaterFactory();
-parametersConvertorFactory = new RangeParametersConvertorFactory();
-subsetValidator = new SubsetValidator();
-}
+    public UpdateCoverageHandler(DbMetadataSource meta) {
+        super(meta);
+        rasdamanUpdaterFactory = new RasdamanUpdaterFactory();
+        parametersConvertorFactory = new RangeParametersConvertorFactory();
+        subsetValidator = new SubsetValidator();
+    }
 
-/**
-* Handles the update of an existing WCS coverage.
-*
-* @param request the update coverage request.
-* @return empty response.
-* @throws petascope.exceptions.wcst.WCSTCoverageNotFound
-* @throws petascope.exceptions.wcst.WCSTInvalidXML
-* @throws PetascopeException
-* @throws WCSException
-* @throws SecoreException
-*/
-@Override
-public Response handle(UpdateCoverageRequest request)
-    throws WCSTCoverageNotFound, WCSTInvalidXML, PetascopeException, SecoreException {
-log.info("Handling coverage update...");
-CoverageMetadata currentCoverage = this.meta.read(request.getCoverageId());
-String affectedCollectionName = getCurrentCollectionName(currentCoverage);
-String affectedCollectionOid = getCurrentCollectionOid(currentCoverage);
+    /**
+     * Handles the update of an existing WCS coverage.
+     *
+     * @param request the update coverage request.
+     * @return empty response.
+     * @throws petascope.exceptions.wcst.WCSTCoverageNotFound
+     * @throws petascope.exceptions.wcst.WCSTInvalidXML
+     * @throws PetascopeException
+     * @throws WCSException
+     * @throws SecoreException
+     */
+    @Override
+    public Response handle(UpdateCoverageRequest request)
+            throws WCSTCoverageNotFound, WCSTInvalidXML, PetascopeException, SecoreException {
+        log.info("Handling coverage update...");
+        CoverageMetadata currentCoverage = this.meta.read(request.getCoverageId());
+        String affectedCollectionName = getCurrentCollectionName(currentCoverage);
+        String affectedCollectionOid = getCurrentCollectionOid(currentCoverage);
 
-CoverageMetadata inputCoverage;
-String gmlInputCoverage = getGmlCoverageFromRequest(request);
+        CoverageMetadata inputCoverage;
+        String gmlInputCoverage = getGmlCoverageFromRequest(request);
 
-try {
-    Document xmlInputCoverage = XMLUtil.buildDocument(null, gmlInputCoverage);
-    inputCoverage = CoverageMetadata.fromGML(xmlInputCoverage);
-    //validation
-    UpdateCoverageValidator validator = new UpdateCoverageValidator(currentCoverage, inputCoverage,
-	    request.getSubsets(), request.getRangeComponent());
-    validator.validate();
+        try {
+            Document xmlInputCoverage = XMLUtil.buildDocument(null, gmlInputCoverage);
+            inputCoverage = CoverageMetadata.fromGML(xmlInputCoverage);
+            //validation
+            UpdateCoverageValidator validator = new UpdateCoverageValidator(currentCoverage, inputCoverage,
+                    request.getSubsets(), request.getRangeComponent());
+            validator.validate();
 
-    //handle subset coefficients if necessary
-    //the transaction is not commited unless everything goes well.
-    handleSubsetCoefficients(currentCoverage, request.getSubsets());
+            //handle subset coefficients if necessary
+            //the transaction is not commited unless everything goes well.
+            handleSubsetCoefficients(currentCoverage, request.getSubsets());
 
-    //handle cell values
-    Element rangeSet = GMLParserUtil.parseRangeSet(xmlInputCoverage.getRootElement());
+            //handle cell values
+            Element rangeSet = GMLParserUtil.parseRangeSet(xmlInputCoverage.getRootElement());
 
             Map<Integer, String> pixelIndices = getPixelIndicesByCoordinate(currentCoverage, request.getSubsets());
             String affectedDomain = getAffectedDomain(currentCoverage, request.getSubsets(), pixelIndices);
@@ -195,8 +195,7 @@ try {
             Logger.getLogger(UpdateCoverageHandler.class.getName()).log(Level.SEVERE, null, e);
             abortTransaction();
             throw new PetascopeException(ExceptionCode.InternalSqlError);
-        }
-        catch (PetascopeException e){
+        } catch (PetascopeException e) {
             abortTransaction();
             throw e;
         }
@@ -247,11 +246,10 @@ try {
             currentCoverageMetadata.getCellDomain(currentDomain.getOrder()).setHi(String.valueOf(currentDomainHi));
             //increase the pixel domain
             if (subset.isNumeric()) {
-                if(subset instanceof DimensionSlice){
-                    currentDomain.setMaxValue(new BigDecimal(((DimensionSlice)subset).getSlicePoint()));
-                }
-                else {
-                    currentDomain.setMaxValue(new BigDecimal(((DimensionTrim)subset).getTrimHigh()));
+                if (subset instanceof DimensionSlice) {
+                    currentDomain.setMaxValue(new BigDecimal(((DimensionSlice) subset).getSlicePoint()));
+                } else {
+                    currentDomain.setMaxValue(new BigDecimal(((DimensionTrim) subset).getTrimHigh()));
                 }
             }
             //coefficient is corresponding to a new slice, added on top

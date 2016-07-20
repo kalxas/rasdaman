@@ -111,8 +111,8 @@ public class GetCoverageMetadata {
             gridAxisLabels += dom.getLabel() + " ";
             low  += cell.getLo() + " ";
             high += cell.getHi() + " ";
-            gisDomLow  += WcsUtil.fitToSampleSpace(dom.getMinValue(), dom, false) + " ";
-            gisDomHigh += WcsUtil.fitToSampleSpace(dom.getMaxValue(), dom, true) + " ";
+            gisDomLow  += WcsUtil.fitToSampleSpace(dom.getMinValue(), dom, false, coverageType) + " ";
+            gisDomHigh += WcsUtil.fitToSampleSpace(dom.getMaxValue(), dom, true, coverageType) + " ";
         }
 
         // Loop through CRS axes
@@ -120,8 +120,8 @@ public class GetCoverageMetadata {
         try {
             for (String axisLabel : CrsUtil.getAxesLabels(metadata.getCrsUris())) {
                 DomainElement dom = metadata.getDomainByName(axisLabel);
-                domLow  += WcsUtil.fitToSampleSpace(dom.getMinValue(), dom, false) + " ";
-                domHigh += WcsUtil.fitToSampleSpace(dom.getMaxValue(), dom, true) + " ";
+                domLow  += WcsUtil.fitToSampleSpace(dom.getMinValue(), dom, false, coverageType) + " ";
+                domHigh += WcsUtil.fitToSampleSpace(dom.getMaxValue(), dom, true, coverageType) + " ";
             }
         } catch (PetascopeException pEx) {
             throw (WCSException)pEx;
@@ -213,7 +213,7 @@ public class GetCoverageMetadata {
                     border = (positiveDirection) ?
                             BigDecimal.valueOf(Double.parseDouble(domLowComponentsIt.next())) :
                             BigDecimal.valueOf(Double.parseDouble(domHighComponentsIt.next()));
-                    sspaceShift = WcsUtil.getSampleSpaceShift(domEl.getDirectionalResolution(), domEl.isIrregular(), domEl.getUom());
+                    sspaceShift = WcsUtil.getSampleSpaceShift(domEl.getDirectionalResolution(), domEl.isIrregular(), domEl.getUom(), metadata.getCoverageType());
                     // Now apply the shift to the border values in domLow/domHigh
                     origin = border.subtract(sspaceShift);
                     if (origin.compareTo(BigDecimal.ZERO) == 0) {

@@ -32,6 +32,7 @@ public class Axis<T> {
     private final String label;
     private NumericSubset geoBounds;
     private NumericSubset gridBounds;
+    private BigDecimal origin;
     private final AxisDirection direction;
     private String crsUri;
     private final CrsDefinition crsDefinition;
@@ -43,7 +44,7 @@ public class Axis<T> {
 
     public Axis(String label, NumericSubset geoBounds, NumericSubset gridBounds,
                               AxisDirection direction, String crsUri, CrsDefinition crsDefinition,
-                              String axisType, String axisUoM, BigDecimal scalarResolution, int rasdamanOrder) {
+                              String axisType, String axisUoM, BigDecimal scalarResolution, int rasdamanOrder, BigDecimal origin) {
         this.label = label;
         this.geoBounds = geoBounds;
         this.gridBounds = gridBounds;
@@ -54,6 +55,7 @@ public class Axis<T> {
         this.axisUoM = axisUoM;
         this.scalarResolution = scalarResolution;
         this.rasdamanOrder = rasdamanOrder;
+        this.origin = origin;
     }
 
     public void setCrsUri(String crsUri) {
@@ -106,5 +108,13 @@ public class Axis<T> {
 
     public int getRasdamanOrder() {
         return rasdamanOrder;
+    }
+
+    public BigDecimal getOrigin() {
+        return origin;
+    }
+
+    public void setOrigin(BigDecimal origin) {
+        this.origin = origin;
     }
 }

@@ -112,7 +112,7 @@ public class DomainElement implements Cloneable {
                         "Invalid domain element: upper-bound is greater then lower-bound.");
             }
 
-            BigDecimal diffBD = maxValue.subtract(minValue).add(uom.equals(CrsUtil.INDEX_UOM) ? BigDecimal.ONE : BigDecimal.ZERO);
+            BigDecimal diffBD = maxValue.subtract(minValue).add(nativeCrs.equals(CrsUtil.GRID_CRS) ? BigDecimal.ONE : BigDecimal.ZERO);
             scalarResolution  = BigDecimalUtil.divide(diffBD, new BigDecimal(dimensionality));
         }
 

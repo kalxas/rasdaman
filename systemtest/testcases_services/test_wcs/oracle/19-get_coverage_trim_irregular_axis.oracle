@@ -28,7 +28,7 @@
       <axisLabels>i j k</axisLabels>
       <gmlrgrid:origin>
         <Point id="irr_cube_1-origin" srsName="/crs/OGC/0/Index3D" axisLabels="i j k" uomLabels="GridSpacing GridSpacing GridSpacing" srsDimension="3">
-          <pos>0 3 3</pos>
+          <pos>0.5 3.5 3</pos>
         </Point>
       </gmlrgrid:origin>
       <gmlrgrid:generalGridAxis>

@@ -22,8 +22,22 @@
 package petascope.wcps2.handler;
 
 import java.math.BigDecimal;
+
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.dataformat.xml.XmlMapper;
+import org.apache.commons.lang3.SerializationException;
 import org.apache.commons.lang3.StringUtils;
+import petascope.exceptions.PetascopeException;
+import petascope.exceptions.WCPSException;
 import petascope.util.CrsUtil;
+import petascope.wcps2.decodeparameters.model.NetCDFExtraParams;
+import petascope.wcps2.decodeparameters.service.CovToCFTranslationService;
+import petascope.wcps2.decodeparameters.service.NetCDFParametersFactory;
+import petascope.wcps2.error.managed.processing.MetadataSerializationException;
 import petascope.wcps2.metadata.model.Axis;
 import petascope.wcps2.metadata.model.AxisDirection;
 import petascope.wcps2.metadata.model.WcpsCoverageMetadata;
@@ -53,7 +67,7 @@ import petascope.wcs2.extensions.FormatExtension;
  */
 public class EncodedCoverageHandler {
 
-    public static WcpsResult handle(WcpsResult coverageExpression, String format, List<String> otherParams, CoverageRegistry coverageRegistry) {
+    public static WcpsResult handle(WcpsResult coverageExpression, String format, List<String> otherParams, CoverageRegistry coverageRegistry) throws PetascopeException {
         String resultRasql, otherParamsString = "";
 
         if (otherParams == null) {
@@ -71,6 +85,7 @@ public class EncodedCoverageHandler {
             adaptedFormat = extractedFormat.replace("\"", "");
         }
 
+        adaptedFormat = adaptedFormat.toLowerCase();
         // set parameters for dem()
         if (adaptedFormat.equals(FormatExtension.DEM_ENCODING)) {
             // keep the arguments without need to calculate anything else
@@ -78,6 +93,25 @@ public class EncodedCoverageHandler {
         } else if (adaptedFormat.equals(FormatExtension.CSV_ENCODING)) {
             // csv()
             otherParamsString = "";
+        } else if(adaptedFormat.equals(FormatExtension.NETCDF_ENCODING)){
+            ObjectMapper objectMapper = new ObjectMapper();
+            objectMapper.configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false);
+            objectMapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
+            objectMapper.setSerializationInclusion(JsonInclude.Include.NON_EMPTY);
+            XmlMapper xmlMapper = new XmlMapper();
+            CovToCFTranslationService covToCFTranslationService = new CovToCFTranslationService();
+
+            //netcdf
+            NetCDFParametersFactory netCDFParametersFactory = new NetCDFParametersFactory(xmlMapper, objectMapper,
+                    coverageRegistry.getMetadataSource(), covToCFTranslationService);
+            NetCDFExtraParams netCDFExtraParams = netCDFParametersFactory.getParameters(coverageExpression.getMetadata());
+            //serialize as json
+            //for now ignore the extra params, in the future we need to merge them with the one deduced from the metadata
+            try {
+                otherParamsString = ", \"" + objectMapper.writeValueAsString(netCDFExtraParams).replace("\"", "\\\"") + "\"";
+            } catch (JsonProcessingException e) {
+                throw new MetadataSerializationException();
+            }
         } else {
               // get all the output paramters to encode
             otherParams.addAll(getExtraParams(coverageExpression.getMetadata()));

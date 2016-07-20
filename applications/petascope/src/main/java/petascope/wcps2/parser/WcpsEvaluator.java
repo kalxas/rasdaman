@@ -24,8 +24,8 @@ package petascope.wcps2.parser;
 import org.antlr.v4.runtime.misc.NotNull;
 import org.antlr.v4.runtime.tree.TerminalNode;
 import org.apache.commons.lang3.StringUtils;
-import petascope.wcps2.error.managed.processing.InvalidAxisNameException;
-import petascope.wcps2.error.managed.processing.InvalidSubsettingException;
+import org.apache.log4j.Level;
+import petascope.wcps2.error.managed.processing.*;
 import petascope.wcps2.metadata.service.*;
 import petascope.wcps2.metadata.model.ParsedSubset;
 import petascope.wcps2.result.VisitorResult;
@@ -37,9 +37,6 @@ import java.util.*;
 import org.slf4j.LoggerFactory;
 import petascope.exceptions.PetascopeException;
 import petascope.util.CrsUtil;
-import petascope.wcps2.error.managed.processing.InvalidDomainIntervalsForAxisIteratorException;
-import petascope.wcps2.error.managed.processing.InvalidSlicingException;
-import petascope.wcps2.error.managed.processing.IrregularAxisFetchingFailedException;
 import petascope.wcps2.result.WcpsMetadataResult;
 import petascope.wcps2.result.WcpsResult;
 import petascope.wcps2.result.parameters.*;
@@ -174,7 +171,13 @@ public class WcpsEvaluator extends wcpsBaseVisitor<VisitorResult> {
         // each WCPS query only return 1 MIME type
         this.mimeType = this.coverageRegistry.getMetadataSource().formatToMimetype(format.replace("\"", ""));
 
-        WcpsResult result = EncodedCoverageHandler.handle(coverageExpression, format, otherParams, this.coverageRegistry);
+        WcpsResult result = null;
+        try {
+            result = EncodedCoverageHandler.handle(coverageExpression, format, otherParams, this.coverageRegistry);
+        } catch (PetascopeException e) {
+            log.error(e.getMessage(), e);
+            throw new MetadataSerializationException();
+        }
         return result;
     }
 

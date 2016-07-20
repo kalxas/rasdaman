@@ -21,6 +21,7 @@
  */
 package petascope.wcps2.metadata.service;
 
+import petascope.util.XMLSymbols;
 import petascope.wcps2.error.managed.processing.CoverageAxisNotFoundExeption;
 import petascope.wcps2.error.managed.processing.IncompatibleAxesNumberException;
 import petascope.wcps2.metadata.model.*;
@@ -100,7 +101,7 @@ public class WcpsCoverageMetadataService {
                     if (subset.getCrs() != null && !subset.getCrs().equals(axis.getCrsUri())) {
                         axis.setCrsUri(subset.getCrs());
                     }
-                    if (axis.getCrsUri().equals(CrsUtil.GRID_CRS)) {
+                    if (axis.getCrsUri().equals(CrsUtil.GRID_CRS) || metadata.getCoverageType().equals(XMLSymbols.LABEL_GRID_COVERAGE)) {
                         // it will need to calculate from grid bound to geo bound (e.g: Lat:"http://.../Index2D"(0:50) -> Lat(0:20))
                         calculateGridBound = false;
                     }
@@ -227,6 +228,8 @@ public class WcpsCoverageMetadataService {
             NumericSubset geoBounds = null;
             NumericSubset gridBounds = null;
 
+            BigDecimal origin = null;
+
             if (numericSubset.getNumericSubset() instanceof NumericTrimming) {
                 BigDecimal lowerLimit = ((NumericTrimming) numericSubset.getNumericSubset()).getLowerLimit();
                 BigDecimal upperLimit = ((NumericTrimming) numericSubset.getNumericSubset()).getUpperLimit();
@@ -235,12 +238,14 @@ public class WcpsCoverageMetadataService {
                 geoBounds = new NumericTrimming(lowerLimit, upperLimit);
                 //for now, the geoDomain is the same as the gridDomain, as we do no conversion in the coverage constructor / condenser
                 gridBounds = new NumericTrimming(lowerLimit, upperLimit);
+                origin = lowerLimit;
             } else {
                 BigDecimal bound = ((NumericSlicing) numericSubset.getNumericSubset()).getBound();
 
                 // slicing
                 geoBounds = new NumericSlicing(bound);
                 gridBounds = new NumericSlicing(bound);
+                origin = bound;
             }
 
             // the crs of axis
@@ -265,7 +270,8 @@ public class WcpsCoverageMetadataService {
             // Scalar resolution is set to 1
             BigDecimal scalarResolution = CrsUtil.INDEX_SCALAR_RESOLUTION;
 
-            Axis axis = new Axis(label, geoBounds, gridBounds, axisDirection, crsUri, crsDefinition, axisType, axisUoM, scalarResolution, axesCounter);
+            Axis axis = new RegularAxis(label, geoBounds, gridBounds, axisDirection, crsUri,
+                    crsDefinition, scalarResolution, axisType, axisUoM, scalarResolution, axesCounter, origin);
             axesCounter++;
             axes.add(axis);
         }
@@ -273,7 +279,7 @@ public class WcpsCoverageMetadataService {
         //deduce the crs from the crses of the axes
         // NOTE: now, just use gridCrsUri (e.g: http://.../IndexND) to set as crs for creating coverage first
         String gridCrsUri = CrsUtility.getImageCrsUri(axes);
-        WcpsCoverageMetadata result = new WcpsCoverageMetadata(coverageName, axes, gridCrsUri, gridCrsUri, null);
+        WcpsCoverageMetadata result = new WcpsCoverageMetadata(coverageName, XMLSymbols.LABEL_GRID_COVERAGE, axes, gridCrsUri, gridCrsUri, null, "", null);
         return result;
     }
 
@@ -283,7 +289,7 @@ public class WcpsCoverageMetadataService {
      * (Lat(0:70)) then need to update coverage metadata with geo bound(0:20)
      * and correspondent translated grid bound from the new geo bound.
      *
-     * @param calculateGeoBound
+     * @param
      * @param checkBoundary
      * @param metadata
      * @param subset
@@ -356,43 +362,48 @@ public class WcpsCoverageMetadataService {
 
         ParsedSubset<BigDecimal> parsedSubset = new ParsedSubset<BigDecimal>(lowerLimit, upperLimit);
         // store the translated grid bounds from the subsets
-        ParsedSubset<BigInteger> translatedSubset;
+        ParsedSubset<BigInteger> translatedSubset = translateGeoCoordinates(calculateGridBound, parsedSubset, axis,
+                metadata, geoDomainMin, geoDomainMax, gridDomainMin, gridDomainMax);
 
-
-        // Regular axis (no need to query database)
-        if (axis instanceof RegularAxis) {
-            BigDecimal resolution = ((RegularAxis) axis).getResolution();
-            if (calculateGridBound) {
-                // Lat(0:20) -> c[0:50]
-                translatedSubset = coordinateTranslationService.getNumericPixelIndicesForRegularAxis(calculateGridBound,
-                                   parsedSubset, geoDomainMin, geoDomainMax, resolution, gridDomainMin);
-            } else {
-                // Lat:"http://.../Index2D"(0:50) -> Lat(0:20)
-                translatedSubset = coordinateTranslationService.getNumericPixelIndicesForRegularAxis(calculateGridBound,
-                                   parsedSubset, gridDomainMin, gridDomainMax, resolution, geoDomainMin);
-            }
-        } else {
-            // Irregular axis (query database for coefficients)
-            int iOrder = ((IrregularAxis) axis).getiOrder();
-            BigDecimal scalarResolution = axis.getScalarResolution();
-            if (calculateGridBound) {
-                // e.g: ansi(148654) in irr_cube_2 -> c[0]
-                translatedSubset = coordinateTranslationService.getNumericPixelIndicesForIrregularAxes(
-                        parsedSubset, scalarResolution, metadata.getCoverageName(), iOrder, gridDomainMin, gridDomainMax, geoDomainMin);
-            } else {
-                // NOTE: if subsettingCrs is IndexCrs, ( e.g: ansi:"http://.../Index3D"(3) ) in irr_cube_2
-                // it is query directly in grid coordinate which is regular not irregular anymore
-                // Problem: it cannot resolve from grid coordinate (e.g: c[3]) to "geo" coordinate (e.g: 148661) with irregular axis.
-                // then consider geo bound is equal to grid bound in this case.
-                translatedSubset = new ParsedSubset<BigInteger>(lowerLimit.toBigInteger(), upperLimit.toBigInteger());
-            }
-        }
 
         // Set the correct translated grid parsed subset to axis
         unTranslatedNumericSubset.setLowerLimit(new BigDecimal(translatedSubset.getLowerLimit()));
         unTranslatedNumericSubset.setUpperLimit(new BigDecimal(translatedSubset.getUpperLimit()));
     }
 
+    private ParsedSubset<BigInteger> translateGeoCoordinates(boolean calculateGridBound, ParsedSubset<BigDecimal> parsedSubset,
+                                                             Axis axis, WcpsCoverageMetadata metadata,  BigDecimal geoDomainMin,
+                                                             BigDecimal geoDomainMax, BigDecimal gridDomainMin,
+                                                             BigDecimal gridDomainMax) throws PetascopeException {
+        ParsedSubset<BigInteger> translatedSubset;
+        // Regular axis (no need to query database)
+        if (axis instanceof RegularAxis) {
+            BigDecimal resolution = ((RegularAxis) axis).getResolution();
+            if (calculateGridBound) {
+                // Lat(0:20) -> c[0:50]
+                translatedSubset = coordinateTranslationService.geoToGridForRegularAxis(parsedSubset, geoDomainMin, geoDomainMax, resolution, gridDomainMin);
+            } else {
+                // Lat:"CRS:1"(0:50) -> [0:50]
+                translatedSubset = coordinateTranslationService.gridToGeoForRegularAxis(parsedSubset, gridDomainMin, gridDomainMax, resolution, geoDomainMin);
+            }
+        } else {
+            // Irregular axis (query database for coefficients)
+            int iOrder = axis.getRasdamanOrder();
+            BigDecimal scalarResolution = axis.getScalarResolution();
+            if (calculateGridBound) {
+                // e.g: ansi(148654) in irr_cube_2 -> c[0]
+                translatedSubset = coordinateTranslationService.geoToGridForIrregularAxes(
+                        parsedSubset, scalarResolution, metadata.getCoverageName(), iOrder, gridDomainMin, gridDomainMax, geoDomainMin);
+            } else {
+                // NOTE: if subsettingCrs is IndexCrs, ( e.g: ansi:"http://.../Index3D"(3) ) in irr_cube_2
+                // it is query directly in grid coordinate which is regular not irregular anymore
+                // Problem: it cannot resolve from grid coordinate (e.g: c[3]) to "geo" coordinate (e.g: 148661) with irregular axis.
+                // then consider geo bound is equal to grid bound in this case.
+                translatedSubset = new ParsedSubset<BigInteger>(parsedSubset.getLowerLimit().toBigInteger(), parsedSubset.getUpperLimit().toBigInteger());
+            }
+        }
+        return translatedSubset;
+    }
 
     /**
      * Apply slicing subset to regular/irregular axis and change geo bounds and
@@ -438,8 +449,7 @@ public class WcpsCoverageMetadataService {
 
         BigDecimal bound = ((NumericSlicing) subset.getNumericSubset()).getBound();
         ParsedSubset<BigDecimal> parsedSubset = new ParsedSubset<BigDecimal>(bound, bound);
-        // store the translated grid bounds from the subsets
-        ParsedSubset<BigInteger> translatedSubset;
+
 
         // Translate the coordinate in georeferenced to grid.
         BigDecimal geoDomainMin;
@@ -473,35 +483,9 @@ public class WcpsCoverageMetadataService {
             axis.setGridBounds(numericSlicingBound);
         }
 
-        // Regular Axis
-        if (axis instanceof RegularAxis) {
-            BigDecimal resolution = ((RegularAxis) axis).getResolution();
-            if (calculateGridBound) {
-                // Lat(0:20) -> c[0:50]
-                translatedSubset = coordinateTranslationService.getNumericPixelIndicesForRegularAxis(calculateGridBound,
-                                   parsedSubset, geoDomainMin, geoDomainMax, resolution, gridDomainMin);
-            } else {
-                // Lat:"http://.../Index2D"(0:50) -> Lat(0:20)
-                translatedSubset = coordinateTranslationService.getNumericPixelIndicesForRegularAxis(calculateGridBound,
-                                   parsedSubset, gridDomainMin, gridDomainMax, resolution, geoDomainMin);
-            }
-        } else {
-            // Irregular Axis
-            int iOrder = ((IrregularAxis) axis).getiOrder();
-            BigDecimal scalarResolution = axis.getScalarResolution();
-            if (calculateGridBound) {
-                // e.g: ansi(148654) in irr_cube_2 -> c[0]
-                translatedSubset = coordinateTranslationService.getNumericPixelIndicesForIrregularAxes(
-                                   parsedSubset, scalarResolution, metadata.getCoverageName(), iOrder,
-                                   gridDomainMin, gridDomainMax, geoDomainMin);
-            } else {
-                // NOTE: if subsettingCrs is IndexCrs, ( e.g: ansi:"http://.../Index3D"(3) ) in irr_cube_2
-                // it is query directly in grid coordinate which is regular not irregular anymore
-                // Problem: it cannot resolve from grid coordinate (e.g: c[3]) to "geo" coordinate (e.g: 148661) with irregular axis.
-                // then consider geo bound is equal to grid bound in this case.
-                translatedSubset = new ParsedSubset<BigInteger>(bound.toBigInteger(), bound.toBigInteger());
-            }
-        }
+        // store the translated grid bounds from the subsets
+        ParsedSubset<BigInteger> translatedSubset = translateGeoCoordinates(calculateGridBound, parsedSubset, axis,
+                metadata, geoDomainMin, geoDomainMax, gridDomainMin, gridDomainMax);
 
         // Set the correct translated grid parsed subset to axis
         numericSlicingBound = new NumericSlicing(new BigDecimal(translatedSubset.getLowerLimit()));

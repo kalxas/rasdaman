@@ -39,6 +39,7 @@ import petascope.wcps2.metadata.service.CrsUtility;
 public class WcpsCoverageMetadata {
 
     private final String coverageName;
+    private String coverageType;
     private final List<Axis> axes;
     // output bounding box of coverage, used in case of scale, extend
     // e.g: scale(c, imageCrsdomain(c[Lat(0:20)], Long(0:30)])) then it has 2 axes (Lat(0:20), Long(0:30))
@@ -50,13 +51,19 @@ public class WcpsCoverageMetadata {
 
     // based on number of axes to create a grid crs (e.g: Index2D)
     private final String gridCrsUri;
+    private List<Double> nodata;
+    private String metadata;
 
-    public WcpsCoverageMetadata(String coverageName, List<Axis> axes, String crsUri, String gridCrsUri, List<RangeField> rangeFields) {
+    public WcpsCoverageMetadata(String coverageName, String coverageType, List<Axis> axes, String crsUri, String gridCrsUri,
+                                List<RangeField> rangeFields, String metadata, List<Double> nodata) {
         this.crsUri = crsUri;
         this.axes = axes;
         this.coverageName = coverageName;
         this.rangeFields = rangeFields;
         this.gridCrsUri = CrsUtility.stripBoundingQuotes(gridCrsUri);
+        this.metadata = metadata;
+        this.nodata = nodata;
+        this.coverageType = coverageType;
     }
 
     public List<Axis> getAxes() {
@@ -115,5 +122,29 @@ public class WcpsCoverageMetadata {
      */
     public List<Axis> getAxesBBox() {
         return this.axesBBox;
+    }
+
+    public List<Double> getNodata() {
+        return nodata;
+    }
+
+    public void setNodata(List<Double> nodata) {
+        this.nodata = nodata;
+    }
+
+    public String getMetadata() {
+        return metadata;
+    }
+
+    public void setMetadata(String metadata) {
+        this.metadata = metadata;
+    }
+
+    public String getCoverageType() {
+        return coverageType;
+    }
+
+    public void setCoverageType(String coverageType) {
+        this.coverageType = coverageType;
     }
 }

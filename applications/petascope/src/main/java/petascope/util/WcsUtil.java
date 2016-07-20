@@ -40,9 +40,8 @@ import petascope.exceptions.PetascopeException;
 import petascope.exceptions.SecoreException;
 import petascope.exceptions.WCSException;
 import static petascope.util.CrsUtil.INDEX_UOM;
-import static petascope.util.XMLSymbols.LABEL_COVERAGE_SUBTYPE;
-import static petascope.util.XMLSymbols.LABEL_COVERAGE_SUBTYPE_PARENT;
-import static petascope.util.XMLSymbols.NAMESPACE_WCS;
+import static petascope.util.XMLSymbols.*;
+
 import petascope.wcps.metadata.Bbox;
 import petascope.wcps.metadata.DomainElement;
 import petascope.wcs2.parsers.GetCoverageMetadata;
@@ -461,7 +460,7 @@ public class WcsUtil {
      * @return The whitespace-separated list of vector coefficients of an axis (empty string if not defined)
      * @throws WCSException
      */
-    public static String getCoefficients(GetCoverageMetadata m, String axisName, DbMetadataSource dbMeta) throws WCSException {
+    public static String getCoefficients(GetCoverageMetadata m, String axisName, DbMetadataSource dbMeta) throws PetascopeException, SecoreException {
         // init
         String coefficients = "";
 
@@ -493,7 +492,8 @@ public class WcsUtil {
                 }
 
                 // Adjust the coefficients to the origin of the requested grid (originally they are relative to the native origin)
-                List<String> subsetLabels = Arrays.asList(m.getGridAxisLabels().split(" "));
+                List<String> subsetLabels = CrsUtil.getAxesLabels(CrsUtil.CrsUri.decomposeUri(m.getCrs()));
+
                 if (subsetLabels.contains(axisName)) {
                     BigDecimal subsetLo = new BigDecimal(m.getDomLow().split(" ")[subsetLabels.indexOf(axisName)]);
                     coeffs = Vectors.add(coeffs, BigDecimalUtil.divide(domEl.getMinValue().subtract(subsetLo), domEl.getScalarResolution()));
@@ -517,7 +517,7 @@ public class WcsUtil {
      * @throws PetascopeException
      */
     public static String addCoefficients(String gml, GetCoverageMetadata m, DbMetadataSource dbMeta)
-            throws WCSException, PetascopeException {
+            throws WCSException, PetascopeException, SecoreException {
         String[] axisNames = m.getGridAxisLabels().split(" ");
         // Loop through the N dimensions (rely on order)
         for (int i = 0; i < axisNames.length; i++) {
@@ -663,9 +663,9 @@ public class WcsUtil {
      * @param isIrregular
      * @param axisUom
      */
-    public static BigDecimal getSampleSpaceShift(BigDecimal offsetVector, boolean isIrregular, String axisUom) {
+    public static BigDecimal getSampleSpaceShift(BigDecimal offsetVector, boolean isIrregular, String crsCode, String coverageType) {
         BigDecimal shift;
-        if (isIrregular || axisUom.equals(INDEX_UOM)) {
+        if (isIrregular || crsCode.equals(CrsUtil.GRID_CRS) || coverageType.equals(LABEL_GRID_COVERAGE)) {
             shift = BigDecimal.ZERO;
         } else {
             shift = BigDecimalUtil.divide(offsetVector, BigDecimal.valueOf(-2));
@@ -682,7 +682,7 @@ public class WcsUtil {
      * @param isUpperBound
      * @return The next greater/lower value that coincides with the envelope of a point's sample space.
      */
-    public static BigDecimal fitToSampleSpace(BigDecimal coordinateValue, DomainElement domEl, boolean isUpperBound) {
+    public static BigDecimal fitToSampleSpace(BigDecimal coordinateValue, DomainElement domEl, boolean isUpperBound, String coverageType) {
 
         // local variables
         BigDecimal fittedCoordinateValue = coordinateValue;
@@ -701,7 +701,7 @@ public class WcsUtil {
                         coefficients.get(0) ;                     // isLowerBound : get the first point included in the response
                 // coordinate = Origin + (coefficient * offset_vector)
                 fittedCoordinateValue = domEl.getMinValue().add(domEl.getDirectionalResolution().multiply(fitCoefficient));
-            } else if (domEl.getUom().equals(INDEX_UOM)) {
+            } else if (domEl.getCrsDef().getCode().equals(CrsUtil.GRID_CRS) || coverageType.equals(LABEL_GRID_COVERAGE)) {
                 // only integral coordinates are legal here
                 // round up on subset.lo bounds and if coordinate is not integral
                 boolean roundUp = !isUpperBound && (coordinateValue.subtract(BigDecimal.valueOf(coordinateValue.longValue())).compareTo(BigDecimal.ZERO) != 0);
@@ -734,8 +734,8 @@ public class WcsUtil {
         return BigDecimalUtil.stripDecimalZeros(fittedCoordinateValue);
     }
     // Overload for String input
-    public static String fitToSampleSpace(String coordinateValue, DomainElement domEl, boolean greaterValue) {
-        return fitToSampleSpace(new BigDecimal(coordinateValue), domEl, greaterValue).toPlainString();
+    public static String fitToSampleSpace(String coordinateValue, DomainElement domEl, boolean greaterValue, String coverageType) {
+        return fitToSampleSpace(new BigDecimal(coordinateValue), domEl, greaterValue, coverageType).toPlainString();
     }
 
     /**

@@ -24,7 +24,7 @@ package petascope.wcps2.metadata.model;
 /**
  * @author <a href="merticariu@rasdaman.com">Vlad Merticariu</a>
  */
-public abstract class Interval<T> {
+public class Interval<T> {
 
     T lowerLimit;
     T upperLimit;

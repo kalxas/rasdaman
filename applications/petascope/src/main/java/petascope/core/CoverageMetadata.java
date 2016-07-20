@@ -143,10 +143,10 @@ public class CoverageMetadata implements Cloneable {
             // (!) domain.lo = min(origin, origin+N*offsetVector)  => grid-point is point (not pixel)
             //     domain.hi = max(origin, origin+N*offsetVector)
             BigDecimal resolution     = axis.getKey().get(axisNonZeroIndices.get(0));
-            BigDecimal sspaceShift    = WcsUtil.getSampleSpaceShift(resolution, isIrregular, crsAxis.getUoM());
+            BigDecimal sspaceShift    = WcsUtil.getSampleSpaceShift(resolution, isIrregular, crsAxis.getCrsDefinition().getCode(), coverageType);
             BigDecimal axisLo         = gridOrigin.get(axisNonZeroIndices.get(0)).add(sspaceShift);
             //the grid can also have negative values, case in which axisLo is not in the origin, but it needs to shift to the lowest point on this axis
-            if (cEl.getLoInt() < 0){
+            if (cEl.getLoInt() < 0 && !coverageType.equals(XMLSymbols.LABEL_GRID_COVERAGE)){
                 //jump back resolution * number of negative pixels
                 //number of negative pixels is -1 * lower bound of domain
                 int negativePixels = -1 * cEl.getLoInt();
@@ -158,8 +158,8 @@ public class CoverageMetadata implements Cloneable {
                 // use the resolution: for Indexed CRSs, the formula is different than non-indexed CRSs (+1 term in the denominator)
                 // linear CRS: axisHi = (axisLo + #GridPoints)
                 // linear CRS: axisHi = (axisLo + #GridPoints - 1)
-                if (crsAxis.getUoM().equals(INDEX_UOM)) {
-                    // indexed CRS
+                if (crsAxis.getCrsDefinition().getCode().equals(CrsUtil.GRID_CRS) || coverageType.equals(XMLSymbols.LABEL_GRID_COVERAGE)) {
+                    // CRS:1
                     axisHi = axisLo.add(resolution.multiply(new BigDecimal(gridAxisPoints).add(BigDecimal.valueOf(-1))));
                 } else {
                     // linear CRS

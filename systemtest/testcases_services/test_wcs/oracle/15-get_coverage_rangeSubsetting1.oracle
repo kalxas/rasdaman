@@ -11,7 +11,7 @@
   <boundedBy>
     <Envelope srsName="/crs/OGC/0/Index2D" axisLabels="i j" uomLabels="GridSpacing GridSpacing" srsDimension="2">
       <lowerCorner>0 0</lowerCorner>
-      <upperCorner>399 343</upperCorner>
+      <upperCorner>400 344</upperCorner>
     </Envelope>
   </boundedBy>
 
@@ -26,7 +26,7 @@
       <axisLabels>i j</axisLabels>
       <origin>
           <Point id="rgb-origin" srsName="/crs/OGC/0/Index2D" axisLabels="i j" uomLabels="GridSpacing GridSpacing" srsDimension="2">
-              <pos>0 343</pos>
+              <pos>0.5 343.5</pos>
           </Point>
       </origin>
       <offsetVector srsName="/crs/OGC/0/Index2D" axisLabels="i j" uomLabels="GridSpacing GridSpacing" srsDimension="2">1 0</offsetVector>

@@ -21,7 +21,10 @@
  */
 package petascope.wcps2.metadata.service;
 
+import org.apache.commons.lang3.StringUtils;
 import petascope.core.CoverageMetadata;
+import petascope.core.DbMetadataSource;
+import petascope.swe.datamodel.*;
 import petascope.util.AxisTypes;
 import petascope.util.CrsUtil;
 import petascope.wcps.metadata.CellDomainElement;
@@ -32,6 +35,10 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 import petascope.core.CrsDefinition;
 import petascope.wcps.server.core.RangeElement;
 
@@ -47,20 +54,64 @@ public class WcpsCoverageMetadataTranslator {
 
     public WcpsCoverageMetadata translate(CoverageMetadata metadata) {
         List<Axis> axes = buildAxes(metadata.getDomainList(), metadata.getCellDomainList());
-        List<RangeField> rangeFields = buildRangeFields(metadata.getRangeIterator());
-        return new WcpsCoverageMetadata(metadata.getCoverageName(), axes,
+        List<RangeField> rangeFields = buildRangeFields(metadata.getRangeIterator(), metadata.getSweComponentsIterator());
+        Set<String> metadataList = metadata.getExtraMetadata(DbMetadataSource.EXTRAMETADATA_TYPE_GMLCOV);
+        List<String> nodata = metadata.getAllUniqueNullValues();
+        return new WcpsCoverageMetadata(metadata.getCoverageName(), metadata.getCoverageType(), axes,
                                         CrsUtil.CrsUri.createCompound(metadata.getCrsUris()),
                                         CrsUtility.getImageCrsUri(axes),
-                                        rangeFields);
+                                        rangeFields, StringUtils.join(metadataList, ""), parseNodataValues(nodata));
     }
 
-    private List<RangeField> buildRangeFields(Iterator<RangeElement> rangeIterator){
+    private List<RangeField> buildRangeFields(Iterator<RangeElement> rangeIterator, Iterator<AbstractSimpleComponent> sweIterator){
         List<RangeField> rangeFields = new ArrayList<RangeField>();
         while(rangeIterator.hasNext()) {
-            rangeFields.add(new RangeField(rangeIterator.next().getName()));
+            RangeElement rangeElement = rangeIterator.next();
+            Quantity quantity = (Quantity) sweIterator.next();
+
+            rangeFields.add(new RangeField(rangeElement.getType(), rangeElement.getName(), quantity.getDescription(),
+                    parseNodataValues(quantity.getNilValuesIterator()), quantity.getUom(), quantity.getDefinition(),
+                    parseAllowedValues(quantity.getAllowedValues())));
         }
 
         return rangeFields;
+    }
+
+    private List<Interval<BigDecimal>> parseAllowedValues(AllowedValues allowedValues){
+        List<Interval<BigDecimal>> ret = new ArrayList<Interval<BigDecimal>>();
+        Iterator<RealPair> allowedValuesIterator = allowedValues.getIntervalIterator();
+        while (allowedValuesIterator.hasNext()){
+            RealPair nextInterval = allowedValuesIterator.next();
+            ret.add(new Interval<BigDecimal>(nextInterval.getMin(), nextInterval.getMax()));
+        }
+        return ret;
+    }
+
+    private List<Double> parseNodataValues(List<String> stringValues){
+        List<Double> result = new ArrayList<Double>();
+        for(String val: stringValues){
+            try {
+                result.add(Double.valueOf(val));
+            }
+            catch (Exception e){
+                //failed converting to double, don't add it
+                Logger.getLogger(WcpsCoverageMetadataTranslator.class.getName()).log(Level.SEVERE, null, e);
+            }
+        }
+        return result;
+    }
+
+    private List<Double> parseNodataValues(Iterator<NilValue> nilValueIterator){
+        List<Double> ret = new ArrayList<Double>();
+        while (nilValueIterator.hasNext()){
+            try {
+                ret.add(Double.valueOf(nilValueIterator.next().getValue()));
+            } catch (Exception e){
+                //failed converting to double, don't add it
+                Logger.getLogger(WcpsCoverageMetadataTranslator.class.getName()).log(Level.SEVERE, null, e);
+            }
+        }
+        return ret;
     }
 
     private List<Axis> buildAxes(List<DomainElement> geoDomains, List<CellDomainElement> gridDomains) {
@@ -96,14 +147,13 @@ public class WcpsCoverageMetadataTranslator {
             // Check domainElement's type
             if (currentGeo.isIrregular()) {
                 // Need the iOder of axis to query coeffcients
-                int iOrder = currentGeo.getOrder();
                 result.add(new IrregularAxis(currentGeo.getLabel(), geoBounds, gridBounds, axisDirection,
-                                             crsUri, crsDefinition, axisType, axisUoM, iOrder, scalarResolution, rasdamanOrder));
+                                             crsUri, crsDefinition, axisType, axisUoM, scalarResolution, rasdamanOrder, currentGeo.getMinValue()));
             }
             else{
                 BigDecimal resolution = currentGeo.getDirectionalResolution();
                 result.add(new RegularAxis(currentGeo.getLabel(), geoBounds, gridBounds, axisDirection,
-                                             crsUri, crsDefinition, resolution, axisType, axisUoM, scalarResolution, rasdamanOrder));
+                                             crsUri, crsDefinition, resolution, axisType, axisUoM, scalarResolution, rasdamanOrder, currentGeo.getMinValue()));
             }
         }
         return result;

@@ -28,15 +28,11 @@ import petascope.core.CrsDefinition;
  * @author <a href="merticariu@rasdaman.com">Vlad Merticariu</a>
  */
 public class IrregularAxis extends Axis {
-    private int iOrder = 0;
+
     public IrregularAxis(String label, NumericSubset geoBounds, NumericSubset gridBounds,
                         AxisDirection direction, String crsUri, CrsDefinition crsDefinition,
-                        String axisType, String axisUoM, int iOrder, BigDecimal scalarResolution, int rasdamanOrder) {
-        super(label, geoBounds, gridBounds, direction, crsUri, crsDefinition, axisType, axisUoM, scalarResolution, rasdamanOrder);
-        this.iOrder = iOrder;
-    }
+                        String axisType, String axisUoM, BigDecimal scalarResolution, int rasdamanOrder, BigDecimal origin) {
+        super(label, geoBounds, gridBounds, direction, crsUri, crsDefinition, axisType, axisUoM, scalarResolution, rasdamanOrder, origin);
 
-    public int getiOrder() {
-        return iOrder;
     }
 }

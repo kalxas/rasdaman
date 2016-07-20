@@ -4,7 +4,7 @@
     <boundedBy>
       <Envelope srsName="/crs/OGC/0/Index2D" axisLabels="i j" uomLabels="GridSpacing GridSpacing" srsDimension="2">
         <lowerCorner>0 0</lowerCorner>
-        <upperCorner>255 210</upperCorner>
+        <upperCorner>256 211</upperCorner>
       </Envelope>
     </boundedBy>
     <wcs:CoverageId>mr</wcs:CoverageId>
@@ -20,7 +20,7 @@
         <axisLabels>i j</axisLabels>
         <origin>
           <Point id="mr-origin" srsName="/crs/OGC/0/Index2D" axisLabels="i j" uomLabels="GridSpacing GridSpacing" srsDimension="2">
-            <pos>0 210</pos>
+            <pos>0.5 210.5</pos>
           </Point>
         </origin>
         <offsetVector srsName="/crs/OGC/0/Index2D" axisLabels="i j" uomLabels="GridSpacing GridSpacing" srsDimension="2">1 0</offsetVector>

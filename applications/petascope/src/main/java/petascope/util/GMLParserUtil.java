@@ -29,6 +29,7 @@ import java.util.TreeMap;
 
 import nu.xom.Element;
 import nu.xom.Elements;
+import nu.xom.Node;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.LoggerFactory;
 import petascope.core.CrsDefinition;
@@ -704,18 +705,16 @@ public class GMLParserUtil {
      * @return
      */
     public static String parseExtraMetadata(Element root){
-        String ret = null;
+        String ret = "";
         Elements metadata = root.getChildElements(XMLSymbols.LABEL_METADATA, XMLSymbols.NAMESPACE_GMLCOV);
-        if(metadata.size() > 0){
+        if(metadata.size() > 0 && metadata.get(0).getChildCount() > 0){
             //since the node can contain xml sometimes, json other times, we need to return
             //the actual content of the node as string.
 
             //the string representation of the node
-            String xmlRep = metadata.get(0).toXML();
-
-            //need to remove <gmlcov:metadata> and </gmlcov:metadata> tags
-            ret = xmlRep.replace("<" + XMLSymbols.NAMESPACE_GMLCOV + ":" + XMLSymbols.LABEL_METADATA + ">", "")
-                    .replace("</" + XMLSymbols.NAMESPACE_GMLCOV + ":" + XMLSymbols.LABEL_METADATA + ">", "").trim();
+            for(int i = 0; i < metadata.get(0).getChildCount(); i++){
+                ret += metadata.get(0).getChild(i).toXML();
+            }
         }
         return ret;
     }

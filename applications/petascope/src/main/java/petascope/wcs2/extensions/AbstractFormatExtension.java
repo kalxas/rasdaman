@@ -162,7 +162,7 @@ public abstract class AbstractFormatExtension implements FormatExtension {
                                     Double.parseDouble(trimLow),
                                     domainEl.getMinValue().doubleValue())).toPlainString();
                             // align with sample space of grid points:
-                            lower = WcsUtil.fitToSampleSpace(lower, domainEl, false);
+                            lower = WcsUtil.fitToSampleSpace(lower, domainEl, false, m.getCoverageType());
                             lowerGisDom += lower + " ";
                             // The map is automatically sorted by key value (axis order in the CRS definition)
                             lowerDom.put(CrsUtil.getCrsAxisOrder(meta.getCrsUris(), domainEl.getLabel()), lower);
@@ -176,7 +176,7 @@ public abstract class AbstractFormatExtension implements FormatExtension {
                                     Double.parseDouble(trimHigh),
                                     domainEl.getMaxValue().doubleValue())).toPlainString();
                             // align with sample space of grid points:
-                            upper = WcsUtil.fitToSampleSpace(upper, domainEl, true);
+                            upper = WcsUtil.fitToSampleSpace(upper, domainEl, true, m.getCoverageType());
                             upperGisDom += upper + " ";
                             // The map is automatically sorted by key value (axis order in the CRS definition)
                             upperDom.put(CrsUtil.getCrsAxisOrder(meta.getCrsUris(), domainEl.getLabel()), upper);

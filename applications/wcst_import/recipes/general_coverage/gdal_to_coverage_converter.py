@@ -171,9 +171,9 @@ class GdalToCoverageConverter:
             grid_axis = GridAxis(user_axis.order, crs_axis.label, user_axis.resolution, grid_low, grid_high)
 
             if crs_axis.is_easting():
-                geo_axis.origin = geo_axis.low + user_axis.resolution / 2
+                geo_axis.origin = geo_axis.low + float(user_axis.resolution) / 2
             elif crs_axis.is_northing():
-                geo_axis.origin = geo_axis.high + user_axis.resolution / 2
+                geo_axis.origin = geo_axis.high + float(user_axis.resolution) / 2
             axis_subsets.append(
                 AxisSubset(CoverageAxis(geo_axis, grid_axis, crs_axis.is_northing() or crs_axis.is_easting()),
                            Interval(user_axis.interval.low, user_axis.interval.high)))
