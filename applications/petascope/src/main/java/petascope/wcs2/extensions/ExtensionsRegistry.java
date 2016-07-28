@@ -21,13 +21,18 @@
  */
 package petascope.wcs2.extensions;
 
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import petascope.ConfigManager;
 import petascope.HTTPRequest;
 import petascope.wcs2.parsers.GetCoverageRequest;
+
+import static petascope.wcs2.extensions.FormatExtension.*;
 
 /**
  * Protocol binding extensions are managed in this class.
@@ -60,7 +65,12 @@ public class ExtensionsRegistry {
     private static final Set<Extension> extensions = new HashSet<Extension>();
     private static final Set<String> extensionIds = new HashSet<String>();
 
+    //these maps are used in DecodeFormatExtensison class.
+    public static final Map<String, String> mimeToIdentifier = new HashMap<String, String>();
+    public static final Map<String, String> mimeToEncoding = new HashMap<String, String>();
+
     static {
+        initializeMimeMaps();
         initialize();
     }
 
@@ -72,22 +82,22 @@ public class ExtensionsRegistry {
         registerExtension(new SOAPProtocolExtension());
         registerExtension(new KVPProtocolExtension());
         registerExtension(new RESTProtocolExtension());
-        registerExtension(new GmlFormatExtension());
-        registerExtension(new GeotiffFormatExtension());
-        registerExtension(new NetcdfFormatExtension());
+        registerExtension(new DecodeFormatExtension(FormatExtension.MIME_GML, false));
+        registerExtension(new DecodeFormatExtension(MIME_TIFF, false));
+        registerExtension(new DecodeFormatExtension(FormatExtension.MIME_NETCDF, false));
+        registerExtension(new DecodeFormatExtension(MIME_JP2, false));
+        registerExtension(new DecodeFormatExtension(FormatExtension.MIME_PNG, false));
         registerExtension(new InterpolationExtension());
-        registerExtension(new JPEG2000FormatExtension());
-        registerExtension(new PNGFormatExtension());
-        registerExtension(new GMLJP2FormatExtension()); // image/jp2 + mediaType=multipart/related (though GML is embedded in the JP2 file)
-        registerExtension(new MultipartGeotiffFormatExtension());
-        registerExtension(new MultipartJPEG2000FormatExtension());
-        registerExtension(new MultipartNetcdfFormatExtension());
         registerExtension(new RangeSubsettingExtension());
         registerExtension(new CRSExtension());
         registerExtension(new ScalingExtension());
         registerExtension(new ProcessCoverageExtension());
+        registerExtension(new DecodeFormatExtension(MIME_TIFF, true));
+        registerExtension(new DecodeFormatExtension(MIME_JP2, true));  // image/jp2 + mediaType=multipart/related (though GML is embedded in the JP2 file)
+        registerExtension(new DecodeFormatExtension(FormatExtension.MIME_NETCDF, true));
+        registerExtension(new DecodeFormatExtension(FormatExtension.MIME_PNG, true));
         //add only when writes are not disabled
-        if(!ConfigManager.DISABLE_WRITE_OPERATIONS) {
+        if (!ConfigManager.DISABLE_WRITE_OPERATIONS) {
             registerExtension(new WCSTExtension());
         }
     }
@@ -128,10 +138,6 @@ public class ExtensionsRegistry {
         return null;
     }
 
-    public static FormatExtension getFormatExtension(boolean multipart, String format) {
-        return getFormatExtension(new GetCoverageRequest(null, format, multipart));
-    }
-
     public static Extension getExtension(String extensionIdentifier) {
         for (Extension extension : extensions) {
             if (extension.getExtensionIdentifier().equals(extensionIdentifier)) {
@@ -139,6 +145,21 @@ public class ExtensionsRegistry {
             }
         }
         return null;
+    }
+
+    /**
+     * initilizing maps for registration and handling of extensions in DecodeFormatExtension Class
+     */
+    public static void initializeMimeMaps() {
+        mimeToEncoding.put(MIME_TIFF, TIFF_ENCODING);
+        mimeToEncoding.put(MIME_JP2, JP2_ENCODING);
+        mimeToEncoding.put(MIME_NETCDF, NETCDF_ENCODING);
+        mimeToEncoding.put(MIME_PNG, PNG_ENCODING);
+
+        mimeToIdentifier.put(MIME_TIFF, ExtensionsRegistry.GEOTIFF_IDENTIFIER);
+        mimeToIdentifier.put(MIME_NETCDF, ExtensionsRegistry.NETCDF_IDENTIFIER);
+        mimeToIdentifier.put(MIME_PNG, ExtensionsRegistry.PNG_IDENTIFIER);
+        mimeToIdentifier.put(MIME_GML, ExtensionsRegistry.GML_ENCODING_IDENTIFIER);
     }
 
     /**
@@ -151,4 +172,5 @@ public class ExtensionsRegistry {
     public static Set<Extension> getExtensions() {
         return extensions;
     }
+
 }
