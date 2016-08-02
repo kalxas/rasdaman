@@ -229,10 +229,12 @@ QtConversion::evaluate(QtDataList* inputList)
             }
             if (conversionType < QT_FROMTIFF)
             {
+                LDEBUG << "convertor '" << convType << "' converting to format '" << format << "'.";
                 convDesc = convertor->convertTo(paramStr);
             }
             else
             {
+                LDEBUG << "convertor '" << convType << "' converting from format '" << format << "'.";
                 convDesc = convertor->convertFrom(paramStr);
             }
         }

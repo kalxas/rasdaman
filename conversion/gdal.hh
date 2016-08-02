@@ -65,6 +65,8 @@ public:
     /// convert from format
     virtual r_Conv_Desc &convertFrom(const char *options = NULL) throw (r_Error);
 
+    virtual r_Conv_Desc &convertFrom(r_Format_Params options) throw(r_Error);
+
     /// cloning
     virtual r_Convertor *clone(void) const;
 

@@ -938,6 +938,11 @@ r_Conv_Desc &r_Conv_TIFF::convertFrom(const char *options) throw(r_Error) // CON
     return desc;
 }
 
+r_Conv_Desc &r_Conv_TIFF::convertFrom(r_Format_Params options) throw(r_Error)
+{
+    throw r_Error(r_Error::r_Error_FeatureNotSupported);
+}
+
 
 const char *r_Conv_TIFF::get_name( void ) const
 {

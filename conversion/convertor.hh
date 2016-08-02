@@ -129,6 +129,10 @@ public:
     /// convert data in a specific format to array
     virtual r_Conv_Desc &convertFrom( const char *options = NULL ) throw(r_Error) = 0;
 
+    /// convert data in a specific format to array
+    virtual r_Conv_Desc &convertFrom(r_Format_Params options) throw(r_Error) = 0;
+
+
     /// cloning
     virtual r_Convertor *clone( void ) const = 0;
 

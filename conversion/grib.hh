@@ -67,7 +67,8 @@ public:
     virtual r_Conv_Desc &convertTo(const char *options = NULL) throw (r_Error);
     /// convert from GRIB
     virtual r_Conv_Desc &convertFrom(const char *options = NULL) throw (r_Error);
-
+    /// convert data in a specific format to array
+    virtual r_Conv_Desc &convertFrom(r_Format_Params options) throw(r_Error);
     /// cloning
     virtual r_Convertor *clone(void) const;
 
@@ -80,7 +81,7 @@ private:
 #ifdef HAVE_GRIB
     
     /// parse the options to a JSON object
-    Json::Value getMessageDomainsJson(const std::string& options) throw (r_Error);
+    Json::Value getMessageDomainsJson() throw (r_Error);
     
     /// get a handle to the GRIB file
     FILE* getFileHandle() throw (r_Error);

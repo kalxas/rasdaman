@@ -306,6 +306,11 @@ vector<string> r_Format_Params::getFilePaths() const
     return filePaths;
 }
 
+void r_Format_Params::setFilePaths(const std::vector<std::string> &filePathsArg)
+{
+    this->filePaths = filePathsArg;
+}
+
 string r_Format_Params::getFilePath() const
 {
     return filePaths[0];
@@ -339,6 +344,11 @@ vector< pair<string, string> > r_Format_Params::getConfigOptions() const
 r_Minterval r_Format_Params::getSubsetDomain() const
 {
     return subsetDomain;
+}
+
+void r_Format_Params::setSubsetDomain(const r_Minterval& domain)
+{
+    this->subsetDomain = domain;
 }
 
 pair<int, int> r_Format_Params::getTranspose() const

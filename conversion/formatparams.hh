@@ -73,6 +73,9 @@ public:
     /// get paths to files to be decoded
     std::vector<std::string> getFilePaths() const;
     
+    /// set the paths to files to be decoded
+    void setFilePaths(const std::vector<std::string>& filePaths);
+
     /// get the path to a file to be decoded
     std::string getFilePath() const;
     
@@ -84,6 +87,9 @@ public:
     
     /// subset region to be decoded from the input file, instead of the whole file
     r_Minterval getSubsetDomain() const;
+
+    /// sets subset region to be decoded from the input file, instead of the whole file
+    void setSubsetDomain(const r_Minterval& domain);
     
     /// extra format parameters, e.g. compression type; convertor-dependent
     std::vector< std::pair<std::string, std::string> > getFormatParameters() const;

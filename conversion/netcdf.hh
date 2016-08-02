@@ -73,6 +73,8 @@ public:
     virtual r_Conv_Desc &convertTo(const char *options = NULL) throw (r_Error);
     /// convert from NETCDF
     virtual r_Conv_Desc &convertFrom(const char *options = NULL) throw (r_Error);
+    /// convert data in a specific format to array
+    virtual r_Conv_Desc &convertFrom(r_Format_Params options) throw(r_Error);
 
     /// cloning
     virtual r_Convertor *clone(void) const;

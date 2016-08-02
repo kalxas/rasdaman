@@ -109,7 +109,14 @@ r_Conv_Desc &r_Conv_GRIB::convertFrom(const char *options) throw(r_Error)
         LERROR << "mandatory format options have not been specified.";
         throw r_Error(INVALIDFORMATPARAMETER);
     }
-    Json::Value messageDomains = getMessageDomainsJson(string(options));
+    formatParams.parse(string(options), true);
+    return this->convertFrom(formatParams);
+}
+
+r_Conv_Desc &r_Conv_GRIB::convertFrom(r_Format_Params options) throw(r_Error)
+{
+    formatParams = options;
+    Json::Value messageDomains = getMessageDomainsJson();
     unordered_map<int, r_Minterval> messageDomainsMap = getMessageDomainsMap(messageDomains);
     r_Minterval fullBoundingBox = computeBoundingBox(messageDomainsMap);
     LDEBUG << "computed bounding box from the specified messageDomains: " << fullBoundingBox;
@@ -195,9 +202,8 @@ r_Conv_Desc &r_Conv_GRIB::convertFrom(const char *options) throw(r_Error)
     return desc;
 }
 
-Json::Value r_Conv_GRIB::getMessageDomainsJson(const string& options) throw(r_Error)
+Json::Value r_Conv_GRIB::getMessageDomainsJson() throw(r_Error)
 {
-    formatParams.parse(options, true);
     Json::Value val = formatParams.getParams();
     if (val.isMember(FormatParamKeys::Decode::INTERNAL_STRUCTURE) &&
         val[FormatParamKeys::Decode::INTERNAL_STRUCTURE].isMember(FormatParamKeys::Decode::Grib::MESSAGE_DOMAINS))

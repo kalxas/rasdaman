@@ -362,6 +362,11 @@ r_Conv_Desc &r_Conv_HDF::convertFrom(const char *options) throw(r_Error)
 #endif // HAVE_HDF
 }
 
+r_Conv_Desc &r_Conv_HDF::convertFrom(r_Format_Params options) throw(r_Error)
+{
+    throw r_Error(r_Error::r_Error_FeatureNotSupported);
+}
+
 
 
 const char *r_Conv_HDF::get_name( void ) const

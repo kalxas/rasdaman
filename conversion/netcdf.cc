@@ -150,6 +150,12 @@ r_Conv_Desc &r_Conv_NETCDF::convertFrom(const char *options) throw (r_Error)
     {
         parseDecodeOptions(string{options});
     }
+    return this->convertFrom(formatParams);
+}
+
+r_Conv_Desc &r_Conv_NETCDF::convertFrom(r_Format_Params options) throw(r_Error)
+{
+    formatParams = options;
 
     // write the data to temp file, netcdf wants a file path unfortunately
     string tmpFilePath;
@@ -168,6 +174,9 @@ r_Conv_Desc &r_Conv_NETCDF::convertFrom(const char *options) throw (r_Error)
     {
         LFATAL << "invalid netcdf file: '" << tmpFilePath << "'.";
         throw r_Error(r_Error::r_Error_Conversion);
+    }
+    if(!formatParams.getVariables().empty()){
+        varNames = formatParams.getVariables();
     }
     validateDecodeOptions(dataFile);
     if (varNames.empty())

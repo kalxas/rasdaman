@@ -197,7 +197,7 @@ int interactiveWork()
 
     if(comm==COMM_ERR)
     {
-        std::cout<<"Cannot connect to main host "<<httpClient.getRasMgrHost()<<std::endl;
+        std::cerr <<"Cannot connect to main host "<<httpClient.getRasMgrHost()<<std::endl;
         return CANTCONNECT;
     }
     if(comm==COMM_ACDN)
@@ -352,6 +352,7 @@ int batchMode()
     switch(comm)
     {
     case COMM_ERR:
+        std::cerr <<"Cannot connect to main host "<<httpClient.getRasMgrHost()<<std::endl;
         result = CANTCONNECT;
         break;
     case COMM_ACDN:
@@ -373,12 +374,12 @@ int testLogin()
 
     if(comm==COMM_ERR)
     {
-        //std::cout<<"Cannot connect to main host "<<httpClient.getRasMgrHost()<<std::endl;
+        std::cerr<<"Cannot connect to main host "<<httpClient.getRasMgrHost()<<std::endl;
         return CANTCONNECT;
     }
     if(comm==COMM_ACDN)
     {
-        //std::cout<<"Acces denied."<<std::endl;
+        std::cerr<<"Acces denied."<<std::endl;
         return ACCESSDENIED;
     }
 

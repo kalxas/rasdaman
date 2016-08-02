@@ -300,7 +300,12 @@ r_Conv_Desc &r_Conv_GDAL::convertFrom(const char *options) throw (r_Error)
         formatParams.parse(string{options});
         setConfigOptions();
     }
+    return this->convertFrom(formatParams);
+}
     
+r_Conv_Desc &r_Conv_GDAL::convertFrom(r_Format_Params options) throw (r_Error)
+{
+    formatParams = options;
     string tmpFilePath("");
     r_TmpFile tmpFileObj;
     if (formatParams.getFilePaths().empty())
@@ -335,6 +340,7 @@ r_Conv_Desc &r_Conv_GDAL::convertFrom(const char *options) throw (r_Error)
     }
     
     return desc;
+
 }
 
 char* r_Conv_GDAL::decodeImage(GDALDataset* poDataset, const std::vector<int>& bandIds) throw (r_Error)

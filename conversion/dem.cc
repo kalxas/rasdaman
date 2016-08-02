@@ -711,6 +711,11 @@ r_Conv_DEM::convertFrom(const char* options) throw (r_Error)
     return desc;
 }
 
+r_Conv_Desc &r_Conv_DEM::convertFrom(r_Format_Params options) throw(r_Error)
+{
+    throw r_Error(r_Error::r_Error_FeatureNotSupported);
+}
+
 
 r_Conv_Desc&
 r_Conv_DEM::convertTo(const char* options) throw (r_Error)
