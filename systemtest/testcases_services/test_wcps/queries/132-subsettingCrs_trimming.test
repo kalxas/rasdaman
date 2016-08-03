@@ -1,1 +1,1 @@
-for c in (eobstest) return encode(c[t(0), Lat:"http://www.opengis.net/def/crs/EPSG/0/4269"(0:20), Long:"http://www.opengis.net/def/crs/EPSG/0/4680"(35:40)] , "png")
+for c in (eobstest) return encode(c[t:"CRS:1"(0), Long:"http://www.opengis.net/def/crs/EPSG/0/4269"(0:20), Lat:"http://www.opengis.net/def/crs/EPSG/0/4269"(35:40)] , "png")

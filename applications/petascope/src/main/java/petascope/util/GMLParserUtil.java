@@ -78,16 +78,17 @@ public class GMLParserUtil {
     private static final org.slf4j.Logger log = LoggerFactory.getLogger(GMLParserUtil.class);
 
     public static String parseCoverageType(Element root) throws WCSTUnsupportedCoverageTypeException {
-        if(root.getLocalName().equals(XMLSymbols.LABEL_GRID_COVERAGE) ||
-                root.getLocalName().equals(XMLSymbols.LABEL_RECTIFIED_GRID_COVERAGE)){
+        String rootName = root.getLocalName();
+        if (rootName.equals(XMLSymbols.LABEL_GRID_COVERAGE)) {
+            return XMLSymbols.LABEL_GRID_COVERAGE;
+        } else if (rootName.equals(XMLSymbols.LABEL_RECTIFIED_GRID_COVERAGE)) {
             return XMLSymbols.LABEL_RECTIFIED_GRID_COVERAGE;
-        }
-        else if(root.getLocalName().equals(XMLSymbols.LABEL_REFERENCEABLE_GRID_COVERAGE)) {
+        } else if (rootName.equals(XMLSymbols.LABEL_REFERENCEABLE_GRID_COVERAGE)) {
             return XMLSymbols.LABEL_REFERENCEABLE_GRID_COVERAGE;
         }
         else {
-            log.error("Unsupported coverage type: " + root.getLocalName());
-            throw new WCSTUnsupportedCoverageTypeException(root.getLocalName());
+            log.error("Unsupported coverage type: " + rootName);
+            throw new WCSTUnsupportedCoverageTypeException(rootName);
         }
     }
 

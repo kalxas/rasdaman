@@ -47,14 +47,28 @@ SCRIPT_DIR="$( cd -P "$( dirname "$SOURCE" )" && pwd )"
 # get the test datas and recipes from folder
 TEST_DATA="$SCRIPT_DIR/test_data"
 
-# the coverageIDs need to import but will not delete
+# the coverageIDs need to import but will not be delete
 COVERAGE_ID_LIST=("test_time3d" "test_wms_4326" "test_wms_3857")
 
-# Check if coverage ID should be deleted or keep for other test cases
-keepCoverageID() {
+# Check if coverage ID should be deleted or keep for other test cases (by ID)
+keepCoverageByID() {
     for COV_ID in "${COVERAGE_ID_LIST[@]}"
     do
         if [[ "$COV_ID" == "$1" ]]; then
+            return 0
+        fi
+    done
+
+    return 1
+}
+
+# Check if coverage ID should be deleted or keep for other test cases (by folder name "contains")
+COVERAGE_FOLDER_LIST=("wcps")
+keepCoverageByFolderName() {
+    for FOLDER_NAME in "${COVERAGE_FOLDER_LIST[@]}"
+    do
+        # if folder name contains the pattern, then will not remove the coverageID of recipe file which is inside this folder
+        if [[ "$1" =~ "$FOLDER_NAME" ]]; then
             return 0
         fi
     done
@@ -97,13 +111,15 @@ for TEST_CASE in $TEST_DATA/*; do
     # 2 Check if wcst_import runs successfully
     if [[ $? != 0 ]]; then
         # 2.1 error when ingesting data
-        log "+ Error: when ingesting data by wcst_import, test case: "$TEST_CASE
+        log "+ Error: When ingesting data by wcst_import, test case: "$TEST_CASE_NAME
         NUM_FAIL=$(($NUM_FAIL + 1))
     else # 2.2 run correctly
-        log "+ Pass 1: when ingesting data by wcst_import, test case: "$TEST_CASE
+        log "+ Pass 1: When ingesting data by wcst_import, test case: "$TEST_CASE_NAME
         # 2.3 remove file resume.json to clean
         RESUME_FILE=$(find $TEST_CASE -type f -name "*.resume.json")
-        rm $RESUME_FILE
+        if [[ ! -z "$RESUME_FILE" ]]; then
+            rm $RESUME_FILE
+        fi
 
         # 2.4 Get coverage id from ingest.json
         COVERAGE_ID=$(grep -Po -m 1 '"coverage_id":.*?[^\\]".*' $RECIPE_FILE | awk -F'"' '{print $4}')
@@ -132,8 +148,14 @@ for TEST_CASE in $TEST_DATA/*; do
 
             # Keep test_time3d for using later on with WCPS query
             #      wms_4326 and wms_3857 for wms test
-            keepCoverageID $COVERAGE_ID
+            keepCoverageByID $COVERAGE_ID
             IS_REMOVE=$?
+
+            # Check if the folder name is in unwanted delete coverage IDs list
+            if [[ $IS_REMOVE == 1 ]]; then
+                keepCoverageByFolderName $TEST_CASE_NAME
+                IS_REMOVE=$?
+            fi
 
             if [[ $IS_REMOVE == 1 ]]; then
                 # 2.7 it is good when coverage does exist then now delete coverage
@@ -148,7 +170,7 @@ for TEST_CASE in $TEST_DATA/*; do
                     NUM_SUC=$(($NUM_SUC + 1))
                 fi
             else
-                log "+ Pass 3: Keep Coverage ID: $COVERAGE_ID for other test."
+                log "+ Pass 3: Keep Coverage ID: *$COVERAGE_ID* for other test."
                 NUM_SUC=$(($NUM_SUC + 1))
             fi
         fi

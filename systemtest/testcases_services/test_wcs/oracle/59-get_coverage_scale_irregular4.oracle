@@ -10,8 +10,8 @@
 
   <boundedBy>
     <Envelope srsName="/crs/EPSG/0/32633" axisLabels="E N" uomLabels="metre metre" srsDimension="2">
-      <lowerCorner>75042.72735943 5094865.5579385</lowerCorner>
-      <upperCorner>105042.72735943 5124865.5579385</upperCorner>
+      <lowerCorner>75042.7273594 5094865.55794</lowerCorner>
+      <upperCorner>105042.7273594 5124865.55794</upperCorner>
     </Envelope>
   </boundedBy>
 
@@ -28,7 +28,7 @@
       <axisLabels>E N</axisLabels>
       <gmlrgrid:origin>
         <Point id="irr_cube_2-origin" srsName="/crs/EPSG/0/32633" axisLabels="E N" uomLabels="metre metre" srsDimension="2">
-          <pos>80042.72735943 5119865.5579385</pos>
+          <pos>80042.7273594 5119865.55794</pos>
         </Point>
       </gmlrgrid:origin>
       <gmlrgrid:generalGridAxis>
@@ -68,11 +68,11 @@
   <gmlcov:rangeType>
     <swe:DataRecord>
     <swe:field name="b1">
-      <swe:Quantity ><swe:label>prediction</swe:label><swe:description>kriged mean surface PM10 exposure</swe:description><swe:uom code="ug/m3" /></swe:Quantity>
+      <swe:Quantity ><swe:nilValues><swe:NilValues /></swe:nilValues><swe:uom code="10^0" /></swe:Quantity>
     </swe:field>    <swe:field name="b2">
-      <swe:Quantity ><swe:label>variance</swe:label><swe:description>kriging error on PM10 prediction</swe:description><swe:uom code="(ug/m3)2" /></swe:Quantity>
+      <swe:Quantity ><swe:nilValues><swe:NilValues /></swe:nilValues><swe:uom code="10^0" /></swe:Quantity>
     </swe:field>
     </swe:DataRecord>
   </gmlcov:rangeType>
-<gmlcov:metadata/>
+  <gmlcov:metadata></gmlcov:metadata>
 </gmlcov:ReferenceableGridCoverage>

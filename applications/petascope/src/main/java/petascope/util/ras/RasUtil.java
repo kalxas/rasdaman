@@ -439,7 +439,7 @@ public class RasUtil {
         log.info("Checking the number of objects left in collection " + collectionName);
         RasBag result = (RasBag) executeRasqlQuery(TEMPLATE_SDOM.replace(TOKEN_COLLECTION_NAME, collectionName));
         log.info("Result size is: " + String.valueOf(result.size()));
-        if (result.size() == 0) {
+        if (result.isEmpty()) {
             //no object left, delete the collection so that the name can be reused in the future
             log.info("No objects left in the collection, dropping the collection so the name can be reused in the future.");
             executeRasqlQuery(TEMPLATE_DROP_COLLECTION.replace(TOKEN_COLLECTION_NAME, collectionName), ConfigManager.RASDAMAN_ADMIN_USER, ConfigManager.RASDAMAN_ADMIN_PASS, true);
@@ -493,16 +493,11 @@ public class RasUtil {
         BigInteger oid = new BigInteger("0");
         String query;
         String tilingClause = (tiling == null || tiling.isEmpty()) ? "" : TILING_KEYWORD + " " + tiling;
-        //As decode does not work correctly with geotiffs at the moment, use the old inv_tiff function to insert it
-        //TODO remove this once decode($1) works nicely
-        if (mimetype != null && mimetype.toLowerCase().contains(TIFF_MIMETYPE)) {
-            query = ConfigManager.RASDAMAN_BIN_PATH + RASQL + " --user " + username + " --passwd " + password + " -q "
-                    + "'" + TEMPLATE_INSERT_TIFF.replace(TOKEN_COLLECTION_NAME, collectionName).replace(TOKEN_TILING, tilingClause) + "' --file " + filePath;
-        } else {
-            query = ConfigManager.RASDAMAN_BIN_PATH + RASQL + " --user " + username + " --passwd " + password + " -q "
-                    + "'" + TEMPLATE_INSERT_FILE.replace(TOKEN_COLLECTION_NAME, collectionName).replace(TOKEN_TILING, tilingClause) + "' --file " + filePath;
-        }
+
+        query = ConfigManager.RASDAMAN_BIN_PATH + RASQL + " --user " + username + " --passwd " + password + " -q "
+              + "'" + TEMPLATE_INSERT_FILE.replace(TOKEN_COLLECTION_NAME, collectionName).replace(TOKEN_TILING, tilingClause) + "' --file " + filePath;
         log.info("Executing " + query);
+        
         Process p = Runtime.getRuntime().exec(new String[]{"bash", "-c", query});
         BufferedReader stdError = new BufferedReader(new InputStreamReader(p.getErrorStream()));
         String s;
@@ -557,10 +552,7 @@ public class RasUtil {
     private static final String TOKEN_OID = "%oid%";
     private static final String TEMPLATE_DELETE = "DELETE FROM " + TOKEN_COLLECTION_NAME + " WHERE oid(" + TOKEN_COLLECTION_NAME + ")=" + TOKEN_OID;
     private static final String TEMPLATE_INSERT_FILE = "INSERT INTO " + TOKEN_COLLECTION_NAME + " VALUES decode($1)" + " " + TOKEN_TILING;
-    private static final String TEMPLATE_INSERT_TIFF = "INSERT INTO " + TOKEN_COLLECTION_NAME + " VALUES inv_tiff($1)" + " " + TOKEN_TILING;
     private static final String RASQL = "rasql";
-    private static final String TIFF_MIMETYPE = "tif";
-    private static final String RASDAMAN_ERROR = "rasdaman error";
     private static final String TEMPLATE_SDOM = "SELECT sdom(m) FROM " + TOKEN_COLLECTION_NAME + " m";
     private static final String TEMPLATE_DROP_COLLECTION = "DROP COLLECTION " + TOKEN_COLLECTION_NAME;
 }

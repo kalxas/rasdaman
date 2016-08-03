@@ -205,10 +205,10 @@ public class UpdateCoverageHandler extends AbstractRequestHandler<UpdateCoverage
 
     private void handleSubsetCoefficients(CoverageMetadata currentCoverageMetadata, List<DimensionSubset> subsets) throws PetascopeException {
         for (DimensionSubset subset : subsets) {
-            //check if axis is irregular is irregular
-            if (currentCoverageMetadata.getDomainByName(subset.getDimension()).isIrregular()) {
+            //check if axis is regular or irregular
+            DomainElement currentDom = currentCoverageMetadata.getDomainByName(subset.getDimension());
+            if (currentDom.isIrregular()) {
                 //update coefficient corresponding to this slice
-                DomainElement currentDom = currentCoverageMetadata.getDomainByName(subset.getDimension());
                 int axisId;
                 try {
                     axisId = meta.getGridAxisId(currentCoverageMetadata.getCoverageId(), currentDom.getOrder());

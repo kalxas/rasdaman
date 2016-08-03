@@ -43,7 +43,7 @@ from wcst.wmst import WMSTFromWCSInsertRequest
 
 
 class Importer:
-    def __init__(self, coverage, insert_into_wms=False):
+    def __init__(self, coverage, insert_into_wms=False, grid_coverage=False):
         """
         Imports a coverage into wcst
         :param Coverage coverage: the coverage to be imported
@@ -55,6 +55,7 @@ class Importer:
         self.processed = 0
         self.total = len(coverage.slices)
         self.insert_into_wms = insert_into_wms
+        self.grid_coverage = grid_coverage
 
     def ingest(self):
         """
@@ -174,7 +175,7 @@ class Importer:
         :rtype: File
         """
         metadata_provider = MetadataProvider(self.coverage.coverage_id, self._get_update_axes(slice),
-                                             self.coverage.range_fields, self.coverage.crs, None)
+                                             self.coverage.range_fields, self.coverage.crs, None, self.grid_coverage)
         data_provider = slice.data_provider
         file = Mediator(metadata_provider, data_provider).get_gml_file()
         return file
@@ -212,7 +213,7 @@ class Importer:
                 axis.coefficient = [axis.coefficient[0]]
             axes_map[axis] = GridAxis(grid_axis.order, grid_axis.label, grid_axis.resolution, 0, 0)
         metadata_provider = MetadataProvider(self.coverage.coverage_id, axes_map,
-                                             self.coverage.range_fields, self.coverage.crs, self.coverage.metadata)
+                                             self.coverage.range_fields, self.coverage.crs, self.coverage.metadata, self.grid_coverage)
         tuple_list = ",".join(['0'] * len(self.coverage.range_fields))
         data_provider = TupleListDataProvider(tuple_list)
         file = Mediator(metadata_provider, data_provider).get_gml_file()
@@ -224,7 +225,7 @@ class Importer:
         :rtype: File
         """
         metadata_provider = MetadataProvider(self.coverage.coverage_id, self.coverage.get_insert_axes(),
-                                             self.coverage.range_fields, self.coverage.crs, self.coverage.metadata)
+                                             self.coverage.range_fields, self.coverage.crs, self.coverage.metadata, self.grid_coverage)
         data_provider = self.coverage.slices[0].data_provider
         file = Mediator(metadata_provider, data_provider).get_gml_file()
         self.processed += 1

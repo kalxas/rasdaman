@@ -32,7 +32,7 @@ from util.xml_util import XMLUtil
 
 
 class MetadataProvider:
-    def __init__(self, coverage_id, axes_map, range_fields, crs, extra_metadata):
+    def __init__(self, coverage_id, axes_map, range_fields, crs, extra_metadata, grid_coverage):
         """
         Class to provide the basis for metadata providers
         :param coverage_id: the id of the coverage
@@ -40,6 +40,7 @@ class MetadataProvider:
         :param list[RangeTypeField] range_fields: the range fields for this coverage
         :param str crs: the crs of the coverage
         :param str | None extra_metadata: any extra metadata that should go in the coverage
+        :param boolean: check if want to import a grid coverage
         """
         self.coverage_id = coverage_id
         self.axes = axes_map.keys()
@@ -49,6 +50,7 @@ class MetadataProvider:
         self.axes_map = axes_map
         self.crs = crs
         self.extra_metadata = extra_metadata
+        self.grid_coverage = grid_coverage
 
     def get_crs(self):
         """
@@ -218,3 +220,10 @@ class MetadataProvider:
             if isinstance(axis, IrregularAxis):
                 return True
         return False
+
+    def is_grid_coverage(self):
+        """
+        Returns true if user want to import coverage as a grid coverage
+        :rtype: bool
+        """
+        return bool(self.grid_coverage)

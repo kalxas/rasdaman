@@ -44,9 +44,9 @@
   <gmlcov:rangeType>
     <swe:DataRecord>
     <swe:field name="value">
-      <swe:Quantity  definition="/dataType/OGC/0/float64"><swe:label>double</swe:label><swe:description>primitive</swe:description><swe:uom code="10^0" /><swe:constraint><swe:AllowedValues><swe:interval>-1.7976931348623157E+308 1.7976931348623157E+308</swe:interval></swe:AllowedValues></swe:constraint></swe:Quantity>
+      <swe:Quantity ><swe:nilValues><swe:NilValues /></swe:nilValues><swe:uom code="10^0" /></swe:Quantity>
     </swe:field>
     </swe:DataRecord>
   </gmlcov:rangeType>
-<gmlcov:metadata/>
+  <gmlcov:metadata><Project>This is another test file</Project><Creator>This is a test creator file</Creator><Title>This is a test file</Title><slices /></gmlcov:metadata>
 </gmlcov:GridCoverage>

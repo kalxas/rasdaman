@@ -65,6 +65,6 @@ public class RasdamanTiffUpdater implements RasdamanUpdater{
                 ConfigManager.RASDAMAN_ADMIN_USER, ConfigManager.RASDAMAN_ADMIN_PASS);
     }
 
-    private static final String UPDATE_TEMPLATE_FILE = "UPDATE $collection SET $collection$domain ASSIGN shift(inv_tiff($1), $shiftDomain) WHERE oid($collection) = $oid";
+    private static final String UPDATE_TEMPLATE_FILE = "UPDATE $collection SET $collection$domain ASSIGN shift(decode($1), $shiftDomain) WHERE oid($collection) = $oid";
 }
 

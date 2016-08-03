@@ -96,6 +96,7 @@ public class WcpsCoverageMetadataService {
             for (Axis axis : metadata.getAxes()) {
                 // Only apply to correspondent axis with same name
                 if (axis.getLabel().equals(subset.getAxisName())) {
+                    boolean calculateGridBound = true;
                     // If subset has a given CRS, e.g: Lat:"http://../3857" then change the CRS in axis as well
                     if (subset.getCrs() != null && !subset.getCrs().equals(axis.getCrsUri())) {
                         axis.setCrsUri(subset.getCrs());

@@ -33,8 +33,8 @@
       </gmlrgrid:origin>
       <gmlrgrid:generalGridAxis>
         <gmlrgrid:GeneralGridAxis>
-          <gmlrgrid:offsetVector srsName="/crs/OGC/0/AnsiDate" axisLabels="ansi" uomLabels="d" srsDimension="1">2</gmlrgrid:offsetVector>
-          <gmlrgrid:coefficients>0.5 1.5</gmlrgrid:coefficients>
+          <gmlrgrid:offsetVector srsName="/crs/OGC/0/AnsiDate" axisLabels="ansi" uomLabels="d" srsDimension="1">1</gmlrgrid:offsetVector>
+          <gmlrgrid:coefficients>1 3</gmlrgrid:coefficients>
           <gmlrgrid:gridAxesSpanned>ansi</gmlrgrid:gridAxesSpanned>
           <gmlrgrid:sequenceRule axisOrder="+1">Linear</gmlrgrid:sequenceRule>
         </gmlrgrid:GeneralGridAxis>
@@ -60,11 +60,11 @@
   <gmlcov:rangeType>
     <swe:DataRecord>
     <swe:field name="b1">
-      <swe:Quantity ><swe:label>prediction</swe:label><swe:description>kriged mean surface PM10 exposure</swe:description><swe:uom code="ug/m3" /></swe:Quantity>
+      <swe:Quantity ><swe:nilValues><swe:NilValues /></swe:nilValues><swe:uom code="10^0" /></swe:Quantity>
     </swe:field>    <swe:field name="b2">
-      <swe:Quantity ><swe:label>variance</swe:label><swe:description>kriging error on PM10 prediction</swe:description><swe:uom code="(ug/m3)2" /></swe:Quantity>
+      <swe:Quantity ><swe:nilValues><swe:NilValues /></swe:nilValues><swe:uom code="10^0" /></swe:Quantity>
     </swe:field>
     </swe:DataRecord>
   </gmlcov:rangeType>
-<gmlcov:metadata/>
+  <gmlcov:metadata></gmlcov:metadata>
 </gmlcov:ReferenceableGridCoverage>

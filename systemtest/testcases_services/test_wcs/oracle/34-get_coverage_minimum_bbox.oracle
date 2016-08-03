@@ -19,8 +19,8 @@
     <RectifiedGrid dimension="1" id="eobstest-grid">
       <limits>
         <GridEnvelope>
-          <low>90</low>
-          <high>90</high>
+          <low>221</low>
+          <high>221</high>
         </GridEnvelope>
       </limits>
       <axisLabels>Long</axisLabels>
@@ -43,16 +43,16 @@
   <coverageFunction>
     <GridFunction>
       <sequenceRule axisOrder="+1">Linear</sequenceRule>
-      <startPoint>90</startPoint>
+      <startPoint>221</startPoint>
     </GridFunction>
   </coverageFunction>
 
   <gmlcov:rangeType>
     <swe:DataRecord>
-    <swe:field name="value">
-      <swe:Quantity  definition="http://eca.knmi.nl/download/ensembles/ensembles.php"><swe:label>tg</swe:label><swe:description>mean temperature</swe:description><swe:nilValues><swe:NilValues><swe:nilValue reason="/nil/OGC/0/missing">-9999</swe:nilValue></swe:NilValues></swe:nilValues><swe:uom code="Celsius" /></swe:Quantity>
+    <swe:field name="tg">
+      <swe:Quantity ><swe:nilValues><swe:NilValues /></swe:nilValues><swe:uom code="10^0" /></swe:Quantity>
     </swe:field>
     </swe:DataRecord>
   </gmlcov:rangeType>
-<gmlcov:metadata/>
+  <gmlcov:metadata><Project>This is another test file</Project><Creator>This is a test creator file</Creator><Title>This is a test file</Title><slices /></gmlcov:metadata>
 </gmlcov:RectifiedGridCoverage>

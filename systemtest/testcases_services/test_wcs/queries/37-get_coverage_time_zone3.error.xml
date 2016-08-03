@@ -16,7 +16,7 @@
   </wcs:DimensionSlice>
   <wcs:DimensionTrim>
     <wcs:Dimension>t</wcs:Dimension>
-    <wcs:TrimLow>"1950-01-01T12:00%2B14"</wcs:TrimLow>
+    <wcs:TrimLow>"1950-01-02T12:00%2B14"</wcs:TrimLow>
     <wcs:TrimHigh>"1950-01-01T11:59:59.999%2B12"</wcs:TrimHigh>
   </wcs:DimensionTrim>
 </wcs:GetCoverage>

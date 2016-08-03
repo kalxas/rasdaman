@@ -64,6 +64,7 @@ class Recipe(BaseRecipe):
         Implementation of the base recipe validate method
         """
         super(Recipe, self).validate()
+
         if 'wms_import' not in self.options:
             self.options['wms_import'] = False
         else:
@@ -74,6 +75,12 @@ class Recipe(BaseRecipe):
 
         if 'coverage' not in self.options:
             raise RecipeValidationException("No coverage parameter supplied in the recipe parameters.")
+        else:
+            # NOTE: only general coverage support this grid coverage type
+            if 'grid_coverage' not in self.options['coverage']:
+                self.options['coverage']['grid_coverage'] = False
+            else:
+                self.options['coverage']['grid_coverage'] = bool(self.options['coverage']['grid_coverage'])
 
         if 'crs' not in self.options['coverage']:
             raise RecipeValidationException("No crs parameter in the coverage parameter of the recipe parameters.")
@@ -261,7 +268,8 @@ class Recipe(BaseRecipe):
                                            self._read_bands()[0],
                                            self.session.get_files(), crs, self._read_axes(crs),
                                            self.options['tiling'], self._global_metadata_fields(),
-                                           self._local_metadata_fields(), self._metadata_type()).to_coverage()
+                                           self._local_metadata_fields(), self._metadata_type(),
+                                           self.options['coverage']['grid_coverage']).to_coverage()
         return coverage
 
     def _get_gdal_coverage(self):
@@ -275,7 +283,8 @@ class Recipe(BaseRecipe):
                                            self._read_bands(),
                                            self.session.get_files(), crs, self._read_axes(crs),
                                            self.options['tiling'], self._global_metadata_fields(),
-                                           self._local_metadata_fields(), self._metadata_type()).to_coverage()
+                                           self._local_metadata_fields(), self._metadata_type(),
+                                           self.options['coverage']['grid_coverage']).to_coverage()
         return coverage
 
     def _get_netcdf_coverage(self):
@@ -289,7 +298,8 @@ class Recipe(BaseRecipe):
                                              self._read_bands(),
                                              self.session.get_files(), crs, self._read_axes(crs),
                                              self.options['tiling'], self._global_metadata_fields(),
-                                             self._local_metadata_fields(), self._metadata_type()).to_coverage()
+                                             self._local_metadata_fields(), self._metadata_type(),
+                                             self.options['coverage']['grid_coverage']).to_coverage()
         return coverage
 
     def _get_importer(self):
@@ -298,7 +308,7 @@ class Recipe(BaseRecipe):
         :rtype: Importer
         """
         if self.importer is None:
-            self.importer = Importer(self._get_coverage(), self.options['wms_import'])
+            self.importer = Importer(self._get_coverage(), self.options['wms_import'], self.options['coverage']['grid_coverage'])
         return self.importer
 
     @staticmethod

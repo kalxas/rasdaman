@@ -1,3 +1,0 @@
- struct GeostatPredictionPixel { float prediction, variance; };
- typedef marray <GeostatPredictionPixel, 3> GeostatPredictionCube;
- typedef set    <GeostatPredictionCube> GeostatPredictionSet3;

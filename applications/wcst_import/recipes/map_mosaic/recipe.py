@@ -29,6 +29,7 @@ from master.importer.importer import Importer
 from master.importer.slice import Slice
 from master.provider.data.file_data_provider import FileDataProvider
 from master.recipe.base_recipe import BaseRecipe
+from master.error.validate_exception import RecipeValidationException
 from session import Session
 from util.crs_util import CRSUtil
 from util.gdal_util import GDALGmlUtil
@@ -57,6 +58,7 @@ class Recipe(BaseRecipe):
         Implementation of the base recipe validate method
         """
         super(Recipe, self).validate()
+
         if 'wms_import' not in self.options:
             self.options['wms_import'] = False
         else:
@@ -121,7 +123,7 @@ class Recipe(BaseRecipe):
 
     def _get_importer(self):
         if self.importer is None:
-            self.importer = Importer(self._get_coverage(), self.options['wms_import'])
+            self.importer = Importer(self._get_coverage(), self.options['wms_import'], False)
         return self.importer
 
 

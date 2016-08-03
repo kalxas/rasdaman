@@ -140,7 +140,7 @@ done
 
 # run import if necessary
 drop_data
-[ "$SVC_NAME" == "secore" -o "$SVC_NAME" == "select" -o "$SVC_NAME" == "nullvalues" ] || import_petascope_data "$TESTDATA_PATH"
+[ "$SVC_NAME" == "secore" -o "$SVC_NAME" == "select" -o "$SVC_NAME" == "nullvalues" ]
 [ "$SVC_NAME" == "select" ] && import_rasql_data "$TESTDATA_PATH"
 [ "$SVC_NAME" == "nullvalues" ] && import_nullvalues_data "$TESTDATA_PATH"
 if [ -e "$TESTDATA_PATH/complex.binary" ] ; then

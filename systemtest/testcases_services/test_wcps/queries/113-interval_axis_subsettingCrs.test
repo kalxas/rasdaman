@@ -1,1 +1,1 @@
-for c in (eobstest) return encode( count ( c[Lat:"http://localhost:8080/def/crs/EPSG/0/4326"(0:25), Long(25:40), t(0) ] > 0 ) , "csv")
+for c in (eobstest) return encode( count ( c[Long:"http://localhost:8080/def/crs/EPSG/0/4326"(0:25), Lat(25:40), t:"CRS:1"(0) ] > 0 ) , "csv")

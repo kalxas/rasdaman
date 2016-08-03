@@ -30,8 +30,9 @@ from master.generator.model.domain_set_regular import DomainSetRegular
 from master.generator.model.range_set_file import RangeSetFile
 from master.generator.model.range_set_tuple_list import RangeSetTupleList
 from master.generator.model.range_type import RangeType
-from master.generator.model.rectified_grid_coverage import RectifiedGridCoverage
 from master.generator.model.referenceable_grid_coverage import ReferenceableGridCoverage
+from master.generator.model.grid_coverage import GridCoverage
+from master.generator.model.rectified_grid_coverage import RectifiedGridCoverage
 from master.provider.data.file_data_provider import FileDataProvider
 from master.provider.data.tuple_list_data_provider import TupleListDataProvider
 from master.provider.data.url_data_provider import UrlDataProvider
@@ -53,13 +54,24 @@ class Mediator:
 
     def get_gml_coverage(self):
         """
-        Returns a coverage model that can be transformed into a gml
+        Returns a coverage model that can be transformed into a gml, simple check by:
+        + An axis is irregular (such as Time) -> ReferenceableGridCoverage
+        + A regular coverage (if grid_coverage option is true) -> GridCoverage (same as origin as in Rasdaman)
+        + A regular coverage (if grid_coverage option is false) -> it is a RectifiedGridCoverage (e.g: map mosaic)
+
         :rtype: GMLCoverage
         """
+        # ReferenceableGridCoverage
         if self.metadata_provider.is_coverage_irregular():
             return ReferenceableGridCoverage(self.metadata_provider.coverage_id, self._get_bounded_by(),
                                              self._get_domain_set(), self._get_range_set(), self._get_range_type(),
                                              CoverageMetadata(self.metadata_provider.extra_metadata))
+        # GridCoverage
+        elif self.metadata_provider.is_grid_coverage():
+            return GridCoverage(self.metadata_provider.coverage_id, self._get_bounded_by(),
+                                         self._get_domain_set(), self._get_range_set(), self._get_range_type(),
+                                         CoverageMetadata(self.metadata_provider.extra_metadata))
+        # RectifiedGridCoverage
         else:
             return RectifiedGridCoverage(self.metadata_provider.coverage_id, self._get_bounded_by(),
                                          self._get_domain_set(), self._get_range_set(), self._get_range_type(),
@@ -90,7 +102,7 @@ class Mediator:
             return DomainSetRegular(mp.get_no_of_dimensions(), mp.get_grid_low(), mp.get_grid_high(),
                                     mp.get_axis_labels_grid(), mp.get_axis_labels(), mp.get_crs(),
                                     mp.get_axis_uom_labels(),
-                                    mp.get_origin(), mp.get_offset_vectors())
+                                    mp.get_origin(), mp.get_offset_vectors(), mp.is_grid_coverage())
 
     def _get_range_set(self):
         dp = self.data_provider

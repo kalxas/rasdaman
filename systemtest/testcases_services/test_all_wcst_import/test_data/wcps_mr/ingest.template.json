@@ -1,0 +1,53 @@
+{
+  "config": {
+    "service_url": "PETASCOPE_URL",
+    "tmp_directory": "/tmp/",
+    "crs_resolver": "SECORE_URL/",
+    "default_crs": "SECORE_URL/crs/EPSG/0/4326",
+    "mock": false,
+    "automated": true,
+    "track_files": false
+  },
+  "input": {
+    "coverage_id": "mr",
+    "paths": [
+      "mr_1.png"
+    ]
+  },
+  "recipe": {
+    "name": "general_coverage",
+    "options": {
+      "coverage": {
+        "crs": "OGC/0/Index2D",
+        "metadata": {
+          "type": "json",
+          "global": {
+            "resolution": "'1'"
+          }
+        },
+        "slicer": {
+          "type": "gdal",
+          "bands": [
+            {
+              "name": "value",
+              "identifier": "1"
+            }
+          ],
+          "axes": {
+            "j": {
+              "min": "0",
+              "max": "211",
+              "resolution": "-1"
+            },
+            "i": {
+              "min": "0",
+              "max": "256",
+              "resolution": "${gdal:resolutionX}"
+            }
+          }
+        }
+      },
+      "tiling": "ALIGNED [0:1023, 0:1023] TILE SIZE 4194304"
+    }
+  }
+}

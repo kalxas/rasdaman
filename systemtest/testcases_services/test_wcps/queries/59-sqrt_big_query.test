@@ -4,13 +4,13 @@ return sqrt(
 (
   add(
     coverage averagesOverTime
-    over     $T t(0:2)
+    over     $T t:"CRS:1"(0:2)
     values
     (
       (((1/(count((c[Long:"CRS:1"(15:20),Lat:"CRS:1"(0:5),t(1 * $T + 1)]) <= 250)) * add(((c[Long:"CRS:1"(15:20),Lat:"CRS:1"(0:5),t(1 * $T + 1)]) * ((c[Long:"CRS:1"(15:20),Lat:"CRS:1"(0:5),t(1 * $T + 1)]) <= 250))) )) * 0.004 - 0.08)
       -
       avg(coverage averagesOverTime2
-       over $T2 t(0:2)
+       over $T2 t:"CRS:1"(0:2)
        values(((1/(count((c[Long:"CRS:1"(15:20),Lat:"CRS:1"(0:5),t(1 * $T2 + 1)]) <= 250)) * add(((c[Long:"CRS:1"(15:20),Lat:"CRS:1"(0:5),t(1 * $T2 + 1)]) * ((c[Long:"CRS:1"(15:20),Lat:"CRS:1"(0:5),t(1 * $T2 + 1)]) <= 250))) )) * 0.004 - 0.08))
     )
     *
@@ -18,7 +18,7 @@ return sqrt(
       (((1/(count((c[Long:"CRS:1"(15:20),Lat:"CRS:1"(0:5),t(1 * $T + 1)]) <= 250)) * add(((c[Long:"CRS:1"(15:20),Lat:"CRS:1"(0:5),t(1 * $T + 1)]) * ((c[Long:"CRS:1"(15:20),Lat:"CRS:1"(0:5),t(1 * $T + 1)]) <= 250))) )) * 0.004 - 0.08)
       -
       avg(coverage averagesOverTime3
-            over $T3 t(0:2)
+            over $T3 t:"CRS:1"(0:2)
             values(((1/(count((c[Long:"CRS:1"(15:20),Lat:"CRS:1"(0:5),t(1 * $T3 + 1)]) <= 250)) * add(((c[Long:"CRS:1"(15:20),Lat:"CRS:1"(0:5),t(1 * $T3 + 1)]) * ((c[Long:"CRS:1"(15:20),Lat:"CRS:1"(0:5),t(1 * $T3 + 1)]) <= 250))) )) * 0.004 - 0.08)
       )
     )

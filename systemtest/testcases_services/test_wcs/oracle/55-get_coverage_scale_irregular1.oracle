@@ -10,8 +10,8 @@
 
   <boundedBy>
     <Envelope srsName="/crs-compound?1=/crs/EPSG/0/32633&amp;2=/crs/OGC/0/AnsiDate" axisLabels="E N ansi" uomLabels="metre metre d" srsDimension="3">
-      <lowerCorner>75042.72735943 5094865.5579385 148654</lowerCorner>
-      <upperCorner>705042.72735943 5454865.5579385 148661</upperCorner>
+      <lowerCorner>75042.7273594 5094865.55794 148654</lowerCorner>
+      <upperCorner>705042.7273594 5454865.55794 148661</upperCorner>
     </Envelope>
   </boundedBy>
 
@@ -28,7 +28,7 @@
       <axisLabels>E N ansi</axisLabels>
       <gmlrgrid:origin>
         <Point id="irr_cube_2-origin" srsName="/crs-compound?1=/crs/EPSG/0/32633&amp;2=/crs/OGC/0/AnsiDate" axisLabels="E N ansi" uomLabels="metre metre d" srsDimension="3">
-          <pos>80042.72735943 5449865.5579385 148654</pos>
+          <pos>80042.7273594 5449865.55794 148654</pos>
         </Point>
       </gmlrgrid:origin>
       <gmlrgrid:generalGridAxis>
@@ -49,8 +49,8 @@
       </gmlrgrid:generalGridAxis>
       <gmlrgrid:generalGridAxis>
         <gmlrgrid:GeneralGridAxis>
-          <gmlrgrid:offsetVector srsName="/crs-compound?1=/crs/EPSG/0/32633&amp;2=/crs/OGC/0/AnsiDate" axisLabels="E N ansi" uomLabels="metre metre d" srsDimension="3">0 0 4</gmlrgrid:offsetVector>
-          <gmlrgrid:coefficients>0 1 2 3.5</gmlrgrid:coefficients>
+          <gmlrgrid:offsetVector srsName="/crs-compound?1=/crs/EPSG/0/32633&amp;2=/crs/OGC/0/AnsiDate" axisLabels="E N ansi" uomLabels="metre metre d" srsDimension="3">0 0 2</gmlrgrid:offsetVector>
+          <gmlrgrid:coefficients>0 2 4 7</gmlrgrid:coefficients>
           <gmlrgrid:gridAxesSpanned>ansi</gmlrgrid:gridAxesSpanned>
           <gmlrgrid:sequenceRule axisOrder="+1">Linear</gmlrgrid:sequenceRule>
         </gmlrgrid:GeneralGridAxis>
@@ -76,11 +76,11 @@
   <gmlcov:rangeType>
     <swe:DataRecord>
     <swe:field name="b1">
-      <swe:Quantity ><swe:label>prediction</swe:label><swe:description>kriged mean surface PM10 exposure</swe:description><swe:uom code="ug/m3" /></swe:Quantity>
+      <swe:Quantity ><swe:nilValues><swe:NilValues /></swe:nilValues><swe:uom code="10^0" /></swe:Quantity>
     </swe:field>    <swe:field name="b2">
-      <swe:Quantity ><swe:label>variance</swe:label><swe:description>kriging error on PM10 prediction</swe:description><swe:uom code="(ug/m3)2" /></swe:Quantity>
+      <swe:Quantity ><swe:nilValues><swe:NilValues /></swe:nilValues><swe:uom code="10^0" /></swe:Quantity>
     </swe:field>
     </swe:DataRecord>
   </gmlcov:rangeType>
-<gmlcov:metadata/>
+  <gmlcov:metadata></gmlcov:metadata>
 </gmlcov:ReferenceableGridCoverage>

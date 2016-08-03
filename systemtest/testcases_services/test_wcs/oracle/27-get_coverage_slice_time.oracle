@@ -19,8 +19,8 @@
     <RectifiedGrid dimension="2" id="eobstest-grid">
       <limits>
         <GridEnvelope>
-          <low>10 89</low>
-          <high>20 91</high>
+          <low>89 141</low>
+          <high>91 151</high>
         </GridEnvelope>
       </limits>
       <axisLabels>Lat Long</axisLabels>
@@ -37,23 +37,23 @@
   <rangeSet>
     <DataBlock>
       <rangeParameters/>
-      <tupleList ts="," cs=" ">-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999</tupleList>
+      <tupleList ts="," cs=" ">-1798,-1889,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-1759,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999</tupleList>
     </DataBlock>
   </rangeSet>
 
   <coverageFunction>
     <GridFunction>
       <sequenceRule axisOrder="+2 +1">Linear</sequenceRule>
-      <startPoint>10 89</startPoint>
+      <startPoint>89 141</startPoint>
     </GridFunction>
   </coverageFunction>
 
   <gmlcov:rangeType>
     <swe:DataRecord>
-    <swe:field name="value">
-      <swe:Quantity  definition="http://eca.knmi.nl/download/ensembles/ensembles.php"><swe:label>tg</swe:label><swe:description>mean temperature</swe:description><swe:nilValues><swe:NilValues><swe:nilValue reason="/nil/OGC/0/missing">-9999</swe:nilValue></swe:NilValues></swe:nilValues><swe:uom code="Celsius" /></swe:Quantity>
+    <swe:field name="tg">
+      <swe:Quantity ><swe:nilValues><swe:NilValues /></swe:nilValues><swe:uom code="10^0" /></swe:Quantity>
     </swe:field>
     </swe:DataRecord>
   </gmlcov:rangeType>
-<gmlcov:metadata/>
+  <gmlcov:metadata><Project>This is another test file</Project><Creator>This is a test creator file</Creator><Title>This is a test file</Title><slices /></gmlcov:metadata>
 </gmlcov:RectifiedGridCoverage>

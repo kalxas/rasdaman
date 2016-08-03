@@ -1,1 +1,1 @@
-service=WCS&version=2.0.1&request=GetCoverage&coverageId=eobstest&subset=Lat(10)&subset=Long(25,70)&subset=t("1950-01-03T13:05:00","1950-01-03T13:05:00")&format=image/png
+service=WCS&version=2.0.1&request=GetCoverage&coverageId=eobstest&subset=Long(10)&subset=Lat(25,70)&subset=t("1950-01-03T13:05:00","1950-01-03T13:05:00")&format=image/png

@@ -1,0 +1,56 @@
+{
+  "config": {
+    "service_url": "PETASCOPE_URL",
+    "tmp_directory": "/tmp/",
+    "crs_resolver": "SECORE_URL/",
+    "default_crs": "SECORE_URL/crs/EPSG/0/4326",
+    "mock": false,
+    "automated": true,
+    "track_files": false,
+    "subset_correction": false
+  },
+  "input": {
+    "coverage_id": "double_1d",
+    "paths": [
+      "double_1d.nc"
+    ]
+  },
+  "recipe": {
+    "name": "general_coverage",
+    "options": {
+      "coverage": {
+	"grid_coverage": true,
+        "crs": "OGC/0/Index1D",
+        "metadata": {
+          "type": "xml",
+          "global": {
+            "Title": "'This is a test file'",
+            "Project": "'This is another test file'",
+            "Creator": "'This is a test creator file'"
+          }
+        },
+        "slicer": {
+          "type": "netcdf",
+          "bands": [
+            {
+              "name": "value",
+              "variable": "value",
+              "description": "Count of the number of observations from the MERIS sensor contributing to this bin cell",
+              "nilReason": "The nil value represents an error in the sensor.",
+              "identifier": "value"
+            }
+          ],
+          "axes": {
+            "i": {
+              "min": "0",
+              "max": "21",
+              "resolution": 1,
+              "gridOrder": 0
+            }
+          }
+        }
+      },
+      "tiling": "ALIGNED [0:0, 0:1023, 0:1023]"
+    }
+  }
+}

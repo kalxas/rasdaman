@@ -9,9 +9,9 @@
     xsi:schemaLocation= 'http://www.opengis.net/wcs/2.0 http://schemas.opengis.net/wcs/2.0/wcsAll.xsd'>
 
   <boundedBy>
-    <Envelope srsName="/crs/OGC/0/Temporal?epoch=&quot;1950-01-01T00:00:00&quot;&amp;uom=&quot;d&quot;" axisLabels="t" uomLabels="d" srsDimension="1">
-      <lowerCorner>0</lowerCorner>
-      <upperCorner>5</upperCorner>
+    <Envelope srsName="/crs/OGC/0/AnsiDate?axis-label=&quot;t&quot;" axisLabels="t" uomLabels="d" srsDimension="1">
+      <lowerCorner>127469.5</lowerCorner>
+      <upperCorner>127474.5</upperCorner>
     </Envelope>
   </boundedBy>
 
@@ -25,18 +25,18 @@
       </limits>
       <axisLabels>t</axisLabels>
       <origin>
-          <Point id="eobstest-origin" srsName="/crs/OGC/0/Temporal?epoch=&quot;1950-01-01T00:00:00&quot;&amp;uom=&quot;d&quot;" axisLabels="t" uomLabels="d" srsDimension="1">
-              <pos>0.5</pos>
+          <Point id="eobstest-origin" srsName="/crs/OGC/0/AnsiDate?axis-label=&quot;t&quot;" axisLabels="t" uomLabels="d" srsDimension="1">
+              <pos>127470</pos>
           </Point>
       </origin>
-      <offsetVector srsName="/crs/OGC/0/Temporal?epoch=&quot;1950-01-01T00:00:00&quot;&amp;uom=&quot;d&quot;" axisLabels="t" uomLabels="d" srsDimension="1">1</offsetVector>
+      <offsetVector srsName="/crs/OGC/0/AnsiDate?axis-label=&quot;t&quot;" axisLabels="t" uomLabels="d" srsDimension="1">1</offsetVector>
     </RectifiedGrid>
   </domainSet>
 
   <rangeSet>
     <DataBlock>
       <rangeParameters/>
-      <tupleList ts="," cs=" ">-9999,-9999,-9999,-9999</tupleList>
+      <tupleList ts="," cs=" ">-1798,-2027,-1985,-2066,-1636</tupleList>
     </DataBlock>
   </rangeSet>
 
@@ -49,10 +49,10 @@
 
   <gmlcov:rangeType>
     <swe:DataRecord>
-    <swe:field name="value">
-      <swe:Quantity  definition="http://eca.knmi.nl/download/ensembles/ensembles.php"><swe:label>tg</swe:label><swe:description>mean temperature</swe:description><swe:nilValues><swe:NilValues><swe:nilValue reason="/nil/OGC/0/missing">-9999</swe:nilValue></swe:NilValues></swe:nilValues><swe:uom code="Celsius" /></swe:Quantity>
+    <swe:field name="tg">
+      <swe:Quantity ><swe:nilValues><swe:NilValues /></swe:nilValues><swe:uom code="10^0" /></swe:Quantity>
     </swe:field>
     </swe:DataRecord>
   </gmlcov:rangeType>
-<gmlcov:metadata/>
+  <gmlcov:metadata><Project>This is another test file</Project><Creator>This is a test creator file</Creator><Title>This is a test file</Title><slices /></gmlcov:metadata>
 </gmlcov:RectifiedGridCoverage>

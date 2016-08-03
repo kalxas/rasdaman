@@ -24,6 +24,7 @@
 
 import math
 
+from lib import arrow
 from master.error.runtime_exception import RuntimeException
 from master.evaluator.evaluator_slice import NetcdfEvaluatorSlice
 from master.evaluator.sentence_evaluator import SentenceEvaluator
@@ -51,9 +52,9 @@ from util.string_util import stringify
 
 class NetcdfToCoverageConverter:
     def __init__(self, sentence_evaluator, coverage_id, bands, nc_files, crs, user_axes, tiling,
-                 global_metadata_fields, local_metadata_fields, metadata_type):
+                 global_metadata_fields, local_metadata_fields, metadata_type, grid_coverage):
         """
-        Converts a grib list of files to a coverage
+        Converts a netcdf list of files to a coverage
         :param SentenceEvaluator sentence_evaluator: the evaluator for wcst sentences
         :param str coverage_id: the id of the coverage
         :param list[UserBand] bands: the name of the coverage band
@@ -64,6 +65,7 @@ class NetcdfToCoverageConverter:
         :param dict global_metadata_fields: the global metadata fields
         :param dict local_metadata_fields: the local metadata fields
         :param str metadata_type: the metadata type
+        :param boolean grid_coverage: check if user want to import as grid coverage
         """
         self.sentence_evaluator = sentence_evaluator
         self.coverage_id = coverage_id
@@ -75,6 +77,7 @@ class NetcdfToCoverageConverter:
         self.global_metadata_fields = global_metadata_fields
         self.local_metadata_fields = local_metadata_fields
         self.metadata_type = metadata_type
+        self.grid_coverage = grid_coverage
 
     def _get_null_value(self):
         """
@@ -162,13 +165,23 @@ class NetcdfToCoverageConverter:
 
         if user_axis.type == UserAxisType.DATE:
             grid_low = 0
-            grid_high = 0
+            # NOTE: calculate the grid bound for the time axis as when update the boundary it will have error
+            time_low = arrow.get(user_axis.interval.low).timestamp
+            time_high = arrow.get(user_axis.interval.high).timestamp
+            number_of_timepixels = time_high - time_low
+            # convert all the time_low, time_high, resolution from datetime (date) to seconds
+            resolution = user_axis.resolution * 24 * 3600
+            grid_high = int(math.fabs(math.floor(grid_low + number_of_timepixels / resolution)))
+
         else:
             grid_low = 0
             number_of_geopixels = user_axis.interval.high - user_axis.interval.low
             grid_high = int(math.fabs(round(grid_low + number_of_geopixels / user_axis.resolution)))
-            if grid_high > grid_low:
-                grid_high -= 1
+
+            # NOTE: Grid Coverage uses the direct intervals as in Rasdaman, modify the high bound will have error in petascope
+            if not self.grid_coverage:
+                if grid_high > grid_low:
+                    grid_high -= 1
 
         grid_axis = GridAxis(user_axis.order, crs_axis.label, user_axis.resolution, grid_low, grid_high)
 
@@ -189,7 +202,7 @@ class NetcdfToCoverageConverter:
 
     def _slice(self, nc_file, crs_axes):
         """
-        Returns a slice for a grib file
+        Returns a slice for a netcdf file
         :param File nc_file: the path to the netcdf file
         :param list[CRSAxis] crs_axes: the crs axes for the coverage
         :rtype: Slice

@@ -50,10 +50,10 @@
 
   <gmlcov:rangeType>
     <swe:DataRecord>
-    <swe:field name="b1">
-      <swe:Quantity ><swe:label>pixel_value</swe:label><swe:uom code="undefined" /></swe:Quantity>
+    <swe:field name="Gray">
+      <swe:Quantity ><swe:nilValues><swe:NilValues /></swe:nilValues><swe:uom code="10^0" /></swe:Quantity>
     </swe:field>
     </swe:DataRecord>
   </gmlcov:rangeType>
-<gmlcov:metadata/>
+  <gmlcov:metadata></gmlcov:metadata>
 </gmlcov:RectifiedGridCoverage>

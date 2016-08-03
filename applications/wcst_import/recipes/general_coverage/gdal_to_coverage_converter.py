@@ -50,7 +50,7 @@ from util.gdal_util import GDALGmlUtil
 
 class GdalToCoverageConverter:
     def __init__(self, sentence_evaluator, coverage_id, bands, gdal_files, crs, user_axes, tiling,
-                 global_metadata_fields, local_metadata_fields, metadata_type):
+                 global_metadata_fields, local_metadata_fields, metadata_type, grid_coverage):
         """
         Converts a grib list of files to a coverage
         :param SentenceEvaluator sentence_evaluator: the evaluator for wcst sentences
@@ -63,6 +63,7 @@ class GdalToCoverageConverter:
         :param dict global_metadata_fields: the global metadata fields
         :param dict local_metadata_fields: the local metadata fields
         :param str metadata_type: the metadata type
+        :param boolean grid_coverage: check if user want to import grid coverage
         """
         self.sentence_evaluator = sentence_evaluator
         self.coverage_id = coverage_id
@@ -74,6 +75,7 @@ class GdalToCoverageConverter:
         self.global_metadata_fields = global_metadata_fields
         self.local_metadata_fields = local_metadata_fields
         self.metadata_type = metadata_type
+        self.grid_coverage = grid_coverage
 
     def _get_null_value(self):
         """
@@ -165,8 +167,10 @@ class GdalToCoverageConverter:
                 number_of_geopixels = user_axis.interval.high - user_axis.interval.low
                 grid_high = int(math.fabs(math.floor(grid_low + number_of_geopixels / user_axis.resolution)))
 
-            if grid_high > grid_low:
-                grid_high -= 1
+            # NOTE: Grid Coverage uses the direct intervals as in Rasdaman, modify the high bound will have error in petascope
+            if not self.grid_coverage:
+                if grid_high > grid_low:
+                    grid_high -= 1
 
             grid_axis = GridAxis(user_axis.order, crs_axis.label, user_axis.resolution, grid_low, grid_high)
 
