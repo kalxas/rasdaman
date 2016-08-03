@@ -81,4 +81,7 @@ public class RangeField {
     public String getType() {
         return type;
     }
+    
+    public static final String TYPE = "double";
+    public static final String UOM = "10^0";
 }

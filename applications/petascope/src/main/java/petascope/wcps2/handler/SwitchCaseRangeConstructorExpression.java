@@ -26,6 +26,7 @@ import petascope.wcps2.result.WcpsResult;
 
 import java.util.ArrayList;
 import java.util.List;
+import petascope.wcps2.metadata.model.RangeField;
 import petascope.wcps2.metadata.model.WcpsCoverageMetadata;
 
 /**
@@ -78,6 +79,10 @@ public class SwitchCaseRangeConstructorExpression {
 
         // This is needed a coverage metadata from boolean coverage epxression
         WcpsCoverageMetadata metadata = booleanResults.get(0).getMetadata();
+        // NOTE: it will use the range fields from the band names of case expression, not the original range fields from coverage
+        metadata.getRangeFields().clear();
+        List<RangeField> rangeFields = rangeResults.get(0).getMetadata().getRangeFields();
+        metadata.getRangeFields().addAll(rangeFields);
         return new WcpsResult(metadata, rasql);
     }
 

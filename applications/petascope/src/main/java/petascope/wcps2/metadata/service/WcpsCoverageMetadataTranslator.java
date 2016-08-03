@@ -70,8 +70,8 @@ public class WcpsCoverageMetadataTranslator {
             Quantity quantity = (Quantity) sweIterator.next();
 
             rangeFields.add(new RangeField(rangeElement.getType(), rangeElement.getName(), quantity.getDescription(),
-                    parseNodataValues(quantity.getNilValuesIterator()), quantity.getUom(), quantity.getDefinition(),
-                    parseAllowedValues(quantity.getAllowedValues())));
+                                           parseNodataValues(quantity.getNilValuesIterator()), quantity.getUom(), quantity.getDefinition(),
+                                           parseAllowedValues(quantity.getAllowedValues())));
         }
 
         return rangeFields;

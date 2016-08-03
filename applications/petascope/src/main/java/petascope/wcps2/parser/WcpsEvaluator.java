@@ -37,6 +37,7 @@ import java.util.*;
 import org.slf4j.LoggerFactory;
 import petascope.exceptions.PetascopeException;
 import petascope.util.CrsUtil;
+import petascope.wcps2.metadata.model.RangeField;
 import petascope.wcps2.result.WcpsMetadataResult;
 import petascope.wcps2.result.WcpsResult;
 import petascope.wcps2.result.parameters.*;
@@ -966,18 +967,29 @@ public class WcpsEvaluator extends wcpsBaseVisitor<VisitorResult> {
     public VisitorResult visitSwitchCaseRangeConstructorExpressionLabel(@NotNull wcpsParser.SwitchCaseRangeConstructorExpressionLabelContext ctx) {
         // switch case which returns range constructor
         // e.g: for c in (mr) return encode(
-        //        switch case c > 1000 return {red: 107; green:17; blue:68, r1:30, r2:50}
-        //               default return {red: 150; green:103; blue:14, r1:20, r2:50}
+        //        switch case c > 1000 return {red: 107; green:17; blue:68}
+        //               default return {red: 150; green:103; blue:14}
         //        , "png")
 
         List<WcpsResult> booleanResults = new ArrayList<WcpsResult>();
         List<WcpsResult> rangeResults = new ArrayList<WcpsResult>();
+        
+        List<RangeField> firstRangeFields = new ArrayList<RangeField>();
 
         // cases return
         for (int i = 0; i < ctx.CASE().size(); i++) {
             // Handle each rangeConstructor (case)
             WcpsResult wcpsBooleanExpressionResult = (WcpsResult) visit(ctx.booleanSwitchCaseCombinedExpression().get(i));
             WcpsResult wcpsRangeConstructorResult = (WcpsResult) visit(ctx.rangeConstructorSwitchCaseExpression().get(i));
+            
+            List<RangeField> rangeFields = wcpsRangeConstructorResult.getMetadata().getRangeFields();
+            
+            if (firstRangeFields.isEmpty()) {
+                firstRangeFields.addAll(rangeFields);
+            } else {
+                // validate range fields list
+                RangeFieldService.validateRangeFields(firstRangeFields, rangeFields);
+            }
 
             booleanResults.add(wcpsBooleanExpressionResult);
             rangeResults.add(wcpsRangeConstructorResult);
@@ -985,8 +997,11 @@ public class WcpsEvaluator extends wcpsBaseVisitor<VisitorResult> {
 
         // default return also returns a range constructor (cases size = ranges size - 1)
         int casesSize = ctx.CASE().size();
-        WcpsResult wcpsRangeConstructorResult = (WcpsResult) visit(ctx.rangeConstructorSwitchCaseExpression().get(casesSize));
-        rangeResults.add(wcpsRangeConstructorResult);
+        WcpsResult wcpsDefaultRangeConstructorResult = (WcpsResult) visit(ctx.rangeConstructorSwitchCaseExpression().get(casesSize));
+        List<RangeField> rangeFields = wcpsDefaultRangeConstructorResult.getMetadata().getRangeFields();
+        // check if the next case expression has the same band names and band numbers
+        RangeFieldService.validateRangeFields(firstRangeFields, rangeFields);        
+        rangeResults.add(wcpsDefaultRangeConstructorResult);
 
         WcpsResult result = SwitchCaseRangeConstructorExpression.handle(booleanResults, rangeResults);
         return result;

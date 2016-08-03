@@ -25,14 +25,11 @@ import java.math.BigDecimal;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
-import org.apache.commons.lang3.SerializationException;
 import org.apache.commons.lang3.StringUtils;
 import petascope.exceptions.PetascopeException;
-import petascope.exceptions.WCPSException;
 import petascope.util.CrsUtil;
 import petascope.wcps2.decodeparameters.model.NetCDFExtraParams;
 import petascope.wcps2.decodeparameters.service.CovToCFTranslationService;
@@ -113,7 +110,7 @@ public class EncodedCoverageHandler {
                 throw new MetadataSerializationException();
             }
         } else {
-              // get all the output paramters to encode
+              // get all the output parameters to encode
             otherParams.addAll(getExtraParams(coverageExpression.getMetadata()));
             otherParamsString = ", \"" + StringUtils.join(otherParams, ";").replace("\"", "") + "\"";
         }

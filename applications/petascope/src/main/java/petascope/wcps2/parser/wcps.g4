@@ -640,8 +640,8 @@ generalCondenseExpression: CONDENSE condenseExpressionOperator
 * Switch - Case
 1. Return range constructor
 * e.g: for c in (mr) return encode(
-		switch case c > 1000 return {red: 107; green:17; blue:68, r1:30, r2:50}
-		default return {red: 150; green:103; blue:14, r1:20, r2:50}
+		switch case c > 1000 return {red: 107; green:17; blue:68}
+		default return {red: 150; green:103; blue:14}
        , "png")
 2. Return single value
 * e.g: for c in (mr) return encode(

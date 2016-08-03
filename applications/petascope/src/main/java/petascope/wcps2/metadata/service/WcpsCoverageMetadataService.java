@@ -209,6 +209,19 @@ public class WcpsCoverageMetadataService {
         }
         return true;
     }
+    
+    /**
+     * Remove all the un-unsed range fields from coverageExpression's metadata, if at least 1 range field is used.
+     * e.g: coverage has 3 bands, but only 1 band is used (e.g: c.b1) then b2, b3 need to be removed from expression (c.b1)
+     * @param metadata
+     * @param rangeFieldIndex
+     */
+    public void removeUnusedRangeFields(WcpsCoverageMetadata metadata, int rangeFieldIndex) {
+        RangeField rangeField = metadata.getRangeFields().get(rangeFieldIndex);
+        // clear the range field list
+       metadata.getRangeFields().clear();
+       metadata.getRangeFields().add(rangeField);
+    }
 
     /**
      * Creates a coverage for the coverage constructor. Right now, this is not

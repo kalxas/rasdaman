@@ -21,12 +21,17 @@
  */
 package petascope.wcps2.handler;
 
+import java.math.BigDecimal;
 import org.apache.commons.lang3.StringUtils;
 import petascope.wcps2.result.WcpsResult;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import petascope.wcps2.metadata.model.Axis;
+import petascope.wcps2.metadata.model.Interval;
+import petascope.wcps2.metadata.model.RangeField;
+import petascope.wcps2.metadata.model.WcpsCoverageMetadata;
 
 /**
  * Translation class for the range constructor expressions which is used inside switch-case expression
@@ -46,9 +51,11 @@ public class RangeConstructorSwitchCaseHandler {
 
     public static WcpsResult handle(Map<String, WcpsResult> fieldStructure) {
         List<String> translatedFields = new ArrayList();
-        // {red:, green: blue}
+        // {red: 100, green: 100, blue: 20}
         int i = 0;
         int maxRange = fieldStructure.size();
+        
+        List<RangeField> rangeFields = new ArrayList<RangeField>();
         for (Map.Entry<String, WcpsResult> entry : fieldStructure.entrySet()) {
             String scalarValue = entry.getValue().getRasql();
             String scalarRange = getScalarRange(i, maxRange);
@@ -56,11 +63,19 @@ public class RangeConstructorSwitchCaseHandler {
             String result = TEMPLATE.replace("$scalarValue", scalarValue)
                                     .replace("$scalarRange", scalarRange);
             translatedFields.add(result);
+            
+            // we create range field for the coverage metadata
+            RangeField rangeField = new RangeField(RangeField.TYPE, entry.getKey(), "", new ArrayList<Double>(),
+                                                   RangeField.UOM, "", new ArrayList<Interval<BigDecimal>>());
+            rangeFields.add(rangeField);
             i++;
         }
-        //for now no metadata is forwarded, but it can be constructed from the fields
+                
+        //for now no metadata is forwarded, but it can be constructed from the fields (we need this to set extrametadata with netcdf)
+        WcpsCoverageMetadata metadata = new WcpsCoverageMetadata("", "", new ArrayList<Axis>(), 
+                                                                 "", "", rangeFields, "", new ArrayList<Double>());
         String rasql = StringUtils.join(translatedFields, " + ");
-        return new WcpsResult(null, rasql);
+        return new WcpsResult(metadata, rasql);
     }
 
     /**
