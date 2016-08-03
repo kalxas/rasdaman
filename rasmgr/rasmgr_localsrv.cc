@@ -134,6 +134,11 @@ bool LocalServerManager::startNewServer(const char* commandline)
     if (static_cast<int>(strlen(commandline)) >= ARG_MAX)
     {
         LDEBUG << "Error: rasserver launch command line too long: " << commandline;
+        if (localcomm)
+        {
+            delete [] localcomm;
+            localcomm = NULL;
+        }
         return false;
     }
 

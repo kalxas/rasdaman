@@ -273,7 +273,8 @@ r_Minterval::intersects_with(const r_Minterval& minterval) const
 
     if (dimensionality != minterval.dimension())
     {
-        LFATAL << "r_Minterval::intersects_with(" << minterval << ") do not share the same dimension";
+        LDEBUG << "cannot check if " << this << " and " << minterval << 
+            " intersect, mintervals do not share the same dimension.";
         return false;
     }
 

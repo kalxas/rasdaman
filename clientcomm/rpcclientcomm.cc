@@ -2605,6 +2605,11 @@ throw(r_Error)
         default:
             err = r_Error( r_Error::r_Error_TransferFailed );
         }
+        if (typeStructure)
+        {
+            delete [] typeStructure;
+            typeStructure = NULL;
+        }
         throw err;
     }
 

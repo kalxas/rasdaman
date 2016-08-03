@@ -22,20 +22,6 @@ rasdaman GmbH.
 */
 #include "config.h"
 #include "mymalloc/mymalloc.h"
-// This is -*- C++ -*-
-/*************************************************************
- *
- *
- * PURPOSE:
- *
- *
- * COMMENTS:
- *   uses embedded SQL
- *
- ************************************************************/
-
-static const char rcsid[] = "@(#)blobif,DBTile: $Id: dbtile.cc,v 1.12 2005/09/03 20:41:40 rasdev Exp $";
-
 #include "dbtile.hh"
 #include "reladminif/externs.h"
 #include "reladminif/sqlerror.hh"
@@ -90,12 +76,6 @@ DBTile::setCells(char* newCells)
 {
     if(cells != newCells)
     {
-        if(cells != NULL)
-        {
-            LDEBUG << "DBTile::setCells() freeing blob cells";
-            free(cells);
-            // cells = NULL;    // added PB 2005-jan-10
-        }
         cells = newCells;
         setModified();
     }
@@ -251,6 +231,27 @@ DBTile::DBTile(r_Bytes newSize, const char* newCells, r_Data_Format dataformat)
     memcpy(cells, newCells, newSize);
 }
 
+DBTile::DBTile(r_Bytes newSize, bool takeOwnershipOfNewCells, char* newCells, r_Data_Format dataformat)
+    :   DBObject(),
+        size(newSize),
+        cells(0),
+        dataFormat(dataformat),
+        currentFormat(r_Array)
+{
+    if (takeOwnershipOfNewCells)
+    {
+        LDEBUG << "creating DBTile of size " << newSize << " bytes " << " without copying the given data " << newCells << ".";
+        cells = newCells;
+    }
+    else
+    {
+        LDEBUG << "creating DBTile of size " << newSize << " bytes " << " with copying the given data " << newCells << ".";
+        cells = static_cast<char*>(mymalloc(size * sizeof(char)));
+        memcpy(cells, newCells, newSize);
+    }
+    objecttype = OId::INVALID;
+}
+
 DBTile::DBTile(const OId& id) throw (r_Error)
     :   DBObject(id),
         size(0),
@@ -296,12 +297,17 @@ DBTile::resize(r_Bytes newSize)
         setModified();
         if (cells)
         {
-            LDEBUG << "DBTile::resize() freeing blob cells";
+            LDEBUG << "freeing blob cells";
             free(cells);
-            // cells = NULL;    // added PB 2005-jan-10
+            cells = NULL;
         }
-        LDEBUG << "DBTile::resize() allocating " << newSize << " bytes for blob cells, previous ptr was " << (long) cells;
+        LDEBUG << "allocating " << newSize << " bytes for blob cells.";
         cells = static_cast<char*>(mymalloc(newSize * sizeof(char)));
+        if (cells == NULL)
+        {
+            LERROR << "failed allocating " << newSize << " bytes of memory for tile.";
+            throw new r_Error(r_Error::r_Error_MemoryAllocation);
+        }
         size = newSize;
     }
 }

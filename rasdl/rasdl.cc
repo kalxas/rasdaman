@@ -313,7 +313,10 @@ printHeader( const char* headerFileName2 )
 
     char* defName = new char[strlen(headerFileName2)+1];
     if (defName == NULL)
+    {
+        fclose(file);
         throw RasdlError( CANNOTALLOC );
+    }
 
     // generate upper case version for include guard
     int i = 0;

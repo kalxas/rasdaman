@@ -417,7 +417,6 @@ r_Aligned_Tiling::get_opt_size(const r_Minterval& tileDomain, r_Bytes cellSize) 
     r_Minterval result = tileDomain;
     r_Dimension dim = tileDomain.dimension();
     int* ixArr = new int[dim];
-    int* tmpIxArr = new int[dim];
     r_Minterval tmpResult = result;
     int j;
 
@@ -470,6 +469,7 @@ r_Aligned_Tiling::get_opt_size(const r_Minterval& tileDomain, r_Bytes cellSize) 
         }
     }
     delete[] ixArr;
+    ixArr = NULL;
     return result;
 }
 

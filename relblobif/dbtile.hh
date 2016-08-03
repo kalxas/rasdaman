@@ -23,20 +23,9 @@ rasdaman GmbH.
 #ifndef _DBTILE_HH_
 #define _DBTILE_HH_
 
-// -*-C++-*- (for Emacs)
-
-/*************************************************************
- *
- *
- * PURPOSE:
- *
- *
- * COMMENTS:
- *
- ************************************************************/
-
 class OId;
 class r_Error;
+
 #include "reladminif/dbobject.hh"
 #include "raslib/mddtypes.hh"
 #include "tileid.hh"
@@ -51,7 +40,7 @@ This class is used in tilemgr as an interface to the persistent tiles.  There ar
 /**
   * \ingroup Relblobifs
   */
-class DBTile    : public DBObject
+class DBTile : public DBObject
 {
 public:
     friend std::ostream& operator << (std::ostream& stream, DBTile& b);
@@ -132,7 +121,7 @@ public:
 
     //@Man: constructors
     //@{
-    DBTile(r_Data_Format dataformat = r_Array);
+    DBTile(r_Data_Format dataformat);
     /*@Doc:
     constructs a new empty DBTile.  Length is 0.
     */
@@ -142,12 +131,12 @@ public:
     Passes to DBObject.
     */
 
-    DBTile(r_Bytes newSize, char c = 0, r_Data_Format dataformat = r_Array);
+    DBTile(r_Bytes newSize, char c, r_Data_Format dataformat);
     /*@Doc:
     constructs a new DBTile of size newSize filled with c.
     */
 
-    DBTile(r_Bytes newSize, r_Bytes patSize, const char* pat, r_Data_Format dataformat = r_Array);
+    DBTile(r_Bytes newSize, r_Bytes patSize, const char* pat, r_Data_Format dataformat);
     /*@Doc:
      Constructs a new DB Tile of size newSize filled with the repeated
      char array pat of size patSize. If after filling some chars are
@@ -156,10 +145,17 @@ public:
     /*@ManMemo: constructs a new DB Tile with the char array newCells
             with newSize elements as contents. */
 
-    DBTile(r_Bytes newSize, const char* newCells, r_Data_Format dataformat = r_Array);
+    DBTile(r_Bytes newSize, const char* newCells, r_Data_Format dataformat);
     /*@Doc:
     constructs a new DBTile of size newSize filled with the contents of newCells.
     the newCells are copied.
+    */
+    
+    DBTile(r_Bytes newSize, bool takeOwnershipOfNewCells, char* newCells, r_Data_Format dataformat);
+    /*@Doc:
+    constructs a new DBTile of size newSize filled with the contents of newCells.
+    The newCells are copied if takeNewCellsOwnership is false, otherwise the pointer
+    newCells is directly owned by DBTile.
     */
     //@}
 

@@ -29,7 +29,9 @@
 #include <string>
 
 #include <sys/types.h>
+#include <sys/resource.h>
 #include <unistd.h>
+#include <stdio.h>
 
 #include "commonutil.hh"
 
@@ -237,4 +239,19 @@ char* execute_system_command(char* cmd)
         }
     }
     return ret;
+}
+
+size_t get_current_rss()
+{
+    long rss = 0L;
+    FILE* fp = NULL;
+    if ( (fp = fopen( "/proc/self/statm", "r" )) == NULL )
+        return (size_t)0L;      /* Can't open? */
+    if ( fscanf( fp, "%*s%ld", &rss ) != 1 )
+    {
+        fclose( fp );
+        return (size_t)0L;      /* Can't read? */
+    }
+    fclose( fp );
+    return ((size_t)rss * (size_t)sysconf( _SC_PAGESIZE) / 1048576);
 }

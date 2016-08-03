@@ -539,6 +539,11 @@ r_Type::getStructureType(char* &pos, int offset)
         if(token != DLCOMMA && token != DLRCP)
         {
             LFATAL << "r_Type::getStructureType(" << pos << ", " << offset << ") expected DLRCP or DLCOMMA";
+            if (attributes)
+            {
+                delete [] attributes;
+                attributes = NULL;
+            }
             throw r_Error(INTERNALDLPARSEERROR);
         }
     }
@@ -546,8 +551,10 @@ r_Type::getStructureType(char* &pos, int offset)
     returnValue = new r_Structure_Type("Structure", static_cast<unsigned int>(noAttributes), attributes, offset);
 
     if(attributes)
+    {
         delete[] attributes;
-    attributes = NULL;
+        attributes = NULL;
+    }
     return returnValue;
 }
 

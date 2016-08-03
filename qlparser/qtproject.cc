@@ -473,6 +473,11 @@ Tile* QtProject::convertDatasetToTile(GDALDataset* gdalResult, int nBands, Tile 
     if (gdalBand == NULL)
     {
         LERROR << "failed allocating memory for transfer between GDAL and rasdaman.";
+        if (tileCells)
+        {
+            free(tileCells);
+            tileCells = NULL;
+        }
         return NULL;
     }
 
@@ -524,7 +529,7 @@ Tile* QtProject::convertDatasetToTile(GDALDataset* gdalResult, int nBands, Tile 
     free(gdalBand);
 
     /* And finally build the tile */
-    Tile *resultTile = new Tile(testInterval, sourceTile->getType(), (char*) tileCells, 0, r_Array);
+    Tile *resultTile = new Tile(testInterval, sourceTile->getType(), true, tileCells, (r_Bytes)0, r_Array);
     return resultTile;
 }
 

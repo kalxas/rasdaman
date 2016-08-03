@@ -245,6 +245,7 @@ QtCaseOp::evaluateInducedOp(QtDataList* inputList) {
                     cacheIterators->push_back(new r_Miter(&(condTile->getDomain()), &((*i)->getDomain()), (*i)->getType()->getSize(), (*i)->getContents()));
                     if (!(*i)->getDomain().covers(condTile->getDomain())) {
                         LFATAL << "Error: QtCaseOp::inducedEvaluate() - The condition and result mdds don't have the same definition domain.";
+                        delete cacheIterators;
                         parseInfo.setErrorNo(426);
                         throw parseInfo;
                     }

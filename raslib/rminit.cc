@@ -75,6 +75,7 @@ RMInit::RMInit( char initApplicationType )
                 logFileOut.open( value );
                 logOut.rdbuf(logFileOut.rdbuf());
                 delete[] value;
+                value = NULL;
             }
             else
             {
@@ -99,6 +100,7 @@ RMInit::RMInit( char initApplicationType )
                 dbgFileOut.open( value );
                 dbgOut.rdbuf(dbgFileOut.rdbuf());
                 delete[] value;
+                value = NULL;
             }
             else
             {
@@ -124,6 +126,7 @@ RMInit::RMInit( char initApplicationType )
                 // It is not clarrified why the delete statement crashes with VISUALC.
 #ifndef __VISUALC__
                 delete[] value;
+                value = NULL;
 #endif
             }
         }
@@ -138,6 +141,7 @@ RMInit::RMInit( char initApplicationType )
                 bmFileOut.open( value );
                 bmOut.rdbuf(bmFileOut.rdbuf());
                 delete[] value;
+                value = NULL;
             }
             else
             {
@@ -163,6 +167,7 @@ RMInit::RMInit( char initApplicationType )
                 // It is not clarrified why the delete statement crashes with VISUALC.
 #ifndef __VISUALC__
                 delete[] value;
+                value = NULL;
 #endif
             }
         }
@@ -181,6 +186,7 @@ RMInit::RMInit( char initApplicationType )
             {
                 RMInit::clientTileSize = strtoul( value, (char **)NULL, 10 );
                 delete[] value;
+                value = NULL;
             }
         }
 
@@ -196,6 +202,7 @@ RMInit::RMInit( char initApplicationType )
             {
                 timeOut = strtoul( value, (char **)NULL, 10 );
                 delete[] value;
+                value = NULL;
             }
         }
 

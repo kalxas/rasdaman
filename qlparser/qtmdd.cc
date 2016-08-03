@@ -21,17 +21,6 @@ rasdaman GmbH.
 * For more information please see <http://www.rasdaman.org>
 * or contact Peter Baumann via <baumann@rasdaman.com>.
 */
-/*************************************************************
- *
- *
- * PURPOSE:
- *
- *
- * COMMENTS:
- *
- ************************************************************/
-
-static const char rcsid[] = "@(#)qlparser, QtMDD: $Header: /home/rasdev/CVS-repository/rasdaman/qlparser/qtmdd.cc,v 1.44 2003/12/27 20:51:28 rasdev Exp $";
 
 #include "config.h"
 #include "qlparser/qtmdd.hh"
@@ -176,7 +165,7 @@ QtMDD::QtMDD( QtOperation* mintervalOp, list<QtScalarData*>* literalList )
             //
             // create transient tile
             //
-            Tile* tile = new Tile( domain, baseType, cellBuffer, 0 );
+            Tile* tile = new Tile( domain, baseType, true, cellBuffer, (r_Bytes)0, r_Array );
 
             //
             // create transiend mddObject and attach created tile

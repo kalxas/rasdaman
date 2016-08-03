@@ -383,7 +383,6 @@ MDDColl::getMDDCollection(const char* collName) throw (r_Error)
         OIdSet* list = ObjectBroker::getAllObjects(OId::MDDCOLLOID);
         MDDObj* transObj = 0;
         boost::shared_ptr<Tile> transTile;
-        char* transName = 0;
         const char* nameBuffer = 0;
         size_t namelen = 0;
         while (!list->empty())
@@ -394,13 +393,10 @@ MDDColl::getMDDCollection(const char* collName) throw (r_Error)
             LTRACE << "Coll Name    : " << nameBuffer;
             namelen = strlen(nameBuffer);
             LTRACE << "Coll Name Len: " << namelen;
-            transName = static_cast<char*>(mymalloc(sizeof(char) * (namelen + 1)));
-            memset(transName, 0, namelen + 1);
-            strcpy(transName, nameBuffer);
             LTRACE << "Domain       : " << namelen;
             nameDomain[0].set_high(static_cast<r_Range>(namelen));
             transObj = new MDDObj(mt, nameDomain);
-            transTile.reset(new Tile(nameDomain, bt, transName, 0, r_Array));
+            transTile.reset(new Tile(nameDomain, bt, nameBuffer, (r_Bytes)0, r_Array));
             transObj->insertTile(transTile);
             retval->insert(transObj);
             list->erase(list->begin());
@@ -439,7 +435,7 @@ MDDColl::getMDDCollection(const char* collName) throw (r_Error)
 
                 nameDomain[0].set_high(static_cast<r_Range>(result.length()));
                 transObj = new MDDObj(mt, nameDomain);
-                transTile = new Tile(nameDomain, bt, result.c_str(), 0, r_Array);
+                transTile = new Tile(nameDomain, bt, result.c_str(), (r_Bytes)0, r_Array);
                 transObj->insertTile(transTile);
                 retval->insert(transObj);
 
@@ -482,7 +478,7 @@ MDDColl::getMDDCollection(const char* collName) throw (r_Error)
 
             nameDomain[0].set_high(static_cast<r_Range>(result.length()));
             transObj = new MDDObj(mt, nameDomain);
-            transTile = new Tile(nameDomain, bt, result.c_str(), 0, r_Array);
+            transTile = new Tile(nameDomain, bt, result.c_str(), (r_Bytes)0, r_Array);
             transObj->insertTile(transTile);
             retval->insert(transObj);
 
@@ -531,7 +527,7 @@ MDDColl::getMDDCollection(const char* collName) throw (r_Error)
 
             nameDomain[0].set_high(static_cast<r_Range>(result.length()));
             transObj = new MDDObj(mt, nameDomain);
-            transTile = new Tile(nameDomain, bt, result.c_str(), 0, r_Array);
+            transTile = new Tile(nameDomain, bt, result.c_str(), (r_Bytes)0, r_Array);
             transObj->insertTile(transTile);
             retval->insert(transObj);
 

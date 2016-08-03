@@ -162,7 +162,7 @@ QtConversion::evaluate(QtDataList* inputList)
         {
             QtScalarData* qtScalar = static_cast<QtScalarData*> (operand);
             r_Minterval domain = r_Minterval(2) << r_Sinterval(0LL, 0LL) << r_Sinterval(0LL, 0LL);
-            sourceTile.reset(new Tile(domain, qtScalar->getValueType(), qtScalar->getValueBuffer(), false));
+            sourceTile.reset(new Tile(domain, qtScalar->getValueType(), qtScalar->getValueBuffer(), (r_Bytes)0, r_Array));
             typeStructure = qtScalar->getTypeStructure();
         }
         else
@@ -276,9 +276,9 @@ QtConversion::evaluate(QtDataList* inputList)
 #endif
         }
 
-        long convResultSize = static_cast<long> (convDesc.destInterv.cell_count()) * static_cast<long> (baseType->getSize());
+        r_Bytes convResultSize = static_cast<r_Bytes> (convDesc.destInterv.cell_count()) * static_cast<r_Bytes> (baseType->getSize());
 
-        Tile* resultTile = new Tile(convDesc.destInterv, baseType, convDesc.dest, convResultSize, convFormat);
+        Tile* resultTile = new Tile(convDesc.destInterv, baseType, true, convDesc.dest, convResultSize, convFormat);
 
         // delete destination type
         if (convDesc.destType)

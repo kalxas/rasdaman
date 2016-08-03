@@ -77,31 +77,32 @@ class BLOBTile  : public DBTile
 public:
     //@Man: constructors
     //@{
-    BLOBTile(r_Data_Format dataformat = r_Array);
-    /*@Doc:
-    constructs a new empty BLOBTile and gets an id for it.
-    */
 
     BLOBTile(const OId& BlobId) throw (r_Error);
     /*@Doc:
     constructs a BlobTile out of the database
     */
 
-    BLOBTile(r_Bytes newSize, char c = 0, r_Data_Format dataformat = r_Array);
+    BLOBTile(const OId& BlobId, r_Bytes newSize, r_Data_Format newFmt);
+    /*@Doc:
+    constructs a new BLOBTile of size newSize filled with zeros.
+    the tile will think it is not modified and also not in the db but persistent.
+    this is used by the rc index.
+    */
+
+    BLOBTile(r_Bytes newSize, char c, r_Data_Format dataformat);
     /*@Doc:
     constructs a new BLOBTile of size newSize filled with c.
     */
 
-    BLOBTile(r_Bytes newSize, r_Bytes patSize, const char* pat, r_Data_Format dataformat = r_Array);
+    BLOBTile(r_Bytes newSize, const char* newCells, r_Data_Format dataformat);
     /*@Doc:
-     Constructs a new BLOB Tile of size newSize filled with the repeated
-     char array pat of size patSize. If after filling some chars are
-     left, they are filled with 0
+    constructs a new BLOBTile of size newSize filled with the contents of newCells.
+    The newCells are copied if takeNewCellsOwnership is false, otherwise the pointer
+    newCells is directly owned by DBTile.
     */
-    /*@ManMemo: constructs a new BLOB Tile with the char array newCells
-            with newSize elements as contents. */
 
-    BLOBTile(r_Bytes newSize, const char* newCells, r_Data_Format dataformat = r_Array);
+    BLOBTile(r_Bytes newSize, bool takeOwnershipOfNewCells, char* newCells, r_Data_Format dataformat);
     /*@Doc:
     constructs a new BLOBTile of size newSize filled with the contents of newCells.
     */
@@ -110,13 +111,6 @@ public:
     /*@Doc:
     constructs a new BLOBTile of size newSize filled with the contents of newCells.
     the oid will be assigned to this blob.  used by regular computed index.
-    */
-
-    BLOBTile(const OId& BlobId, r_Bytes newSize, r_Data_Format newFmt);
-    /*@Doc:
-    constructs a new BLOBTile of size newSize filled with zeros.
-    the tile will think it is not modified and also not in the db but persistent.
-    this is used by the rc index.
     */
 
     //@}

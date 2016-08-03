@@ -1117,7 +1117,7 @@ protected:
     /// make sure a tile has the correct data format, converting if necessary
     static int ensureTileFormat( r_Data_Format &hasFmt, r_Data_Format needFmt,
                                  const r_Minterval &dom, const BaseType *type,
-                                 char *&data, unsigned long &size, int repack,
+                                 char *&data, r_Bytes &size, int repack,
                                  int owner, const char *params = NULL);
     ///returns the following:
     static const int ENSURE_TILE_FORMAT_OK;

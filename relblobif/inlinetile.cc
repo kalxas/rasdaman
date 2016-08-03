@@ -51,24 +51,10 @@ static const char rcsid[] = "@(#)blobif,BLOBTile: $Id: inlinetile.cc,v 1.5 2002/
 
 #include <cstring>
 
-InlineTile::InlineTile(r_Data_Format dataformat)
-    :   BLOBTile(dataformat)
-{
-    LTRACE << "InlineTile()";
-    objecttype = OId::INLINETILEOID;
-}
-
 InlineTile::InlineTile(r_Bytes newSize, char c, r_Data_Format dataformat)
     :   BLOBTile(newSize, c, dataformat)
 {
     LTRACE << "InlineTile(" << newSize << ", data)";
-    objecttype = OId::INLINETILEOID;
-}
-
-InlineTile::InlineTile(r_Bytes newSize, r_Bytes patSize, const char* pat, r_Data_Format dataformat)
-    :   BLOBTile(newSize, patSize, pat, dataformat)
-{
-    LTRACE << "InlineTile(" << newSize << ", " << patSize << ", pattern)";
     objecttype = OId::INLINETILEOID;
 }
 
@@ -79,40 +65,18 @@ InlineTile::InlineTile(r_Bytes newSize, const char* newCells, r_Data_Format data
     objecttype = OId::INLINETILEOID;
 }
 
+InlineTile::InlineTile(r_Bytes newSize, bool takeOwnershipOfNewCells, char* newCells, r_Data_Format dataformat)
+    :   BLOBTile(newSize, takeOwnershipOfNewCells, newCells, dataformat)
+{
+    LTRACE << "InlineTile(" << size << ", data, " << dataformat << ", takeOwnershipOfNewCells: " << takeOwnershipOfNewCells << ")";
+    objecttype = OId::INLINETILEOID;
+}
+
 InlineTile::InlineTile(const OId& id) throw (r_Error)
     :   BLOBTile(id)
 {
     LTRACE << "InlineTile(" << id <<")";
     objecttype = OId::INLINETILEOID;
-}
-
-InlineTile::InlineTile(const OId& id, char*& thecells)
-    :   BLOBTile(r_Array)
-{
-    objecttype = OId::INLINETILEOID;
-    myIndexOId = id;
-
-    //restore the size of the blob
-    memcpy(&size, thecells, sizeof(r_Bytes));
-    thecells = thecells + sizeof(r_Bytes);
-
-    //restore the dataformat
-    memcpy(&dataFormat, thecells, sizeof(r_Data_Format));
-    thecells = thecells + sizeof(r_Data_Format);
-
-    //restore my own oid
-    memcpy(&myOId, thecells, sizeof(OId));
-    thecells = thecells + sizeof(OId);
-
-    //restore the cells
-    cells = static_cast<char*>(mymalloc(size * sizeof(char)));
-    memcpy(cells, thecells, size);
-    thecells = thecells + size;
-    LTRACE << "OId " << myOId << " size " << size << " DataFormat " << dataFormat;
-
-    DBObject::readFromDb();
-    _isInDatabase = false;
-    ObjectBroker::registerDBObject(this);
 }
 
 void

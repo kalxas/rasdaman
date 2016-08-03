@@ -1023,12 +1023,12 @@ ServerComm::insertMDD( unsigned long  callingClientId,
 
                 MDDBaseType*  mddBaseType = static_cast<MDDBaseType*>(const_cast<MDDType*>(mddType));
                 char*         dataPtr  = rpcMarray->data.confarray_val;
-                unsigned long dataSize = rpcMarray->data.confarray_len;
+                r_Bytes       dataSize = (r_Bytes) rpcMarray->data.confarray_len;
                 // reset data area from rpc structure so that it is not deleted
                 // deletion is done by TransTile resp. Tile
                 rpcMarray->data.confarray_len = 0;
                 rpcMarray->data.confarray_val = 0;
-                int           getMDDData=0;
+                r_Bytes getMDDData = 0;
                 const BaseType*     baseType = mddBaseType->getBaseType();
                 unsigned long byteCount  = domain.cell_count() * rpcMarray->cellTypeLength;
                 //r_Data_Format storageFormat = (r_Data_Format)(rpcMarray->storageFormat);
@@ -1112,7 +1112,7 @@ ServerComm::insertMDD( unsigned long  callingClientId,
 
                     Tile* entireTile = 0;
                     myCurrentFmt = r_Array;
-                    entireTile = new Tile( domain, baseType, dataPtr, getMDDData, static_cast<r_Bytes>(myDataFmt) );
+                    entireTile = new Tile( domain, baseType, true, dataPtr, getMDDData, myDataFmt );
 
                     vector< Tile *>* tileSet = entireTile->splitTile( tileDom );
                     if (entireTile->isPersistent())
@@ -1131,7 +1131,7 @@ ServerComm::insertMDD( unsigned long  callingClientId,
                 {
                     Tile* tile = 0;
 
-                    tile = new Tile( domain, baseType, dataPtr, getMDDData, static_cast<r_Bytes>(myDataFmt) );
+                    tile = new Tile( domain, baseType, true, dataPtr, getMDDData, myDataFmt );
                     LTRACE << "insertTile created new TransTile (" << myDataFmt << "), ";
 
                     LTRACE << "one tile...";
@@ -1203,12 +1203,12 @@ ServerComm::insertTileSplitted( unsigned long  callingClientId,
         {
             r_Minterval   domain( rpcMarray->domain );
             char*         dataPtr  = rpcMarray->data.confarray_val;
-            unsigned long dataSize = rpcMarray->data.confarray_len;
+            r_Bytes       dataSize = (r_Bytes) rpcMarray->data.confarray_len;
             // reset data area from rpc structure so that it is not deleted
             // deletion is done by TransTile resp. Tile
             rpcMarray->data.confarray_len = 0;
             rpcMarray->data.confarray_val = 0;
-            int           getMDDData    = 0;
+            r_Bytes         getMDDData    = 0;
             r_Data_Format myDataFmt = static_cast<r_Data_Format>(rpcMarray->storageFormat);
             r_Data_Format myCurrentFmt = static_cast<r_Data_Format>(rpcMarray->currentFormat);
             LTRACE << "insertTileSplitted - rpc storage  format : " << myDataFmt;
@@ -1233,7 +1233,7 @@ ServerComm::insertTileSplitted( unsigned long  callingClientId,
 
             LTRACE << "insertTile created new TransTile (" << myDataFmt << "), ";
             myDataFmt = r_Array;
-            tile = new Tile( domain, baseType, dataPtr, getMDDData, static_cast<r_Bytes>(myDataFmt) );
+            tile = new Tile( domain, baseType, true, dataPtr, getMDDData, myDataFmt );
 
             // for java clients only: check endianness and split tile if necessary
             if(strcmp(context->clientIdText, ServerComm::HTTPCLIENT) == 0)
@@ -1272,6 +1272,7 @@ ServerComm::insertTileSplitted( unsigned long  callingClientId,
                 }
                 // delete the vector again
                 delete tile;
+                tile = NULL;
                 delete tileSet;
             }
             // for c++ clients: insert tile
@@ -1279,7 +1280,7 @@ ServerComm::insertTileSplitted( unsigned long  callingClientId,
             {
                 //insert one single tile
                 // later, we should take into consideration the default server tile-size!
-                LINFO << "inserting single tile...";
+                LTRACE << "inserting single tile...";
                 if( isPersistent )
                     context->assembleMDD->insertTile( tile );
                 else
@@ -4227,7 +4228,7 @@ ServerComm::ensureTileFormat( __attribute__ ((unused)) r_Data_Format &hasFmt,
                               __attribute__ ((unused)) const r_Minterval &dom,
                               __attribute__ ((unused)) const BaseType *type,
                               __attribute__ ((unused)) char *&data,
-                              __attribute__ ((unused)) unsigned long &size,
+                              __attribute__ ((unused)) r_Bytes &size,
                               __attribute__ ((unused)) int repack,
                               __attribute__ ((unused)) int owner,
                               __attribute__ ((unused)) const char *params )

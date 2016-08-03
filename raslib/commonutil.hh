@@ -85,6 +85,13 @@ char* read_file(FILE* fp);
 char* execute_system_command(char* cmd);
 
 /**
+ * Returns the current resident set size (physical memory use) measured
+ * in bytes, or zero if the value cannot be determined on this OS.
+ * http://stackoverflow.com/a/14927379
+ */
+size_t get_current_rss();
+
+/**
  * Prints the stack trace from the line where this class is used.
  * Use in an output stream, e.g.
  *

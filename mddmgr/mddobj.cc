@@ -283,12 +283,7 @@ MDDObj::insertTile(shared_ptr<Tile> newTile)
                 // must be computed everytime because layoutDoms may change in size
                 LTRACE << "found no tiles in layout domain " << *it;
                 // generate a tile of the domain : layout domain
-                completeArea = (*it).cell_count();
-                sizeOfData = sizeof(char) * completeArea * getMDDBaseType()->getBaseType()->getSize();
-                newContents = static_cast<char*>(mymalloc(sizeOfData));
-                // initialise to 0
-                memset(newContents, 0, sizeOfData);
-                tile.reset(new Tile(*it, getMDDBaseType()->getBaseType(), newContents, 0, newTile->getDataFormat()));
+                tile.reset(new Tile(*it, getMDDBaseType()->getBaseType(), newTile->getDataFormat()));
 
                 tempDom = (*it).create_intersection(tileDom);
                 // only update the actual data - the rest was set to 0

@@ -306,7 +306,7 @@ void FastMDDCreator::addStripe(r_OId _mddOId, const char *stripeDomain, const ch
 
         createCompressedTileData(currentSlInterval, baseType);
 
-        Tile* tile = new Tile( currentSlInterval, baseType, comprData, true, static_cast<r_Bytes>(comprDataSize), storageFormat);
+        Tile* tile = new Tile( currentSlInterval, baseType, comprData, static_cast<r_Bytes>(comprDataSize), storageFormat);
         tile->setPersistent(true);
 
         mymdd->insertTile( tile );

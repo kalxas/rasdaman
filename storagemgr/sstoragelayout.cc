@@ -438,11 +438,10 @@ std::vector< r_Minterval >
 StorageLayout::calcInterestLayout(const r_Minterval& tileDomain)
 {
     //uadhikari
-    r_Interest_Tiling* tiling = new r_Interest_Tiling
-    (tileDomain.dimension(), extraFeatures->getBBoxes(), myLayout->getTileSize(), extraFeatures->getTilingSizeStrategy_AOI());
+    r_Interest_Tiling* tiling = new r_Interest_Tiling(tileDomain.dimension(), extraFeatures->getBBoxes(), 
+                                                      myLayout->getTileSize(), extraFeatures->getTilingSizeStrategy_AOI());
     std::vector<r_Minterval> ret;
-    std::vector<r_Minterval>* ret1 = tiling->compute_tiles
-                                     (tileDomain, static_cast<r_Bytes>(extraFeatures->getCellSize()));
+    std::vector<r_Minterval>* ret1 = tiling->compute_tiles(tileDomain, static_cast<r_Bytes>(extraFeatures->getCellSize()));
     LTRACE << "CalcInterest Layout: tile number: " << ret1->size();
     for (unsigned int i = 0; i < ret1->size(); i++)
     {

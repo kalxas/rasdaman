@@ -61,13 +61,6 @@ extern char globalConnectId[256];
 
 const long long BLOBTile::NO_TILE_FOUND;
 
-BLOBTile::BLOBTile(r_Data_Format dataformat)
-    :   DBTile(dataformat)
-{
-    LTRACE << "BLOBTile(" << dataformat << ")";
-    objecttype = OId::BLOBOID;
-}
-
 /*************************************************************
  * Method name...: BLOBTile(r_Bytes newSize, char c)
  *
@@ -83,29 +76,6 @@ BLOBTile::BLOBTile(r_Bytes newSize, char c, r_Data_Format dataformat)
     :   DBTile(newSize, c, dataformat)
 {
     LTRACE << "BLOBTile(" << newSize << ", data, " << dataformat << ")";
-    objecttype = OId::BLOBOID;
-}
-
-
-/*************************************************************
- * Method name...:   BLOBTile(r_Bytes newSize,
- *                             int patSize, char* pat);
- *
- * Arguments.....:
- *   newSize: size in number of chars
- *   patSize: number of chars in pattern
- *   pat:     char array with the pattern
- * Return value..: none
- * Description...: creates a new BLOBTile containing the
- *                 repeated pattern pat. newSize shoud be
- *                 a multiply of patSize, otherwise the
- *                 cells are filled up with 0.
- ************************************************************/
-
-BLOBTile::BLOBTile(r_Bytes newSize, r_Bytes patSize, const char* pat, r_Data_Format dataformat)
-    :   DBTile(newSize, patSize, pat, dataformat)
-{
-    LTRACE << "BLOBTile(" << newSize << ", " << patSize << ", pattern, " << dataformat << ")";
     objecttype = OId::BLOBOID;
 }
 
@@ -126,6 +96,13 @@ BLOBTile::BLOBTile(r_Bytes newSize, const char* newCells, r_Data_Format dataform
     :   DBTile(newSize, newCells, dataformat)
 {
     LTRACE << "BLOBTile(" << size << ", data, " << dataformat << ")";
+    objecttype = OId::BLOBOID;
+}
+
+BLOBTile::BLOBTile(r_Bytes newSize, bool takeOwnershipOfNewCells, char* newCells, r_Data_Format dataformat)
+    :   DBTile(newSize, takeOwnershipOfNewCells, newCells, dataformat)
+{
+    LTRACE << "BLOBTile(" << size << ", data, " << dataformat << ", takeOwnershipOfNewCells: " << takeOwnershipOfNewCells << ")";
     objecttype = OId::BLOBOID;
 }
 

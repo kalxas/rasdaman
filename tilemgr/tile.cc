@@ -193,12 +193,12 @@ Tile::Tile(const r_Minterval& newDom, const BaseType* newType, r_Data_Format new
         blobTile = new BLOBTile(getSize(), static_cast<char>(0), newFormat);
 }
 
-Tile::Tile(const r_Minterval& newDom, const BaseType* newType, char* newCells, r_Bytes newSize, r_Data_Format newFormat)
+Tile::Tile(const r_Minterval& newDom, const BaseType* newType, bool takeOwnershipOfNewCells, char* newCells, r_Bytes newSize, r_Data_Format newFormat)
     :   domain(newDom),
         type(newType),
         blobTile((DBTile*)NULL)
 {
-    LTRACE << "Tile(), fmt " << newFormat << ", size " << newSize;
+    LTRACE << "Tile(), fmt " << newFormat << ", size " << newSize << ", takeOwnershipOfNewCells: " << takeOwnershipOfNewCells;
     r_Data_Format current = r_Array;
     if (!newSize)
     {
@@ -211,14 +211,13 @@ Tile::Tile(const r_Minterval& newDom, const BaseType* newType, char* newCells, r
         current = newFormat;
     }
     if (RMInit::useTileContainer)
-        blobTile = new InlineTile(newSize, newCells, newFormat);
+        blobTile = new InlineTile(newSize, takeOwnershipOfNewCells, newCells, newFormat);
     else
-        blobTile = new BLOBTile(newSize, newCells, newFormat);
+        blobTile = new BLOBTile(newSize, takeOwnershipOfNewCells, newCells, newFormat);
     blobTile->setCurrentFormat(current);
-    free(newCells);
 }
 
-Tile::Tile(const r_Minterval& newDom, const BaseType* newType, const char* newCells, bool, r_Bytes newSize, r_Data_Format newFormat)
+Tile::Tile(const r_Minterval& newDom, const BaseType* newType, const char* newCells, r_Bytes newSize, r_Data_Format newFormat)
     :   domain(newDom),
         type(newType),
         blobTile((DBTile*)NULL)

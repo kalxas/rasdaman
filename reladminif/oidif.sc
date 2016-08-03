@@ -58,6 +58,7 @@ OId::initialize()
         LTRACE << "read " << counterNames[i] << " " << *counterIds[i];
         ++i;
     }
+    query.finalize();
 
     loadedOk = true;
 }

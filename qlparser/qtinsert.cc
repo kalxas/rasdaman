@@ -368,9 +368,14 @@ QtInsert::evaluate()
             for (vector< boost::shared_ptr<Tile> >::iterator sourceIt = sourceTiles->begin(); sourceIt != sourceTiles->end(); sourceIt++)
             {
                 // create a new persistent tile, copy the transient data, and insert it into the target mdd object
-                Tile* newPersTile = new Tile((*sourceIt)->getDomain(), persMDDType->getBaseType(), (*sourceIt)->getDataFormat());
-                newPersTile->copyTile((*sourceIt)->getDomain(), sourceIt->get(), (*sourceIt)->getDomain());
+                Tile* sourceTile = sourceIt->get();
+                Tile* newPersTile = new Tile(sourceTile->getDomain(), persMDDType->getBaseType(), 
+                    true, sourceTile->getContents(), sourceTile->getSize(), sourceTile->getDataFormat());
                 persMDDObj->insertTile(newPersTile);
+                
+                // newPersTile takes ownership of the contents of sourceTile,
+                // so make sure sourceTile doesn't delete the contents
+                sourceTile->setContents(NULL);
             }
 
             // delete tile vector

@@ -268,19 +268,12 @@ QtVariable::evaluate( QtDataList* inputList ) throw (ParseInfo)
                             << " does not intersect with spatial domain of MDD, returning empty result.";
 
                     const MDDBaseType* mddType = currentMDDObj->getMDDBaseType();
-                    const unsigned int mddTypeSize = mddType->getBaseType()->getSize();
-                    const r_Area cellCount = loadDomain.cell_count();
-                    const r_Bytes arrayLength = cellCount * mddTypeSize;
-
+                    
                     // create a transient MDD object for the query result
                     MDDObj* resultMDD = new MDDObj( mddType, loadDomain );
-                    char* data = static_cast<char*>(mymalloc( arrayLength ));
-
-                    // fill with null value
-                    memset( data, 0, arrayLength );
 
                     // create transient tile
-                    Tile* resTile = new Tile( loadDomain, mddType->getBaseType(), data, arrayLength );
+                    Tile* resTile = new Tile( loadDomain, mddType->getBaseType() );
                     resTile->setPersistent(false);
 
                     // insert Tile in result mddObj

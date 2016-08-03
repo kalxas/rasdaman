@@ -190,6 +190,15 @@ void ServerRasNet::startProcess()
 
             exit(EXIT_FAILURE);
         }
+        
+        // free
+        for(std::size_t i=0; i<commandVec.size(); ++i)
+        {
+            free(commandArr[i]);
+            commandArr[i] = NULL;
+        }
+        delete [] commandArr;
+        commandArr = NULL;
     }
     break;
 

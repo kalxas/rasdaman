@@ -66,39 +66,25 @@ public:
 
     //@Man: constructors
     //@{
-    InlineTile(const OId& id, char*& thecells);
-    /*@Doc:
-        construct a new inline tile with the oid of
-        the dbtilecontainerindex and the array which
-        holds the contents of the tile.
-        thecells will be automagically forwarded to the beginning of the next inline tile.
-    */
-
-    InlineTile(r_Data_Format dataformat = r_Array);
-    /*@Doc:
-    constructs a new empty InlineTile and gets an id for it.
-    */
 
     InlineTile(const OId& BlobId) throw (r_Error);
     /*@Doc:
     constructs a InlineTile out of the database
     */
 
-    InlineTile(r_Bytes newSize, char c = 0, r_Data_Format dataformat = r_Array);
+    InlineTile(r_Bytes newSize, char c, r_Data_Format dataformat);
     /*@Doc:
     constructs a new InlineTile of size newSize filled with c.
     */
 
-    InlineTile(r_Bytes newSize, r_Bytes patSize, const char* pat, r_Data_Format dataformat = r_Array);
+    InlineTile(r_Bytes newSize, const char* newCells, r_Data_Format dataformat);
     /*@Doc:
-     Constructs a new InlineTile of size newSize filled with the repeated
-     char array pat of size patSize. If after filling some chars are
-     left, they are filled with 0
+    constructs a new InlineTile of size newSize filled with the contents of newCells.
+    The newCells are copied if takeNewCellsOwnership is false, otherwise the pointer
+    newCells is directly owned by DBTile.
     */
-    /*@ManMemo: constructs a new InlineTile with the char array newCells
-            with newSize elements as contents. */
 
-    InlineTile(r_Bytes newSize, const char* newCells, r_Data_Format dataformat = r_Array);
+    InlineTile(r_Bytes newSize, bool takeOwnershipOfNewCells, char* newCells, r_Data_Format dataformat);
     /*@Doc:
     constructs a new InlineTile of size newSize filled with the contents of newCells.
     */

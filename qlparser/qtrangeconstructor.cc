@@ -142,6 +142,11 @@ QtRangeConstructor::evaluate(QtDataList *inputList)
                 else
                 {
                     LFATAL << "Error: QtRangeConstructor::evaluate() - invalid scalar type.";
+                    if (scalarOperandList)
+                    {
+                        delete scalarOperandList;
+                        scalarOperandList = NULL;
+                    }
                     parseInfo.setErrorNo(404);
                     throw parseInfo;
                 }

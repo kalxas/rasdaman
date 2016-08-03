@@ -196,11 +196,10 @@ QtInfo::evaluate( QtDataList* inputList )
                     const BaseType* baseType = TypeFactory::mapType(type->name());
                     
                     string infoString = info.str();
-                    int contentLength = infoString.length();
-                    char* contents = strdup(infoString.c_str());
+                    r_Bytes contentLength = static_cast<r_Bytes>(infoString.length());
 
                     r_Minterval mddDomain = r_Minterval(1) << r_Sinterval(static_cast<r_Range>(0), static_cast<r_Range>(contentLength) - 1);
-                    Tile *resultTile = new Tile(mddDomain, baseType, contents, static_cast<r_Bytes>(contentLength), r_Array);
+                    Tile *resultTile = new Tile(mddDomain, baseType, infoString.c_str(), contentLength, r_Array);
                     
                     // create a transient MDD object for the query result
                     MDDBaseType* mddBaseType = new MDDBaseType("tmp", baseType);
