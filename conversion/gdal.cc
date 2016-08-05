@@ -1069,6 +1069,12 @@ r_Conv_Desc &r_Conv_GDAL::convertFrom(const char *options) throw(r_Error)
     throw r_Error(r_Error::r_Error_FeatureNotSupported);
 }
 
+r_Conv_Desc &r_Conv_GDAL::convertFrom(r_Format_Params options) throw (r_Error)
+{
+    LERROR << "support for decoding with GDAL is not enabled; rasdaman should be configured with option --with-gdal to enable it.";
+    throw r_Error(r_Error::r_Error_FeatureNotSupported);
+}
+
 r_Conv_Desc &r_Conv_GDAL::convertTo(const char *options) throw(r_Error)
 {
     LERROR << "support for encoding with GDAL is not enabled; rasdaman should be configured with option --with-gdal to enable it.";

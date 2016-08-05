@@ -474,6 +474,12 @@ r_Conv_Desc &r_Conv_GRIB::convertFrom(const char *options) throw(r_Error)
     throw r_Error(r_Error::r_Error_FeatureNotSupported);
 }
 
+r_Conv_Desc &r_Conv_GRIB::convertFrom(r_Format_Params options) throw(r_Error)
+{
+    LERROR << "support for decoding GRIB file is not supported; rasdaman should be configured with option --with-grib to enable it.";
+    throw r_Error(r_Error::r_Error_FeatureNotSupported);
+}
+
 #endif // HAVE_GRIB
 
 /// cloning

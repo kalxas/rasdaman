@@ -151,10 +151,15 @@ r_Conv_Desc &r_Conv_NETCDF::convertFrom(const char *options) throw (r_Error)
         parseDecodeOptions(string{options});
     }
     return this->convertFrom(formatParams);
+#else
+    LERROR << "decoding netCDF is not supported; rasdaman should be configured with option --with-netcdf to enable it.";
+    throw r_Error(r_Error::r_Error_FeatureNotSupported);
+#endif
 }
 
 r_Conv_Desc &r_Conv_NETCDF::convertFrom(r_Format_Params options) throw(r_Error)
 {
+#ifdef HAVE_NETCDF
     formatParams = options;
 
     // write the data to temp file, netcdf wants a file path unfortunately

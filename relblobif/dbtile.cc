@@ -77,6 +77,7 @@ DBTile::setCells(char* newCells)
     if(cells != newCells)
     {
         cells = newCells;
+        ownCells = true;
         setModified();
     }
 }
@@ -86,13 +87,14 @@ DBTile::setNoModificationData(char* newCells) const
 {
     if(cells != newCells)
     {
-        if(cells != NULL)
+        if(cells != NULL && ownCells)
         {
             LDEBUG << "DBTile::setNoModificationData() freeing blob cells";
             free(cells);
             // cells = NULL;    // added PB 2005-jan-10
         }
         cells = newCells;
+        ownCells = true;
     }
 }
 
@@ -148,6 +150,7 @@ DBTile::DBTile(r_Data_Format dataformat)
 {
     LTRACE << "DBTile(" << dataFormat << ")";
     objecttype = OId::INVALID;
+    ownCells = true;
 }
 
 DBTile::DBTile(r_Bytes newSize, char c, r_Data_Format dataformat)
@@ -161,6 +164,7 @@ DBTile::DBTile(r_Bytes newSize, char c, r_Data_Format dataformat)
     cells = static_cast<char*>(mymalloc(newSize * sizeof(char)));
     objecttype = OId::INVALID;
     memset(cells, c, size);
+    ownCells = true;
 }
 
 DBTile::DBTile(r_Bytes newSize, r_Bytes patSize, const char* pat, r_Data_Format dataformat)
@@ -215,6 +219,8 @@ DBTile::DBTile(r_Bytes newSize, r_Bytes patSize, const char* pat, r_Data_Format 
             }
         }
     }
+    ownCells = true;
+
 }
 
 DBTile::DBTile(r_Bytes newSize, const char* newCells, r_Data_Format dataformat)
@@ -229,6 +235,7 @@ DBTile::DBTile(r_Bytes newSize, const char* newCells, r_Data_Format dataformat)
     cells = static_cast<char*>(mymalloc(size * sizeof(char)));
     objecttype = OId::INVALID;
     memcpy(cells, newCells, newSize);
+    ownCells = true;
 }
 
 DBTile::DBTile(r_Bytes newSize, bool takeOwnershipOfNewCells, char* newCells, r_Data_Format dataformat)
@@ -249,6 +256,7 @@ DBTile::DBTile(r_Bytes newSize, bool takeOwnershipOfNewCells, char* newCells, r_
         cells = static_cast<char*>(mymalloc(size * sizeof(char)));
         memcpy(cells, newCells, newSize);
     }
+    ownCells = true;
     objecttype = OId::INVALID;
 }
 
@@ -259,10 +267,14 @@ DBTile::DBTile(const OId& id) throw (r_Error)
         currentFormat(r_Array)
 {
     LTRACE << "DBTile(" << id <<")";
+    ownCells = true;
 }
 
 DBTile::~DBTile()
 {
+    if (!ownCells)
+        return;
+
     if (cells)
     {
         if (TileCache::cacheLimit > 0)
@@ -295,7 +307,7 @@ DBTile::resize(r_Bytes newSize)
     if (size != newSize)
     {
         setModified();
-        if (cells)
+        if (cells && ownCells)
         {
             LDEBUG << "freeing blob cells";
             free(cells);

@@ -67,6 +67,11 @@ public:
     //@Man: constructors
     //@{
 
+    InlineTile(r_Data_Format dataformat = r_Array);
+    /*@Doc:
+    constructs a new empty InlineTile and gets an id for it.
+    */
+
     InlineTile(const OId& BlobId) throw (r_Error);
     /*@Doc:
     constructs a InlineTile out of the database

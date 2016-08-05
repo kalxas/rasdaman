@@ -51,6 +51,13 @@ static const char rcsid[] = "@(#)blobif,BLOBTile: $Id: inlinetile.cc,v 1.5 2002/
 
 #include <cstring>
 
+InlineTile::InlineTile(r_Data_Format dataformat)
+    :   BLOBTile(dataformat)
+{
+    LTRACE << "InlineTile()";
+    objecttype = OId::INLINETILEOID;
+}
+
 InlineTile::InlineTile(r_Bytes newSize, char c, r_Data_Format dataformat)
     :   BLOBTile(newSize, c, dataformat)
 {

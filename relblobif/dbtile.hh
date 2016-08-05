@@ -215,6 +215,11 @@ protected:
     /*@Doc:
     the current format of the contents.  This is neccessary to know when getting mixed up compressed contents.
     */
+
+    mutable bool ownCells;
+    /*@Doc:
+    if true, the tile will eventually free cells
+    */
 };
 
 #endif

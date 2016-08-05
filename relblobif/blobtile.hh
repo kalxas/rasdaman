@@ -77,6 +77,10 @@ class BLOBTile  : public DBTile
 public:
     //@Man: constructors
     //@{
+    BLOBTile(r_Data_Format dataformat = r_Array);
+    /*@Doc:
+    constructs a new empty BLOBTile and gets an id for it.
+    */
 
     BLOBTile(const OId& BlobId) throw (r_Error);
     /*@Doc:

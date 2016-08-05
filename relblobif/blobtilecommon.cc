@@ -61,6 +61,14 @@ extern char globalConnectId[256];
 
 const long long BLOBTile::NO_TILE_FOUND;
 
+BLOBTile::BLOBTile(r_Data_Format dataformat)
+    :   DBTile(dataformat)
+{
+    LTRACE << "BLOBTile(" << dataformat << ")";
+    objecttype = OId::BLOBOID;
+}
+
+
 /*************************************************************
  * Method name...: BLOBTile(r_Bytes newSize, char c)
  *
