@@ -1,7 +1,6 @@
-for c in (irr_cube_1) return encode (
+for c in (irr_cube_2) return encode (
 	scale(
-		slice( c[k(0:5)],
-		{k:"CRS:1"(4)}),
-		{ i:"CRS:1"(0:1),
-		j:"CRS:1"(0:2) } )
+		slice( c[ansi:"CRS:1"(0:3)],{ansi:"CRS:1"(3)}),
+		{ E:"CRS:1"(0:1),N:"CRS:1"(0:2) }
+	 )
 , "csv")

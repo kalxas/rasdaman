@@ -31,19 +31,17 @@ import petascope.wcps2.metadata.model.WcpsCoverageMetadata;
 /**
  * Translation switch case class which returns range constructor expressions
  * <code>
- * for c in (mr) return encode(switch
-    case c > 1000 return (char)5
-    default return (char)6
- , "png")
+ * for c in (mr) return encode(
+ *  switch case c > 1000 return (char)5
+ *  default return (char)6 , "png")
  * </code>
  * returns
  * <code>
-SELECT encode(case
-    WHEN ((c)>(1000)) THEN ((octet)(2))
-                      ELSE ((octet)(6))
-    END,
-"GTiff", "xmin=0.0;xmax=255.0;ymin=0.0;ymax=210.0;crs=OGC:Index2D")
-from mr AS c where oid(c)=1025
+ * SELECT encode(case
+ *  WHEN ((c)>(1000)) THEN ((octet)(2))
+ *                     ELSE ((octet)(6))
+ *  END, "GTiff", "xmin=0.0;xmax=255.0;ymin=0.0;ymax=210.0")
+ *  from mr AS c where oid(c)=1025
  * </code>
  * @author <a href="mailto:bphamhuu@jacobs-university.de">Bang Pham  Huu</a>
  * @author <a href="mailto:vlad@flanche.net">Vlad Merticariu</a>

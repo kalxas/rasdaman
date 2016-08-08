@@ -161,7 +161,7 @@ public class DimensionPointElement extends AbstractRasNode {
         if (finished == true &&
                 covInfo.isGridded() &&
                 crs != null &&
-                !crs.getName().equals(CrsUtil.GRID_CRS)) {
+                !CrsUtil.isGridCrs(crs.getName())) {
             convertToPixelCoordinate();
         }
     }

@@ -31,7 +31,6 @@ import petascope.core.CrsDefinition;
 import petascope.wcps2.error.managed.processing.IdenticalAxisNameInCrsTransformException;
 import petascope.wcps2.error.managed.processing.InvalidOutputCrsProjectionInCrsTransformException;
 import petascope.wcps2.error.managed.processing.NotGeoReferenceAxisNameInCrsTransformException;
-import petascope.wcps2.error.managed.processing.NotGeoReferencedCoverageInCrsTransformException;
 import petascope.wcps2.error.managed.processing.NotIdenticalCrsInCrsTransformException;
 import petascope.wcps2.metadata.model.Axis;
 import petascope.wcps2.metadata.model.NumericTrimming;
@@ -42,12 +41,15 @@ import petascope.wcps2.result.WcpsResult;
 /**
  * Class to handle an crsTransform coverage expression
  * <code>
- * encode(crsTransform($c, {Lat:"http://localhost:8080/def/crs/epsg/0/4326", Long:"http://localhost:8080/def/crs/epsg/0/4326"),
- * {b1("near", "1,2,3")}, "tiff", "NODATA=0")
+ * encode(
+ *      crsTransform($c, {Lat:"http://localhost:8080/def/crs/epsg/0/4326", Long:"http://localhost:8080/def/crs/epsg/0/4326"),
+ *                       {b1("near", "1,2,3")},
+ * "tiff", "NODATA=0")
  * </code>
  * returns a Rasql query
  * <code>
- * encode(c, "png", "NODATA=0")
+ * encode(project(c, {20,30,40,50}, "EPSG:3857, EPSG:4326"),
+ *        "xmin=1000,ymin=15000,xmax=2000,ymax=25000", "tiff", "NODATA=0")
  * </code>
  *
  * @author <a href="mailto:b.phamhuu@jacobs-university.de">Bang Pham Huu</a>
@@ -88,20 +90,14 @@ public class CrsTransformHandler {
             throw new IdenticalAxisNameInCrsTransformException(axisNameArray[0], axisNameArray[0]);
         }
 
-        // 2. does not support to transform grid coverage (e.g: mr, rgb)
-        String crs = ""; //this.coverageExpression.getCoverage().getCoverageInfo().getCoverageCrs();
-        if (CrsUtil.CrsUri.isGridCoverage(crs)) {
-            throw new NotGeoReferencedCoverageInCrsTransformException();
-        }
-
-        // 3. it should have same axis CRS (e.g: epsg:4326)
+        // 2. it should have same axis CRS (e.g: epsg:4326)
         String crsX = CrsUtil.CrsUri.getAuthorityCode(crsArray[0]);
         String crsY = CrsUtil.CrsUri.getAuthorityCode(crsArray[1]);
         if (!crsX.equals(crsY)) {
             throw new NotIdenticalCrsInCrsTransformException(crsX, crsY);
         }
 
-        // 4. it can only subset 2D and input coverage with geo-referenced axis (native CRS)
+        // 3. it can only subset 2D and input coverage with geo-referenced axis (native CRS)
         // i.e: don't support to project between a geo-referenced axis (e.g: Lat:"4326")
         // and time/pressure axis (e.g:t:"ansidate")
         if (CrsDefinition.X_ALIASES.indexOf(axisNameArray[0]) == -1 && CrsDefinition.Y_ALIASES.indexOf(axisNameArray[0]) == -1) {
@@ -110,13 +106,13 @@ public class CrsTransformHandler {
             throw new NotGeoReferenceAxisNameInCrsTransformException(axisNameArray[1]);
         }
 
-        // 5. if outputCrs is GridCRS then it also should throw exception
+        // 4. if outputCrs is GridCRS (Index%dD or CRS:1) is not valid geo-referenced CRS to transform
         String axisCrss1 = axisCrss.values().toArray()[0].toString();
         String axisCrss2 = axisCrss.values().toArray()[1].toString();
-        
-        if (axisCrss1.contains(CrsUtil.INDEX_CRS_PREFIX) || axisCrss1.equals(CrsUtil.GRID_CRS)) {
+
+        if (axisCrss1.contains(CrsUtil.INDEX_CRS_PREFIX) || CrsUtil.isGridCrs(axisCrss1)) {
             throw new InvalidOutputCrsProjectionInCrsTransformException(axisCrss1, axisNameArray[0]);
-        } else if (axisCrss2.contains(CrsUtil.INDEX_CRS_PREFIX) || axisCrss2.equals(CrsUtil.GRID_CRS)) {
+        } else if (axisCrss2.contains(CrsUtil.INDEX_CRS_PREFIX) || CrsUtil.isGridCrs(axisCrss2)) {
             throw new InvalidOutputCrsProjectionInCrsTransformException(axisCrss2, axisNameArray[1]);
         }
     }

@@ -189,7 +189,7 @@ public class DimensionIntervalElement extends AbstractRasNode implements ICovera
         // Axis type
         try {
             String axisSingleCrs = covInfo.getDomainElement(covInfo.getDomainIndexByName(axisName)).getNativeCrs();
-            this.axisType = axisSingleCrs.equals(CrsUtil.GRID_CRS) ? "" : CrsUtil.getAxisType(CrsUtil.getGmlDefinition(axisSingleCrs), axisName);
+            this.axisType = CrsUtil.isGridCrs(axisSingleCrs) ? "" : CrsUtil.getAxisType(CrsUtil.getGmlDefinition(axisSingleCrs), axisName);
         } catch (PetascopeException ex) {
             throw new WCPSException("Failed while getting the type of axis " + axisName + " for CRS " + crs.getName(), ex);
         } catch (SecoreException ex) {
@@ -198,7 +198,7 @@ public class DimensionIntervalElement extends AbstractRasNode implements ICovera
 
         // Pixel indices are retrieved from bbox, which is stored for XY plane only.
         if (finished == true && covInfo.isGridded()) {
-            if (!crs.getName().equals(CrsUtil.GRID_CRS)) {
+            if (!CrsUtil.isGridCrs(crs.getName())) {
                 convertToPixelCoordinates();
             } else {
                 // Set grid values which were directly set in the requests

@@ -27,24 +27,22 @@ import petascope.wcps2.error.managed.processing.InvalidAxisInDomainExpressionExc
 import petascope.wcps2.metadata.model.Axis;
 import petascope.wcps2.metadata.model.NumericSlicing;
 import petascope.wcps2.metadata.model.NumericTrimming;
-import petascope.wcps2.metadata.service.CrsUtility;
 import petascope.wcps2.result.WcpsMetadataResult;
 import petascope.wcps2.result.WcpsResult;
 
 /**
- * Translator class for the domain(coverageExpression, axisLabel, CRS) operation
- * in wcps
+ * Translator class for the domain(coverageExpression, axisLabel, CRS) operation in wcps
+ * 
  * <code>
- * for c in (eobstest) return domain(c[Lat(20:30)], Lat, "http://localhost:8080/def/crs/EPSG/0/4326")
+ * Return intervals in nativeCrs
+ *      for c in (eobstest) return domain(c[Lat(20:30)], Lat, "http://localhost:8080/def/crs/EPSG/0/4326")
+ * returns (20:30)
  * </code>
- * returns
+ * 
  * <code>
- * * NOTE: it will not regard to the trimming expression Lat(20:30) inside coverage
- * returns full domain interval of Lat: [-40:75.5]
- *
- * for c in (eobstest) return domain(c[Lat(20:30)], Lat, "CRS:1")
- * returns
- *  [0,231] in grid-coordinate
+ * Return intervals in gridCrs
+ *      for c in (eobstest) return domain(c[Lat(20:30)], Lat, "CRS:1")
+ * returns (91:110)
  * </code>
  *
  * @author <a href="mailto:bphamhuu@jacobs-university.de">Bang Pham Huu</a>
@@ -89,8 +87,8 @@ public class DomainExpressionHandler {
             String lowBound = "";
             String highBound = "";
 
-            // Grid axis CRS
-            if (axisCrs.contains(CrsUtil.INDEX_CRS_PREFIX) || axisCrs.equals(CrsUtil.GRID_CRS)) {
+            // Rasql axis CRS
+            if (CrsUtil.isGridCrs(axisCrs)) {
                 lowBound = ((NumericTrimming)axis.getGridBounds()).getLowerLimit().toPlainString();
                 highBound = ((NumericTrimming)axis.getGridBounds()).getUpperLimit().toPlainString();
             } else if (axis.getAxisType().equals(AxisTypes.T_AXIS)) {
@@ -99,7 +97,7 @@ public class DomainExpressionHandler {
                 highBound = ((NumericTrimming)axis.getGridBounds()).getUpperLimit().toPlainString();
             } else if (axis.getAxisType().equals(AxisTypes.X_AXIS)
                    || axis.getAxisType().equals(AxisTypes.Y_AXIS)) {
-                // geo-referenced axis which is not grid axis (geoBounds), e.g: Lat, Long
+                // geo-referenced axis , e.g: Lat, Long or Index2D(*)
                 lowBound = ((NumericTrimming)axis.getGeoBounds()).getLowerLimit().toPlainString();
                 highBound = ((NumericTrimming)axis.getGeoBounds()).getUpperLimit().toPlainString();
             } else {
@@ -114,14 +112,14 @@ public class DomainExpressionHandler {
             String bound = "";
 
             // Grid axis CRS
-            if (axisCrs.contains(CrsUtil.INDEX_CRS_PREFIX) || axisCrs.equals(CrsUtil.GRID_CRS)) {
+            if (CrsUtil.isGridCrs(axisCrs)) {
                 bound = ((NumericSlicing)axis.getGridBounds()).getBound().toPlainString();
             } else if (axis.getAxisType().equals(AxisTypes.T_AXIS)) {
                 // Time - now only in grid axis
                 bound = ((NumericSlicing)axis.getGridBounds()).getBound().toPlainString();
             } else if (axis.getAxisType().equals(AxisTypes.X_AXIS)
                    || axis.getAxisType().equals(AxisTypes.Y_AXIS)) {
-                // geo-referenced axis which is not grid axis (geoBounds), e.g: Lat, Long
+                // geo-referenced axis (geoBounds), e.g: Lat, Long or Index2D(*)
                 bound = ((NumericSlicing)axis.getGeoBounds()).getBound().toPlainString();
             } else {
                 // Unknow axisType, use grid bounds
@@ -144,24 +142,18 @@ public class DomainExpressionHandler {
      * @return
      */
     private static boolean isValid(WcpsResult coverageExpression, String axisName, String crsUri) {
-        // e.g: Index2D
-        String gridCrs = CrsUtility.getImageCrsUri(coverageExpression.getMetadata());
-        String gridCrsCode = CrsUtil.CrsUri.getCode(gridCrs);
-
-         // check if axisName belonged to coverageExpression first
+        // check if axisName belonged to coverageExpression first
         for (Axis axis:coverageExpression.getMetadata().getAxes()) {
             // if coverage contains axisName then check the crsUri belonged to axis also
             if (axis.getLabel().contains(axisName)) {
                 String axisCrsCode = CrsUtil.CrsUri.getCode(axis.getCrsUri());
                 String inputCrsCode = CrsUtil.CrsUri.getCode(crsUri);
 
-                if (crsUri.contains(CrsUtil.INDEX_CRS_PREFIX) || crsUri.equals(CrsUtil.GRID_CRS)) {
-                    // IndexCrs always belonged to axis
+                if (CrsUtil.isGridCrs(crsUri)) {
+                    // CRS:1 always belonged to axis
                     return true;
                 } else if (axisCrsCode.equals(inputCrsCode)) {
-                    return true;
-                } else if (inputCrsCode.equals(gridCrsCode)) {
-                    // if it is "IndexND" then also accept
+                    // e.g: 4326
                     return true;
                 } else {
                     // e.g: Lat:"4326" and Lat:"3857" is not identical

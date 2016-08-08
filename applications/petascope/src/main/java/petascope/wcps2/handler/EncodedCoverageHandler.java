@@ -182,9 +182,9 @@ public class EncodedCoverageHandler {
                     .replace("$xmax", xMax)
                     .replace("$ymax", yMax));
         }
-        // No set crs when encoding with grid coverage (e.g: IndexND)
-        // or X and Y of bounding box have different Crs URI
-        if ((!crs.contains(CrsUtil.INDEX_CRS_PREFIX)) && (!crs.equals(CrsUtil.GRID_CRS)) && (isSameOutputCrs)) {
+        // No set outputCrs when encoding with grid coverage (e.g: mr, rgb)
+        // or X and Y of bounding box have different Crs URIs (e.g: X is Lat, Y is time)
+        if ((!crs.contains(CrsUtil.INDEX_CRS_PREFIX)) && (isSameOutputCrs)) {
             // NOTE: crs here can be like: crs=OGC:AnsiDate?axis-label="time"
             // it is not valid in Rasql then need to replace "" in the parameters as well
             crs = crs.replace("\"", "");

@@ -95,11 +95,12 @@ public class CrsUtil {
     public static final char SLICED_AXIS_SEPARATOR = '@';
 
     // NOTE: "CRS:1" axes to have a GML definition that will be parsed.
+    // NOTE: Index%dD is different with CRS:1 (consider Index%dD is a geo-referenced axis type)
+    // while CRS:1 is Rasql grid axis type, it is not interchangeable.
     public static final String GRID_CRS  = "CRS:1";
     public static final String INDEX_CRS_PATTERN = "Index%dD";
-    public static final String INDEX_GRID_CRS = "Index2D";
     public static final String INDEX_CRS_PATTERN_NUMBER = "%d";
-    // Replace %d with the number of grid coverage (e.g: 2 (mr), 3 (irr_cube_1))
+    // Replace %d with the number of axis (e.g: 2 (mr), 3 (irr_cube_1))
     public static final String OPENGIS_INDEX_ND_PATTERN = OPENGIS_URI_PREFIX + "/def/crs/OGC/0/" + INDEX_CRS_PATTERN;
     public static final String INDEX_CRS_PREFIX = "Index";
     public static final String INDEX_UOM = "GridSpacing"; // See Uom in Index[1-9]D CRS defs
@@ -491,6 +492,18 @@ public class CrsUtil {
             }
         }
         return ret;
+    }
+    
+    /**
+     * Check if axisCrs of coverage is gridCrs (CRS:1)
+     * @param axisCrs
+     * @return 
+     */
+    public static boolean isGridCrs(String axisCrs) {
+        if (axisCrs.equals(CrsUtil.GRID_CRS)) {
+            return true;
+        }
+        return false;
     }
 
     private static Element crsDefUrlToDocument(final String url) throws MalformedURLException {
@@ -1259,17 +1272,6 @@ public class CrsUtil {
             Pattern p = Pattern.compile(COMPOUND_PATTERN);
             Matcher m = p.matcher(StringUtil.urldecode(uri, null));
             while (m.find()) {
-                return true;
-            }
-            return false;
-        }
-
-        /**
-         * Check if coverage is grid or geo-referenced
-         * @return boolean
-         */
-        public static boolean isGridCoverage(String crs) {
-            if(crs.equals(GRID_CRS) || crs.indexOf(INDEX_GRID_CRS) > -1) {
                 return true;
             }
             return false;

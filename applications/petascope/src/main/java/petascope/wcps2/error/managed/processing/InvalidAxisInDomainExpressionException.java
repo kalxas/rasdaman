@@ -38,5 +38,5 @@ public class InvalidAxisInDomainExpressionException extends WCPSProcessingError 
         super(ERROR_TEMPLATE.replace("$axisName", axisName).replace("$crsUri", crsUri));
     }
 
-    private static final String ERROR_TEMPLATE = "'$crsUri' is not belonged to axis '$axisName'.";
+    private static final String ERROR_TEMPLATE = "CRS: '$crsUri' does not belong to axis '$axisName'.";
 }

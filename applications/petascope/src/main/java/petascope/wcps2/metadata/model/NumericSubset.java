@@ -26,4 +26,5 @@ package petascope.wcps2.metadata.model;
  */
 public abstract class NumericSubset{
     public abstract String getStringRepresentation();
+    public abstract String getStringRepresentationInInteger();
 }

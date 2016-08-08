@@ -47,4 +47,9 @@ public class NumericSlicing extends NumericSubset {
     public String getStringRepresentation() {
         return bound.toPlainString();
     }
+
+    @Override
+    public String getStringRepresentationInInteger() {
+        return bound.toBigInteger().toString();
+    }
 }

@@ -27,10 +27,9 @@ import petascope.wcps2.error.managed.processing.InvalidAxisNameException;
 import java.util.List;
 import petascope.core.CrsDefinition;
 import petascope.util.AxisTypes;
-import petascope.wcps2.metadata.service.CrsUtility;
 
 /**
- * Class that keeps information about the coverages (such as domains, crses
+ * Class that keeps information about the coverages (such as domains, CRSs
  * etc.) in the WCPS tree.
  *
  * @author <a href="merticariu@rasdaman.com">Vlad Merticariu</a>
@@ -48,19 +47,16 @@ public class WcpsCoverageMetadata {
     // use in crsTransform()
     private String outputCrsUri;
     private final List<RangeField> rangeFields;
-
-    // based on number of axes to create a grid crs (e.g: Index2D)
-    private final String gridCrsUri;
+    
     private List<Double> nodata;
     private String metadata;
 
-    public WcpsCoverageMetadata(String coverageName, String coverageType, List<Axis> axes, String crsUri, String gridCrsUri,
+    public WcpsCoverageMetadata(String coverageName, String coverageType, List<Axis> axes, String crsUri, 
                                 List<RangeField> rangeFields, String metadata, List<Double> nodata) {
         this.crsUri = crsUri;
         this.axes = axes;
         this.coverageName = coverageName;
         this.rangeFields = rangeFields;
-        this.gridCrsUri = CrsUtility.stripBoundingQuotes(gridCrsUri);
         this.metadata = metadata;
         this.nodata = nodata;
         this.coverageType = coverageType;
@@ -72,10 +68,6 @@ public class WcpsCoverageMetadata {
 
     public String getCrsUri() {
         return this.crsUri;
-    }
-
-    public String getGridCrsUri() {
-        return this.gridCrsUri;
     }
 
     public void setOutputCrsUri(String outputCrsUri) {
@@ -116,7 +108,7 @@ public class WcpsCoverageMetadata {
 
     /**
      * add the axes for the bounding box (then can use later with set
-     * xmin,xmax,ymin,ymax)
+     * xmin,ymin,xmax,ymax)
      *
      * @return
      */

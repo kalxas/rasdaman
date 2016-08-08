@@ -72,29 +72,13 @@ public class CrsUtility {
     }
 
     /**
-     *
-     * imageCrsUri is just a grid CRS (IndexND) for all axes (not as compoundCrs
-     * or geo-referenced CRS) usage: for c in (mr) return imageCrs(c), return:
-     * http://.../Index2D
-     *
-     * @param coverageExpression
-     * @return
-     */
-    public static String getImageCrsUri(WcpsCoverageMetadata coverageExpression) {
-        // replace "Index%dD" with the number of axes in coverage
-        String imageCrsUri = CrsUtil.OPENGIS_INDEX_ND_PATTERN;
-        int numberOfAxes = coverageExpression.getAxes().size();
-        imageCrsUri = imageCrsUri.replace(CrsUtil.INDEX_CRS_PATTERN_NUMBER, String.valueOf(numberOfAxes));
-        return imageCrsUri;
-    }
-
-    /**
-     * create a grid CRS (IndexND) from list of axis
-     *
+     * create a crsUri (IndexND) from list of axis (e.g: coverage has 3 axes then each axis's CRS is Index3D)
+     * NOTE: this is used only when create a grid coverage (e.g: in coverage constructor, condenser,...)
+     * as we still not support to create a geo-referenced coverage yet.
      * @param axes
      * @return
      */
-    public static String getImageCrsUri(List<Axis> axes) {
+    public static String createIndexNDCrsUri(List<Axis> axes) {
         // replace "Index%dD" with the number of axes in coverage
         String imageCrsUri = CrsUtil.OPENGIS_INDEX_ND_PATTERN;
         int numberOfAxes = axes.size();
@@ -146,9 +130,7 @@ public class CrsUtility {
      * with the provided subsettingCrs e.g: encode(c[t(1),
      * Long:"http://..../0/3857"(120000:130000),
      * Lat:"http://.../0/3857"(15000:160000)], "tiff", "nodata=0") then
-     * 120000:130000 should be convert from 3857 to 4326 of Lat This will also
-     * check if IndexND belonged to the coverage (e.g: it should be identical
-     * Index2D).
+     * 120000:130000 should be convert from 3857 to 4326 of Lat.
      *
      * @param axisName
      * @param axisCrs
@@ -156,16 +138,16 @@ public class CrsUtility {
      * @return
      */
     public static boolean geoReferencedSubsettingCrs(String axisName, String axisCrs, WcpsCoverageMetadata wcpsCoverageMetadata) {
-        // First check only support subsettingCrs in geo-referenced axis (not t)
-        // native axis
+        // Only support subsettingCrs in geo-referenced axis (not time axis or grid axis)
         Axis nativeAxis = wcpsCoverageMetadata.getAxisByName(axisName);
         if ( (nativeAxis.getAxisType().equals(AxisTypes.X_AXIS))
-             || (nativeAxis.getAxisType().equals(AxisTypes.Y_AXIS)) ) {
-            // NOTE: if subsettingCrs is Index%d then it will not need to transform
-            // TODO: Remove GRID_CRS support soon
-            if (axisCrs.contains(CrsUtil.INDEX_CRS_PREFIX) || axisCrs.equals(CrsUtil.GRID_CRS)) {
+          || (nativeAxis.getAxisType().equals(AxisTypes.Y_AXIS)) ) {
+            // NOTE: if subsettingCrs is Index%d or CRS:1 then it will not need to transform
+            // e.g: i:"http://.../Index2D" or i:"CRS:1" is not valid outputCrs to transform
+            if (axisCrs.contains(CrsUtil.INDEX_CRS_PREFIX) || CrsUtil.isGridCrs(axisCrs)) {
                 return false;
             } else if (!identicalCrsCode(axisName, axisCrs, wcpsCoverageMetadata)) {
+                // e.g: nativeCrs:4326, subsettingCrs:3857 then need to transform
                 return true;
             }
         }

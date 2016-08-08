@@ -414,7 +414,7 @@ public abstract class AbstractFormatExtension implements FormatExtension {
 
             // in-subset CRS specification (standard inconsistency CRS hanlding in KVP/XML: see OGC 12-167 change request #257)
             // accept direct internal index subsets even if no CRS extension is provided (this is not a geo-reprojection)
-            if (null != subset.getCrs() && subset.getCrs().equals(CrsUtil.GRID_CRS)) {
+            if (null != subset.getCrs() && CrsUtil.isGridCrs(subset.getCrs())) {
                 crs = subset.getCrs(); // replace native with grid crs
             } else if (covMeta.getSubsettingCrs() != null) {
                 // CRSExestion with subsettingCrs parameters then all subsets need to be used with this CRS

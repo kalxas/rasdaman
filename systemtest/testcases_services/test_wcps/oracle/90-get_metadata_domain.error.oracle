@@ -3,7 +3,7 @@
     xsd:schemaLocation="http://www.opengis.net/ows/2.0 http://schemas.opengis.net/ows/2.0/owsExceptionReport.xsd"
       >
     <ows:Exception exceptionCode="WcpsError">
-        <ows:ExceptionText>'/crs/EPSG/0/32633' is not belonged to axis 'Long'.</ows:ExceptionText>
+        <ows:ExceptionText>CRS: '/crs/EPSG/0/32633' does not belong to axis 'Long'.</ows:ExceptionText>
     </ows:Exception>
 
 </ows:ExceptionReport>

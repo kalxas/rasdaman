@@ -1,0 +1,1638 @@
+From 96870ef23a09d9a9f6bb8d093d54afa1160c6dc3 Mon Sep 17 00:00:00 2001
+From: BangPH <b.phamhuu@jacobs-university.de>
+Date: Mon, 8 Aug 2016 17:40:58 +0200
+Subject: [PATCH] ticket:1362 - Differentiate between CRS:1 and IndexND in WCPS 1.5
+
+Summary: Revert back to use CRS:1 instead of IndexND as gridCRS. The IndexND cannot be used as CRS:1 and should not be used interchangeable.
+
+Test Plan: Run the test cases in test wcps. (Dimitar, please add another one for review).
+
+Reviewers: dmisev
+
+Differential Revision: http://codereview.rasdaman.org/D207
+
+---
+ .../main/java/petascope/core/CoverageMetadata.java |  18 +-
+ .../src/main/java/petascope/util/CrsUtil.java      |  28 +-
+ .../src/main/java/petascope/util/WcsUtil.java      |  10 +-
+ .../petascope/wcps/metadata/DomainElement.java     |   4 +-
+ .../wcps/server/core/DimensionIntervalElement.java |   4 +-
+ .../wcps/server/core/DimensionPointElement.java    |   2 +-
+ .../wcps/server/core/MetadataScalarExpr.java       |   2 +-
+ .../InvalidAxisInDomainExpressionException.java    |   2 +-
+ .../wcps2/handler/CoverageCrsSetHandler.java       |  19 +-
+ .../wcps2/handler/CrsTransformHandler.java         |  28 +-
+ .../wcps2/handler/DomainExpressionHandler.java     |  44 ++--
+ .../wcps2/handler/EncodedCoverageHandler.java      |   6 +-
+ .../wcps2/handler/ImageCrsExpressionHandler.java   | Bin 2043 -> 1745 bytes
+ .../handler/RangeConstructorSwitchCaseHandler.java |   2 +-
+ .../SwitchCaseRangeConstructorExpression.java      |   2 +-
+ .../handler/SwitchCaseScalarValueExpression.java   |  18 +-
+ .../wcps2/metadata/model/NumericSlicing.java       |   5 +
+ .../wcps2/metadata/model/NumericSubset.java        |   1 +
+ .../wcps2/metadata/model/NumericTrimming.java      |   5 +
+ .../wcps2/metadata/model/WcpsCoverageMetadata.java |  16 +-
+ .../service/CoordinateTranslationService.java      |  30 +--
+ .../wcps2/metadata/service/CrsUtility.java         |  40 +--
+ .../metadata/service/RasqlTranslationService.java  |  11 +-
+ .../service/WcpsCoverageMetadataService.java       | 289 +++++++++++++++------
+ .../service/WcpsCoverageMetadataTranslator.java    |   1 -
+ .../java/petascope/wcps2/parser/WcpsEvaluator.java |  14 +-
+ .../wcs/server/core/convertGetCoverage.java        |   5 +-
+ .../wcs2/extensions/AbstractFormatExtension.java   |   2 +-
+ .../oracle/105-keyword_case_sensitive.oracle       |   2 +-
+ .../test_wcps/oracle/124-scale-irr-axis.oracle     |   2 +-
+ .../oracle/138-trim_asterisk_time3.oracle          |  10 +
+ .../test_wcps/oracle/62-crsTransform.oracle        | Bin 0 -> 985 bytes
+ .../test_wcps/oracle/62-crsTrasform.oracle         | Bin 985 -> 0 bytes
+ .../test_wcps/oracle/73-get_metadata_crsset.oracle |   2 +-
+ .../oracle/87-get_metadata_imagecrs.oracle         |   2 +-
+ .../oracle/90-get_metadata_domain.error.oracle     |   2 +-
+ ...m_subsettingCrs_IndexCrs_wrong_order.error.test |   2 +-
+ .../queries/101-max_delta_px_history.test          |   4 +-
+ .../test_wcps/queries/124-scale-irr-axis.test      |   9 +-
+ .../test_wcps/queries/138-trim_asterisk_time3.test |   1 +
+ .../test_wcps/queries/62-crsTransform.test         |   1 +
+ .../test_wcps/queries/78-unary_bit.test            |   2 +-
+ .../test_wcps/queries/91-get_metadata_domain2.test |   2 +-
+ 43 files changed, 354 insertions(+), 295 deletions(-)
+ create mode 100644 systemtest/testcases_services/test_wcps/oracle/138-trim_asterisk_time3.oracle
+ create mode 100644 systemtest/testcases_services/test_wcps/oracle/62-crsTransform.oracle
+ delete mode 100644 systemtest/testcases_services/test_wcps/oracle/62-crsTrasform.oracle
+ create mode 100644 systemtest/testcases_services/test_wcps/queries/138-trim_asterisk_time3.test
+ create mode 100644 systemtest/testcases_services/test_wcps/queries/62-crsTransform.test
+
+diff --git a/applications/petascope/src/main/java/petascope/core/CoverageMetadata.java b/applications/petascope/src/main/java/petascope/core/CoverageMetadata.java
+index fe742ef..a839fe9 100755
+--- a/applications/petascope/src/main/java/petascope/core/CoverageMetadata.java
++++ b/applications/petascope/src/main/java/petascope/core/CoverageMetadata.java
+@@ -48,8 +48,6 @@ import petascope.swe.datamodel.NilValue;
+ import petascope.swe.datamodel.Quantity;
+ import petascope.util.*;
+ 
+-import static petascope.util.CrsUtil.INDEX_UOM;
+-
+ import petascope.wcps.metadata.Bbox;
+ import petascope.wcps.metadata.CellDomainElement;
+ import petascope.wcps.metadata.DomainElement;
+@@ -158,7 +156,7 @@ public class CoverageMetadata implements Cloneable {
+                 // use the resolution: for Indexed CRSs, the formula is different than non-indexed CRSs (+1 term in the denominator)
+                 // linear CRS: axisHi = (axisLo + #GridPoints)
+                 // linear CRS: axisHi = (axisLo + #GridPoints - 1)
+-                if (crsAxis.getCrsDefinition().getCode().equals(CrsUtil.GRID_CRS) || coverageType.equals(XMLSymbols.LABEL_GRID_COVERAGE)) {
++                if (CrsUtil.isGridCrs(crsAxis.getCrsDefinition().getCode()) || coverageType.equals(XMLSymbols.LABEL_GRID_COVERAGE)) {
+                     // CRS:1
+                     axisHi = axisLo.add(resolution.multiply(new BigDecimal(gridAxisPoints).add(BigDecimal.valueOf(-1))));
+                 } else {
+@@ -1027,20 +1025,6 @@ public class CoverageMetadata implements Cloneable {
+     }
+ 
+     /**
+-     * Check if coverage crsList contains gridCRS
+-     * @return boolean
+-     */
+-    public boolean isGeoReferenced() {
+-        for(String crs:crsUris) {
+-            // If coverage has a grid CRS then it is not geo-referenced CRS and cannot project (transform)
+-            if(crs.contains(CrsUtil.INDEX_CRS_PREFIX) || crs.equals(CrsUtil.GRID_CRS)) {
+-                return false;
+-            }
+-        }
+-        return true;
+-    }
+-
+-    /**
+      * Takes a GML coverage and translates it into a CoverageMetadata object.
+      * The created coverage doesn't have a coverageId or a rasdamanCollection yet.
+      *
+diff --git a/applications/petascope/src/main/java/petascope/util/CrsUtil.java b/applications/petascope/src/main/java/petascope/util/CrsUtil.java
+index a195ba6..d51770b 100755
+--- a/applications/petascope/src/main/java/petascope/util/CrsUtil.java
++++ b/applications/petascope/src/main/java/petascope/util/CrsUtil.java
+@@ -95,11 +95,12 @@ public class CrsUtil {
+     public static final char SLICED_AXIS_SEPARATOR = '@';
+ 
+     // NOTE: "CRS:1" axes to have a GML definition that will be parsed.
++    // NOTE: Index%dD is different with CRS:1 (consider Index%dD is a geo-referenced axis type)
++    // while CRS:1 is Rasql grid axis type, it is not interchangeable.
+     public static final String GRID_CRS  = "CRS:1";
+     public static final String INDEX_CRS_PATTERN = "Index%dD";
+-    public static final String INDEX_GRID_CRS = "Index2D";
+     public static final String INDEX_CRS_PATTERN_NUMBER = "%d";
+-    // Replace %d with the number of grid coverage (e.g: 2 (mr), 3 (irr_cube_1))
++    // Replace %d with the number of axis (e.g: 2 (mr), 3 (irr_cube_1))
+     public static final String OPENGIS_INDEX_ND_PATTERN = OPENGIS_URI_PREFIX + "/def/crs/OGC/0/" + INDEX_CRS_PATTERN;
+     public static final String INDEX_CRS_PREFIX = "Index";
+     public static final String INDEX_UOM = "GridSpacing"; // See Uom in Index[1-9]D CRS defs
+@@ -492,6 +493,18 @@ public class CrsUtil {
+         }
+         return ret;
+     }
++    
++    /**
++     * Check if axisCrs of coverage is gridCrs (CRS:1)
++     * @param axisCrs
++     * @return 
++     */
++    public static boolean isGridCrs(String axisCrs) {
++        if (axisCrs.equals(CrsUtil.GRID_CRS)) {
++            return true;
++        }
++        return false;
++    }
+ 
+     private static Element crsDefUrlToDocument(final String url) throws MalformedURLException {
+         Element ret = null;
+@@ -1265,17 +1278,6 @@ public class CrsUtil {
+         }
+ 
+         /**
+-         * Check if coverage is grid or geo-referenced
+-         * @return boolean
+-         */
+-        public static boolean isGridCoverage(String crs) {
+-            if(crs.equals(GRID_CRS) || crs.indexOf(INDEX_GRID_CRS) > -1) {
+-                return true;
+-            }
+-            return false;
+-        }
+-
+-        /**
+          * Checks if a specified URI (or an equivalent one) has already been cached.
+          * @param uri
+          * @return True if uri's definition has already been parsed and cached.
+diff --git a/applications/petascope/src/main/java/petascope/util/WcsUtil.java b/applications/petascope/src/main/java/petascope/util/WcsUtil.java
+index cfeb1ec..e28987e 100755
+--- a/applications/petascope/src/main/java/petascope/util/WcsUtil.java
++++ b/applications/petascope/src/main/java/petascope/util/WcsUtil.java
+@@ -108,7 +108,7 @@ public class WcsUtil {
+         } catch (Exception e) {
+             e.printStackTrace();
+             throw new WCSException(ExceptionCode.NoApplicableCode.locator(coverageId),
+-                    "Metadata for coverage '" + coverageId + "' is not valid.");
++                    "Metadata for coverage '" + coverageId + "' is not valid, reason: "  + e.getMessage());
+         }
+     }
+ 
+@@ -661,11 +661,13 @@ public class WcsUtil {
+      *
+      * @param offsetVector
+      * @param isIrregular
+-     * @param axisUom
++     * @param crsCode
++     * @param coverageType
++     * @return 
+      */
+     public static BigDecimal getSampleSpaceShift(BigDecimal offsetVector, boolean isIrregular, String crsCode, String coverageType) {
+         BigDecimal shift;
+-        if (isIrregular || crsCode.equals(CrsUtil.GRID_CRS) || coverageType.equals(LABEL_GRID_COVERAGE)) {
++        if (isIrregular || CrsUtil.isGridCrs(crsCode) || coverageType.equals(LABEL_GRID_COVERAGE)) {
+             shift = BigDecimal.ZERO;
+         } else {
+             shift = BigDecimalUtil.divide(offsetVector, BigDecimal.valueOf(-2));
+@@ -701,7 +703,7 @@ public class WcsUtil {
+                         coefficients.get(0) ;                     // isLowerBound : get the first point included in the response
+                 // coordinate = Origin + (coefficient * offset_vector)
+                 fittedCoordinateValue = domEl.getMinValue().add(domEl.getDirectionalResolution().multiply(fitCoefficient));
+-            } else if (domEl.getCrsDef().getCode().equals(CrsUtil.GRID_CRS) || coverageType.equals(LABEL_GRID_COVERAGE)) {
++            } else if (CrsUtil.isGridCrs(domEl.getCrsDef().getCode()) || coverageType.equals(LABEL_GRID_COVERAGE)) {
+                 // only integral coordinates are legal here
+                 // round up on subset.lo bounds and if coordinate is not integral
+                 boolean roundUp = !isUpperBound && (coordinateValue.subtract(BigDecimal.valueOf(coordinateValue.longValue())).compareTo(BigDecimal.ZERO) != 0);
+diff --git a/applications/petascope/src/main/java/petascope/wcps/metadata/DomainElement.java b/applications/petascope/src/main/java/petascope/wcps/metadata/DomainElement.java
+index 65808db..07d63b5 100755
+--- a/applications/petascope/src/main/java/petascope/wcps/metadata/DomainElement.java
++++ b/applications/petascope/src/main/java/petascope/wcps/metadata/DomainElement.java
+@@ -96,7 +96,7 @@ public class DomainElement implements Cloneable {
+         }
+ 
+         // native CRS and crsSet := Native + GridCRS (no CRS extension enables)
+-        if ((crsUri == null) || crsUri.equals(CrsUtil.GRID_CRS)) {
++        if ((crsUri == null) || CrsUtil.isGridCrs(crsUri)) {
+                nativeCrs = CrsUtil.GRID_CRS;
+                crsSet.add(nativeCrs);
+         } else {
+@@ -112,7 +112,7 @@ public class DomainElement implements Cloneable {
+                         "Invalid domain element: upper-bound is greater then lower-bound.");
+             }
+ 
+-            BigDecimal diffBD = maxValue.subtract(minValue).add(nativeCrs.equals(CrsUtil.GRID_CRS) ? BigDecimal.ONE : BigDecimal.ZERO);
++            BigDecimal diffBD = maxValue.subtract(minValue).add(CrsUtil.isGridCrs(nativeCrs) ? BigDecimal.ONE : BigDecimal.ZERO);
+             scalarResolution  = BigDecimalUtil.divide(diffBD, new BigDecimal(dimensionality));
+         }
+ 
+diff --git a/applications/petascope/src/main/java/petascope/wcps/server/core/DimensionIntervalElement.java b/applications/petascope/src/main/java/petascope/wcps/server/core/DimensionIntervalElement.java
+index 07b90b5..72642a5 100755
+--- a/applications/petascope/src/main/java/petascope/wcps/server/core/DimensionIntervalElement.java
++++ b/applications/petascope/src/main/java/petascope/wcps/server/core/DimensionIntervalElement.java
+@@ -189,7 +189,7 @@ public class DimensionIntervalElement extends AbstractRasNode implements ICovera
+         // Axis type
+         try {
+             String axisSingleCrs = covInfo.getDomainElement(covInfo.getDomainIndexByName(axisName)).getNativeCrs();
+-            this.axisType = axisSingleCrs.equals(CrsUtil.GRID_CRS) ? "" : CrsUtil.getAxisType(CrsUtil.getGmlDefinition(axisSingleCrs), axisName);
++            this.axisType = CrsUtil.isGridCrs(axisSingleCrs) ? "" : CrsUtil.getAxisType(CrsUtil.getGmlDefinition(axisSingleCrs), axisName);
+         } catch (PetascopeException ex) {
+             throw new WCPSException("Failed while getting the type of axis " + axisName + " for CRS " + crs.getName(), ex);
+         } catch (SecoreException ex) {
+@@ -198,7 +198,7 @@ public class DimensionIntervalElement extends AbstractRasNode implements ICovera
+ 
+         // Pixel indices are retrieved from bbox, which is stored for XY plane only.
+         if (finished == true && covInfo.isGridded()) {
+-            if (!crs.getName().equals(CrsUtil.GRID_CRS)) {
++            if (!CrsUtil.isGridCrs(crs.getName())) {
+                 convertToPixelCoordinates();
+             } else {
+                 // Set grid values which were directly set in the requests
+diff --git a/applications/petascope/src/main/java/petascope/wcps/server/core/DimensionPointElement.java b/applications/petascope/src/main/java/petascope/wcps/server/core/DimensionPointElement.java
+index 98ffa30..b6dafb1 100755
+--- a/applications/petascope/src/main/java/petascope/wcps/server/core/DimensionPointElement.java
++++ b/applications/petascope/src/main/java/petascope/wcps/server/core/DimensionPointElement.java
+@@ -161,7 +161,7 @@ public class DimensionPointElement extends AbstractRasNode {
+         if (finished == true &&
+                 covInfo.isGridded() &&
+                 crs != null &&
+-                !crs.getName().equals(CrsUtil.GRID_CRS)) {
++                !CrsUtil.isGridCrs(crs.getName())) {
+             convertToPixelCoordinate();
+         }
+     }
+diff --git a/applications/petascope/src/main/java/petascope/wcps/server/core/MetadataScalarExpr.java b/applications/petascope/src/main/java/petascope/wcps/server/core/MetadataScalarExpr.java
+index 2159362..2ce9a41 100755
+--- a/applications/petascope/src/main/java/petascope/wcps/server/core/MetadataScalarExpr.java
++++ b/applications/petascope/src/main/java/petascope/wcps/server/core/MetadataScalarExpr.java
+@@ -89,7 +89,7 @@ public class MetadataScalarExpr extends AbstractRasNode {
+             child = child.getNextSibling();
+             crs = new Crs(child, xq);
+             try {
+-                if (crs.getName().equals(CrsUtil.GRID_CRS)) {
++                if (CrsUtil.isGridCrs(crs.getName())) {
+                     CellDomainElement cellDomainElement = coverageInfo.getCellDomainElement(axisIndex);
+                     lo = cellDomainElement.getLo().toString();
+                     hi = cellDomainElement.getHi().toString();
+diff --git a/applications/petascope/src/main/java/petascope/wcps2/error/managed/processing/InvalidAxisInDomainExpressionException.java b/applications/petascope/src/main/java/petascope/wcps2/error/managed/processing/InvalidAxisInDomainExpressionException.java
+index f4f8e82..e139960 100755
+--- a/applications/petascope/src/main/java/petascope/wcps2/error/managed/processing/InvalidAxisInDomainExpressionException.java
++++ b/applications/petascope/src/main/java/petascope/wcps2/error/managed/processing/InvalidAxisInDomainExpressionException.java
+@@ -38,5 +38,5 @@ public class InvalidAxisInDomainExpressionException extends WCPSProcessingError
+         super(ERROR_TEMPLATE.replace("$axisName", axisName).replace("$crsUri", crsUri));
+     }
+ 
+-    private static final String ERROR_TEMPLATE = "'$crsUri' is not belonged to axis '$axisName'.";
++    private static final String ERROR_TEMPLATE = "CRS: '$crsUri' does not belong to axis '$axisName'.";
+ }
+\ No newline at end of file
+diff --git a/applications/petascope/src/main/java/petascope/wcps2/handler/CoverageCrsSetHandler.java b/applications/petascope/src/main/java/petascope/wcps2/handler/CoverageCrsSetHandler.java
+index 03db6e0..66e33ec 100755
+--- a/applications/petascope/src/main/java/petascope/wcps2/handler/CoverageCrsSetHandler.java
++++ b/applications/petascope/src/main/java/petascope/wcps2/handler/CoverageCrsSetHandler.java
+@@ -26,7 +26,6 @@ import java.util.List;
+ import org.apache.commons.lang3.StringUtils;
+ import petascope.util.CrsUtil;
+ import petascope.wcps2.metadata.model.Axis;
+-import petascope.wcps2.metadata.service.CrsUtility;
+ import petascope.wcps2.result.WcpsMetadataResult;
+ import petascope.wcps2.result.WcpsResult;
+ 
+@@ -36,14 +35,14 @@ import petascope.wcps2.result.WcpsResult;
+  *
+  * for c in (mr), d in (rgb) return crsSet(c)
+  * return:
+- * i:http://localhost:8080/def/crs/OGC/0/Index2D,
+- * j:http://localhost:8080/def/crs/OGC/0/Index2D
+- *
++ * i:http://localhost:8080/def/crs/OGC/0/Index2D CRS:1,
++ * j:http://localhost:8080/def/crs/OGC/0/Index2D CRS:1
++ * 
+  * for c in (mean_summer_airtemp) return crsSet(c)
+  * return:
+  *
+- * Long:http://localhost:8080/def/crs/EPSG/0/4326 http://localhost:8080/def/crs/OGC/0/Index2D,
+- * Lat:http://localhost:8080/def/crs/EPSG/0/4326 http://localhost:8080/def/crs/OGC/0/Index2D
++ * Long:http://localhost:8080/def/crs/EPSG/0/4326 CRS:1,
++ * Lat:http://localhost:8080/def/crs/EPSG/0/4326 CRS:1
+  *
+  *
+  * @author <a href="mailto:bphamhuu@jacobs-university.de">Bang Pham Huu</a>
+@@ -55,12 +54,10 @@ public class CoverageCrsSetHandler {
+         List<String> list = new ArrayList<String>();
+         String tmp = "";
+         for (Axis axis: coverageExpression.getMetadata().getAxes()) {
++            // nativeCrs (e.g: mr: Index2D, mean_summer_airtemp: EPSG:4326)
+             tmp = axis.getLabel() + ":" + axis.getCrsUri();
+-
+-            // check if nativeCrs of axis is not IndexND then it should add the IndexND as well
+-            if (!axis.getCrsUri().contains(CrsUtil.INDEX_CRS_PREFIX) && !axis.getCrsUri().equals(CrsUtil.GRID_CRS)) {
+-                tmp = tmp + " " + CrsUtility.getImageCrsUri(coverageExpression.getMetadata());
+-            }
++            // gridCrs (CRS:1)
++            tmp = tmp + " " + CrsUtil.GRID_CRS;
+ 
+             list.add(tmp);
+         }
+diff --git a/applications/petascope/src/main/java/petascope/wcps2/handler/CrsTransformHandler.java b/applications/petascope/src/main/java/petascope/wcps2/handler/CrsTransformHandler.java
+index 8f211cc..604926b 100755
+--- a/applications/petascope/src/main/java/petascope/wcps2/handler/CrsTransformHandler.java
++++ b/applications/petascope/src/main/java/petascope/wcps2/handler/CrsTransformHandler.java
+@@ -31,7 +31,6 @@ import petascope.core.CrsDefinition;
+ import petascope.wcps2.error.managed.processing.IdenticalAxisNameInCrsTransformException;
+ import petascope.wcps2.error.managed.processing.InvalidOutputCrsProjectionInCrsTransformException;
+ import petascope.wcps2.error.managed.processing.NotGeoReferenceAxisNameInCrsTransformException;
+-import petascope.wcps2.error.managed.processing.NotGeoReferencedCoverageInCrsTransformException;
+ import petascope.wcps2.error.managed.processing.NotIdenticalCrsInCrsTransformException;
+ import petascope.wcps2.metadata.model.Axis;
+ import petascope.wcps2.metadata.model.NumericTrimming;
+@@ -42,12 +41,15 @@ import petascope.wcps2.result.WcpsResult;
+ /**
+  * Class to handle an crsTransform coverage expression
+  * <code>
+- * encode(crsTransform($c, {Lat:"http://localhost:8080/def/crs/epsg/0/4326", Long:"http://localhost:8080/def/crs/epsg/0/4326"),
+- * {b1("near", "1,2,3")}, "tiff", "NODATA=0")
++ * encode(
++ *      crsTransform($c, {Lat:"http://localhost:8080/def/crs/epsg/0/4326", Long:"http://localhost:8080/def/crs/epsg/0/4326"),
++ *                       {b1("near", "1,2,3")},
++ * "tiff", "NODATA=0")
+  * </code>
+  * returns a Rasql query
+  * <code>
+- * encode(c, "png", "NODATA=0")
++ * encode(project(c, {20,30,40,50}, "EPSG:3857, EPSG:4326"),
++ *        "xmin=1000,ymin=15000,xmax=2000,ymax=25000", "tiff", "NODATA=0")
+  * </code>
+  *
+  * @author <a href="mailto:b.phamhuu@jacobs-university.de">Bang Pham Huu</a>
+@@ -88,20 +90,14 @@ public class CrsTransformHandler {
+             throw new IdenticalAxisNameInCrsTransformException(axisNameArray[0], axisNameArray[0]);
+         }
+ 
+-        // 2. does not support to transform grid coverage (e.g: mr, rgb)
+-        String crs = ""; //this.coverageExpression.getCoverage().getCoverageInfo().getCoverageCrs();
+-        if (CrsUtil.CrsUri.isGridCoverage(crs)) {
+-            throw new NotGeoReferencedCoverageInCrsTransformException();
+-        }
+-
+-        // 3. it should have same axis CRS (e.g: epsg:4326)
++        // 2. it should have same axis CRS (e.g: epsg:4326)
+         String crsX = CrsUtil.CrsUri.getAuthorityCode(crsArray[0]);
+         String crsY = CrsUtil.CrsUri.getAuthorityCode(crsArray[1]);
+         if (!crsX.equals(crsY)) {
+             throw new NotIdenticalCrsInCrsTransformException(crsX, crsY);
+         }
+ 
+-        // 4. it can only subset 2D and input coverage with geo-referenced axis (native CRS)
++        // 3. it can only subset 2D and input coverage with geo-referenced axis (native CRS)
+         // i.e: don't support to project between a geo-referenced axis (e.g: Lat:"4326")
+         // and time/pressure axis (e.g:t:"ansidate")
+         if (CrsDefinition.X_ALIASES.indexOf(axisNameArray[0]) == -1 && CrsDefinition.Y_ALIASES.indexOf(axisNameArray[0]) == -1) {
+@@ -110,13 +106,13 @@ public class CrsTransformHandler {
+             throw new NotGeoReferenceAxisNameInCrsTransformException(axisNameArray[1]);
+         }
+ 
+-        // 5. if outputCrs is GridCRS then it also should throw exception
++        // 4. if outputCrs is GridCRS (Index%dD or CRS:1) is not valid geo-referenced CRS to transform
+         String axisCrss1 = axisCrss.values().toArray()[0].toString();
+         String axisCrss2 = axisCrss.values().toArray()[1].toString();
+-        
+-        if (axisCrss1.contains(CrsUtil.INDEX_CRS_PREFIX) || axisCrss1.equals(CrsUtil.GRID_CRS)) {
++
++        if (axisCrss1.contains(CrsUtil.INDEX_CRS_PREFIX) || CrsUtil.isGridCrs(axisCrss1)) {
+             throw new InvalidOutputCrsProjectionInCrsTransformException(axisCrss1, axisNameArray[0]);
+-        } else if (axisCrss2.contains(CrsUtil.INDEX_CRS_PREFIX) || axisCrss2.equals(CrsUtil.GRID_CRS)) {
++        } else if (axisCrss2.contains(CrsUtil.INDEX_CRS_PREFIX) || CrsUtil.isGridCrs(axisCrss2)) {
+             throw new InvalidOutputCrsProjectionInCrsTransformException(axisCrss2, axisNameArray[1]);
+         }
+     }
+diff --git a/applications/petascope/src/main/java/petascope/wcps2/handler/DomainExpressionHandler.java b/applications/petascope/src/main/java/petascope/wcps2/handler/DomainExpressionHandler.java
+index f40eec1..457fd2a 100755
+--- a/applications/petascope/src/main/java/petascope/wcps2/handler/DomainExpressionHandler.java
++++ b/applications/petascope/src/main/java/petascope/wcps2/handler/DomainExpressionHandler.java
+@@ -27,24 +27,22 @@ import petascope.wcps2.error.managed.processing.InvalidAxisInDomainExpressionExc
+ import petascope.wcps2.metadata.model.Axis;
+ import petascope.wcps2.metadata.model.NumericSlicing;
+ import petascope.wcps2.metadata.model.NumericTrimming;
+-import petascope.wcps2.metadata.service.CrsUtility;
+ import petascope.wcps2.result.WcpsMetadataResult;
+ import petascope.wcps2.result.WcpsResult;
+ 
+ /**
+- * Translator class for the domain(coverageExpression, axisLabel, CRS) operation
+- * in wcps
++ * Translator class for the domain(coverageExpression, axisLabel, CRS) operation in wcps
++ * 
+  * <code>
+- * for c in (eobstest) return domain(c[Lat(20:30)], Lat, "http://localhost:8080/def/crs/EPSG/0/4326")
++ * Return intervals in nativeCrs
++ *      for c in (eobstest) return domain(c[Lat(20:30)], Lat, "http://localhost:8080/def/crs/EPSG/0/4326")
++ * returns (20:30)
+  * </code>
+- * returns
++ * 
+  * <code>
+- * * NOTE: it will not regard to the trimming expression Lat(20:30) inside coverage
+- * returns full domain interval of Lat: [-40:75.5]
+- *
+- * for c in (eobstest) return domain(c[Lat(20:30)], Lat, "CRS:1")
+- * returns
+- *  [0,231] in grid-coordinate
++ * Return intervals in gridCrs
++ *      for c in (eobstest) return domain(c[Lat(20:30)], Lat, "CRS:1")
++ * returns (91:110)
+  * </code>
+  *
+  * @author <a href="mailto:bphamhuu@jacobs-university.de">Bang Pham Huu</a>
+@@ -89,8 +87,8 @@ public class DomainExpressionHandler {
+             String lowBound = "";
+             String highBound = "";
+ 
+-            // Grid axis CRS
+-            if (axisCrs.contains(CrsUtil.INDEX_CRS_PREFIX) || axisCrs.equals(CrsUtil.GRID_CRS)) {
++            // Rasql axis CRS
++            if (CrsUtil.isGridCrs(axisCrs)) {
+                 lowBound = ((NumericTrimming)axis.getGridBounds()).getLowerLimit().toPlainString();
+                 highBound = ((NumericTrimming)axis.getGridBounds()).getUpperLimit().toPlainString();
+             } else if (axis.getAxisType().equals(AxisTypes.T_AXIS)) {
+@@ -99,7 +97,7 @@ public class DomainExpressionHandler {
+                 highBound = ((NumericTrimming)axis.getGridBounds()).getUpperLimit().toPlainString();
+             } else if (axis.getAxisType().equals(AxisTypes.X_AXIS)
+                    || axis.getAxisType().equals(AxisTypes.Y_AXIS)) {
+-                // geo-referenced axis which is not grid axis (geoBounds), e.g: Lat, Long
++                // geo-referenced axis , e.g: Lat, Long or Index2D(*)
+                 lowBound = ((NumericTrimming)axis.getGeoBounds()).getLowerLimit().toPlainString();
+                 highBound = ((NumericTrimming)axis.getGeoBounds()).getUpperLimit().toPlainString();
+             } else {
+@@ -114,14 +112,14 @@ public class DomainExpressionHandler {
+             String bound = "";
+ 
+             // Grid axis CRS
+-            if (axisCrs.contains(CrsUtil.INDEX_CRS_PREFIX) || axisCrs.equals(CrsUtil.GRID_CRS)) {
++            if (CrsUtil.isGridCrs(axisCrs)) {
+                 bound = ((NumericSlicing)axis.getGridBounds()).getBound().toPlainString();
+             } else if (axis.getAxisType().equals(AxisTypes.T_AXIS)) {
+                 // Time - now only in grid axis
+                 bound = ((NumericSlicing)axis.getGridBounds()).getBound().toPlainString();
+             } else if (axis.getAxisType().equals(AxisTypes.X_AXIS)
+                    || axis.getAxisType().equals(AxisTypes.Y_AXIS)) {
+-                // geo-referenced axis which is not grid axis (geoBounds), e.g: Lat, Long
++                // geo-referenced axis (geoBounds), e.g: Lat, Long or Index2D(*)
+                 bound = ((NumericSlicing)axis.getGeoBounds()).getBound().toPlainString();
+             } else {
+                 // Unknow axisType, use grid bounds
+@@ -144,24 +142,18 @@ public class DomainExpressionHandler {
+      * @return
+      */
+     private static boolean isValid(WcpsResult coverageExpression, String axisName, String crsUri) {
+-        // e.g: Index2D
+-        String gridCrs = CrsUtility.getImageCrsUri(coverageExpression.getMetadata());
+-        String gridCrsCode = CrsUtil.CrsUri.getCode(gridCrs);
+-
+-         // check if axisName belonged to coverageExpression first
++        // check if axisName belonged to coverageExpression first
+         for (Axis axis:coverageExpression.getMetadata().getAxes()) {
+             // if coverage contains axisName then check the crsUri belonged to axis also
+             if (axis.getLabel().contains(axisName)) {
+                 String axisCrsCode = CrsUtil.CrsUri.getCode(axis.getCrsUri());
+                 String inputCrsCode = CrsUtil.CrsUri.getCode(crsUri);
+ 
+-                if (crsUri.contains(CrsUtil.INDEX_CRS_PREFIX) || crsUri.equals(CrsUtil.GRID_CRS)) {
+-                    // IndexCrs always belonged to axis
++                if (CrsUtil.isGridCrs(crsUri)) {
++                    // CRS:1 always belonged to axis
+                     return true;
+                 } else if (axisCrsCode.equals(inputCrsCode)) {
+-                    return true;
+-                } else if (inputCrsCode.equals(gridCrsCode)) {
+-                    // if it is "IndexND" then also accept
++                    // e.g: 4326
+                     return true;
+                 } else {
+                     // e.g: Lat:"4326" and Lat:"3857" is not identical
+diff --git a/applications/petascope/src/main/java/petascope/wcps2/handler/EncodedCoverageHandler.java b/applications/petascope/src/main/java/petascope/wcps2/handler/EncodedCoverageHandler.java
+index da50cfa..a3cb90a 100755
+--- a/applications/petascope/src/main/java/petascope/wcps2/handler/EncodedCoverageHandler.java
++++ b/applications/petascope/src/main/java/petascope/wcps2/handler/EncodedCoverageHandler.java
+@@ -182,9 +182,9 @@ public class EncodedCoverageHandler {
+                     .replace("$xmax", xMax)
+                     .replace("$ymax", yMax));
+         }
+-        // No set crs when encoding with grid coverage (e.g: IndexND)
+-        // or X and Y of bounding box have different Crs URI
+-        if ((!crs.contains(CrsUtil.INDEX_CRS_PREFIX)) && (!crs.equals(CrsUtil.GRID_CRS)) && (isSameOutputCrs)) {
++        // No set outputCrs when encoding with grid coverage (e.g: mr, rgb)
++        // or X and Y of bounding box have different Crs URIs (e.g: X is Lat, Y is time)
++        if ((!crs.contains(CrsUtil.INDEX_CRS_PREFIX)) && (isSameOutputCrs)) {
+             // NOTE: crs here can be like: crs=OGC:AnsiDate?axis-label="time"
+             // it is not valid in Rasql then need to replace "" in the parameters as well
+             crs = crs.replace("\"", "");
+diff --git a/applications/petascope/src/main/java/petascope/wcps2/handler/ImageCrsExpressionHandler.java b/applications/petascope/src/main/java/petascope/wcps2/handler/ImageCrsExpressionHandler.java
+index c7c73bba038ad5efa55c52a9667cf3760925e0aa..25c8076879a336e1801fb672237be28297b3b329 100755
+GIT binary patch
+delta 148
+zcmey(f01{?R%V{klFS@E=c3|JAU&CbMP>3Y<^&E6=b&IKLruNO?^!&w6-tT{^NMp4
+zOHzv!O7giBv=nTT^HWmoKrHv7%oGKnVg-nf$-S%#G)gj36@n6r3v(3GVY2yY3Lw$s
+f{Ib-d#Pn2%>dEbFYdH1XgFId0fhJ5&XP*K9TA46!
+
+delta 415
+zcmZ9IF-rq67=|mY9Rv{^oWBmjRZ60DJJh9x+Cc<G2bYp2-(3TDNl4OOJBW*e`}qU>
+z0S+$i`V;&;E;d&w==O#ep6|``wf(*G_Fiul+_)~u(KEq3BM$9MawI+LZoJH-UzDHq
+z#|NE&pCE8OL(5X!f&&=l%K*KrYxq}ofMuC3q)I_Zi`+wMr2wO)^1y_!=v*jkffA^W
+z<p^?(lMdX}7;QZY7%u{C57-=CIK<W)2-M1p#`$faoNz7hETlm=6-Grm6LCoKQ3n(j
+zF-*KSF{MRO5N%MU(h-H83QQ=sj$RIW^pFmfz<IY{D?b`9cTBBjEoDGdHT$C9hQ#Xp
+zj}E}OseYvuL`c#YelZZ`w%u91j{6WvYe#%K#!>mS`MSH5OH%Ze$l%+`^1j*HXqTtW
+F=O2HejNt$P
+
+diff --git a/applications/petascope/src/main/java/petascope/wcps2/handler/RangeConstructorSwitchCaseHandler.java b/applications/petascope/src/main/java/petascope/wcps2/handler/RangeConstructorSwitchCaseHandler.java
+index d0f0521..7900108 100755
+--- a/applications/petascope/src/main/java/petascope/wcps2/handler/RangeConstructorSwitchCaseHandler.java
++++ b/applications/petascope/src/main/java/petascope/wcps2/handler/RangeConstructorSwitchCaseHandler.java
+@@ -73,7 +73,7 @@ public class RangeConstructorSwitchCaseHandler {
+                 
+         //for now no metadata is forwarded, but it can be constructed from the fields (we need this to set extrametadata with netcdf)
+         WcpsCoverageMetadata metadata = new WcpsCoverageMetadata("", "", new ArrayList<Axis>(), 
+-                                                                 "", "", rangeFields, "", new ArrayList<Double>());
++                                                                 "", rangeFields, "", new ArrayList<Double>());
+         String rasql = StringUtils.join(translatedFields, " + ");
+         return new WcpsResult(metadata, rasql);
+     }
+diff --git a/applications/petascope/src/main/java/petascope/wcps2/handler/SwitchCaseRangeConstructorExpression.java b/applications/petascope/src/main/java/petascope/wcps2/handler/SwitchCaseRangeConstructorExpression.java
+index 8db2f52..fc57153 100755
+--- a/applications/petascope/src/main/java/petascope/wcps2/handler/SwitchCaseRangeConstructorExpression.java
++++ b/applications/petascope/src/main/java/petascope/wcps2/handler/SwitchCaseRangeConstructorExpression.java
+@@ -43,7 +43,7 @@ SELECT encode(case
+     WHEN ((c)>(1000)) THEN ((107) * {1c,0c,0c,0c,0c} + (17) * {1c,0c,0c,0c,0c} + (68) * {1c,0c,0c,0c,0c})
+                       ELSE ((150) * {1c,0c,0c,0c,0c} + (103) * {1c,0c,0c,0c,0c} + (14) * {1c,0c,0c,0c,0c})
+     END,
+-"GTiff", "xmin=0.0;xmax=255.0;ymin=0.0;ymax=210.0;crs=OGC:Index2D")
++"GTiff", "xmin=0.0;xmax=255.0;ymin=0.0;ymax=210.0")
+ from mr AS c where oid(c)=1025
+  * </code>
+  * @author <a href="mailto:bphamhuu@jacobs-university.de">Bang Pham  Huu</a>
+diff --git a/applications/petascope/src/main/java/petascope/wcps2/handler/SwitchCaseScalarValueExpression.java b/applications/petascope/src/main/java/petascope/wcps2/handler/SwitchCaseScalarValueExpression.java
+index a07e076..454a69b 100755
+--- a/applications/petascope/src/main/java/petascope/wcps2/handler/SwitchCaseScalarValueExpression.java
++++ b/applications/petascope/src/main/java/petascope/wcps2/handler/SwitchCaseScalarValueExpression.java
+@@ -31,19 +31,17 @@ import petascope.wcps2.metadata.model.WcpsCoverageMetadata;
+ /**
+  * Translation switch case class which returns range constructor expressions
+  * <code>
+- * for c in (mr) return encode(switch
+-    case c > 1000 return (char)5
+-    default return (char)6
+- , "png")
++ * for c in (mr) return encode(
++ *  switch case c > 1000 return (char)5
++ *  default return (char)6 , "png")
+  * </code>
+  * returns
+  * <code>
+-SELECT encode(case
+-    WHEN ((c)>(1000)) THEN ((octet)(2))
+-                      ELSE ((octet)(6))
+-    END,
+-"GTiff", "xmin=0.0;xmax=255.0;ymin=0.0;ymax=210.0;crs=OGC:Index2D")
+-from mr AS c where oid(c)=1025
++ * SELECT encode(case
++ *  WHEN ((c)>(1000)) THEN ((octet)(2))
++ *                     ELSE ((octet)(6))
++ *  END, "GTiff", "xmin=0.0;xmax=255.0;ymin=0.0;ymax=210.0")
++ *  from mr AS c where oid(c)=1025
+  * </code>
+  * @author <a href="mailto:bphamhuu@jacobs-university.de">Bang Pham  Huu</a>
+  * @author <a href="mailto:vlad@flanche.net">Vlad Merticariu</a>
+diff --git a/applications/petascope/src/main/java/petascope/wcps2/metadata/model/NumericSlicing.java b/applications/petascope/src/main/java/petascope/wcps2/metadata/model/NumericSlicing.java
+index d5e7e54..4d58dc2 100755
+--- a/applications/petascope/src/main/java/petascope/wcps2/metadata/model/NumericSlicing.java
++++ b/applications/petascope/src/main/java/petascope/wcps2/metadata/model/NumericSlicing.java
+@@ -47,4 +47,9 @@ public class NumericSlicing extends NumericSubset {
+     public String getStringRepresentation() {
+         return bound.toPlainString();
+     }
++
++    @Override
++    public String getStringRepresentationInInteger() {
++        return bound.toBigInteger().toString();
++    }
+ }
+diff --git a/applications/petascope/src/main/java/petascope/wcps2/metadata/model/NumericSubset.java b/applications/petascope/src/main/java/petascope/wcps2/metadata/model/NumericSubset.java
+index cbf5249..47b6171 100755
+--- a/applications/petascope/src/main/java/petascope/wcps2/metadata/model/NumericSubset.java
++++ b/applications/petascope/src/main/java/petascope/wcps2/metadata/model/NumericSubset.java
+@@ -26,4 +26,5 @@ package petascope.wcps2.metadata.model;
+  */
+ public abstract class NumericSubset{
+     public abstract String getStringRepresentation();
++    public abstract String getStringRepresentationInInteger();
+ }
+diff --git a/applications/petascope/src/main/java/petascope/wcps2/metadata/model/NumericTrimming.java b/applications/petascope/src/main/java/petascope/wcps2/metadata/model/NumericTrimming.java
+index 0db86d3..bd22ca6 100755
+--- a/applications/petascope/src/main/java/petascope/wcps2/metadata/model/NumericTrimming.java
++++ b/applications/petascope/src/main/java/petascope/wcps2/metadata/model/NumericTrimming.java
+@@ -57,5 +57,10 @@ public class NumericTrimming extends NumericSubset {
+     public String getStringRepresentation() {
+         return lowerLimit.toPlainString() + ":" + upperLimit.toPlainString();
+     }
++    
++    @Override
++    public String getStringRepresentationInInteger() {
++         return lowerLimit.toBigInteger().toString() + ":" + upperLimit.toBigInteger().toString();
++    }
+ 
+ }
+diff --git a/applications/petascope/src/main/java/petascope/wcps2/metadata/model/WcpsCoverageMetadata.java b/applications/petascope/src/main/java/petascope/wcps2/metadata/model/WcpsCoverageMetadata.java
+index d84b8c9..87ef195 100755
+--- a/applications/petascope/src/main/java/petascope/wcps2/metadata/model/WcpsCoverageMetadata.java
++++ b/applications/petascope/src/main/java/petascope/wcps2/metadata/model/WcpsCoverageMetadata.java
+@@ -27,10 +27,9 @@ import petascope.wcps2.error.managed.processing.InvalidAxisNameException;
+ import java.util.List;
+ import petascope.core.CrsDefinition;
+ import petascope.util.AxisTypes;
+-import petascope.wcps2.metadata.service.CrsUtility;
+ 
+ /**
+- * Class that keeps information about the coverages (such as domains, crses
++ * Class that keeps information about the coverages (such as domains, CRSs
+  * etc.) in the WCPS tree.
+  *
+  * @author <a href="merticariu@rasdaman.com">Vlad Merticariu</a>
+@@ -48,19 +47,16 @@ public class WcpsCoverageMetadata {
+     // use in crsTransform()
+     private String outputCrsUri;
+     private final List<RangeField> rangeFields;
+-
+-    // based on number of axes to create a grid crs (e.g: Index2D)
+-    private final String gridCrsUri;
++    
+     private List<Double> nodata;
+     private String metadata;
+ 
+-    public WcpsCoverageMetadata(String coverageName, String coverageType, List<Axis> axes, String crsUri, String gridCrsUri,
++    public WcpsCoverageMetadata(String coverageName, String coverageType, List<Axis> axes, String crsUri, 
+                                 List<RangeField> rangeFields, String metadata, List<Double> nodata) {
+         this.crsUri = crsUri;
+         this.axes = axes;
+         this.coverageName = coverageName;
+         this.rangeFields = rangeFields;
+-        this.gridCrsUri = CrsUtility.stripBoundingQuotes(gridCrsUri);
+         this.metadata = metadata;
+         this.nodata = nodata;
+         this.coverageType = coverageType;
+@@ -74,10 +70,6 @@ public class WcpsCoverageMetadata {
+         return this.crsUri;
+     }
+ 
+-    public String getGridCrsUri() {
+-        return this.gridCrsUri;
+-    }
+-
+     public void setOutputCrsUri(String outputCrsUri) {
+         this.outputCrsUri = outputCrsUri;
+     }
+@@ -116,7 +108,7 @@ public class WcpsCoverageMetadata {
+ 
+     /**
+      * add the axes for the bounding box (then can use later with set
+-     * xmin,xmax,ymin,ymax)
++     * xmin,ymin,xmax,ymax)
+      *
+      * @return
+      */
+diff --git a/applications/petascope/src/main/java/petascope/wcps2/metadata/service/CoordinateTranslationService.java b/applications/petascope/src/main/java/petascope/wcps2/metadata/service/CoordinateTranslationService.java
+index bee9c36..98c8864 100755
+--- a/applications/petascope/src/main/java/petascope/wcps2/metadata/service/CoordinateTranslationService.java
++++ b/applications/petascope/src/main/java/petascope/wcps2/metadata/service/CoordinateTranslationService.java
+@@ -21,10 +21,8 @@
+  */
+ package petascope.wcps2.metadata.service;
+ 
+-import org.joda.time.DateTime;
+ import petascope.exceptions.PetascopeException;
+ import petascope.util.BigDecimalUtil;
+-import petascope.util.TimeUtil;
+ import petascope.wcps2.metadata.model.ParsedSubset;
+ 
+ import java.math.BigDecimal;
+@@ -32,7 +30,10 @@ import java.math.BigInteger;
+ import java.math.RoundingMode;
+ 
+ /**
++ * Translate the coordinates from geo bound to grid bound for trimming/slicing and vice versa if using CRS:1 in trimming/slicing
++ * i.e: Lat(0:20) ->
+  * @author <a href="merticariu@rasdaman.com">Vlad Merticariu</a>
++ * @author <a href="mailto:bphamhuu@jacobs-university.net">Bang Pham Huu</a>
+  */
+ public class CoordinateTranslationService {
+ 
+@@ -58,7 +59,7 @@ public class CoordinateTranslationService {
+ 
+         BigDecimal returnLowerLimit, returnUpperLimit;
+         if (zeroIsMin) {
+-            //closed interval on the lower limit, open on the upper limit - use floor and ceil - 1 repsectively
++            // closed interval on the lower limit, open on the upper limit - use floor and ceil - 1 repsectively
+             // e.g: Long(0:20) -> c[0:50]
+             returnLowerLimit = BigDecimalUtil.divide(numericSubset.getLowerLimit().subtract(geoDomainMin), resolution)
+                     .setScale(0, RoundingMode.FLOOR).add(gridDomainMin);
+@@ -101,7 +102,7 @@ public class CoordinateTranslationService {
+             returnUpperLimit = BigDecimalUtil.multiple(numericSubset.getUpperLimit().subtract(geoDomainMin), resolution)
+                     .setScale(0, RoundingMode.CEILING).add(gridDomainMin);
+ 
+-            //because we use ceil - 1, when values are close (less than 1 resolution dif), the upper will be pushed below the lower
++            // because we use ceil - 1, when values are close (less than 1 resolution dif), the upper will be pushed below the lower
+             if (returnUpperLimit.compareTo(returnLowerLimit) < 0) {
+                 returnUpperLimit = returnLowerLimit;
+             }
+@@ -169,25 +170,4 @@ public class CoordinateTranslationService {
+ 
+         return new ParsedSubset(lowerBound, upperbound);
+     }
+-
+-    /**
+-     * Converts the time coordinates into BigDecimal coordinates.
+-     *
+-     * @param timeSubset
+-     * @param datumOrigin
+-     * @param uom
+-     * @param resolution
+-     * @return
+-     * @throws PetascopeException
+-     */
+-    private ParsedSubset<BigDecimal> getTimeOffsets(ParsedSubset<DateTime> timeSubset, DateTime datumOrigin,
+-                                                    String uom, BigDecimal resolution) throws PetascopeException {
+-        double numLo;
+-        double numHi;
+-        numLo = TimeUtil.countOffsets(datumOrigin.toString(), timeSubset.getLowerLimit().toString(), uom, resolution.doubleValue());
+-        numHi = TimeUtil.countOffsets(datumOrigin.toString(), timeSubset.getUpperLimit().toString(), uom, resolution.doubleValue());
+-        return new ParsedSubset(BigDecimal.valueOf(numLo), BigDecimal.valueOf(numHi));
+-    }
+-
+-
+ }
+diff --git a/applications/petascope/src/main/java/petascope/wcps2/metadata/service/CrsUtility.java b/applications/petascope/src/main/java/petascope/wcps2/metadata/service/CrsUtility.java
+index cc2bd19..62ac16f 100755
+--- a/applications/petascope/src/main/java/petascope/wcps2/metadata/service/CrsUtility.java
++++ b/applications/petascope/src/main/java/petascope/wcps2/metadata/service/CrsUtility.java
+@@ -72,29 +72,13 @@ public class CrsUtility {
+     }
+ 
+     /**
+-     *
+-     * imageCrsUri is just a grid CRS (IndexND) for all axes (not as compoundCrs
+-     * or geo-referenced CRS) usage: for c in (mr) return imageCrs(c), return:
+-     * http://.../Index2D
+-     *
+-     * @param coverageExpression
+-     * @return
+-     */
+-    public static String getImageCrsUri(WcpsCoverageMetadata coverageExpression) {
+-        // replace "Index%dD" with the number of axes in coverage
+-        String imageCrsUri = CrsUtil.OPENGIS_INDEX_ND_PATTERN;
+-        int numberOfAxes = coverageExpression.getAxes().size();
+-        imageCrsUri = imageCrsUri.replace(CrsUtil.INDEX_CRS_PATTERN_NUMBER, String.valueOf(numberOfAxes));
+-        return imageCrsUri;
+-    }
+-
+-    /**
+-     * create a grid CRS (IndexND) from list of axis
+-     *
++     * create a crsUri (IndexND) from list of axis (e.g: coverage has 3 axes then each axis's CRS is Index3D)
++     * NOTE: this is used only when create a grid coverage (e.g: in coverage constructor, condenser,...)
++     * as we still not support to create a geo-referenced coverage yet.
+      * @param axes
+      * @return
+      */
+-    public static String getImageCrsUri(List<Axis> axes) {
++    public static String createIndexNDCrsUri(List<Axis> axes) {
+         // replace "Index%dD" with the number of axes in coverage
+         String imageCrsUri = CrsUtil.OPENGIS_INDEX_ND_PATTERN;
+         int numberOfAxes = axes.size();
+@@ -146,9 +130,7 @@ public class CrsUtility {
+      * with the provided subsettingCrs e.g: encode(c[t(1),
+      * Long:"http://..../0/3857"(120000:130000),
+      * Lat:"http://.../0/3857"(15000:160000)], "tiff", "nodata=0") then
+-     * 120000:130000 should be convert from 3857 to 4326 of Lat This will also
+-     * check if IndexND belonged to the coverage (e.g: it should be identical
+-     * Index2D).
++     * 120000:130000 should be convert from 3857 to 4326 of Lat.
+      *
+      * @param axisName
+      * @param axisCrs
+@@ -156,16 +138,16 @@ public class CrsUtility {
+      * @return
+      */
+     public static boolean geoReferencedSubsettingCrs(String axisName, String axisCrs, WcpsCoverageMetadata wcpsCoverageMetadata) {
+-        // First check only support subsettingCrs in geo-referenced axis (not t)
+-        // native axis
++        // Only support subsettingCrs in geo-referenced axis (not time axis or grid axis)
+         Axis nativeAxis = wcpsCoverageMetadata.getAxisByName(axisName);
+         if ( (nativeAxis.getAxisType().equals(AxisTypes.X_AXIS))
+-             || (nativeAxis.getAxisType().equals(AxisTypes.Y_AXIS)) ) {
+-            // NOTE: if subsettingCrs is Index%d then it will not need to transform
+-            // TODO: Remove GRID_CRS support soon
+-            if (axisCrs.contains(CrsUtil.INDEX_CRS_PREFIX) || axisCrs.equals(CrsUtil.GRID_CRS)) {
++          || (nativeAxis.getAxisType().equals(AxisTypes.Y_AXIS)) ) {
++            // NOTE: if subsettingCrs is Index%d or CRS:1 then it will not need to transform
++            // e.g: i:"http://.../Index2D" or i:"CRS:1" is not valid outputCrs to transform
++            if (axisCrs.contains(CrsUtil.INDEX_CRS_PREFIX) || CrsUtil.isGridCrs(axisCrs)) {
+                 return false;
+             } else if (!identicalCrsCode(axisName, axisCrs, wcpsCoverageMetadata)) {
++                // e.g: nativeCrs:4326, subsettingCrs:3857 then need to transform
+                 return true;
+             }
+         }
+diff --git a/applications/petascope/src/main/java/petascope/wcps2/metadata/service/RasqlTranslationService.java b/applications/petascope/src/main/java/petascope/wcps2/metadata/service/RasqlTranslationService.java
+index ce5ecb4..36c1e2f 100755
+--- a/applications/petascope/src/main/java/petascope/wcps2/metadata/service/RasqlTranslationService.java
++++ b/applications/petascope/src/main/java/petascope/wcps2/metadata/service/RasqlTranslationService.java
+@@ -21,7 +21,6 @@
+  */
+ package petascope.wcps2.metadata.service;
+ 
+-import java.util.AbstractList;
+ import org.apache.commons.lang3.StringUtils;
+ import petascope.wcps2.result.parameters.SubsetDimension;
+ import petascope.wcps2.metadata.model.Axis;
+@@ -76,7 +75,7 @@ public class RasqlTranslationService {
+             if (!dollarSubsetFound) {
+                 //ok, regular grid domain
+                 NumericSubset gridBounds = axis.getGridBounds();
+-                result = gridBounds.getStringRepresentation();
++                result = gridBounds.getStringRepresentationInInteger();
+             }
+ 
+             translatedDomains.add(result);
+@@ -85,13 +84,13 @@ public class RasqlTranslationService {
+         rasqlDomain = StringUtils.join(translatedDomains, ",");
+         return rasqlDomain;
+     }
+-    
++
+     /**
+      * Translate a subset dimension for an axis to Rasql interval (slicing/trimming)
+      * @param axis
+      * @param subsetAxisIteratorDimensions
+      * @param axisIteratorAliasRegistry
+-     * @return 
++     * @return
+      */
+     public String constructRasqlDomain(Axis axis, List<SubsetDimension> subsetAxisIteratorDimensions, AxisIteratorAliasRegistry axisIteratorAliasRegistry) {
+         String rasqlDomain = "";
+@@ -113,7 +112,7 @@ public class RasqlTranslationService {
+         if (!dollarSubsetFound) {
+             //ok, regular grid domain
+             NumericSubset gridBounds = axis.getGridBounds();
+-            result = gridBounds.getStringRepresentation();
++            result = gridBounds.getStringRepresentationInInteger();
+         }
+ 
+         // NOTE: only add translated subsetDimension if subset dimension is processed currently
+@@ -122,7 +121,7 @@ public class RasqlTranslationService {
+         rasqlDomain = StringUtils.join(translatedDomains, ",");
+         return rasqlDomain;
+     }
+-    
++
+ 
+     /**
+      * This function will construct the rasql domain corresponding to the
+diff --git a/applications/petascope/src/main/java/petascope/wcps2/metadata/service/WcpsCoverageMetadataService.java b/applications/petascope/src/main/java/petascope/wcps2/metadata/service/WcpsCoverageMetadataService.java
+index 4ba22ea..b30750a 100755
+--- a/applications/petascope/src/main/java/petascope/wcps2/metadata/service/WcpsCoverageMetadataService.java
++++ b/applications/petascope/src/main/java/petascope/wcps2/metadata/service/WcpsCoverageMetadataService.java
+@@ -91,7 +91,6 @@ public class WcpsCoverageMetadataService {
+         checkSubsetConsistency(metadata, subsetList);
+         // iterate through the subsets
+         // Normally, the query will need to calculate the grid bound from geo bound
+-        boolean calculateGridBound = true;
+         for (Subset subset : subsetList) {
+             //identify the corresponding axis in the coverage metadata
+             for (Axis axis : metadata.getAxes()) {
+@@ -101,22 +100,18 @@ public class WcpsCoverageMetadataService {
+                     if (subset.getCrs() != null && !subset.getCrs().equals(axis.getCrsUri())) {
+                         axis.setCrsUri(subset.getCrs());
+                     }
+-                    if (axis.getCrsUri().equals(CrsUtil.GRID_CRS) || metadata.getCoverageType().equals(XMLSymbols.LABEL_GRID_COVERAGE)) {
+-                        // it will need to calculate from grid bound to geo bound (e.g: Lat:"http://.../Index2D"(0:50) -> Lat(0:20))
+-                        calculateGridBound = false;
+-                    }
+ 
+                     // NOTE: There are 2 types of subset:
+                     // + update the geo-bound according to the subsets and translate updated geo-bound to new grid-bound
+                     //   e.g: Lat(0:20) -> c[0:50] (calculate the grid coordinates from geo coordinates)
+                     // + update the grid-bound according to the subsets and translate update grid-bound to new geo-bound
+-                    //   e.g: Lat:"http://..../Index2D"(0:50) -> Lat(0:20) (calculate the geo coordinates from grid coordinates)
++                    //   e.g: Lat:"CRS:1"(0:50) -> Lat(0:20) (calculate the geo coordinates from grid coordinates)
+                     // Trimming
+                     if (subset.getNumericSubset() instanceof NumericTrimming) {
+-                        applyTrimmingSubset(calculateGridBound, checkBoundary, metadata, subset, axis);
++                        applyTrimmingSubset(checkBoundary, metadata, subset, axis);
+                     } else {
+                         // slicing
+-                        applySlicing(calculateGridBound, checkBoundary, metadata, subset, axis);
++                        applySlicing(checkBoundary, metadata, subset, axis);
+                     }
+ 
+                     // Continue with another subset
+@@ -273,7 +268,7 @@ public class WcpsCoverageMetadataService {
+ 
+             // Create a crsDefintion by crsUri
+             CrsDefinition crsDefinition = null;
+-            if(crsUri != null && ! crsUri.equals("")) {
++            if (crsUri != null && ! crsUri.equals("")) {
+                 CrsUtility.getCrsDefinitionByCrsUri(crsUri);
+             }
+ 
+@@ -288,11 +283,11 @@ public class WcpsCoverageMetadataService {
+             axesCounter++;
+             axes.add(axis);
+         }
+-        //the current crs if GRID CRS. When the coverage constructor will support geo referencing, the CrsService should
++        //the current crs is IndexND CRS. When the coverage constructor will support geo referencing, the CrsService should
+         //deduce the crs from the crses of the axes
+-        // NOTE: now, just use gridCrsUri (e.g: http://.../IndexND) to set as crs for creating coverage first
+-        String gridCrsUri = CrsUtility.getImageCrsUri(axes);
+-        WcpsCoverageMetadata result = new WcpsCoverageMetadata(coverageName, XMLSymbols.LABEL_GRID_COVERAGE, axes, gridCrsUri, gridCrsUri, null, "", null);
++        // NOTE: now, just use IndexND CRS (e.g: http://.../IndexND) to set as crs for creating coverage first
++        String indexNDCrsUri = CrsUtility.createIndexNDCrsUri(axes);
++        WcpsCoverageMetadata result = new WcpsCoverageMetadata(coverageName, XMLSymbols.LABEL_GRID_COVERAGE, axes, indexNDCrsUri, null, "", null);
+         return result;
+     }
+ 
+@@ -309,7 +304,14 @@ public class WcpsCoverageMetadataService {
+      * @param axis
+      * @throws PetascopeException
+      */
+-    private void applyTrimmingSubset(Boolean calculateGridBound, Boolean checkBoundary, WcpsCoverageMetadata metadata, Subset subset, Axis axis) throws PetascopeException {
++    private void applyTrimmingSubset(Boolean checkBoundary, WcpsCoverageMetadata metadata, Subset subset, Axis axis) throws PetascopeException {
++
++        boolean geoToGrid = true;
++        if (CrsUtil.isGridCrs(axis.getCrsUri()) || metadata.getCoverageType().equals(XMLSymbols.LABEL_GRID_COVERAGE)) {
++            // it will need to calculate from grid bound to geo bound (e.g: Lat:"http://.../Index2D"(0:50) -> Lat(0:20))
++            geoToGrid = false;
++        }
++
+         //set the lower, upper bounds and crs
+         BigDecimal lowerLimit = ((NumericTrimming) subset.getNumericSubset()).getLowerLimit();
+         BigDecimal upperLimit = ((NumericTrimming) subset.getNumericSubset()).getUpperLimit();
+@@ -323,8 +325,8 @@ public class WcpsCoverageMetadataService {
+         }
+ 
+         if (checkBoundary) {
+-            // NOTE: if crs is not Index%d then need to check boundary with the geo else check with grid (e.g: Lat:"http://.../Index2D"(0:20))
+-            if (calculateGridBound) {
++            // NOTE: if crs is not CRS:1 then need to check valid geo boundary otherwise check valid grid boundary
++            if (geoToGrid) {
+                 validParsedSubsetGeoBounds(parsedSubset, axis);
+             } else {
+                 validParsedSubsetGridBounds(parsedSubset, axis);
+@@ -334,23 +336,24 @@ public class WcpsCoverageMetadataService {
+         // Translate geo subset -> grid subset or grid subset -> geo subset
+         NumericTrimming unAppliedNumericSubset = null;
+         NumericTrimming unTranslatedNumericSubset = null;
+-        if (calculateGridBound) {
++        if (geoToGrid) {
+             // Lat(0:20) -> c[0:50]
++            // Apply subset from geo domain to grid domain
+             unAppliedNumericSubset = (NumericTrimming)axis.getGeoBounds();
+             unTranslatedNumericSubset = (NumericTrimming)axis.getGridBounds();
+-            this.translateTrimmingSubset(calculateGridBound, axis, subset, unAppliedNumericSubset, unTranslatedNumericSubset, metadata);
++            this.translateTrimmingGeoToGridSubset(axis, subset, unAppliedNumericSubset, unTranslatedNumericSubset, metadata);
+         } else {
+-            // c[0:50] -> Lat(0:20)
++            // Lat:"CRS:1"[0:50] -> Lat(0:20)
++            // Apply subset from grid domain to geo domain
+             unAppliedNumericSubset = (NumericTrimming)axis.getGridBounds();
+             unTranslatedNumericSubset = (NumericTrimming)axis.getGeoBounds();
+-            this.translateTrimmingSubset(calculateGridBound, axis, subset, unAppliedNumericSubset, unTranslatedNumericSubset, metadata);
++            this.translateTrimmingGridToGeoSubset(axis, subset, unAppliedNumericSubset, unTranslatedNumericSubset);
+         }
+     }
+ 
+     /**
+-     * Apply the trimming subset on the unAppliedNumericSubset (geo/grid bounds) and
+-     * calculate this bound to unTranslatedNumericSubset (grid/geo bound)
+-     * @param calculateGridBound
++     * Apply the trimming subset on the unAppliedNumericSubset (geo bound) and
++     * calculate this bound to unTranslatedNumericSubset (grid bound)
+      * @param axis
+      * @param subset
+      * @param unAppliedNumericSubset
+@@ -358,9 +361,9 @@ public class WcpsCoverageMetadataService {
+      * @param metadata
+      * @throws PetascopeException
+      */
+-    private void translateTrimmingSubset(boolean calculateGridBound, Axis axis, Subset subset,
+-                        NumericTrimming unAppliedNumericSubset, NumericTrimming unTranslatedNumericSubset,
+-                        WcpsCoverageMetadata metadata) throws PetascopeException {
++    private void translateTrimmingGeoToGridSubset(Axis axis, Subset subset,
++                                                  NumericTrimming unAppliedNumericSubset, NumericTrimming unTranslatedNumericSubset,
++                                                  WcpsCoverageMetadata metadata) throws PetascopeException {
+         BigDecimal geoDomainMin = ((NumericTrimming) axis.getGeoBounds()).getLowerLimit();
+         BigDecimal geoDomainMax = ((NumericTrimming) axis.getGeoBounds()).getUpperLimit();
+         BigDecimal gridDomainMin = ((NumericTrimming) axis.getGridBounds()).getLowerLimit();
+@@ -375,47 +378,47 @@ public class WcpsCoverageMetadataService {
+ 
+         ParsedSubset<BigDecimal> parsedSubset = new ParsedSubset<BigDecimal>(lowerLimit, upperLimit);
+         // store the translated grid bounds from the subsets
+-        ParsedSubset<BigInteger> translatedSubset = translateGeoCoordinates(calculateGridBound, parsedSubset, axis,
+-                metadata, geoDomainMin, geoDomainMax, gridDomainMin, gridDomainMax);
+-
++        ParsedSubset<BigInteger> translatedSubset;
++        translatedSubset = translateGeoToGridCoordinates(parsedSubset, axis,
++                                                             metadata, geoDomainMin, geoDomainMax, gridDomainMin, gridDomainMax);
+ 
+         // Set the correct translated grid parsed subset to axis
+         unTranslatedNumericSubset.setLowerLimit(new BigDecimal(translatedSubset.getLowerLimit()));
+         unTranslatedNumericSubset.setUpperLimit(new BigDecimal(translatedSubset.getUpperLimit()));
+     }
+ 
+-    private ParsedSubset<BigInteger> translateGeoCoordinates(boolean calculateGridBound, ParsedSubset<BigDecimal> parsedSubset,
+-                                                             Axis axis, WcpsCoverageMetadata metadata,  BigDecimal geoDomainMin,
+-                                                             BigDecimal geoDomainMax, BigDecimal gridDomainMin,
+-                                                             BigDecimal gridDomainMax) throws PetascopeException {
++    /**
++     * Apply the trimming subset on the unAppliedNumericSubset (grid bound) and
++     * calculate this bound to unTranslatedNumericSubset (geo bound)
++     * @param axis
++     * @param subset
++     * @param unAppliedNumericSubset
++     * @param unTranslatedNumericSubset
++     * @throws PetascopeException
++     */
++    private void translateTrimmingGridToGeoSubset(Axis axis, Subset subset,
++                                                  NumericTrimming unAppliedNumericSubset,
++                                                  NumericTrimming unTranslatedNumericSubset) throws PetascopeException {
++        BigDecimal geoDomainMin = ((NumericTrimming) axis.getGeoBounds()).getLowerLimit();
++        BigDecimal gridDomainMin = ((NumericTrimming) axis.getGridBounds()).getLowerLimit();
++        BigDecimal gridDomainMax = ((NumericTrimming) axis.getGridBounds()).getUpperLimit();
++
++        BigDecimal lowerLimit = ((NumericTrimming) subset.getNumericSubset()).getLowerLimit();
++        BigDecimal upperLimit = ((NumericTrimming) subset.getNumericSubset()).getUpperLimit();
++
++        // Apply the subset on the unAppliedNumericSubset
++        unAppliedNumericSubset.setLowerLimit(lowerLimit);
++        unAppliedNumericSubset.setUpperLimit(upperLimit);
++
++        ParsedSubset<BigDecimal> parsedSubset = new ParsedSubset<BigDecimal>(lowerLimit, upperLimit);
++        // store the translated grid bounds from the subsets
+         ParsedSubset<BigInteger> translatedSubset;
+-        // Regular axis (no need to query database)
+-        if (axis instanceof RegularAxis) {
+-            BigDecimal resolution = ((RegularAxis) axis).getResolution();
+-            if (calculateGridBound) {
+-                // Lat(0:20) -> c[0:50]
+-                translatedSubset = coordinateTranslationService.geoToGridForRegularAxis(parsedSubset, geoDomainMin, geoDomainMax, resolution, gridDomainMin);
+-            } else {
+-                // Lat:"CRS:1"(0:50) -> [0:50]
+-                translatedSubset = coordinateTranslationService.gridToGeoForRegularAxis(parsedSubset, gridDomainMin, gridDomainMax, resolution, geoDomainMin);
+-            }
+-        } else {
+-            // Irregular axis (query database for coefficients)
+-            int iOrder = axis.getRasdamanOrder();
+-            BigDecimal scalarResolution = axis.getScalarResolution();
+-            if (calculateGridBound) {
+-                // e.g: ansi(148654) in irr_cube_2 -> c[0]
+-                translatedSubset = coordinateTranslationService.geoToGridForIrregularAxes(
+-                        parsedSubset, scalarResolution, metadata.getCoverageName(), iOrder, gridDomainMin, gridDomainMax, geoDomainMin);
+-            } else {
+-                // NOTE: if subsettingCrs is IndexCrs, ( e.g: ansi:"http://.../Index3D"(3) ) in irr_cube_2
+-                // it is query directly in grid coordinate which is regular not irregular anymore
+-                // Problem: it cannot resolve from grid coordinate (e.g: c[3]) to "geo" coordinate (e.g: 148661) with irregular axis.
+-                // then consider geo bound is equal to grid bound in this case.
+-                translatedSubset = new ParsedSubset<BigInteger>(parsedSubset.getLowerLimit().toBigInteger(), parsedSubset.getUpperLimit().toBigInteger());
+-            }
+-        }
+-        return translatedSubset;
++        translatedSubset = translateGridToGeoCoordinates(parsedSubset, axis,
++                                                         geoDomainMin, gridDomainMin, gridDomainMax);
++
++        // Set the correct translated grid parsed subset to axis
++        unTranslatedNumericSubset.setLowerLimit(new BigDecimal(translatedSubset.getLowerLimit()));
++        unTranslatedNumericSubset.setUpperLimit(new BigDecimal(translatedSubset.getUpperLimit()));
+     }
+ 
+     /**
+@@ -430,13 +433,20 @@ public class WcpsCoverageMetadataService {
+      * @param axis
+      * @throws PetascopeException
+      */
+-    private void applySlicing(Boolean calculateGridBound, Boolean checkBoundary, WcpsCoverageMetadata metadata, Subset subset, Axis axis) throws PetascopeException {
++    private void applySlicing(Boolean checkBoundary, WcpsCoverageMetadata metadata,
++                              Subset subset, Axis axis) throws PetascopeException {
++        boolean geoToGrid = true;
++        if (CrsUtil.isGridCrs(axis.getCrsUri()) || metadata.getCoverageType().equals(XMLSymbols.LABEL_GRID_COVERAGE)) {
++            // it will need to calculate from grid bound to geo bound (e.g: Lat:"http://.../Index2D"(0:50) -> Lat(0:20))
++            geoToGrid = false;
++        }
++
+         BigDecimal bound = ((NumericSlicing) subset.getNumericSubset()).getBound();
+         ParsedSubset<BigDecimal> geoParsedSubset = new ParsedSubset<BigDecimal>(bound, bound);
+         // check if parsed subset is valid
+         if (checkBoundary) {
+-            // NOTE: if crs is not Index%d then need to check boundary with the geo else check with grid (e.g: Lat:"http://.../Index2D"(0:20))
+-            if (!axis.getCrsUri().equals(CrsUtil.GRID_CRS)) {
++            // NOTE: if crs is not CRS:1 then need to check valid geo boundary otherwise check valid grid boundary.
++            if (!CrsUtil.isGridCrs(subset.getCrs())) {
+                 validParsedSubsetGeoBounds(geoParsedSubset, axis);
+             } else {
+                 validParsedSubsetGridBounds(geoParsedSubset, axis);
+@@ -444,26 +454,27 @@ public class WcpsCoverageMetadataService {
+         }
+ 
+         // Translate geo subset -> grid subset or grid subset -> geo subset
+-        this.translateSlicingSubset(calculateGridBound, axis, subset, metadata);
+-
++        if (geoToGrid) {
++            this.translateSlicingGeoToGridSubset(axis, subset, metadata);
++        } else {
++            this.translateSlicingGridToGeoSubset(axis, subset);
++        }
+     }
+ 
+     /**
+-     * Apply the slicing subset on the (geo/grid bounds) and
+-     * calculate this bound to (grid/geo bound)
+-     * @param calculateGridBound
++     * Apply the slicing subset on the (geo bound) and
++     * calculate this bound to (grid bound)
+      * @param axis
+      * @param subset
+      * @param metadata
+      * @throws PetascopeException
+      */
+-    private void translateSlicingSubset(boolean calculateGridBound, Axis axis, Subset subset,
+-                                        WcpsCoverageMetadata metadata) throws PetascopeException {
++    private void translateSlicingGeoToGridSubset(Axis axis, Subset subset,
++                                                 WcpsCoverageMetadata metadata) throws PetascopeException {
+ 
+         BigDecimal bound = ((NumericSlicing) subset.getNumericSubset()).getBound();
+         ParsedSubset<BigDecimal> parsedSubset = new ParsedSubset<BigDecimal>(bound, bound);
+ 
+-
+         // Translate the coordinate in georeferenced to grid.
+         BigDecimal geoDomainMin;
+         BigDecimal geoDomainMax;
+@@ -485,28 +496,135 @@ public class WcpsCoverageMetadataService {
+             gridDomainMax = ((NumericTrimming) axis.getGridBounds()).getUpperLimit();
+         }
+ 
+-
+         // NOTE: numeric type of axis here can be trimming when building axes for the coverage, it need to be change to slicing
+         NumericSlicing numericSlicingBound = new NumericSlicing(bound);
+-        if (calculateGridBound) {
+-            // Lat(20) -> c(50)
+-            axis.setGeoBounds(numericSlicingBound);
++        // Lat(20) -> c(50)
++        // Apply geo slicing to grid slicing
++        axis.setGeoBounds(numericSlicingBound);
++
++        // store the translated grid bounds from the subsets
++        ParsedSubset<BigInteger> translatedSubset = this.translateGeoToGridCoordinates(parsedSubset, axis,
++                                                            metadata, geoDomainMin, geoDomainMax, gridDomainMin, gridDomainMax);
++
++        // Set the correct translated grid parsed subset to axis
++        numericSlicingBound = new NumericSlicing(new BigDecimal(translatedSubset.getLowerLimit()));
++        axis.setGridBounds(numericSlicingBound);
++    }
++
++    /**
++     * Apply the slicing subset on the (grid bound) and
++     * calculate this bound to (geo bound)
++     * @param axis
++     * @param subset
++     * @param metadata
++     * @throws PetascopeException
++     */
++    private void translateSlicingGridToGeoSubset(Axis axis, Subset subset) throws PetascopeException {
++
++        BigDecimal bound = ((NumericSlicing) subset.getNumericSubset()).getBound();
++        ParsedSubset<BigDecimal> parsedSubset = new ParsedSubset<BigDecimal>(bound, bound);
++
++        // Translate the coordinate in georeferenced to grid.
++        BigDecimal geoDomainMin;
++        BigDecimal gridDomainMin;
++        BigDecimal gridDomainMax;
++
++        // NOTE: before applying slicing subset on axis, it can be trimming ( e.g: slice(c[Lat(0:20)]), {Lat(5)}) )
++        if (axis.getGridBounds() instanceof NumericSlicing) {
++            // slicing axis
++            geoDomainMin = ((NumericSlicing) axis.getGeoBounds()).getBound();
++            gridDomainMin = ((NumericSlicing) axis.getGridBounds()).getBound();
++            gridDomainMax = gridDomainMin;
+         } else {
+-            // Lat:"http://../Index2D"(50) -> Lat(20)
+-            axis.setGridBounds(numericSlicingBound);
++            // trimming axis
++            geoDomainMin = ((NumericTrimming) axis.getGeoBounds()).getLowerLimit();
++            gridDomainMin = ((NumericTrimming) axis.getGridBounds()).getLowerLimit();
++            gridDomainMax = ((NumericTrimming) axis.getGridBounds()).getUpperLimit();
+         }
+ 
+-        // store the translated grid bounds from the subsets
+-        ParsedSubset<BigInteger> translatedSubset = translateGeoCoordinates(calculateGridBound, parsedSubset, axis,
+-                metadata, geoDomainMin, geoDomainMax, gridDomainMin, gridDomainMax);
++        // NOTE: numeric type of axis here can be trimming when building axes for the coverage, it need to be change to slicing
++        NumericSlicing numericSlicingBound = new NumericSlicing(bound);
++        // Lat:"CRS:1"(50) -> Lat(20)
++        // Apply grid slicing to geo slicing
++        axis.setGridBounds(numericSlicingBound);
+ 
++        // store the translated grid bounds from the subsets
++        ParsedSubset<BigInteger> translatedSubset = this.translateGridToGeoCoordinates(parsedSubset, axis,
++                                                               geoDomainMin, gridDomainMin, gridDomainMax);
+         // Set the correct translated grid parsed subset to axis
+         numericSlicingBound = new NumericSlicing(new BigDecimal(translatedSubset.getLowerLimit()));
+-        if (calculateGridBound) {
+-            axis.setGridBounds(numericSlicingBound);
++        axis.setGeoBounds(numericSlicingBound);
++    }
++
++
++    /**
++     * Translate a trimming/slicing from geo-referenced coordinates to grid coordinates
++     * e.g: Lat(25.5:35.5) -> Lat:"CRS:1"(0:20)
++     * @param calculateGridBound
++     * @param parsedSubset
++     * @param axis
++     * @param metadata
++     * @param geoDomainMin
++     * @param geoDomainMax
++     * @param gridDomainMin
++     * @param gridDomainMax
++     * @return
++     * @throws PetascopeException
++     */
++    private ParsedSubset<BigInteger> translateGeoToGridCoordinates(ParsedSubset<BigDecimal> parsedSubset,
++                                                             Axis axis, WcpsCoverageMetadata metadata,  BigDecimal geoDomainMin,
++                                                             BigDecimal geoDomainMax, BigDecimal gridDomainMin,
++                                                             BigDecimal gridDomainMax) throws PetascopeException {
++        ParsedSubset<BigInteger> translatedSubset;
++        // Regular axis (no need to query database)
++        if (axis instanceof RegularAxis) {
++            BigDecimal resolution = ((RegularAxis) axis).getResolution();
++            // Lat(0:20) -> c[0:50]
++            translatedSubset = coordinateTranslationService.geoToGridForRegularAxis(parsedSubset, geoDomainMin,
++                                                            geoDomainMax, resolution, gridDomainMin);
++        } else {
++            // Irregular axis (query database for coefficients)
++            int iOrder = axis.getRasdamanOrder();
++            BigDecimal scalarResolution = axis.getScalarResolution();
++            // e.g: ansi(148654) in irr_cube_2 -> c[0]
++            translatedSubset = coordinateTranslationService.geoToGridForIrregularAxes(
++                                                            parsedSubset, scalarResolution, metadata.getCoverageName(),
++                                                            iOrder, gridDomainMin, gridDomainMax, geoDomainMin);
++        }
++        return translatedSubset;
++    }
++
++    /**
++     * Translate from trimming/slicing grid bound to geo bounds
++     * e.g: Lat:"CRS:1"(0:20) -> Lat(25.5:35.5)
++     * @param parsedSubset
++     * @param axis
++     * @param metadata
++     * @param geoDomainMin
++     * @param geoDomainMax
++     * @param gridDomainMin
++     * @param gridDomainMax
++     * @return
++     * @throws PetascopeException
++     */
++    private ParsedSubset<BigInteger> translateGridToGeoCoordinates(ParsedSubset<BigDecimal> parsedSubset,
++                                                             Axis axis, BigDecimal geoDomainMin,BigDecimal gridDomainMin,
++                                                             BigDecimal gridDomainMax) throws PetascopeException {
++        ParsedSubset<BigInteger> translatedSubset;
++        // Regular axis (no need to query database)
++        if (axis instanceof RegularAxis) {
++            BigDecimal resolution = ((RegularAxis) axis).getResolution();
++            // Lat:"CRS:1"(0:50) -> [0:50]
++            translatedSubset = coordinateTranslationService.gridToGeoForRegularAxis(parsedSubset, gridDomainMin, gridDomainMax, resolution, geoDomainMin);
+         } else {
+-            axis.setGeoBounds(numericSlicingBound);
++            // Irregular axis (query database for coefficients)
++            // NOTE: if subsettingCrs is CRS:1, ( e.g: ansi:"CRS:1"(0) ) in irr_cube_2
++            // it queries directly in grid coordinate which is regular not irregular anymore
++            // Problem: it cannot resolve from grid coordinate (e.g: c[3]) to "geo" coordinate (e.g: 148661) with irregular axis.
++            // then consider geo bound is equal to grid bound in this case.
++            translatedSubset = new ParsedSubset<BigInteger>(parsedSubset.getLowerLimit().toBigInteger(), parsedSubset.getUpperLimit().toBigInteger());
+         }
++        return translatedSubset;
+     }
+ 
+     /**
+@@ -565,10 +683,9 @@ public class WcpsCoverageMetadataService {
+         }
+     }
+ 
+-
+     /**
+      * Check if parsed subset is inside the grid domain of the current of the axis
+-     * e.g: axis's grid domain: Lat(0:50), and parsed subset: Lat:"http://.../Index2D"(65:80) is out of upper bound
++     * e.g: axis's grid domain: Lat(0:50), and parsed subset: Lat:"CRS:1"(65:80) is out of upper bound
+      * @param gridParsedSubset
+      * @param axis
+      */
+@@ -649,7 +766,7 @@ public class WcpsCoverageMetadataService {
+             //check number of axes to be the same
+             if (firstMeta.getAxes().size() != secondMeta.getAxes().size()) {
+                 throw new IncompatibleAxesNumberException(firstMeta.getCoverageName(), secondMeta.getCoverageName(),
+-                        firstMeta.getAxes().size(), secondMeta.getAxes().size());
++                                                          firstMeta.getAxes().size(), secondMeta.getAxes().size());
+             }
+             //we don't check right now if the axes labels are different. If needed, add here.
+         }
+diff --git a/applications/petascope/src/main/java/petascope/wcps2/metadata/service/WcpsCoverageMetadataTranslator.java b/applications/petascope/src/main/java/petascope/wcps2/metadata/service/WcpsCoverageMetadataTranslator.java
+index 31924f7..3f05b14 100755
+--- a/applications/petascope/src/main/java/petascope/wcps2/metadata/service/WcpsCoverageMetadataTranslator.java
++++ b/applications/petascope/src/main/java/petascope/wcps2/metadata/service/WcpsCoverageMetadataTranslator.java
+@@ -59,7 +59,6 @@ public class WcpsCoverageMetadataTranslator {
+         List<String> nodata = metadata.getAllUniqueNullValues();
+         return new WcpsCoverageMetadata(metadata.getCoverageName(), metadata.getCoverageType(), axes,
+                                         CrsUtil.CrsUri.createCompound(metadata.getCrsUris()),
+-                                        CrsUtility.getImageCrsUri(axes),
+                                         rangeFields, StringUtils.join(metadataList, ""), parseNodataValues(nodata));
+     }
+ 
+diff --git a/applications/petascope/src/main/java/petascope/wcps2/parser/WcpsEvaluator.java b/applications/petascope/src/main/java/petascope/wcps2/parser/WcpsEvaluator.java
+index c36324c..81a16f8 100755
+--- a/applications/petascope/src/main/java/petascope/wcps2/parser/WcpsEvaluator.java
++++ b/applications/petascope/src/main/java/petascope/wcps2/parser/WcpsEvaluator.java
+@@ -24,7 +24,6 @@ package petascope.wcps2.parser;
+ import org.antlr.v4.runtime.misc.NotNull;
+ import org.antlr.v4.runtime.tree.TerminalNode;
+ import org.apache.commons.lang3.StringUtils;
+-import org.apache.log4j.Level;
+ import petascope.wcps2.error.managed.processing.*;
+ import petascope.wcps2.metadata.service.*;
+ import petascope.wcps2.metadata.model.ParsedSubset;
+@@ -854,8 +853,8 @@ public class WcpsEvaluator extends wcpsBaseVisitor<VisitorResult> {
+     @Override
+     public VisitorResult visitCoverageCrsSetExpressionLabel(@NotNull wcpsParser.CoverageCrsSetExpressionLabelContext ctx) {
+         // CRSSET LEFT_PARENTHESIS coverageExpression RIGHT_PARENTHESIS
+-        // crsSet(), e.g: crsSet($c) -> Lat:"http://...4326", "http://...Index2D",
+-        //                              Long:"http://...4326", http://...Index2D"
++        // crsSet(), e.g: crsSet($c) -> Lat:"http://...4326",  "CRS:1",
++        //                              Long:"http://...4326", "CRS:1"
+ 
+         WcpsResult coverageExpr = (WcpsResult) visit(ctx.coverageExpression());
+ 
+@@ -916,7 +915,7 @@ public class WcpsEvaluator extends wcpsBaseVisitor<VisitorResult> {
+         // IMAGECRS LEFT_PARENTHESIS coverageExpression RIGHT_PARENTHESIS
+         // imageCrs() - return coverage's grid axis
+         // e.g: for c in (mr) return imageCrs(c) (imageCrs is the grid CRS of coverage)
+-        // return: http://www.opengis.net/def/crs/OGC/0/Index2D
++        // return: CRS:1
+         WcpsResult coverageExpr = (WcpsResult)visit(ctx.coverageExpression());
+ 
+         WcpsMetadataResult result = ImageCrsExpressionHandler.handle(coverageExpr);
+@@ -953,11 +952,10 @@ public class WcpsEvaluator extends wcpsBaseVisitor<VisitorResult> {
+         // domain() - 1D
+         // e.g: for c in (mean_summer_airtemp) return domain(c[Lat(0:20)], Lat, "http://.../4326")
+         // return: (0:20) as domain of inpurt coverage in Lat is 0:20
+-
+         WcpsResult coverageExpr = (WcpsResult)visit(ctx.coverageExpression());
+         String axisName =  ctx.axisName().getText();
++        // NOTE: need to strip bounding quotes of crs (e.g: ""http://.../4326"")
+         String crsName = CrsUtility.stripBoundingQuotes(ctx.crsName().getText());
+-        // NOTE: need to strip bounding quotes of crs (e.g: ""http://.../Index2D"")
+ 
+         WcpsMetadataResult result = DomainExpressionHandler.handle(coverageExpr, axisName, crsName);
+         return result;
+@@ -1085,7 +1083,7 @@ public class WcpsEvaluator extends wcpsBaseVisitor<VisitorResult> {
+     @Override
+     public VisitorResult visitTrimDimensionIntervalElementLabel(@NotNull wcpsParser.TrimDimensionIntervalElementLabelContext ctx) {
+         // axisName (COLON crsName)? LEFT_PARENTHESIS  coverageExpression   COLON coverageExpression    RIGHT_PARENTHESIS
+-        // e.g: i:"http://.../Index2D"(2:3)
++        // e.g: i:"CRS:1"(2:3)
+         try {
+             String rawLowerBound = ctx.coverageExpression(0).getText();
+             String rawUpperBound = ctx.coverageExpression(1).getText();
+@@ -1130,7 +1128,7 @@ public class WcpsEvaluator extends wcpsBaseVisitor<VisitorResult> {
+ 
+     @Override
+     public VisitorResult visitAxisSpecLabel(@NotNull wcpsParser.AxisSpecLabelContext ctx) {
+-        // dimensionIntervalElement (e.g: i(0:20) or j:"http://.../Index2D"(0:30))
++        // dimensionIntervalElement (e.g: i(0:20) or j:"CRS:1"(0:30))
+         SubsetDimension subsetDimension = (SubsetDimension) visit(ctx.dimensionIntervalElement());
+ 
+         AxisSpec axisSpec = new AxisSpec(subsetDimension);
+diff --git a/applications/petascope/src/main/java/petascope/wcs/server/core/convertGetCoverage.java b/applications/petascope/src/main/java/petascope/wcs/server/core/convertGetCoverage.java
+index 6e08f14..2b44dd6 100755
+--- a/applications/petascope/src/main/java/petascope/wcs/server/core/convertGetCoverage.java
++++ b/applications/petascope/src/main/java/petascope/wcs/server/core/convertGetCoverage.java
+@@ -153,7 +153,7 @@ public class convertGetCoverage {
+             /* TODO: Implement CRS transformations */
+             crsName = bbox.getCrs();
+             if (crsName != null) {
+-                if (crsName.equals(CrsUtil.GRID_CRS)) {
++                if (CrsUtil.isGridCrs(crsName)) {
+                     log.trace("CRS: NATIVE_IMAGE_CRS");
+                 } else if (CrsUtil.CrsUri.areEquivalent(crsName, CrsUtil.CrsUri(CrsUtil.EPSG_AUTH, CrsUtil.WGS84_EPSG_CODE))) {
+                     log.trace("CRS: WGS84");
+@@ -197,8 +197,7 @@ public class convertGetCoverage {
+             px1 = u3;
+             py1 = v3;
+ 
+-            if (crsName.equals(CrsUtil.GRID_CRS) == false
+-                    && crsName.equals(CrsUtil.CrsUri(CrsUtil.EPSG_AUTH, CrsUtil.WGS84_EPSG_CODE)) == false) {
++            if (!CrsUtil.isGridCrs(crsName) && crsName.equals(CrsUtil.CrsUri(CrsUtil.EPSG_AUTH, CrsUtil.WGS84_EPSG_CODE)) == false) {
+                 throw new WCSException(ExceptionCode.NoApplicableCode, "Unknown CRS: " + crsName);
+             }
+         }
+diff --git a/applications/petascope/src/main/java/petascope/wcs2/extensions/AbstractFormatExtension.java b/applications/petascope/src/main/java/petascope/wcs2/extensions/AbstractFormatExtension.java
+index 0d10363..c6dcee0 100755
+--- a/applications/petascope/src/main/java/petascope/wcs2/extensions/AbstractFormatExtension.java
++++ b/applications/petascope/src/main/java/petascope/wcs2/extensions/AbstractFormatExtension.java
+@@ -414,7 +414,7 @@ public abstract class AbstractFormatExtension implements FormatExtension {
+ 
+             // in-subset CRS specification (standard inconsistency CRS hanlding in KVP/XML: see OGC 12-167 change request #257)
+             // accept direct internal index subsets even if no CRS extension is provided (this is not a geo-reprojection)
+-            if (null != subset.getCrs() && subset.getCrs().equals(CrsUtil.GRID_CRS)) {
++            if (null != subset.getCrs() && CrsUtil.isGridCrs(subset.getCrs())) {
+                 crs = subset.getCrs(); // replace native with grid crs
+             } else if (covMeta.getSubsettingCrs() != null) {
+                 // CRSExestion with subsettingCrs parameters then all subsets need to be used with this CRS
+diff --git a/systemtest/testcases_services/test_wcps/oracle/105-keyword_case_sensitive.oracle b/systemtest/testcases_services/test_wcps/oracle/105-keyword_case_sensitive.oracle
+index a0f05d7..f55e866 100644
+--- a/systemtest/testcases_services/test_wcps/oracle/105-keyword_case_sensitive.oracle
++++ b/systemtest/testcases_services/test_wcps/oracle/105-keyword_case_sensitive.oracle
+@@ -1 +1 @@
+-t:http://localhost:8080/def/crs/OGC/0/Temporal?epoch="1950-01-01T00:00:00"&uom="d" http://www.opengis.net/def/crs/OGC/0/Index3D,Long:http://localhost:8080/def/crs/EPSG/0/4326 http://www.opengis.net/def/crs/OGC/0/Index3D,Lat:http://localhost:8080/def/crs/EPSG/0/4326 http://www.opengis.net/def/crs/OGC/0/Index3D
+\ No newline at end of file
++t:http://localhost:8080/def/crs/OGC/0/AnsiDate?axis-label="t" CRS:1,Lat:http://localhost:8080/def/crs/EPSG/0/4326 CRS:1,Long:http://localhost:8080/def/crs/EPSG/0/4326 CRS:1
+diff --git a/systemtest/testcases_services/test_wcps/oracle/124-scale-irr-axis.oracle b/systemtest/testcases_services/test_wcps/oracle/124-scale-irr-axis.oracle
+index a578ac4..525c472 100644
+--- a/systemtest/testcases_services/test_wcps/oracle/124-scale-irr-axis.oracle
++++ b/systemtest/testcases_services/test_wcps/oracle/124-scale-irr-axis.oracle
+@@ -1 +1 @@
+-{500,503,506},{550,553,556}
+\ No newline at end of file
++{"7.92444 1.97342","6.42976 1.94671","4.43318 1.92379"},{"8.07486 1.89193","6.29905 1.43448","5.64168 1.43524"}
+diff --git a/systemtest/testcases_services/test_wcps/oracle/138-trim_asterisk_time3.oracle b/systemtest/testcases_services/test_wcps/oracle/138-trim_asterisk_time3.oracle
+new file mode 100644
+index 0000000..995d414
+--- /dev/null
++++ b/systemtest/testcases_services/test_wcps/oracle/138-trim_asterisk_time3.oracle
+@@ -0,0 +1,10 @@
++<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
++<ows:ExceptionReport version="2.0.0"
++    xsd:schemaLocation="http://www.opengis.net/ows/2.0 http://schemas.opengis.net/ows/2.0/owsExceptionReport.xsd"
++      >
++    <ows:Exception exceptionCode="WcpsError">
++        <ows:ExceptionText>Invalid subsetting '127469.5:127472' is not within coverage's domain '0:5' for axis 't'.</ows:ExceptionText>
++    </ows:Exception>
++
++</ows:ExceptionReport>
++
+diff --git a/systemtest/testcases_services/test_wcps/oracle/62-crsTransform.oracle b/systemtest/testcases_services/test_wcps/oracle/62-crsTransform.oracle
+new file mode 100644
+index 0000000000000000000000000000000000000000..d0693eeb570ecc033c59a0d400f45182caab6213
+GIT binary patch
+literal 985
+zcmV;~119{5P)<h;3K|Lk000e1NJLTq002t>008m`00000AmC?<00002bW%=J004HA
+z%{Tx61CmKZK~#90?U_wz6;~91zx&k0RHSW8h)EY3TaZ#CxUku@w1v`D3#Cv&7gD=v
+zMY<6eZd?{baPLBKp$lm@)h>$If@GI!mDaRT^5Zj-#1Jhe&BNr0@3@#5oq03&&QB&#
+z^n8o=?z?l(H|O3t^TRw)6h%=KMNt$*Q4~c{6h%=KMNt$*QC=DZBxOj&5|_}Kred`v
+z1A}1Ff*pB<cbuMu+qGOGt^&DOT@fBdf0}&DCnDl~iipU`<>uA)yxE($zZ|Y$X4hdp
+zQRR@?)@weJVwS9;JP{H61)Gwl3KP6d8C_RHE{VA$)fJv&+w%mPGxAODx`=EPFd>=0
+zO+tN6SNb^=&eL7439e|s@sX^m<{ZTTYRrk869LST>azoqM-?2WKJRoAxmtl8#{ySc
+zbi%a|ZeYB?KN@iTZNE2lhOzaMAn-R}1YmefvRx*kuJHJGzenZ(rY19GWtk&@k$u!2
+z0L)B3luSp^QD5CG%>uCSFpDYX3hmz*UatW#G+xMs3Dvo&JO<$Jp?ap$ip?>yGFt$s
+zUi&>;VlL#zwE*;<$yD_2bNg%qfZL-@`#7~XcUqT&*0<49Xjk%hYkdJ`YtUK~*+u6M
+z$>W`KyaiNt0{?|o$M0K)yVvUwG`hZk(MzGuw``-`u5E9??7E)r&cUTc0FHv$VH@pQ
+zFSxdClEL=X6IW`jUv3tIa2Q&gAy)c=#+vtj^&U1{quq1t4;qi}O-}-zY+V7DeD*&0
+z&nP|h1wH^{fLeZ+@M#Zt#nrL>-xdbE{)tZt<n`xQ8{Y(81Lj-qRq=1(3%29saQ!pU
+z+BXJt0rjbwo8FVPu<;d3fW0O@f5&h93^3982tcTItZn3V$>pDbO?UjCwYG|PX}j_2
+z`XNh*eU2Xi1S*E7?@j_kix28o#&YJ>T$J_k@n3*}nQDFZN$$LwSiE~0I54m@hi&a`
+z499wc8^L$`H{^6V*xOT{i>?w~$_nyLd8+g6C(4s;g@fhUlotcrZ9YHk#a{EQiuH)x
+zyuaKxI{~}P(E#MW%Q)FrrmQ^r(}yT88y^=9Ot>KQ#k-0k)uNFJd9{}4x>(c|M`pK_
+z=Nc>;nJ~wCiLQ}&S5b=JHdgFEivKme)^{2Cxd6cS(tP{-_mt);@~_p3*Tjb+{8g4;
+zL`FMGlzm+wEOEUIY%a@%G2I1RR@^V_6h%=KMNt$*dBJ%KB&;k;^qwd{00000NkvXX
+Hu0mjf_HWxY
+
+literal 0
+HcmV?d00001
+
+diff --git a/systemtest/testcases_services/test_wcps/oracle/62-crsTrasform.oracle b/systemtest/testcases_services/test_wcps/oracle/62-crsTrasform.oracle
+deleted file mode 100644
+index d0693eeb570ecc033c59a0d400f45182caab6213..0000000000000000000000000000000000000000
+GIT binary patch
+literal 0
+HcmV?d00001
+
+literal 985
+zcmV;~119{5P)<h;3K|Lk000e1NJLTq002t>008m`00000AmC?<00002bW%=J004HA
+z%{Tx61CmKZK~#90?U_wz6;~91zx&k0RHSW8h)EY3TaZ#CxUku@w1v`D3#Cv&7gD=v
+zMY<6eZd?{baPLBKp$lm@)h>$If@GI!mDaRT^5Zj-#1Jhe&BNr0@3@#5oq03&&QB&#
+z^n8o=?z?l(H|O3t^TRw)6h%=KMNt$*Q4~c{6h%=KMNt$*QC=DZBxOj&5|_}Kred`v
+z1A}1Ff*pB<cbuMu+qGOGt^&DOT@fBdf0}&DCnDl~iipU`<>uA)yxE($zZ|Y$X4hdp
+zQRR@?)@weJVwS9;JP{H61)Gwl3KP6d8C_RHE{VA$)fJv&+w%mPGxAODx`=EPFd>=0
+zO+tN6SNb^=&eL7439e|s@sX^m<{ZTTYRrk869LST>azoqM-?2WKJRoAxmtl8#{ySc
+zbi%a|ZeYB?KN@iTZNE2lhOzaMAn-R}1YmefvRx*kuJHJGzenZ(rY19GWtk&@k$u!2
+z0L)B3luSp^QD5CG%>uCSFpDYX3hmz*UatW#G+xMs3Dvo&JO<$Jp?ap$ip?>yGFt$s
+zUi&>;VlL#zwE*;<$yD_2bNg%qfZL-@`#7~XcUqT&*0<49Xjk%hYkdJ`YtUK~*+u6M
+z$>W`KyaiNt0{?|o$M0K)yVvUwG`hZk(MzGuw``-`u5E9??7E)r&cUTc0FHv$VH@pQ
+zFSxdClEL=X6IW`jUv3tIa2Q&gAy)c=#+vtj^&U1{quq1t4;qi}O-}-zY+V7DeD*&0
+z&nP|h1wH^{fLeZ+@M#Zt#nrL>-xdbE{)tZt<n`xQ8{Y(81Lj-qRq=1(3%29saQ!pU
+z+BXJt0rjbwo8FVPu<;d3fW0O@f5&h93^3982tcTItZn3V$>pDbO?UjCwYG|PX}j_2
+z`XNh*eU2Xi1S*E7?@j_kix28o#&YJ>T$J_k@n3*}nQDFZN$$LwSiE~0I54m@hi&a`
+z499wc8^L$`H{^6V*xOT{i>?w~$_nyLd8+g6C(4s;g@fhUlotcrZ9YHk#a{EQiuH)x
+zyuaKxI{~}P(E#MW%Q)FrrmQ^r(}yT88y^=9Ot>KQ#k-0k)uNFJd9{}4x>(c|M`pK_
+z=Nc>;nJ~wCiLQ}&S5b=JHdgFEivKme)^{2Cxd6cS(tP{-_mt);@~_p3*Tjb+{8g4;
+zL`FMGlzm+wEOEUIY%a@%G2I1RR@^V_6h%=KMNt$*dBJ%KB&;k;^qwd{00000NkvXX
+Hu0mjf_HWxY
+
+diff --git a/systemtest/testcases_services/test_wcps/oracle/73-get_metadata_crsset.oracle b/systemtest/testcases_services/test_wcps/oracle/73-get_metadata_crsset.oracle
+index 346fca1..4ea3204 100644
+--- a/systemtest/testcases_services/test_wcps/oracle/73-get_metadata_crsset.oracle
++++ b/systemtest/testcases_services/test_wcps/oracle/73-get_metadata_crsset.oracle
+@@ -1 +1 @@
+-Long:http://localhost:8080/def/crs/EPSG/0/4326 http://www.opengis.net/def/crs/OGC/0/Index2D,Lat:http://localhost:8080/def/crs/EPSG/0/4326 http://www.opengis.net/def/crs/OGC/0/Index2D
+\ No newline at end of file
++Long:http://localhost:8080/def/crs/EPSG/0/4326 CRS:1,Lat:http://localhost:8080/def/crs/EPSG/0/4326 CRS:1
+\ No newline at end of file
+diff --git a/systemtest/testcases_services/test_wcps/oracle/87-get_metadata_imagecrs.oracle b/systemtest/testcases_services/test_wcps/oracle/87-get_metadata_imagecrs.oracle
+index 15ff432..a96f24c 100644
+--- a/systemtest/testcases_services/test_wcps/oracle/87-get_metadata_imagecrs.oracle
++++ b/systemtest/testcases_services/test_wcps/oracle/87-get_metadata_imagecrs.oracle
+@@ -1 +1 @@
+-http://www.opengis.net/def/crs/OGC/0/Index3D
+\ No newline at end of file
++CRS:1
+\ No newline at end of file
+diff --git a/systemtest/testcases_services/test_wcps/oracle/90-get_metadata_domain.error.oracle b/systemtest/testcases_services/test_wcps/oracle/90-get_metadata_domain.error.oracle
+index c5d66ab..5f100ab 100644
+--- a/systemtest/testcases_services/test_wcps/oracle/90-get_metadata_domain.error.oracle
++++ b/systemtest/testcases_services/test_wcps/oracle/90-get_metadata_domain.error.oracle
+@@ -3,7 +3,7 @@
+     xsd:schemaLocation="http://www.opengis.net/ows/2.0 http://schemas.opengis.net/ows/2.0/owsExceptionReport.xsd"
+       >
+     <ows:Exception exceptionCode="WcpsError">
+-        <ows:ExceptionText>'/crs/EPSG/0/32633' is not belonged to axis 'Long'.</ows:ExceptionText>
++        <ows:ExceptionText>CRS: '/crs/EPSG/0/32633' does not belong to axis 'Long'.</ows:ExceptionText>
+     </ows:Exception>
+ 
+ </ows:ExceptionReport>
+diff --git a/systemtest/testcases_services/test_wcps/queries/100-trim_subsettingCrs_IndexCrs_wrong_order.error.test b/systemtest/testcases_services/test_wcps/queries/100-trim_subsettingCrs_IndexCrs_wrong_order.error.test
+index 9c439fc..0d3af5d 100644
+--- a/systemtest/testcases_services/test_wcps/queries/100-trim_subsettingCrs_IndexCrs_wrong_order.error.test
++++ b/systemtest/testcases_services/test_wcps/queries/100-trim_subsettingCrs_IndexCrs_wrong_order.error.test
+@@ -1 +1 @@
+-for c in ( eobstest ) return encode( c[ Long:"http://localhost:8080/def/crs/OGC/0/Index2D"(226:138) ], "csv")
++for c in ( eobstest ) return encode( c[ Long:"CRS:1"(226:138) ], "csv")
+diff --git a/systemtest/testcases_services/test_wcps/queries/101-max_delta_px_history.test b/systemtest/testcases_services/test_wcps/queries/101-max_delta_px_history.test
+index 9f0df45..3c15046 100755
+--- a/systemtest/testcases_services/test_wcps/queries/101-max_delta_px_history.test
++++ b/systemtest/testcases_services/test_wcps/queries/101-max_delta_px_history.test
+@@ -1,6 +1,6 @@
+ for c in (irr_cube_2) return encode (
+    coverage max_delta_pixel_history
+    over     $t t ( 1 : 3 )
+-   values   max((c[E(100000:110000), N(5100000:5110000), ansi:"http://localhost:8080/def/crs/OGC/0/Index3D"($t)]).b1 -
+-                (c[E(100000:110000), N(5100000:5110000), ansi:"http://localhost:8080/def/crs/OGC/0/Index3D"($t - 1)]).b2)
++   values   max((c[E(100000:110000), N(5100000:5110000), ansi:"CRS:1"($t)]).b1 -
++                (c[E(100000:110000), N(5100000:5110000), ansi:"CRS:1"($t - 1)]).b2)
+ , "csv")
+diff --git a/systemtest/testcases_services/test_wcps/queries/124-scale-irr-axis.test b/systemtest/testcases_services/test_wcps/queries/124-scale-irr-axis.test
+index 01f75c1..f0f20b0 100644
+--- a/systemtest/testcases_services/test_wcps/queries/124-scale-irr-axis.test
++++ b/systemtest/testcases_services/test_wcps/queries/124-scale-irr-axis.test
+@@ -1,7 +1,6 @@
+-for c in (irr_cube_1) return encode (
++for c in (irr_cube_2) return encode (
+ 	scale(
+-		slice( c[k(0:5)],
+-		{k:"CRS:1"(4)}),
+-		{ i:"CRS:1"(0:1),
+-		j:"CRS:1"(0:2) } )
++		slice( c[ansi:"CRS:1"(0:3)],{ansi:"CRS:1"(3)}),
++		{ E:"CRS:1"(0:1),N:"CRS:1"(0:2) }
++	 )
+ , "csv")
+diff --git a/systemtest/testcases_services/test_wcps/queries/138-trim_asterisk_time3.test b/systemtest/testcases_services/test_wcps/queries/138-trim_asterisk_time3.test
+new file mode 100644
+index 0000000..9dac3f5
+--- /dev/null
++++ b/systemtest/testcases_services/test_wcps/queries/138-trim_asterisk_time3.test
+@@ -0,0 +1 @@
++for c in ( eobstest ) return encode( c[ Long(69.6), Lat(30.05), t:"CRS:1"(*:"1950-01-03") ], "csv" )
+diff --git a/systemtest/testcases_services/test_wcps/queries/62-crsTransform.test b/systemtest/testcases_services/test_wcps/queries/62-crsTransform.test
+new file mode 100644
+index 0000000..88fac41
+--- /dev/null
++++ b/systemtest/testcases_services/test_wcps/queries/62-crsTransform.test
+@@ -0,0 +1 @@
++for c in (eobstest)  return encode(crsTransform(c[t:"CRS:1"(1)], { Lat:"http://www.opengis.net/def/crs/EPSG/0/3785", Long:"http://www.opengis.net/def/crs/EPSG/0/3785"}, {}), "png", "nodata=0")
+diff --git a/systemtest/testcases_services/test_wcps/queries/78-unary_bit.test b/systemtest/testcases_services/test_wcps/queries/78-unary_bit.test
+index 6300eee..5244685 100644
+--- a/systemtest/testcases_services/test_wcps/queries/78-unary_bit.test
++++ b/systemtest/testcases_services/test_wcps/queries/78-unary_bit.test
+@@ -1 +1 @@
+-for c in (mr) return encode( bit( c[i(100:110),j(100:110)], 1 ), "csv" )'&wcpsVersion=2.0
++for c in (mr) return encode( bit( c[i(100:110),j(100:110)], 1 ), "csv" )
+diff --git a/systemtest/testcases_services/test_wcps/queries/91-get_metadata_domain2.test b/systemtest/testcases_services/test_wcps/queries/91-get_metadata_domain2.test
+index 4d3dbc0..282111f 100755
+--- a/systemtest/testcases_services/test_wcps/queries/91-get_metadata_domain2.test
++++ b/systemtest/testcases_services/test_wcps/queries/91-get_metadata_domain2.test
+@@ -1 +1 @@
+-for c in (eobstest) return domain(c, Long, "http://localhost:8080/def/crs/OGC/0/Index3D")
++for c in (eobstest) return domain(c, Long, "CRS:1")
+-- 
+1.8.3.1
+

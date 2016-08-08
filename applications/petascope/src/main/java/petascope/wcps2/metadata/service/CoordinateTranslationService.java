@@ -21,10 +21,8 @@
  */
 package petascope.wcps2.metadata.service;
 
-import org.joda.time.DateTime;
 import petascope.exceptions.PetascopeException;
 import petascope.util.BigDecimalUtil;
-import petascope.util.TimeUtil;
 import petascope.wcps2.metadata.model.ParsedSubset;
 
 import java.math.BigDecimal;
@@ -32,7 +30,10 @@ import java.math.BigInteger;
 import java.math.RoundingMode;
 
 /**
+ * Translate the coordinates from geo bound to grid bound for trimming/slicing and vice versa if using CRS:1 in trimming/slicing
+ * i.e: Lat(0:20) ->
  * @author <a href="merticariu@rasdaman.com">Vlad Merticariu</a>
+ * @author <a href="mailto:bphamhuu@jacobs-university.net">Bang Pham Huu</a>
  */
 public class CoordinateTranslationService {
 
@@ -58,7 +59,7 @@ public class CoordinateTranslationService {
 
         BigDecimal returnLowerLimit, returnUpperLimit;
         if (zeroIsMin) {
-            //closed interval on the lower limit, open on the upper limit - use floor and ceil - 1 repsectively
+            // closed interval on the lower limit, open on the upper limit - use floor and ceil - 1 repsectively
             // e.g: Long(0:20) -> c[0:50]
             returnLowerLimit = BigDecimalUtil.divide(numericSubset.getLowerLimit().subtract(geoDomainMin), resolution)
                     .setScale(0, RoundingMode.FLOOR).add(gridDomainMin);
@@ -101,7 +102,7 @@ public class CoordinateTranslationService {
             returnUpperLimit = BigDecimalUtil.multiple(numericSubset.getUpperLimit().subtract(geoDomainMin), resolution)
                     .setScale(0, RoundingMode.CEILING).add(gridDomainMin);
 
-            //because we use ceil - 1, when values are close (less than 1 resolution dif), the upper will be pushed below the lower
+            // because we use ceil - 1, when values are close (less than 1 resolution dif), the upper will be pushed below the lower
             if (returnUpperLimit.compareTo(returnLowerLimit) < 0) {
                 returnUpperLimit = returnLowerLimit;
             }
@@ -169,25 +170,4 @@ public class CoordinateTranslationService {
 
         return new ParsedSubset(lowerBound, upperbound);
     }
-
-    /**
-     * Converts the time coordinates into BigDecimal coordinates.
-     *
-     * @param timeSubset
-     * @param datumOrigin
-     * @param uom
-     * @param resolution
-     * @return
-     * @throws PetascopeException
-     */
-    private ParsedSubset<BigDecimal> getTimeOffsets(ParsedSubset<DateTime> timeSubset, DateTime datumOrigin,
-                                                    String uom, BigDecimal resolution) throws PetascopeException {
-        double numLo;
-        double numHi;
-        numLo = TimeUtil.countOffsets(datumOrigin.toString(), timeSubset.getLowerLimit().toString(), uom, resolution.doubleValue());
-        numHi = TimeUtil.countOffsets(datumOrigin.toString(), timeSubset.getUpperLimit().toString(), uom, resolution.doubleValue());
-        return new ParsedSubset(BigDecimal.valueOf(numLo), BigDecimal.valueOf(numHi));
-    }
-
-
 }

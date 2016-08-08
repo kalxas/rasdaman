@@ -48,8 +48,6 @@ import petascope.swe.datamodel.NilValue;
 import petascope.swe.datamodel.Quantity;
 import petascope.util.*;
 
-import static petascope.util.CrsUtil.INDEX_UOM;
-
 import petascope.wcps.metadata.Bbox;
 import petascope.wcps.metadata.CellDomainElement;
 import petascope.wcps.metadata.DomainElement;
@@ -158,7 +156,7 @@ public class CoverageMetadata implements Cloneable {
                 // use the resolution: for Indexed CRSs, the formula is different than non-indexed CRSs (+1 term in the denominator)
                 // linear CRS: axisHi = (axisLo + #GridPoints)
                 // linear CRS: axisHi = (axisLo + #GridPoints - 1)
-                if (crsAxis.getCrsDefinition().getCode().equals(CrsUtil.GRID_CRS) || coverageType.equals(XMLSymbols.LABEL_GRID_COVERAGE)) {
+                if (CrsUtil.isGridCrs(crsAxis.getCrsDefinition().getCode()) || coverageType.equals(XMLSymbols.LABEL_GRID_COVERAGE)) {
                     // CRS:1
                     axisHi = axisLo.add(resolution.multiply(new BigDecimal(gridAxisPoints).add(BigDecimal.valueOf(-1))));
                 } else {
@@ -1023,20 +1021,6 @@ public class CoverageMetadata implements Cloneable {
             }
         }
 
-        return true;
-    }
-
-    /**
-     * Check if coverage crsList contains gridCRS
-     * @return boolean
-     */
-    public boolean isGeoReferenced() {
-        for(String crs:crsUris) {
-            // If coverage has a grid CRS then it is not geo-referenced CRS and cannot project (transform)
-            if(crs.contains(CrsUtil.INDEX_CRS_PREFIX) || crs.equals(CrsUtil.GRID_CRS)) {
-                return false;
-            }
-        }
         return true;
     }
 

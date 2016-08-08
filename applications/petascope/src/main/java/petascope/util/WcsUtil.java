@@ -108,7 +108,7 @@ public class WcsUtil {
         } catch (Exception e) {
             e.printStackTrace();
             throw new WCSException(ExceptionCode.NoApplicableCode.locator(coverageId),
-                    "Metadata for coverage '" + coverageId + "' is not valid.");
+                    "Metadata for coverage '" + coverageId + "' is not valid, reason: "  + e.getMessage());
         }
     }
 
@@ -661,11 +661,13 @@ public class WcsUtil {
      *
      * @param offsetVector
      * @param isIrregular
-     * @param axisUom
+     * @param crsCode
+     * @param coverageType
+     * @return 
      */
     public static BigDecimal getSampleSpaceShift(BigDecimal offsetVector, boolean isIrregular, String crsCode, String coverageType) {
         BigDecimal shift;
-        if (isIrregular || crsCode.equals(CrsUtil.GRID_CRS) || coverageType.equals(LABEL_GRID_COVERAGE)) {
+        if (isIrregular || CrsUtil.isGridCrs(crsCode) || coverageType.equals(LABEL_GRID_COVERAGE)) {
             shift = BigDecimal.ZERO;
         } else {
             shift = BigDecimalUtil.divide(offsetVector, BigDecimal.valueOf(-2));
@@ -701,7 +703,7 @@ public class WcsUtil {
                         coefficients.get(0) ;                     // isLowerBound : get the first point included in the response
                 // coordinate = Origin + (coefficient * offset_vector)
                 fittedCoordinateValue = domEl.getMinValue().add(domEl.getDirectionalResolution().multiply(fitCoefficient));
-            } else if (domEl.getCrsDef().getCode().equals(CrsUtil.GRID_CRS) || coverageType.equals(LABEL_GRID_COVERAGE)) {
+            } else if (CrsUtil.isGridCrs(domEl.getCrsDef().getCode()) || coverageType.equals(LABEL_GRID_COVERAGE)) {
                 // only integral coordinates are legal here
                 // round up on subset.lo bounds and if coordinate is not integral
                 boolean roundUp = !isUpperBound && (coordinateValue.subtract(BigDecimal.valueOf(coordinateValue.longValue())).compareTo(BigDecimal.ZERO) != 0);

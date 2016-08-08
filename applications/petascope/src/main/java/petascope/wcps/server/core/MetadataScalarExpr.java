@@ -89,7 +89,7 @@ public class MetadataScalarExpr extends AbstractRasNode {
             child = child.getNextSibling();
             crs = new Crs(child, xq);
             try {
-                if (crs.getName().equals(CrsUtil.GRID_CRS)) {
+                if (CrsUtil.isGridCrs(crs.getName())) {
                     CellDomainElement cellDomainElement = coverageInfo.getCellDomainElement(axisIndex);
                     lo = cellDomainElement.getLo().toString();
                     hi = cellDomainElement.getHi().toString();

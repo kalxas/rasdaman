@@ -153,7 +153,7 @@ public class convertGetCoverage {
             /* TODO: Implement CRS transformations */
             crsName = bbox.getCrs();
             if (crsName != null) {
-                if (crsName.equals(CrsUtil.GRID_CRS)) {
+                if (CrsUtil.isGridCrs(crsName)) {
                     log.trace("CRS: NATIVE_IMAGE_CRS");
                 } else if (CrsUtil.CrsUri.areEquivalent(crsName, CrsUtil.CrsUri(CrsUtil.EPSG_AUTH, CrsUtil.WGS84_EPSG_CODE))) {
                     log.trace("CRS: WGS84");
@@ -197,8 +197,7 @@ public class convertGetCoverage {
             px1 = u3;
             py1 = v3;
 
-            if (crsName.equals(CrsUtil.GRID_CRS) == false
-                    && crsName.equals(CrsUtil.CrsUri(CrsUtil.EPSG_AUTH, CrsUtil.WGS84_EPSG_CODE)) == false) {
+            if (!CrsUtil.isGridCrs(crsName) && crsName.equals(CrsUtil.CrsUri(CrsUtil.EPSG_AUTH, CrsUtil.WGS84_EPSG_CODE)) == false) {
                 throw new WCSException(ExceptionCode.NoApplicableCode, "Unknown CRS: " + crsName);
             }
         }

@@ -21,7 +21,6 @@
  */
 package petascope.wcps2.metadata.service;
 
-import java.util.AbstractList;
 import org.apache.commons.lang3.StringUtils;
 import petascope.wcps2.result.parameters.SubsetDimension;
 import petascope.wcps2.metadata.model.Axis;
@@ -76,7 +75,7 @@ public class RasqlTranslationService {
             if (!dollarSubsetFound) {
                 //ok, regular grid domain
                 NumericSubset gridBounds = axis.getGridBounds();
-                result = gridBounds.getStringRepresentation();
+                result = gridBounds.getStringRepresentationInInteger();
             }
 
             translatedDomains.add(result);
@@ -85,13 +84,13 @@ public class RasqlTranslationService {
         rasqlDomain = StringUtils.join(translatedDomains, ",");
         return rasqlDomain;
     }
-    
+
     /**
      * Translate a subset dimension for an axis to Rasql interval (slicing/trimming)
      * @param axis
      * @param subsetAxisIteratorDimensions
      * @param axisIteratorAliasRegistry
-     * @return 
+     * @return
      */
     public String constructRasqlDomain(Axis axis, List<SubsetDimension> subsetAxisIteratorDimensions, AxisIteratorAliasRegistry axisIteratorAliasRegistry) {
         String rasqlDomain = "";
@@ -113,7 +112,7 @@ public class RasqlTranslationService {
         if (!dollarSubsetFound) {
             //ok, regular grid domain
             NumericSubset gridBounds = axis.getGridBounds();
-            result = gridBounds.getStringRepresentation();
+            result = gridBounds.getStringRepresentationInInteger();
         }
 
         // NOTE: only add translated subsetDimension if subset dimension is processed currently
@@ -122,7 +121,7 @@ public class RasqlTranslationService {
         rasqlDomain = StringUtils.join(translatedDomains, ",");
         return rasqlDomain;
     }
-    
+
 
     /**
      * This function will construct the rasql domain corresponding to the

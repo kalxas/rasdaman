@@ -24,7 +24,6 @@ package petascope.wcps2.parser;
 import org.antlr.v4.runtime.misc.NotNull;
 import org.antlr.v4.runtime.tree.TerminalNode;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.log4j.Level;
 import petascope.wcps2.error.managed.processing.*;
 import petascope.wcps2.metadata.service.*;
 import petascope.wcps2.metadata.model.ParsedSubset;
@@ -854,8 +853,8 @@ public class WcpsEvaluator extends wcpsBaseVisitor<VisitorResult> {
     @Override
     public VisitorResult visitCoverageCrsSetExpressionLabel(@NotNull wcpsParser.CoverageCrsSetExpressionLabelContext ctx) {
         // CRSSET LEFT_PARENTHESIS coverageExpression RIGHT_PARENTHESIS
-        // crsSet(), e.g: crsSet($c) -> Lat:"http://...4326", "http://...Index2D",
-        //                              Long:"http://...4326", http://...Index2D"
+        // crsSet(), e.g: crsSet($c) -> Lat:"http://...4326",  "CRS:1",
+        //                              Long:"http://...4326", "CRS:1"
 
         WcpsResult coverageExpr = (WcpsResult) visit(ctx.coverageExpression());
 
@@ -916,7 +915,7 @@ public class WcpsEvaluator extends wcpsBaseVisitor<VisitorResult> {
         // IMAGECRS LEFT_PARENTHESIS coverageExpression RIGHT_PARENTHESIS
         // imageCrs() - return coverage's grid axis
         // e.g: for c in (mr) return imageCrs(c) (imageCrs is the grid CRS of coverage)
-        // return: http://www.opengis.net/def/crs/OGC/0/Index2D
+        // return: CRS:1
         WcpsResult coverageExpr = (WcpsResult)visit(ctx.coverageExpression());
 
         WcpsMetadataResult result = ImageCrsExpressionHandler.handle(coverageExpr);
@@ -953,11 +952,10 @@ public class WcpsEvaluator extends wcpsBaseVisitor<VisitorResult> {
         // domain() - 1D
         // e.g: for c in (mean_summer_airtemp) return domain(c[Lat(0:20)], Lat, "http://.../4326")
         // return: (0:20) as domain of inpurt coverage in Lat is 0:20
-
         WcpsResult coverageExpr = (WcpsResult)visit(ctx.coverageExpression());
         String axisName =  ctx.axisName().getText();
+        // NOTE: need to strip bounding quotes of crs (e.g: ""http://.../4326"")
         String crsName = CrsUtility.stripBoundingQuotes(ctx.crsName().getText());
-        // NOTE: need to strip bounding quotes of crs (e.g: ""http://.../Index2D"")
 
         WcpsMetadataResult result = DomainExpressionHandler.handle(coverageExpr, axisName, crsName);
         return result;
@@ -1085,7 +1083,7 @@ public class WcpsEvaluator extends wcpsBaseVisitor<VisitorResult> {
     @Override
     public VisitorResult visitTrimDimensionIntervalElementLabel(@NotNull wcpsParser.TrimDimensionIntervalElementLabelContext ctx) {
         // axisName (COLON crsName)? LEFT_PARENTHESIS  coverageExpression   COLON coverageExpression    RIGHT_PARENTHESIS
-        // e.g: i:"http://.../Index2D"(2:3)
+        // e.g: i:"CRS:1"(2:3)
         try {
             String rawLowerBound = ctx.coverageExpression(0).getText();
             String rawUpperBound = ctx.coverageExpression(1).getText();
@@ -1130,7 +1128,7 @@ public class WcpsEvaluator extends wcpsBaseVisitor<VisitorResult> {
 
     @Override
     public VisitorResult visitAxisSpecLabel(@NotNull wcpsParser.AxisSpecLabelContext ctx) {
-        // dimensionIntervalElement (e.g: i(0:20) or j:"http://.../Index2D"(0:30))
+        // dimensionIntervalElement (e.g: i(0:20) or j:"CRS:1"(0:30))
         SubsetDimension subsetDimension = (SubsetDimension) visit(ctx.dimensionIntervalElement());
 
         AxisSpec axisSpec = new AxisSpec(subsetDimension);

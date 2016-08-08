@@ -43,7 +43,7 @@ SELECT encode(case
     WHEN ((c)>(1000)) THEN ((107) * {1c,0c,0c,0c,0c} + (17) * {1c,0c,0c,0c,0c} + (68) * {1c,0c,0c,0c,0c})
                       ELSE ((150) * {1c,0c,0c,0c,0c} + (103) * {1c,0c,0c,0c,0c} + (14) * {1c,0c,0c,0c,0c})
     END,
-"GTiff", "xmin=0.0;xmax=255.0;ymin=0.0;ymax=210.0;crs=OGC:Index2D")
+"GTiff", "xmin=0.0;xmax=255.0;ymin=0.0;ymax=210.0")
 from mr AS c where oid(c)=1025
  * </code>
  * @author <a href="mailto:bphamhuu@jacobs-university.de">Bang Pham  Huu</a>

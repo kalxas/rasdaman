@@ -96,7 +96,7 @@ public class DomainElement implements Cloneable {
         }
 
         // native CRS and crsSet := Native + GridCRS (no CRS extension enables)
-        if ((crsUri == null) || crsUri.equals(CrsUtil.GRID_CRS)) {
+        if ((crsUri == null) || CrsUtil.isGridCrs(crsUri)) {
                nativeCrs = CrsUtil.GRID_CRS;
                crsSet.add(nativeCrs);
         } else {
@@ -112,7 +112,7 @@ public class DomainElement implements Cloneable {
                         "Invalid domain element: upper-bound is greater then lower-bound.");
             }
 
-            BigDecimal diffBD = maxValue.subtract(minValue).add(nativeCrs.equals(CrsUtil.GRID_CRS) ? BigDecimal.ONE : BigDecimal.ZERO);
+            BigDecimal diffBD = maxValue.subtract(minValue).add(CrsUtil.isGridCrs(nativeCrs) ? BigDecimal.ONE : BigDecimal.ZERO);
             scalarResolution  = BigDecimalUtil.divide(diffBD, new BigDecimal(dimensionality));
         }
 

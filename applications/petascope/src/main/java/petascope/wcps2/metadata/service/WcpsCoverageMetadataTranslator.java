@@ -59,7 +59,6 @@ public class WcpsCoverageMetadataTranslator {
         List<String> nodata = metadata.getAllUniqueNullValues();
         return new WcpsCoverageMetadata(metadata.getCoverageName(), metadata.getCoverageType(), axes,
                                         CrsUtil.CrsUri.createCompound(metadata.getCrsUris()),
-                                        CrsUtility.getImageCrsUri(axes),
                                         rangeFields, StringUtils.join(metadataList, ""), parseNodataValues(nodata));
     }
 

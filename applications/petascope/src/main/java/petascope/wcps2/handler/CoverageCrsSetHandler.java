@@ -26,7 +26,6 @@ import java.util.List;
 import org.apache.commons.lang3.StringUtils;
 import petascope.util.CrsUtil;
 import petascope.wcps2.metadata.model.Axis;
-import petascope.wcps2.metadata.service.CrsUtility;
 import petascope.wcps2.result.WcpsMetadataResult;
 import petascope.wcps2.result.WcpsResult;
 
@@ -36,14 +35,14 @@ import petascope.wcps2.result.WcpsResult;
  *
  * for c in (mr), d in (rgb) return crsSet(c)
  * return:
- * i:http://localhost:8080/def/crs/OGC/0/Index2D,
- * j:http://localhost:8080/def/crs/OGC/0/Index2D
- *
+ * i:http://localhost:8080/def/crs/OGC/0/Index2D CRS:1,
+ * j:http://localhost:8080/def/crs/OGC/0/Index2D CRS:1
+ * 
  * for c in (mean_summer_airtemp) return crsSet(c)
  * return:
  *
- * Long:http://localhost:8080/def/crs/EPSG/0/4326 http://localhost:8080/def/crs/OGC/0/Index2D,
- * Lat:http://localhost:8080/def/crs/EPSG/0/4326 http://localhost:8080/def/crs/OGC/0/Index2D
+ * Long:http://localhost:8080/def/crs/EPSG/0/4326 CRS:1,
+ * Lat:http://localhost:8080/def/crs/EPSG/0/4326 CRS:1
  *
  *
  * @author <a href="mailto:bphamhuu@jacobs-university.de">Bang Pham Huu</a>
@@ -55,12 +54,10 @@ public class CoverageCrsSetHandler {
         List<String> list = new ArrayList<String>();
         String tmp = "";
         for (Axis axis: coverageExpression.getMetadata().getAxes()) {
+            // nativeCrs (e.g: mr: Index2D, mean_summer_airtemp: EPSG:4326)
             tmp = axis.getLabel() + ":" + axis.getCrsUri();
-
-            // check if nativeCrs of axis is not IndexND then it should add the IndexND as well
-            if (!axis.getCrsUri().contains(CrsUtil.INDEX_CRS_PREFIX) && !axis.getCrsUri().equals(CrsUtil.GRID_CRS)) {
-                tmp = tmp + " " + CrsUtility.getImageCrsUri(coverageExpression.getMetadata());
-            }
+            // gridCrs (CRS:1)
+            tmp = tmp + " " + CrsUtil.GRID_CRS;
 
             list.add(tmp);
         }
