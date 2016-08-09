@@ -95,16 +95,16 @@ public class CrsUtil {
     public static final char SLICED_AXIS_SEPARATOR = '@';
 
     // NOTE: "CRS:1" axes to have a GML definition that will be parsed.
-    // NOTE: Index%dD is different with CRS:1 (consider Index%dD is a geo-referenced axis type)
+    // NOTE: IndexND is different with CRS:1 (consider IndexND is a geo-referenced axis type)
     // while CRS:1 is Rasql grid axis type, it is not interchangeable.
     public static final String GRID_CRS  = "CRS:1";
-    public static final String INDEX_CRS_PATTERN = "Index%dD";
-    public static final String INDEX_CRS_PATTERN_NUMBER = "%d";
-    // Replace %d with the number of axis (e.g: 2 (mr), 3 (irr_cube_1))
+    public static final String INDEX_CRS_PATTERN = "Index\\d+D";
+    public static final String INDEX_CRS_PATTERN_NUMBER = "\\d+";
+    // Replace \\d+ with the number of axis (e.g: 2 (mr), 3 (irr_cube_1))
     public static final String OPENGIS_INDEX_ND_PATTERN = OPENGIS_URI_PREFIX + "/def/crs/OGC/0/" + INDEX_CRS_PATTERN;
     public static final String INDEX_CRS_PREFIX = "Index";
     public static final String INDEX_UOM = "GridSpacing"; // See Uom in Index[1-9]D CRS defs
-    public static final BigDecimal INDEX_SCALAR_RESOLUTION = BigDecimal.ONE; // Use for RectifiedGrid coverage which uses Index%d
+    public static final BigDecimal INDEX_SCALAR_RESOLUTION = BigDecimal.ONE; // Use for RectifiedGrid coverage which uses IndexND
     public static final String PURE_UOM  = "10^0";
 
     public static final String CRS_DEFAULT_VERSION = "0";
@@ -493,17 +493,32 @@ public class CrsUtil {
         }
         return ret;
     }
-    
+
     /**
      * Check if axisCrs of coverage is gridCrs (CRS:1)
      * @param axisCrs
-     * @return 
+     * @return
      */
     public static boolean isGridCrs(String axisCrs) {
         if (axisCrs.equals(CrsUtil.GRID_CRS)) {
             return true;
         }
         return false;
+    }
+
+
+    /**
+     * Check if axisCrs of coverage is IndexCRS (IndexND)
+     * @param axisCrs
+     * @return
+     */
+    public static boolean isIndexCrs(String axisCrs) {
+        // strip the crsID (e.g: 4326, Index3D from a CRS URL)
+        String crsID = axisCrs.substring(axisCrs.lastIndexOf("/") + 1);
+        if (crsID.matches(INDEX_CRS_PATTERN)) {
+            return true;
+        }
+        return false;        
     }
 
     private static Element crsDefUrlToDocument(final String url) throws MalformedURLException {
@@ -1185,7 +1200,7 @@ public class CrsUtil {
                isXYOrder = false;
                break;
            }
-               
+
        }
        return isXYOrder;
    }

@@ -144,7 +144,7 @@ public class CrsUtility {
           || (nativeAxis.getAxisType().equals(AxisTypes.Y_AXIS)) ) {
             // NOTE: if subsettingCrs is Index%d or CRS:1 then it will not need to transform
             // e.g: i:"http://.../Index2D" or i:"CRS:1" is not valid outputCrs to transform
-            if (axisCrs.contains(CrsUtil.INDEX_CRS_PREFIX) || CrsUtil.isGridCrs(axisCrs)) {
+            if (CrsUtil.isIndexCrs(axisCrs) || CrsUtil.isGridCrs(axisCrs)) {
                 return false;
             } else if (!identicalCrsCode(axisName, axisCrs, wcpsCoverageMetadata)) {
                 // e.g: nativeCrs:4326, subsettingCrs:3857 then need to transform

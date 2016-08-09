@@ -219,7 +219,7 @@ public class DecodeFormatExtension extends AbstractFormatExtension {
             }
 
 
-            return new Response(null, new String[]{gml}, FormatExtension.MIME_XML);
+            return new Response(null, new String[]{gml}, FormatExtension.MIME_XML, m.getCoverageId());
             // TODO : use XOM serializer (current problem: license header is trimmed to one line and namespaces need to be added)
             //Builder xmlBuilder = new Builder();
             //try {
@@ -311,7 +311,7 @@ public class DecodeFormatExtension extends AbstractFormatExtension {
         } else {
             List<byte[]> data = new ArrayList<byte[]>();
             data.add(res.getMdds().get(0));
-            return new Response(data, null, request.getFormat());
+            return new Response(data, null, request.getFormat(), m.getCoverageId());
         }
     }
 

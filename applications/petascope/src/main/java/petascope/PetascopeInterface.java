@@ -676,15 +676,23 @@ public class PetascopeInterface extends HttpServlet {
             Response res = pext.handle(petascopeRequest, meta);
 
             OutputStream os = response.getOutputStream();
-            response.setStatus(res.getExitCode());
-
-            // Convert from encoding format type to MIME type (e.g: tiff -> image/tiff)
-            // In case of WCS query, "res" converted from formatType to mimeType (not as WCPS query)
-            String mimeType = "";
-            if(res.getFormatType().contains("/")) {
-                mimeType = res.getFormatType();
-            } else {
-                mimeType = meta.formatToMimetype(res.getFormatType());
+            response.setStatus(res.getExitCode());           
+            
+            String fileName = res.getCoverageID();
+            String fileType = "";
+            
+            String mimeType = res.getFormatType();
+            
+            // NOTE: WCS is translated to WCPS, hence they have both same mimeType formally, but WCST_Import can be empty
+            if (mimeType.contains("/")) {
+                // e.g: (image/png -> only .png)
+                fileType = mimeType.split("/")[1];
+                fileName = fileName + "." + fileType;                
+            }
+            
+            // then download the result as a file (but only when the request has a specific coverage name)
+            if (res.getCoverageID() != null) {
+                response.setHeader("Content-disposition", "attachment; filename=" + fileName);
             }
 
             // WCS multipart

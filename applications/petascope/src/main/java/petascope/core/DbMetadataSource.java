@@ -1351,7 +1351,7 @@ public class DbMetadataSource implements IMetadataSource {
                             CrsUtil.KEY_RESOLVER_CRS + '/' +
                             CrsUtil.OGC_AUTH + '/' +
                             CrsUtil.CRS_DEFAULT_VERSION + '/' +
-                            CrsUtil.INDEX_CRS_PATTERN.replace("%d", "" + dimensionNo);
+                            CrsUtil.INDEX_CRS_PATTERN.replace(CrsUtil.INDEX_CRS_PATTERN_NUMBER, "" + dimensionNo);
                     log.debug("Assigning " + uri + " CRS to " + coverageName + "by default.");
                     CrsDefinition crsDef = CrsUtil.getGmlDefinition(uri);
                     for (CrsDefinition.Axis axis : crsDef.getAxes()) {

@@ -45,6 +45,7 @@ import java.util.List;
 import petascope.exceptions.WCSException;
 import petascope.util.CrsProjectionUtil;
 import petascope.wcps2.error.managed.processing.InvalidBoundingBoxInCrsTransformException;
+import petascope.wcps2.error.managed.processing.NotGeoReferencedCoverageInCrsTransformException;
 import petascope.wcps2.metadata.model.NumericTrimming;
 import petascope.wcps2.metadata.service.CoverageRegistry;
 import petascope.wcs2.extensions.FormatExtension;
@@ -149,6 +150,10 @@ public class EncodedCoverageHandler {
         }
         String outputCrsUri = "";
         if (metadata.getOutputCrsUri() != null) {
+            // NOTE: not allow to transform from CRS:1 or IndexND to a geo-referenced CRS
+            if (CrsUtil.isGridCrs(crsUri) || CrsUtil.isIndexCrs(crsUri)) {
+                throw new NotGeoReferencedCoverageInCrsTransformException();
+            }
             outputCrsUri = metadata.getOutputCrsUri();
             // Also need to convert the bounding box (xmin,ymin,xmax,ymax) to outputCrsUri
             double[] srcCoords = new double[] { Double.parseDouble(xMin), Double.parseDouble(yMin),
@@ -184,7 +189,7 @@ public class EncodedCoverageHandler {
         }
         // No set outputCrs when encoding with grid coverage (e.g: mr, rgb)
         // or X and Y of bounding box have different Crs URIs (e.g: X is Lat, Y is time)
-        if ((!crs.contains(CrsUtil.INDEX_CRS_PREFIX)) && (isSameOutputCrs)) {
+        if ((!CrsUtil.isIndexCrs(crs)) && (isSameOutputCrs)) {
             // NOTE: crs here can be like: crs=OGC:AnsiDate?axis-label="time"
             // it is not valid in Rasql then need to replace "" in the parameters as well
             crs = crs.replace("\"", "");
