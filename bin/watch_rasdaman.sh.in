@@ -1,0 +1,194 @@
+#!/bin/bash
+# This file is part of rasdaman community.
+#
+# Rasdaman community is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# Rasdaman community is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.    See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with rasdaman community.    If not, see <http://www.gnu.org/licenses/>.
+#
+# Copyright 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015 Peter Baumann /
+# rasdaman GmbH.
+#
+# For more information please see <http://www.rasdaman.org>
+# or contact Peter Baumann via <baumann@rasdaman.com>.
+#
+# SYNOPSIS
+#    watch_rasdaman.sh
+# Description
+#    This script can be run in the background (as a cron job to check rasdaman's status and restart it if it is necessary for example).
+#    Rasdaman is restarted by executing stop_rasdaman.sh and start_rasdaman.sh (or systemctl restart rasdaman if applicable).
+#    It will check petascope's status and if it detects that it is down it will restart Tomcat (systemctl restart tomcat).
+#    Users need to change this script for the corresponding system (e.g: Ubuntu: service tomcat start, CentOs: systemctl start tomcat)
+#    or if a servlet container different from Tomcat is used for deploying the rasdaman web services.
+#
+################################################################################
+
+# get script name
+PROG=$( basename "$0" )
+
+# Day/Month/Year Hour:Minute:Second
+getDateTime() {
+	echo $(date '+%d/%m/%Y %H:%M:%S')
+}
+
+#
+# logging
+#
+log() {
+  echo "$PROG: $(getDateTime) $*" >> "$LOG_FILE"
+}
+
+######### Change here for the configuration of Operating System and Rasdaman##########
+WCS_TEST_ENDPOINT="http://localhost:8080/rasdaman/ows?service=WCS&version=2.0.1&request=GetCapabilities"
+LOG_FILE=@logdir@rasdaman-status.log
+
+os_name=""
+
+# check if system has start,stop rasdaman script
+using_script=true
+
+# service command on operation system
+service_command_template=""
+
+#
+# restart rasdaman with the scripts
+#
+stop_rasdaman() {
+	stop_rasdaman.sh
+}
+
+start_rasdaman() {
+	start_rasdaman.sh
+}
+
+#
+# restart rasdaman with service
+#
+restart_rasdaman() {
+	service_command=$(echo "$service_command_template" | sed "s/PROGRAM/rasdaman/g")
+	# return the command
+	echo "$service_command"
+}
+
+#
+# restart servlet container (e.g: Tomcat)
+#
+restart_servlet_container() {
+	# default using Tomcat as servlet container
+	servlet_container="tomcat"
+	service_command=$(echo "$service_command_template" | sed "s/PROGRAM/$servlet_container/g")
+	# return the command
+	echo "$service_command"
+}
+
+
+#
+# check if should use start, stop scripts in operation system
+#
+check_using_script() {
+	if ! type "start_rasdaman.sh" > /dev/null; then
+		using_script=false
+	fi
+}
+
+#
+# check what linux version is using
+#
+check_version_os() {
+	# get the information of the current operation system
+	os_info=$(lsb_release -a)
+	# Supported operation systems
+	declare -a array=("CentOS" "Ubuntu" "Debian")
+	for os_name in "${array[@]}"
+	do
+		if [[ "$os_info" =~ "$os_name" ]]; then
+			os_name="$os_name"
+
+			# set service command based on operation system
+			if [[ "$os_name" == "CentOS" ]]; then
+				service_command_template="sudo systemctl restart PROGRAM"
+			else
+				service_command_template="sudo service PROGRAM restart"
+			fi
+
+			break
+		fi
+	done
+
+	if [[ "$os_name" == "" ]]; then
+		echo "this script is not supported on this operation system; please manually adapt the management of services."
+		exit 1
+	fi
+}
+
+
+#
+# Check rasdaman version (Community or Enterprise)
+#
+check_using_script
+
+#
+# Check operation of this system
+#
+check_version_os
+
+#
+# Check Rasdaman status
+#
+output=$(rasql --quiet -q "select c from RAS_COLLECTIONNAMES as c" --out string)
+if [ $? != 0 ]; then
+	# write the error to console and to a file
+	log "failed running a test rasql query, error: $output"
+
+	start_msg=""
+
+	# if system has start, stop scripts
+	if [[ "$using_script" == true ]]; then
+		# try to stop Rasdaman
+		log "stopping rasdaman"
+		stop_rasdaman
+
+		# try to start Rasdaman
+		log "starting rasdaman"
+		# run the start function
+		start_rasdaman
+	else
+	# if system has rasdaman service
+		log "restarting rasdaman"
+		# run the command from the called function
+		start_msg=$($(restart_rasdaman))
+	fi
+
+	if [ $? != 0 ]; then
+		log "failed, error: $start_msg"
+	else
+		log "ok."
+	fi
+fi
+
+#
+# Check Tomcat status
+#
+output=$(wget --quiet --spider "$WCS_TEST_ENDPOINT")
+if [ $? != 0 ]; then
+	# write the error to console and to a file
+	log "failed running a test petascope query, error: $output"
+
+	# try to restart Petascope (Tomcat)
+	log "restarting servlet container"
+	# run the command from the called function
+	restart_msg=$($(restart_servlet_container))
+	if [ $? != 0 ]; then
+		log "failed restarting servlet container, error: $restart_msg"
+	else
+		log "ok."
+	fi
+fi
