@@ -25,6 +25,7 @@ package secore.gml;
  *
  * @author Bang Pham Huu
  */
+import java.io.File;
 import java.io.IOException;
 import java.io.StringReader;
 import java.net.URL;
@@ -41,9 +42,11 @@ import org.slf4j.LoggerFactory;
 import org.xml.sax.ErrorHandler;
 import org.xml.sax.SAXException;
 import org.xml.sax.SAXParseException;
+import static secore.util.Config.CONF_FILE;
 import secore.util.SecoreException;
 import secore.util.Constants;
 import secore.util.ExceptionCode;
+import secore.util.IOUtil;
 
 /**
  *
@@ -104,8 +107,9 @@ public class GMLValidator {
           = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
 
       // Important! without doing like this SAXParser could not load imported XSD in main XSD file (EPSG.xsd)
-      URL schemaURL = Thread.currentThread().getContextClassLoader().getResource("GML/epsg/EPSG.xsd");
-
+      //URL schemaURL = Thread.currentThread().getContextClassLoader().getResource("GML/epsg/EPSG.xsd");
+      File schemaFile = IOUtil.findFile("etc/schema/GML/epsg/EPSG.xsd");
+      URL schemaURL =  schemaFile.toURI().toURL();
       Schema schema = factory.newSchema(schemaURL);
       Validator validator = schema.newValidator();
 

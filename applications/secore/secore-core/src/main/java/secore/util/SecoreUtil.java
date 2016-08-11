@@ -167,8 +167,22 @@ public class SecoreUtil {
 
     if (user && epsg) {
       // In case of listing CRS definitions from both kind of DB (userdb, gml_*) it will query from both DB.
+      // NOTE: as only have 1 userdb collection then if query a definition with un-exisiting versionNumber, it will just return empty.
+      // But it can have multiple epsg collections, which based on versionNumber (e.g: version: 8.5 -> gml_85), then if the versionNumber does not exist
+      // it will throw an exception as the collection also does not exist (e.g: http://localhost:8080/def/crs/EPSG/9/3857)
       String userRes = DbManager.getInstance().getDb().queryUser(query.replace(USER_FLAG_KEY, USER_FLAG), versionNumber);
-      String epsgRes = DbManager.getInstance().getDb().queryEpsg(query.replace(USER_FLAG_KEY, EPSG_FLAG), versionNumber);
+      // then with kind of query in both userdb and gml_*, the gml_* does not exist, means it does not have the definition in gml db
+      String epsgRes = Constants.EMPTY;
+      try {
+        epsgRes = DbManager.getInstance().getDb().queryEpsg(query.replace(USER_FLAG_KEY, EPSG_FLAG), versionNumber);
+      } catch (SecoreException e) {
+          if (e.getExceptionCode().equals(ExceptionCode.VersionNotFoundException)) {
+            epsgRes = Constants.EMPTY_XML;
+          } else {
+              // other error, then just throw the exception.
+              throw e;
+          }
+      }
       String ret = Constants.EMPTY;
       if (!StringUtil.emptyQueryResult(userRes)) {
         ret += userRes;
@@ -223,11 +237,12 @@ public class SecoreUtil {
   public static String deleteDef(String id, String todel) throws SecoreException {
     log.trace("Delete definition with identifier: " + id);
 
-    String match = id + todel + "((?=(\\/))\\S*|$)";
+    String fullID = id + todel;
+    String childIDs = fullID + "/.*";
     String query
         = "declare namespace gml = \"" + NAMESPACE_GML + "\";" + NEW_LINE
-        + "for $x in collection('" + COLLECTION_NAME + "')//gml:identifier[text() = '" + id + todel + "']/.. "
-        + "union doc('" + COLLECTION_NAME + "')//gml:identifier[matches(.,'" + match + "')]/.." + NEW_LINE
+        + "for $x in collection('" + COLLECTION_NAME + "')//gml:identifier[ends-with(.,'" + fullID + "')]/.. "
+        + "union doc('" + COLLECTION_NAME + "')//gml:identifier[matches(.,'" + childIDs + "')]/.." + NEW_LINE
         + "return delete node $x";
 
     String error = Constants.EMPTY;

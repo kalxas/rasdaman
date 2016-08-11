@@ -19,7 +19,7 @@
  * For more information please see <http://www.rasdaman.org>
  * or contact Peter Baumann via <baumann@rasdaman.com>.
 --%>
-<%@page import="secore.db.DbKeyValue"%>
+<%@page import="secore.db.DbCollection"%>
 <%@page import="java.util.ArrayList"%>
 <%@page import="java.util.List"%>
 <%--
@@ -179,10 +179,10 @@
         } else {
           // if ther version number is not specific then query all the versions
           // e.g(8.5, gml_85)
-          for(DbKeyValue coll: DbManager.collections.keySet()) {
-            if(!coll.getValue().equals(DbManager.USER_DB)) {
+          for(DbCollection coll: DbManager.collections.keySet()) {
+            if(!coll.getCollectionName().equals(DbManager.USER_DB)) {
               // Only add the gml dictionary version numbers.
-              versionNumbers.add(coll.getKey());
+              versionNumbers.add(coll.getVersionNumber());
             }
           }
         }
@@ -475,17 +475,21 @@
       errorDel = SecoreUtil.deleteDef(idUrlTmp, todel);
 
       if (errorDel.equals(Constants.EMPTY)) {
-        errorDel = "<span style='font-size: large; color:green;'>The database has been updated sucessfully.</span><br/><br/>";
+        //errorDel = "<span style='font-size: large; color:green;'>The database has been updated sucessfully.</span><br/><br/>";
+        //Note: After removing, need to load all the entries again by reloading the current page as it is success
+        response.sendRedirect(url + "browse.jsp");
       } else {
-        errorDel = "<span style='color:red;'>Error: " + errorDel + " when delete, see log file for more detail. The database remains unchanged.</span><br/><br/>";
-      }
-
-      // Note: After removing, need to load all the entries again by reloading the current page
-      response.sendRedirect(url + "browse.jsp");
-
+           errorDel = "<span style='color:red;'>Error: " + errorDel + " when delete, see log file for more detail. The database remains unchanged.</span><br/><br/>";
+           // print the error not reload the page
+           %>           
+           <div style="width: 1024px; height: 150px; overflow-y: auto; margin-top:15px;">
+           <%        
+              out.print(errorDel);        
+           %>
+           </div>
+        <%
+      }   
     }
-
-
   %>
 </body>
 </html>
