@@ -80,7 +80,7 @@ public class DecodeFormatExtension extends AbstractFormatExtension {
     private String extensionId;
     private Boolean hasParent;
     private String parentExtensionId;
-    private Boolean multiPart;
+    private boolean multiPart;
 
     /**
      * Gets the extension identifier for the mimeType
@@ -91,7 +91,7 @@ public class DecodeFormatExtension extends AbstractFormatExtension {
         if (ExtensionsRegistry.mimeToIdentifier.containsKey(mime)) {
             return ExtensionsRegistry.mimeToIdentifier.get(mime);
         } else if (mime.equals(MIME_JP2)) {
-            if (multiPart != null && multiPart)
+            if (multiPart)
                 return ExtensionsRegistry.GMLJP2_IDENTIFIER;
             else
                 return ExtensionsRegistry.JPEG2000_IDENTIFIER;
@@ -106,7 +106,7 @@ public class DecodeFormatExtension extends AbstractFormatExtension {
      * Constructor for registering formats and also used while handling multipart requests
      * as two base requests
      */
-    DecodeFormatExtension(String mime, Boolean isMultiPart) {
+    DecodeFormatExtension(String mime, boolean isMultiPart) {
         this.mimeType = mime;
         this.multiPart = isMultiPart;
         this.extensionId = getExtensionIdentifier(mime);
@@ -299,7 +299,7 @@ public class DecodeFormatExtension extends AbstractFormatExtension {
 
             gdalParams = new GdalParameters(domLo[0], domHi[0], domLo[1], domHi[1], m.getCrs());
             //checking if request is gml+jp2? multipart was set at canHandle()
-            if (multiPart == null || multiPart)
+            if (!multiPart)
                 p = executeRasqlQuery(request, m, meta, getEncoding(request.getFormat()), gdalParams.toString());
             else {
                 p = addGMLtoJP2(request, m, meta);
@@ -379,7 +379,7 @@ public class DecodeFormatExtension extends AbstractFormatExtension {
         //getFormat never returns null. if request has format null, the default format gml is set
         String format = request.getFormat().replace(" ", "+");
         // multipart extensions except for jp2+gml are handled here
-        boolean isMultiPart = request.isMultiPart() && multiPart != null && multiPart;
+        boolean isMultiPart = request.isMultiPart() && multiPart;
         boolean canbeHandled = SUPPORTED_FORMATS.contains(format) && !format.equals(MIME_JP2) && !format.equals(MIME_GML);
         if (isMultiPart && canbeHandled) {
             return getMultiPartResponse(request, meta);

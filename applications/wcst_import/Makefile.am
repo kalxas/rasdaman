@@ -39,7 +39,7 @@ endif
 
 all:
 	if [ $(ALLOW_INSTALL) = TRUE ] ; then \
-		sed -e 's|WCST_IMPORT_PY_SCRIPT|$(PYTHON_SCRIPT)|g' wcst_import.sh.in > wcst_import.sh ; \
+		sed -e 's|@WCST_IMPORT_PY_SCRIPT@|$(PYTHON_SCRIPT)|g' wcst_import.sh.in > wcst_import.sh ; \
 		chmod +x wcst_import.sh ; \
 		echo "Build Process sucessfully. You can now install the application by running $ make install"; \
 	fi
