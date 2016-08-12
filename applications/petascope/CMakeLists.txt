@@ -141,6 +141,9 @@ install_if_not_exists(${SETTINGS_FILE} ${CONF_DIR})
 # Install log4j configuration if it does not exist
 install_if_not_exists("${CMAKE_CURRENT_SOURCE_DIR}/src/main/resources/log4j.properties" ${CONF_DIR})
 
+# Install wms_service.properties if it does not exist
+install_if_not_exists("${CMAKE_CURRENT_SOURCE_DIR}/src/main/resources/wms/wms_service.properties" ${CONF_DIR})
+
 # Install it to the war directory specified during configure
 install(FILES "${PETASCOPE_TARGET_DIR}/rasdaman.war"
         DESTINATION ${WAR_DIR})
