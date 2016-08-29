@@ -41,9 +41,6 @@ public class RasdamanUpdaterFactory {
         if (mimeType != null && mimeType.toLowerCase().contains(IOUtil.GRIB_MIMETYPE)){
             return new RasdamanGribUpdater(collectionName, collectionOid, domain, file, rangeParameters, shiftDomain);
         }
-        else if(mimeType != null && mimeType.toLowerCase().contains(IOUtil.TIFF_MIMETYPE)){
-            return new RasdamanTiffUpdater(collectionName, collectionOid, domain, file, shiftDomain);
-        }
         else if(mimeType != null && mimeType.toLowerCase().contains(IOUtil.NETCDF_MIMETYPE)){
             return new RasdamanNetcdfUpdater(collectionName, collectionOid, domain, file, shiftDomain, rangeParameters);
         }
