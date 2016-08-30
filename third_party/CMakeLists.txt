@@ -202,10 +202,16 @@ if (RMANRASNET)
     set(PROTOBUF_PROTOC_EXECUTABLE_PATH "${PROTOBUF_BINARY_DIR}/bin/protoc")
     set(PROTOBUF_PROTOC_EXECUTABLE protoc)
 
+    # NOTE: we need to change to an existing gmock-1.7.0 for downloading (the old one does not exist)
+    set(OLD_GMOCK_URL "https://googlemock.googlecode.com/files/gmock-1.7.0.zip")
+    set(NEW_GMOCK_URL "http://rasdaman.org/chrome/site/gmock-1.7.0.zip")
+
     # Get the number of cores we can use to build the third_party dependency.
     GetProcessorCount(PROCESSOR_COUNT)
 
     add_custom_command(OUTPUT ${PROTOBUF_LIBRARY_PATH} ${PROTOBUF_PROTOC_EXECUTABLE_PATH}
+	    # Change the URL for gmock before invoking script to build protobuf	    	        
+	    COMMAND sed -i "s@${OLD_GMOCK_URL}@${NEW_GMOCK_URL}@g" autogen.sh
             COMMAND ./autogen.sh
             COMMAND ./configure ARGS --prefix=${PROTOBUF_BINARY_DIR} --disable-shared
             COMMAND export MAKEFLAGS_AUX=$MAKEFLAGS && export MAKEOVERRIDES_AUX=$MAKEOVERRIDES

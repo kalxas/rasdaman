@@ -68,8 +68,10 @@ $(GRPC_BIN):
 	make install prefix=${GRPC_BIN}
 
 # Compile and install Google Protobuf to a temporary folder.
-$(PROTOBUF_BIN):
+# NOTE: we need to change to an existing gmock-1.7.0 for downloading (the old one does not exist)
+$(PROTOBUF_BIN):	
 	cd grpc/third_party/protobuf && \
+	sed -i "s@https://googlemock.googlecode.com/files/gmock-1.7.0.zip@http://rasdaman.org/chrome/site/gmock-1.7.0.zip@g" autogen.sh && \
 	./autogen.sh && \
 	./configure --prefix=${PROTOBUF_BIN} --disable-shared && \
 	make && \
