@@ -48,6 +48,7 @@ import petascope.exceptions.PetascopeException;
 import petascope.exceptions.SecoreException;
 import petascope.exceptions.WCPSException;
 import petascope.util.PostgisQueryResult;
+import petascope.util.StringUtil;
 import petascope.util.WcpsConstants;
 import petascope.util.ras.RasQueryResult;
 import petascope.util.ras.RasUtil;
@@ -133,7 +134,7 @@ public class WcpsServlet extends HttpServlet {
         WcpsTranslator wcpsTranslator = new WcpsTranslator(coverageRegistry, wcpsCoverageMetadataService,
                                             rasqlTranslationService, subsetParsingService);
 
-        String query = request.getParameter(WcpsConstants.MSG_QUERY);
+        String query = StringUtil.urldecode(request.getParameter(WcpsConstants.MSG_QUERY), null);
 
         OutputStream os = response.getOutputStream();
 
