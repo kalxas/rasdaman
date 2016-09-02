@@ -32,11 +32,11 @@ public class DeleteCoverageRequest extends WCSTRequest {
 
     public DeleteCoverageRequest(String coverageId) {
        this.coverageId = StringUtil.trim(coverageId);
-    }
-
-    private final String coverageId;
+    }  
 
     public String getCoverageId() {
         return coverageId;
     }
+    
+    private final String coverageId;
 }

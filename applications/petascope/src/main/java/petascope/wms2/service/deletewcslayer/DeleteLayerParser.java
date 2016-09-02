@@ -40,7 +40,6 @@ import java.util.List;
  */
 public class DeleteLayerParser extends Parser<DeleteLayerRequest> {
 
-
     public DeleteLayerParser(PersistentMetadataObjectProvider persistentMetadataObjectProvider) {
         this.persistentMetadataObjectProvider = persistentMetadataObjectProvider;
     }
@@ -60,7 +59,7 @@ public class DeleteLayerParser extends Parser<DeleteLayerRequest> {
         }
         try {
             List<Layer> layer = persistentMetadataObjectProvider.getLayer().queryForEq(Layer.NAME_COLUMN_NAME, layerStr);
-            if (layer.size() == 0) {
+            if (layer.isEmpty()) {
                 throw new WMSInvalidLayerException(layerStr);
             }
             return new DeleteLayerRequest(parseBaseRequest(rawRequest), layer.get(0));

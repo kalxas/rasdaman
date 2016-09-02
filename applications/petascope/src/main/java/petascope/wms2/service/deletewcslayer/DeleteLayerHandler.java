@@ -30,6 +30,7 @@ import petascope.wms2.service.exception.error.WMSException;
 import petascope.wms2.service.exception.error.WMSInternalException;
 
 import java.sql.SQLException;
+import java.util.List;
 
 /**
  * Class description
@@ -47,21 +48,48 @@ public class DeleteLayerHandler implements Handler<DeleteLayerRequest, DeleteLay
     public DeleteLayerResponse handle(@NotNull DeleteLayerRequest request) throws WMSException {
         Layer layer = request.getLayer();
         try {
-            //TODO throw error if layer has child layers
-            persistentMetadataObjectProvider.getExGeographicBoundingBox().delete(layer.getExBoundingBox());
-            if (layer.getStyles() != null && layer.getStyles().size() > 0) {
-                persistentMetadataObjectProvider.getStyle().delete(layer.getStyles());
-            }
-            persistentMetadataObjectProvider.getBoundingBox().delete(layer.getBoundingBoxes());
-            persistentMetadataObjectProvider.getRasdamanLayer().delete(layer.getRasdamanLayers());
-            if (layer.getDimensions() != null && layer.getDimensions().size() > 0) {
-                persistentMetadataObjectProvider.getDimension().delete(layer.getDimensions());
-            }
-            persistentMetadataObjectProvider.getLayer().delete(layer);
+            DeleteLayerContent(layer);
             return new DeleteLayerResponse();
         } catch (SQLException e) {
             throw new WMSInternalException(e);
         }
+    }
+    
+    /**
+     * Delete WMS layer by LayerID (CoverageID) when deleting coverage in WCS request.
+     * @param layerID
+     * @throws WMSException
+     * @throws SQLException 
+     */
+    public void DeleteLayerByID(@NotNull String layerID) throws WMSException, SQLException {
+        List<Layer> layers = persistentMetadataObjectProvider.getLayer().queryForEq(Layer.NAME_COLUMN_NAME, layerID);
+        // only remove layer by layerID if it does exist in database
+        if (!layers.isEmpty()) {
+            Layer layer = layers.get(0);
+            try {
+                DeleteLayerContent(layer);         
+            } catch (SQLException e) {
+                throw new WMSInternalException(e);
+            }
+        }
+    }
+    
+    /**
+     * Remove any related properties of layer including itselfi n database from the layer.
+     * @param layer
+     */
+    private void DeleteLayerContent(Layer layer) throws SQLException {
+        //TODO throw error if layer has child layers
+        persistentMetadataObjectProvider.getExGeographicBoundingBox().delete(layer.getExBoundingBox());
+        if (layer.getStyles() != null && layer.getStyles().size() > 0) {
+            persistentMetadataObjectProvider.getStyle().delete(layer.getStyles());
+        }
+        persistentMetadataObjectProvider.getBoundingBox().delete(layer.getBoundingBoxes());
+        persistentMetadataObjectProvider.getRasdamanLayer().delete(layer.getRasdamanLayers());
+        if (layer.getDimensions() != null && layer.getDimensions().size() > 0) {
+            persistentMetadataObjectProvider.getDimension().delete(layer.getDimensions());
+        }
+        persistentMetadataObjectProvider.getLayer().delete(layer);
     }
 
     private final PersistentMetadataObjectProvider persistentMetadataObjectProvider;

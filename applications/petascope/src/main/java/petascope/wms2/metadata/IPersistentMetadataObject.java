@@ -31,7 +31,7 @@ package petascope.wms2.metadata;
  * @author <a href="mailto:dumitru@rasdaman.com">Alex Dumitru</a>
  */
 
-interface IPersistentMetadataObject {
+public interface IPersistentMetadataObject {
 
     public static final String TABLE_PREFIX = "wms13_";
 }

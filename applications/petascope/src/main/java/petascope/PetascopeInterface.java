@@ -178,7 +178,7 @@ public class PetascopeInterface extends HttpServlet {
         /**
          * Initialize the WMS 1.1.0 service
          * NOTE: WMS 1.1.0 is deprecated and it cannot initialize database
-         * with the error as in  in http://rasdaman.org/ticket/898. Use WMS 1.3.0 instead.
+         * with the error as in http://rasdaman.org/ticket/898. Use WMS 1.3.0 instead.
          */
         try {
             log.info("WMS11: Initializing the WMS 1.1.0 service...");

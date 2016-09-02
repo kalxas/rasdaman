@@ -26,6 +26,7 @@ import java.math.BigInteger;
 import java.sql.SQLException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import org.slf4j.LoggerFactory;
 import petascope.core.CoverageMetadata;
 import petascope.core.DbMetadataSource;
 import petascope.exceptions.ExceptionCode;
@@ -38,6 +39,10 @@ import petascope.util.ras.RasUtil;
 import petascope.wcs2.handlers.AbstractRequestHandler;
 import petascope.wcs2.handlers.Response;
 import petascope.wcs2.parsers.wcst.DeleteCoverageRequest;
+import petascope.wms2.orchestration.ServiceOrchestrator;
+import petascope.wms2.service.deletewcslayer.DeleteLayerHandler;
+import petascope.wms2.service.exception.error.WMSException;
+import petascope.wms2.servlet.WMSServlet;
 
 /**
  * Handles the deletion of a coverage.
@@ -49,19 +54,24 @@ public class DeleteCoverageHandler extends AbstractRequestHandler<DeleteCoverage
         super(meta);
     }
 
+    @Override
     public Response handle(DeleteCoverageRequest request) throws PetascopeException, SecoreException {
         String[] coverageIds = request.getCoverageId().split(COVERAGE_IDS_SEPARATOR);
         //check that all the ids exist
-        for(String coverageId : coverageIds){
+        for (String coverageId : coverageIds){
             checkCoverageId(coverageId);
         }
         //delete all of them
-        for(String coverageId : coverageIds){
-            CoverageMetadata coverage = this.meta.read(coverageId);
-            try {
-                //delete metadata
+        for (String coverageId : coverageIds) {            
+            try {                                
+                CoverageMetadata coverage = this.meta.read(coverageId);
+                // delete metadata
                 this.meta.delete(coverage);
-                //delete the rasdaman coverage
+                
+                // delete WMS layer of this coverageID
+                this.deleteFromWMS(coverageId);
+                
+                // delete the rasdaman coverage
                 try {
                     deleteFromRasdaman(coverage);
                 } catch (RasdamanException e){
@@ -74,15 +84,18 @@ public class DeleteCoverageHandler extends AbstractRequestHandler<DeleteCoverage
                 this.meta.commitAndClose();
 
             } catch (SQLException e) {
-                Logger.getLogger(DeleteCoverageHandler.class.getName()).log(Level.SEVERE, null, e);
+                log.error("Cannot delete coverage: " + coverageId + " from database, error: ", e);
                 throw new PetascopeException(ExceptionCode.InternalSqlError);
+            } catch (WMSException ex) {
+                log.error("Cannot delete layer: " + coverageId + " by WMS service, error: ", ex);
+                throw new PetascopeException(ExceptionCode.InternalWMSError);
             }
         }
         return new Response(new String[]{""});
     }
 
     private void checkCoverageId(String coverageId) throws WCSException{
-        if(!meta.existsCoverageName(coverageId)){
+        if (!meta.existsCoverageName(coverageId)){
             throw new WCSException(ExceptionCode.NoSuchCoverage, coverageId);
         }
     }
@@ -91,6 +104,18 @@ public class DeleteCoverageHandler extends AbstractRequestHandler<DeleteCoverage
         Pair<BigInteger, String> collection = coverage.getRasdamanCollection();
         RasUtil.deleteFromRasdaman(collection.fst, collection.snd);
     }
+    
+    /**
+     * When delete a coverage from WCS, it will need to delete the existing WMS layer as well.
+     * @param coverageId the layerID from WMS service to delete
+     */
+    private void deleteFromWMS(String coverageId) throws WMSException, SQLException {
+        ServiceOrchestrator serviceOrchestrator = WMSServlet.getServiceOrchestrator();
+        DeleteLayerHandler handler = new DeleteLayerHandler(serviceOrchestrator.getPersistentProvider());
+        handler.DeleteLayerByID(coverageId);
+    }
 
     private final static String COVERAGE_IDS_SEPARATOR = ",";
+    
+    private static final org.slf4j.Logger log = LoggerFactory.getLogger(DeleteCoverageHandler.class);
 }

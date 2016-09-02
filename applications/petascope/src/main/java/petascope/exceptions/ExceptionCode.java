@@ -162,6 +162,7 @@ public class ExceptionCode {
             "Lower limit is above the upper limit in the range field interval.", SC_BAD_REQUEST);
     public static final ExceptionCode InternalComponentError = new ExceptionCode("InternalComponentError");
     public static final ExceptionCode InternalSqlError = new ExceptionCode("InternalSqlError");
+    public static final ExceptionCode InternalWMSError = new ExceptionCode("InternalWMSError");
     public static final ExceptionCode InterpolationMethodNotSupported = new ExceptionCode("InterpolationMethodNotSupported",
             "`interpolation' parameter indicated is not supported by this server (i.e., URL is not known to this server).", SC_METHOD_NOT_ALLOWED);
     public static final ExceptionCode InvalidAxisLabel = new ExceptionCode("InvalidAxisLabel",

@@ -84,7 +84,15 @@ public class WMSServlet extends CORSHttpServlet {
         super.destroy();
         orchestrator.close();
     }
+    
+    /**
+     * This method is called to allow other class can call service from WMSServlet (e.g: delete layer)
+     * @return 
+     */
+    public static ServiceOrchestrator getServiceOrchestrator() {
+        return orchestrator;
+    }
 
-    private ServiceOrchestrator orchestrator;
+    private static ServiceOrchestrator orchestrator;
     private static final String CONFIGURATION_DIRECTORY_PARAMETER = petascope.ConfigManager.CONF_DIR;
 }

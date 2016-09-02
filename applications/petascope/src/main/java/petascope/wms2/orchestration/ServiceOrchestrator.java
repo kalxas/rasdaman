@@ -86,6 +86,14 @@ public class ServiceOrchestrator {
         }
         return ExceptionResponseFactory.getExceptionResponse(exception, null).toBytes();
     }
+    
+    /**
+     * Return the initialized metadata object provider to connect to WMS database
+     * @return 
+     */
+    public PersistentMetadataObjectProvider getPersistentProvider() {
+        return this.persistentMetadataObjectProvider;
+    }
 
     /**
      * Closes the service, useful to be called before your front-end closes so that we free any resources

@@ -79,6 +79,8 @@ import petascope.util.ras.RasUtil;
 import petascope.wcps.metadata.CellDomainElement;
 import petascope.wcps.server.core.RangeElement;
 import petascope.wcs2.parsers.BaseRequest;
+import petascope.wms2.metadata.IPersistentMetadataObject;
+import petascope.wms2.service.deletewcslayer.DeleteLayerRequest;
 
 /**
  * The DbMetadataSource is a IMetadataSource that uses a relational database. It
@@ -2063,7 +2065,7 @@ public class DbMetadataSource implements IMetadataSource {
         }
         return result;
     }
-
+    
     /* Returns the available formatToMimetype formats, as stored in the metadata database */
     public String[] getMimetypesList() {
         return supportedFormats.values().toArray(new String[1]);
