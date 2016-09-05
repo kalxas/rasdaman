@@ -149,8 +149,8 @@ public class InsertCoverageHandler extends AbstractRequestHandler<InsertCoverage
             if (generateId) {
                 coverage.setCoverageName(generateCoverageName());
             }
-            //use the same collection name as the coverage name
-            String collectionName = coverage.getCoverageName();
+            //use the same collection name as the coverage name (NOTE: rasdaman does not support "-" in collection name, then replace it)
+            String collectionName = coverage.getCoverageName().replace("-", "_");
 
             BigInteger oid;
             RasdamanInserter rasdamanInserter;

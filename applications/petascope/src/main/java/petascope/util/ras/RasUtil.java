@@ -455,7 +455,7 @@ public class RasUtil {
      */
     public static void createRasdamanCollection(String collectionName, String collectionType) throws RasdamanException {
         String query = TEMPLATE_CREATE_COLLECTION.replace(TOKEN_COLLECTION_NAME, collectionName)
-                .replace(TOKEN_COLLECTION_TYPE, collectionType);
+                                                 .replace(TOKEN_COLLECTION_TYPE, collectionType);
         executeRasqlQuery(query, ConfigManager.RASDAMAN_ADMIN_USER, ConfigManager.RASDAMAN_ADMIN_PASS, true);
     }
 
