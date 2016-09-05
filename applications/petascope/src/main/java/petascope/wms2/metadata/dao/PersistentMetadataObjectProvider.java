@@ -24,7 +24,7 @@ package petascope.wms2.metadata.dao;
 
 import com.j256.ormlite.dao.Dao;
 import com.j256.ormlite.dao.DaoManager;
-import com.j256.ormlite.jdbc.JdbcConnectionSource;
+import com.j256.ormlite.support.ConnectionSource;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import petascope.wms2.metadata.*;
@@ -48,8 +48,8 @@ public class PersistentMetadataObjectProvider {
      * Constructor for the class
      *
      * @param connection the jdbc connection to a known database
-     */
-    public PersistentMetadataObjectProvider(@NotNull JdbcConnectionSource connection) {
+     */   
+    public PersistentMetadataObjectProvider(@NotNull ConnectionSource connection) {
         this.connection = connection;
     }
 
@@ -367,6 +367,5 @@ public class PersistentMetadataObjectProvider {
     @Nullable
     private Dao<Dimension, Integer> dimension = null;
     @NotNull
-    private final JdbcConnectionSource connection;
-
+    private final ConnectionSource connection;
 }

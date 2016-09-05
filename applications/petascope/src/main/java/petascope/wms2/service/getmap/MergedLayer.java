@@ -168,6 +168,9 @@ public final class MergedLayer {
                     index += 1;
                 }
             }
+            
+            // close the connection after using
+            dbMetadataSource.closeConnection();
             return rasdamanSubsets;
         } 
         catch (Exception e) {

@@ -22,6 +22,7 @@
 package petascope.wms2.metadata.dao;
 
 import com.j256.ormlite.jdbc.JdbcConnectionSource;
+import com.j256.ormlite.support.ConnectionSource;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import petascope.wms2.metadata.*;
@@ -55,7 +56,7 @@ public class PersistenceConfig {
      * @throws java.sql.SQLException
      */
     @NotNull
-    public JdbcConnectionSource getPersistenceConnection() throws SQLException {
+    public ConnectionSource getPersistenceConnection() throws SQLException {
         if (persistenceConnection == null) {
             persistenceConnection = new JdbcConnectionSource(getDatabaseConnectionUrl(), getDatabaseConnectionUser(), getDatabaseConnectionPassword());
         }
@@ -111,7 +112,7 @@ public class PersistenceConfig {
     private final String databaseConnectionPassword;
 
     @Nullable
-    private JdbcConnectionSource persistenceConnection = null;
+    private ConnectionSource persistenceConnection = null;
 
     /**
      * All metadata classes. If a new metadata class is added it should be listed here for it to be initialized

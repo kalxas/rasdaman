@@ -78,7 +78,7 @@ public class GetCapabilitiesHandler implements Handler<GetCapabilitiesRequest, G
                 getMapFormats,
                 exceptionFormats,
                 layers
-            );
+            );            
             return new GetCapabilitiesResponse(capabilities);
         } catch (SQLException e) {
             throw new WMSInternalException(e);
