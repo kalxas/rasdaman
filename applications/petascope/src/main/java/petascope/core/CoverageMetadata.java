@@ -88,8 +88,7 @@ public class CoverageMetadata implements Cloneable {
     // legacy petascope.wcs
     private InterpolationMethod      interpolationDefault;
     private Set<InterpolationMethod> interpolationSet;
-    private String      nullDefault;
-    private Set<String> nullSet = new HashSet<String>();
+    private Set<NilValue> nullSet = new HashSet<NilValue>();
 
     // Overload for empty metadata object
     public CoverageMetadata() {}
@@ -525,8 +524,12 @@ public class CoverageMetadata implements Cloneable {
         return interpolationDefault.getNullResistance();
     }
 
-    public Iterator<String> getNullSetIterator() {
+    public Iterator<NilValue> getNullSetIterator() {
         return nullSet.iterator();
+    }
+    
+    public void setNullSet(List<NilValue> nullValues) {
+        this.nullSet = new HashSet<NilValue>(nullValues);
     }
 
     public Description getDescription() {
@@ -559,24 +562,25 @@ public class CoverageMetadata implements Cloneable {
 
     /**
      * Gets an array list containing all null values, on all bands and removes the duplicates.
-     * This is used for passing the values further to rasdaman (rasdaman doesn't have nil values per band, but per mdd set).
+     * This is used for passing the values further to rasdaman
+     * (1 null value mean all bands have same null value, list of null values mean each value is null value for the corresponding band only)
      * @return
      */
-    public ArrayList<String> getAllUniqueNullValues(){
-        ArrayList<String> result = new ArrayList<String>();
+    public List<NilValue> getAllUniqueNullValues(){
+        List<NilValue> uniqueNullValues = new ArrayList<NilValue>();
         //iterate over the swe quantities
         Iterator<AbstractSimpleComponent> sweIterator = this.getSweComponentsIterator();
         while (sweIterator.hasNext()){
             Iterator<NilValue> nilIterator = sweIterator.next().getNilValuesIterator();
             while (nilIterator.hasNext()){
-                String currentNull = nilIterator.next().getValue();
-                //add it if it is not in already
-                if(!result.contains(currentNull) && !currentNull.isEmpty()){
-                    result.add(currentNull);
+                NilValue currentNull = nilIterator.next();                
+                //add the nilValue to the null list if it is not in already
+                if (!uniqueNullValues.contains(currentNull) && !currentNull.getValue().isEmpty()){
+                    uniqueNullValues.add(currentNull);
                 }
             }
         }
-        return result;
+        return uniqueNullValues;
     }
 
     /**

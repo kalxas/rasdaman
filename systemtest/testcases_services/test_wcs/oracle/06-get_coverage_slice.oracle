@@ -51,7 +51,7 @@
   <gmlcov:rangeType>
     <swe:DataRecord>
     <swe:field name="tg">
-      <swe:Quantity ><swe:nilValues><swe:NilValues /></swe:nilValues><swe:uom code="10^0" /></swe:Quantity>
+      <swe:Quantity ><swe:nilValues><swe:NilValues><swe:nilValue reason="">-9999</swe:nilValue></swe:NilValues></swe:nilValues><swe:uom code="10^0" /></swe:Quantity>
     </swe:field>
     </swe:DataRecord>
   </gmlcov:rangeType>

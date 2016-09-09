@@ -24,11 +24,13 @@ package petascope.util.ras;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.lang3.tuple.Pair;
 import petascope.exceptions.PetascopeException;
 import petascope.exceptions.wcst.WCSTUnknownPixelTypeException;
+import petascope.swe.datamodel.NilValue;
 import petascope.util.ras.TypeRegistry.TypeRegistryEntry;
 
 /**
@@ -40,10 +42,12 @@ public class TypeResolverUtil {
      * Guesses the rasdaman collection type from a file.
      *
      * @param filePath path to the file
+     * @param dimension
+     * @param nullValues
      * @return the rasdaman collection type
      * @throws IOException
      */
-    public static String guessCollectionTypeFromFile(String filePath, int dimension, ArrayList<String> nullValues) throws IOException, PetascopeException {
+    public static String guessCollectionTypeFromFile(String filePath, int dimension, List<NilValue> nullValues) throws IOException, PetascopeException {
         Pair<Integer, ArrayList<String>> dimTypes = Gdalinfo.getDimensionAndTypes(filePath);
         return guessCollectionType(dimension, dimTypes.getValue(), nullValues);
     }
@@ -54,10 +58,11 @@ public class TypeResolverUtil {
      *
      * @param numberOfBands      how many band the dataset has
      * @param numberOfDimensions how many dimensions the dataset has
+     * @param nullValues
      * @param pixelDataType      the pixel data type, if not given assumed Float32
      * @return pair containing the collection type and cell type (e.g. <"GreySet", "c">)
      */
-    public static Pair<String, String> guessCollectionType(Integer numberOfBands, Integer numberOfDimensions, ArrayList<String> nullValues, String pixelDataType) throws PetascopeException {
+    public static Pair<String, String> guessCollectionType(Integer numberOfBands, Integer numberOfDimensions, List<NilValue> nullValues, String pixelDataType) throws PetascopeException {
         if(pixelDataType == null){
             pixelDataType = GDT_Float32;
         }
@@ -93,7 +98,7 @@ public class TypeResolverUtil {
      * @param gdalBandTypes
      * @return
      */
-    private static String guessCollectionType(Integer numberOfDimensions, ArrayList<String> gdalBandTypes, ArrayList<String> nullValues) throws PetascopeException {
+    private static String guessCollectionType(Integer numberOfDimensions, ArrayList<String> gdalBandTypes, List<NilValue> nullValues) throws PetascopeException {
         String result = "";
 
         //get the type registry

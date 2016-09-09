@@ -308,21 +308,7 @@ public abstract class AbstractFormatExtension implements FormatExtension {
             GetCoverageMetadata covmeta, DbMetadataSource meta, String format, String params)
             throws PetascopeException, RasdamanException, WCPSException, WCSException {
 
-        //This variable is now local to the method to avoid concurrency problems
-        Wcps wcps;
-
-        try {
-            wcps = new Wcps(meta);
-        } catch (Exception ex) {
-            throw new WCSException(ExceptionCode.InternalComponentError, "Error initializing WCPS engine", ex);
-        }
-
-        // Add double quotes in possible timestamp-based temporal subsets:
-        // WCPS needs then to recognize a StringExpression from a NumericalExpression:
-        // --> set quotes directly in the WCS request if timestamps want to be used (' = %27, " = %22)
-        // since there are cases which can create conflict (eg 2010 is year 2010 or numeric temporal coordinate 2010?)
-
-        // Proceed to WCPS:
+        // WCS -> WCPS then use WCPS 1.5 to process the generated WCPS query
         String rquery = null;
         Pair<String, String> pair;
 

@@ -20,8 +20,11 @@
  * or contact Peter Baumann via <baumann@rasdaman.com>.
  */
 package petascope.util;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Random;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import org.joda.time.Duration;
@@ -116,7 +119,7 @@ public class TimeUtil {
         timeUomsRegistry.put(UCUM_MEAN_GREGORIAN_YEAR, MILLIS_MEAN_GREGORIAN_YEAR);
         timeUomsRegistry.put(UCUM_TROPICAL_YEAR, MILLIS_TROPICAL_YEAR);
         timeUomsRegistry.put(UCUM_YEAR, MILLIS_YEAR);
-    }
+    }        
 
     /**
      * Check if the input timestamp is in an understandable format.

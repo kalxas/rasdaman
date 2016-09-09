@@ -1,0 +1,1 @@
+service=WCS&version=2.0.1&request=DescribeCoverage&CoverageId=test_time3d

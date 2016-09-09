@@ -27,6 +27,8 @@ import petascope.exceptions.PetascopeException;
 import petascope.util.ras.TypeRegistry;
 
 import java.util.ArrayList;
+import java.util.List;
+import petascope.swe.datamodel.NilValue;
 
 /**
  * Integration test for type registry. Requires rasdaman running at http://localhost:7001
@@ -36,12 +38,12 @@ public class WCSTTypeTest {
     @Test
     public void testTypeCreation(){
         try {
-            ArrayList<String> bandBaseTypes = new ArrayList<String>();
+            List<String> bandBaseTypes = new ArrayList<String>();
             bandBaseTypes.add("char");
             bandBaseTypes.add("float");
 
-            ArrayList<String> nullValues = new ArrayList<String>();
-            nullValues.add("5");
+            List<NilValue> nullValues = new ArrayList<NilValue>();
+            nullValues.add(new NilValue("5", "Reason: test"));
 
             TypeRegistry typeRegistry = TypeRegistry.getInstance();
             String typeName = typeRegistry.createNewType(5, bandBaseTypes, nullValues);

@@ -5,7 +5,10 @@
     "crs_resolver": "SECORE_URL",
     "default_crs": "SECORE_URL/crs/EPSG/0/4326",
     "mock": false,
-    "automated": true
+    "automated": true,
+    "default_null_values": [ 
+         "155, 156"
+       ]
     },
     "input": {
         "coverage_id": "test_time3d", 

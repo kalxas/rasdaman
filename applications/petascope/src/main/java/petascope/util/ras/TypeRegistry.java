@@ -24,6 +24,7 @@ package petascope.util.ras;
 import java.io.*;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.ArrayUtils;
@@ -36,6 +37,7 @@ import petascope.ConfigManager;
 import petascope.exceptions.ExceptionCode;
 import petascope.exceptions.PetascopeException;
 import petascope.exceptions.rasdaman.RasdamanException;
+import petascope.swe.datamodel.NilValue;
 
 /**
  * Keeps track of the types that exist in the tracked rasdaman instance.
@@ -83,7 +85,7 @@ public class TypeRegistry {
         return typeRegistry;
     }
 
-    private String generateStructStructure(ArrayList<String> bandBaseTypes){
+    private String generateStructStructure(List<String> bandBaseTypes){
         String output = "";
         int count = 0;
         for(String i : bandBaseTypes){
@@ -96,19 +98,20 @@ public class TypeRegistry {
         return output;
     }
 
-    private String generateNullValuesRepresentation(ArrayList<String> nullValues){
+    private String generateNullValuesRepresentation(List<NilValue> nullValues){
         String result = "";
         if(!nullValues.isEmpty()){
             String values = "";
             int count = 0;
-            for(String i: nullValues){
+            for (NilValue nullValue: nullValues) {
+                String val = nullValue.getValue();
                 //check if i is an interval, if not (and is a single value), make it an interval, as there is a bug in
                 // rasdaman which prevents adding single values as null values
-                if(i.contains(":")){
-                    values += i;
+                if (val.contains(":")){
+                    values += val;
                 }
                 else {
-                    values += i + ":" + i;
+                    values += val + ":" + val;
                 }
                 //add "," on all but last dim
                 if(count < nullValues.size() - 1){
@@ -133,7 +136,7 @@ public class TypeRegistry {
         return result.toString();
     }
 
-    public String createNewType(Integer numberOfDimensions, ArrayList<String> bandBaseTypes, ArrayList<String> nullValues) throws PetascopeException {
+    public String createNewType(Integer numberOfDimensions, List<String> bandBaseTypes, List<NilValue> nullValues) throws PetascopeException {
         log.info("Creating new type.");
         String marrayName = getRandomTypeName();
         String setName = getRandomTypeName();
@@ -384,20 +387,21 @@ public class TypeRegistry {
                     String[] baseTypeParts = ArrayUtils.remove(domainTypeParts, domainTypeParts.length - 1);
                     String baseType = StringUtils.join(baseTypeParts, "");
                     String[] nullParts = setTypeNullValues.get(entry.getKey()).split(",");
-                    ArrayList<String> nullValues = new ArrayList<String>();
-                    for(String i: nullParts){
-                        if(!i.isEmpty()) {
+                    List<NilValue> nullValues = new ArrayList<NilValue>();
+                    for (String val: nullParts){
+                        if (!val.isEmpty()) {
                             //if the value that is parsed is an interval with the same limits (e.g. 5:5), add only 1
                             //value. This is needed because currently there is a bug when creating types via rasql,
                             //which doesn't allow single values to be specified. However, petascope needs to display single
                             //values when presenting the output to the user.
-                            if(i.contains(":")){
-                                String[] parts = i.split(":");
-                                if(parts.length == 2 & parts[0].equals(parts[1])){
-                                    i = parts[0];
+                            if (val.contains(":")){
+                                String[] parts = val.split(":");
+                                if (parts.length == 2 & parts[0].equals(parts[1])){
+                                    val = parts[0];
                                 }
                             }
-                            nullValues.add(i);
+                            NilValue nullValue = new NilValue(val, "");
+                            nullValues.add(nullValue);
                         }
                     }
                     typeRegistry.put(entry.getKey(), new TypeRegistryEntry(baseType, domainType, nullValues));
@@ -412,7 +416,7 @@ public class TypeRegistry {
      */
     public class TypeRegistryEntry {
 
-        private TypeRegistryEntry(String baseType, String domainType, ArrayList<String> nullValues) {
+        private TypeRegistryEntry(String baseType, String domainType, List<NilValue> nullValues) {
             this.baseType = baseType;
             this.domainType = domainType;
             this.nullValues = nullValues;
@@ -450,13 +454,13 @@ public class TypeRegistry {
                     another.getDomainType().equals(this.domainType);
         }
 
-        public ArrayList<String> getNullValues() {
+        public List<NilValue> getNullValues() {
             return nullValues;
         }
 
         private String baseType;
         private String domainType;
-        private ArrayList<String> nullValues;
+        private List<NilValue> nullValues;
     }
 
     private final HashMap<String, TypeRegistryEntry> typeRegistry = new HashMap<String, TypeRegistryEntry>();

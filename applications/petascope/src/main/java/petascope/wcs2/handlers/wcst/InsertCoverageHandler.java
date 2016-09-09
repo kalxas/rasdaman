@@ -25,8 +25,8 @@ import java.io.File;
 import java.io.IOException;
 import java.math.BigInteger;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import nu.xom.Document;
@@ -35,21 +35,20 @@ import nu.xom.ParsingException;
 import org.slf4j.LoggerFactory;
 import petascope.core.CoverageMetadata;
 import petascope.core.DbMetadataSource;
-import petascope.exceptions.ExceptionCode;
 import petascope.exceptions.PetascopeException;
-import petascope.exceptions.rasdaman.RasdamanException;
 import petascope.exceptions.SecoreException;
 import petascope.exceptions.WCSException;
 import petascope.exceptions.rasdaman.RasdamanCollectionExistsException;
 import petascope.exceptions.wcst.WCSTCoverageNotFound;
 import petascope.exceptions.wcst.WCSTInvalidXML;
+import petascope.swe.datamodel.NilValue;
 import petascope.util.GMLParserUtil;
 import petascope.util.Pair;
+import petascope.util.StringUtil;
+import petascope.util.TimeUtil;
 import petascope.util.XMLSymbols;
 import petascope.util.XMLUtil;
-import petascope.util.ras.RasUtil;
 import petascope.util.ras.TypeResolverUtil;
-import petascope.wcps.metadata.CellDomainElement;
 import petascope.wcs2.extensions.FormatExtension;
 import petascope.wcs2.handlers.AbstractRequestHandler;
 import petascope.wcs2.handlers.Response;
@@ -96,7 +95,7 @@ public class InsertCoverageHandler extends AbstractRequestHandler<InsertCoverage
         if (request.getGMLCoverage() != null) {
             return handleGMLCoverageInsert(request);
         } else {
-            return handleRemoteCoverageIsert(request);
+            return handleRemoteCoverageInsert(request);
         }
     }
 
@@ -110,7 +109,7 @@ public class InsertCoverageHandler extends AbstractRequestHandler<InsertCoverage
      * @param request the insertCoverage request.
      * @return InsertCoverage response.
      */
-    private Response handleRemoteCoverageIsert(InsertCoverageRequest request) throws PetascopeException, SecoreException {
+    private Response handleRemoteCoverageInsert(InsertCoverageRequest request) throws PetascopeException, SecoreException {
         //get the remote coverage
         String coverage = RemoteCoverageUtil.getRemoteGMLCoverage(request.getCoverageURL());
         //if it is not GML, make it GML
@@ -144,7 +143,7 @@ public class InsertCoverageHandler extends AbstractRequestHandler<InsertCoverage
             xmlCoverage = XMLUtil.buildDocument(null, GMLCoverage);
             //parse the gml
             coverage = CoverageMetadata.fromGML(xmlCoverage);
-            ArrayList<String> nullValues = coverage.getAllUniqueNullValues();
+            List<NilValue> nullValues = coverage.getAllUniqueNullValues();
             //add coverage id
             if (generateId) {
                 coverage.setCoverageName(generateCoverageName());
@@ -171,9 +170,8 @@ public class InsertCoverageHandler extends AbstractRequestHandler<InsertCoverage
                  // NOTE: collectionName could be exist in rasdaman db, then must check if it does exist -> rename it with collectionName_datetime
                 try {
                     rasdamanCollectionCreator.createCollection();
-                } catch (RasdamanCollectionExistsException e) {
-                        String dateTime = new SimpleDateFormat("yyyy_MM_dd_HH_mm_ss").format(new Date());
-                        collectionName = collectionName + "_" + dateTime;
+                } catch (RasdamanCollectionExistsException e) {                        
+                        collectionName = StringUtil.createRandomString(collectionName);
                         // Retry to create collection with new collection name
                         rasdamanCollectionCreator = new RasdamanDefaultCollectionCreator(collectionName, rasCollectionType);
                         rasdamanCollectionCreator.createCollection();
@@ -198,7 +196,7 @@ public class InsertCoverageHandler extends AbstractRequestHandler<InsertCoverage
                 }
                 String mimetype = GMLParserUtil.parseMimeType(rangeSet);
                 //pass it to gdal to get the collection type
-                if(pixelDataType != null){
+                if (pixelDataType != null){
                     rasCollectionType = TypeResolverUtil.guessCollectionType(coverage.getNumberOfBands(), coverage.getDimension(), nullValues, pixelDataType).getKey();
                 }
                 else {
@@ -219,6 +217,7 @@ public class InsertCoverageHandler extends AbstractRequestHandler<InsertCoverage
 
             coverage.setRasdamanCollection(new Pair<BigInteger, String>(oid, collectionName));
             coverage.setRasdamanCollectionType(TypeResolverUtil.getMddTypeForCollectionType(rasCollectionType) + ":" + rasCollectionType);
+            coverage.setNullSet(nullValues);
             meta.insertNewCoverageMetadata(coverage, true);
 
             result = Templates.getTemplate(Templates.INSERT_COVERAGE_RESPONSE, new Pair<String, String>(

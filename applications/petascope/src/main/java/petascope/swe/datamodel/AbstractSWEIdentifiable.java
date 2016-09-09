@@ -23,6 +23,8 @@
 package petascope.swe.datamodel;
 
 import nu.xom.Element;
+import petascope.core.DbMetadataSource;
+import petascope.util.StringUtil;
 
 /**
  *
@@ -79,7 +81,11 @@ public abstract class AbstractSWEIdentifiable {
      * @return The label of this SWE object.
      */
     public String getLabel() {
-        return (null==label ? "" : label);
+        // NOTE: if label value is a random string then it should not be shown when DescribeCoverage        
+        if (label == null || StringUtil.isRandomString(DbMetadataSource.QUANTITY_LABEL, label)) {
+            return "";
+        }
+        return label;
     }
     /**
      * Getter method for the description element.

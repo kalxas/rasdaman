@@ -1511,12 +1511,14 @@ public class DbMetadataSource implements IMetadataSource {
 
             //insert into ps_coverage table
             int coverageId = insertIntoPsCoverage(s, meta.getCoverageName(), gmlTypeId, nativeFormatId);
+            
             //insert information about the rangeset
             String rasdamanCollectionType = meta.getRasdamanCollectionType();
             insertRangeSet(s, coverageId, meta.getRasdamanCollection(), rasdamanCollectionType);
-            //insert the quantities together with all dependenceis
+            
+            //insert the quantities together with all dependencies (e.g: nill values of ranges)
             insertRangeTypes(s, coverageId, meta.getRangeIterator(), meta.getSweComponentsIterator());
-
+            
             //insert the domain set
             insertDomainSet(s, coverageId, meta.getCrsUris());
 
@@ -1596,18 +1598,18 @@ public class DbMetadataSource implements IMetadataSource {
         try {
             //get the type id of gmlcov metadata type
             int typeId = 0;
-            for(int key: extraMetadataTypes.keySet()){
+            for (int key: extraMetadataTypes.keySet()){
                 if(extraMetadataTypes.get(key).equals(EXTRAMETADATA_TYPE_GMLCOV)){
                     typeId = key;
                     break;
                 }
             }
             //check if the type id has been successfully initialized
-            if(typeId == 0){
+            if (typeId == 0){
                 throw new WCSTExtraMetadataException();
             }
             //do the insertion, for each extra metadata entry
-            for(String extraMetadata: extraMetadataSet) {
+            for (String extraMetadata: extraMetadataSet) {
                 s = conn.prepareStatement("INSERT INTO " + TABLE_EXTRAMETADATA +
                         "(" + EXTRAMETADATA_COVERAGE_ID + ", " + EXTRAMETADATA_METADATA_TYPE_ID + ", " + EXTRAMETADATA_VALUE + ") " +
                         "VALUES (?, ?, ?)");
@@ -1739,7 +1741,7 @@ public class DbMetadataSource implements IMetadataSource {
         int order = 0;
         //insert the fields
         List<Integer> fieldIds = insertQuantity(s, quantityIterator);
-        while(rangeInterator.hasNext()){
+        while (rangeInterator.hasNext()){
             RangeElement range = rangeInterator.next();
             //get the dataType id
             int dataTypeId = getRangeDataType(s, range.getType());
@@ -1759,38 +1761,61 @@ public class DbMetadataSource implements IMetadataSource {
 
     private List<Integer> insertQuantity(Statement s, Iterator<AbstractSimpleComponent> quantityIterator) throws SQLException{
         List<Integer> ret = new ArrayList<Integer>();
-        while(quantityIterator.hasNext()){
+        while (quantityIterator.hasNext()) {
             Quantity quantity = (Quantity) quantityIterator.next();
             //get the uom id
             int uomId = insertUom(s, quantity.getUom());
             //get the nil value ids
-            String nils = insertNils(s, quantity.getNilValuesIterator());
-            String nilsVal = nils == "NULL" ? "NULL" : ("'" + nils + "'");
-            //check if the quantity already exists
-            String sqlIdQuery = "SELECT " + QUANTITY_ID +
-                                " FROM " + TABLE_QUANTITY +
-                                " WHERE " + QUANTITY_UOM_ID + "='" + uomId + "'" +
-                                " AND " + QUANTITY_LABEL + "='" + quantity.getLabel() + "'" +
-                                " AND " + QUANTITY_DESCRIPTION + "='" + quantity.getDescription() + "'";
-            ResultSet r = s.executeQuery(sqlIdQuery);
-            if(r.next()){
-                ret.add(r.getInt(QUANTITY_ID));
+            String nilsID = insertNils(s, quantity.getNilValuesIterator());
+            String nilsVal = "NULL";
+            if (!nilsID.equals("NULL")) {
+                nilsVal = "'" + nilsID + "'";
+            } else {
+                // And if nilsID is NULL then in select query need to change to "{}"
+                nilsID = "{}";
             }
-            else{
-                String sqlQuery = "INSERT INTO " + TABLE_QUANTITY +
-                                  " (" + QUANTITY_UOM_ID + "," + QUANTITY_LABEL + "," +
-                                  QUANTITY_DESCRIPTION + "," + QUANTITY_DEFINITION + "," +
-                                  QUANTITY_NIL_IDS +
-                                  ") VALUES ( " + uomId + ",'" + quantity.getLabel() + "','" +
-                                  quantity.getDescription() + "','" + quantity.getDefinition() +
-                                  "'," + nilsVal + ")";
-                log.debug("SQL Query : " + sqlQuery);
-                s.executeUpdate(sqlQuery);
-                //get the id of the inserted value
-                r = s.executeQuery(sqlIdQuery);
-                while(r.next()){
+            //check if the quantity already exists
+            // NOTE: there is a constraint in ps_quantity  (uom_id, label), then if label is '' or label is a random string then 
+            // when insert a new Quantity with same uom_id, label ('') and nil_ids, it will use this existing row instead of
+            // insert new Quantity row.          
+            
+            String sqlIdQuery = "SELECT " + QUANTITY_ID + "," + QUANTITY_LABEL +
+                                " FROM " + TABLE_QUANTITY +
+                                " WHERE " + QUANTITY_UOM_ID + "='" + uomId + "'" +                                
+                                " AND " + QUANTITY_DESCRIPTION + "='" + quantity.getDescription() + "'" +
+                                " AND " + QUANTITY_NIL_IDS + "='" +  nilsID + "'";
+            ResultSet r = s.executeQuery(sqlIdQuery);
+            if (r.next()) {
+                String label = r.getString(QUANTITY_LABEL);
+                // An exisiting row is used for the new Quantity if it's label value is '' or random string
+                if (label.isEmpty() || StringUtil.isRandomString(QUANTITY_LABEL, label)) {
                     ret.add(r.getInt(QUANTITY_ID));
+                }                
+            }
+            else {
+                // There is a constraint in ps_quantity which does not allow duplicate (uom_id, label)
+                // then if label is not defined, make a random string to insert.
+                String quantityLabel = quantity.getLabel();
+                if (quantityLabel.isEmpty()) {
+                    quantityLabel = StringUtil.createRandomString(QUANTITY_LABEL);
                 }
+                String sqlQuery = "INSERT INTO " + TABLE_QUANTITY +
+                                                 " (" + QUANTITY_UOM_ID + "," + QUANTITY_LABEL + "," +
+                                                 QUANTITY_DESCRIPTION + "," + QUANTITY_DEFINITION + "," +
+                                                 QUANTITY_NIL_IDS +
+                                  ") VALUES ( " + uomId + ",'" + quantityLabel + "','" +
+                                                  quantity.getDescription() + "','" + quantity.getDefinition() +
+                                                  "'," + nilsVal + ")";
+                log.debug("SQL Query : " + sqlQuery);
+                s.executeUpdate(sqlQuery, Statement.RETURN_GENERATED_KEYS);
+                
+                // Get the inserted ID
+                int idKey = 0;
+                ResultSet rs = s.getGeneratedKeys();
+                if (rs.next()) {
+                    idKey = rs.getInt(1);
+                }
+                ret.add(idKey);
             }
         }
         return ret;
@@ -1798,7 +1823,7 @@ public class DbMetadataSource implements IMetadataSource {
 
     private String insertNils(Statement s, Iterator<NilValue> nilIterator) throws SQLException{
         String ret = "{";
-        while(nilIterator.hasNext()){
+        while (nilIterator.hasNext()){
             NilValue nil = nilIterator.next();
             //check if the value exists already
             String sqlIdQuery = "SELECT " + NIL_VALUE_ID +
@@ -1807,10 +1832,10 @@ public class DbMetadataSource implements IMetadataSource {
                                 "' AND " + NIL_VALUE_REASON + "='" + nil.getReason() + "'";
             log.debug("SQL Query : " + sqlIdQuery);
             ResultSet r = s.executeQuery(sqlIdQuery);
-            if(r.next()){
+            if (r.next()) {
                 ret += r.getInt(NIL_VALUE_ID) + ",";
             }
-            else{
+            else {
                 //insert it in the table
                 String sqlQuery = "INSERT INTO " + TABLE_NIL_VALUE +
                                   " (" + NIL_VALUE_REASON + "," +
@@ -1821,16 +1846,16 @@ public class DbMetadataSource implements IMetadataSource {
                 //get the id of the newly inserted value
                 log.debug("SQL Query : " + sqlIdQuery);
                 r = s.executeQuery(sqlIdQuery);
-                while(r.next()){
+                while (r.next()) {
                     ret += r.getInt(NIL_VALUE_ID) + ",";
                 }
             }
         }
         //remove the last , form the result and add a }
-        if(ret.length() > 1){
+        if (ret.length() > 1) {
             ret = ret.substring(0, ret.length() - 1) + "}";
         }
-        else{
+        else {
             ret = "NULL";
         }
 

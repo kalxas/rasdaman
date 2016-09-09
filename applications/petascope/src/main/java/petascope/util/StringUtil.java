@@ -26,16 +26,21 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Date;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 import java.util.StringTokenizer;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * String utilities.
@@ -211,6 +216,35 @@ public class StringUtil {
         } catch (UnsupportedEncodingException ex) {
             return text;
         }
+    }
+    
+    /**
+     * Create a readable random string from the input string, which combine the current dateTime and a random number
+     * @param label
+     * @return 
+     */
+    public static String createRandomString(String label) {
+        String dateTime = new SimpleDateFormat("yyyy_MM_dd_HH_mm_ss").format(new Date());
+        Random random = new Random();
+        String randomNumber = String.valueOf(random.nextInt(10000) + 1);
+        return label + "_" + dateTime + "_" + randomNumber;
+    }
+    
+    /**
+     * Check if a string which has the pattern of random string (contains dd_mm_yy_hh_mm_ss_randomNumber)
+     * example: label_2016_09_09_13_56_33_5132
+     * @param prefixLabel (e.g: label)
+     * @param randomString (e.g: label_2016_09_09_13_56_33_5132)
+     * @return 
+     */
+    public static boolean isRandomString(String prefixLabel, String randomString) {
+        String regex = prefixLabel + "_[0-9]+_[0-9]+_[0-9]+_[0-9]+_[0-9]+_[0-9]+_[0-9]+";
+        Pattern pattern = Pattern.compile(regex);
+        Matcher matcher = pattern.matcher(randomString);
+        if (matcher.find()) {
+            return true;
+        }
+        return false;
     }
 
     /**

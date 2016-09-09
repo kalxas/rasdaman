@@ -56,7 +56,7 @@ public class WcpsCoverageMetadataTranslator {
         List<Axis> axes = buildAxes(metadata.getDomainList(), metadata.getCellDomainList());
         List<RangeField> rangeFields = buildRangeFields(metadata.getRangeIterator(), metadata.getSweComponentsIterator());
         Set<String> metadataList = metadata.getExtraMetadata(DbMetadataSource.EXTRAMETADATA_TYPE_GMLCOV);
-        List<String> nodata = metadata.getAllUniqueNullValues();
+        List<NilValue> nodata = metadata.getAllUniqueNullValues();
         return new WcpsCoverageMetadata(metadata.getCoverageName(), metadata.getCoverageType(), axes,
                                         CrsUtil.CrsUri.createCompound(metadata.getCrsUris()),
                                         rangeFields, StringUtils.join(metadataList, ""), parseNodataValues(nodata));
@@ -86,11 +86,11 @@ public class WcpsCoverageMetadataTranslator {
         return ret;
     }
 
-    private List<Double> parseNodataValues(List<String> stringValues){
+    private List<Double> parseNodataValues(List<NilValue> nullValues){
         List<Double> result = new ArrayList<Double>();
-        for(String val: stringValues){
+        for (NilValue nullValue: nullValues){
             try {
-                result.add(Double.valueOf(val));
+                result.add(Double.valueOf(nullValue.getValue()));
             }
             catch (Exception e){
                 //failed converting to double, don't add it
