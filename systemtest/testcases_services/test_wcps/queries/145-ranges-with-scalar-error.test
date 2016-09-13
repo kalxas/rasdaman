@@ -1,0 +1,1 @@
+for c in ( rgb )return encode( {red: 0;green: 0;blue: 0}, "png")

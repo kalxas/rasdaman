@@ -111,7 +111,7 @@ public class EncodedCoverageHandler {
                 throw new MetadataSerializationException();
             }
         } else {
-              // get all the output parameters to encode
+            // get all the output parameters to encode            
             otherParams.addAll(getExtraParams(coverageExpression.getMetadata()));
             otherParamsString = ", \"" + StringUtils.join(otherParams, ";").replace("\"", "") + "\"";
         }
@@ -128,9 +128,13 @@ public class EncodedCoverageHandler {
     /**
      * Adds the required extra params (if grid coverage then not set crs= param)
      */
-    private static List<String> getExtraParams(WcpsCoverageMetadata metadata){
-        List<String> bbox = getBoundingBox(metadata);
+    private static List<String> getExtraParams(WcpsCoverageMetadata metadata) {
+        // NOTE: if metadata is null (e.g: range of scalar values encode({red: 0, green: 0, blue: 0}, "png") then just return empty list)
         List<String> result = new ArrayList();
+        if (metadata == null) {
+            return result;
+        }
+        List<String> bbox = getBoundingBox(metadata);        
         // check if should set bounding box or not (in case of mixing 1 axis is Time, 1 axis is Lat)
         // then it should leave empty bounding box as it will set the grid CRS by default.
         if (!isSetBoundingBox) {
