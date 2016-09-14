@@ -454,6 +454,7 @@ wget_error(){
 #
 run_test()
 {
+
   if [ ! -f "$f" ]; then
     error "test case not found: $f"
   fi
@@ -493,6 +494,7 @@ run_test()
   # restore original filename
   f="$oldf"
 
+
   # temporary files
   oracle_tmp="$OUTPUT_PATH/temporary_oracle"
   output_tmp="$OUTPUT_PATH/temporary_out"
@@ -521,11 +523,36 @@ run_test()
     QUERY=`cat $f | tr -d '\n'`
 
     #
-    # 1. execute test query
+    # 1. execute test query (NOTE: rasql is actually rasql_servlet test)
     #
     case "$SVC_NAME" in
+      rasql)
+              case "$test_type" in
+                kvp)
+                    $WGET -q "$RASQL_SERVLET?$QUERY" -O "$out"
+                    WGET_EXIT_CODE=$?
+                    if [[ $WGET_EXIT_CODE != 0 ]]; then
+                      echo "Error when processing Rasql-Servlet request in KVP, query return error: "$WGET_EXIT_CODE
+                      wget_error "$RASQL_SERVLET?$QUERY" "$out"
+                      echo ".Done"
+                    fi
+                    ;;
+                input)
+                    templateFile="$SCRIPT_DIR/queries/post-upload.template"
+                    inputFile="$SCRIPT_DIR/queries/$f"
+                    # read parameters from *.input file (NOTE: need to escape special characters like: &)
+                    parameters=`cat $inputFile`
+                    # replace the parameters from current .input file into templateFile
+                    sed "s#PARAMETERS#$parameters#g" $templateFile > "$templateFile".tmp.sh
+                    # run the replaced script to upload file and rasql query to rasql-servlet and redirect output to /out directory
+                    sh "$templateFile".tmp.sh > "$OUTPUT_PATH/"$f".out"
+                    # remove the temp bash script
+                    rm "$templateFile".tmp.sh
+              esac
+              ;;
       wcps)   case "$test_type" in
-                test)  # URL encode query
+                test)
+                    # URL encode query
                     QUERY=`cat $f | xxd -plain | tr -d '\n' | sed 's/\(..\)/%\1/g'`
                     # send to petascope
                     $WGET -q --post-data "query=$QUERY" $WCPS_URL -O "$out"

@@ -196,3 +196,8 @@ petascope_admin_pass=petapasswd
 # purpose:       disables access to WCST (InsertCoverage, UpdateCoverage and DeleteCoverage) operations.
 # need to adapt: no
 disable_write_operations=false
+
+# parameter:    upload directory for RasqlServlet 
+# purpose:      Rasql query to RasqlServlet can upload file with decode() functions, default is /tmp/rasql_servlet_upload.
+# need to adapt: no
+rasql_servlet_upload_path=/tmp/rasql_servlet_upload

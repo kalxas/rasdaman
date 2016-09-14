@@ -120,6 +120,9 @@ public class ConfigManager {
     public static Boolean DESCRIPTION_IN_COVSUMMARY = true;
     public static Boolean METADATA_IN_COVSUMMARY = true;
 
+    // rasql servlet upload file for decode()
+    public static String RASQL_SERVLET_UPLOAD_DIR = "/tmp/rasql_servlet_upload";
+
     // depends on ccip_version in the petascope settings, ccip_version=true
     // will make this flag true.
     public static boolean CCIP_HACK = false;
@@ -170,6 +173,7 @@ public class ConfigManager {
     public static final String KEY_METADATA_URL = "metadata_url";
     public static final String KEY_METADATA_USER = "metadata_user";
     public static final String KEY_METADATA_PASS = "metadata_pass";
+    public static final String KEY_RASQL_SERVLET_UPLOAD_PATH = "rasql_servlet_upload_path";
     // users edit service provider, service identification
     public static final String KEY_PETASCOPE_ADMIN_USER = "petascope_admin_user";
     public static final String KEY_PETASCOPE_ADMIN_PASS = "petascope_admin_pass";
@@ -356,6 +360,9 @@ public class ConfigManager {
         if (tmp.length() > 0) {
             WCST_DEFAULT_DATATYPE = tmp;
         }
+
+        // rasql servlet upload path for decode()
+        RASQL_SERVLET_UPLOAD_DIR = get(KEY_RASQL_SERVLET_UPLOAD_PATH);
 
         log.info("------------------------------------");
         log.info("       *** PETASCOPE ***      ");

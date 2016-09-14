@@ -1,0 +1,1 @@
+'image=@"$SCRIPT_DIR"/../../../testcases_mandatory/test_netcdf/testdata/float_3d.nc' '$RASQL_SERVLET?username=rasadmin\&password=rasadmin\&query=insert%20into%20test_float_3d_test1%20values%20inv_netcdf(%241%2C%22vars%3Dvalues%22)'

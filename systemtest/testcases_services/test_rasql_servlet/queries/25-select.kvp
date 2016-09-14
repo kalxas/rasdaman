@@ -1,0 +1,1 @@
+username=rasadmin&password=rasadmin&query=select encode(c[10:20,25:30], "csv") from test_mr_test1 as c

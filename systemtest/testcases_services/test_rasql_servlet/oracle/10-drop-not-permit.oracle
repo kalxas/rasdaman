@@ -1,0 +1,4 @@
+<html><head><title>PetaScope Rasql Servlet</title></head><body>
+<h1>An error has occured, please check log for more detail.</h1>
+<p>Failed evaluating query: drop collection test_mr</p>
+Error evaluating rasdaman query: 'drop collection test_mr

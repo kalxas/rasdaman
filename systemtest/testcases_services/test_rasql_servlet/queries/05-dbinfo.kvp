@@ -1,0 +1,1 @@
+username=rasguest&password=rasguest&query=select dbinfo(c) from test_mr as c

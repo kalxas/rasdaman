@@ -465,5 +465,5 @@ public class StringUtil {
         list.removeAll(Collections.singleton(null));
         list.removeAll(Collections.singleton(""));
         return list.toArray(new String[list.size()]);
-    }
+    }    
 }
