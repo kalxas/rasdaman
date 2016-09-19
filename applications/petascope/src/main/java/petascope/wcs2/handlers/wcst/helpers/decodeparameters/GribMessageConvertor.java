@@ -24,11 +24,13 @@ package petascope.wcs2.handlers.wcst.helpers.decodeparameters;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.j256.ormlite.stmt.query.In;
 import petascope.core.CoverageMetadata;
 import petascope.core.DbMetadataSource;
 import petascope.wcps.metadata.CoverageInfo;
 import petascope.wcps2.metadata.legacy.Coverage;
 import petascope.wcps2.metadata.legacy.CoverageRegistry;
+import petascope.wcps2.metadata.model.Interval;
 import petascope.wcps2.metadata.model.ParsedSubset;
 import petascope.wcps2.util.CrsComputer;
 import petascope.wcs2.handlers.wcst.helpers.decodeparameters.model.RasdamanDecodeParams;
@@ -38,6 +40,7 @@ import petascope.wcs2.handlers.wcst.helpers.grib.model.GribAxis;
 import petascope.wcs2.handlers.wcst.helpers.grib.model.GribMessage;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
@@ -70,9 +73,13 @@ public class GribMessageConvertor implements RangeParametersConvertor {
         List<GribMessage> gribMessages = objectMapper.readValue(this.messages, new TypeReference<List<GribMessage>>(){});
         RasdamanGribInternalStructure rasdamanGribInternalStructure = new RasdamanGribInternalStructure();
 
+        List<RasdamanGribMessage> rasdamanGribMessages = new ArrayList<RasdamanGribMessage>();
         for(GribMessage gribMessage: gribMessages){
-            rasdamanGribInternalStructure.add(convertToRasdamanMessage(gribMessage));
+            rasdamanGribMessages.add(convertToRasdamanMessage(gribMessage));
         }
+        translateGribMessageDomainsToOrigin(rasdamanGribMessages);
+
+        rasdamanGribInternalStructure.addAll(rasdamanGribMessages);
         RasdamanDecodeParams rasdamanDecodeParams = new RasdamanDecodeParams();
         rasdamanDecodeParams.setInternalStructure(rasdamanGribInternalStructure);
         return objectMapper.writeValueAsString(rasdamanDecodeParams);
@@ -94,19 +101,29 @@ public class GribMessageConvertor implements RangeParametersConvertor {
             ParsedSubset<Long> pixelIndices = crsComputer.getPixelIndices(true);
             result.put(currentWcpsCoverage.getCoverageMetadata().getDomainIndexByName(gribAxis.getName()), pixelIndices);
         }
-        return new RasdamanGribMessage(gribMessage.getMessageId(), getAffectedDomain(result));
+        return new RasdamanGribMessage(gribMessage.getMessageId(), result);
     }
 
-    private String getAffectedDomain(Map<Integer, ParsedSubset<Long>> pixelIndices){
-        String domain = "[";
-        for(int i = 0; i < pixelIndices.size(); i++){
-            domain += String.valueOf(pixelIndices.get(i).getLowerLimit()) + ":" + String.valueOf(pixelIndices.get(i).getUpperLimit());
-            //if not last, add a comma
-            if(i < pixelIndices.keySet().size() - 1){
-                domain += ",";
+    private void translateGribMessageDomainsToOrigin(List<RasdamanGribMessage> gribMessages){
+        Map<Integer, Long> dimesnionMinimums = new TreeMap<Integer, Long>();
+        //find the minimum on each dimension
+        for(RasdamanGribMessage gribMessage : gribMessages){
+            Map<Integer, ParsedSubset<Long>> pixelIndices = gribMessage.getPixelIndices();
+            for(Integer dimension : pixelIndices.keySet()){
+                if(!dimesnionMinimums.containsKey(dimension) || dimesnionMinimums.get(dimension) > pixelIndices.get(dimension).getLowerLimit()) {
+                    dimesnionMinimums.put(dimension, pixelIndices.get(dimension).getLowerLimit());
+                }
             }
         }
-        domain += "]";
-        return domain;
+        //translate by the minimum
+        for(RasdamanGribMessage gribMessage: gribMessages){
+            Map<Integer, ParsedSubset<Long>> pixelIndices = gribMessage.getPixelIndices();
+            for(Integer dimension : pixelIndices.keySet()){
+                Long lowerLimit = pixelIndices.get(dimension).getLowerLimit() - dimesnionMinimums.get(dimension);
+                Long upperLimit = pixelIndices.get(dimension).getUpperLimit() - dimesnionMinimums.get(dimension);
+                pixelIndices.put(dimension, new ParsedSubset<Long>(lowerLimit, upperLimit));
+            }
+        }
     }
+
 }

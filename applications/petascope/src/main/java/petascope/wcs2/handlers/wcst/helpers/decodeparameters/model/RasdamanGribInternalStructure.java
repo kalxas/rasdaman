@@ -33,12 +33,16 @@ public class RasdamanGribInternalStructure {
 
     private List<RasdamanGribMessage> messageDomains;
 
-    public RasdamanGribInternalStructure(){
+    public RasdamanGribInternalStructure() {
         messageDomains = new ArrayList<RasdamanGribMessage>();
     }
 
-    public void add(RasdamanGribMessage rasdamanGribMessage){
+    public void add(RasdamanGribMessage rasdamanGribMessage) {
         messageDomains.add(rasdamanGribMessage);
+    }
+
+    public void addAll(List<RasdamanGribMessage> rasdamanGribMessages) {
+        messageDomains.addAll(rasdamanGribMessages);
     }
 
     public List<RasdamanGribMessage> getMessageDomains() {

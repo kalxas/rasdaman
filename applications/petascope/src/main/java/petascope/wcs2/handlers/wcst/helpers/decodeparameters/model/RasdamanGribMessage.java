@@ -21,6 +21,11 @@
  */
 package petascope.wcs2.handlers.wcst.helpers.decodeparameters.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import petascope.wcps2.metadata.model.ParsedSubset;
+
+import java.util.Map;
+
 /**
  * Representation of a message, understandable by rasdaman.
  *
@@ -28,11 +33,16 @@ package petascope.wcs2.handlers.wcst.helpers.decodeparameters.model;
  */
 public class RasdamanGribMessage {
     public int msgId;
-    public String domain;
 
-    public RasdamanGribMessage(int msgId, String domain) {
+    //dim => subset corresponding to dim
+    @JsonIgnore
+    private Map<Integer, ParsedSubset<Long>> pixelIndices;
+
+    private String domain;
+
+    public RasdamanGribMessage(int msgId, Map<Integer, ParsedSubset<Long>> pixelIndices) {
         this.msgId = msgId;
-        this.domain = domain;
+        this.pixelIndices = pixelIndices;
     }
 
     public RasdamanGribMessage(){}
@@ -46,10 +56,31 @@ public class RasdamanGribMessage {
     }
 
     public String getDomain() {
-        return domain;
+        return getAffectedDomain(pixelIndices);
     }
 
     public void setDomain(String domain) {
         this.domain = domain;
+    }
+
+    public Map<Integer, ParsedSubset<Long>> getPixelIndices() {
+        return pixelIndices;
+    }
+
+    public void setPixelIndices(Map<Integer, ParsedSubset<Long>> pixelIndices) {
+        this.pixelIndices = pixelIndices;
+    }
+
+    private String getAffectedDomain(Map<Integer, ParsedSubset<Long>> pixelIndices){
+        String domain = "[";
+        for(int i = 0; i < pixelIndices.size(); i++){
+            domain += String.valueOf(pixelIndices.get(i).getLowerLimit()) + ":" + String.valueOf(pixelIndices.get(i).getUpperLimit());
+            //if not last, add a comma
+            if(i < pixelIndices.keySet().size() - 1){
+                domain += ",";
+            }
+        }
+        domain += "]";
+        return domain;
     }
 }
