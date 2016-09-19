@@ -714,6 +714,47 @@ updateExp: UPDATE iteratedCollection SET updateSpec ASSIGN generalExp WHERE gene
 	  FREESTACK($1)
 	  FREESTACK($3)
 	  FREESTACK($5)
+
+    }
+    |
+    UPDATE iteratedCollection SET updateSpec ASSIGN NULLKEY VALUES mintervalExp
+    {
+      try {
+        accessControl.wantToWrite();
+      }
+      catch(...) {
+        // save the parse error info and stop the parser
+        if ( parseError )
+            delete parseError;
+        parseError = new ParseInfo( 803, $1.info->getToken().c_str(),
+                                    $1.info->getLineNo(), $1.info->getColumnNo() );
+        FREESTACK($1)
+        FREESTACK($3)
+        FREESTACK($5)
+        FREESTACK($6)
+        FREESTACK($7)
+        QueryTree::symtab.wipe();
+        YYABORT;
+      }
+
+      // create an update node
+      QtUpdate* update = new QtUpdate( $4.iterator, $4.domain, NULL );
+      update->setStreamInput( $2 );
+      update->setParseInfo( *($1.info) );
+      update->setNullValues( $8 );
+      parseQueryTree->removeDynamicObject( $2 );
+      parseQueryTree->removeDynamicObject( $4.iterator );
+      parseQueryTree->removeDynamicObject( $4.domain );
+      parseQueryTree->removeDynamicObject( $8 );
+	  
+      // set the update node  as root of the Query Tree
+      parseQueryTree->setRoot( update );
+	  
+      FREESTACK($1)
+      FREESTACK($3)
+      FREESTACK($5)
+      FREESTACK($6)
+      FREESTACK($7)
 	};
  
 insertExp: INSERT INTO namedCollection VALUES generalExp

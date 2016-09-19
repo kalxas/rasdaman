@@ -131,7 +131,7 @@ war:
 	$(SED) -i "s|@PROJECT_VERSION@|${PROJECT_VERSION}|g" pom.xml
 	$(SED) -i "s|@PETASCOPE_TARGET_DIR@|${PETASCOPE_TARGET_DIR}|g" pom.xml
 	$(SED) -i "s|@RASJ_PATH@|${RASJ_JAR}|g" pom.xml
-	$(SED) 's|@CONF_DIR@|$(DESTDIR)$(sysconfdir)/|g' $(SRC_WEB)/WEB-INF/web.xml.in > $(SRC_WEB)/WEB-INF/web.xml
+	$(SED) 's|@CONF_DIR@|$(sysconfdir)/|g' $(SRC_WEB)/WEB-INF/web.xml.in > $(SRC_WEB)/WEB-INF/web.xml
 	mvn package -Ppetascope
 if JAVA_SERVER_EMBEDDED
 	mvn package -Pjetty

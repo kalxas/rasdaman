@@ -199,6 +199,7 @@ QtUpdate::evaluateNullValues(QtNode::QtDataList* nextTupel)
     }
 
     r_Minterval domain = (static_cast<QtMintervalData*>(operand))->getMintervalData();
+    LINFO << "evaluate null values: " << domain;
     targetObj->setUpdateNullValues(&domain);
 }
 

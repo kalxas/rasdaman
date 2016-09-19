@@ -335,62 +335,44 @@ DBMDDObj::updateInDb() throw (r_Error)
         nullValues->setPersistent(true);
         nullvalueoid = nullValues->getOId().getCounter();
 
-        // TODO: SQLITE migration
-
-        //        LDEBUG << "EXEC SQL SELECT c.settypeid INTO :settypeoi FROM ras_mddcollnames as c, ras_mddcollections as m WHERE m.mddcollid = c.mddcollid and m.mddid = " << mddoid3;
-        //        EXEC SQL SELECT c.settypeid
-        //                 INTO :settypeoid
-        //                 FROM ras_mddcollnames as c, ras_mddcollections as m
-        //                 WHERE m.mddcollid = c.mddcollid and m.mddid = :mddoid3;
-        //        if (SQLCODE != SQLOK)
-        //        {
-        //            check("DBMDDObj::updateInDb()\0");
-        //            generateException();
-        //        }
-        //
-        //        LDEBUG << "EXEC SQL SELECT COUNT(settypeoid) INTO :count FROM RAS_NULLVALUES WHERE settypeoid = " << settypeoid;
-        //        EXEC SQL SELECT COUNT(settypeoid)
-        //                 INTO :count
-        //                 FROM RAS_NULLVALUES
-        //                 WHERE settypeoid = :settypeoid;
-        //        if (SQLCODE != SQLOK)
-        //        {
-        //            check("DBMDDObj::updateInDb()\0");
-        //            generateException();
-        //        }
-        //
-        //        if (count > 0) {
-        //            LDEBUG << "EXEC SQL SELECT nullvalueoid INTO :oldnullvalueoid FROM RAS_NULLVALUES WHERE settypeoid = " << settypeoid;
-        //            EXEC SQL SELECT nullvalueoid
-        //                     INTO :oldnullvalueoid
-        //                     FROM RAS_NULLVALUES
-        //                     WHERE settypeoid = :settypeoid;
-        //            if (SQLCODE != SQLOK)
-        //            {
-        //                check("DBMDDObj::updateInDb()\0");
-        //                generateException();
-        //            }
-        //
-        //            DBMinterval* oldNullValues = (DBMinterval*)ObjectBroker::getObjectByOId(OId(oldnullvalueoid, OId::DBMINTERVALOID));
-        //            if (oldNullValues)
-        //            {
-        //                oldNullValues->setPersistent(false);
-        //                oldNullValues->validate();
-        //                delete oldNullValues;
-        //            }
-        //
-        //            LDEBUG << "EXEC SQL DELETE FROM RAS_NULLVALUES WHERE nullvalueoid = " << oldnullvalueoid;
-        //            EXEC SQL DELETE FROM RAS_NULLVALUES
-        //                     WHERE nullvalueoid = :oldnullvalueoid;
-        //            if (SQLCODE != SQLOK)
-        //            {
-        //                check("DBMDDObj::updateInDb()\0");
-        //                generateException();
-        //            }
-        //        }
-        //        LDEBUG << "EXEC SQL INSERT INTO RAS_NULLVALUES (settypeoid, NullValueOId) VALUES (" << settypeoid << ", " << nullvalueoid << ");";
-        //        EXEC SQL INSERT INTO RAS_NULLVALUES (settypeoid, NullValueOId)
-        //                 VALUES (:settypeoid, :nullvalueoid);
+        {
+            SQLiteQuery query("SELECT c.settypeid FROM ras_mddcollnames as c, ras_mddcollections as m WHERE m.mddcollid = c.mddcollid and m.mddid = %lld", mddoid3);
+            if (query.nextRow())
+            {
+                settypeoid = query.nextColumnLong();
+            }
+            else
+            {
+                LFATAL << "Collection type not found in the database.";
+                throw r_Ebase_dbms(SQLITE_NOTFOUND, "Collection type not found in the database.");
+            }
+        }
+        
+        {
+            SQLiteQuery query("SELECT COUNT(settypeoid) FROM RAS_NULLVALUES WHERE settypeoid = %lld", settypeoid);
+            if (query.nextRow())
+            {
+                count = query.nextColumnInt();
+            }
+        }
+        
+        if (count > 0) {
+            SQLiteQuery query("SELECT nullvalueoid FROM RAS_NULLVALUES WHERE settypeoid = %lld", settypeoid);
+            if (query.nextRow())
+            {
+                oldnullvalueoid = query.nextColumnLong();
+            }
+            DBMinterval* oldNullValues = (DBMinterval*) ObjectBroker::getObjectByOId(OId(oldnullvalueoid, OId::DBMINTERVALOID));
+            if (oldNullValues)
+            {
+                oldNullValues->setPersistent(false);
+                oldNullValues->validate();
+                delete oldNullValues;
+            }
+            SQLiteQuery::executeWithParams("DELETE FROM RAS_NULLVALUES WHERE nullvalueoid = %lld", oldnullvalueoid);
+        }
+        
+        SQLiteQuery::executeWithParams("INSERT INTO RAS_NULLVALUES (settypeoid, NullValueOId) VALUES (%lld, %lld)", settypeoid, nullvalueoid);
     }
 
     DBObject::updateInDb();
