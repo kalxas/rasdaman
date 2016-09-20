@@ -10,8 +10,8 @@
 
   <boundedBy>
     <Envelope srsName="/crs-compound?1=/crs/EPSG/0/32633&amp;2=/crs/OGC/0/AnsiDate" axisLabels="E N ansi" uomLabels="metre metre d" srsDimension="3">
-      <lowerCorner>75042.7273594 5094865.55794 148654</lowerCorner>
-      <upperCorner>95042.7273594 5114865.55794 148654</upperCorner>
+      <lowerCorner>75042.7273594 5094865.55794 148654.08425925925257615745067596435546875</lowerCorner>
+      <upperCorner>95042.7273594 5114865.55794 148661.002060185186564922332763671875</upperCorner>
     </Envelope>
   </boundedBy>
 
@@ -22,13 +22,13 @@
       <limits>
         <GridEnvelope>
           <low>0 34 0</low>
-          <high>3 35 0</high>
+          <high>3 35 3</high>
         </GridEnvelope>
       </limits>
       <axisLabels>E N ansi</axisLabels>
       <gmlrgrid:origin>
         <Point id="test_irr_cube_2-origin" srsName="/crs-compound?1=/crs/EPSG/0/32633&amp;2=/crs/OGC/0/AnsiDate" axisLabels="E N ansi" uomLabels="metre metre d" srsDimension="3">
-          <pos>80042.7273594 5109865.55794 148654</pos>
+          <pos>80042.7273594 5109865.55794 148654.08425925925</pos>
         </Point>
       </gmlrgrid:origin>
       <gmlrgrid:generalGridAxis>
@@ -50,7 +50,7 @@
       <gmlrgrid:generalGridAxis>
         <gmlrgrid:GeneralGridAxis>
           <gmlrgrid:offsetVector srsName="/crs-compound?1=/crs/EPSG/0/32633&amp;2=/crs/OGC/0/AnsiDate" axisLabels="E N ansi" uomLabels="metre metre d" srsDimension="3">0 0 1</gmlrgrid:offsetVector>
-          <gmlrgrid:coefficients>0</gmlrgrid:coefficients>
+          <gmlrgrid:coefficients>2008-01-01T02:01:20Z 2008-01-03T23:59:55Z 2008-01-05T01:58:30Z 2008-01-08T00:02:58Z</gmlrgrid:coefficients>
           <gmlrgrid:gridAxesSpanned>ansi</gmlrgrid:gridAxesSpanned>
           <gmlrgrid:sequenceRule axisOrder="+1">Linear</gmlrgrid:sequenceRule>
         </gmlrgrid:GeneralGridAxis>
@@ -62,7 +62,7 @@
   <rangeSet>
     <DataBlock>
       <rangeParameters/>
-      <tupleList ts="," cs=" ">9.63844 4.17907,9.63844 4.17907,9.63844 4.17907,9.63844 4.17907,9.63844 4.17907,9.63844 4.17907,9.63844 4.17907,9.63844 4.17907</tupleList>
+      <tupleList ts="," cs=" ">9.63844 4.17907,3.11088 0.451861,7.0851 0.618615,2.35258 1.96558,9.63844 4.17907,3.11088 0.451861,7.0851 0.618615,2.35258 1.96558,9.63844 4.17907,3.11088 0.451861,7.0851 0.618615,2.35258 1.96558,9.63844 4.17907,3.11088 0.451861,7.0851 0.618615,2.35258 1.96558,9.63844 4.17907,3.11088 0.451861,7.0851 0.618615,2.35258 1.96558,9.63844 4.17907,3.11088 0.451861,7.0851 0.618615,2.35258 1.96558,9.63844 4.17907,3.11088 0.451861,7.0851 0.618615,2.35258 1.96558,9.63844 4.17907,3.11088 0.451861,7.0851 0.618615,2.35258 1.96558</tupleList>
     </DataBlock>
   </rangeSet>
 

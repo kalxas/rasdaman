@@ -22,7 +22,7 @@
         	  "regex": "(.*)_(.+?)\\.(.*)", 
         	  "group": "2" 
 	        },
-		"datetime_format": "YYYY-MM-DD" 
+		"datetime_format": "YYYY-MM-DDTHH:mm:ss" 
             },
 	   "time_crs": "SECORE_URL/crs/OGC/0/AnsiDate",
 	   "band_names": [

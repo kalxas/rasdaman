@@ -20,11 +20,8 @@
  * or contact Peter Baumann via <baumann@rasdaman.com>.
  */
 package petascope.util;
-import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Random;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import org.joda.time.Duration;
@@ -32,6 +29,7 @@ import org.joda.time.format.DateTimeFormatter;
 import org.joda.time.format.ISODateTimeFormat;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import petascope.core.CrsDefinition;
 import petascope.exceptions.ExceptionCode;
 import petascope.exceptions.PetascopeException;
 
@@ -75,6 +73,8 @@ public class TimeUtil {
     public static final Long MILLIS_MEAN_GREGORIAN_MONTH = MILLIS_MEAN_GREGORIAN_YEAR / 12;
     public static final Long MILLIS_SYNODAL_MONTH        = (long) (MILLIS_DAY * 29.53059);
     public static final Long MILLIS_MONTH                = MILLIS_MEAN_JULIAN_MONTH;
+    
+    public static final String ISO_8061_FORMAT = "yyyy-MM-dd'T'HH:mm:ss'Z";
 
     // Logger
     private static Logger log = LoggerFactory.getLogger(TimeUtil.class);
@@ -251,6 +251,17 @@ public class TimeUtil {
     public static String coordinate2timestamp(Double numCoordinate, String datumOrigin, String timeResolution) throws PetascopeException {
             return TimeUtil.plus(datumOrigin, numCoordinate, timeResolution);
     }
+    
+    /**
+     * Get the number of milliseconds from the UOM of CRS
+     * @param crsDefinition
+     * @return 
+     * @throws petascope.exceptions.PetascopeException 
+     */
+    public static Long getMillis(CrsDefinition crsDefinition) throws PetascopeException {
+        String ucumAbbreviation = crsDefinition.getAxes().get(0).getUoM();        
+        return getMillis(ucumAbbreviation);
+    }
 
     /**
      * Get the number of milliseconds fitting in the provided UoM (UCUM abbreviation).
@@ -265,7 +276,7 @@ public class TimeUtil {
                     "Unsupported temporal Unit of Measure [" + ucumAbbreviation + "].");
         }
         return millis;
-    }
+    }  
 
     /**
      * Remove quotes from a timestamp, if present.

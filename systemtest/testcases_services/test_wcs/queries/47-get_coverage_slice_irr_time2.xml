@@ -18,6 +18,6 @@
   </wcs:DimensionTrim>
   <wcs:DimensionSlice>
     <wcs:Dimension>ansi</wcs:Dimension>
-    <wcs:SlicePoint>148661</wcs:SlicePoint>
+    <wcs:SlicePoint>148661.002060185186564922332763671875</wcs:SlicePoint>
   </wcs:DimensionSlice>
 </wcs:GetCoverage>

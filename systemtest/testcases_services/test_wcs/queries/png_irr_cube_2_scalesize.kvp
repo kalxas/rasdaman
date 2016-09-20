@@ -4,6 +4,6 @@ request=GetCoverage&
 coverageId=test_irr_cube_2&
 subset=E(80000,100000)&
 subset=N(5100000,5124000)&
-subset=ansi(148654)&
+subset=ansi(148654.08425925925257615745067596435546875)&
 scalesize=E(2),N(2)&
 format=image/png

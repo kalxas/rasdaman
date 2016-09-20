@@ -16,7 +16,7 @@
   </wcs:DimensionSlice>
   <wcs:DimensionTrim>
     <wcs:Dimension>ansi</wcs:Dimension>
-    <wcs:TrimLow>148654</wcs:TrimLow>
-    <wcs:TrimHigh>148658</wcs:TrimHigh>
+    <wcs:TrimLow>148654.08425925925257615745067596435546875</wcs:TrimLow>
+    <wcs:TrimHigh>148661.002060185186564922332763671875</wcs:TrimHigh>
   </wcs:DimensionTrim>
 </wcs:GetCoverage>

@@ -18,6 +18,6 @@
   </wcs:DimensionTrim>
   <wcs:DimensionSlice>
     <wcs:Dimension>ansi</wcs:Dimension>
-    <wcs:SlicePoint>"2008-01-08"</wcs:SlicePoint>
+    <wcs:SlicePoint>"2008-01-01T02:01:20"</wcs:SlicePoint>
   </wcs:DimensionSlice>
 </wcs:GetCoverage>

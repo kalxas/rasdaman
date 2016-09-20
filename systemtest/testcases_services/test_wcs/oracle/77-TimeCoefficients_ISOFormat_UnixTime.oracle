@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<wcs:CoverageDescriptions       >
+  <wcs:CoverageDescription id="test_AverageChloro" xmlns="http://www.opengis.net/gml/3.2"  >
+    <boundedBy>
+      <Envelope srsName="/crs-compound?1=/crs/EPSG/0/4326&amp;2=/crs/OGC/0/UnixTime" axisLabels="Lat Long unix" uomLabels="degree degree s" srsDimension="3">
+        <lowerCorner>-90 -180 1420070400</lowerCorner>
+        <upperCorner>90 180 1435708800</upperCorner>
+      </Envelope>
+    </boundedBy>
+    <wcs:CoverageId>test_AverageChloro</wcs:CoverageId>
+    <gmlcov:metadata/>
+    <domainSet>
+      <gmlrgrid:ReferenceableGridByVectors dimension="3" id="test_AverageChloro-grid"  >
+        <limits>
+          <GridEnvelope>
+            <low>0 0 0</low>
+            <high>239 119 5</high>
+          </GridEnvelope>
+        </limits>
+        <axisLabels>Long Lat unix</axisLabels>
+        <gmlrgrid:origin>
+          <Point id="test_AverageChloro-origin" srsName="/crs-compound?1=/crs/EPSG/0/4326&amp;2=/crs/OGC/0/UnixTime" axisLabels="Lat Long unix" uomLabels="degree degree s" srsDimension="3">
+            <pos>89.25 -179.25 1420070400</pos>
+          </Point>
+        </gmlrgrid:origin>
+        <gmlrgrid:generalGridAxis>
+          <gmlrgrid:GeneralGridAxis>
+            <gmlrgrid:offsetVector srsName="/crs-compound?1=/crs/EPSG/0/4326&amp;2=/crs/OGC/0/UnixTime" axisLabels="Lat Long unix" uomLabels="degree degree s" srsDimension="3">0 1.5 0</gmlrgrid:offsetVector>
+            <gmlrgrid:coefficients/>
+            <gmlrgrid:gridAxesSpanned>Long</gmlrgrid:gridAxesSpanned>
+            <gmlrgrid:sequenceRule axisOrder="+1">Linear</gmlrgrid:sequenceRule>
+          </gmlrgrid:GeneralGridAxis>
+        </gmlrgrid:generalGridAxis>
+        <gmlrgrid:generalGridAxis>
+          <gmlrgrid:GeneralGridAxis>
+            <gmlrgrid:offsetVector srsName="/crs-compound?1=/crs/EPSG/0/4326&amp;2=/crs/OGC/0/UnixTime" axisLabels="Lat Long unix" uomLabels="degree degree s" srsDimension="3">-1.5 0 0</gmlrgrid:offsetVector>
+            <gmlrgrid:coefficients/>
+            <gmlrgrid:gridAxesSpanned>Lat</gmlrgrid:gridAxesSpanned>
+            <gmlrgrid:sequenceRule axisOrder="+1">Linear</gmlrgrid:sequenceRule>
+          </gmlrgrid:GeneralGridAxis>
+        </gmlrgrid:generalGridAxis>
+        <gmlrgrid:generalGridAxis>
+          <gmlrgrid:GeneralGridAxis>
+            <gmlrgrid:offsetVector srsName="/crs-compound?1=/crs/EPSG/0/4326&amp;2=/crs/OGC/0/UnixTime" axisLabels="Lat Long unix" uomLabels="degree degree s" srsDimension="3">0 0 1</gmlrgrid:offsetVector>
+            <gmlrgrid:coefficients>2015-01-01T00:00:00Z 2015-02-01T00:00:00Z 2015-03-01T00:00:00Z 2015-04-01T00:00:00Z 2015-05-01T00:00:00Z 2015-07-01T00:00:00Z</gmlrgrid:coefficients>
+            <gmlrgrid:gridAxesSpanned>unix</gmlrgrid:gridAxesSpanned>
+            <gmlrgrid:sequenceRule axisOrder="+1">Linear</gmlrgrid:sequenceRule>
+          </gmlrgrid:GeneralGridAxis>
+        </gmlrgrid:generalGridAxis>
+      </gmlrgrid:ReferenceableGridByVectors>
+    </domainSet>
+    <gmlcov:rangeType>
+      <swe:DataRecord>
+        <swe:field name="Red">
+          <swe:Quantity>
+            <swe:nilValues>
+              <swe:NilValues/>
+            </swe:nilValues>
+            <swe:uom code="10^0"/>
+          </swe:Quantity>
+        </swe:field>
+        <swe:field name="Green">
+          <swe:Quantity>
+            <swe:nilValues>
+              <swe:NilValues/>
+            </swe:nilValues>
+            <swe:uom code="10^0"/>
+          </swe:Quantity>
+        </swe:field>
+        <swe:field name="Blue">
+          <swe:Quantity>
+            <swe:nilValues>
+              <swe:NilValues/>
+            </swe:nilValues>
+            <swe:uom code="10^0"/>
+          </swe:Quantity>
+        </swe:field>
+      </swe:DataRecord>
+    </gmlcov:rangeType>
+    <wcs:ServiceParameters>
+      <wcs:CoverageSubtype>ReferenceableGridCoverage</wcs:CoverageSubtype>
+      <CoverageSubtypeParent xmlns="http://www.opengis.net/wcs/2.0">
+        <CoverageSubtype>AbstractDiscreteCoverage</CoverageSubtype>
+        <CoverageSubtypeParent>
+          <CoverageSubtype>AbstractCoverage</CoverageSubtype>
+        </CoverageSubtypeParent>
+      </CoverageSubtypeParent>
+      <wcs:nativeFormat>application/octet-stream</wcs:nativeFormat>
+    </wcs:ServiceParameters>
+  </wcs:CoverageDescription>
+</wcs:CoverageDescriptions>

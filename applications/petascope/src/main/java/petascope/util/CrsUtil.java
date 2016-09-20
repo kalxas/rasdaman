@@ -473,7 +473,7 @@ public class CrsUtil {
             crs.addAxis(axisMetadata.get(0), axisMetadata.get(1), axisMetadata.get(2));
         }
 
-        // Cache the definition
+        // Cache the crs definition by the CRS URI
         parsedCRSs.put(givenCrsUri, crs);
         log.trace(givenCrsUri + " into cache for future (inter-requests) use.");
 

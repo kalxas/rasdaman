@@ -228,7 +228,14 @@ public class Vectors {
 
         return (T[])vOut;
     }
-    // Overload for lists
+    
+    /**
+     * Add a scalar to each component of a numeric list.
+     * @param <T>
+     * @param a
+     * @param b
+     * @return 
+     */
     public static <T extends Number> List<T> add(List<T> a, T b) {
         Number[] aa = a.toArray((T[]) Array.newInstance(b.getClass(),0));
         List<Number> aaa = Arrays.asList(aa);

@@ -4,4 +4,4 @@ request=GetCoverage&
 coverageId=test_irr_cube_2&
 subset=E(100000,100666)&
 subset=N(5100000,5123456)&
-subset=ansi("2008-01-08")
+subset=ansi("2008-01-01T02:01:20")

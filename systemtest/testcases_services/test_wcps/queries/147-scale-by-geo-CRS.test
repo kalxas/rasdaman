@@ -1,2 +1,1 @@
-for c in (test_irr_cube_2) return encode (scale( slice( (c[ansi("2008-01-01T00Z":"2008-01-08T00Z")]).b2, {ansi:"CRS:1"(3)}),
-    { N( 5094865.55794:5454865.55794), E( 75042.7273594:705042.7273594) } ), "tiff")
+for c in (test_irr_cube_2) return encode (scale( slice( (c[ansi("2008-01-01T02:01:20":"2008-01-08T00:02:58")]).b2, {ansi:"CRS:1"(3)}), { N( 5094865.55794:5454865.55794), E( 75042.7273594:705042.7273594) } ), "tiff")
