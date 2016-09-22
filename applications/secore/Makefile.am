@@ -45,9 +45,9 @@ all-local:
 	mvn package
 
 install-exec-hook:
-	mkdir -p ${WAR_DIR}/secoredb
-	chmod -R 777 ${WAR_DIR}/secoredb
-	cp ${SECORE_TARGET_DIR}/def.war ${WAR_DIR}/ 
+	mkdir -p $(DESTDIR)${WAR_DIR}/secoredb
+	chmod -R 777 $(DESTDIR)${WAR_DIR}/secoredb
+	cp ${SECORE_TARGET_DIR}/def.war $(DESTDIR)${WAR_DIR}/
 
 clean-local:
 	mvn clean
