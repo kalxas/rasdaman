@@ -105,7 +105,7 @@ class NetcdfToCoverageConverter:
         max = None
         if user_axis.interval.high:
             max = self.sentence_evaluator.evaluate(user_axis.interval.high, evaluator_slice)
-        resolution = self.sentence_evaluator.evaluate(user_axis.resolution, evaluator_slice)
+        resolution = float(self.sentence_evaluator.evaluate(user_axis.resolution, evaluator_slice))
         return UserAxis(user_axis.name, resolution, user_axis.order, min, max, user_axis.type, user_axis.irregular,
                         user_axis.dataBound)
 
@@ -166,7 +166,7 @@ class NetcdfToCoverageConverter:
         else:
             grid_low = 0
             number_of_geopixels = user_axis.interval.high - user_axis.interval.low
-            grid_high = int(math.fabs(math.floor(grid_low + number_of_geopixels / user_axis.resolution)))
+            grid_high = int(math.fabs(round(grid_low + number_of_geopixels / user_axis.resolution)))
             if grid_high > grid_low:
                 grid_high -= 1
 
