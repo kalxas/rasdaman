@@ -34,49 +34,25 @@ SOURCE="${BASH_SOURCE[0]}"
 while [ -h "$SOURCE" ] ; do SOURCE="$(readlink "$SOURCE")"; done
   SCRIPT_DIR="$( cd -P "$( dirname "$SOURCE" )" && pwd )"
 
-. "$SCRIPT_DIR"/../../../util/common.sh
+. "$SCRIPT_DIR"/../../util/common.sh
 
+# run every test cases open folders
+# change directory to the test_open
+. cd "$SCRIPT_DIR"
 
-# test WMS query
-PETASCOPE_END_POINT="$PETASCOPE_URL/ows?"
-WMS_TEST_END_POINT_TEMPLATE=$PETASCOPE_END_POINT"service=WMS&version=1.3.0&request=GetMap&layers=test_wms_4326&bbox=MIN_MAX_LAT_LONG_TEMPLATE&crs=EPSG:4326&width=600&height=600&format=image/png"
+# list all the subdirectories of test_open
+for d in */ ; do
+	scriptFile="$d/test.sh"
+	if [ ! -x "$scriptFile" ]; then
+		log "Script test.sh is not executable in folder: $d."
+	else
+		log "Running test case: $d"
+		"./$scriptFile"
 
-min_lat=-40
-min_long=120
-max_lat=-10
-max_long=150
-
-fixed=yes
-for i in {1..10}
-do
-
-  min_lat=$(echo "$min_lat + 0.000001" | bc -l)
-  min_long=$(echo "$min_long + 0.000001" | bc -l)
-  max_lat=$(echo "$max_lat - 0.000001" | bc -l)
-  max_long=$(echo "$max_long - 0.000001" | bc -l)
-
-  min_max_lat_long=$min_lat","$min_long","$max_lat","$max_long
-
-  wms_test_end_point=$(echo "$WMS_TEST_END_POINT_TEMPLATE" | sed "s/MIN_MAX_LAT_LONG_TEMPLATE/$min_max_lat_long/g")
-
-  # query with small change in boundingbox for each request
-  wget -q --spider "$wms_test_end_point"
-
-  sleep 0.1
-
-  numb_connection=$(psql -c "SELECT sum(numbackends) FROM pg_stat_database;" -d $PS_DB 2>&1 | awk 'NR==3{print $1}')
-
-  if [[ $numb_connection == "" || $numb_connection -gt 20 ]]; then
-  	fixed=no
-    break
-  fi
+		# check the result of script
+		check
+	fi
 done
 
 log "done."
-
-# check result
-check_result "yes" "$fixed" "testing WMS open connections"
-
-# print summary from util/common.sh
-print_summary
 exit $RC

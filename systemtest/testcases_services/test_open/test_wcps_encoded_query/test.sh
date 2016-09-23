@@ -42,13 +42,10 @@ QUERY="for%20c%20in%20(mr)%20return%20encode%20(c%5Bi(0%3A20)%2Cj(0%3A20)%5D%20%
 log "Test encoded WCPS query..."
 log $WCPS_ENDPOINT
 log $QUERY
-python test.py $WCPS_ENDPOINT $QUERY
+python "$SCRIPT_DIR"/test.py $WCPS_ENDPOINT $QUERY
 
-if [ $? == 0 ]; then
-   NUM_SUC=$(($NUM_SUC + 1))
-else
-   NUM_FAIL=$(($NUM_FAIL + 1))
-fi
+# defined in common.sh
+check
 
 log "done."
 
