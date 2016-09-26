@@ -50,20 +50,9 @@ TEST_DATA="$SCRIPT_DIR/test_data"
 # the coverageIDs need to import but will not be delete
 COVERAGE_ID_LIST=("test_time3d" "test_wms_4326" "test_wms_3857")
 
-# Check if coverage ID should be deleted or keep for other test cases (by ID)
-keepCoverageByID() {
-    for COV_ID in "${COVERAGE_ID_LIST[@]}"
-    do
-        if [[ "$COV_ID" == "$1" ]]; then
-            return 0
-        fi
-    done
-
-    return 1
-}
 
 # Check if coverage ID should be deleted or keep for other test cases (by folder name "contains")
-COVERAGE_FOLDER_LIST=("wcps")
+COVERAGE_FOLDER_LIST=("wcps" "wcs" "wms")
 keepCoverageByFolderName() {
     for FOLDER_NAME in "${COVERAGE_FOLDER_LIST[@]}"
     do
@@ -113,6 +102,7 @@ for TEST_CASE in $TEST_DATA/*; do
         # 2.1 error when ingesting data
         log "+ Error: When ingesting data by wcst_import, test case: "$TEST_CASE_NAME
         NUM_FAIL=$(($NUM_FAIL + 1))
+        continue
     else # 2.2 run correctly
         log "+ Pass 1: When ingesting data by wcst_import, test case: "$TEST_CASE_NAME
         # 2.3 remove file resume.json to clean
@@ -130,6 +120,7 @@ for TEST_CASE in $TEST_DATA/*; do
         if [[ $RETURN != 200 ]]; then
             log "+ Error: Coverage ID: "$COVERAGE_ID" does not exist when describe in Petascope."
             NUM_FAIL=$(($NUM_FAIL + 1))
+            continue
         else # 2.5 coverage does exist (return HTTP 200)
             log "+ Pass 2: Coverage ID: "$COVERAGE_ID" does exist when describe in Petascope."
 
@@ -141,21 +132,16 @@ for TEST_CASE in $TEST_DATA/*; do
                 content=$(wget "$PETASCOPE_URL?service=WMS&version=1.3.0&request=GetCapabilities" -q -O -)
                 if [[ $content != *$COVERAGE_ID* ]]; then
                     log "+ Error: Coverage ID: "$COVERAGE_ID" does not exist in WMS Service."
+                    NUM_FAIL=$(($NUM_FAIL + 1))
+                    continue
                 else
                     log "+ Pass 2_WMS: Coverage ID: "$COVERAGE_ID" does exist in WMS Service."
                 fi
             fi
 
-            # Keep test_time3d for using later on with WCPS query
-            #      wms_4326 and wms_3857 for wms test
-            keepCoverageByID $COVERAGE_ID
-            IS_REMOVE=$?
-
             # Check if the folder name is in unwanted delete coverage IDs list
-            if [[ $IS_REMOVE == 1 ]]; then
-                keepCoverageByFolderName $TEST_CASE_NAME
-                IS_REMOVE=$?
-            fi
+            keepCoverageByFolderName $TEST_CASE_NAME
+            IS_REMOVE=$?
 
             if [[ $IS_REMOVE == 1 ]]; then
                 # 2.7 it is good when coverage does exist then now delete coverage
@@ -176,11 +162,12 @@ for TEST_CASE in $TEST_DATA/*; do
         fi
     fi
 
-    # 2.7.1 remove added collection in rasdaman
+    # 2.7.1 remove created collection in rasdaman
     if [[ $TEST_CASE_NAME == $COLLECTION_EXISTS ]]; then
         $(rasql --quiet -q "DROP COLLECTION $COLLECTION_NAME" --user $RASMGR_ADMIN_USER --passwd $RASMGR_ADMIN_PASSWD)
         if [[ $? != 0 ]]; then
             log "+ Error: Could not remove added collection: $COLLECTION_NAME."
+            NUM_FAIL=$(($NUM_FAIL + 1))
         fi
     fi
     echo -e
