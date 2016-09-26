@@ -23,8 +23,8 @@
 #    test.sh
 # Description
 #    This script tests to post an encoded WCPS query instead of plain text WCPS query
-#    example: for c in (mr) return encode (c[i(0:20),j(0:20)] + 5, "png")
-#    encoded: for%20c%20in%20(mr)%20return%20encode%20(c%5Bi(0%3A20)%2Cj(0%3A20)%5D%20%2B%205%2C%20%22png%22)
+#    example: for c in (test_mr) return encode (c[i(0:20),j(0:20)] + 5, "png")
+#    encoded: for%20c%20in%20(test_mr)%20return%20encode%20(c%5Bi(0%3A20)%2Cj(0%3A20)%5D%20%2B%205%2C%20%22png%22)
 # get script name
 PROG=$( basename $0 )
 
@@ -37,7 +37,7 @@ SCRIPT_DIR="$( cd -P "$( dirname "$SOURCE" )" && pwd )"
 
 # encoded WCPS query
 WCPS_ENDPOINT=$WCPS_URL
-QUERY="for%20c%20in%20(mr)%20return%20encode%20(c%5Bi(0%3A20)%2Cj(0%3A20)%5D%20%2B%205%2C%20%22png%22)"
+QUERY="for%20c%20in%20(test_mr)%20return%20encode%20(c%5Bi(0%3A20)%2Cj(0%3A20)%5D%20%2B%205%2C%20%22png%22)"
 
 log "Test encoded WCPS query..."
 log $WCPS_ENDPOINT

@@ -1,1 +1,1 @@
-for c in ( rgb ) return encode((unsigned char) ( ((c.0 / ((float)c.0 + c.1))-(c.1 / ((float)c.0 + c.1))) > 0.6 ) * 255, "png", "nodata=0" )
+for c in ( test_rgb ) return encode((unsigned char) ( ((c.0 / ((float)c.0 + c.1))-(c.1 / ((float)c.0 + c.1))) > 0.6 ) * 255, "png", "nodata=0" )

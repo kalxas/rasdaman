@@ -1,4 +1,4 @@
-for c in (rgb) return 
+for c in (test_rgb) return 
 encode(
 	coverage const 
 	over $px x(0:1) 

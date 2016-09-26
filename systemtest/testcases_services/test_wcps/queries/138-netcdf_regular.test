@@ -1,1 +1,1 @@
-for c in (eobstest) return encode(c, "netcdf")
+for c in (test_eobstest) return encode(c, "netcdf")

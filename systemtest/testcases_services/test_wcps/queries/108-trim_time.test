@@ -1,1 +1,1 @@
-for c in (eobstest) return encode(c[t:"CRS:1"(4:5),Long(0:0), Lat(25)], "csv")
+for c in (test_eobstest) return encode(c[t:"CRS:1"(4:5),Long(0:0), Lat(25)], "csv")

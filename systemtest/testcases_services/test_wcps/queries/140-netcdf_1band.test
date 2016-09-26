@@ -1,1 +1,1 @@
-for c in (irr_cube_2)  return encode(c[ansi("2008-01-01"), E:"CRS:1"(0:0), N:"CRS:1"(0:0)].b1  +  c[ansi("2008-01-01"), E:"CRS:1"(0:0), N:"CRS:1"(0:0)].b2, "netcdf")
+for c in (test_irr_cube_2)  return encode(c[ansi("2008-01-01"), E:"CRS:1"(0:0), N:"CRS:1"(0:0)].b1  +  c[ansi("2008-01-01"), E:"CRS:1"(0:0), N:"CRS:1"(0:0)].b2, "netcdf")

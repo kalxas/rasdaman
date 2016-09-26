@@ -37,8 +37,8 @@ SCRIPT_DIR="$( cd -P "$( dirname "$SOURCE" )" && pwd )"
 . "$SCRIPT_DIR"/../../../util/common.sh
 
 log "--- Testing download result with coverage ID as file name ---"
-WCS_ENDPOINT_TEMPLATE=$PETASCOPE_URL'/ows?service=WCS&version=2.0.1&request=GetCoverage&coverageId=mr&subset=i(0,20)&subset=j(0,5)&format=$FORMAT'
-WCPS_ENDPOINT_TEMPLATE=$PETASCOPE_URL'/ows?service=WCS&version=2.0.1&request=ProcessCoverages&query=for c in (rgb) return encode(c,"$FORMAT")'
+WCS_ENDPOINT_TEMPLATE=$PETASCOPE_URL'/ows?service=WCS&version=2.0.1&request=GetCoverage&coverageId=test_mr&subset=i(0,20)&subset=j(0,5)&format=$FORMAT'
+WCPS_ENDPOINT_TEMPLATE=$PETASCOPE_URL'/ows?service=WCS&version=2.0.1&request=ProcessCoverages&query=for c in (test_rgb) return encode(c,"$FORMAT")'
 
 OUTPUT_DIR=$SCRIPT_DIR"/"output
 
@@ -51,19 +51,19 @@ function downloadAndCheck() {
 
     RESULT=0
 
-    # mr
-    if [ -f "$OUTPUT_DIR/mr."$TYPE ]; then
-        log "PASS: mr."$TYPE" exist"
+    # test_mr
+    if [ -f "$OUTPUT_DIR/test_mr."$TYPE ]; then
+        log "PASS: test_mr."$TYPE" exist"
     else
-        log "FAIL: mr."$TYPE" does not exist"
+        log "FAIL: test_mr."$TYPE" does not exist"
         RESULT=1
     fi
 
-    # rgb
-    if [ -f "$OUTPUT_DIR/rgb."$TYPE ]; then
-        log "PASS: rgb."$TYPE" exist"
+    # test_rgb
+    if [ -f "$OUTPUT_DIR/test_rgb."$TYPE ]; then
+        log "PASS: test_rgb."$TYPE" exist"
     else
-        log "FAIL: rgb."$TYPE" does not exist"
+        log "FAIL: test_rgb."$TYPE" does not exist"
         RESULT=1
     fi
 

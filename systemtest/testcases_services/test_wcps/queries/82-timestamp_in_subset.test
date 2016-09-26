@@ -1,4 +1,4 @@
-for c in (eobstest) return encode(
+for c in (test_eobstest) return encode(
   (c[
     t("1950-01-02"),
     Lat(25:30),

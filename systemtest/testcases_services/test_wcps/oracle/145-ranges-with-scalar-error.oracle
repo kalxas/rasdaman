@@ -3,10 +3,10 @@
     xsd:schemaLocation="http://www.opengis.net/ows/2.0 http://schemas.opengis.net/ows/2.0/owsExceptionReport.xsd"
       >
     <ows:Exception exceptionCode="SemanticError">
-        <ows:ExceptionText>Error evaluating rasdaman query: 'SELECT encode({0,0,0}, "png" , "") FROM rgb AS c</ows:ExceptionText>
+        <ows:ExceptionText>Error evaluating rasdaman query: 'SELECT encode({0,0,0}, "png" , "") FROM test_rgb AS c</ows:ExceptionText>
     </ows:Exception>
     <ows:Exception exceptionCode="RasdamanRequestFailed">
-        <ows:ExceptionText>Error evaluating rasdaman query: 'SELECT encode({0,0,0}, "png" , "") FROM rgb AS c</ows:ExceptionText>
+        <ows:ExceptionText>Error evaluating rasdaman query: 'SELECT encode({0,0,0}, "png" , "") FROM test_rgb AS c</ows:ExceptionText>
     </ows:Exception>
     <ows:Exception exceptionCode="RuntimeError">
         <ows:ExceptionText>org.odmg.QueryException : Execution error 380 in line 1, column 8, near token encode: Data type can not be converted to selected data exchange format.</ows:ExceptionText>

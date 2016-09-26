@@ -1,3 +1,3 @@
-for c in ( mr )
+for c in ( test_mr )
 return
 encode( c[i(100),j(50:60)] , "csv" )

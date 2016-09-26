@@ -1,1 +1,1 @@
-for c in (irr_cube_2)return encode ((( ( c[ansi("2008-01-01")]).b1 - ( c[ansi("2008-01-01")]).b2)  /  (  ( c[ansi("2008-01-01")]).b1 + ( c[ansi("2008-01-01")]).b2  )),  "png")
+for c in (test_irr_cube_2)return encode ((( ( c[ansi("2008-01-01")]).b1 - ( c[ansi("2008-01-01")]).b2)  /  (  ( c[ansi("2008-01-01")]).b1 + ( c[ansi("2008-01-01")]).b2  )),  "png")

@@ -1,4 +1,4 @@
-for c in (eobstest)
+for c in (test_eobstest)
 return encode(
   coverage averagesOverTime
   over $T t(0:2)

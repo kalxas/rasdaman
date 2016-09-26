@@ -1,1 +1,7 @@
-service=WCS&version=2.0.1&request=GetCoverage&coverageId=mr&subset=j(*,*)&subset=i(*,1)&format=image/png
+service=WCS&
+version=2.0.1&
+request=GetCoverage&
+coverageId=test_mr&
+subset=j(*,*)&
+subset=i(*,1)&
+format=image/png

@@ -9,7 +9,7 @@
     "subset_correction" : false
   },
   "input": {
-    "coverage_id": "NIR"
+    "coverage_id": "test_wcs_extract"
   },
   "recipe": {
     "name": "wcs_extract",

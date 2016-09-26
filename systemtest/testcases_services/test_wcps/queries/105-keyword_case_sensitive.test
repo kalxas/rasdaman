@@ -1,1 +1,1 @@
-for c in (eobstest) return crsset(c)
+for c in (test_eobstest) return crsset(c)

@@ -5,7 +5,7 @@
     xmlns:gmlcov='http://www.opengis.net/gmlcov/1.0'
     xmlns:swe='http://www.opengis.net/swe/2.0'
     xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance'
-    xmlns:wcs='http://www.opengis.net/wcs/2.0' id="eobstest"
+    xmlns:wcs='http://www.opengis.net/wcs/2.0' id="test_eobstest"
     xsi:schemaLocation= 'http://www.opengis.net/wcs/2.0 http://schemas.opengis.net/wcs/2.0/wcsAll.xsd'>
 
   <boundedBy>
@@ -16,7 +16,7 @@
   </boundedBy>
 
   <domainSet>
-    <RectifiedGrid dimension="3" id="eobstest-grid">
+    <RectifiedGrid dimension="3" id="test_eobstest-grid">
       <limits>
         <GridEnvelope>
           <low>3 50 201</low>
@@ -25,7 +25,7 @@
       </limits>
       <axisLabels>Lat Long t</axisLabels>
       <origin>
-          <Point id="eobstest-origin" srsName="/crs-compound?1=/crs/EPSG/0/4326&amp;2=/crs/OGC/0/AnsiDate?axis-label=&quot;t&quot;" axisLabels="Lat Long t" uomLabels="degree degree d" srsDimension="3">
+          <Point id="test_eobstest-origin" srsName="/crs-compound?1=/crs/EPSG/0/4326&amp;2=/crs/OGC/0/AnsiDate?axis-label=&quot;t&quot;" axisLabels="Lat Long t" uomLabels="degree degree d" srsDimension="3">
               <pos>50.75 60.25 127473</pos>
           </Point>
       </origin>

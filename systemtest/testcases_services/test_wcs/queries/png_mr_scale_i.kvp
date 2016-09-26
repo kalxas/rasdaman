@@ -1,1 +1,6 @@
-service=WCS&version=2.0.1&request=GetCoverage&coverageId=mr&scaleaxes=i(0.5)&format=image/png
+service=WCS&
+version=2.0.1&
+request=GetCoverage&
+coverageId=test_mr&
+scaleaxes=i(0.5)&
+format=image/png

@@ -5,7 +5,7 @@
     xmlns:gmlcov='http://www.opengis.net/gmlcov/1.0'
     xmlns:swe='http://www.opengis.net/swe/2.0'
     xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance'
-    xmlns:wcs='http://www.opengis.net/wcs/2.0' id="rgb"
+    xmlns:wcs='http://www.opengis.net/wcs/2.0' id="test_rgb"
     xsi:schemaLocation= 'http://www.opengis.net/wcs/2.0 http://schemas.opengis.net/wcs/2.0/wcsAll.xsd'>
 
   <boundedBy>
@@ -16,7 +16,7 @@
   </boundedBy>
 
   <domainSet>
-    <RectifiedGrid dimension="2" id="rgb-grid">
+    <RectifiedGrid dimension="2" id="test_rgb-grid">
       <limits>
         <GridEnvelope>
           <low>0 0</low>
@@ -25,7 +25,7 @@
       </limits>
       <axisLabels>i j</axisLabels>
       <origin>
-          <Point id="rgb-origin" srsName="/crs/OGC/0/Index2D" axisLabels="i j" uomLabels="GridSpacing GridSpacing" srsDimension="2">
+          <Point id="test_rgb-origin" srsName="/crs/OGC/0/Index2D" axisLabels="i j" uomLabels="GridSpacing GridSpacing" srsDimension="2">
               <pos>0.5 343.5</pos>
           </Point>
       </origin>

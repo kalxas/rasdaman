@@ -1,4 +1,4 @@
-for c in ( mr )
+for c in ( test_mr )
 return  encode(
           coverage histogram
           over $n x(0:2)

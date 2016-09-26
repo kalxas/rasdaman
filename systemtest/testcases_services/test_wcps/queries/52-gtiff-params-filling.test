@@ -1,4 +1,4 @@
-for c in (eobstest) return encode(
+for c in (test_eobstest) return encode(
   (c[
     t:"CRS:1"(1),
     Lat:"http://www.opengis.net/def/crs/EPSG/0/4326" (25:35),

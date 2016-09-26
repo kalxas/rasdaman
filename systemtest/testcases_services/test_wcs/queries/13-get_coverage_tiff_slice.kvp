@@ -1,6 +1,6 @@
 service=WCS&
 version=2.0.1&
 request=GetCoverage&
-coverageId=eobstest&
+coverageId=test_eobstest&
 subset=Long(50)&
 format=image/tiff

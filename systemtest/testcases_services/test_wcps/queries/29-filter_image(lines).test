@@ -1,4 +1,4 @@
-for c in (rgb) return encode((unsigned char)
+for c in (test_rgb) return encode((unsigned char)
 		coverage filteredImage
 		over $px x(10:24),
                      $py y(10:23)

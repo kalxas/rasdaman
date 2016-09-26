@@ -8,7 +8,7 @@
     "automated": true
   },
   "input": {
-    "coverage_id": "AverageChloro",
+    "coverage_id": "test_AverageChloro",
     "paths": [
       "SCALE*.TIFF"
     ]

@@ -1,7 +1,7 @@
 service=WCS&
 version=2.0.1&
 request=GetCoverage&
-coverageId=eobstest&
+coverageId=test_eobstest&
 subset=Lat(31)&
 subset=Long(70.1)&
 subset=t("1950-01-02T12:00%2B14","1950-01-01T11:59:59.999%2B12")

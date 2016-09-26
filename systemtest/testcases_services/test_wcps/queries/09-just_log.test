@@ -1,1 +1,1 @@
-for s in ( rgb ) return encode( log((s.2)[ i(100:200), j(100:200) ] ), "png", "nodata=0" )
+for s in ( test_rgb ) return encode( log((s.2)[ i(100:200), j(100:200) ] ), "png", "nodata=0" )

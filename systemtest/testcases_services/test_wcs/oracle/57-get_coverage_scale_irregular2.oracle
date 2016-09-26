@@ -5,7 +5,7 @@
     xmlns:gmlcov='http://www.opengis.net/gmlcov/1.0'
     xmlns:swe='http://www.opengis.net/swe/2.0'
     xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance'
-    xmlns:wcs='http://www.opengis.net/wcs/2.0' id="irr_cube_2"
+    xmlns:wcs='http://www.opengis.net/wcs/2.0' id="test_irr_cube_2"
     xsi:schemaLocation= 'http://www.opengis.net/wcs/2.0 http://schemas.opengis.net/wcs/2.0/wcsAll.xsd'>
 
   <boundedBy>
@@ -16,7 +16,7 @@
   </boundedBy>
 
   <domainSet>
-    <gmlrgrid:ReferenceableGridByVectors dimension="3" id="irr_cube_2-grid"
+    <gmlrgrid:ReferenceableGridByVectors dimension="3" id="test_irr_cube_2-grid"
         
         >
       <limits>
@@ -27,7 +27,7 @@
       </limits>
       <axisLabels>E N ansi</axisLabels>
       <gmlrgrid:origin>
-        <Point id="irr_cube_2-origin" srsName="/crs-compound?1=/crs/EPSG/0/32633&amp;2=/crs/OGC/0/AnsiDate" axisLabels="E N ansi" uomLabels="metre metre d" srsDimension="3">
+        <Point id="test_irr_cube_2-origin" srsName="/crs-compound?1=/crs/EPSG/0/32633&amp;2=/crs/OGC/0/AnsiDate" axisLabels="E N ansi" uomLabels="metre metre d" srsDimension="3">
           <pos>80042.7273594 5109865.55794 148654</pos>
         </Point>
       </gmlrgrid:origin>

@@ -15,9 +15,9 @@
 
   "input": {
 
-    "coverage_id": "mean_summer_airtemp_repeat", 
+    "coverage_id": "test_mean_summer_airtemp_repeat", 
     "paths": [
-      "mean_summer_airtemp.tif"
+      "../wcps_mean_summer_air_temp/mean_summer_airtemp.tif"
     ]
 
   },

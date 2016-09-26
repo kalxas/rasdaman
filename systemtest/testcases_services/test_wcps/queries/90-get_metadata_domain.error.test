@@ -1,1 +1,1 @@
-for c in (eobstest) return domain(c, Long, "http://localhost:8080/def/crs/EPSG/0/32633")
+for c in (test_eobstest) return domain(c, Long, "http://localhost:8080/def/crs/EPSG/0/32633")

@@ -5,7 +5,7 @@
     xmlns:gmlcov='http://www.opengis.net/gmlcov/1.0'
     xmlns:swe='http://www.opengis.net/swe/2.0'
     xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance'
-    xmlns:wcs='http://www.opengis.net/wcs/2.0' id="mean_summer_airtemp"
+    xmlns:wcs='http://www.opengis.net/wcs/2.0' id="test_mean_summer_airtemp"
     xsi:schemaLocation= 'http://www.opengis.net/wcs/2.0 http://schemas.opengis.net/wcs/2.0/wcsAll.xsd'>
 
   <boundedBy>
@@ -16,7 +16,7 @@
   </boundedBy>
 
   <domainSet>
-    <RectifiedGrid dimension="2" id="mean_summer_airtemp-grid">
+    <RectifiedGrid dimension="2" id="test_mean_summer_airtemp-grid">
       <limits>
         <GridEnvelope>
           <low>0 0</low>
@@ -25,7 +25,7 @@
       </limits>
       <axisLabels>Lat Long</axisLabels>
       <origin>
-          <Point id="mean_summer_airtemp-origin" srsName="/crs/EPSG/0/4326" axisLabels="Lat Long" uomLabels="degree degree" srsDimension="2">
+          <Point id="test_mean_summer_airtemp-origin" srsName="/crs/EPSG/0/4326" axisLabels="Lat Long" uomLabels="degree degree" srsDimension="2">
               <pos>-9 112</pos>
           </Point>
       </origin>

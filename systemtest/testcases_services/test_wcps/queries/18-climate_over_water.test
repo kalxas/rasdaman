@@ -1,5 +1,5 @@
-for clouds in ( mr), 
-	mask in ( mr) 
+for clouds in ( test_mr), 
+	mask in ( test_mr) 
 return encode( 
 	(char) clouds[ i(0) ] * (mask[ i(0) ] = 0)
 , "csv" )

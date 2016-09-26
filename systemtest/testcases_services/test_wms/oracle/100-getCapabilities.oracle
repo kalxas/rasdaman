@@ -61,8 +61,8 @@
 
         </Exception>
         <Layer queryable="0" cascaded="0" opaque="1" noSubsets="0" fixedWidth="0" fixedHeight="0">
-    <Title>waxlake</Title>
-    <Name>waxlake</Name>
+    <Title>test_waxlake</Title>
+    <Name>test_waxlake</Name>
     <Abstract></Abstract>
     <CRS>EPSG:32615</CRS>
 
@@ -75,7 +75,7 @@
     <BoundingBox CRS="EPSG:32615" minx="618885.0" miny="3228195.0" maxx="690885.0" maxy="3300195.0"/>
 
     <Style>
-    <Name>waxlake</Name>
+    <Name>test_waxlake</Name>
     <Title>Default Raster Style</Title>
     <Abstract>A default style that returns the layer exactly as it is stored</Abstract>
 </Style>

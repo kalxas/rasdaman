@@ -9,7 +9,7 @@
         "subset_correction": false
     },
     "input": {
-        "coverage_id": "irr_cube_2", 
+        "coverage_id": "test_irr_cube_2", 
         "paths": [
             "*.tif"
         ]

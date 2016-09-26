@@ -1,1 +1,1 @@
-for c in (mr) return c[i:"CRS:1"(0), j:"CRS:1"(50)] + 73 = 146
+for c in (test_mr) return c[i:"CRS:1"(0), j:"CRS:1"(50)] + 73 = 146

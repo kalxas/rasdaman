@@ -1,2 +1,2 @@
-for c in (rgb)
+for c in (test_rgb)
     return encode(scale(c, { i(1:100), j(1:100) }), "png", "nodata=0")

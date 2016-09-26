@@ -5,7 +5,7 @@
     xmlns:gml="http://www.opengis.net/gml/3.2"
     xsi:schemaLocation="http://schemas.opengis.net/wcs/2.0 ../wcsAll.xsd"
     service="WCS" version="2.0.1">
-  <wcs:CoverageId>irr_cube_2</wcs:CoverageId>
+  <wcs:CoverageId>test_irr_cube_2</wcs:CoverageId>
   <wcs:DimensionTrim>
     <wcs:Dimension>E</wcs:Dimension>
     <wcs:TrimLow>100000</wcs:TrimLow>
