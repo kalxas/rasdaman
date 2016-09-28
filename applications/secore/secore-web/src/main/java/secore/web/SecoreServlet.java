@@ -21,6 +21,7 @@
  */
 package secore.web;
 
+import java.io.FileNotFoundException;
 import secore.req.ResolveResponse;
 import secore.req.ResolveRequest;
 import secore.Resolver;
@@ -38,6 +39,7 @@ import net.opengis.ows.v_1_0_0.ExceptionReport;
 import net.opengis.ows.v_1_0_0.ExceptionType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import secore.db.DbSecoreVersion;
 import static secore.util.Constants.*;
 
 /**
@@ -48,12 +50,27 @@ import static secore.util.Constants.*;
 public class SecoreServlet extends HttpServlet {
 
   private static Logger log = LoggerFactory.getLogger(SecoreServlet.class);
-  
+
   private static final String CONTENT_TYPE = "text/xml; charset=utf-8";
 
   @Override
   public void init() throws ServletException {
-      
+    try {
+        //  Create (first time load) or Get the BaseX database from caches.
+        DbManager dbManager = DbManager.getInstance();
+
+        // NOTE: we need to check current version of Secoredb first, if it is not latest, then run the update definition files with the current version to the newest versionNumber from files.
+        // in $RMANHOME/share/rasdaman/secore.
+        // if current version of Secoredb is empty then add SecoreVersion element to BaseX database and run all the db_updates files.
+        DbSecoreVersion dbSecoreVersion = new DbSecoreVersion(dbManager.getDb());
+        dbSecoreVersion.handle();
+    } catch (SecoreException ex) {
+        log.error("Cannot initialize database manager, exception caught: ", ex);
+    } catch (FileNotFoundException ex) {
+        log.error("Cannot update SECORE version from files, exception caught: ", ex);
+    } catch (IOException ex) {
+        log.error("Cannot update SECORE version from files, exception caught: ", ex);
+      }
   }
 
   @Override
@@ -66,14 +83,13 @@ public class SecoreServlet extends HttpServlet {
       uri += QUERY_SEPARATOR + qs;
     }
     try {
-      log.debug("Request URI: " + uri);
-      ResolveRequest request = new ResolveRequest(uri);
-//      StringUtil.SERVICE_URI = request.getServiceUri();
-      log.debug("Set service URI to " + StringUtil.SERVICE_URI);
-      DbManager.getInstance().getDb();
-      
-      ResolveResponse res = Resolver.resolve(request);
-      writeResult(req, resp, res.getData());
+        log.debug("Request URI: " + uri);
+        ResolveRequest request = new ResolveRequest(uri);
+        log.debug("Set service URI to " + StringUtil.SERVICE_URI);
+
+        // Load class handler base on request
+        ResolveResponse res = Resolver.resolve(request);
+        writeResult(req, resp, res.getData());
     } catch (SecoreException ex) {
         writeError(resp, ex);
     }

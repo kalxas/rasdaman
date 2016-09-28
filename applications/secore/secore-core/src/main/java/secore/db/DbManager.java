@@ -175,6 +175,11 @@ public class DbManager {
     return versionNumber;
   }
 
+  /**
+   * Static factory method to create the BaseX database for first load SECORE or read from caches if not.
+   * @return
+   * @throws SecoreException 
+   */
   public static DbManager getInstance() throws SecoreException {
     if (instance == null || instance.getDb() == null) {
       instance = new DbManager();
@@ -221,7 +226,7 @@ public class DbManager {
   public void setDb(Database db) {
     this.db = db;
   }
-
+  
   /*
    * Cache maintenance
    */

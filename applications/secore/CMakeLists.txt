@@ -30,6 +30,8 @@ if (ENABLE_JAVA)
 
     # This variable will be used in the to configure the pom files.
     set(SECORE_TARGET_DIR ${CMAKE_CURRENT_BINARY_DIR})
+    # This variable will be used in secore-core/etc/secore.conf.in.
+    set(SHARE_DATA_DIR ${SHARE_DATA_DIR})
 
     configure_file(secore-core/pom.xml.in "${CMAKE_CURRENT_SOURCE_DIR}/secore-core/pom.xml" @ONLY)
     configure_file(secore-web/pom.xml.in "${CMAKE_CURRENT_SOURCE_DIR}/secore-web/pom.xml" @ONLY)
@@ -38,7 +40,7 @@ if (ENABLE_JAVA)
     # configuration file for secore.properties.in
     configure_file("secore-core/etc/secore.properties.in" ${CMAKE_CURRENT_SOURCE_DIR}/secore-core/etc/secore.properties @ONLY)        
     # configuration for web.xml.in
-    configure_file("secore-web/src/main/webapp/WEB-INF/web.xml.in" ${CMAKE_CURRENT_SOURCE_DIR}/secore-web/src/main/webapp/WEB-INF/web.xml @ONLY)        
+    configure_file("secore-web/src/main/webapp/WEB-INF/web.xml.in" ${CMAKE_CURRENT_SOURCE_DIR}/secore-web/src/main/webapp/WEB-INF/web.xml @ONLY)
 
     if (GENERATE_DOCS)
         add_custom_target(secore_doc ALL
@@ -65,5 +67,9 @@ if (ENABLE_JAVA)
 	    WORLD_EXECUTE WORLD_WRITE WORLD_READ)
 
     install(FILES "${SECORE_TARGET_DIR}/def.war"
-            DESTINATION ${WAR_DIR}) 
+    DESTINATION ${WAR_DIR})
+
+    # these files contain update CRS defintions for SECORE userdb
+    install(DIRECTORY db_updates/ DESTINATION "${SHARE_DATA_DIR}/secore")
+
 endif ()

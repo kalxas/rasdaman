@@ -30,7 +30,7 @@
 ##################################################################
 
 SECORE_TARGET_DIR=`pwd`/target
-WAR_DIR=$(DESTIRD)$(wardir)
+WAR_DIR=$(DESTDIR)$(wardir)
 
 OLD_CONF=$(DESTDIR)$(sysconfdir)/secore.properties
 NEW_CONF=secore-core/etc/secore.properties
@@ -42,6 +42,7 @@ endif
 
 all:
 	cp secore-core/etc/secore.properties.in $(NEW_CONF)
+	sed -i "s|@SHARE_DATA_DIR@|$(DESTDIR)$(pkgdatadir)|g" $(NEW_CONF)
 	sed -i "s|@LOGDIR@|$(logdir)|g" $(NEW_CONF)
 	cp secore-web/src/main/webapp/WEB-INF/web.xml.in secore-web/src/main/webapp/WEB-INF/web.xml
 	sed -i "s|@CONF_DIR@|$(DESTDIR)$(sysconfdir)|g" secore-web/src/main/webapp/WEB-INF/web.xml
@@ -57,6 +58,8 @@ install-exec-hook:
 	cp ${SECORE_TARGET_DIR}/def.war $(DESTDIR)${WAR_DIR}/
 	echo "$@ is updating secore.properties: $(OLD_CONF) from $(NEW_CONF)";
 	./update_properties.sh "$(OLD_CONF)" "$(NEW_CONF)";
+	mkdir -p $(DESTDIR)$(pkgdatadir)/secore || true
+	cp db_updates/* $(DESTDIR)$(pkgdatadir)/secore
 
 clean-local:
 	mvn clean

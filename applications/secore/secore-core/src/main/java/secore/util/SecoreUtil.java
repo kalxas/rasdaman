@@ -226,7 +226,7 @@ public class SecoreUtil {
     return true;    
   }
 
-  /**
+/**
    * Delete definition (NOTE: only delete from User DB)
    *
    * @param id String identifier to delete

@@ -42,6 +42,12 @@ password=secore
 gml.def.path=etc/gml
 
 #
+# Directory holding updates (insert, delete) CRS defintions to be changed in userdb.
+#
+db_updates.path=@SHARE_DATA_DIR@/secore
+
+
+#
 # Service URL, used in automatic substitution of URNs (urn:ogc:def)
 #
 service.url=http://www.opengis.net/def

@@ -83,7 +83,6 @@ petascope_insertdemo.sh
 rasdaman_insertdemo.sh
 applications/raswct/bin
 glassfish-web.xml
-applications/secore/secore-web/src/main/webapp/WEB-INF/web.xml
 applications/secore/secore-core/etc/secore.properties
 java/dist/
 java/target
@@ -116,6 +115,8 @@ java/dist/
 java/bin/
 output
 applications/petascope/src/main/webapp/WEB-INF/web.xml
+applications/secore/secore-web/src/main/webapp/META-INF/context.xml
+applications/secore/secore-web/src/main/webapp/WEB-INF/web.xml
 applications/petascope/src/main/resources/petascope.properties
 applications/petascope/src/main/resources/log4j.properties
 compile

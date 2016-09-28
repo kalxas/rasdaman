@@ -54,6 +54,7 @@ public class Config {
   private final static String USERNAME_KEY = "username";
   private final static String PASSWORD_KEY = "password";
   private final static String GML_DEF_KEY = "gml.def.path";
+  private final static String DB_UPDATES_PATH = "db_updates.path";
   private final static String SERVICE_URL = "service.url";
   private final static String CODESPACE_KEY = "codespace";
 
@@ -215,6 +216,14 @@ public class Config {
   // e.g: etc/gml (need to load all EPSG database folders here), default is 8.5
   public String getGmlDefPath() {
     String ret = get(GML_DEF_KEY);
+    if (ret != null && !ret.endsWith(File.separator)) {
+      ret += File.separator;
+    }
+    return ret;
+  }
+  
+  public String getDbUpdatesPath() {
+    String ret = get(DB_UPDATES_PATH);
     if (ret != null && !ret.endsWith(File.separator)) {
       ret += File.separator;
     }

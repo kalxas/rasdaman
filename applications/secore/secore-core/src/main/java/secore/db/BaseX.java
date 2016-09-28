@@ -41,7 +41,6 @@ import secore.util.Constants;
 import secore.util.IOUtil;
 import secore.util.Pair;
 import secore.util.StringUtil;
-import secore.util.XMLUtil;
 
 
 /**
