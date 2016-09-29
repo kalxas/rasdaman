@@ -135,7 +135,7 @@ public class SubsetParsingService {
      */
     public List<Subset> convertToNumericSubsets(List<SubsetDimension> dimensions, WcpsCoverageMetadata metadata){
         List<Subset> result = new ArrayList();
-        for(SubsetDimension subsetDimension: dimensions){
+        for (SubsetDimension subsetDimension: dimensions) {
             result.add(convertToNumericSubset(subsetDimension, metadata));
         }
         return result;

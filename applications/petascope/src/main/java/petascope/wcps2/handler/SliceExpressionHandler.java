@@ -109,7 +109,7 @@ public class SliceExpressionHandler {
 
         //now remove the sliced axis from metadata
         // then the slicing axis also need to be removed from coverage metadata.
-        wcpsCoverageMetadataService.stripSlicingAxes(metadata);
+        wcpsCoverageMetadataService.stripSlicingAxes(metadata, axisIteratorSubsetDimensions);
 
         WcpsResult result = new WcpsResult(metadata, rasqlSubset);
 

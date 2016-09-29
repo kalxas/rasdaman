@@ -108,7 +108,7 @@ public class TrimExpressionHandler {
 
         // NOTE: DimensionIntervalList with Trim expression can contain slicing as well (e.g: c[t(0), Lat(0:20), Long(30)])
         // then the slicing axis also need to be removed from coverage metadata.
-        wcpsCoverageMetadataService.stripSlicingAxes(metadata);
+        wcpsCoverageMetadataService.stripSlicingAxes(metadata, axisIteratorSubsetDimensions);
 
         WcpsResult result = new WcpsResult(metadata, rasqlSubset);
         return result;
