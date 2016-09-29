@@ -281,9 +281,10 @@ public class BaseX implements Database {
    * @return String != "" if error
    * @throws SecoreException
    */
+  @Override
   public String queryUser(String query, String versionNumber) throws SecoreException {
     String ret = null;
-    if (query == null) {
+    if (StringUtil.emptyQueryResult(query)) {
       return Constants.EMPTY;
     }
     query = query.replaceAll(Constants.COLLECTION_NAME, DbManager.USER_DB);    
@@ -291,6 +292,27 @@ public class BaseX implements Database {
     query = query.replaceAll(Constants.VERSION_NUMBER, versionNumber);
     log.trace("Executing query against the USER database: " + query);
     ret = query(query, DbManager.USER_DB);
+    return ret;
+  }
+  
+  /**
+   * Receive the original query from console (def/index.jsp?query=true)
+   * @param query
+   * @param clearCache
+   * @return
+   * @throws SecoreException 
+   */
+  @Override
+  public String queryUser(String query, boolean clearCache) throws SecoreException {
+    String ret = null;
+    if (StringUtil.emptyQueryResult(query)) {
+        return Constants.EMPTY;
+    }    
+    ret = query(query, DbManager.USER_DB);
+    // if insert, delete, update in userdb, then it need to reload the cache after changed.
+    if (clearCache) {
+        DbManager.clearCache();
+    }
     return ret;
   }
 

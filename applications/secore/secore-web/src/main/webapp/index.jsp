@@ -19,6 +19,8 @@
  * For more information please see <http://www.rasdaman.org>
  * or contact Peter Baumann via <baumann@rasdaman.com>.
 --%>
+<%@page import="java.util.regex.Matcher"%>
+<%@page import="java.util.regex.Pattern"%>
 <%--
     Document   : index
     Created on : Oct 1, 2011, 12:18:10 PM
@@ -41,7 +43,20 @@
           out.println("<br/><span style=\"font-size:x-large;\"><a href='"+ Constants.INDEX_FILE +"'>Index</a></span><br/>");
           if (!query.equals(Constants.EMPTY)) {
             String versionNumber = DbManager.FIX_GML_VERSION_NUMBER;
-            String result = DbManager.getInstance().getDb().queryBothDB(query, versionNumber);
+            // NOTE: not every query will need to query in both epsg and userdb (only select will need to do this).
+            String patternStr = "\\s(insert|update|delete)\\s";            
+            Pattern pattern = Pattern.compile(patternStr);
+            Matcher matcher = pattern.matcher(query);            
+            String result = null;
+            
+            // If query is used to change userdb, then it should only query in userdb
+            if (matcher.find()) {
+                result = DbManager.getInstance().getDb().queryUser(query, true);
+            } else {
+                // non-update userdb query (like select can query in both collections: userdb and epsg db).
+                result = DbManager.getInstance().getDb().queryBothDB(query, versionNumber);
+            }
+            
             out.println("<br/><span style=\"font-size:x-large;\">Result:</span><br/>");
             out.println("<form name=mf><textarea name=mt cols=150 rows=30 readonly>" + result + "</textarea></form>");
           } else {

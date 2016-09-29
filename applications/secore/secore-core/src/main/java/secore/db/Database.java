@@ -57,6 +57,16 @@ public interface Database {
   String queryUser(String query, String versionNumber) throws SecoreException;
   
   /**
+   * Query the user-defined database with the original input XQuery (no replace anything).
+   * If query like insert, update, delete then it has to set clearCache to true, select query is set to false.
+   * @param query
+     * @param clearCache
+   * @return
+   * @throws SecoreException 
+   */
+  String queryUser(String query, boolean clearCache) throws SecoreException;
+  
+  /**
    * Submit query that updates the database
    * @param query XQuery query
    * @param db DBManager name
