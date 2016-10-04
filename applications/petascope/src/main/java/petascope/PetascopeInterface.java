@@ -437,7 +437,16 @@ public class PetascopeInterface extends HttpServlet {
                     return;
                 }
                 if (root.equals(XMLSymbols.LABEL_ENVELOPE)) {
-                    handleWcs2Request(request, httpResponse, wrapperRequest);
+                    // Here we have 2 kind of requests in SOAP body-message (1 is WCS, e.g: <wcs:GetCoverage>, 2 is WCPS, e.g: <ProcessCoveragesRequest>)
+                    // Need to get the XML content inside the <env:Body>...</env:Body>
+                    String bodyContent = XMLUtil.extractWcsRequest(request);
+                    if (bodyContent.contains(XMLSymbols.LABEL_PROCESSCOVERAGE_REQUEST)) {
+                        /* WCPS XML in SOAP, need to extract the process query in body tag */
+                        handleProcessCoverages(bodyContent, httpResponse);
+                    } else {
+                        /* WCS XML in SOAP, it will be extract the body tag later in SOAP handler */
+                        handleWcs2Request(request, httpResponse, wrapperRequest);
+                    }
                 } else if (root.endsWith(XMLSymbols.LABEL_PROCESSCOVERAGE_REQUEST)) {
                     /* ProcessCoverages is defined in the WCPS extension to WcsServer */
                     handleProcessCoverages(request, httpResponse);
@@ -759,6 +768,16 @@ public class PetascopeInterface extends HttpServlet {
         }
     }
 
+    /**
+     * This method is used to handle WCPS 1.0 in SOAP format or as an extension parameter from WCS
+     * e.g: SERVICE=WCS&VERSION=2.0.1&REQUEST=ProcessCoverages&query=for c in (test_mr) return avg(c)
+     * @param xmlRequest
+     * @param response
+     * @throws WCSException
+     * @throws PetascopeException
+     * @throws SecoreException
+     * @throws SQLException 
+     */
     private void handleProcessCoverages(String xmlRequest, HttpServletResponse response)
             throws WCSException, PetascopeException, SecoreException, SQLException {
 

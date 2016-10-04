@@ -524,16 +524,32 @@ run_test()
     # 1. execute test query
     #
     case "$SVC_NAME" in
-      wcps)   # URL encode query
-              QUERY=`cat $f | xxd -plain | tr -d '\n' | sed 's/\(..\)/%\1/g'`
-              # send to petascope
-              $WGET -q --post-data "query=$QUERY" $WCPS_URL -O "$out"
-              WGET_EXIT_CODE=$?
-              if [[ $WGET_EXIT_CODE != 0 ]]; then
-                  echo "Error when processing WCPS request in KVP, query return error: "$WGET_EXIT_CODE
-                  wget_error "$WCPS_EMBEDDED_URL""$QUERY" "$out"
-                  echo ".Done"
-              fi
+      wcps)   case "$test_type" in
+                test)  # URL encode query
+                    QUERY=`cat $f | xxd -plain | tr -d '\n' | sed 's/\(..\)/%\1/g'`
+                    # send to petascope
+                    $WGET -q --post-data "query=$QUERY" $WCPS_URL -O "$out"
+                    WGET_EXIT_CODE=$?
+                    if [[ $WGET_EXIT_CODE != 0 ]]; then
+                        echo "Error when processing WCPS request in KVP, query return error: "$WGET_EXIT_CODE
+                        wget_error "$WCPS_EMBEDDED_URL""$QUERY" "$out"
+                        echo ".Done"
+                    fi
+                    ;;
+                xml)
+                    postdata=`mktemp`
+                    cat "$f" > "$postdata"
+                    $WGET -q --header "Content-Type: text/xml" --post-file "$postdata" "$WCS_URL" -O "$out"
+                    WGET_EXIT_CODE=$?
+                    if [[ $WGET_EXIT_CODE != 0 ]]; then
+                      echo "Error when processing WCPS request in SOAP, query return error: "$WGET_EXIT_CODE
+                      wget_error "$WCPS_EMBEDDED_URL""$QUERY" "$out"
+                      echo ".Done"
+                    fi
+                    rm "$postdata"
+                    ;;
+                *)   error "unknown wcs test type: $test_type"
+              esac
               ;;
       wcs)    case "$test_type" in
                 kvp) $WGET -q "$WCS_URL?$QUERY" -O "$out"

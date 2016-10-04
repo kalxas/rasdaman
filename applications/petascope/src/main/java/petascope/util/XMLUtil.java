@@ -83,6 +83,8 @@ import org.xml.sax.SAXNotRecognizedException;
 import org.xml.sax.SAXNotSupportedException;
 import org.xml.sax.SAXParseException;
 import org.xml.sax.XMLReader;
+import petascope.exceptions.ExceptionCode;
+import petascope.exceptions.PetascopeException;
 
 /**
  * Common utility methods for working with XML.
@@ -1098,5 +1100,25 @@ public class XMLUtil {
         Builder docBuilder = new Builder();
         Element fragmentNode = docBuilder.build(new StringReader(fragment)).getRootElement();
         return (Element)fragmentNode.copy();
+    }
+    
+    /**
+     * Extract the WCS request from the SOAP message.
+     * @param request SOAP request.
+     * @return the embedded WCS request
+     * @throws Exception in case of error when parsing the SOAP message, or
+     *  serializing the WCS request to XML
+     */
+    public static String extractWcsRequest(String request) throws Exception {
+        Document doc = XMLUtil.buildDocument(null, request);
+        Element body = ListUtil.head(
+                XMLUtil.collectAll(doc.getRootElement(), XMLSymbols.LABEL_BODY));
+        if (body == null) {
+            throw new PetascopeException(ExceptionCode.InvalidEncodingSyntax,
+                    "Missing Body from SOAP request.");
+        }
+        Element wcsRequest = XMLUtil.firstChild(body);
+        wcsRequest.detach();
+        return XMLUtil.serialize(new Document(wcsRequest));
     }
 }
