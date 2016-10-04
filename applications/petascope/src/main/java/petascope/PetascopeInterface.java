@@ -38,9 +38,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
-import java.util.logging.Level;
 import javax.servlet.ServletException;
-import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
@@ -85,12 +83,15 @@ import petascope.wcs2.templates.Templates;
 import petascope.wms2.servlet.PetascopeInterfaceAdapter;
 
 /**
- * This servlet is a unified entry-point for all the PetaScope services.
+ * This servlet is a unified entry-point for all the PetaScope services. 
+ * Extends CORSHttpServlet for the CORS requirements to allow browser clients to request
+ * resources from different origin domains. i.e. http://example.org can make
+ * requests to http://example.com.
  *
  * @author Andrei Aiordachioaie
  * @author Dimitar Misev
  */
-public class PetascopeInterface extends HttpServlet {
+public class PetascopeInterface extends CORSHttpServlet {
 
     private static final Logger log = LoggerFactory.getLogger(PetascopeInterface.class);
     private DbMetadataSource meta;
@@ -102,11 +103,6 @@ public class PetascopeInterface extends HttpServlet {
     private Wcps wcps;
     /* Instance of WcsServer service */
     private WcsServer wcs;
-
-    private static final String CORS_ACCESS_CONTROL_ALLOW_ORIGIN = "*";
-    private static final String CORS_ACCESS_CONTROL_ALLOW_METHODS = "POST, GET, OPTIONS";
-    private static final String CORS_ACCESS_CONTROL_ALLOW_HEADERS = "Content-Type";
-    private static final String CORS_ACCESS_CONTROL_MAX_AGE = "1728000";
 
     private static final String WCPS_QUERY_GET_PARAMETER = "query";
     private static final String WCPS_REQUEST_GET_PARAMETER = "request";
@@ -241,10 +237,6 @@ public class PetascopeInterface extends HttpServlet {
         }
     }
 
-    private void setCORSHeader(HttpServletResponse httpResponse) throws ServletException {
-        httpResponse.setHeader("Access-Control-Allow-Origin", CORS_ACCESS_CONTROL_ALLOW_ORIGIN);
-    }
-
     /**
      * @return a parameter map of the query string in lower case parameters
      */
@@ -271,7 +263,6 @@ public class PetascopeInterface extends HttpServlet {
         CustomRequestWrapper wrapperRequest  = new CustomRequestWrapper(httpRequest);
         
         setServletURL(wrapperRequest);
-        setCORSHeader(httpResponse);
 
         // NOTE: admin can change Service Prodiver, Identification then session *reloadPage* will exist and value is true
         HttpSession session = wrapperRequest.getSession();
@@ -491,26 +482,6 @@ public class PetascopeInterface extends HttpServlet {
         catch (WCSException e) {
             printError(httpResponse, request, e);
         }
-    }
-
-    /**
-     * Implement the CORS requirements to allow browser clients to request
-     * resources from different origin domains. i.e. http://example.org can make
-     * requests to http://example.com
-     *
-     * @param req the http request
-     * @param resp the http response
-     * @throws ServletException
-     * @throws IOException
-     */
-    @Override
-    protected void doOptions(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        resp.setHeader("Access-Control-Allow-Origin", CORS_ACCESS_CONTROL_ALLOW_ORIGIN);
-        resp.setHeader("Access-Control-Allow-Methods", CORS_ACCESS_CONTROL_ALLOW_METHODS);
-        resp.setHeader("Access-Control-Allow-Headers", CORS_ACCESS_CONTROL_ALLOW_HEADERS);
-        resp.setHeader("Access-Control-Max-Age", CORS_ACCESS_CONTROL_MAX_AGE);
-        resp.setHeader("Content-Length", "0");
-        resp.setStatus(200);
     }
 
     private void printUsage(HttpServletResponse httpResponse, String request) throws IOException {
