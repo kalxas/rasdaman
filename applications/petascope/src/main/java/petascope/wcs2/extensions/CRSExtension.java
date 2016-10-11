@@ -49,18 +49,18 @@ public class CRSExtension implements Extension {
      *
      * @param request The WCS request, which is directly modified.
      * @param m coverage metadata 
+     * @throws petascope.exceptions.WCSException 
      *
      */
     protected void handle(GetCoverageRequest request, GetCoverageMetadata m) throws WCSException {
         
         GetCoverageRequest.CrsExt crsExt = request.getCrsExt();
-        if(crsExt.getOutputCrs() != null) {
+        if (crsExt.getOutputCrs() != null) {
             m.setOutputCrs(crsExt.getOutputCrs());
         }        
-        if(crsExt.getSubsettingCrs() != null) {
+        if (crsExt.getSubsettingCrs() != null) {
             m.setSubsettingCrs(crsExt.getSubsettingCrs());
         }        
-        crsExt.getSubsettingCrs();
     }
 
     @Override

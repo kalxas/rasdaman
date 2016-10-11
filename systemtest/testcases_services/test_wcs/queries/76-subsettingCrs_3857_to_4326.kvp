@@ -1,0 +1,9 @@
+service=WCS&
+version=2.0.1&
+request=GetCoverage&
+coverageId=test_eobstest&
+subset=Lat(2999080.943,3503549.844)&
+subset=Long(2894306.761,3339584.724)&
+subset=t("1950-01-01")&
+subsettingCrs=http://www.opengis.net/def/crs/EPSG/0/3857&
+format=image/tiff

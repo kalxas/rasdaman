@@ -210,7 +210,7 @@ public class WcpsCoverageMetadataService {
         }
         return true;
     }
-    
+
     /**
      * Remove all the un-unsed range fields from coverageExpression's metadata, if at least 1 range field is used.
      * e.g: coverage has 3 bands, but only 1 band is used (e.g: c.b1) then b2, b3 need to be removed from expression (c.b1)

@@ -29,3 +29,5 @@ png_irr_cube_1_subset.kvp
 43-get_coverage_fit_bbox_irregular_axis.xml
 41-get_coverage_untouched_irregular_axis.xml
 42-get_coverage_0D_referenceable.xml
+77-subsettingCrs_4326_to_32633.kvp
+78-subsettingCrs_32633_to_4326.kvp

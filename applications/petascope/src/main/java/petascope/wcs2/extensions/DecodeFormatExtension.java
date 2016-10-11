@@ -48,6 +48,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.*;
+import org.apache.commons.lang3.StringUtils;
 
 import static petascope.core.DbMetadataSource.TABLE_MULTIPOINT;
 import static petascope.util.GdalParameters.GDAL_CODEC_PARAM;
@@ -189,6 +190,10 @@ public class DecodeFormatExtension extends AbstractFormatExtension {
      */
     private Response getGmlResponse(GetCoverageRequest request, DbMetadataSource meta) throws PetascopeException, SecoreException {
         GetCoverageMetadata m = new GetCoverageMetadata(request, meta);
+        
+        // First, transform possible non-native CRS subsets
+        CRSExtension crsExtension = (CRSExtension) ExtensionsRegistry.getExtension(ExtensionsRegistry.CRS_IDENTIFIER);
+        crsExtension.handle(request, m);
 
         //Handle the range subset feature
         RangeSubsettingExtension rsubExt = (RangeSubsettingExtension) ExtensionsRegistry.getExtension(ExtensionsRegistry.RANGE_SUBSETTING_IDENTIFIER);
@@ -214,6 +219,14 @@ public class DecodeFormatExtension extends AbstractFormatExtension {
             if (m.getCoverageType().equals(XMLSymbols.LABEL_REFERENCEABLE_GRID_COVERAGE)) {
                 gml = WcsUtil.addCoefficients(gml, m, meta);
                 // Grid and Coverage bounds need to be updated, now we know the coefficients
+                // NOTE: we will not translate subsets from subsettingCRS to nativeCrs again (translated above in updateGetCoverageMetadata).
+                if (!StringUtils.isEmpty(m.getSubsettingCrs())) {
+                    m.setSubsettingCrs(null);
+                    // and will set outputCrs to subsettingCrs if it is null
+                    if (m.getOutputCrs() == null) {
+                        m.setOutputCrs(m.getSubsettingCrs());
+                    }
+                }
                 updateGetCoverageMetadata(request, m, meta);
                 gml = WcsUtil.getBounds(gml, m);
             }
