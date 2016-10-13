@@ -22,7 +22,6 @@
 
 package petascope.wms2.servlet;
 
-import petascope.util.request.CORSHttpServlet;
 import petascope.wms2.orchestration.ServiceOrchestrator;
 import petascope.wms2.service.base.Response;
 
@@ -31,6 +30,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import petascope.CORSHttpServlet;
 
 /**
  * Servlet for WMS. It wraps requests from the web client in a standard container, passes them to the service orchestrator
@@ -62,6 +62,7 @@ public class WMSServlet extends CORSHttpServlet {
      */
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        super.doGet(req, resp);
         try {
             WMSGetRequest request = new WMSGetRequest(req);
             Response response = orchestrator.handleWMSRequest(request);

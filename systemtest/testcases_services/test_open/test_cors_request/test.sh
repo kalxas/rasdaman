@@ -36,18 +36,39 @@ SCRIPT_DIR="$( cd -P "$( dirname "$SOURCE" )" && pwd )"
 
 . "$SCRIPT_DIR"/../../../util/common.sh
 
-PETASCOPE_ENDPOINT=$PETASCOPE_URL'/ows'
+PETASCOPE_ENDPOINT="$PETASCOPE_URL/ows"
+
+# the header of HTTP request, response will be written to here.
+OUTPUT_FILE=output.txt
 
 log "Testing Petascope allow CORS..."
 
-# Redirect standar error to file to get the verbose result (not download from URL and export to output file).
-curl -H "Origin: http://test.com"   -H "Access-Control-Request-Method: POST"   -H "Access-Control-Request-Headers: X-Requested-With" -X OPTIONS --verbose   $PETASCOPE_ENDPOINT 2> output.txt
+# NOTE: In Petascope there are 2 method (doGet() and doOptions() which response with "Allow Origin: *"), need to test both of them.
+
+# 1. Test doGet()
+curl -H "Origin:*" -I "$PETASCOPE_ENDPOINT" --verbose  2> "$OUTPUT_FILE"
 
 # Check the result to see Petascope allows CORS
-grep -R "Access-Control-Allow-Origin: *" output.txt
+log "Check doGet() with enabled CORS..."
+grep -R "Access-Control-Allow-Origin: *" "$OUTPUT_FILE"
+check
+
+# clear output file
+echo -n > "$OUTPUT_FILE"
+
+# 2. Test doOptions()
+# Redirect standar error to file to get the verbose result (not download from URL and export to output file).
+curl -H "Origin: http://test.com"   -H "Access-Control-Request-Method: POST"   -H "Access-Control-Request-Headers: X-Requested-With" -X OPTIONS --verbose "$PETASCOPE_ENDPOINT" 2> "$OUTPUT_FILE"
+
+# Check the result to see Petascope allows CORS
+log "Check doOptions() with enabled CORS..."
+grep -R "Access-Control-Allow-Origin: *" "$OUTPUT_FILE"
 check
 
 log "done."
+
+# remove output file
+rm "$OUTPUT_FILE"
 
 # print summary from util/common.sh
 print_summary

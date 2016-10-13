@@ -251,14 +251,15 @@ public class PetascopeInterface extends CORSHttpServlet {
 
     /* Respond to Post requests just like in the case of Get requests */
     @Override
-    public void doPost(HttpServletRequest httpRequest, HttpServletResponse httpResponse) throws ServletException, UnsupportedEncodingException {
+    public void doPost(HttpServletRequest httpRequest, HttpServletResponse httpResponse) throws ServletException, UnsupportedEncodingException, IOException {
         doGet(httpRequest, httpResponse);
     }
 
     /* Handle Get requests. This function delegates the request to the service
      specified in the request by the "service" parameter. */
     @Override
-    public void doGet(HttpServletRequest httpRequest, HttpServletResponse httpResponse) throws ServletException, UnsupportedEncodingException {
+    public void doGet(HttpServletRequest httpRequest, HttpServletResponse httpResponse) throws ServletException, UnsupportedEncodingException, IOException {
+        super.doGet(httpRequest, httpResponse);
         // NOTE: To support the "+" which is missing from URI as it is converted to space, we need to manipulate the queryString and parse it to parameter maps correctly
         CustomRequestWrapper wrapperRequest  = new CustomRequestWrapper(httpRequest);
         
