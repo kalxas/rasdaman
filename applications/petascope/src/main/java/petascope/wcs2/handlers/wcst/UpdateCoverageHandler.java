@@ -115,7 +115,7 @@ public class UpdateCoverageHandler extends AbstractRequestHandler<UpdateCoverage
             inputCoverage = CoverageMetadata.fromGML(xmlInputCoverage);
             //validation
             UpdateCoverageValidator validator = new UpdateCoverageValidator(currentCoverage, inputCoverage,
-                    request.getSubsets(), request.getRangeComponent());
+                                                                            request.getSubsets(), request.getRangeComponent());
             validator.validate();
 
             //handle subset coefficients if necessary
@@ -126,7 +126,7 @@ public class UpdateCoverageHandler extends AbstractRequestHandler<UpdateCoverage
             Element rangeSet = GMLParserUtil.parseRangeSet(xmlInputCoverage.getRootElement());
 
             Map<Integer, String> pixelIndices = getPixelIndicesByCoordinate(currentCoverage, request.getSubsets());
-            String affectedDomain = getAffectedDomain(currentCoverage, request.getSubsets(), pixelIndices);
+            String affectedDomain = getAffectedDomain(currentCoverage, request.getSubsets(), pixelIndices);                        
             subsetValidator.validate(inputCoverage.getCellDomainList(), affectedDomain);
             String shiftDomain = getShiftDomain(inputCoverage, pixelIndices);
             RasdamanUpdater updater;

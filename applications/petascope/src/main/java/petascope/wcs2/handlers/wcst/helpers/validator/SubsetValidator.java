@@ -21,6 +21,7 @@
  */
 package petascope.wcs2.handlers.wcst.helpers.validator;
 
+import java.math.BigDecimal;
 import org.apache.commons.lang3.math.NumberUtils;
 import petascope.exceptions.wcst.WCSTInvalidComputedDomainCellCount;
 import petascope.wcps.metadata.CellDomainElement;
@@ -42,10 +43,10 @@ public class SubsetValidator {
     public void validate(List<CellDomainElement> inputCoverageDomain, String affectedDomain) throws WCSTInvalidComputedDomainCellCount {
         validateDomainsCellCount(inputCoverageDomain, affectedDomain);
         validateCellCountsByDimension(inputCoverageDomain, affectedDomain);
-    }
+    }    
 
     private void validateDomainsCellCount(List<CellDomainElement> inputCoverageDomain, String affectedDomain) throws WCSTInvalidComputedDomainCellCount {
-        if(getDomainCellCount(inputCoverageDomain) != getDomainCellCount(affectedDomain)){
+        if (getDomainCellCount(inputCoverageDomain) != getDomainCellCount(affectedDomain)) {
             throw new WCSTInvalidComputedDomainCellCount(getCellDomainListStringRepresentation(inputCoverageDomain), affectedDomain);
         }
     }
@@ -53,15 +54,15 @@ public class SubsetValidator {
     private void validateCellCountsByDimension(List<CellDomainElement> inputCoverageDomain, String affectedDomain) throws WCSTInvalidComputedDomainCellCount {
         List<Integer> inputDimCellCount = getNonSliceCellCounts(inputCoverageDomain);
         List<Integer> affectedDimCellCount = getNonSliceCellCounts(affectedDomain);
-        if(!inputDimCellCount.containsAll(affectedDimCellCount) || !affectedDimCellCount.containsAll(inputDimCellCount)){
+        if ( !inputDimCellCount.containsAll(affectedDimCellCount) || !affectedDimCellCount.containsAll(inputDimCellCount) ){
             throw new WCSTInvalidComputedDomainCellCount(getCellDomainListStringRepresentation(inputCoverageDomain), affectedDomain);
         }
     }
 
     private List<Integer> getNonSliceCellCounts(List<CellDomainElement> domain){
         List<Integer> result = new ArrayList<Integer>();
-        for(CellDomainElement cellDomainElement: domain){
-            if(cellDomainElement.getHiInt() > cellDomainElement.getLoInt()){
+        for (CellDomainElement cellDomainElement: domain) {
+            if (cellDomainElement.getHiInt() > cellDomainElement.getLoInt()) {
                 result.add(Integer.valueOf(cellDomainElement.getHiInt() - cellDomainElement.getLoInt() + 1));
             }
         }
@@ -71,11 +72,11 @@ public class SubsetValidator {
     private List<Integer> getNonSliceCellCounts(String domain){
         List<Integer> result = new ArrayList<Integer>();
         String[] domainParts = domain.replace("[", "").replace("]", "").split(",");
-        for(String domainPart : domainParts) {
+        for (String domainPart : domainParts) {
             if (domainPart.contains(":")) {
                 int low = NumberUtils.toInt(domainPart.split(":")[0].trim());
                 int high = NumberUtils.toInt(domainPart.split(":")[1].trim());
-                if(high > low){
+                if (high > low) {
                     result.add(Integer.valueOf(high - low + 1));
                 }
             }
@@ -85,7 +86,7 @@ public class SubsetValidator {
 
     private int getDomainCellCount(List<CellDomainElement> domain){
         int result = 1;
-        for(CellDomainElement domainElement: domain){
+        for (CellDomainElement domainElement: domain) {
             result *= domainElement.getHiInt() - domainElement.getLoInt() + 1;
         }
         return result;
@@ -94,8 +95,8 @@ public class SubsetValidator {
     private int getDomainCellCount(String domain){
         int result = 1;
         String[] domainParts = domain.replace("[", "").replace("]", "").split(",");
-        for(String domainPart : domainParts){
-            if(domainPart.contains(":")) {
+        for (String domainPart : domainParts) {
+            if (domainPart.contains(":")) {
                 //trimming only, slicing doesn't add to the cell count
                 int low = NumberUtils.toInt(domainPart.split(":")[0].trim());
                 int high = NumberUtils.toInt(domainPart.split(":")[1].trim());
@@ -108,9 +109,9 @@ public class SubsetValidator {
     private String getCellDomainListStringRepresentation(List<CellDomainElement> cellDomainElements){
         String result = "[";
         int count = 0;
-        for(CellDomainElement cellDomainElement: cellDomainElements){
+        for (CellDomainElement cellDomainElement: cellDomainElements) {
             result += cellDomainElement.getLo() + ":" + cellDomainElement.getHi();
-            if(count < cellDomainElements.size() - 1){
+            if (count < cellDomainElements.size() - 1) {
                 result += ",";
             }
             count++;
