@@ -35,6 +35,7 @@ set(PETASCOPE_TARGET_DIR "${CMAKE_CURRENT_BINARY_DIR}/target")
 set(CONF_DIR "${CONF_DIR}/")
 set(GENERATED_rasdaman_bin_path "${BIN_DIR}/")
 set(GENERATED_jetty_extracted_path ${WAR_DIR})
+set(LOGDIR "${LOG_DIR}")
 set(bindir "${BIN_DIR}/")
 set(pkgdatadir "${SHARE_DATA_DIR}/")
 set(sysconfdir "${CONF_DIR}/")
@@ -79,6 +80,8 @@ if (PETASCOPEDB_HSQLDB)
     set(HSQLDB 1)
 endif ()
 
+set(LOG_SETTINGS_FILE_TEMPLATE "${CMAKE_CURRENT_SOURCE_DIR}/src/main/resources/log4j.properties.in")
+set(LOG_SETTINGS_FILE "${CMAKE_CURRENT_SOURCE_DIR}/src/main/resources/log4j.properties")
 
 # Generate web.xml out of an .in file by replacing any variables that can be configured at compile time
 configure_file("${SRC_WEB}/WEB-INF/web.xml.in" ${PETASCOPE_WEB_XML_PATH} @ONLY)
@@ -88,6 +91,9 @@ configure_file(pom.xml.in "${CMAKE_CURRENT_SOURCE_DIR}/pom.xml" @ONLY)
 
 # Do the same for petascope.properties
 configure_file(${SETTINGS_FILE_TEMPLATE} ${SETTINGS_FILE} @ONLY)
+
+# Do the same for log4j.properties
+configure_file(${LOG_SETTINGS_FILE_TEMPLATE} ${LOG_SETTINGS_FILE} @ONLY)
 
 # Do the same for update_petascopedb.sh
 configure_file(${CREATE_PETASCOPEDB_TEMPLATE} ${CREATE_PETASCOPEDB_SCRIPT} @ONLY)
@@ -105,7 +111,11 @@ add_custom_target(petascope ALL
         WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
         VERBATIM)
 
-add_dependencies(petascope rasj)
+add_custom_target(setlogdir ALL
+        COMMAND test -f ${CONF_DIR}/log4j.properties && sed -i 's|log4j.appender.rollingFile.File=petascope.log|log4j.appender.rollingFile.File=${LOG_DIR}/petascope.log|g' ${CONF_DIR}/log4j.properties || true
+)
+
+add_dependencies(petascope rasj setlogdir)
 
 # If petascope should work as a standalone server let's build the jetty profile in maven
 if (JAVA_SERVER_EMBEDDED)

@@ -61,6 +61,7 @@ relstorageif/dbstoragelayout.cc
 server/rasserver
 bin/create_db.sh
 bin/start_rasdaman.sh
+bin/watch_rasdaman.sh
 bin/stop_rasdaman.sh
 bin/rasmgr.conf
 *.class
@@ -114,6 +115,7 @@ java/bin/
 output
 applications/petascope/src/main/webapp/WEB-INF/web.xml
 applications/petascope/src/main/resources/petascope.properties
+applications/petascope/src/main/resources/log4j.properties
 compile
 /applications/petascope/dist/
 wcps.tokens

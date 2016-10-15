@@ -196,7 +196,7 @@ endif
 	OLD_CONF=$(DESTDIR)$(sysconfdir)/petascope.properties; \
 	NEW_CONF=$(SETTINGS_FILE_EDIT); \
 	OLD_LOG4JCONF=$(DESTDIR)$(sysconfdir)/log4j.properties; \
-	NEW_LOG4JCONF=src/main/resources/log4j.properties; \
+	NEW_LOG4JCONF=src/main/resources/log4j.properties.in; \
 	sed -i "s|@GENERATED_rasdaman_bin_path@|$(bindir)/|g" $(SETTINGS_FILE_EDIT); \
 	if test -f $$OLD_CONF; then \
 		echo "$@ is updating petascope.properties: $$OLD_CONF from $$NEW_CONF"; \
@@ -210,10 +210,11 @@ endif
 	fi; \
 	echo -e; \
 	if test -f $$OLD_LOG4JCONF; then \
-		echo "$@ will not update log4j.properties in $$OLD_LOG4JCONF. Done."; \
+    $(SED) -i 's|log4j\.appender\.rollingFile\.File=petascope.log|log4j.appender.rollingFile.File='$(logdir)'/petascope.log|g' $$OLD_LOG4JCONF; \
+		echo "$@ will not overwrite log4j.properties in $$OLD_LOG4JCONF."; \
 	else \
 		echo "$@ is copying log4j.properties: $$NEW_LOG4JCONF to $$OLD_LOG4JCONF"; \
-		cp $$NEW_LOG4JCONF $$OLD_LOG4JCONF; \
+		$(SED) 's|@LOGDIR@|'$(logdir)'|g' $$NEW_LOG4JCONF > $$OLD_LOG4JCONF; \
 	fi;
 
 # run any JUnit tests
