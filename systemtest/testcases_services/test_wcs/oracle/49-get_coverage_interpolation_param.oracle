@@ -29,8 +29,8 @@
               <pos>0.5 210.5</pos>
           </Point>
       </origin>
-      <offsetVector srsName="/crs/OGC/0/Index2D" axisLabels="i j" uomLabels="GridSpacing GridSpacing" srsDimension="2">100 0</offsetVector>
-      <offsetVector srsName="/crs/OGC/0/Index2D" axisLabels="i j" uomLabels="GridSpacing GridSpacing" srsDimension="2">0 -100</offsetVector>
+      <offsetVector srsName="/crs/OGC/0/Index2D" axisLabels="i j" uomLabels="GridSpacing GridSpacing" srsDimension="2">0.01 0</offsetVector>
+      <offsetVector srsName="/crs/OGC/0/Index2D" axisLabels="i j" uomLabels="GridSpacing GridSpacing" srsDimension="2">0 -0.01</offsetVector>
     </RectifiedGrid>
   </domainSet>
 

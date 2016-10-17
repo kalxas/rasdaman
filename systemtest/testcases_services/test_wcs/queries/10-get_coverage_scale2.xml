@@ -12,7 +12,7 @@
       <scal:ScaleAxesByFactor>
         <scal:ScaleAxis>
           <scal:axis>i</scal:axis>
-          <scal:scaleFactor>0.5</scal:scaleFactor>
+          <scal:scaleFactor>0.02</scal:scaleFactor>
         </scal:ScaleAxis>
       </scal:ScaleAxesByFactor>
     </scal:Scaling>

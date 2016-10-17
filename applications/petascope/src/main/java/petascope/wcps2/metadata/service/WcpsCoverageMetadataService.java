@@ -86,6 +86,7 @@ public class WcpsCoverageMetadataService {
      * @param checkBoundary should the subset needed to check the boundary (e.g: with scale(..., {subset})) will not need to check.
      * @param metadata
      * @param subsetList
+     * @param updateAxisCrs in some cases like scale(c, {Lat:"CRS:1", Long:"CRS:1"}) it should not consider CRS:1 is CRS of axis Lat, Long of coverage.
      * @return
      * @throws petascope.exceptions.PetascopeException
      */

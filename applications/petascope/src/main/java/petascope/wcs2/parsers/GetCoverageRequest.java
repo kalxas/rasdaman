@@ -245,15 +245,18 @@ public class GetCoverageRequest extends BaseRequest {
     public static class Scaling {
 
         private boolean set;
-        private int type;
+        // list of support types for scaling
+        public static enum SupportedTypes { UNSCALED, SCALE_FACTOR, SCALE_AXIS, SCALE_SIZE, SCALE_EXTENT }
+        private SupportedTypes type;
         private float factor;
         private HashMap<String, Float> fact;
         private HashMap<String, Long> sz;
         private HashMap<String, Pair<Long, Long>> extent;
 
         public Scaling() {
+            // default coverage is not scaled
+            type = SupportedTypes.UNSCALED;
             set = false;
-            type = 0;
             factor = (float) 1.0;
             fact = new HashMap<String, Float>();
             sz = new HashMap<String, Long>();
@@ -264,7 +267,7 @@ public class GetCoverageRequest extends BaseRequest {
             return set;
         }
 
-        public int getType() {
+        public SupportedTypes getType() {
             return type;
         }
 
@@ -316,16 +319,16 @@ public class GetCoverageRequest extends BaseRequest {
             this.set = true;
         }
 
-        public void setType(int t) {
+        public void setType(SupportedTypes t) {
             this.type = t;
         }
 
         public int getAxesNumber() {
             switch (this.type) {
-                case 1: return 0;
-                case 2: return this.fact.size();
-                case 3: return this.sz.size();
-                case 4: return this.extent.size();
+                case SCALE_FACTOR: return 0;
+                case SCALE_AXIS: return this.fact.size();
+                case SCALE_SIZE: return this.sz.size();
+                case SCALE_EXTENT: return this.extent.size();
                 default: return 0;
             }
         }
@@ -336,7 +339,7 @@ public class GetCoverageRequest extends BaseRequest {
          * @return True if axis is somehow involved in a scaling operation.
          */
         public boolean isScaled(String axis) {
-            return getType() == 1             // global scale factor
+            return getType().equals(SupportedTypes.SCALE_FACTOR)             // global scale factor
                     || isPresentSize(axis)    // scale-to-size
                     || isPresentExtent(axis)  // scale-to-extent
                     || isPresentFactor(axis); // axis scale factor

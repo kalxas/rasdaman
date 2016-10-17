@@ -29,8 +29,8 @@
               <pos>-9 112</pos>
           </Point>
       </origin>
-      <offsetVector srsName="/crs/EPSG/0/4326" axisLabels="Lat Long" uomLabels="degree degree" srsDimension="2">-1.7775 0</offsetVector>
-      <offsetVector srsName="/crs/EPSG/0/4326" axisLabels="Lat Long" uomLabels="degree degree" srsDimension="2">0 4.43</offsetVector>
+      <offsetVector srsName="/crs/EPSG/0/4326" axisLabels="Lat Long" uomLabels="degree degree" srsDimension="2">-0.001406469760900140646976090014064697609001406469761 0</offsetVector>
+      <offsetVector srsName="/crs/EPSG/0/4326" axisLabels="Lat Long" uomLabels="degree degree" srsDimension="2">0 0.000564334085778781038374717832957110609480812641084</offsetVector>
     </RectifiedGrid>
   </domainSet>
 

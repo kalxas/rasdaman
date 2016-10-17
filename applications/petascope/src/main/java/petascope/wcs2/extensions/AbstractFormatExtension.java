@@ -235,7 +235,7 @@ public abstract class AbstractFormatExtension implements FormatExtension {
                                 if (scaling.isScaled(axisLabel)) {
                                     BigDecimal scalingFactor = ScalingExtension.computeScalingFactor(scaling, axisLabel, new BigDecimal(cellDom[0]), new BigDecimal(cellDom[1]));
                                     // update grid envelope
-                                    long scaledExtent = Math.round(Math.floor((cellDom[1]-cellDom[0]+1)/scalingFactor.floatValue()));
+                                    long scaledExtent = Math.round(Math.floor((cellDom[1]-cellDom[0]+1) * scalingFactor.floatValue()));
                                     cellDom[1] = (long)(cellDom[0] + scaledExtent - 1);
                                     // update offset vectors
                                     // [!] NOTE: do *not* use domainEl.setScalarResolution since world2pixel conversions are cached.
@@ -287,7 +287,7 @@ public abstract class AbstractFormatExtension implements FormatExtension {
                 if (scaling.isScaled(axisLabel)) {
                     BigDecimal scalingFactor = ScalingExtension.computeScalingFactor(scaling, axisLabel, BigDecimal.valueOf(loCellDom), BigDecimal.valueOf(hiCellDom));
                     // update grid envelope
-                    long scaledExtent = Math.round(Math.floor((hiCellDom-loCellDom+1)/scalingFactor.floatValue()));
+                    long scaledExtent = Math.round(Math.floor((hiCellDom-loCellDom+1) * scalingFactor.floatValue()));
                     hiCellDom = (long)(loCellDom + scaledExtent - 1);
                     // update offset vectors
                     // [!] NOTE: do *not* use domainEl.setScalarResolution since world2pixel conversions are cached.
@@ -491,10 +491,12 @@ public abstract class AbstractFormatExtension implements FormatExtension {
                         hi = lohi[1];
                     }
                     long hiAfterScale;
+                    // Note: scalefactor value: 1.0 leaves the coverage unscaled, scalefactor value: between 0 and 1 scales down
+                    // (reduces target domain), scalefactor value: greater than 1 scales up (enlarges target domain).
                     switch (scaling.getType()) {
-                        case 1:
+                        case SCALE_FACTOR:
                             // SCALE-BY-FACTOR: divide extent by global scaling factor
-                            scaledExtent = Math.round(Math.floor((hi-lo+1)/scaling.getFactor()));
+                            scaledExtent = Math.round(Math.floor((hi-lo+1) * scaling.getFactor()));
 
                             hiAfterScale = Math.round(Math.floor(lo + scaledExtent - 1));
                             if (lo > hiAfterScale) {
@@ -506,10 +508,10 @@ public abstract class AbstractFormatExtension implements FormatExtension {
                             proc = proc + dim + ":\"" + crs + "\"(" + lo
                                     + ":" + hiAfterScale + "),";
                             break;
-                        case 2:
+                        case SCALE_AXIS:
                             // SCALE-AXES: divide extent by axis scaling factor
                             if (scaling.isPresentFactor(dim)) {
-                                scaledExtent = Math.round(Math.floor((hi-lo+1)/scaling.getFactor(dim)));
+                                scaledExtent = Math.round(Math.floor((hi-lo+1) * scaling.getFactor(dim)));
 
                                 hiAfterScale = Math.round(Math.floor(lo + scaledExtent - 1));
                                 if (lo > hiAfterScale) {
@@ -529,7 +531,7 @@ public abstract class AbstractFormatExtension implements FormatExtension {
                                 proc = proc + dim + ":\"" + crs + "\"(" + lo + ":" + hi + "),";
                             }
                             break;
-                        case 3:
+                        case SCALE_SIZE:
                             // SCALE-SIZE: set extent of dimension
                             if (scaling.isPresentSize(dim)) {
                                 hiAfterScale = (lo + scaling.getSize(dim)-1);
@@ -550,7 +552,7 @@ public abstract class AbstractFormatExtension implements FormatExtension {
                                 proc = proc + dim + ":\"" + crs + "\"(" + lo + ":" + hi + "),";
                             }
                             break;
-                        case 4:
+                        case SCALE_EXTENT:
                             // SCALE-EXTENT: set extent of dimension
                             if (scaling.isPresentExtent(dim)) {
                                 proc = proc + dim + ":\"" + crs + "\"(" + scaling.getExtent(dim).fst

@@ -11,7 +11,7 @@
   <wcs:Extension>
     <scal:Scaling>
       <scal:ScaleByFactor>
-        <scal:scaleFactor>100</scal:scaleFactor>
+        <scal:scaleFactor>0.01</scal:scaleFactor>
       </scal:ScaleByFactor>
     </scal:Scaling>
     <int:Interpolation>

@@ -2,11 +2,8 @@
 <ows:ExceptionReport version="2.0.0"
     xsd:schemaLocation="http://www.opengis.net/ows/2.0 http://schemas.opengis.net/ows/2.0/owsExceptionReport.xsd"
       >
-    <ows:Exception exceptionCode="RuntimeError">
-        <ows:ExceptionText>Runtime error while processing request</ows:ExceptionText>
-    </ows:Exception>
-    <ows:Exception exceptionCode="RuntimeError">
-        <ows:ExceptionText>java.lang.ArithmeticException : BigInteger divide by zero</ows:ExceptionText>
+    <ows:Exception exceptionCode="InvalidRequest">
+        <ows:ExceptionText>Scaling factor cannot be 0.</ows:ExceptionText>
     </ows:Exception>
 
 </ows:ExceptionReport>

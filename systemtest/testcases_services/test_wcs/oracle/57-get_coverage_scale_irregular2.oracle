@@ -22,7 +22,7 @@
       <limits>
         <GridEnvelope>
           <low>0 34 0</low>
-          <high>0 35 0</high>
+          <high>3 35 0</high>
         </GridEnvelope>
       </limits>
       <axisLabels>E N ansi</axisLabels>
@@ -62,7 +62,7 @@
   <rangeSet>
     <DataBlock>
       <rangeParameters/>
-      <tupleList ts="," cs=" ">9.69735 4.18183,9.69735 4.18183</tupleList>
+      <tupleList ts="," cs=" ">9.69735 4.18183,9.69735 4.18183,9.69735 4.18183,9.69735 4.18183,9.03994 4.17602,9.03994 4.17602,9.03994 4.17602,9.03994 4.17602</tupleList>
     </DataBlock>
   </rangeSet>
 

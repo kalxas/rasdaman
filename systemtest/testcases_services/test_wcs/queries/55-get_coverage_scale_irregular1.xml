@@ -10,7 +10,7 @@
   <wcs:Extension>
     <scal:Scaling>
       <scal:ScaleByFactor>
-        <scal:scaleFactor>2.0</scal:scaleFactor>
+        <scal:scaleFactor>1.0000001</scal:scaleFactor>
       </scal:ScaleByFactor>
     </scal:Scaling>
   </wcs:Extension>
