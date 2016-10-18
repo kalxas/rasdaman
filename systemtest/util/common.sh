@@ -86,7 +86,6 @@ export PGSQL="psql -d $RASDB --port $PG_PORT"
 export PSQL="psql -d $PS_DB --port $PG_PORT"
 
 export WGET="wget"
-export WGET_CODE_SERVER_ERROR=8 # See https://www.gnu.org/software/wget/manual/html_node/Exit-Status.html
 export GDALINFO="gdalinfo -noct -checksum"
 
 # filestorage
@@ -255,6 +254,36 @@ check_gdal_version()
   GDAL_VERSION_MINOR=$(echo $GDAL_VERSION | awk -F '.' '{ print $2; }')
   [[ $GDAL_VERSION_MAJOR -gt 1 || ( $GDAL_VERSION_MAJOR -eq $1 && $GDAL_VERSION_MINOR -ge $2 ) ]] && echo 0 || echo 1
 }
+
+check_jpeg2000_enabled()
+{
+  # check if gdal supports JP2OpenJPEG then run test cases with encode in this format
+  gdalinfo --formats | grep JP2OpenJPEG > /dev/null
+  if [ $? -ne 0 ]; then
+    log "skipping test for GMLJP2 encoding."
+    return 1
+  fi
+  return 0
+}
+
+
+# check if query should be run (e.g: JPEG2000)
+check_query_runable()
+{
+  if [[ "$1" == *"jp2"* || "$1" == *"jpeg2000"*  || "$1" == *"jp2openjpeg"* ]]; then
+    # call the function and get the return in integer by $?
+    check_jpeg2000_enabled
+    if [[ $? -eq 0 ]]; then
+      return 0
+    else
+      log "skipping test as it is not runable."
+      loge
+      return 1
+    fi
+  fi
+  return 0
+}
+
 
 check_filestorage_dependencies()
 {
@@ -436,13 +465,37 @@ prepare_xml_file()
 
 
 # -----------------------------------------------------------------------------
-
 # when wget returns empty file, using curl to get the error in page content.
 # $1 is request error link, $2 is output file.
-wget_error(){
-  # get script name
-  PROG=$( basename $0 )
-  curl -s -R $1 > $2
+get_request_kvp() {
+
+  # normally will have to add "?" to separate the http://host:port/servlet and URI (e.g: service=WCS&version=2.0.1&query=....)
+  if [[ -z "$4" ]]; then
+    # URL encode query
+    query=`echo "$2" | xxd -plain | tr -d '\n' | sed 's/\(..\)/%\1/g'`
+    url="$1""?""$query"
+  else
+    query="$2"
+    # SECORE will not add this feature (as will have invalid URI request for resolving CRS)
+    url="$1""$query"
+  fi
+
+  echo $url
+
+  curl -s -R "$url" > "$3"
+}
+
+# used by WCPS test as it can be big query
+post_request_kvp() {
+  # send the query to server ($1) and write the result to output file ($3)
+  query=`echo "$2" | xxd -plain | tr -d '\n' | sed 's/\(..\)/%\1/g'`
+  curl -s --data "query=$query" "$1" -o "$3"
+}
+
+# this function will be used to get error from WCPS/WCS in XML request
+get_request_xml(){
+  # curl -X GET -d @14-get_coverage_jp2_slice_t_crs1.xml http://localhost:8080/rasdaman/ows -o error.txt
+  curl -s -X GET -d @"$1" "$WCS_URL" -o "$2"
 }
 
 
@@ -519,7 +572,7 @@ run_test()
     update_result
 
   else
-
+    # error: if in file has "*" then it replaces it with file name, then must turn off this feature
     QUERY=`cat $f | tr -d '\n'`
 
     #
@@ -529,13 +582,13 @@ run_test()
       rasql)
               case "$test_type" in
                 kvp)
-                    $WGET -q "$RASQL_SERVLET?$QUERY" -O "$out"
-                    WGET_EXIT_CODE=$?
-                    if [[ $WGET_EXIT_CODE != 0 ]]; then
-                      echo "Error when processing Rasql-Servlet request in KVP, query return error: "$WGET_EXIT_CODE
-                      wget_error "$RASQL_SERVLET?$QUERY" "$out"
-                      echo ".Done"
+                    QUERY=`cat $f`
+		                # check if query contains "jpeg2000" and gdal supports this format, then the query should be run.
+                    check_query_runable "$QUERY"
+		                if [[ $? -eq 0 ]]; then
+                      get_request_kvp "$RASQL_SERVLET" "$QUERY" "$out"
                     fi
+                    echo "Done."
                     ;;
                 input)
                     templateFile="$SCRIPT_DIR/queries/post-upload.template"
@@ -552,63 +605,70 @@ run_test()
               ;;
       wcps)   case "$test_type" in
                 test)
-                    # URL encode query
-                    QUERY=`cat $f | xxd -plain | tr -d '\n' | sed 's/\(..\)/%\1/g'`
-                    # send to petascope
-                    $WGET -q --post-data "query=$QUERY" $WCPS_URL -O "$out"
-                    WGET_EXIT_CODE=$?
-                    if [[ $WGET_EXIT_CODE != 0 ]]; then
-                        echo "Error when processing WCPS request in KVP, query return error: "$WGET_EXIT_CODE
-                        wget_error "$WCPS_EMBEDDED_URL""$QUERY" "$out"
-                        echo ".Done"
+                    QUERY=`cat $f`
+                    # check if query contains "jpeg2000" and gdal supports this format, then the query should be run.
+                    check_query_runable "$QUERY"
+                    if [[ $? -eq 0 ]]; then
+                      # send to petascope (must use WCPS encode now)
+                      post_request_kvp "$WCPS_URL" "$QUERY" "$out"
+                    else
+                      continue
                     fi
+                    echo "Done."
                     ;;
                 xml)
                     postdata=`mktemp`
                     cat "$f" > "$postdata"
-                    $WGET -q --header "Content-Type: text/xml" --post-file "$postdata" "$WCS_URL" -O "$out"
-                    WGET_EXIT_CODE=$?
-                    if [[ $WGET_EXIT_CODE != 0 ]]; then
-                      echo "Error when processing WCPS request in SOAP, query return error: "$WGET_EXIT_CODE
-                      wget_error "$WCPS_EMBEDDED_URL""$QUERY" "$out"
-                      echo ".Done"
+
+                    # check if query contains "jpeg2000" and gdal supports this format, then the query should be run.
+                    check_query_runable "`cat $f`"
+                    if [[ $? -eq 0 ]]; then
+                      # send to petascope
+                      get_request_xml "$postdata" "$out"
+                    else
+                        continue
                     fi
+                    echo "Done."
                     rm "$postdata"
                     ;;
                 *)   error "unknown wcs test type: $test_type"
               esac
               ;;
       wcs)    case "$test_type" in
-                kvp) $WGET -q "$WCS_URL?$QUERY" -O "$out"
-                     WGET_EXIT_CODE=$?
-		                 # wget cannot get the error page, then need curl to download error and save to output file.
-		                 # Note: not get error page from request in XML as it only returns general message.
-                     if [[ $WGET_EXIT_CODE != 0 ]]; then
-                        echo "Error when processing WCS request in KVP, query return error: "$WGET_EXIT_CODE
-                        wget_error "$WCS_URL?$QUERY" "$out"
-                        echo ".Done"
-                     fi
-                     ;;
+                kvp)
+                    QUERY=`cat $f`
+                    # check if query contains "jpeg2000" and gdal supports this format, then the query should be run.
+                    check_query_runable "$QUERY"
+                    if [[ $? -eq 0 ]]; then
+                      get_request_kvp "$WCS_URL" "$QUERY" "$out"
+                    else
+                      continue
+                    fi
+                    # SERVICE=WCS&VERSION=2.0.1&REQUEST=ProcessCoverages&query=for c in (test_mr) return avg(c)
+                    # this query will need to be encoded for value of parameter "query" only
+                    echo "Done."
+                    ;;
                 xml) postdata=`mktemp`
-                     cat "$f" > "$postdata"
-                     $WGET -q --header "Content-Type: text/xml" --post-file "$postdata" "$WCS_URL" -O "$out"
-                     WGET_EXIT_CODE=$?
-                     rm "$postdata"
-                     ;;
-                *)   error "unknown wcs test type: $test_type"
+                    cat "$f" > "$postdata"
+
+                    # check if query contains "jpeg2000" and gdal supports this format, then the query should be run.
+                    check_query_runable "`cat $f`"
+                    if [[ $? -eq 0 ]]; then
+                        # get the xmlfile by curl and return error to output file
+                        get_request_xml "$postdata" "$out"
+                    else
+                        continue
+                    fi
+
+                    rm "$postdata"
+                    ;;
+                *)  error "unknown wcs test type: $test_type"
               esac
               ;;
-      wms)    $WGET -q "$WMS_URL?$QUERY" -O "$out"
-              WGET_EXIT_CODE=$?
+      wms)    get_request_kvp "$WMS_URL" "$QUERY" "$out"
               ;;
       secore) QUERY=`echo "$QUERY" | sed 's|%SECORE_URL%|'$SECORE_URL'|g' | tr -d '\t' | tr -d ' '`
-              $WGET -q "$SECORE_URL$QUERY" -O "$out"
-              WGET_EXIT_CODE=$?
-              if [[ $WGET_EXIT_CODE != 0 ]]; then
-                 echo "Error when processing CRS request in SECORE, query return error: "$WGET_EXIT_CODE
-                 wget_error "$SECORE_URL$QUERY" "$out"
-                 echo ".Done"
-              fi
+              get_request_kvp "$SECORE_URL" "$QUERY" "$out" "no_encode_URL"
               ;;
       select|rasql|nullvalues|jit)
               QUERY=`cat $f`
@@ -676,14 +736,13 @@ run_test()
         cmp "$output_tmp" "$oracle_tmp" 2>&1
         update_result
 
-      # Note: when request in XML, the error is throw in general as
-      # e.g >Couldn't understand the recieved request, is the service attribute missing?
-      # then with submit in XML, only check HTTP error code
+      # check the XML error content from curl
       elif [[ "$out" == *.error.xml* ]]; then
 
         # This test is supposed to raise an exception: check wget exit code instead of the response.
-        log "http exit code comparison"
-        test "$WGET_CODE_SERVER_ERROR" = "$WGET_EXIT_CODE"
+        log "compare error from XML request"
+        prepare_xml_file "$out"
+        cmp "$out" "$oracle" 2>&1
         update_result
 
       # Note: when request in KVP, the error is throw in specific message

@@ -85,13 +85,13 @@ public class EncodedCoverageHandler {
 
         adaptedFormat = adaptedFormat.toLowerCase();
         // set parameters for dem()
-        if (adaptedFormat.equals(FormatExtension.DEM_ENCODING)) {
+        if (adaptedFormat.equals(FormatExtension.FORMAT_ID_DEM)) {
             // keep the arguments without need to calculate anything else
             otherParamsString = StringUtils.join(otherParams, ";");
-        } else if (adaptedFormat.equals(FormatExtension.CSV_ENCODING)) {
+        } else if (adaptedFormat.equals(FormatExtension.FORMAT_ID_CSV)) {
             // csv()
             otherParamsString = "";
-        } else if(adaptedFormat.equals(FormatExtension.NETCDF_ENCODING)){
+        } else if(adaptedFormat.equals(FormatExtension.FORMAT_ID_NETCDF)){
             ObjectMapper objectMapper = new ObjectMapper();
             objectMapper.configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false);
             objectMapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);

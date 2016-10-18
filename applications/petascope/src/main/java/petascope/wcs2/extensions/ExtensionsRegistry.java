@@ -30,6 +30,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import petascope.ConfigManager;
 import petascope.HTTPRequest;
+import petascope.exceptions.WCSException;
 import petascope.wcs2.parsers.GetCoverageRequest;
 
 import static petascope.wcs2.extensions.FormatExtension.*;
@@ -48,6 +49,7 @@ public class ExtensionsRegistry {
     public static final String GML_ENCODING_IDENTIFIER = "http://www.opengis.net/spec/GMLCOV/1.0/conf/gml";
     public static final String GMLJP2_IDENTIFIER = "http://www.opengis.net/spec/GMLJP2/2.0/";
     public static final String JPEG2000_IDENTIFIER = "http://www.opengis.net/spec/WCS_coverage-encoding_jpeg2000/1.0/";
+    public static final String JPEG_IDENTIFIER = "https://www.w3.org/Graphics/JPEG/";
     public static final String PNG_IDENTIFIER = "http://www.w3.org/TR/PNG/";
     public static final String KVP_IDENTIFIER = "http://www.opengis.net/spec/WCS_protocol-binding_get-kvp/1.0/conf/get-kvp";
     public static final String INTERPOLATION_IDENTIFIER = "http://www.opengis.net/spec/WCS_service-extension_interpolation/1.0/conf/interpolation";
@@ -71,31 +73,29 @@ public class ExtensionsRegistry {
 
     static {
         initializeMimeMaps();
-        initialize();
+        try {
+            initialize();
+        } catch (WCSException ex) {
+            log.error("Cannot initialize WCS extensions, reason: ", ex.getMessage());
+            throw new ExceptionInInitializerError("Cannot initialize WCS extensions, reason: " + ex.getMessage());
+        }
     }
 
     /**
      * Initialize registry: load available protocol binding extensions
+     * @throws petascope.exceptions.WCSException
      */
-    public static void initialize() {
+    public static void initialize() throws WCSException {
         registerExtension(new XMLProtocolExtension());
         registerExtension(new SOAPProtocolExtension());
         registerExtension(new KVPProtocolExtension());
         registerExtension(new RESTProtocolExtension());
-        registerExtension(new DecodeFormatExtension(FormatExtension.MIME_GML, false));
-        registerExtension(new DecodeFormatExtension(MIME_TIFF, false));
-        registerExtension(new DecodeFormatExtension(FormatExtension.MIME_NETCDF, false));
-        registerExtension(new DecodeFormatExtension(MIME_JP2, false));
-        registerExtension(new DecodeFormatExtension(FormatExtension.MIME_PNG, false));
+        registerExtension(new DecodeFormatExtension());        
         registerExtension(new InterpolationExtension());
         registerExtension(new RangeSubsettingExtension());
         registerExtension(new CRSExtension());
         registerExtension(new ScalingExtension());
         registerExtension(new ProcessCoverageExtension());
-        registerExtension(new DecodeFormatExtension(MIME_TIFF, true));
-        registerExtension(new DecodeFormatExtension(MIME_JP2, true));  // image/jp2 + mediaType=multipart/related (though GML is embedded in the JP2 file)
-        registerExtension(new DecodeFormatExtension(FormatExtension.MIME_NETCDF, true));
-        registerExtension(new DecodeFormatExtension(FormatExtension.MIME_PNG, true));
         //add only when writes are not disabled
         if (!ConfigManager.DISABLE_WRITE_OPERATIONS) {
             registerExtension(new WCSTExtension());
@@ -118,6 +118,7 @@ public class ExtensionsRegistry {
     }
 
     /**
+     * @param request
      * @return a binding for the specified operation, that can parse the specified input, or null otherwise
      */
     public static ProtocolExtension getProtocolExtension(HTTPRequest request) {
@@ -129,7 +130,7 @@ public class ExtensionsRegistry {
         return null;
     }
 
-    public static FormatExtension getFormatExtension(GetCoverageRequest request) {
+    public static FormatExtension getFormatExtension(GetCoverageRequest request) throws WCSException {
         for (Extension extension : extensions) {
             if (extension instanceof FormatExtension && ((FormatExtension) extension).canHandle(request)) {
                 return (FormatExtension) extension;
@@ -148,18 +149,22 @@ public class ExtensionsRegistry {
     }
 
     /**
-     * initilizing maps for registration and handling of extensions in DecodeFormatExtension Class
+     * initializing maps for registration and handling of extensions in DecodeFormatExtension Class
      */
     public static void initializeMimeMaps() {
-        mimeToEncoding.put(MIME_TIFF, TIFF_ENCODING);
-        mimeToEncoding.put(MIME_JP2, JP2_ENCODING);
-        mimeToEncoding.put(MIME_NETCDF, NETCDF_ENCODING);
-        mimeToEncoding.put(MIME_PNG, PNG_ENCODING);
+        mimeToEncoding.put(MIME_TIFF, FORMAT_ID_TIFF);
+        mimeToEncoding.put(MIME_NETCDF, FORMAT_ID_NETCDF);
+        mimeToEncoding.put(MIME_PNG, FORMAT_ID_PNG);
+        // jpeg2000 does not support geo-referenced from GML file
+        mimeToEncoding.put(MIME_JP2, FORMAT_ID_OPENJP2);
+        mimeToEncoding.put(MIME_JPEG, FORMAT_ID_JPEG);
 
+        mimeToIdentifier.put(MIME_GML, ExtensionsRegistry.GML_ENCODING_IDENTIFIER);
         mimeToIdentifier.put(MIME_TIFF, ExtensionsRegistry.GEOTIFF_IDENTIFIER);
         mimeToIdentifier.put(MIME_NETCDF, ExtensionsRegistry.NETCDF_IDENTIFIER);
         mimeToIdentifier.put(MIME_PNG, ExtensionsRegistry.PNG_IDENTIFIER);
-        mimeToIdentifier.put(MIME_GML, ExtensionsRegistry.GML_ENCODING_IDENTIFIER);
+        mimeToIdentifier.put(MIME_JP2, ExtensionsRegistry.GMLJP2_IDENTIFIER);
+        mimeToIdentifier.put(MIME_JPEG, ExtensionsRegistry.JPEG_IDENTIFIER);
     }
 
     /**

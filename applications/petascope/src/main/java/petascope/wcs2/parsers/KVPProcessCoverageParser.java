@@ -21,6 +21,7 @@
  */
 package petascope.wcs2.parsers;
 
+import java.io.UnsupportedEncodingException;
 import java.util.*;
 
 import petascope.HTTPRequest;
@@ -45,6 +46,7 @@ public class KVPProcessCoverageParser extends KVPParser<ProcessCoverageRequest> 
      * @param request the http request
      * @return the parsed process coverage request
      * @throws WCSException
+     * @throws java.io.UnsupportedEncodingException
      */
     @Override
     public ProcessCoverageRequest parse(HTTPRequest request) throws WCSException {

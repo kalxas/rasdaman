@@ -40,6 +40,10 @@ log "--- Testing download result with coverage ID as file name ---"
 WCS_ENDPOINT_TEMPLATE=$PETASCOPE_URL'/ows?service=WCS&version=2.0.1&request=GetCoverage&coverageId=test_mr&subset=i(0,20)&subset=j(0,5)&format=$FORMAT'
 WCPS_ENDPOINT_TEMPLATE=$PETASCOPE_URL'/ows?service=WCS&version=2.0.1&request=ProcessCoverages&query=for c in (test_rgb) return encode(c,"$FORMAT")'
 
+# with multipart
+WCS_ENDPOINT_MULTIPART_TEMPLATE=$PETASCOPE_URL'/ows?service=WCS&version=2.0.1&request=GetCoverage&coverageId=test_mr&subset=i(0,20)&subset=j(0,5)&format=$FORMAT&mediaType=multipart/related'
+# WCPS does not have this feature, but the output should have same file name
+
 OUTPUT_DIR=$SCRIPT_DIR"/"output
 
 # function to download coverage to output
@@ -98,6 +102,12 @@ log "+ Test download encoding NETCDF..."
 WCS_ENDPOINT=$(echo $WCS_ENDPOINT_TEMPLATE | sed 's/$FORMAT/application\/netcdf/g')
 WCPS_ENDPOINT=$(echo $WCPS_ENDPOINT_TEMPLATE | sed 's/$FORMAT/netcdf/g')
 downloadAndCheck "$WCS_ENDPOINT" "$WCPS_ENDPOINT" "netcdf"
+
+# 5. JPEG
+log "+ Test download encoding JPEG..."
+WCS_ENDPOINT=$(echo $WCS_ENDPOINT_MULTIPART_TEMPLATE | sed 's/$FORMAT/image\/jpeg/g')
+WCPS_ENDPOINT=$(echo $WCPS_ENDPOINT_TEMPLATE | sed 's/$FORMAT/jpeg/g')
+downloadAndCheck "$WCS_ENDPOINT" "$WCPS_ENDPOINT" "jpeg"
 
 # print summary from util/common.sh
 print_summary

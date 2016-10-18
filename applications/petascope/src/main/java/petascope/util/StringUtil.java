@@ -313,11 +313,7 @@ public class StringUtil {
         sb.setLength(0);
         for (int i = 0; i < s.length(); i++) {
             char c = s.charAt(i);
-            switch (c) {
-                case '+':
-                    // e.g application/gml+xml -> application/gml xml
-                    sb.append(' ');
-                    break;
+            switch (c) {                
                 case '%':
                     try {
                         sb.append((char) Integer.parseInt(s.substring(i + 1, i + 3),

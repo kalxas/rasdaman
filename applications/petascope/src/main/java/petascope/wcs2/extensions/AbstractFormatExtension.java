@@ -326,9 +326,7 @@ public abstract class AbstractFormatExtension implements FormatExtension {
     }
 
     /**
-     * Execute rasql query, given GetCoverage request, request metadata, and
-     * format of result. Request subsets values are pre-transformed if necessary
-     * (e.g. CRS reprojection, timestamps).
+     * Translate from WCS query to WCPS then it will execute rasql query.
      * @param request
      * @param covmeta
      * @param meta
@@ -340,7 +338,7 @@ public abstract class AbstractFormatExtension implements FormatExtension {
      * @throws WCPSException
      * @throws WCSException
      */
-    protected Pair<Object, String> executeRasqlQuery(GetCoverageRequest request,
+    protected Pair<Object, String> executeWcsRequest(GetCoverageRequest request,
             GetCoverageMetadata covmeta, DbMetadataSource meta, String format, String params)
             throws PetascopeException, RasdamanException, WCPSException, WCSException {
 

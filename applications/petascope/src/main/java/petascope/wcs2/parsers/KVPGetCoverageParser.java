@@ -26,6 +26,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.StringTokenizer;
 import java.util.regex.Pattern;
+import org.apache.commons.lang3.StringUtils;
 import petascope.HTTPRequest;
 import petascope.exceptions.ExceptionCode;
 import petascope.exceptions.WCSException;
@@ -33,6 +34,10 @@ import petascope.util.CrsUtil;
 import static petascope.util.KVPSymbols.*;
 import petascope.util.ListUtil;
 import petascope.util.StringUtil;
+import petascope.util.XMLSymbols;
+import static petascope.util.XMLSymbols.LABEL_FORMAT;
+import static petascope.util.XMLSymbols.LABEL_MEDIATYPE;
+import petascope.wcs2.extensions.ExtensionsRegistry;
 import petascope.wcs2.extensions.FormatExtension;
 import petascope.wcs2.extensions.InterpolationExtension;
 import petascope.wcs2.extensions.RangeSubsettingExtension;
@@ -94,7 +99,7 @@ public class KVPGetCoverageParser extends KVPParser<GetCoverageRequest> {
         List<String> coverageIds = p.get(KEY_COVERAGEID); // null if no key
         if (null == coverageIds || coverageIds.size() != 1) {
             throw new WCSException(ExceptionCode.InvalidRequest,
-                    "A GetCoverage request can specify only one " + KEY_COVERAGEID + ".");
+                    "A GetCoverage request can specify only one " + XMLSymbols.LABEL_COVERAGE_ID + ".");
         }
         String mediaType = ListUtil.head(p.get(KEY_MEDIATYPE));
         // Test /conf/core/getCoverage-acceptable-mediaType
@@ -102,12 +107,24 @@ public class KVPGetCoverageParser extends KVPParser<GetCoverageRequest> {
             throw new WCSException(ExceptionCode.InvalidMediatype);
         }
         String format = ListUtil.head(p.get(KEY_FORMAT));
+        if (StringUtils.isEmpty(format)) {
+            format = FormatExtension.MIME_GML;
+        }       
+        
+        String encodeType = ExtensionsRegistry.mimeToIdentifier.get(format);
+        
+        // e.g: format=application/xml is not valid request
+        if (encodeType == null) {
+            // e.g: format=image/NotSupport
+            throw new WCSException(ExceptionCode.InvalidRequest, "WCS does not support this Mime type: " + format);
+        }
 
+        // format=application/gml+xml&mediatype=multipart/related is not valid request
         if (FormatExtension.MIME_MULTIPART.equals(mediaType)
                 && FormatExtension.MIME_GML.equals(format)) {
             throw new WCSException(ExceptionCode.InvalidRequest, "The '" +
-                    KEY_MEDIATYPE + "=" + FormatExtension.MIME_MULTIPART + "' & '" +
-                    KEY_FORMAT    + "=" + FormatExtension.MIME_GML +
+                    LABEL_MEDIATYPE + "=" + FormatExtension.MIME_MULTIPART + "' & '" +
+                    LABEL_FORMAT    + "=" + FormatExtension.MIME_GML +
                     "' combination is not applicable");
         }
 

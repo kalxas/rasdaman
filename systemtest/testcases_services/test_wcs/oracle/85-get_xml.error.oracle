@@ -2,8 +2,8 @@
 <ows:ExceptionReport version="2.0.0"
     xsd:schemaLocation="http://www.opengis.net/ows/2.0 http://schemas.opengis.net/ows/2.0/owsExceptionReport.xsd"
       >
-    <ows:Exception exceptionCode="InterpolationMethodNotSupported">
-        <ows:ExceptionText>'interpolation' parameter indicated is not supported by this server (i.e., URL is not known to this server).</ows:ExceptionText>
+    <ows:Exception exceptionCode="InvalidAxisLabel">
+        <ows:ExceptionText>Error converting WCPS query to rasql query: The axis label i was not found in the list of available axes</ows:ExceptionText>
     </ows:Exception>
 
 </ows:ExceptionReport>

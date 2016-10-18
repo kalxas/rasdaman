@@ -389,7 +389,7 @@ public class UpdateCoverageHandler extends AbstractRequestHandler<UpdateCoverage
      * @param subsets         the list of subsets indicated in the update coverage request.
      * @return map indicating the pixel indices for each dimension.
      */
-    private Map<Integer, String> getPixelIndicesByCoordinate(CoverageMetadata currentCoverage, List<DimensionSubset> subsets) {
+    private Map<Integer, String> getPixelIndicesByCoordinate(CoverageMetadata currentCoverage, List<DimensionSubset> subsets) throws WCSException {
         CoverageInfo coverageInfo = new CoverageInfo(currentCoverage);
         Coverage currentWcpsCoverage = new Coverage(currentCoverage.getCoverageName(), coverageInfo, currentCoverage);
         CoverageRegistry coverageRegistry = new CoverageRegistry(meta);

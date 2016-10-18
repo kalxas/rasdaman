@@ -39,6 +39,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import petascope.CORSHttpServlet;
 import petascope.ConfigManager;
+import petascope.CustomRequestWrapper;
 import petascope.exceptions.ExceptionCode;
 import petascope.exceptions.PetascopeException;
 import petascope.exceptions.rasdaman.RasdamanException;
@@ -91,7 +92,8 @@ public class RasqlServlet extends CORSHttpServlet {
     @Override
     public void doGet(HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException {
         super.doGet(req, res);
-        setServletURL(req);
+        CustomRequestWrapper wrapperRequest  = new CustomRequestWrapper(req);
+        setServletURL(wrapperRequest);
         OutputStream outStream = null;
         try {
             outStream = res.getOutputStream();
@@ -100,7 +102,7 @@ public class RasqlServlet extends CORSHttpServlet {
             return;
         }
 
-        Map<String, String> kvp = RequestUtil.parseKVPRequestParams(req.getQueryString());
+        Map<String, String> kvp = RequestUtil.parseKVPRequestParams(wrapperRequest.getQueryString());
         String username = kvp.get(KVPSymbols.KEY_USERNAME);
         String password = kvp.get(KVPSymbols.KEY_PASSWORD);
         String query = kvp.get(KVPSymbols.KEY_QUERY);
@@ -117,7 +119,7 @@ public class RasqlServlet extends CORSHttpServlet {
         if (RasUtil.isDecodeQuery(query)) {
             try {
                 // write the uploaded file to upload directory
-                filePath = writeFileToUploadPath(req);
+                filePath = writeFileToUploadPath(wrapperRequest);
             } catch (Exception ex) {
                 // NOTE: if user don't have permission to write (like rasguest), the error from Rasql will be catch here
                 printError(outStream, res, "Internal error: failed saving uploaded file on the server.", ex, 400);

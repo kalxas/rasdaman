@@ -1,6 +1,5 @@
 for c in ( test_mr )
-return
-encode( coverage histogram
+return encode( coverage histogram
         over     $n x(0:20)
         values   condense +
                         over     $px x(0:20),

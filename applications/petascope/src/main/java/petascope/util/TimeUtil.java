@@ -32,6 +32,7 @@ import org.slf4j.LoggerFactory;
 import petascope.core.CrsDefinition;
 import petascope.exceptions.ExceptionCode;
 import petascope.exceptions.PetascopeException;
+import petascope.exceptions.WCSException;
 
 /**
  * Class for handling timestamps formatting and elaborations.
@@ -130,6 +131,7 @@ public class TimeUtil {
     public static boolean isValidTimestamp (String timestamp) {
         boolean isValid = true;
         try {
+            // date time format valid by ISO 8601, e.g:  YYYY-MM-DDThh:mm:ss.sTZD (eg 1997-07-16T19:20:30.45+01:00)
             DateTime dt = isoFmt.parseDateTime(fix(timestamp));
         } catch (IllegalArgumentException ex) {
             log.debug(timestamp + " format is invalid or unsupported: " + ex.getMessage());
@@ -146,7 +148,7 @@ public class TimeUtil {
      * @return  True if Lo is lower or equal than Hi
      * @throws PetascopeException
      */
-    public static boolean isOrderedTimeSubset (String timestampLo, String timestampHi) throws PetascopeException {
+    public static boolean isOrderedTimeSubset (String timestampLo, String timestampHi) throws WCSException {
 
         DateTime dtLo = isoFmt.parseDateTime(fix(timestampLo));
         DateTime dtHi = isoFmt.parseDateTime(fix(timestampHi));
@@ -155,7 +157,7 @@ public class TimeUtil {
             millis = new Duration(dtLo, dtHi);
         } catch (ArithmeticException ex) {
             log.error("Error while computing milliseconds between " + dtLo + " and " + dtHi + ".");
-            throw new PetascopeException(ExceptionCode.InternalComponentError,
+            throw new WCSException(ExceptionCode.InternalComponentError,
                     "Cannot convert input datetimes to numeric time coordinates: duration exceeds a 64 bit long.", ex);
         }
         return (millis.getMillis() >= 0);

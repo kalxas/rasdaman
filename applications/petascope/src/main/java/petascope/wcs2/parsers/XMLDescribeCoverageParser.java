@@ -38,6 +38,7 @@ import static petascope.util.XMLUtil.*;
 import petascope.wcs2.handlers.RequestHandler;
 import petascope.ConfigManager;
 import petascope.exceptions.ExceptionCode;
+import static petascope.util.KVPSymbols.KEY_COVERAGEID;
 
 /**
  * Parse a GetCapabilities XML request.
@@ -81,7 +82,7 @@ public class XMLDescribeCoverageParser extends XMLParser<DescribeCoverageRequest
                 LABEL_COVERAGE_ID, CTX_WCS);
         if (coverageIds.isEmpty()) {
             log.error("Missing required " + LABEL_COVERAGE_ID + " element in request.");
-            throw new WCSException(ExceptionCode.InvalidRequest, "No <" + LABEL_COVERAGE_ID + "> found in request.");
+            throw new WCSException(ExceptionCode.InvalidRequest, "A DescribeCoverage request must specify at least one " + KEY_COVERAGEID + ".");
         }
         DescribeCoverageRequest ret = new DescribeCoverageRequest();
         for (Element coverageId : coverageIds) {

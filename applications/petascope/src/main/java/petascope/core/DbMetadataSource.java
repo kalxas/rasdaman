@@ -1990,11 +1990,11 @@ public class DbMetadataSource implements IMetadataSource {
                           " WHERE " + MIME_TYPE_MIME + "='" + nativeFormat + "'";
         log.debug("SQL query : " + sqlQuery);
         ResultSet r = s.executeQuery(sqlQuery);
-        while(r.next()){
+        while (r.next()) {
             ret = r.getInt(MIME_TYPE_ID);
         }
-        if(ret == -1){
-            throw new WCSException(ExceptionCode.InvalidCoverageType);
+        if (ret == -1) {
+             throw new WCSException(ExceptionCode.InvalidCoverageType);
         }
         return ret;
     }

@@ -108,13 +108,9 @@ public class DimensionTrim extends DimensionSubset {
             }
         }
         if (null != getTrimLow() && null != getTrimHigh() && getTrimLow().matches(QUOTED_SUBSET) && getTrimHigh().matches(QUOTED_SUBSET)) {
-            // Check low<high
-            try {
-                if (!TimeUtil.isOrderedTimeSubset(getTrimLow(), getTrimHigh())) {
-                    throw new WCSException(ExceptionCode.InvalidParameterValue, "Temporal subset \"" + getTrimLow() + ":" + getTrimHigh() + "\" is invalid: check order.");
-                }
-            } catch (PetascopeException ex) {
-                throw new WCSException(ex.getExceptionCode(), ex);
+            // Check low<high            
+            if (!TimeUtil.isOrderedTimeSubset(getTrimLow(), getTrimHigh())) {
+                throw new WCSException(ExceptionCode.InvalidParameterValue, "Temporal subset \"" + getTrimLow() + ":" + getTrimHigh() + "\" is invalid: check order.");
             }
         }
     }

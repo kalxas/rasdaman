@@ -94,7 +94,7 @@ public class XMLGetCoverageParser extends XMLParser<GetCoverageRequest> {
         List<Element> coverageIds = collectAll(root, PREFIX_WCS, LABEL_COVERAGE_ID, CTX_WCS);
         if (coverageIds.size() != 1) {
             throw new WCSException(ExceptionCode.InvalidRequest,
-                    "A GetCoverage request must specify one " + LABEL_COVERAGE_ID + ".");
+                    "A GetCoverage request can specify only one " + LABEL_COVERAGE_ID + ".");
         }
 
         // Get params required for contructor: format and mediatype
@@ -104,6 +104,8 @@ public class XMLGetCoverageParser extends XMLParser<GetCoverageRequest> {
         String mediaType = null != mediaTypeEl ? mediaTypeEl.getValue() : "";
 
         // sanity check
+        //   <gml:format>application/gml+xml</gml:format>
+        //   <gml:mediaType>multipart/related</gml:mediaType>
         if (FormatExtension.MIME_MULTIPART.equals(mediaType)
                 && FormatExtension.MIME_GML.equals(format)) {
             throw new WCSException(ExceptionCode.InvalidRequest, "The '" +
@@ -124,25 +126,21 @@ public class XMLGetCoverageParser extends XMLParser<GetCoverageRequest> {
         for (Element e : children) {
             String name = e.getLocalName();
             List<Element> c = ch(e);
-            try {
-                if(name.equals(LABEL_EXTENSION)) {
-                    this.parseExtensions(ret, c);
+            if(name.equals(LABEL_EXTENSION)) {
+                this.parseExtensions(ret, c);
+            }
+            if (name.equals(LABEL_DIMENSION_TRIM)) {
+                ret.addSubset(new DimensionTrim(getText(c.get(0)), getText(c.get(1)), getText(c.get(2))));
+                // Check timestamps validity
+                if (null != getText(c.get(1)) && getText(c.get(1)).matches(QUOTED_SUBSET)) {
+                    ((DimensionTrim)ret.getSubset(getText(c.get(0)))).timestampSubsetCheck();
                 }
-                if (name.equals(LABEL_DIMENSION_TRIM)) {
-                    ret.addSubset(new DimensionTrim(getText(c.get(0)), getText(c.get(1)), getText(c.get(2))));
-                    // Check timestamps validity
-                    if (null != getText(c.get(1)) && getText(c.get(1)).matches(QUOTED_SUBSET)) {
-                        ((DimensionTrim)ret.getSubset(getText(c.get(0)))).timestampSubsetCheck();
-                    }
-                } else if (name.equals(LABEL_DIMENSION_SLICE)) {
-                    ret.addSubset(new DimensionSlice(getText(c.get(0)), getText(c.get(1))));
-                    // Check timestamps validity
-                    if (null != getText(c.get(1)) && getText(c.get(1)).matches(QUOTED_SUBSET)) {
-                        ((DimensionSlice)ret.getSubset(getText(c.get(0)))).timestampSubsetCheck();
-                    }
+            } else if (name.equals(LABEL_DIMENSION_SLICE)) {
+                ret.addSubset(new DimensionSlice(getText(c.get(0)), getText(c.get(1))));
+                // Check timestamps validity
+                if (null != getText(c.get(1)) && getText(c.get(1)).matches(QUOTED_SUBSET)) {
+                    ((DimensionSlice)ret.getSubset(getText(c.get(0)))).timestampSubsetCheck();
                 }
-            } catch (WCSException ex) {
-                throw new WCSException(ExceptionCode.InvalidRequest, "Error parsing dimension subset:\n\n" + e.toXML(), ex);
             }
         }
         return ret;

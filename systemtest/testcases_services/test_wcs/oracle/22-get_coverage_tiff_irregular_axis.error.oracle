@@ -3,7 +3,7 @@
     xsd:schemaLocation="http://www.opengis.net/ows/2.0 http://schemas.opengis.net/ows/2.0/owsExceptionReport.xsd"
       >
     <ows:Exception exceptionCode="InvalidRequest">
-        <ows:ExceptionText>The GeoTIFF format extension only supports regularly gridded coverages with exactly two dimensions</ows:ExceptionText>
+        <ows:ExceptionText>The image/tiff format extension only supports regularly gridded coverages with exactly two dimensions</ows:ExceptionText>
     </ows:Exception>
 
 </ows:ExceptionReport>

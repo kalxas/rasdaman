@@ -44,7 +44,7 @@ declare -a SERVICES=('wcs' 'wms' 'wcps')
 DATA_FOLDER="$SCRIPT_DIR/../test_all_wcst_import/test_data"
 
 # change directory to the DATA_FOLDER
-. cd "$DATA_FOLDER"
+cd "$DATA_FOLDER"
 
 # list all the subdirectories of data folder
 for d in */ ; do

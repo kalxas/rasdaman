@@ -3,7 +3,7 @@
     xsd:schemaLocation="http://www.opengis.net/ows/2.0 http://schemas.opengis.net/ows/2.0/owsExceptionReport.xsd"
       >
     <ows:Exception exceptionCode="InvalidRequest">
-        <ows:ExceptionText>A GetCoverage request can specify only one coverageid.</ows:ExceptionText>
+        <ows:ExceptionText>A GetCoverage request can specify only one CoverageId.</ows:ExceptionText>
     </ows:Exception>
 
 </ows:ExceptionReport>

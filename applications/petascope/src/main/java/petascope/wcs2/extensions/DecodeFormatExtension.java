@@ -29,7 +29,6 @@ import petascope.exceptions.ExceptionCode;
 import petascope.exceptions.PetascopeException;
 import petascope.exceptions.SecoreException;
 import petascope.exceptions.WCSException;
-import petascope.util.GdalParameters;
 import petascope.util.Pair;
 import petascope.util.WcsUtil;
 import petascope.util.XMLSymbols;
@@ -49,69 +48,61 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.*;
 import org.apache.commons.lang3.StringUtils;
-
 import static petascope.core.DbMetadataSource.TABLE_MULTIPOINT;
-import static petascope.util.GdalParameters.GDAL_CODEC_PARAM;
 
 /**
  * Common class for all format extensions.
  *
  * @author <a href="mailto:s.timilsina@jacobs-university.de">Sulav Timilsina</a>
+ * @author <a href="mailto:b.phamhuu@jacobs-university.de">Bang Pham Huu</a>
  */
 public class DecodeFormatExtension extends AbstractFormatExtension {
 
-    public static final Set<String> SUPPORTED_FORMATS = new HashSet<String>(Arrays.asList(MIME_GML, MIME_PNG, MIME_TIFF, MIME_JP2, MIME_NETCDF));
-    private GdalParameters gdalParams;
     public static final String DATATYPE_URN_PREFIX = "urn:ogc:def:dataType:OGC:1.1:"; // FIXME: now URNs are deprecated
         /* Member */
-    /**
-     * Code for GMLJP2 encoded files.
-     * J2K is the alternative but does not allow extraboxes.
-     */
-    private static final String JP2_CODEC = "jp2";
+
     /**
      * GDAL configuration option to enable custom GML box to be included in the file.
      * Associated value needs to be the absolute path to a file containing the GML fragment (+ XML header).
      */
     private static final String GMLJP2OVERRIDE_COPTION_KEY = "GMLJP2OVERRIDE";
-
     private static final Logger log = LoggerFactory.getLogger(DecodeFormatExtension.class);
 
+    private final String extensionId;
+    private final Boolean hasParent;
+    private final String parentExtensionId;
     private String mimeType;
-    private String extensionId;
-    private Boolean hasParent;
-    private String parentExtensionId;
-    private boolean multiPart;
 
     /**
      * Gets the extension identifier for the mimeType
-     * @param mime - mimeType
+     * @param mimeType - mimeType
      * @return extension Identifier
+     * @throws petascope.exceptions.WCSException
      */
-    public String getExtensionIdentifier(String mime) {
-        if (ExtensionsRegistry.mimeToIdentifier.containsKey(mime)) {
-            return ExtensionsRegistry.mimeToIdentifier.get(mime);
-        } else if (mime.equals(MIME_JP2)) {
-            if (multiPart)
-                return ExtensionsRegistry.GMLJP2_IDENTIFIER;
-            else
-                return ExtensionsRegistry.JPEG2000_IDENTIFIER;
+    public String getExtensionIdentifier(String mimeType) throws WCSException {
+        if (mimeType == null) {
+            mimeType = MIME_GML;
+        }
+        if (ExtensionsRegistry.mimeToIdentifier.containsKey(mimeType)) {
+            return ExtensionsRegistry.mimeToIdentifier.get(mimeType);
         } else {
-            //never reaches here.
-            log.error("DecodeFormatExtension class cannot handle " + mime + " MIMEtype");
-            throw new IllegalArgumentException(mime + " MimeType cannot be handled");
+            // If request contains unsupported MIME then will throw this exception
+            log.error("MIME type: " + mimeType + " cannot be handled.");
+            throw new WCSException(ExceptionCode.InvalidParameterValue, mimeType + " MIME type cannot be handled.");
         }
     }
 
     /**
      * Constructor for registering formats and also used while handling multipart requests
      * as two base requests
+     * @throws petascope.exceptions.WCSException
      */
-    DecodeFormatExtension(String mime, boolean isMultiPart) {
-        this.mimeType = mime;
-        this.multiPart = isMultiPart;
-        this.extensionId = getExtensionIdentifier(mime);
-        if (mime.equals(MIME_GML)) {
+    public DecodeFormatExtension() throws WCSException {
+        if (this.mimeType == null) {
+            this.mimeType = MIME_GML;
+        }
+        this.extensionId = getExtensionIdentifier(this.mimeType);
+        if (this.mimeType.equals(MIME_GML)) {
             this.hasParent = true;
             this.parentExtensionId = ExtensionsRegistry.GMLCOV_IDENTIFIER;
         } else {
@@ -122,17 +113,17 @@ public class DecodeFormatExtension extends AbstractFormatExtension {
 
     /**
      * Gets encoding for the given mimeType.
-     * @param mime - mimeType
+     * @param mimeType - mimeType
      * @return encoding
+     * @throws petascope.exceptions.WCSException
      */
-    public String getEncoding(String mime) {
+    public String getEncoding(String mimeType) throws WCSException {
 
-        if (ExtensionsRegistry.mimeToEncoding.containsKey(mime)) {
-            return (String) ExtensionsRegistry.mimeToEncoding.get(mime);
+        if (ExtensionsRegistry.mimeToEncoding.containsKey(mimeType)) {
+            return (String) ExtensionsRegistry.mimeToEncoding.get(mimeType);
         } else {
-            //never reaches here.
-            log.error("DecodeFormatExtension class cannot handle " + mime + " MIMEtype");
-            throw new IllegalArgumentException(mime + "mimeType cannot be handled");
+            log.error("MIME type: " + mimeType + " cannot be handled.");
+            throw new WCSException(ExceptionCode.InvalidParameterValue, "MIME type: " + mimeType + " cannot be handled.");
         }
     }
 
@@ -142,16 +133,21 @@ public class DecodeFormatExtension extends AbstractFormatExtension {
      *Not called when helper functions of handle() calls handle() with a new instance while handling multipart requests.
      * @param req GetCoverage request
      * @return if the req can be handled
+     * @throws petascope.exceptions.WCSException
      */
     @Override
-    public boolean canHandle(GetCoverageRequest req) {
-        mimeType = req.getFormat().replace(" ", "+");
-        multiPart = req.isMultiPart();
-        // convert back from application/gml xml -> application/gml+xml
-        String regFormat = req.getFormat().replace(" ", "+");
-        boolean a = SUPPORTED_FORMATS.contains(regFormat) && !req.isMultiPart();
-        boolean b = req.isMultiPart() && SUPPORTED_FORMATS.contains(regFormat) && !regFormat.equals(MIME_GML);
-        return a || b;
+    public boolean canHandle(GetCoverageRequest req) throws WCSException {
+        // check if mime is supported
+        String encodeType = ExtensionsRegistry.mimeToIdentifier.get(req.getFormat());
+        this.mimeType = req.getFormat();
+        
+        // validate the request
+        if (encodeType == null) {
+            // e.g: format=image/NotSupport
+            throw new WCSException(ExceptionCode.InvalidParameterValue, "MIME type: " + req.getFormat() + " cannot be handled.");
+        }
+        
+        return true;
     }
 
     /**
@@ -164,17 +160,17 @@ public class DecodeFormatExtension extends AbstractFormatExtension {
     private Response getMultiPartResponse(GetCoverageRequest request, DbMetadataSource meta) throws PetascopeException, SecoreException {
         Response multipartResponse;
         //getMultiPart is set to false to handle multipart requests as two different single requests.
-        Response gml = (new DecodeFormatExtension(MIME_GML, false)).handle(request, meta);
+        Response gml = this.getGmlResponse(request, meta);
         // get the image/netcdf file
-        Response image = (new DecodeFormatExtension(request.getFormat(), false)).handle(request, meta);// ExtensionsRegistry.getFormatExtension(false, request.getFormat()).handle(request, meta);
+        Response image = this.getImageResponse(request, meta);
         // return multipart response
         String xml = gml.getXml()[0].replace("{coverageData}",
-                "<File>"
-                        + "<fileName>" + "file" + "</fileName>"
-                        + "<fileStructure>Record Interleaved</fileStructure>"
-                        + "<mimeType>" + request.getFormat() + "</mimeType>"
-                        + "</File>");
-        multipartResponse = new Response(image.getData(), new String[]{xml}, request.getFormat());
+                                                "<File>"
+                                                    + "<fileName>" + "file" + "</fileName>"
+                                                    + "<fileStructure>Record Interleaved</fileStructure>"
+                                                    + "<mimeType>" + request.getFormat() + "</mimeType>"
+                                                + "</File>");
+        multipartResponse = new Response(image.getData(), new String[]{xml}, request.getFormat(), image.getCoverageID());
         multipartResponse.setMultipart(true);
         return multipartResponse;
     }
@@ -190,7 +186,7 @@ public class DecodeFormatExtension extends AbstractFormatExtension {
      */
     private Response getGmlResponse(GetCoverageRequest request, DbMetadataSource meta) throws PetascopeException, SecoreException {
         GetCoverageMetadata m = new GetCoverageMetadata(request, meta);
-        
+
         // First, transform possible non-native CRS subsets
         CRSExtension crsExtension = (CRSExtension) ExtensionsRegistry.getExtension(ExtensionsRegistry.CRS_IDENTIFIER);
         crsExtension.handle(request, m);
@@ -252,7 +248,7 @@ public class DecodeFormatExtension extends AbstractFormatExtension {
     }
 
     /**
-     * handles image requests for netcdf,png,geotiff, jpeg2000 and jp2+gml(multipart jpeg2000)
+     * handles image requests (e.g: netcdf, png, jpeg,...)
      *
      * @param request
      * @param meta
@@ -278,46 +274,29 @@ public class DecodeFormatExtension extends AbstractFormatExtension {
             throw pEx;
         }
         if ((request.getFormat().equals(MIME_NETCDF))) {
+            // validate the request in netCDF format
             if (!(WcsUtil.isGrid(m.getCoverageType()))) {
                 throw new WCSException(ExceptionCode.NoApplicableCode, "The Netcdf format extension "
-                        + "only supports GridCoverage and RectifiedGridCoverage");
+                        + "only supports " + XMLSymbols.LABEL_GRID_COVERAGE + ", " + XMLSymbols.LABEL_RECTIFIED_GRID_COVERAGE + ", "
+                                           + XMLSymbols.LABEL_REFERENCEABLE_GRID_COVERAGE);
             }
         } else {
-            String type = request.getFormat().equals(MIME_TIFF) ?
-                    "GeoTIFF" : getEncoding(request.getFormat()).toUpperCase();
+            // validate the request in image format (tiff, jpeg, png)
             if (m.getGridDimension() != 2 || m.hasIrregularAxis() || !(WcsUtil.isGrid(m.getCoverageType()))) {
-                throw new WCSException(ExceptionCode.InvalidRequest, "The " + type + " format extension "
-                        + "only supports regularly gridded coverages with exactly two dimensions");
+                throw new WCSException(ExceptionCode.InvalidRequest, "The " + request.getFormat() + " format extension "
+                                     + "only supports regularly gridded coverages with exactly two dimensions");
             }
         }
 
         Pair<Object, String> p = null;
-        if (request.getFormat().equals(MIME_TIFF) || request.getFormat().equals(MIME_PNG) || m.getCoverageType().equals(XMLSymbols.LABEL_GRID_COVERAGE)) {
-            p = executeRasqlQuery(request, m, meta, getEncoding(request.getFormat()), null);
+        // just pass the coverage metadata to WCPS, it will add the bounding box, outputCRS in WCPS.
+        if (!request.getFormat().equals(MIME_JP2)) {
+            p = executeWcsRequest(request, m, meta, getEncoding(request.getFormat()), null);
         } else {
-            // RectifiedGrid: geometry is associated with a CRS -> return Netcdf with geo-metadata
-            // Need to use the GetCoverage metadata which has updated bounds [see super.setBounds()]
-            String[] domLo = m.getGisDomLow().split(" ");
-            String[] domHi = m.getGisDomHigh().split(" ");
-
-            if (request.getFormat().equals(MIME_JP2)) {
-                if (domLo.length != 2 || domHi.length != 2) {
-                    String containsGml = request.isMultiPart() ? "(+GML)" : "";
-                    // Output grid dimensions have already been checked (see above), but double-check on the domain bounds:
-                    log.error("Cannot format JPEG2000" + containsGml + ": output dimensionality is not 2.");
-                    throw new WCSException(ExceptionCode.InvalidRequest, "Output dimensionality of the requested coverage is "
-                            + (domLo.length == 2 ? domHi.length : domLo.length) + " whereas JPEG2000" + containsGml + "requires 2-dimensional grids.");
-                }
-            }
-
-            gdalParams = new GdalParameters(domLo[0], domHi[0], domLo[1], domHi[1], m.getCrs());
-            //checking if request is gml+jp2? multipart was set at canHandle()
-            if (!multiPart)
-                p = executeRasqlQuery(request, m, meta, getEncoding(request.getFormat()), gdalParams.toString());
-            else {
-                p = addGMLtoJP2(request, m, meta);
-            }
+            // Only JPEG2000 need a special GML file as GDAL parameter
+            p = getJPEG2000CoverageOutput(request, m, meta);
         }
+
         RasQueryResult res = new RasQueryResult(p.fst);
         if (res.getMdds().isEmpty()) {
             return new Response(null, null, request.getFormat());
@@ -329,7 +308,14 @@ public class DecodeFormatExtension extends AbstractFormatExtension {
     }
 
     /**
-     * Adds GML to JP2 for multipart JP2 request
+     * Adds GML to JP2 or output file will not have geo-referenced metadata
+     * NOTE: must use OpenJPEG2000 and a temporary GML file to set correct geo-referenced metadata.
+     * example rasql query:
+     * SELECT encode(c, "JP2OpenJPEG" ,
+     *                  "CODEC=jp2;
+     *                  config=GMLJP2OVERRIDE /home/rasdaman/Tomcat/temp/test_mean_summer_airtemp_jpeg20001582287581546422039.tmp;
+     *                  xmin=111.975;ymin=-44.525;xmax=156.275;ymax=-8.975;crs=EPSG:4326")
+     * FROM test_mean_summer_airtemp AS c
      *
      * @param request
      * @param m
@@ -338,14 +324,14 @@ public class DecodeFormatExtension extends AbstractFormatExtension {
      * @throws PetascopeException
      * @throws SecoreException
      */
-    private Pair<Object, String> addGMLtoJP2(GetCoverageRequest request, GetCoverageMetadata m, DbMetadataSource meta) throws PetascopeException, SecoreException {
+    private Pair<Object, String> getJPEG2000CoverageOutput(GetCoverageRequest request, GetCoverageMetadata m, DbMetadataSource meta) throws PetascopeException, SecoreException {
         Pair<Object, String> p = null;
-        gdalParams.addExtraParams(GDAL_CODEC_PARAM + '=' + JP2_CODEC);
+        String gdalParameters = "codec=jp2;";
         // Get GML description and store it in a tmp file for GDAL
         String gml = WcsUtil.getGML(m, Templates.GMLJP2_COVERAGE_COLLECTION, meta);
         File gmlFile;
         try {
-            gmlFile = File.createTempFile(m.getCoverageId() + '_' + JP2_ENCODING, null); // arbitrary prefix (at least 3 chars)
+            gmlFile = File.createTempFile(m.getCoverageId() + '_' + FORMAT_ID_JP2, null); // arbitrary prefix (at least 3 chars)
             if (gmlFile.canWrite()) {
                 PrintWriter gmlWriter = new PrintWriter(gmlFile.getAbsolutePath());
                 gmlWriter.println(gml);
@@ -353,18 +339,20 @@ public class DecodeFormatExtension extends AbstractFormatExtension {
             } else {
                 log.error("JVM cannot write to the default directory for tmp files " + gmlFile.getAbsolutePath());
                 throw new PetascopeException(ExceptionCode.InternalComponentError,
-                        "Cannot write temporary file " + gmlFile.getAbsolutePath() + " for GML box in GMLJP2 encoding.");
+                                            "Cannot write temporary file " + gmlFile.getAbsolutePath() + " for GML box in GMLJP2 encoding.");
             }
 
             // Set the configuration option for GDAL
-            gdalParams.setConfigKeyValue(GMLJP2OVERRIDE_COPTION_KEY, gmlFile.getAbsolutePath());
+            gdalParameters += "config=" + GMLJP2OVERRIDE_COPTION_KEY + " " + gmlFile.getAbsolutePath();
 
             // get the data
-            p = executeRasqlQuery(request, m, meta, JP2_ENCODING, gdalParams.toString());
+            p = executeWcsRequest(request, m, meta, FORMAT_ID_OPENJP2, gdalParameters);
+            // delete the GML temporary file
             gmlFile.delete();
 
         } catch (SecurityException ex) {
-            log.warn("Could not write/delete tmp file (permission problems?): " + ex.getMessage());
+            log.error("Could not write/delete tmp file (permission problems?): " + ex.getMessage());
+            throw new PetascopeException(ExceptionCode.InternalComponentError, ex);
         } catch (FileNotFoundException ex) {
             log.error("Java writer cannot find target file.");
             throw new PetascopeException(ExceptionCode.InternalComponentError, ex);
@@ -388,33 +376,25 @@ public class DecodeFormatExtension extends AbstractFormatExtension {
      */
     @Override
     public Response handle(GetCoverageRequest request, DbMetadataSource meta) throws PetascopeException, WCSException, SecoreException {
-        //for mime gml, getFormat() might return "application/gml xml"
         //getFormat never returns null. if request has format null, the default format gml is set
         String format = request.getFormat().replace(" ", "+");
-        // multipart extensions except for jp2+gml are handled here
-        boolean isMultiPart = request.isMultiPart() && multiPart;
-        boolean canbeHandled = SUPPORTED_FORMATS.contains(format) && !format.equals(MIME_JP2) && !format.equals(MIME_GML);
-        if (isMultiPart && canbeHandled) {
+        // Every mimeType (except application/gml+xml) support return in multipart
+        if (request.isMultiPart() && !format.equals(MIME_GML)) {
             return getMultiPartResponse(request, meta);
         }
+
         GetCoverageMetadata m = new GetCoverageMetadata(request, meta);
 
         //Handle the range subset feature
         RangeSubsettingExtension rsubExt = (RangeSubsettingExtension) ExtensionsRegistry.getExtension(ExtensionsRegistry.RANGE_SUBSETTING_IDENTIFIER);
         rsubExt.handle(request, m);
-        //netcdf,png,geotiff, jp2 and jp2+gml are handled inside this if statement
-        // images for multipart formats are also handled here
-        if (SUPPORTED_FORMATS.contains(format) && !format.equals(MIME_GML) && mimeType != null && !mimeType.equals(MIME_GML)) {
-            return getImageResponse(request, meta);
-        }
-        // gml request and the gml part of multipart request is handled below.
-        else if (format.equals(MIME_GML) || (mimeType != null && mimeType.equals(MIME_GML))) {
+
+        // Handle return only GML output
+        if (format.equals(MIME_GML)) {
             return getGmlResponse(request, meta);
         } else {
-            //never reaches here.
-            log.error("DecodeFormatExtension.handle() could not handle the request:" + request + " meta:" + meta + " Class variables:" +
-                    "multiPart,mimeType:" + multiPart + " " + mimeType);
-            throw new PetascopeException(ExceptionCode.InternalComponentError, "Request did not first pass through canHandle(). see log!");
+            // Handle return image coverage output
+            return getImageResponse(request, meta);
         }
     }
 
@@ -425,6 +405,7 @@ public class DecodeFormatExtension extends AbstractFormatExtension {
      * @param request
      * @param meta
      * @param m
+     * @return
      * @throws WCSException
      * @throws PetascopeException
      */
@@ -433,7 +414,7 @@ public class DecodeFormatExtension extends AbstractFormatExtension {
         //return gml without {coverageData} replaced for multipart requests
         if (request.isMultiPart())
             return gml;
-        RasQueryResult res = new RasQueryResult(executeRasqlQuery(request, m, meta, CSV_ENCODING, null).fst);
+        RasQueryResult res = new RasQueryResult(executeWcsRequest(request, m, meta, FORMAT_ID_CSV, null).fst);
         if (!res.getMdds().isEmpty()) {
             String data = new String(res.getMdds().get(0));
             data = WcsUtil.csv2tupleList(data);

@@ -22,6 +22,7 @@
 
 package petascope.wcs2.parsers.wcst;
 
+import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
@@ -61,7 +62,9 @@ public class KVPWCSTParser extends KVPParser<WCSTRequest> {
      * @param request
      * @return
      * @throws WCSException
+     * @throws java.io.UnsupportedEncodingException
      */
+    @Override
     public WCSTRequest parse(HTTPRequest request) throws WCSException {
         //split query string into parameters
         Map<String, String> params = RequestUtil.parseKVPRequestParams(request.getQueryString());
@@ -113,7 +116,6 @@ public class KVPWCSTParser extends KVPParser<WCSTRequest> {
             try {
                 ret = new URL(coverageRef);
             } catch (MalformedURLException ex) {
-                java.util.logging.Logger.getLogger(KVPWCSTParser.class.getName()).log(Level.SEVERE, null, ex);
                 throw new WCSTMalformedURL();
             }
         }
@@ -142,6 +144,7 @@ public class KVPWCSTParser extends KVPParser<WCSTRequest> {
      * parser to use.
      * @return
      */
+    @Override
     public String getOperationName() {
         return WCTS_OPERATION_NAME;
     }

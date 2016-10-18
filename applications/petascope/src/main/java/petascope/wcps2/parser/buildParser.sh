@@ -27,7 +27,13 @@
 #  cd $PETASCOPE_SOURCES/wcps2/parser && ./buildParser.sh
 #
 
-PATH_TO_ANTLR_TOOL="/usr/local/lib/antlr-4.1-complete.jar"
+URL_TO_ANTLR="http://www.antlr.org/download/antlr-4.1-complete.jar"
+PATH_TO_ANTLR_TOOL="/tmp/antlr-4.1-complete.jar"
+if [ ! -f "$PATH_TO_ANTLR_TOOL" ]; then
+    echo "downloading antlr-4.1 to $PATH_TO_ANTLR_TOOL"
+    wget "$URL_TO_ANTLR" -O "$PATH_TO_ANTLR_TOOL"
+fi
+echo "building parser..."
 
 #Backup the visitor classes that define the actions to be taken on parsing
 mkdir -p backupEvaluator
@@ -36,7 +42,7 @@ mv ParserErrorHandler.java backupEvaluator
 mv WcpsTranslator.java backupEvaluator
 
 #Clean any existing files from the existent parser
-rm *.java
+rm -f *.java
 
 #Build the parser
 export antlr4="java -jar $PATH_TO_ANTLR_TOOL"
@@ -53,6 +59,8 @@ mv backupEvaluator/ParserErrorHandler.java .
 mv backupEvaluator/WcpsTranslator.java .
 
 #Cleanup
-rm -r backupEvaluator
-rm *.class
-rm *.tokens
+rm -rf backupEvaluator
+rm -f *.class
+rm -f *.tokens
+
+echo "done."

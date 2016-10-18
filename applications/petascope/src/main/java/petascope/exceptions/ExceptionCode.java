@@ -164,7 +164,7 @@ public class ExceptionCode {
     public static final ExceptionCode InternalSqlError = new ExceptionCode("InternalSqlError");
     public static final ExceptionCode InternalWMSError = new ExceptionCode("InternalWMSError");
     public static final ExceptionCode InterpolationMethodNotSupported = new ExceptionCode("InterpolationMethodNotSupported",
-            "`interpolation' parameter indicated is not supported by this server (i.e., URL is not known to this server).", SC_METHOD_NOT_ALLOWED);
+            "'interpolation' parameter indicated is not supported by this server (i.e., URL is not known to this server).", SC_METHOD_NOT_ALLOWED);
     public static final ExceptionCode InvalidAxisLabel = new ExceptionCode("InvalidAxisLabel",
             "The dimension subsetting operation specified an axis label that does not exist in the Envelope " +
             "or has been used more than once in the GetCoverage request.", SC_BAD_REQUEST);
