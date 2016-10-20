@@ -49,7 +49,7 @@ public class DbManager {
   public static String EPSG_DB_FILE = "GmlDictionary.xml";
   public static String USER_DB = "userdb";
   public static String USER_DB_FILE = "UserDictionary.xml";
-  public static String EPSG_FOLDER = "gml";
+  
 
   // keep backwards support (e.g: http://localhost:8080/def/crs/OGC/0/Index2D/)
   // so if request does not have the specific version, it should load the GMLDictionary from this version
@@ -89,8 +89,7 @@ public class DbManager {
     String fixedGmlFilePath = "";
 
     // 1. Load all the EPSG folders with version name in the configuration of secore.conf (normally it is in etc/gml).
-    String epsgFolder = Config.configDir  + EPSG_FOLDER + "/";
-    File folder = new File(epsgFolder);
+    File folder = new File(Config.getInstance().getGMLDirectory());
     // Get the folders and 1 UserDictionary.xml in the etc/gml/
     List<File> files = new ArrayList<File>(Arrays.asList(folder.listFiles()));
 

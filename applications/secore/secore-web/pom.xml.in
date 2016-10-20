@@ -8,7 +8,7 @@
     <artifactId>secore-web</artifactId>
     <version>1.0</version>
     <packaging>war</packaging>
-    
+
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <custom.target.dir>${project.basedir}/target</custom.target.dir>
@@ -55,6 +55,11 @@
                     <warName>def</warName>
                     <webResources>
                         <resource>
+                            <excludes>
+                                <exclude>secore.properties</exclude>
+                                <exclude>secore.properties.in</exclude>
+                                <exclude>*gml.tar.gz</exclude>
+                            </excludes>
                             <directory>../secore-core/etc</directory>
                             <targetPath>etc</targetPath>
                         </resource>

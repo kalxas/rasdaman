@@ -28,6 +28,7 @@ import java.io.StringWriter;
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
 import javax.servlet.FilterConfig;
+import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
@@ -43,35 +44,22 @@ import secore.util.StringUtil;
  *
  * @author Mihaela Rusu
  */
-public class SecoreFilter implements Filter {
+public final class SecoreFilter implements Filter {
   
   private static Logger log = LoggerFactory.getLogger(SecoreFilter.class);
-  
-  private static final boolean debug = true;
-  // The filter configuration object we are associated with.  If
-  // this value is null, this filter instance is not currently
-  // configured. 
   private FilterConfig filterConfig = null;
+  public final static String CONF_DIR = "confDir";  
   
-  public SecoreFilter() {
-    Config.getInstance();
+  @Override
+  public void init(FilterConfig filterConfig) {
+    this.filterConfig = filterConfig;
+    // We need to extract this param from web.xml before SECORE can start (i.e: it need to read the $RMANHOME/etc/secore.properties)
+    ServletContext context = this.filterConfig.getServletContext();    
+    String confDir = context.getInitParameter(CONF_DIR);
+    Config.initInstance(confDir);
     log.info("Initializing SECORE web front-end...");
-  }  
-  
-  private void doBeforeProcessing(ServletRequest request, ServletResponse response)
-      throws IOException, ServletException {
-    if (debug) {
-      log.debug("Filter:DoBeforeProcessing");
-    }
-  }  
-  
-  private void doAfterProcessing(ServletRequest request, ServletResponse response)
-      throws IOException, ServletException {
-    if (debug) {
-      log.debug("Filter:DoAfterProcessing");
-    }
   }
-
+  
   /**
    *
    * @param request The servlet request we are processing
@@ -84,12 +72,6 @@ public class SecoreFilter implements Filter {
   public void doFilter(ServletRequest request, ServletResponse response,
       FilterChain chain)
       throws IOException, ServletException {
-    
-    if (debug) {
-      log.debug("Filter:doFilter()");
-    }
-    
-    doBeforeProcessing(request, response);
     
     Throwable problem = null;
     try {
@@ -140,8 +122,6 @@ public class SecoreFilter implements Filter {
       t.printStackTrace();
     }
     
-    doAfterProcessing(request, response);
-
     // If there was a problem, we want to rethrow it if it is
     // a known type, otherwise log it.
     if (problem != null) {
@@ -156,37 +136,9 @@ public class SecoreFilter implements Filter {
   }
 
   /**
-   * Return the filter configuration object for this filter.
-   */
-  public FilterConfig getFilterConfig() {
-    return (this.filterConfig);
-  }
-
-  /**
-   * Set the filter configuration object for this filter.
-   *
-   * @param filterConfig The filter configuration object
-   */
-  public void setFilterConfig(FilterConfig filterConfig) {
-    this.filterConfig = filterConfig;
-  }
-
-  /**
    * Destroy method for this filter 
    */
   public void destroy() {    
-  }
-
-  /**
-   * Init method for this filter 
-   */
-  public void init(FilterConfig filterConfig) {    
-    this.filterConfig = filterConfig;
-    if (filterConfig != null) {
-      if (debug) {        
-        log("Filter:Initializing filter");
-      }
-    }
   }
 
   /**

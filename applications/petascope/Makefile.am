@@ -87,6 +87,10 @@ if PETASCOPEDB_HSQLDB
   HSQLDB=1
 endif
 
+OLD_CONF=$(DESTDIR)$(sysconfdir)/petascope.properties
+NEW_CONF=$(SETTINGS_FILE_EDIT)
+OLD_LOG4JCONF=$(DESTDIR)$(sysconfdir)/log4j.properties
+
 # Unix tools
 FIND      = find
 MKDIR     = mkdir -p
@@ -163,7 +167,7 @@ javadoc: $(all_javas)
 # Set java_server=external if --with-java-server=external or java_server=embedded if --with-java-server=embedded or not set.
 # Finally, copy $(SETTINGS_FILE) file petascope.properties in ~petascope/src/main/resources to $RMANHOME/etc/
 .PHONY: install
-install: war service
+install:  service
 	echo "Creating temporary petascope.properties file for merging with old configuration file...";
 	$(CP) $(SETTINGS_FILE) $(SETTINGS_FILE_EDIT);
 	echo "Done.";
@@ -193,29 +197,20 @@ if PETASCOPEDB_HSQLDB
 	$(CP) lib/sqltool.jar lib/hsqldb.jar $(DESTDIR)$(libdir)
 	$(MKDIR) -p $(filedatadir)/petascope
 endif
-	OLD_CONF=$(DESTDIR)$(sysconfdir)/petascope.properties; \
-	NEW_CONF=$(SETTINGS_FILE_EDIT); \
-	OLD_LOG4JCONF=$(DESTDIR)$(sysconfdir)/log4j.properties; \
-	NEW_LOG4JCONF=src/main/resources/log4j.properties.in; \
 	sed -i "s|@GENERATED_rasdaman_bin_path@|$(bindir)/|g" $(SETTINGS_FILE_EDIT); \
-	if test -f $$OLD_CONF; then \
-		echo "$@ is updating petascope.properties: $$OLD_CONF from $$NEW_CONF"; \
-		./update_properties.sh $$OLD_CONF $$NEW_CONF; \
-		if test -n "$$SQLITE"; then \
-			sed -i 's|jdbc:sqlite:petascopedb|jdbc:sqlite:'$(filedatadir)'/petascopedb|g' $$NEWCONF; \
-		fi; \
-	else \
-		echo "$@ is copying petascope.properties: $$NEW_CONF to $$OLD_CONF"; \
-		cp $$NEW_CONF $$OLD_CONF ; \
+	sed -i "s|@LOGDIR@|$(logdir)|g" $(SETTINGS_FILE_EDIT); \
+	if test -n "$$SQLITE"; then \
+		sed -i 's|jdbc:sqlite:petascopedb|jdbc:sqlite:'$(filedatadir)'/petascopedb|g' $$NEW_CONF; \
 	fi; \
+	echo "$@ is updating petascope.properties file: $(OLD_CONF) from $(NEW_CONF)"; \
+	./update_properties.sh $(OLD_CONF) $(NEW_CONF); \
+	echo "Done.";
 	echo -e; \
-	if test -f $$OLD_LOG4JCONF; then \
-    $(SED) -i 's|log4j\.appender\.rollingFile\.File=petascope.log|log4j.appender.rollingFile.File='$(logdir)'/petascope.log|g' $$OLD_LOG4JCONF; \
-		echo "$@ will not overwrite log4j.properties in $$OLD_LOG4JCONF."; \
-	else \
-		echo "$@ is copying log4j.properties: $$NEW_LOG4JCONF to $$OLD_LOG4JCONF"; \
-		$(SED) 's|@LOGDIR@|'$(logdir)'|g' $$NEW_LOG4JCONF > $$OLD_LOG4JCONF; \
-	fi;
+	if test -f "$(OLD_LOG4JCONF)"; then \
+		echo "log4j.properties file is merged in: $(OLD_CONF), move this file to .unused."; \
+		mv $(OLD_LOG4JCONF) $(OLD_LOG4JCONF).unused 2>/dev/null; \
+	fi; \
+	echo "Done.";
 
 # run any JUnit tests
 .PHONY: test

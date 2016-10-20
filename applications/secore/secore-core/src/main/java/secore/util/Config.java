@@ -39,13 +39,9 @@ import org.slf4j.LoggerFactory;
  * @author Dimitar Misev
  */
 public class Config {
-  
+
   private static Logger log = LoggerFactory.getLogger(Config.class);
-  
-  // configuration files
-  public static final String CONF_FILE = "etc/secore.conf";
-  public static final String LOG4J_PROPERTIES = "etc/log4j.properties";
-  
+
   // version
   public final static String VERSION_MAJOR = "0";
   public final static String VERSION_MINOR = "1";
@@ -53,66 +49,145 @@ public class Config {
   public final static String VERSION =
       VERSION_MAJOR + "." + VERSION_MINOR + "." + VERSION_MICRO;
   public final static String LANGUAGE = "en";
-  
+
   // configuration keys
   private final static String USERNAME_KEY = "username";
   private final static String PASSWORD_KEY = "password";
   private final static String GML_DEF_KEY = "gml.def.path";
   private final static String SERVICE_URL = "service.url";
   private final static String CODESPACE_KEY = "codespace";
-  
+
   // singleton
   private static Config instance;
   private static Properties props;
-  
-  public static String configDir;
 
-  private Config() {
-    // setup logging
-    try {
-      File file = IOUtil.findFile(LOG4J_PROPERTIES);
-      PropertyConfigurator.configure(file.toURI().toURL());
-      log.info("Logging configured from configuration file " + LOG4J_PROPERTIES);
-    } catch (Exception ex) {
-      BasicConfigurator.configure(new ConsoleAppender(
-          new PatternLayout("[%d{HH:mm:ss}]%6p %c{1}@%L: %m%n")));
-      log.warn("No log4j.properties found on the classpath. Logging to standard output configured in code");
+
+  private static final String PROPERTIES_FILE = "secore.properties";
+  private static final String GML_FOLDER = "gml";
+  private static final String DEFAULT_CONF_DIR = "@CONF_DIR@/etc";
+  // we will search the full path for the etc/gml folder inside war file
+  private static final String ETC_DIRECTORY = "etc";
+
+  // from secore.properties used for log4j
+  private static final String LOG_FILE_PATH = "log4j.appender.rollingFile.File";
+
+  // after get the fullpath to etc/gml, then it can load gml dictionary files from this folder
+  private String gmlDir;
+
+  private Config(String confDir) {
+    // (we read from @CONF_DIR@/secore.properties (i.e: $RMANHOME/etc/secore.properties)) which is copied from secore-core/etc/secore.properties
+    String confFile = confDir + "/" + PROPERTIES_FILE;
+
+    if (confDir.equals(DEFAULT_CONF_DIR)) {
+        log.error("SECORE's configuration properties file was not setup, please change this parameter (@CONF_DIR@) in WEB-INF/web.xml to the location of secore.properties file.");
+        throw new RuntimeException("SECORE's configuration properties file was not setup, please change this parameter (@CONF_DIR@) in WEB-INF/web.xml to the location of secore.properties file.");
     }
     
     // read configuration
     props = new Properties();
     InputStream is = null;
     try {
-      File configFile = IOUtil.findFile(CONF_FILE);
-      is = new FileInputStream(configFile);
+      File file = new File(confFile);
+      is = new FileInputStream(file);
       props.load(is);
-      
-      // Set the absolute to the etc/ directory for using later.
-      String configFilePath = configFile.getAbsolutePath();
-      log.debug("config file path: " + configFilePath);
-      // it is set to ../etc/
-      configDir = configFilePath.substring(0, configFilePath.lastIndexOf("/") + 1);
-      log.debug("config directory path: " + configDir);
-      
     } catch (IOException ex) {
-      log.error("Failed loading settings", ex);
-      throw new RuntimeException("Failed loading settings", ex);
+        log.error("Failed loading settings", ex);
+        throw new RuntimeException("Failed loading settings", ex);
     } finally {
-      if (is != null) {
-        try {
-          is.close();
-        } catch (IOException ex) {
-          log.warn("Failed closing stream settings input stream" , ex);
+        if (is != null) {
+          try {
+            is.close();
+          } catch (IOException ex) {
+            log.warn("Failed closing stream settings input stream" , ex);
+          }
         }
-      }
+    }
+    
+    // find the gml directory which contains EPSG, userdb
+    initGMLDirectory();
+
+    // then init log4j configuration
+    initLogging(confFile);
+  }
+
+  /**
+   * Find GML directory in war file
+   */
+  private void initGMLDirectory() {
+    try {
+        // need to findout the fullpath to etc/gml folder
+        File file = IOUtil.findFile(ETC_DIRECTORY);
+        String filePath = file.getAbsolutePath();
+        log.debug("secore.properties file path: " + filePath);
+        // get the file path to etc/gml directory
+        gmlDir = filePath.substring(0, filePath.lastIndexOf("/") + 1) + this.getGmlDefPath();
+        log.debug("gml directory: " + gmlDir);
+    } catch (IOException ex) {
+        log.error("Cannot find the GML directory in SECORE to initialize database.");
+        throw new RuntimeException("Cannot find the GML directory in SECORE to initialize database.");
     }
   }
-  
+
+  /**
+   * Read the log configuration from $RMANHOME/etc/secore.properties
+   */
+  private void initLogging(String confFile) {
+    String confDir = new File(confFile).getParent();
+    try {
+      // log4j is added in secore.properties
+      File file = new File(confFile);
+      log.info("Logging configured from configuration file " + confFile);
+
+      try {
+        PropertyConfigurator.configure(file.toURI().toURL());
+      } catch (Exception ex) {
+          System.err.println("Error loading logger configuration: " + confFile);
+          ex.printStackTrace();
+          BasicConfigurator.configure();
+      }
+
+      String logFilePath = props.getProperty(LOG_FILE_PATH);
+
+      // there is log file path in secore.properties
+        if (logFilePath != null) {
+            File f = new File(logFilePath);
+            // If the log file path is configured as absolute path, we check the write permision of Tomcat username on this file.
+            if (f.isAbsolute()) {
+                if (!f.canWrite()) {
+                    log.warn("Cannot write to the secore log file defined in secore.properties: "  + logFilePath + ".\n"
+                           + "Please make sure the path specified by " + LOG_FILE_PATH + " in secore.properties is"
+                           + " a location where the system user running Tomcat has write access."
+                           + " Otherwise, the secore log can only be found in the Tomcat log (usually catalina.out).");
+                }
+            } else {
+                // log file path is relative, we don't know where directory user want to set the log file, so user will need to see the log in catalina.out
+                log.warn(LOG_FILE_PATH + " is set to relative path: " + logFilePath + " in petascope.properties; it is recommended to set it to an absolute path."
+                     + " In any case, the petascope log can be found in the Tomcat log (usually catalina.out).");
+            }
+        }    
+    } catch (Exception ex) {
+        BasicConfigurator.configure(new ConsoleAppender(
+                                    new PatternLayout("[%d{HH:mm:ss}]%6p %c{1}@%L: %m%n")));
+        log.warn("No log4j.properties found on the classpath. Logging to standard output configured in code");
+    }
+  }
+
   public static Config getInstance() {
     if (instance == null) {
-      instance = new Config();
+        log.error("Failed initializing configurations.");
+        throw new RuntimeException("Failed initializing configurations.");
     }
     return instance;
+  }
+
+  /**
+   * Initialize the singleton object with configuration directory to secore.properties (i.e: $RMANHOME/etc/secore.properties)
+   * @param confDir
+   */
+  public static void initInstance(String confDir) {
+    if (instance == null) {
+        instance = new Config(confDir);
+    }
   }
 
   /**
@@ -145,12 +220,16 @@ public class Config {
     }
     return ret;
   }
-  
+
   public String getServiceUrl() {
     return get(SERVICE_URL);
   }
-  
+
   public String getCodespace() {
     return get(CODESPACE_KEY);
+  }
+
+  public String getGMLDirectory() {
+      return gmlDir;
   }
 }

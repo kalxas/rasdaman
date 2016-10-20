@@ -53,6 +53,7 @@ public class SecoreServlet extends HttpServlet {
 
   @Override
   public void init() throws ServletException {
+      
   }
 
   @Override

@@ -42,7 +42,6 @@ import org.slf4j.LoggerFactory;
 import org.xml.sax.ErrorHandler;
 import org.xml.sax.SAXException;
 import org.xml.sax.SAXParseException;
-import static secore.util.Config.CONF_FILE;
 import secore.util.SecoreException;
 import secore.util.Constants;
 import secore.util.ExceptionCode;

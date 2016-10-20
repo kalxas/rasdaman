@@ -51,6 +51,9 @@ set(INSERT_DATA_SCRIPT "${SRC_DB}/petascope_insertdemo.sh")
 set(INSERT_DATA_SCRIPT_TEMPLATE "${INSERT_DATA_SCRIPT}.in")
 set(DATABASE_UPDATES_DIR "${SRC_DB}/petascope")
 
+# will not rebuild secore when make install
+set(CMAKE_SKIP_INSTALL_ALL_DEPENDENCY TRUE)
+
 # Server decision: embeded vs external; JAVA_SERVER_EMBEDDED variable is provided from the main CMakeLists.txt file
 if (JAVA_SERVER_EMBEDDED)
     set(GENERATED_java_server "embedded")
@@ -80,9 +83,6 @@ if (PETASCOPEDB_HSQLDB)
     set(HSQLDB 1)
 endif ()
 
-set(LOG_SETTINGS_FILE_TEMPLATE "${CMAKE_CURRENT_SOURCE_DIR}/src/main/resources/log4j.properties.in")
-set(LOG_SETTINGS_FILE "${CMAKE_CURRENT_SOURCE_DIR}/src/main/resources/log4j.properties")
-
 # Generate web.xml out of an .in file by replacing any variables that can be configured at compile time
 configure_file("${SRC_WEB}/WEB-INF/web.xml.in" ${PETASCOPE_WEB_XML_PATH} @ONLY)
 
@@ -91,9 +91,6 @@ configure_file(pom.xml.in "${CMAKE_CURRENT_SOURCE_DIR}/pom.xml" @ONLY)
 
 # Do the same for petascope.properties
 configure_file(${SETTINGS_FILE_TEMPLATE} ${SETTINGS_FILE} @ONLY)
-
-# Do the same for log4j.properties
-configure_file(${LOG_SETTINGS_FILE_TEMPLATE} ${LOG_SETTINGS_FILE} @ONLY)
 
 # Do the same for update_petascopedb.sh
 configure_file(${CREATE_PETASCOPEDB_TEMPLATE} ${CREATE_PETASCOPEDB_SCRIPT} @ONLY)
@@ -111,11 +108,7 @@ add_custom_target(petascope ALL
         WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
         VERBATIM)
 
-add_custom_target(setlogdir ALL
-        COMMAND test -f ${CONF_DIR}/log4j.properties && sed -i 's|log4j.appender.rollingFile.File=petascope.log|log4j.appender.rollingFile.File=${LOG_DIR}/petascope.log|g' ${CONF_DIR}/log4j.properties || true
-)
-
-add_dependencies(petascope rasj setlogdir)
+add_dependencies(petascope rasj)
 
 # If petascope should work as a standalone server let's build the jetty profile in maven
 if (JAVA_SERVER_EMBEDDED)
@@ -126,6 +119,7 @@ if (JAVA_SERVER_EMBEDDED)
         VERBATIM)
     
     add_dependencies(petascope-embeded petascope)
+
 
 # Install it in the war dir
     install(FILES "${PETASCOPE_TARGET_DIR}/petascope-standalone.jar"
@@ -145,14 +139,14 @@ install(DIRECTORY "${DATABASE_UPDATES_DIR}"
         PERMISSIONS OWNER_EXECUTE OWNER_WRITE OWNER_READ
                     GROUP_EXECUTE GROUP_READ)
 
-# Install the settings file
-install_if_not_exists(${SETTINGS_FILE} ${CONF_DIR})
-
-# Install log4j configuration if it does not exist
-install_if_not_exists("${CMAKE_CURRENT_SOURCE_DIR}/src/main/resources/log4j.properties" ${CONF_DIR})
+# Move the log4j.properties to log4j.properties.unused as it was merged in petascope.properties
+install( CODE "execute_process(COMMAND mv ${CONF_DIR}/log4j.properties ${CONF_DIR}/log4j.properties.unused ERROR_QUIET)" )
 
 # Install wms_service.properties if it does not exist
 install_if_not_exists("${CMAKE_CURRENT_SOURCE_DIR}/src/main/resources/wms/wms_service.properties" ${CONF_DIR})
+
+# Install petascope.properties if does not exist and run update_properties.sh to merge new configuration file with old configuration file
+install( CODE "execute_process(COMMAND sh  ${CMAKE_CURRENT_SOURCE_DIR}/update_properties.sh ${CONF_DIR}/petascope.properties ${SETTINGS_FILE})" )
 
 # Install it to the war directory specified during configure
 install(FILES "${PETASCOPE_TARGET_DIR}/rasdaman.war"

@@ -54,3 +54,24 @@ service.url=http://www.opengis.net/def
 #
 codespace=OGC
 
+
+#
+# log4j configuration
+#
+log4j.rootLogger=TRACE, rollingFile, stdout
+
+log4j.appender.stdout=org.apache.log4j.ConsoleAppender
+log4j.appender.stdout.layout=org.apache.log4j.PatternLayout
+log4j.appender.stdout.layout.ConversionPattern=%6p [%d{HH:mm:ss}] %c{1}@%L: %m%n
+
+log4j.appender.rollingFile=org.apache.log4j.RollingFileAppender
+
+# Please make sure the path specified by log4j.appender.rollingFile.File is a
+# location where the system user running Tomcat has write access.
+# Otherwise, the secore and petascope logs can only be found in catalina.out
+log4j.appender.rollingFile.File=@LOGDIR@/secore.log
+
+log4j.appender.rollingFile.MaxFileSize=10MB
+log4j.appender.rollingFile.MaxBackupIndex=10
+log4j.appender.rollingFile.layout=org.apache.log4j.PatternLayout
+log4j.appender.rollingFile.layout.ConversionPattern=%6p [%d{HH:mm:ss}] %c{1}@%L: %m%n
