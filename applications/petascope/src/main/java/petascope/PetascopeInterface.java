@@ -673,7 +673,8 @@ public class PetascopeInterface extends CORSHttpServlet {
             
             // then download the result as a file (but only when the request has a specific coverage name)
             if (res.getCoverageID() != null) {
-                response.setHeader("Content-disposition", "attachment; filename=" + fileName);
+                // NOTE: Content-Disposition: attachment; will download file in WebBrowser instead of trying to display (GML/PNG/JPEG) type.
+                response.setHeader("Content-disposition", "inline; filename=" + fileName);
             }
 
             // WCS multipart
