@@ -144,10 +144,10 @@ public class RasqlTranslationService {
             if (isNeededAxis(axis.getLabel(), subsets)) {
                 NumericSubset gridBounds = axis.getGridBounds();
                 if (gridBounds instanceof NumericSlicing) {
-                    result = ((NumericSlicing) gridBounds).getBound().toPlainString();
+                    result = ((NumericSlicing) gridBounds).getBound().toBigInteger().toString();
                 } else {
-                    result = ((NumericTrimming) gridBounds).getLowerLimit() + ":"
-                            + ((NumericTrimming) gridBounds).getUpperLimit();
+                    result = ((NumericTrimming) gridBounds).getLowerLimit().toBigInteger() + ":"
+                            + ((NumericTrimming) gridBounds).getUpperLimit().toBigInteger();
                 }
                 translatedDomains.add(result);
             }

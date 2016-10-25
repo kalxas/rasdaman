@@ -1,0 +1,7 @@
+service=WCS&
+version=2.0.1&
+request=GetCoverage&
+coverageId=test_landsat8&
+subset=E(377983,378013)&
+subset=N(4903991,4904041)&
+format=image/tiff

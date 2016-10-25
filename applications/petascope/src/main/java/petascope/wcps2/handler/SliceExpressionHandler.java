@@ -70,7 +70,7 @@ public class SliceExpressionHandler {
         List<SubsetDimension> axisIteratorSubsetDimensions = subsetParsingService.getAxisIteratorSubsetDimensions(subsetDimensions);
 
         // Only apply subsets if subset dimensions don't contain the "$"
-        List<Subset> numericSubsets = subsetParsingService.convertToNumericSubsets(pureSubsetDimensions, metadataInput);
+        List<Subset> numericSubsets = subsetParsingService.convertToNumericSubsets(pureSubsetDimensions, metadataInput, false);
 
         // Update the coverag expression metadata with the new subsets
         WcpsCoverageMetadata metadata = wcpsCoverageMetadataService.applySubsets(true, metadataInput, numericSubsets);

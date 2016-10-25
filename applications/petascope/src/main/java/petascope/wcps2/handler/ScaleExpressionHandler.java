@@ -52,7 +52,7 @@ public class ScaleExpressionHandler {
         WcpsCoverageMetadata metadata = coverageExpression.getMetadata();
         // scale(coverageExpression, {domainIntervals})
         List<SubsetDimension> intervals = dimensionIntervalList.getIntervals();
-        List<Subset> subsets = subsetParsingService.convertToNumericSubsets(intervals, metadata);
+        List<Subset> subsets = subsetParsingService.convertToNumericSubsets(intervals, metadata, true);
         // NOTE: this method will apply subsets on coverage's axes (e.g: scale(c, {Lat:"CRS:1"(0:100), Long:"CRS:1"(20:70)})
         // Only gridbound of the translated axis is needed to add in the intervalList below.
         // The coverage must keep the original axes in the coverage metadata as it does not mean coverage is translated to CRS:1.
