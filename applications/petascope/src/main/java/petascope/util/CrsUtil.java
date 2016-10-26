@@ -85,7 +85,7 @@ public class CrsUtil {
 
     // NOTE: accept any URI format, but ask to SECORE: flattened definitions, less recursion.
     public static final  String OPENGIS_URI_PREFIX = "http://www.opengis.net";
-    private static final String HTTP_URL_PATTERN   = "http://.*/";
+    private static final String HTTP_URL_PATTERN   = "(http|https)://.*/";
     private static final String HTTP_PREFIX        = "http://";
 
     // SECORE keywords (URL is set in the ConfigManager)
@@ -251,7 +251,7 @@ public class CrsUtil {
         // Check if the URI syntax is valid
         if (!CrsUri.isValid(givenCrsUri)) {
             log.warn(givenCrsUri + " definition seems not valid.");
-            throw new PetascopeException(ExceptionCode.InvalidMetadata, givenCrsUri + " definition seems not valid.");
+            throw new PetascopeException(ExceptionCode.InvalidMetadata, givenCrsUri + " definition seems not valid.");            
         }
 
         // Need to parse the XML
@@ -1534,8 +1534,8 @@ public class CrsUtil {
                 p = Pattern.compile("^" + HTTP_URL_PATTERN + KEY_RESOLVER_CRS + "/([^/]+)/.+/.+$");
                 m = p.matcher(decUri);
                 while (m.find()) {
-                    if (m.groupCount() == 1) {
-                        return m.group(1);
+                    if (m.groupCount() == 2) {
+                        return m.group(2);
                     } else {
                         log.warn(decUri + " seems to be invalid.");
                     }
@@ -1569,8 +1569,8 @@ public class CrsUtil {
                 p = Pattern.compile("^" + HTTP_URL_PATTERN + KEY_RESOLVER_CRS + "/[^/]+/(.+)/.+$");
                 m = p.matcher(decUri);
                 while (m.find()) {
-                    if (m.groupCount() == 1) {
-                        return m.group(1);
+                    if (m.groupCount() == 2) {
+                        return m.group(2);
                     } else {
                         log.warn(decUri + " seems to be invalid.");
                     }
@@ -1605,8 +1605,8 @@ public class CrsUtil {
                 p = Pattern.compile("^" + HTTP_URL_PATTERN + KEY_RESOLVER_CRS + "/[^/]+/.+/(.+)$");
                 m = p.matcher(decUri);
                 while (m.find()) {
-                    if (m.groupCount() == 1) {
-                        return m.group(1);
+                    if (m.groupCount() == 2) {
+                        return m.group(2);
                     }
                 }
             }
