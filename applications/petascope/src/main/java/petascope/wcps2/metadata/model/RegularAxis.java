@@ -28,16 +28,10 @@ import petascope.core.CrsDefinition;
  * @author <a href="merticariu@rasdaman.com">Vlad Merticariu</a>
  */
 public class RegularAxis extends Axis {
-    private final BigDecimal resolution;
 
     public RegularAxis(String label, NumericSubset geoBounds, NumericSubset gridBounds, AxisDirection direction,
-                       String crsUri, CrsDefinition crsDefinition, BigDecimal resolution, String axisType, String axisUoM,
+                       String crsUri, CrsDefinition crsDefinition, String axisType, String axisUoM,
                        BigDecimal scalarResoultion, int rasdamanOrder, BigDecimal origin) {
         super(label, geoBounds, gridBounds, direction, crsUri, crsDefinition, axisType, axisUoM, scalarResoultion, rasdamanOrder, origin);
-        this.resolution = resolution;
-    }
-
-    public BigDecimal getResolution() {
-        return resolution;
     }
 }

@@ -445,8 +445,14 @@ public class SubsetParsingService {
             geoMinCoordinate = ((NumericSlicing)axis.getGeoBounds()).getBound();
             geoMaxCoordinate = geoMinCoordinate;
         }
-
+        
         BigDecimal coordinateValue = new BigDecimal(point);
+        
+        // NOTE: if point is out of axis's bound then will not need to do anything (if the subset in scale() or extend() then it is valid).
+        if (!isScaleExtend) {
+            validatePointInsideGeoBound(axis.getLabel(), coordinateValue, geoMinCoordinate, geoMaxCoordinate);
+        }
+        
         // calculate the distance from the input geo coordinate and min coordinate (distance = input point - min coordinate)
         BigDecimal distanceFromOrigin = coordinateValue.subtract(geoMinCoordinate);
         // calculate the cell coordinate (cellCoordinate = distance / pixel size)
@@ -481,5 +487,14 @@ public class SubsetParsingService {
         }
 
         return nearestGeoCoordinate;
+    }
+    
+    /**
+     * i.e: if point is 20 and Lat's geo bound is: 30:40 then point is invalid and should throw error
+     */
+    private void validatePointInsideGeoBound(String axisName, BigDecimal point, BigDecimal geoMin, BigDecimal geoMax) {
+        if (point.compareTo(geoMin) < 0 || point.compareTo(geoMax) > 0) {
+            throw new OutOfBoundsSubsettingException(axisName, new ParsedSubset<String>(point.toPlainString()), geoMin.toPlainString(), geoMax.toPlainString());
+        }
     }
 }

@@ -150,7 +150,7 @@ public class NetCDFParametersFactory {
         }
         return result;
     }
-    
+
     private List<String> getDimensions(List<Axis> axes) {
         List<String> dimensions = new ArrayList<String>();
         for (Axis axis:axes) {
@@ -158,7 +158,7 @@ public class NetCDFParametersFactory {
         }
         return dimensions;
     }
-    
+
     private List<DimensionVariable> getDimensionVariables(String covName, List<Axis> axes) throws PetascopeException {
         List<DimensionVariable> dimensionVariables = new ArrayList<DimensionVariable>();
         for (Axis axis:axes) {
@@ -174,7 +174,7 @@ public class NetCDFParametersFactory {
         String axisType = covToCFTranslationService.getAxisType(axis.getLabel(), axis.getAxisType());
         return new DimensionVariableMetadata(standardName, unitOfMeasure, axisType);
     }
-    
+
     private List<BandVariable> getBandVariables(List<RangeField> bands) {
         List<BandVariable> bandVariables = new ArrayList<BandVariable>();
         for (RangeField band:bands) {
@@ -183,29 +183,40 @@ public class NetCDFParametersFactory {
         }
         return bandVariables;
     }
-    
+
     private List<Variable> getVariables(WcpsCoverageMetadata metadata) throws PetascopeException {
         List<Variable> variables = new ArrayList<Variable>();
         variables.addAll(this.getDimensionVariables(metadata.getCoverageName(), metadata.getAxes()));
         variables.addAll(this.getBandVariables(metadata.getRangeFields()));
         return variables;
     }
-    
+
     private List<Double> getPoisitionData(String covName, Axis axis) throws PetascopeException {
         // data=[geoLow, geoLow+res, geoLow+2*res, ...., geoHigh]
         List<Double> data = new ArrayList<Double>();
         if (axis.getGeoBounds() instanceof NumericTrimming) {
             BigDecimal resolution = axis.getScalarResolution();
-            
+
             BigDecimal geoDomMin = ((NumericTrimming)axis.getGeoBounds()).getLowerLimit();
             BigDecimal geoDomMax = ((NumericTrimming)axis.getGeoBounds()).getUpperLimit();
             BigDecimal gridDomMin = ((NumericTrimming)axis.getGridBounds()).getLowerLimit();
             BigDecimal gridDomMax = ((NumericTrimming)axis.getGridBounds()).getUpperLimit();
-            
+
             int numberOfPoints = gridDomMax.subtract(gridDomMin).intValueExact() + 1;
-            if(axis instanceof RegularAxis) {
+            if (axis instanceof RegularAxis) {
+                RegularAxis regularAxis = (RegularAxis)axis;
+                BigDecimal coord = BigDecimal.ZERO;
+                // Write the step values for each axis as an array of values in netCDF's variables
                 for (int i = 0; i < numberOfPoints; i++) {
-                    BigDecimal coord = geoDomMin.add(resolution.multiply(new BigDecimal(i)));
+                    double offset = resolution.multiply(new BigDecimal(i)).doubleValue();
+                    // positive axis (e.g: Long) so step values from min -> max (e.g: -180, -150, -120,..., 120, 150, 180)
+                    if (regularAxis.getScalarResolution().compareTo(BigDecimal.ZERO) > 0) {
+                        coord = geoDomMin.add(new BigDecimal(Math.abs(offset)));
+                    } else {
+                        // negative axis (e.g: Lat) so step values from max -> min (e.g: 90, 80, 70,...-70, -80, -90)
+                        coord = geoDomMax.subtract(new BigDecimal(Math.abs(offset)));
+                    }
+
                     data.add(coord.doubleValue());
                 }
             }
@@ -220,7 +231,7 @@ public class NetCDFParametersFactory {
                 }
             }
         }
-        
+
         return data;
     }
 

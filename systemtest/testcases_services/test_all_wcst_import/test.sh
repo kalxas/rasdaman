@@ -89,13 +89,8 @@ for TEST_CASE in $TEST_DATA/*; do
 
     # 1.2.1 If test case name is "collection_exists" then need to import a test collection in rasdaman before
     if [[ "$TEST_CASE_NAME" == "$COLLECTION_EXISTS" ]]; then
-	log "Ingesting a sample collection: $COLLECTION_NAME."
-        $(rasql --quiet -q "CREATE COLLECTION $COLLECTION_NAME RGBSet" --user $RASMGR_ADMIN_USER --passwd $RASMGR_ADMIN_PASSWD)
-        if [[ $? != 0 ]]; then
-            NUM_FAIL=$(($NUM_FAIL + 1))
-            log "+ Error: when creating test_wcst_import_collection_exists in rasdaman"
-            continue # change to another test case to test
-        fi
+	    log "Ingesting a sample collection: $COLLECTION_NAME."
+        rasql --quiet -q "CREATE COLLECTION $COLLECTION_NAME RGBSet" --user $RASMGR_ADMIN_USER --passwd $RASMGR_ADMIN_PASSWD > /dev/null 2>&1
     fi
 
     # 1.3 replace all the default with the current system configuration from systemtest/util/common.sh
@@ -189,12 +184,8 @@ for TEST_CASE in $TEST_DATA/*; do
 
     # 2.7.1 remove created collection in rasdaman
     if [[ "$TEST_CASE_NAME" == "$COLLECTION_EXISTS" ]]; then
-	log "Cleaning collection: $COLLECTION_NAME."
-        $(rasql --quiet -q "DROP COLLECTION $COLLECTION_NAME" --user $RASMGR_ADMIN_USER --passwd $RASMGR_ADMIN_PASSWD)
-        if [[ $? != 0 ]]; then
-            log "+ Error: Could not remove added collection: $COLLECTION_NAME."
-            NUM_FAIL=$(($NUM_FAIL + 1))
-        fi
+	    log "Cleaning collection: $COLLECTION_NAME."
+        rasql --quiet -q "DROP COLLECTION $COLLECTION_NAME" --user $RASMGR_ADMIN_USER --passwd $RASMGR_ADMIN_PASSWD > /dev/null 2>&1
         log "Done."
     fi
     echo -e

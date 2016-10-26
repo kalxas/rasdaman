@@ -73,6 +73,7 @@ import petascope.util.response.MultipartResponse;
 import petascope.wcps.server.core.ProcessCoveragesRequest;
 import petascope.wcps.server.core.Wcps;
 import petascope.wcs.server.WcsServer;
+import petascope.wcs2.extensions.DecodeFormatExtension;
 import petascope.wcs2.extensions.ExtensionsRegistry;
 import petascope.wcs2.extensions.FormatExtension;
 import petascope.wcs2.extensions.ProtocolExtension;
@@ -667,7 +668,12 @@ public class PetascopeInterface extends CORSHttpServlet {
             // NOTE: WCS is translated to WCPS, hence they have both same mimeType formally, but WCST_Import can be empty
             if (mimeType.contains("/")) {
                 // e.g: (image/png -> only .png)
-                fileType = mimeType.split("/")[1];
+                // if MIME type have a special file extension (e.g: application/netcdf -> .nc), then it should not get from MIME type
+                if (DecodeFormatExtension.getFileExtension(mimeType) != null) {
+                    fileType = DecodeFormatExtension.getFileExtension(mimeType);
+                } else {
+                    fileType = mimeType.split("/")[1];
+                }
                 fileName = fileName + "." + fileType;                
             }
             

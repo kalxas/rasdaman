@@ -111,7 +111,7 @@ public class Response {
             formatType = "";
         }
 
-        return formatType;
+        return formatType.trim();
     }
 
     public String[] getXml() {

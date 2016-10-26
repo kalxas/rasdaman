@@ -138,10 +138,12 @@ public class WcpsCoverageMetadataTranslator {
             }
 
             // Get the metadata of CRS (needed when using TimeCrs)
-            CrsDefinition crsDefinition = currentGeo.getAxisDef().getCrsDefinition();
-            BigDecimal scalarResolution = currentGeo.getScalarResolution();
+            CrsDefinition crsDefinition = currentGeo.getAxisDef().getCrsDefinition();            
             String axisUoM = currentGeo.getUom();
             int rasdamanOrder = currentGeo.getOrder();
+            
+            // NOTE: this needs the "sign" of offset vector as well
+            BigDecimal scalarResolution = currentGeo.getDirectionalResolution();
             // Check domainElement's type
             if (currentGeo.isIrregular()) {
                 // Need the iOder of axis to query coeffcients
@@ -149,9 +151,9 @@ public class WcpsCoverageMetadataTranslator {
                                              crsUri, crsDefinition, axisType, axisUoM, scalarResolution, rasdamanOrder, currentGeo.getMinValue()));
             }
             else{
-                BigDecimal resolution = currentGeo.getDirectionalResolution();
+                
                 result.add(new RegularAxis(currentGeo.getLabel(), geoBounds, gridBounds, axisDirection,
-                                             crsUri, crsDefinition, resolution, axisType, axisUoM, scalarResolution, rasdamanOrder, currentGeo.getMinValue()));
+                                           crsUri, crsDefinition, axisType, axisUoM, scalarResolution, rasdamanOrder, currentGeo.getMinValue()));
             }
         }
         return result;

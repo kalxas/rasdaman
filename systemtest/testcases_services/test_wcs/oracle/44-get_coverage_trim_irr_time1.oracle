@@ -46,7 +46,7 @@
   <rangeSet>
     <DataBlock>
       <rangeParameters/>
-      <tupleList ts="," cs=" ">8.64451 4.17255,3.11651 0.451686,7.64325 0.618357,2.50987 1.96483</tupleList>
+      <tupleList ts="," cs=" ">0 0,0 0,0 0,0 0</tupleList>
     </DataBlock>
   </rangeSet>
 

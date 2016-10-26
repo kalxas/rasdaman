@@ -101,7 +101,7 @@ downloadAndCheck "$WCS_ENDPOINT" "$WCPS_ENDPOINT" "tiff"
 log "+ Test download encoding NETCDF..."
 WCS_ENDPOINT=$(echo $WCS_ENDPOINT_TEMPLATE | sed 's/$FORMAT/application\/netcdf/g')
 WCPS_ENDPOINT=$(echo $WCPS_ENDPOINT_TEMPLATE | sed 's/$FORMAT/netcdf/g')
-downloadAndCheck "$WCS_ENDPOINT" "$WCPS_ENDPOINT" "netcdf"
+downloadAndCheck "$WCS_ENDPOINT" "$WCPS_ENDPOINT" "nc"
 
 # 5. JPEG
 log "+ Test download encoding JPEG..."

@@ -58,6 +58,12 @@ import static petascope.core.DbMetadataSource.TABLE_MULTIPOINT;
  */
 public class DecodeFormatExtension extends AbstractFormatExtension {
 
+    public static final Set<String> SUPPORTED_FORMATS = new HashSet<String>(Arrays.asList(MIME_GML, MIME_PNG, MIME_TIFF, MIME_JP2, MIME_NETCDF));
+    // this will store the map from MIME type to file extesion (e.g: application/netcdf -> file extension .nc)
+    private static final Map<String, String> MIME_TO_FILE_EXTENSION = new HashMap<String, String>() {{
+                                                                                    put(MIME_NETCDF, "nc");
+                                                                           }};
+    
     public static final String DATATYPE_URN_PREFIX = "urn:ogc:def:dataType:OGC:1.1:"; // FIXME: now URNs are deprecated
         /* Member */
 
@@ -91,7 +97,7 @@ public class DecodeFormatExtension extends AbstractFormatExtension {
             throw new WCSException(ExceptionCode.InvalidParameterValue, mimeType + " MIME type cannot be handled.");
         }
     }
-
+     
     /**
      * Constructor for registering formats and also used while handling multipart requests
      * as two base requests
@@ -520,5 +526,14 @@ public class DecodeFormatExtension extends AbstractFormatExtension {
     @Override
     public String getMimeType() {
         return mimeType;
+    }
+    
+    /**
+     * Return the file name extension from MIME type (e.g: application/netcdf -> nc)
+     * @param mimeType
+     * @return 
+     */
+    public static String getFileExtension(String mimeType) {
+        return MIME_TO_FILE_EXTENSION.get(mimeType.trim());
     }
 }

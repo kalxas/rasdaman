@@ -286,7 +286,7 @@ public class WcpsCoverageMetadataService {
             BigDecimal scalarResolution = CrsUtil.INDEX_SCALAR_RESOLUTION;
 
             Axis axis = new RegularAxis(label, geoBounds, gridBounds, axisDirection, crsUri,
-                    crsDefinition, scalarResolution, axisType, axisUoM, scalarResolution, axesCounter, origin);
+                                        crsDefinition, axisType, axisUoM, scalarResolution, axesCounter, origin);
             axesCounter++;
             axes.add(axis);
         }
@@ -585,7 +585,7 @@ public class WcpsCoverageMetadataService {
         ParsedSubset<BigInteger> translatedSubset;
         // Regular axis (no need to query database)
         if (axis instanceof RegularAxis) {
-            BigDecimal resolution = ((RegularAxis) axis).getResolution();
+            BigDecimal resolution = ((RegularAxis) axis).getScalarResolution();
             // Lat(0:20) -> c[0:50]
             translatedSubset = coordinateTranslationService.geoToGridForRegularAxis(parsedSubset, geoDomainMin,
                                                             geoDomainMax, resolution, gridDomainMin);
@@ -620,7 +620,7 @@ public class WcpsCoverageMetadataService {
         ParsedSubset<BigInteger> translatedSubset;
         // Regular axis (no need to query database)
         if (axis instanceof RegularAxis) {
-            BigDecimal resolution = ((RegularAxis) axis).getResolution();
+            BigDecimal resolution = ((RegularAxis) axis).getScalarResolution();
             // Lat:"CRS:1"(0:50) -> [0:50]
             translatedSubset = coordinateTranslationService.gridToGeoForRegularAxis(parsedSubset, gridDomainMin, gridDomainMax, resolution, geoDomainMin);
         } else {
