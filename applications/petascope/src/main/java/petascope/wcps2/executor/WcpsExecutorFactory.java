@@ -22,6 +22,7 @@
 
 package petascope.wcps2.executor;
 
+import petascope.exceptions.ExceptionCode;
 import petascope.wcps2.error.managed.processing.WCPSProcessingError;
 import petascope.wcps2.result.VisitorResult;
 import petascope.wcps2.result.WcpsMetadataResult;
@@ -42,7 +43,7 @@ public class WcpsExecutorFactory {
         else if (result instanceof WcpsResult) {
             return wcpsRasqlExecutor;
         } else {
-            throw new WCPSProcessingError("Cannot get the executor to get the result from translated tree.");
+            throw new WCPSProcessingError("Cannot get the executor to get the result from translated tree.", ExceptionCode.WcpsError);
         }
     }
 

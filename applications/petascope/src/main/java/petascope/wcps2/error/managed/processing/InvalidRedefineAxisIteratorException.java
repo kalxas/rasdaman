@@ -21,6 +21,7 @@
  */
 package petascope.wcps2.error.managed.processing;
 
+import petascope.exceptions.ExceptionCode;
 import petascope.wcps2.result.parameters.SubsetDimension;
 
 /**
@@ -39,7 +40,8 @@ public class InvalidRedefineAxisIteratorException extends WCPSProcessingError {
      * @param subsetDimension the offending subsetDimension
      */
     public InvalidRedefineAxisIteratorException(String axisIteratorAlias, SubsetDimension subsetDimension) {
-        super(ERROR_TEMPLATE.replace("$axisIteratorAlias", axisIteratorAlias).replace("$subsetDimensionString", subsetDimension.getStringRepresentation()));
+        super(ERROR_TEMPLATE.replace("$axisIteratorAlias", axisIteratorAlias)
+                            .replace("$subsetDimensionString", subsetDimension.getStringRepresentation()), ExceptionCode.WcpsError);
     }
 
     private static final String ERROR_TEMPLATE = "Cannot redefine axis iterator '$axisIteratorAlias' in '$subsetDimensionString'.";

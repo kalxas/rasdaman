@@ -21,6 +21,8 @@
  */
 package petascope.wcps2.error.managed.processing;
 
+import petascope.exceptions.ExceptionCode;
+
 /**
  * Error message for not identical axes in crsTransform(..., {Lat:"CRS_A", Long:"CRS_B"}, { });
  *
@@ -33,7 +35,7 @@ public class NotGeoReferenceAxisNameInCrsTransformException extends WCPSProcessi
      * @param axisName the offending axisName     
      */
     public NotGeoReferenceAxisNameInCrsTransformException(String axisName) {
-        super(ERROR_TEMPLATE.replace("$AXIS_NAME", axisName));
+        super(ERROR_TEMPLATE.replace("$AXIS_NAME", axisName), ExceptionCode.WcsError);
     }
     
     private static final String ERROR_TEMPLATE = "Non-georeferenced axis '$AXIS_NAME' is not supported in CRS reprojection.";

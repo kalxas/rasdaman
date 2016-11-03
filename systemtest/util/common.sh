@@ -463,6 +463,15 @@ prepare_xml_file()
   echo "ok."
 }
 
+# trim the leading spaces in XML from oracle in each line.
+trim_indentation()
+{
+  echo "Removing indentation to compare..."
+  xml_file="${1}"
+  # remove all the leading spaces in oracle and output in XML to compare
+  echo $(cat "$xml_file") | sed -e 's/^[ \t]*//' > "$xml_file.tmp"
+  echo "Done."
+}
 
 # -----------------------------------------------------------------------------
 # when wget returns empty file, using curl to get the error in page content.
@@ -740,9 +749,18 @@ run_test()
       elif [[ "$out" == *.error.xml* ]]; then
 
         # This test is supposed to raise an exception: check wget exit code instead of the response.
-        log "compare error from XML request"
         prepare_xml_file "$out"
+        # strip indentation from $oracle -> $oracle.tmp and $out -> $out.tmp
+        trim_indentation "$oracle"
+        trim_indentation "$out"
+
+        log "compare error from XML request"
         cmp "$out" "$oracle" 2>&1
+
+        # remove the temp files
+        rm "$oracle.tmp"
+        rm "$out.tmp"
+
         update_result
 
       # Note: when request in KVP, the error is throw in specific message
@@ -764,9 +782,15 @@ run_test()
           if [[ "$filetype" == *XML* ]]; then
               prepare_xml_file "$out"
           fi
+          # strip indentation from $oracle -> $oracle.tmp and $out -> $out.tmp
+          trim_indentation "$oracle"
+          trim_indentation "$out"
           log "byte comparison"
           # diff comparison ignoring EOLs [see ticket #551]
-          diff -b "$oracle" "$out" 2>&1 > /dev/null
+          diff -b "$oracle.tmp" "$out.tmp" 2>&1 > /dev/null
+          # remove the temp files
+          rm "$oracle.tmp"
+          rm "$out.tmp"
         fi
         update_result
 

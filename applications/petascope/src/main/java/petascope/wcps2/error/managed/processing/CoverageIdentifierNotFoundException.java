@@ -21,6 +21,9 @@
  * or contact Peter Baumann via <baumann@rasdaman.com>.
  */
 package petascope.wcps2.error.managed.processing;
+
+import petascope.exceptions.ExceptionCode;
+
 /**
  * Error exception for coverage identifier lookup failure
  * <code>
@@ -37,7 +40,7 @@ public class CoverageIdentifierNotFoundException extends WCPSProcessingError {
  * @param coverageVariableName the coverage variable name that was provided
  */
 public CoverageIdentifierNotFoundException(String coverageVariableName) {
-    super(ERROR_TEMPLATE.replace("$coverageVariableName", coverageVariableName));
+    super(ERROR_TEMPLATE.replace("$coverageVariableName", coverageVariableName), ExceptionCode.WcpsError);
     this.coverageVariableName = coverageVariableName;
 }
 

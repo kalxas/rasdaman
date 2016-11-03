@@ -21,6 +21,8 @@
  */
 package petascope.wcps2.error.managed.processing;
 
+import petascope.exceptions.ExceptionCode;
+
 /**
  * @author <a href="bphamhuu@jacobs-university.de">Bang Pham Huu</a>
  */
@@ -28,7 +30,7 @@ public class InvalidDomainIntervalsForAxisIteratorException extends WCPSProcessi
 
     public InvalidDomainIntervalsForAxisIteratorException(String axisIteratorVariableName, int dimension) {
         super(ERROR_TEMPLATE.replace("$axisIteratorVariableName", axisIteratorVariableName)
-                            .replace("$dimension", String.valueOf(dimension)));
+                            .replace("$dimension", String.valueOf(dimension)), ExceptionCode.WcpsError);
     }
 
     public static final String ERROR_TEMPLATE = "Axis iterator: '$axisIteratorVariableName' can only be used with 1D domain, received: '$dimension D' domain.";

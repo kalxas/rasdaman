@@ -42,6 +42,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import petascope.ConfigManager;
@@ -2885,7 +2886,8 @@ public class DbMetadataSource implements IMetadataSource {
                 if(index != -1) {
                     String nilValue = rSwe.getString(NIL_VALUES_ALIAS);
                     String nilReason = rSwe.getString(NIL_REASONS_ALIAS);
-                    if(null != nilValue && null != nilReason) {
+                    // NOTE: If nilValue is empty (null or "") then don't add it to coverage metadata's range as it is invalid (we allow to add nilReason = "")
+                    if (!StringUtils.isEmpty(nilValue) && null != nilReason) {
                         nils.add(new NilValue(nilValue, nilReason));
                     }
                 }

@@ -21,6 +21,8 @@
  */
 package petascope.wcps2.error.managed.processing;
 
+import petascope.exceptions.ExceptionCode;
+
 /**
  * Exception that is thrown when irregular axis cannot be fetched
  *
@@ -37,11 +39,11 @@ public class IrregularAxisFetchingFailedException extends WCPSProcessingError {
      * @param originalCause the original exception cause
      */
     public IrregularAxisFetchingFailedException(String coverageName, String axisName, Exception originalCause) {
-        super(ERROR_TEMPLATE.replace("$axisName", axisName) + originalCause.getMessage());
+        super(ERROR_TEMPLATE.replace("$axisName", axisName) + originalCause.getMessage(), ExceptionCode.WcpsError);
     }
 
     public IrregularAxisFetchingFailedException(Exception originalExceptionCause) {
-        super(originalExceptionCause.getMessage());
+        super(originalExceptionCause.getMessage(), ExceptionCode.WcpsError);
     }
 
     public static final String ERROR_TEMPLATE = "Irregular axis cannot be fetched in axis '$axisName'.";

@@ -1,0 +1,30 @@
+{
+  "config": {
+    "service_url": "PETASCOPE_URL",
+    "tmp_directory": "/tmp/",
+    "crs_resolver": "SECORE_URL",
+    "default_crs": "SECORE_URL/crs/EPSG/0/4326",
+    "mock": false,
+    "automated": true
+  },
+  "input": {
+    "coverage_id": "test_AverageChloro",
+    "paths": [
+      "SCALE*.TIFF"
+    ]
+  },
+  "recipe": {
+    "name": "time_series_irregular",
+    "options": {
+      "time_parameter": {
+        "filename": {
+          "regex": "(.*)_(.*)\\.(.*)",
+          "group": "2"
+        },
+        "datetime_format": "YYYY-MM"
+      },
+      "time_crs": "SECORE_URL/crs/OGC/0/AnsiDate",
+      "tiling": "ALIGNED [0:3600, 0:1800, 3]"
+    }
+  }
+}

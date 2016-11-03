@@ -21,6 +21,7 @@
  */
 package petascope;
 
+import java.io.BufferedReader;
 import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
@@ -28,6 +29,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintStream;
 import java.io.PrintWriter;
+import java.io.StringReader;
 import java.io.StringWriter;
 import java.io.UnsupportedEncodingException;
 import java.sql.SQLException;
@@ -43,6 +45,13 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import javax.xml.bind.JAXBException;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.transform.OutputKeys;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
 
 import net.opengis.ows.v_1_0_0.ExceptionReport;
 import nu.xom.Document;
@@ -51,6 +60,8 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.w3c.dom.Node;
+import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 import petascope.core.DbMetadataSource;
 import petascope.exceptions.ExceptionCode;
@@ -726,7 +737,26 @@ public class PetascopeInterface extends CORSHttpServlet {
                         response.setContentType(FormatExtension.MIME_TEXT);
                     }
                     if (res.getXml() != null) {
-                        IOUtils.write(res.getXml()[0], os);
+                        String outputXML = res.getXml()[0];
+                        /*  NOTE: output XML must be well formated (although due to it don't have indentation due to WCS OGC (test name: wcs2:get-kvp-core-req42)
+                            deep-equal() will fail when the identation of DescribeCoverage and GetCoverage is different for 3 elements: boundedBy, domainSet, rangeType)
+                            reason: DescribeCoverage have 2 levels parents
+                            <CoverageDescriptions/>
+                                <CoverageDescription>
+                                    <boundedBy/>
+                            meanwhile GetCoverage only have 1
+                            <RectifiedGridCoverage/>
+                                <boundedBy/>
+                            so the indentations are different.
+                        */
+                        
+                        if (ConfigManager.XML_VALIDATION) {
+                            // Only when xml_validation=true in petascope.properties
+                            IOUtils.write(XMLUtil.transformXML(XMLUtil.trimSpaceBetweenElements(outputXML)), os);
+                        } else {
+                            IOUtils.write(outputXML, os);
+                        }
+                         
                     } else if (res.getData() != null) {
                         IOUtils.write(res.getData().get(0), os);
                     }
@@ -859,6 +889,6 @@ public class PetascopeInterface extends CORSHttpServlet {
                 pathInfo, srvRequest.getQueryString(), request);
         return srvReq;
     }
-
+    
     private final PetascopeInterfaceAdapter wms13Adapter = new PetascopeInterfaceAdapter();
 }

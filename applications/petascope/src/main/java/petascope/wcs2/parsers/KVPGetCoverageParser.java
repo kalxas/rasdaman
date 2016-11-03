@@ -119,6 +119,8 @@ public class KVPGetCoverageParser extends KVPParser<GetCoverageRequest> {
             throw new WCSException(ExceptionCode.InvalidRequest, "WCS does not support this Mime type: " + format);
         }
 
+        /*
+        OGC CITE test it is valid
         // format=application/gml+xml&mediatype=multipart/related is not valid request
         if (FormatExtension.MIME_MULTIPART.equals(mediaType)
                 && FormatExtension.MIME_GML.equals(format)) {
@@ -127,6 +129,7 @@ public class KVPGetCoverageParser extends KVPParser<GetCoverageRequest> {
                     LABEL_FORMAT    + "=" + FormatExtension.MIME_GML +
                     "' combination is not applicable");
         }
+        */
 
         // init GetCoverage request
         GetCoverageRequest ret = new GetCoverageRequest(

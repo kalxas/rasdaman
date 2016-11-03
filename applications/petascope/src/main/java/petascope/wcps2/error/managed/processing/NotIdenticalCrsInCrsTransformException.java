@@ -21,6 +21,8 @@
  */
 package petascope.wcps2.error.managed.processing;
 
+import petascope.exceptions.ExceptionCode;
+
 /**
  * Error message for not identical axes are used in crsTransform(..., {Lat:"CRS_A", Long:"CRS_B"}, { });
  *
@@ -34,7 +36,8 @@ public class NotIdenticalCrsInCrsTransformException extends WCPSProcessingError 
      * @param crsY outputCrs in axis Y
      */
     public NotIdenticalCrsInCrsTransformException(String crsX, String crsY) {
-        super(ERROR_TEMPLATE.replace("$CRS_X", crsX).replace("$CRS_Y", crsY));
+        super(ERROR_TEMPLATE.replace("$CRS_X", crsX)
+                            .replace("$CRS_Y", crsY), ExceptionCode.WcpsError);
     }
     
     private static final String ERROR_TEMPLATE = "Not identical CRS are used in crsTransform, received '$CRS_X' and '$CRS_Y'.";

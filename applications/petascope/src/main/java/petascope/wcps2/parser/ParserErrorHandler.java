@@ -31,6 +31,7 @@ import petascope.wcps2.error.managed.syntax.WCPSSyntaxError;
 
 import java.util.Collections;
 import java.util.List;
+import petascope.exceptions.ExceptionCode;
 
 /**
  * Listens for errors from the parser and maps them to known error classes.
@@ -46,6 +47,6 @@ public class ParserErrorHandler extends BaseErrorListener {
         Collections.reverse(stack);
         ErrorRegistry registry = new ErrorRegistry();
         WCPSSyntaxError error = registry.lookupError(stack, offendingSymbol, line, charPositionInLine, msg);
-        throw new WCPSProcessingError(error.getErrorMessage());
+        throw new WCPSProcessingError(error.getErrorMessage(), ExceptionCode.WcpsError);
     }
 }

@@ -157,12 +157,16 @@ public class RESTGetCoverageParser extends RESTParser<GetCoverageRequest> {
             throw new WCSException(ExceptionCode.InvalidMediatype);
         }
         String format = ListUtil.head(rUrl.getByKey("format"));
+        
+        /*
+        format=application/gml+xml&mediaType=multipart/related OGC CITE test it is valid
         if (FormatExtension.MIME_MULTIPART.equals(mediaType) && FormatExtension.MIME_GML.equals(format)) {
             throw new WCSException(ExceptionCode.InvalidRequest, "The '" +
                     LABEL_MEDIATYPE + "=" + FormatExtension.MIME_MULTIPART + "' & '" +
                     LABEL_FORMAT    + "=" + FormatExtension.MIME_GML +
                     "' combination is not applicable");
         }
+        */
 
         GetCoverageRequest ret = new GetCoverageRequest(coverageIds.get(0), format,
                 FormatExtension.MIME_MULTIPART.equals(mediaType));

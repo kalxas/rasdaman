@@ -169,7 +169,7 @@ public class Config {
     } catch (Exception ex) {
         BasicConfigurator.configure(new ConsoleAppender(
                                     new PatternLayout("[%d{HH:mm:ss}]%6p %c{1}@%L: %m%n")));
-        log.warn("No log4j.properties found on the classpath. Logging to standard output configured in code");
+        log.warn("No property for log4j.properties found on secore.properties file. Logging to standard output configured in code");
     }
   }
 

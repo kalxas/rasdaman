@@ -22,8 +22,13 @@
 package petascope.wcs2.handlers;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Set;
 import nu.xom.Attribute;
 import nu.xom.Document;
@@ -277,19 +282,21 @@ public class GetCapabilitiesHandler extends AbstractRequestHandler<GetCapabiliti
             // add supported FORMATS
             //: [Req6 /req/core/serviceMetadata-structure]
             //: [Req9 /req/core/formats-supported]
-            Set<String> mimeTypes = new HashSet<String>();
+            Set<String> mimeTypes = new LinkedHashSet<String>();
             for (Extension extension : ExtensionsRegistry.getExtensions()) {
                 if (extension instanceof FormatExtension) {
                     mimeTypes.add(((FormatExtension) extension).getMimeType());
                 }
             }
-            for (String mimeType : mimeTypes) {
+            // NOTE: reverse the FormatExtension to add the application/gml+xml as the serviceMetadata.insertChild(0) below will add application/gml+xml in the last element.
+            List<String> mimeTypesReveresed = new ArrayList<String>(mimeTypes);
+            Collections.reverse(mimeTypesReveresed);
+            for (String mimeType : mimeTypesReveresed) {
                 Element formatSupported = new Element(PREFIX_WCS + ":" + LABEL_FORMAT_SUPPORTED, NAMESPACE_WCS);
                 formatSupported.appendChild(mimeType);
                 // Insert it on top, in case the template already contains some other fixed content
                 serviceMetadata.insertChild(formatSupported, 0);
             }
-            //:~
             root.appendChild(serviceMetadata.copy());
         }
 

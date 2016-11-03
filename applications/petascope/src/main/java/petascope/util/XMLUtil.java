@@ -47,6 +47,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.StringReader;
+import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -59,6 +60,11 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParserFactory;
+import javax.xml.transform.OutputKeys;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
 import javax.xml.validation.SchemaFactory;
 import nu.xom.Attribute;
 import nu.xom.Builder;
@@ -1120,5 +1126,58 @@ public class XMLUtil {
         Element wcsRequest = XMLUtil.firstChild(body);
         wcsRequest.detach();
         return XMLUtil.serialize(new Document(wcsRequest));
+    }
+    
+    /**
+     * Transform a non-formated XML output to formated XML with indentation
+     * @param inputXML
+     * @return 
+     */
+    public static String transformXML(String inputXML) {
+        try
+        {
+            Transformer transformer = TransformerFactory.newInstance().newTransformer();
+            transformer.setOutputProperty(OutputKeys.INDENT, "yes");
+            // NOTE: set to 0 due to OGC cite cannot check indetation different between 2 outputs.
+            transformer.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "0");
+            StreamResult result = new StreamResult(new StringWriter());
+            DOMSource source = new DOMSource(parseXml(inputXML));
+            transformer.transform(source, result);
+            return result.getWriter().toString();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+    
+    /**
+     * Parse the input XML and return as XML Document Object to write to String.
+     * @param in
+     * @return 
+     */
+    public static org.w3c.dom.Document parseXml(String in)
+    {
+        try
+        {
+            DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+            dbf.setIgnoringElementContentWhitespace(true);
+            DocumentBuilder db = dbf.newDocumentBuilder();
+            InputSource is = new InputSource(new StringReader(in));
+            return db.parse(is);
+        } catch (Exception e)
+        {
+            throw new RuntimeException(e);
+        }
+    }
+    
+    
+    /**
+     * Strip spaces between XML element tags (e.g: <var>XML_Text </var> or 
+     * <var> XML_Text1   XML_Text2 </var>) which needs to be stripped leading and trailing spaces before writing to output stream.
+     * @param input
+     * @return 
+     */
+    public static String trimSpaceBetweenElements(String input) {
+        return input.replaceAll(">\\s*", ">").replaceAll("\\s*<", "<");
     }
 }

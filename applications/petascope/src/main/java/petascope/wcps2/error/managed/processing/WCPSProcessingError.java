@@ -21,6 +21,8 @@
  */
 package petascope.wcps2.error.managed.processing;
 
+import petascope.exceptions.ExceptionCode;
+
 /**
  * General exception class for the wcps package.
  *
@@ -35,11 +37,18 @@ public class WCPSProcessingError extends RuntimeException {
         super(cause);
     }
 
-    public WCPSProcessingError(String message) {
+    public WCPSProcessingError(String message, ExceptionCode exceptionCode) {
         super(message);
+        this.exceptionCode = exceptionCode;
     }
 
     public WCPSProcessingError(String message, Throwable cause) {
         super(message, cause);
     }
+    
+    public ExceptionCode getExceptionCode() {
+        return this.exceptionCode;
+    }
+    
+    private ExceptionCode exceptionCode;
 }

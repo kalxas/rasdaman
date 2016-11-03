@@ -167,7 +167,7 @@ public class ExceptionCode {
             "'interpolation' parameter indicated is not supported by this server (i.e., URL is not known to this server).", SC_METHOD_NOT_ALLOWED);
     public static final ExceptionCode InvalidAxisLabel = new ExceptionCode("InvalidAxisLabel",
             "The dimension subsetting operation specified an axis label that does not exist in the Envelope " +
-            "or has been used more than once in the GetCoverage request.", SC_BAD_REQUEST);
+            "or has been used more than once in the GetCoverage request.", SC_NOT_FOUND);
     public static final ExceptionCode InvalidMediatype = new ExceptionCode("InvalidMediatype",
             "Request contains an invalid mediatype: it must contain a MIME type identifier of fixed value multipart/related.", SC_UNSUPPORTED_MEDIA_TYPE);
     public static final ExceptionCode InvalidCoverageConfiguration = new ExceptionCode("InvalidCoverageConfiguration");
@@ -185,7 +185,7 @@ public class ExceptionCode {
     public static final ExceptionCode InvalidServiceConfiguration = new ExceptionCode("InvalidServiceConfiguration");
     public static final ExceptionCode InvalidSubsetting = new ExceptionCode("InvalidSubsetting",
             "Operation request contains an invalid subsetting value; either a trim or slice parameter value "
-            + "is outside the extent of the coverage or, in a trim operation, a lower bound is above the upper bound.", SC_BAD_REQUEST);
+            + "is outside the extent of the coverage or, in a trim operation, a lower bound is above the upper bound.", SC_NOT_FOUND);
     public static final ExceptionCode InvalidTemporalMetadata = new ExceptionCode("InvalidTemporalMetadata");
     public static final ExceptionCode InvalidUpdateSequence = new ExceptionCode("InvalidUpdateSequence",
             "Value of (optional) updateSequence parameter in GetCapabilities operation request "
@@ -198,7 +198,7 @@ public class ExceptionCode {
             + "not declare a default value for that parameter. Locator: Name of missing parameter", SC_BAD_REQUEST);
     public static final ExceptionCode MultiBandImagesNotSupported = new ExceptionCode("MultiBandImagesNotSupported");
     public static final ExceptionCode NoApplicableCode = new ExceptionCode("NoApplicableCode",
-            "No other exceptionCode specified by this service and server applies to this exception");
+            "No other exceptionCode specified by this service and server applies to this exception", SC_NOT_FOUND);
     public static final ExceptionCode NodeParsingNotImplemented = new ExceptionCode("NodeParsingNotImplemented");
     public static final ExceptionCode NoSuchCoverage = new ExceptionCode("NoSuchCoverage",
             "One of the identifiers passed does not match with any of the coverages offered by this server. "
@@ -225,10 +225,10 @@ public class ExceptionCode {
             + "request did not include any version supported by this server.", SC_BAD_REQUEST);
     public static final ExceptionCode XmlNotValid = new ExceptionCode("XmlNotValid");
     public static final ExceptionCode XmlStructuresError = new ExceptionCode("XmlStructuresError");
-    public static final ExceptionCode WcpsError = new ExceptionCode("WcpsError");
-    public static final ExceptionCode WcsError = new ExceptionCode("WcsError");
-    public static final ExceptionCode WcstError = new ExceptionCode("WcstError");
-    public static final ExceptionCode WpsError = new ExceptionCode("WpsError");
+    public static final ExceptionCode WcpsError = new ExceptionCode("WcpsError", SC_NOT_FOUND);
+    public static final ExceptionCode WcsError = new ExceptionCode("WcsError", SC_NOT_FOUND);
+    public static final ExceptionCode WcstError = new ExceptionCode("WcstError", SC_NOT_FOUND);
+    public static final ExceptionCode WpsError = new ExceptionCode("WpsError", SC_NOT_FOUND);
     public static final ExceptionCode MultipleRangeSubsets = new ExceptionCode("Invalid RangeSubsets parameters",
             "Multiple RangeSubset parameters have been provided, only one can be accepted.", SC_BAD_REQUEST);
     public static final ExceptionCode NoSuchField = new ExceptionCode("NoSuchField",

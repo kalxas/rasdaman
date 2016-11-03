@@ -101,14 +101,13 @@ public class DecodeFormatExtension extends AbstractFormatExtension {
     /**
      * Constructor for registering formats and also used while handling multipart requests
      * as two base requests
+     * @param mime
      * @throws petascope.exceptions.WCSException
      */
-    public DecodeFormatExtension() throws WCSException {
-        if (this.mimeType == null) {
-            this.mimeType = MIME_GML;
-        }
-        this.extensionId = getExtensionIdentifier(this.mimeType);
-        if (this.mimeType.equals(MIME_GML)) {
+    public DecodeFormatExtension(String mime) throws WCSException {
+        this.mimeType = mime;
+        this.extensionId = getExtensionIdentifier(mime);
+        if (mime.equals(MIME_GML)) {
             this.hasParent = true;
             this.parentExtensionId = ExtensionsRegistry.GMLCOV_IDENTIFIER;
         } else {
@@ -152,7 +151,6 @@ public class DecodeFormatExtension extends AbstractFormatExtension {
             // e.g: format=image/NotSupport
             throw new WCSException(ExceptionCode.InvalidParameterValue, "MIME type: " + req.getFormat() + " cannot be handled.");
         }
-        
         return true;
     }
 
@@ -383,9 +381,7 @@ public class DecodeFormatExtension extends AbstractFormatExtension {
     @Override
     public Response handle(GetCoverageRequest request, DbMetadataSource meta) throws PetascopeException, WCSException, SecoreException {
         //getFormat never returns null. if request has format null, the default format gml is set
-        String format = request.getFormat().replace(" ", "+");
-        // Every mimeType (except application/gml+xml) support return in multipart
-        if (request.isMultiPart() && !format.equals(MIME_GML)) {
+        if (request.isMultiPart()) {
             return getMultiPartResponse(request, meta);
         }
 
@@ -396,7 +392,7 @@ public class DecodeFormatExtension extends AbstractFormatExtension {
         rsubExt.handle(request, m);
 
         // Handle return only GML output
-        if (format.equals(MIME_GML)) {
+        if (request.getFormat().equals(MIME_GML)) {
             return getGmlResponse(request, meta);
         } else {
             // Handle return image coverage output

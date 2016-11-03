@@ -26,16 +26,17 @@
 out="$1"
 oracle="$2"
 
-# create tmp files
-cp "$out" "$out".tmp
-cp "$oracle" "$oracle".tmp
+# Extract the nilValues from output to output
+cat "$out" | grep 'swe:nilValues*' > "$out.tmp"
 
-# Extract the nilValues from output.tmp to output.tmp1
-grep 'swe:nilValues*' "$out".tmp > "$out".tmp1
-diff -b "$out".tmp1 "$oracle".tmp > /dev/null 2>&1
+# strip indentation from oracle and output to *.tmp
+trim_indentation "$out.tmp"
+trim_indentation "$oracle"
+
+diff -b "$out".tmp.tmp "$oracle".tmp > /dev/null 2>&1
 
 rc=$?
-cp "$out".tmp1 "$out" # for post-test manual verifications
+cp "$out".tmp.tmp "$out" # for post-test manual verifications
 rm -f "$out".tmp* "$oracle".tmp*
 
 exit $rc

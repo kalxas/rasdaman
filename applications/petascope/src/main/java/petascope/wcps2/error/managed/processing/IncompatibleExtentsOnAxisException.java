@@ -21,13 +21,15 @@
  */
 package petascope.wcps2.error.managed.processing;
 
+import petascope.exceptions.ExceptionCode;
+
 /**
  * @author <a href="merticariu@rasdaman.com">Vlad Merticariu</a>
  */
 public class IncompatibleExtentsOnAxisException extends WCPSProcessingError {
     public IncompatibleExtentsOnAxisException(String firstCovName, String secondCovName, int axisNumber) {
         super(ERROR_TEMPLATE.replace("$firstCov", firstCovName).replace("$secondCov", secondCovName)
-                .replace("$axisNumber", String.valueOf(axisNumber)));
+                .replace("$axisNumber", String.valueOf(axisNumber)), ExceptionCode.WcpsError);
     }
 
     public static final String ERROR_TEMPLATE = "Coverages '$firstCov' and " +

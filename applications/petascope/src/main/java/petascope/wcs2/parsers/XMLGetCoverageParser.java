@@ -103,6 +103,8 @@ public class XMLGetCoverageParser extends XMLParser<GetCoverageRequest> {
         String format    = null != formatEl    ?    formatEl.getValue() : "";
         String mediaType = null != mediaTypeEl ? mediaTypeEl.getValue() : "";
 
+        /*
+        OGC CITE test it is valid
         // sanity check
         //   <gml:format>application/gml+xml</gml:format>
         //   <gml:mediaType>multipart/related</gml:mediaType>
@@ -113,6 +115,7 @@ public class XMLGetCoverageParser extends XMLParser<GetCoverageRequest> {
                     LABEL_FORMAT    + "=" + FormatExtension.MIME_GML +
                     "' combination is not applicable");
         }
+        */
 
         // init GetCoverage request
         GetCoverageRequest ret = new GetCoverageRequest(

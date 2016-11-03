@@ -21,13 +21,15 @@
  */
 package petascope.wcps2.error.managed.processing;
 
+import petascope.exceptions.ExceptionCode;
+
 /**
  * @author <a href="mailto:bphamhuu@jacbos-university.de">Bang Pham Huu</a> 
  */
 public class IncompatibleBandNameInSwitchCaseExpression extends WCPSProcessingError {
 
     public IncompatibleBandNameInSwitchCaseExpression(String firstBandName, String secondBandName) {
-        super(ERROR_TEMPLATE.replace("$firstBandName", firstBandName).replace("$secondBandName", secondBandName));
+        super(ERROR_TEMPLATE.replace("$firstBandName", firstBandName).replace("$secondBandName", secondBandName), ExceptionCode.WcpsError);
     }
 
     public static final String ERROR_TEMPLATE = "Incompatible band name between cases, 'first case: $firstBandName and current case: $secondBandName'";

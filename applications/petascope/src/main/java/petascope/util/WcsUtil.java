@@ -377,7 +377,20 @@ public class WcsUtil {
      * Returns the configured GMLCOV metadata.
      * This information is returned along with <gmlcov:metadata> root element.
      * The content is extracted from petascopedb::ps_extrametadata.
+<<<<<<< HEAD
      *
+=======
+     * NOTE: all the extra metadata must be added inside <gmlcov:Extension> </gmlcov:Extension>
+     * e.g: 
+     *  <gmlcov:metadata>
+            <gmlcov:Extension>
+                <Project>This is another test file</Project>
+                <Creator>This is a test creator file</Creator>
+                <Title>This is a test file</Title>
+                <slices/>
+            </gmlcov:Extension>
+        </gmlcov:metadata>
+>>>>>>> ticket:1419 - Adjustment in Petascope conformance test
      * @param m
      */
     private static String getGmlcovMetadata(GetCoverageMetadata m) {
@@ -390,8 +403,10 @@ public class WcsUtil {
         for (String metadataValue : gmlcovMetadata) {
             gmlcovFormattedMetadata += "  " +
                     "<" + XMLSymbols.PREFIX_GMLCOV + ":" + XMLSymbols.LABEL_GMLCOVMETADATA + ">"
-                    + metadataValue + // containts farther XML child elements: do not escape predefined entities (up to the user)
-                    "</" + XMLSymbols.PREFIX_GMLCOV + ":" + XMLSymbols.LABEL_GMLCOVMETADATA + ">";
+                         + "<" + XMLSymbols.PREFIX_GMLCOV + ":" + XMLSymbols.LABEL_GMLCOVMETADATA_EXTENSION + ">"
+                             + metadataValue // containts farther XML child elements: do not escape predefined entities (up to the user)
+                         + "</" + XMLSymbols.PREFIX_GMLCOV + ":" + XMLSymbols.LABEL_GMLCOVMETADATA_EXTENSION + ">"
+                  + "</" + XMLSymbols.PREFIX_GMLCOV + ":" + XMLSymbols.LABEL_GMLCOVMETADATA + ">";
         }
         return gmlcovFormattedMetadata;
     }

@@ -21,6 +21,7 @@
  */
 package petascope.wcs2.handlers;
 
+import com.vividsolutions.jts.io.gml2.GMLConstants;
 import petascope.exceptions.PetascopeException;
 import petascope.wcs2.parsers.GetCoverageMetadata;
 import petascope.wcs2.parsers.DescribeCoverageRequest;
@@ -43,6 +44,7 @@ import static petascope.util.XMLSymbols.*;
 import static petascope.util.XMLUtil.*;
 import petascope.wcps.metadata.CellDomainElement;
 import petascope.wcps.metadata.DomainElement;
+import petascope.wcs2.extensions.DecodeFormatExtension;
 import petascope.wcs2.extensions.FormatExtension;
 
 /**
@@ -66,11 +68,16 @@ public class DescribeCoverageHandler extends AbstractRequestHandler<DescribeCove
 
         WCSException exc = null;
         ExceptionCode code;
+        DecodeFormatExtension decodeFormatExt = new DecodeFormatExtension(FormatExtension.MIME_GML);
         for (String coverageId : request.getCoverageIds()) {
             String descr = null;
             try {
                 GetCoverageRequest tmp = new GetCoverageRequest(coverageId);
                 GetCoverageMetadata m = new GetCoverageMetadata(tmp, meta);
+                
+                //// GetCoverage metadata was initialized with native coverage metadata, but subsets may have changed it:
+                
+                decodeFormatExt.updateGetCoverageMetadata(new GetCoverageRequest(coverageId), m, meta);
 
                 // get template: currently multipoint or *grid
                 String descrTemplate = Templates.COVERAGE_DESCRIPTION;

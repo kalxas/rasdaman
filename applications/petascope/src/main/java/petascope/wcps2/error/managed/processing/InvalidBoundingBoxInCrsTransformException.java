@@ -1,5 +1,7 @@
 package petascope.wcps2.error.managed.processing;
 
+import petascope.exceptions.ExceptionCode;
+
 /**
  * General error for invalid outputCrs projection
  *
@@ -15,7 +17,9 @@ public class InvalidBoundingBoxInCrsTransformException  extends WCPSProcessingEr
      * @param errorMessage
      */
     public InvalidBoundingBoxInCrsTransformException(String boundingBox, String outputCrs, String errorMessage) {
-        super(ERROR_TEMPLATE.replace("$boundingBox", boundingBox).replace("$outputCrs", outputCrs).replace("$errorMessage", errorMessage));
+        super(ERROR_TEMPLATE.replace("$boundingBox", boundingBox)
+                            .replace("$outputCrs", outputCrs)
+                            .replace("$errorMessage", errorMessage), ExceptionCode.WcpsError);
     }
 
     private static final String ERROR_TEMPLATE = "Invalid bounding box '$boundingBox' in CRS transform with outputCrs '$outputCrs', $errorMessage.";

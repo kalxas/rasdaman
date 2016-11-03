@@ -21,6 +21,8 @@
  */
 package petascope.wcps2.error.managed.processing;
 
+import petascope.exceptions.ExceptionCode;
+
 /**
  * Error message for not identical axes in crsTransform(..., {Lat:"CRS_A", Long:"CRS_B"}, { });
  *
@@ -32,7 +34,7 @@ public class NotGeoReferencedCoverageInCrsTransformException extends WCPSProcess
      *     
      */
     public NotGeoReferencedCoverageInCrsTransformException() {
-        super(ERROR_TEMPLATE);
+        super(ERROR_TEMPLATE, ExceptionCode.WcpsError);
     }
     
     private static final String ERROR_TEMPLATE = "Grid coverages are not supported in CRS reprojections.";

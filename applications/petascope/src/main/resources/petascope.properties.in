@@ -99,7 +99,7 @@ rasdaman_bin_path=@GENERATED_rasdaman_bin_path@
 
 # parameter:    xml_validation
 # purpose:      If set to `true', input XML requests will be validated against OGC WCS schema definitions.
-#               (!) The very first WCS request after Petascope deployment will take around 1-2 mins to load the schemas (!)
+#               (!) The very first WCS request after Petascope deployment will take around 1-2 mins to load the schemas (!) This also removes the indentation from output in XML of WCS GetCapabilities and DescribeCoverage for OGC CITE test (WCS_CORE: req-42) (!).
 #               Set the parameter to `false' if no input validation is required (default).
 # need to adapt: yes
 xml_validation=false
@@ -224,3 +224,4 @@ log4j.appender.rollingFile.MaxFileSize=10MB
 log4j.appender.rollingFile.MaxBackupIndex=10
 log4j.appender.rollingFile.layout=org.apache.log4j.PatternLayout
 log4j.appender.rollingFile.layout.ConversionPattern=%6p [%d{HH:mm:ss}] %c{1}@%L: %m%n
+

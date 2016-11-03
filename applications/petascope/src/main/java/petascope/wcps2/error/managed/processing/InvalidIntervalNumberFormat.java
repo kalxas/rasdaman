@@ -21,12 +21,15 @@
  */
 package petascope.wcps2.error.managed.processing;
 
+import petascope.exceptions.ExceptionCode;
+
 /**
  * @author <a href="merticariu@rasdaman.com">Vlad Merticariu</a>
  */
 public class InvalidIntervalNumberFormat extends WCPSProcessingError {
     public InvalidIntervalNumberFormat(String low, String high) {
-        super(EXCEPTION_TEXT.replace("$low", low).replace("$high", high));
+        super(EXCEPTION_TEXT.replace("$low", low)
+                            .replace("$high", high), ExceptionCode.WcpsError);
     }
 
     private static final String EXCEPTION_TEXT = "Invalid number format in interval ($low:$high).";

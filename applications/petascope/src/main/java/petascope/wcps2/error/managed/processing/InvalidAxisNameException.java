@@ -21,6 +21,8 @@
  */
 package petascope.wcps2.error.managed.processing;
 
+import petascope.exceptions.ExceptionCode;
+
 /**
  * Error message for invalid axes
  *
@@ -34,7 +36,7 @@ public class InvalidAxisNameException extends WCPSProcessingError {
      * @param axisName the name of the axis that is invalid
      */
     public InvalidAxisNameException(String axisName) {
-        super(ERROR_TEMPLATE.replace("$axisName", axisName));
+        super(ERROR_TEMPLATE.replace("$axisName", axisName), ExceptionCode.InvalidAxisLabel);
     }
     
     private static final String ERROR_TEMPLATE = "Invalid axis name '$axisName'.";

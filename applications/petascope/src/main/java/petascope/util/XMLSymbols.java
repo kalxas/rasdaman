@@ -225,6 +225,7 @@ public interface XMLSymbols {
     String LABEL_ABSTRACT_DISCRETE_COVERAGE = "AbstractDiscreteCoverage";
     String LABEL_GRID_COVERAGE  = "GridCoverage";
     String LABEL_GMLCOVMETADATA = "metadata";
+    String LABEL_GMLCOVMETADATA_EXTENSION = "Extension";
     String LABEL_MULTIPOINT_COVERAGE = "MultiPointCoverage";
     String LABEL_MULTICURVE_COVERAGE = "GridCoverage";
     String LABEL_MULTISURFACE_COVERAGE = "GridCoverage";

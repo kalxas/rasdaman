@@ -21,12 +21,14 @@
  */
 package petascope.wcps2.error.managed.processing;
 
+import petascope.exceptions.ExceptionCode;
+
 /**
  * @author <a href="merticariu@rasdaman.com">Vlad Merticariu</a>
  */
 public class MetadataSerializationException extends WCPSProcessingError {
     public MetadataSerializationException() {
-        super(EXCEPTION_TEXT);
+        super(EXCEPTION_TEXT, ExceptionCode.WcsError);
     }
 
     private final static String EXCEPTION_TEXT = "Could not serialize coverage metadata.";

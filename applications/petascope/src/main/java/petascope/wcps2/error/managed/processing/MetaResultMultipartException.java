@@ -21,6 +21,8 @@
  */
 package petascope.wcps2.error.managed.processing;
 
+import petascope.exceptions.ExceptionCode;
+
 /**
  * Exception that is thrown when user try to return multipart for meta result 
  * e.g:
@@ -35,7 +37,7 @@ public class MetaResultMultipartException extends WCPSProcessingError {
      *
      */
     public MetaResultMultipartException() {
-        super(ERROR_TEMPLATE);
+        super(ERROR_TEMPLATE, ExceptionCode.WcpsError);
     }
 
     private static final String ERROR_TEMPLATE = "Cannot return multipart with metadata result from multiple coverages.";

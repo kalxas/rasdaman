@@ -23,6 +23,7 @@ package petascope.wcs2.extensions;
 
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
 
@@ -64,7 +65,8 @@ public class ExtensionsRegistry {
     public static final String WCST_IDENTIFIER = "http://www.opengis.net/spec/WCS_service-extension_transaction/2.0/conf/insert+delete";
     public static final String CRS_IDENTIFIER = "http://www.opengis.net/spec/WCS_service-extension_crs/1.0/conf/crs";
 
-    private static final Set<Extension> extensions = new HashSet<Extension>();
+    // NOTE: the <wcs:formatSupported> must have application/gml+xml as the first element or OGC Cite will query with binary format type
+    private static final Set<Extension> extensions = new LinkedHashSet<Extension>();
     private static final Set<String> extensionIds = new HashSet<String>();
 
     //these maps are used in DecodeFormatExtensison class.
@@ -90,7 +92,13 @@ public class ExtensionsRegistry {
         registerExtension(new SOAPProtocolExtension());
         registerExtension(new KVPProtocolExtension());
         registerExtension(new RESTProtocolExtension());
-        registerExtension(new DecodeFormatExtension());        
+        // NOTE: application/gml+xml must be on the top of other decode format extesions as OGC Cite will request the first <supportedFormat> and it should be GML.
+        registerExtension(new DecodeFormatExtension(MIME_GML));
+        registerExtension(new DecodeFormatExtension(MIME_NETCDF));
+        registerExtension(new DecodeFormatExtension(MIME_TIFF));
+        registerExtension(new DecodeFormatExtension(MIME_JP2));
+        registerExtension(new DecodeFormatExtension(MIME_PNG));
+        registerExtension(new DecodeFormatExtension(MIME_JPEG));
         registerExtension(new InterpolationExtension());
         registerExtension(new RangeSubsettingExtension());
         registerExtension(new CRSExtension());

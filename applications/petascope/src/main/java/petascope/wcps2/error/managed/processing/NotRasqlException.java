@@ -21,6 +21,9 @@
  * or contact Peter Baumann via <baumann@rasdaman.com>.
  */
 package petascope.wcps2.error.managed.processing;
+
+import petascope.exceptions.ExceptionCode;
+
 /**
  * Error exception for coverage axis lookup failure
  *
@@ -33,6 +36,6 @@ public class NotRasqlException extends WCPSProcessingError {
      * @param metaValue the Meta value (e.g idenfier(c) = mr)
      */
     public NotRasqlException(String query, String metaValue) {
-        super("This WCPS query: " + query + " returns meta value " + metaValue + ", not Rasql query.");
+        super("This WCPS query: " + query + " returns meta value " + metaValue + ", not Rasql query.", ExceptionCode.WcpsError);
     }
 }

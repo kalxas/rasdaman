@@ -184,6 +184,7 @@ public class ConfigManager {
     public static final String KEY_WCST_DEFAULT_DATATYPE = "default_datatype";
     public static final String KEY_SECORE_URLS = "secore_urls";
     public static final String KEY_SECORE_VERSIONS = "secore_versions";
+    // Only used for OGC CITE test (validate input request with XML Schema, remove XML output indentation)
     public static final String KEY_XML_VALIDATION = "xml_validation";
     public static final String KEY_PETASCOPE_SERVLET_URL = "petascope_servlet_url";
     public static final String KEY_RASDAMAN_BIN_PATH = "rasdaman_bin_path";
@@ -341,7 +342,7 @@ public class ConfigManager {
         BBOX_IN_COVSUMMARY        = Boolean.parseBoolean(get(KEY_BBOX_IN_COVSUMMARY));
         DESCRIPTION_IN_COVSUMMARY = Boolean.parseBoolean(get(KEY_DESCRIPTION_IN_COVSUMMARY));
         METADATA_IN_COVSUMMARY    = Boolean.parseBoolean(get(KEY_METADATA_IN_COVSUMMARY));
-        // XML-encoded request schema validation
+        // XML-encoded request schema validation, removed XML output indentation
         XML_VALIDATION            = Boolean.parseBoolean(KEY_XML_VALIDATION);
 
         // Disable write operations

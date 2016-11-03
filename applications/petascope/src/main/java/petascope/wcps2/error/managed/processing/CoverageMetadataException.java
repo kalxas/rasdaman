@@ -21,6 +21,8 @@
  */
 package petascope.wcps2.error.managed.processing;
 
+import petascope.exceptions.ExceptionCode;
+
 /**
  * Exception for errors regarding coverage metadata
  *
@@ -35,7 +37,7 @@ public class CoverageMetadataException extends WCPSProcessingError {
      * @param originalCause the exception that caused the error
      */
     public CoverageMetadataException(Exception originalCause) {
-        super(ERROR_TEMPLATE.replace("$metadataError", originalCause.getMessage()));
+        super(ERROR_TEMPLATE.replace("$metadataError", originalCause.getMessage()), ExceptionCode.WcpsError);
     }
 
     /**
@@ -46,7 +48,7 @@ public class CoverageMetadataException extends WCPSProcessingError {
      * @param errorMessage the error message from subclass
      */
     public CoverageMetadataException(Exception originalCause, String errorMessage) {
-        super(errorMessage);
+        super(errorMessage, ExceptionCode.WcpsError);
     }
 
     private static final String ERROR_TEMPLATE = "Error in processing coverage metadata '$metadataError'.";

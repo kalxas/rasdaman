@@ -21,6 +21,7 @@
  */
 package petascope.wcps2.error.managed.processing;
 
+import petascope.exceptions.ExceptionCode;
 import petascope.wcps2.metadata.model.ParsedSubset;
 
 /**
@@ -38,7 +39,7 @@ public class InvalidSubsettingException extends WCPSProcessingError {
      * @param subset the offending subset
      */
     public InvalidSubsettingException(String axisName, ParsedSubset<String> subset) {
-        super(ERROR_TEMPLATE.replace("$lowerBound", subset.getLowerLimit()).replace("$upperBound", subset.getUpperLimit()).replace("$axis", axisName));
+        super(ERROR_TEMPLATE.replace("$lowerBound", subset.getLowerLimit()).replace("$upperBound", subset.getUpperLimit()).replace("$axis", axisName), ExceptionCode.InvalidSubsetting);
     }
 
     /**
@@ -52,7 +53,7 @@ public class InvalidSubsettingException extends WCPSProcessingError {
      */
     public InvalidSubsettingException(String axisName, ParsedSubset<String> subset, String exceptionMessage) {
         super(subset.isTrimming() ? exceptionMessage.replace("$subsetDomainType", "subsetting").replace("$subsetBound", subset.getLowerLimit() + ":" + subset.getUpperLimit()).replace("$axis", axisName)
-                : exceptionMessage.replace("$subsetDomainType", "slicing").replace("$subsetBound", subset.getSlicingCoordinate()).replace("$axis", axisName));
+                : exceptionMessage.replace("$subsetDomainType", "slicing").replace("$subsetBound", subset.getSlicingCoordinate()).replace("$axis", axisName), ExceptionCode.InvalidSubsetting);
     }
 
     private static final String ERROR_TEMPLATE = "Invalid subsetting coordinates '$lowerBound:$upperBound' for axis '$axis'.";

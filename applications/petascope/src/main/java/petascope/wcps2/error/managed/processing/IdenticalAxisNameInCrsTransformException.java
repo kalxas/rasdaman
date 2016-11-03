@@ -21,6 +21,8 @@
  */
 package petascope.wcps2.error.managed.processing;
 
+import petascope.exceptions.ExceptionCode;
+
 /**
  * Error message for identical axes in crsTransform(..., {Lat:"CRS_A", Long:"CRS_B"}, { });
  *
@@ -34,7 +36,7 @@ public class IdenticalAxisNameInCrsTransformException extends WCPSProcessingErro
      * @param axisNameY axis name of outputCrs Y
      */
     public IdenticalAxisNameInCrsTransformException(String axisNameX, String axisNameY) {
-        super(ERROR_TEMPLATE.replace("$AXIS_NAME_X", axisNameX).replace("$AXIS_NAMEY", axisNameY));
+        super(ERROR_TEMPLATE.replace("$AXIS_NAME_X", axisNameX).replace("$AXIS_NAMEY", axisNameY), ExceptionCode.WcpsError);
     }
     
     private static final String ERROR_TEMPLATE = "crsTransform does not allow the identical axisName to project, received '$AXIS_NAME_X' and '$AXIS_NAME_Y'.";

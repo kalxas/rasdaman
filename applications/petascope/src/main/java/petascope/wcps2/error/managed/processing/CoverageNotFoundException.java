@@ -21,6 +21,8 @@
  */
 package petascope.wcps2.error.managed.processing;
 
+import petascope.exceptions.ExceptionCode;
+
 /**
  * Exception that is thrown when a referenced coverage is not found in the database
  *
@@ -35,7 +37,7 @@ public class CoverageNotFoundException extends WCPSProcessingError {
      * @param coverageName the coverage that was not found
      */
     public CoverageNotFoundException(String coverageName) {
-        super(ERROR_TEMPLATE.replace("$coverage", coverageName));
+        super(ERROR_TEMPLATE.replace("$coverage", coverageName), ExceptionCode.NoSuchCoverage);
     }
 
     private static final String ERROR_TEMPLATE = "Coverage '$coverage' was not found.";

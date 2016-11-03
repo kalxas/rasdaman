@@ -21,6 +21,7 @@
  */
 package petascope.wcps2.error.managed.processing;
 
+import petascope.exceptions.ExceptionCode;
 import petascope.wcps2.metadata.legacy.Coverage;
 
 /**
@@ -38,7 +39,7 @@ public class IncompatibleCoverageExpressionException extends WCPSProcessingError
      * @param secondCov the second incompatible coverage
      */
     public IncompatibleCoverageExpressionException(Coverage firstCov, Coverage secondCov) {
-        super(ERROR_TEMPLATE.replace("$firstCov", firstCov.getCoverageName()).replace("$secondCov", secondCov.getCoverageName()));
+        super(ERROR_TEMPLATE.replace("$firstCov", firstCov.getCoverageName()).replace("$secondCov", secondCov.getCoverageName()), ExceptionCode.WcpsError);
     }
 
     public static final String ERROR_TEMPLATE = "Incompatible operation between coverages '$firstCov' and '$secondCov'.";

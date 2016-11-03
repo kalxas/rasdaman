@@ -21,6 +21,8 @@
  */
 package petascope.wcps2.error.managed.processing;
 
+import petascope.exceptions.ExceptionCode;
+
 /**
  * Error exception when get the domain($coverageExpression, axisName, crs)
  * 
@@ -35,7 +37,7 @@ public class InvalidAxisInDomainExpressionException extends WCPSProcessingError 
      * @param crsUri
      */
     public InvalidAxisInDomainExpressionException(String axisName, String crsUri) {
-        super(ERROR_TEMPLATE.replace("$axisName", axisName).replace("$crsUri", crsUri));
+        super(ERROR_TEMPLATE.replace("$axisName", axisName).replace("$crsUri", crsUri), ExceptionCode.WcpsError);
     }
 
     private static final String ERROR_TEMPLATE = "CRS: '$crsUri' does not belong to axis '$axisName'.";

@@ -93,7 +93,7 @@ public abstract class AbstractFormatExtension implements FormatExtension {
      * @throws SecoreException
      * @throws WCSException
      */
-    protected void updateGetCoverageMetadata(GetCoverageRequest request, GetCoverageMetadata m, DbMetadataSource dbMeta)
+    public void updateGetCoverageMetadata(GetCoverageRequest request, GetCoverageMetadata m, DbMetadataSource dbMeta)
             throws PetascopeException, SecoreException, WCSException {
 
         // Init variables, to be then filled scanning the request subsets.

@@ -21,6 +21,8 @@
  */
 package petascope.wcps2.error.managed.processing;
 
+import petascope.exceptions.ExceptionCode;
+
 /**
  * Error exception for coverage axis lookup failure
  *
@@ -34,7 +36,7 @@ public class CoverageAxisNotFoundExeption extends WCPSProcessingError {
      * @param axisName the axis that was provided
      */
     public CoverageAxisNotFoundExeption(String axisName) {
-        super(ERROR_TEMPLATE.replace(("$axisName"), axisName));
+        super(ERROR_TEMPLATE.replace(("$axisName"), axisName), ExceptionCode.InvalidAxisLabel);
     }
 
     private static final String ERROR_TEMPLATE = "Coverage's Axis not found '$axisName'.";

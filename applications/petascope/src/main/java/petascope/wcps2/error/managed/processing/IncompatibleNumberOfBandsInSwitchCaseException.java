@@ -21,13 +21,16 @@
  */
 package petascope.wcps2.error.managed.processing;
 
+import petascope.exceptions.ExceptionCode;
+
 /**
  * @author <a href="mailto:bphamhuu@jacbos-university.de">Bang Pham Huu</a> 
  */
 public class IncompatibleNumberOfBandsInSwitchCaseException extends WCPSProcessingError {
 
     public IncompatibleNumberOfBandsInSwitchCaseException(int firstBandNumbers, int secondBandNumbers) {
-        super(ERROR_TEMPLATE.replace("$firstBandNumbers", String.valueOf(firstBandNumbers)).replace("$secondBandNumbers", String.valueOf(secondBandNumbers)));
+        super(ERROR_TEMPLATE.replace("$firstBandNumbers", String.valueOf(firstBandNumbers))
+                            .replace("$secondBandNumbers", String.valueOf(secondBandNumbers)), ExceptionCode.WcpsError);
     }
 
     public static final String ERROR_TEMPLATE = "Incompatible band numbers between cases, 'first case: $firstBandNumbers band(s) and current case: $secondBandNumbers band(s)'";

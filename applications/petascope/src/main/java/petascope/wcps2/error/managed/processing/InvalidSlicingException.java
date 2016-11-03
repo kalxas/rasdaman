@@ -1,5 +1,7 @@
 package petascope.wcps2.error.managed.processing;
 
+import petascope.exceptions.ExceptionCode;
+
 /**
  * General error for invalid slicing point
  *
@@ -14,7 +16,7 @@ public class InvalidSlicingException extends WCPSProcessingError {
      * @param slicingCoordinate the offending slicing coordinate
      */
     public InvalidSlicingException(String axisName, String slicingCoordinate) {
-        super(ERROR_TEMPLATE.replace("$slicingCoordinate", slicingCoordinate).replace("$axis", axisName));
+        super(ERROR_TEMPLATE.replace("$slicingCoordinate", slicingCoordinate).replace("$axis", axisName), ExceptionCode.InvalidSubsetting);
     }
 
     /**
@@ -28,7 +30,7 @@ public class InvalidSlicingException extends WCPSProcessingError {
      *
      */
     public InvalidSlicingException(String axisName, String slicingCoordinate, String exceptionMessage) {
-        super(exceptionMessage);
+        super(exceptionMessage, ExceptionCode.InvalidSubsetting);
     }
 
     private static final String ERROR_TEMPLATE = "Invalid slicing coordinate '$slicingCoordinate' for axis '$axis'.";

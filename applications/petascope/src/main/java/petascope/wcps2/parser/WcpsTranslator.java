@@ -106,7 +106,7 @@ public class WcpsTranslator {
             // Get the aliasCoverage for multipart
             this.coverageAliasRegistry = evaluator.getCoverageAliasRegistry();
         } catch(WCPSProcessingError ex) {
-            throw new PetascopeException(ExceptionCode.WcpsError, ex.getMessage(), ex);
+            throw new PetascopeException(ex.getExceptionCode(), ex.getMessage(), ex);
         } catch(Exception ex) {
           throw new PetascopeException(ExceptionCode.WcpsError, ex.getMessage(), ex);
         }

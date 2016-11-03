@@ -21,6 +21,8 @@
  */
 package petascope.wcps2.error.managed.processing;
 
+import petascope.exceptions.ExceptionCode;
+
 /**
  * @author <a href="merticariu@rasdaman.com">Vlad Merticariu</a>
  */
@@ -29,7 +31,7 @@ public class IncompatibleAxesNumberException extends WCPSProcessingError {
     public IncompatibleAxesNumberException(String firstCovName, String secondCovName, int firstCovAxes, int secondCovAxes) {
         super(ERROR_TEMPLATE.replace("$firstCov", firstCovName).replace("$secondCov", secondCovName)
                 .replace("$firstCovAxes", String.valueOf(firstCovAxes))
-                .replace("$secondCovAxes", String.valueOf(secondCovAxes)));
+                .replace("$secondCovAxes", String.valueOf(secondCovAxes)), ExceptionCode.WcpsError);
     }
 
     public static final String ERROR_TEMPLATE = "Coverages '$firstCov' ('$firstCovAxes' axes) and '$secondCov' ('$secondCovAxes' axes) don't have the same number of axes.";

@@ -21,6 +21,9 @@
  * or contact Peter Baumann via <baumann@rasdaman.com>.
  */
 package petascope.wcps2.error.managed.processing;
+
+import petascope.exceptions.ExceptionCode;
+
 /**
  * Error exception when cannot find axis iterator in collections
  *
@@ -32,7 +35,7 @@ public class CannotFindAxistIteratorException extends WCPSProcessingError {
      * @param axisIteratorAliasName axis iterator alias name (e.g: $px)
      */
     public CannotFindAxistIteratorException(String axisIteratorAliasName) {
-        super(ERROR_TEMPLATE.replace("$axisIteratorAliasName", axisIteratorAliasName));
+        super(ERROR_TEMPLATE.replace("$axisIteratorAliasName", axisIteratorAliasName), ExceptionCode.WcpsError);
     }
 
     public static final String ERROR_TEMPLATE = "Cannot find axis iterator with alias '$axisIteratorAliasName'.";

@@ -21,6 +21,8 @@
  */
 package petascope.wcps2.error.managed.processing;
 
+import petascope.exceptions.ExceptionCode;
+
 /**
  * Error to be thrown when the range field requested was not found
  *
@@ -35,7 +37,7 @@ public class RangeFieldNotFound extends WCPSProcessingError {
      * @param rangeField the range field that was not found
      */
     public RangeFieldNotFound(String rangeField) {
-        super(ERROR_TEMPLATE.replace("$rangeField", rangeField));
+        super(ERROR_TEMPLATE.replace("$rangeField", rangeField), ExceptionCode.WcpsError);
     }
 
     private static final String ERROR_TEMPLATE = "Range field not found '$rangeField'.";
