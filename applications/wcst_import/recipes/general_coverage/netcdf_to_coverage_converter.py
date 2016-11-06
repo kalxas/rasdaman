@@ -21,7 +21,6 @@
  * or contact Peter Baumann via <baumann@rasdaman.com>.
  *
 """
-
 import math
 
 from lib import arrow
@@ -34,6 +33,7 @@ from master.extra_metadata.extra_metadata_serializers import ExtraMetadataSerial
 from master.extra_metadata.extra_metadata_slice import ExtraMetadataSliceSubset
 from master.generator.model.range_type_field import RangeTypeField
 from master.generator.model.range_type_nill_value import RangeTypeNilValue
+from master.helper.regular_user_axis import RegularUserAxis
 from master.helper.user_axis import UserAxis, UserAxisType
 from master.helper.user_band import UserBand
 from master.importer.axis_subset import AxisSubset
@@ -45,14 +45,15 @@ from master.provider.metadata.coverage_axis import CoverageAxis
 from master.provider.metadata.grid_axis import GridAxis
 from master.provider.metadata.irregular_axis import IrregularAxis
 from master.provider.metadata.regular_axis import RegularAxis
+from recipes.general_coverage.abstract_to_coverage_converter import AbstractToCoverageConverter
 from util.crs_util import CRSAxis, CRSUtil
 from util.file_obj import File
 from util.string_util import stringify
 
 
-class NetcdfToCoverageConverter:
-    def __init__(self, sentence_evaluator, coverage_id, bands, nc_files, crs, user_axes, tiling,
-                 global_metadata_fields, local_metadata_fields, metadata_type, grid_coverage):
+class NetcdfToCoverageConverter(AbstractToCoverageConverter):
+    def __init__(self, sentence_evaluator, coverage_id, bands, nc_files, crs, user_axes, tiling, global_metadata_fields,
+                 local_metadata_fields, metadata_type, grid_coverage):
         """
         Converts a netcdf list of files to a coverage
         :param SentenceEvaluator sentence_evaluator: the evaluator for wcst sentences
@@ -67,6 +68,7 @@ class NetcdfToCoverageConverter:
         :param str metadata_type: the metadata type
         :param boolean grid_coverage: check if user want to import as grid coverage
         """
+        AbstractToCoverageConverter.__init__(self, sentence_evaluator)
         self.sentence_evaluator = sentence_evaluator
         self.coverage_id = coverage_id
         self.bands = bands
@@ -93,24 +95,6 @@ class NetcdfToCoverageConverter:
             range_nils = [RangeTypeNilValue("", null_value)]
             return range_nils
         return None
-
-    def _user_axis(self, user_axis, netcdf_file):
-        """
-        Returns an evaluated user axis from a user supplied axis
-        The user supplied axis contains for each attribute an expression that can be evaluated.
-         We need to return a user axis that contains the actual values derived from the expression evaluation
-        :param UserAxis user_axis: the user axis to evaluate
-        :param File netcdf_file: the netcdf file to which the user axis should be evaluated on
-        :rtype: UserAxis
-        """
-        evaluator_slice = NetcdfEvaluatorSlice(netcdf_file)
-        min = self.sentence_evaluator.evaluate(user_axis.interval.low, evaluator_slice)
-        max = None
-        if user_axis.interval.high:
-            max = self.sentence_evaluator.evaluate(user_axis.interval.high, evaluator_slice)
-        resolution = float(self.sentence_evaluator.evaluate(user_axis.resolution, evaluator_slice))
-        return UserAxis(user_axis.name, resolution, user_axis.order, min, max, user_axis.type, user_axis.irregular,
-                        user_axis.dataBound)
 
     def _metadata(self, slices):
         """
@@ -152,11 +136,11 @@ class NetcdfToCoverageConverter:
         :param nc_file:
         :return:
         """
-        user_axis = self._user_axis(self._get_user_axis_by_crs_axis_name(crs_axis.label), nc_file)
+        user_axis = self._user_axis(self._get_user_axis_by_crs_axis_name(crs_axis.label), NetcdfEvaluatorSlice(nc_file))
 
         high = user_axis.interval.high if user_axis.interval.high else user_axis.interval.low
 
-        if not user_axis.irregular:
+        if isinstance(user_axis, RegularUserAxis):
             geo_axis = RegularAxis(crs_axis.label, crs_axis.uom, user_axis.interval.low, high, user_axis.interval.low,
                                    crs_axis)
         else:

@@ -23,15 +23,9 @@ package petascope.core;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.LinkedHashMap;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
 import java.util.Map.Entry;
-import java.util.Set;
+
 import nu.xom.Document;
 import nu.xom.Element;
 import org.slf4j.Logger;
@@ -1123,6 +1117,14 @@ public class CoverageMetadata implements Cloneable {
             null, //no rasdaman collection for now
             rangeQuantities);
 
+        // With the current design of CoverageMetadata, the coefficients for the axes are not carried by the
+        // CoverageMetadata object, but are obtained on-demand from the database when needed. While this works for read
+        // operations, when a new coverage is to be written, the coefficients must be carried in the model. Thus I am
+        // adding them in the respective domain elements, after the object is created.
+        HashMap<Integer, List<BigDecimal>> coefficients = GMLParserUtil.parseAxesCoefficients(gridType);
+        for(DomainElement domainElement : result.getDomainList()){
+            domainElement.setCoefficients(coefficients.get(domainElement.getOrder()));
+        }
         return result;
     }
 

@@ -22,10 +22,7 @@
 package petascope.util;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.TreeMap;
+import java.util.*;
 
 import nu.xom.Element;
 import nu.xom.Elements;
@@ -310,6 +307,52 @@ public class GMLParserUtil {
             result.put(vector, offsetVectors.get(i).snd);
         }
 
+        return result;
+    }
+
+    /**
+     * Parses the coefficient list of each axis of a coverage. They are stored in a map of form
+     * axisOrder => coefficientList. In case the axis doesn't have any coefficients, the value of the map for the axis
+     * is an empty list.
+     * @param gridType: the xml element representing the root of the grid.
+     * @return map of axisOrder => list of coefficients.
+     */
+    public static HashMap<Integer, List<BigDecimal>> parseAxesCoefficients(Element gridType){
+        String dimensionalityString = gridType.getAttributeValue(XMLSymbols.LABEL_DIMENSION);
+        Integer dimensionality = new Integer(dimensionalityString);
+        LinkedHashMap<Integer, List<BigDecimal>> result = new LinkedHashMap<Integer, List<BigDecimal>>();
+        //initialize the result
+        for (int i = 0; i < dimensionality; i++){
+            result.put(i, new ArrayList<BigDecimal>());
+        }
+        //in case coefficients exist, update them
+        if(gridType.getLocalName().equals(XMLSymbols.LABEL_RGBV)){
+            //general grid axes
+            Elements generalGridAxes = gridType.getChildElements(XMLSymbols.LABEL_GENERAL_GRID_AXIS, XMLSymbols.NAMESPACE_GMLRGRID);
+            //axis el in each
+            for(int i = 0; i < generalGridAxes.size(); i++) {
+                Elements axis = generalGridAxes.get(i).getChildElements(XMLSymbols.LABEL_GENERAL_GRID, XMLSymbols.NAMESPACE_GMLRGRID);
+                //offset vector
+                if (axis.size() > 0) {
+                    //coefficients
+                    Elements coefficients = axis.get(0).getChildElements(XMLSymbols.LABEL_COEFFICIENTS, XMLSymbols.NAMESPACE_GMLRGRID);
+                    if (coefficients.size() > 0) {
+                        String coefficientValues = coefficients.get(0).getValue().trim();
+                        if (!coefficientValues.isEmpty()) {
+                            //split after space in case there are more than 1
+                            String[] split = coefficientValues.split(" ");
+                            //map to big decimal list
+                            List<BigDecimal> coefficientList = new ArrayList<BigDecimal>();
+                            for(String coeffieicent: split){
+                                coefficientList.add(new BigDecimal(coeffieicent));
+                            }
+                            //replace in the result
+                            result.put(i, coefficientList);
+                        }
+                    }
+                }
+            }
+        }
         return result;
     }
 

@@ -36,7 +36,6 @@ import org.slf4j.LoggerFactory;
 import petascope.core.CoverageMetadata;
 import petascope.core.DbMetadataSource;
 import petascope.exceptions.*;
-import petascope.exceptions.wcst.WCSTInvalidTrimSubsetOnIrregularAxisException;
 import petascope.exceptions.wcst.WCSTInvalidUpdateOnIrregularAxisException;
 import petascope.util.*;
 import petascope.util.ras.TypeResolverUtil;
@@ -120,7 +119,7 @@ public class UpdateCoverageHandler extends AbstractRequestHandler<UpdateCoverage
 
             //handle subset coefficients if necessary
             //the transaction is not commited unless everything goes well.
-            handleSubsetCoefficients(currentCoverage, request.getSubsets());
+            handleSubsetCoefficients(currentCoverage, request.getSubsets(), inputCoverage);
 
             //handle cell values
             Element rangeSet = GMLParserUtil.parseRangeSet(xmlInputCoverage.getRootElement());
@@ -203,31 +202,62 @@ public class UpdateCoverageHandler extends AbstractRequestHandler<UpdateCoverage
         return new Response(new String[]{""});
     }
 
-    private void handleSubsetCoefficients(CoverageMetadata currentCoverageMetadata, List<DimensionSubset> subsets) throws PetascopeException {
+    /**
+     * Handles the updating of the coefficients for the current coverage. It looks at the subset list and, for the
+     * targeted irregular axes it computes the coefficient offset (the coefficient corresponding to the lower bound of
+     * the subset). It then takes the coefficients of the input coverage for the axis (if they exist), adjusts them by
+     * the offset and persists them. If the irregular axis is not contained in the list of axis of the input coverage,
+     * a non-data bound update is done (updating a 3D coverage using  2D coverage as input), case in which the offset
+     * coefficient (which is the one corresponding to the added slice) is saved.
+     * @param currentCoverageMetadata the coverage object targeted by the update op.
+     * @param subsets the list of subsets indicating where the coverage should be updated.
+     * @param inputCoverage the coverage that replaces the above part in the target coverage.
+     * @throws PetascopeException
+     */
+    private void handleSubsetCoefficients(CoverageMetadata currentCoverageMetadata, List<DimensionSubset> subsets,
+                                          CoverageMetadata inputCoverage) throws PetascopeException {
         for (DimensionSubset subset : subsets) {
             //check if axis is regular or irregular
             DomainElement currentDom = currentCoverageMetadata.getDomainByName(subset.getDimension());
             if (currentDom.isIrregular()) {
-                //update coefficient corresponding to this slice
-                int axisId;
                 try {
+                    //update coefficients corresponding to the subsets
+                    int axisId;
                     axisId = meta.getGridAxisId(currentCoverageMetadata.getCoverageId(), currentDom.getOrder());
+                    //inputDom might be null in case the slice is not data bound (e.g. updating a timeslice using a 2D cov)
+                    DomainElement inputDom = inputCoverage.getDomainByName(subset.getDimension());
+                    List<BigDecimal> coefficientList = new ArrayList<BigDecimal>();
+                    if (inputDom == null) {
+                        //non data bound, coefficient is 0 for the new slice
+                        coefficientList.add(BigDecimal.ZERO);
+                    } else {
+                        //data bound, coefficients provided in the input coverage
+                        coefficientList.addAll(inputDom.getCoefficients());
+                    }
+                    //update the collected coefficients
+                    BigDecimal coefficientOffset = computeCoefficientOffset(currentDom, subset);
+                    for (BigDecimal coefficient : coefficientList) {
+                        BigDecimal translatedCoefficient = coefficient.add(coefficientOffset);
+                        int coefficientOrder = computeCoefficientOrder(currentCoverageMetadata, currentDom, translatedCoefficient, subset);
+                        meta.updateAxisCoefficient(axisId, translatedCoefficient, coefficientOrder);
+                    }
                 } catch (SQLException e) {
-                    e.printStackTrace();
-                    throw new PetascopeException(ExceptionCode.InternalSqlError);
-                }
-                BigDecimal currentCoefficient = computeSubsetCoefficient(currentDom, subset);
-                int coefficientOrder = computeCoefficientOrder(currentCoverageMetadata, currentDom, currentCoefficient, subset);
-                try {
-                    meta.updateAxisCoefficient(axisId, currentCoefficient, coefficientOrder);
-                } catch (SQLException e) {
-                    e.printStackTrace();
+                    log.error(e.getMessage());
                     throw new PetascopeException(ExceptionCode.InternalSqlError);
                 }
             }
         }
     }
 
+    /**
+     * Computes the order of a coefficient and increases the domain of the coverage accordingly.
+     * @param currentCoverageMetadata the coverage object targeted by the update operation.
+     * @param currentDomain the updated domain element.
+     * @param coefficient the value of the coefficient corresponding to the slice to be added.
+     * @param subset the place in the target coverage where the slices are added.
+     * @return the total number of slices that the coverage contains on this axes, after the coefficient is added.
+     * @throws PetascopeException
+     */
     private int computeCoefficientOrder(CoverageMetadata currentCoverageMetadata, DomainElement currentDomain, BigDecimal coefficient, DimensionSubset subset) throws PetascopeException {
         List<BigDecimal> allCoefficients = meta.getAllCoefficients(currentCoverageMetadata.getCoverageName(), currentDomain.getOrder());
         int currentPosition = BigDecimalUtil.listContains(allCoefficients, coefficient);
@@ -257,15 +287,18 @@ public class UpdateCoverageHandler extends AbstractRequestHandler<UpdateCoverage
         }
     }
 
-    private BigDecimal computeSubsetCoefficient(DomainElement currentDom, DimensionSubset subset) throws PetascopeException {
+    /**
+     * Computes the offset in coefficients for a domain extensions of the coverage.
+     * @param currentDom the current domain of the coverage
+     * @param subset the subset with which the coverage is extended
+     * @return the coefficient corresponding to the first slice of the subset
+     * @throws PetascopeException
+     */
+    private BigDecimal computeCoefficientOffset(DomainElement currentDom, DimensionSubset subset) throws PetascopeException {
         String point = "";
         if (subset instanceof DimensionTrim) {
             DimensionTrim trimSubset = (DimensionTrim) subset;
-            if (!trimSubset.getTrimLow().equals(trimSubset.getTrimHigh())) {
-                throw new WCSTInvalidTrimSubsetOnIrregularAxisException(subset.toString(), currentDom.getLabel());
-            } else {
                 point = trimSubset.getTrimLow();
-            }
         } else if (subset instanceof DimensionSlice) {
             point = ((DimensionSlice) subset).getSlicePoint();
         }

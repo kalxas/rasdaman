@@ -47,11 +47,18 @@ def grib_datetime(grib_date, grib_time):
 
 def datetime(datetime, format=None):
     """
-    Parses datetime strings
+    Parses datetime strings or lists of date strings
     :param str datetime: the datetime string
     :param str format: the format or none
     :return:
     """
+    if type(datetime) != list:
+        return single_datetime(datetime, format)
+    else:
+        return map(lambda x: single_datetime(x, format), datetime)
+
+
+def single_datetime(datetime, format):
     if format:
         return arrow.get(datetime, format).isoformat()
     else:

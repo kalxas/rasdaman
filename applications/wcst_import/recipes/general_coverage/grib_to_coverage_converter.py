@@ -36,6 +36,7 @@ from master.extra_metadata.extra_metadata_serializers import ExtraMetadataSerial
 from master.extra_metadata.extra_metadata_slice import ExtraMetadataSliceSubset
 from master.generator.model.range_type_field import RangeTypeField
 from master.generator.model.range_type_nill_value import RangeTypeNilValue
+from master.helper.irregular_user_axis import IrregularUserAxis
 from master.helper.user_axis import UserAxis
 from master.helper.user_band import UserBand
 from master.importer.axis_subset import AxisSubset
@@ -47,6 +48,7 @@ from master.provider.metadata.coverage_axis import CoverageAxis
 from master.provider.metadata.grid_axis import GridAxis
 from master.provider.metadata.irregular_axis import IrregularAxis
 from master.provider.metadata.regular_axis import RegularAxis
+from recipes.general_coverage.abstract_to_coverage_converter import AbstractToCoverageConverter
 from util.crs_util import CRSAxis, CRSUtil
 from util.file_obj import File
 from util.string_util import stringify
@@ -89,7 +91,7 @@ class GRIBMessage:
         }
 
 
-class GRIBToCoverageConverter:
+class GRIBToCoverageConverter(AbstractToCoverageConverter):
     DEFAULT_DATA_TYPE = "Float64"
     MIMETYPE = "application/grib"
 
@@ -109,6 +111,7 @@ class GRIBToCoverageConverter:
         :param str metadata_type: the metadata type
         :param boolean grid_coverage: check if user want to import grid coverage
         """
+        AbstractToCoverageConverter.__init__(self, sentence_evaluator)
         self.sentence_evaluator = sentence_evaluator
         self.coverage_id = coverage_id
         self.band = band
@@ -134,25 +137,6 @@ class GRIBToCoverageConverter:
         dataset = pygrib.open(self.grib_files[0].filepath)
         return [RangeTypeNilValue(self.band.nilReason, dataset.message(1)["missingValue"])]
 
-    def _user_axis(self, message, user_axis, grib_file):
-        """
-        Returns an evaluated user axis from a user supplied axis
-        The user supplied axis contains for each attribute an expression that can be evaluated.
-         We need to return a user axis that contains the actual values derived from the expression evaluation
-        :param pygrib.gribmessage message: the message on which to evaluate
-        :param UserAxis user_axis: the user axis to evaluate
-        :param File grib_file: the grib file to which the message belongs
-        :rtype: UserAxis
-        """
-        evaluator_slice = GribMessageEvaluatorSlice(message, grib_file)
-        min = self.sentence_evaluator.evaluate(user_axis.interval.low, evaluator_slice)
-        max = None
-        if user_axis.interval.high:
-            max = self.sentence_evaluator.evaluate(user_axis.interval.high, evaluator_slice)
-        resolution = self.sentence_evaluator.evaluate(user_axis.resolution, evaluator_slice)
-        return UserAxis(user_axis.name, resolution, user_axis.order, min, max, user_axis.type, user_axis.irregular,
-                        user_axis.dataBound)
-
     def _messages(self, grib_file):
         """
         Returns the message information already evaluated
@@ -165,7 +149,7 @@ class GRIBToCoverageConverter:
             message = dataset.message(i)
             axes = []
             for user_axis in self.user_axes:
-                axes.append(self._user_axis(message, user_axis, grib_file))
+                axes.append(self._user_axis(user_axis, GribMessageEvaluatorSlice(message, grib_file)))
             messages.append(GRIBMessage(i, axes, message))
         return messages
 
@@ -286,8 +270,9 @@ class GRIBToCoverageConverter:
             user_axis = self._get_user_axis(messages[0], crs_axis.label)
             low, high, origin, grid_low, grid_high, resolution = self._low_high_origin(messages, crs_axis.label,
                                                                                        not crs_axis.is_future())
-            if user_axis.irregular:
-                geo_axis = IrregularAxis(crs_axis.label, crs_axis.uom, low, high, origin, [0], crs_axis)
+            if isinstance(user_axis, IrregularUserAxis):
+                geo_axis = IrregularAxis(crs_axis.label, crs_axis.uom, low, high, origin, user_axis.directPositions,
+                                         crs_axis)
             else:
                 geo_axis = RegularAxis(crs_axis.label, crs_axis.uom, low, high, origin, crs_axis)
             grid_axis = GridAxis(user_axis.order, crs_axis.label, resolution, grid_low, grid_high)

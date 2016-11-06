@@ -21,32 +21,14 @@
  * or contact Peter Baumann via <baumann@rasdaman.com>.
  *
 """
-
-from master.importer.interval import Interval
-
-
-class UserAxisType:
-    NUMBER = "number"
-    DATE = "date"
-
-    @staticmethod
-    def valid_type(type):
-        """
-        Returns true if type is valid false otherwise
-        :param str type: the type to check
-        :rtype: bool
-        """
-        if type == UserAxisType.NUMBER or type == UserAxisType.DATE:
-            return True
-        return False
+from master.helper.user_axis import UserAxis, UserAxisType
 
 
-class UserAxis:
-    def __init__(self, name, resolution, order, min, max=None, type=UserAxisType.NUMBER,
+class IrregularUserAxis(UserAxis):
+    def __init__(self, name, resolution, order, min, directPositions, max=None, type=UserAxisType.NUMBER,
                  dataBound=True):
         """
-        A user axis is a an axis containing information collected from an user. The connection to the crs axis
-        can be done by checking the axis name
+        An IrregularUserAxis is a UserAxis with direct positions and assumed resolution of 1.
         :param str name: The name of the axis
         :param str | float resolution:  the resolution of the axis
         :param int order: the order of this geo axis in the grid. For example EPSG:4326 has geo axes Lat Long
@@ -55,26 +37,7 @@ class UserAxis:
         :param str | float min: the minimum on this axis
         :param str | float | None max: the maximum on this axis
         :param str type: the type of the values on this axis
+        :param str directPositions: the list of direct positions of the slices on this axis
         """
-        self.name = name
-        self.resolution = resolution
-        self.order = order
-        self.interval = Interval(min, max)
-        self.type = type
-        self.dataBound = dataBound
-
-    def to_json(self):
-        """
-        Returns a json friendly representation
-        :rtype: dict
-        """
-        ret = {
-            "name": self.name,
-            "resolution": self.resolution,
-            "min": str(self.interval.low),
-            "order": str(self.order),
-            "type": self.type
-        }
-        if self.interval.high is not None:
-            ret["max"] = self.interval.high
-        return ret
+        UserAxis.__init__(self, name, resolution, order, min, max, type, dataBound)
+        self.directPositions = directPositions
