@@ -31,6 +31,8 @@ import secore.util.SecoreException;
 import secore.util.ExceptionCode;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.HashMap;
+import java.util.Map;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -52,6 +54,10 @@ public class SecoreServlet extends HttpServlet {
   private static Logger log = LoggerFactory.getLogger(SecoreServlet.class);
 
   private static final String CONTENT_TYPE = "text/xml; charset=utf-8";
+  /**
+   * cached the request and the result of the request
+   */
+  private static Map<String, String> cache = new HashMap<String, String>();
 
   @Override
   public void init() throws ServletException {
@@ -64,13 +70,19 @@ public class SecoreServlet extends HttpServlet {
         // if current version of Secoredb is empty then add SecoreVersion element to BaseX database and run all the db_updates files.
         DbSecoreVersion dbSecoreVersion = new DbSecoreVersion(dbManager.getDb());
         dbSecoreVersion.handle();
+        log.debug("Initialze BaseX dbs successfully.");
     } catch (SecoreException ex) {
         log.error("Cannot initialize database manager, exception caught: ", ex);
     } catch (FileNotFoundException ex) {
         log.error("Cannot update SECORE version from files, exception caught: ", ex);
     } catch (IOException ex) {
         log.error("Cannot update SECORE version from files, exception caught: ", ex);
-      }
+    }
+  }
+  
+  @Override
+  protected  void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+      doGet(req, resp);
   }
 
   @Override
@@ -83,13 +95,29 @@ public class SecoreServlet extends HttpServlet {
       uri += QUERY_SEPARATOR + qs;
     }
     try {
-        log.debug("Request URI: " + uri);
-        ResolveRequest request = new ResolveRequest(uri);
-        log.debug("Set service URI to " + StringUtil.SERVICE_URI);
-
-        // Load class handler base on request
+      log.debug("Request URI: " + uri);
+      ResolveRequest request = new ResolveRequest(uri);
+      log.debug("Set service URI to " + StringUtil.SERVICE_URI);
+      
+      // Check if last query modified the baseX (insert/update/delete definitions) then it have to clear cache both in BaseX and on Servlet
+      if (DbManager.getNeedToClearCache()) {
+          cache = new HashMap<String, String>();
+          DbManager.clearedCache();
+          log.debug("Cleared cache on servlet.");
+      }
+      
+      // NOTE: use the cache instead of querying collections if URI does exist in the cache
+      String data = "";
+      if (cache.containsKey(uri)) {
+         log.debug("Query data from cache.");
+         data = cache.get(uri);
+      } else {
         ResolveResponse res = Resolver.resolve(request);
-        writeResult(req, resp, res.getData());
+        data = res.getData();
+        log.debug("Query data from collections.");
+        addUriToCache(uri, data);
+      }
+      writeResult(req, resp, data);
     } catch (SecoreException ex) {
         writeError(resp, ex);
     }
@@ -137,5 +165,16 @@ public class SecoreServlet extends HttpServlet {
     }
     ret.append("</ows:ExceptionReport>");
     return ret.toString();
+  }
+  
+  /**
+   * If URI does not exist in the cache then add the URI and data to the cache
+   * @param uri
+   * @param data 
+   */
+  private void addUriToCache(String uri, String data) {
+    if (!cache.containsKey(uri)) {
+        cache.put(uri, data);
+    }
   }
 }

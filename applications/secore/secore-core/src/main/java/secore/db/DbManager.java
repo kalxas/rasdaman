@@ -64,6 +64,11 @@ public class DbManager {
 
   private Database db;
   private static DbManager instance;
+  
+  /**
+   * To notify Servlet when should clear the cache (i.e: when BaseX update/delete/insert definitions) then need to clear cache from BaseX query and also on Servlet.
+   */
+  private static boolean needToClearCache = false;
 
   // Cache query, (return and boolean) - version to know this query is from EPSG dictionary or User dictionary.
   private static final Map<String, Pair<String, String>> cache =
@@ -232,6 +237,19 @@ public class DbManager {
    */
   public static void clearCache() {
     cache.clear();
+    // servlet need to clear cache as well
+    needToClearCache = true;
+  }
+  
+  /**
+   *  Servlet already clear its cache
+   */
+  public static void clearedCache() {
+    needToClearCache = false;
+  }
+  
+  public static boolean getNeedToClearCache() {
+      return needToClearCache;
   }
 
   public static void updateCache(String key, String value, String version) {

@@ -537,7 +537,24 @@ public class StringUtil {
     }
     return uri;
   }
-
+  
+   /**
+    * Check if URI is the parent node of children URI which contains version number
+    * e.g: /def/crs/EPSG/0 will return /def/crs/EPSG/0/4326, /def/crs/EPSG/0/3857,...
+    * @param uri
+    * @return 
+    */
+   public static boolean parentVersionNumberUri(String uri) {
+       String pattern = "/def/.*/.*/?";
+        // Create a Pattern object
+       Pattern r = Pattern.compile(pattern);
+       Matcher m = r.matcher(uri);
+       if (m.find()) {
+           return true;
+       }
+       return false;
+   }
+  
   /**
    * Remove the scheme/host/port from the given url, e.g.
    *
