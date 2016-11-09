@@ -42,10 +42,10 @@ endif
 
 all:
 	cp secore-core/etc/secore.properties.in $(NEW_CONF)
-	sed -i "s|@SHARE_DATA_DIR@|$(DESTDIR)$(pkgdatadir)|g" $(NEW_CONF)
+	sed -i "s|@SHARE_DATA_DIR@|$(pkgdatadir)|g" $(NEW_CONF)
 	sed -i "s|@LOGDIR@|$(logdir)|g" $(NEW_CONF)
 	cp secore-web/src/main/webapp/WEB-INF/web.xml.in secore-web/src/main/webapp/WEB-INF/web.xml
-	sed -i "s|@CONF_DIR@|$(DESTDIR)$(sysconfdir)|g" secore-web/src/main/webapp/WEB-INF/web.xml
+	sed -i "s|@CONF_DIR@|$(sysconfdir)|g" secore-web/src/main/webapp/WEB-INF/web.xml
 	cp secore-core/pom.xml.in secore-core/pom.xml
 	cp secore-web/pom.xml.in secore-web/pom.xml
 	sed -i "s|@SECORE_TARGET_DIR@|${SECORE_TARGET_DIR}|g" secore-core/pom.xml
@@ -53,9 +53,9 @@ all:
 	mvn package
 
 install-exec-hook:
-	mkdir -p $(DESTDIR)${WAR_DIR}/secoredb || true
-	chmod -R 777 $(DESTDIR)${WAR_DIR}/secoredb > /dev/null 2>&1 || true
-	cp ${SECORE_TARGET_DIR}/def.war $(DESTDIR)${WAR_DIR}/
+	mkdir -p ${WAR_DIR}/secoredb || true
+	chmod -R 777 ${WAR_DIR}/secoredb > /dev/null 2>&1 || true
+	cp ${SECORE_TARGET_DIR}/def.war ${WAR_DIR}/
 	echo "$@ is updating secore.properties: $(OLD_CONF) from $(NEW_CONF)";
 	./update_properties.sh "$(OLD_CONF)" "$(NEW_CONF)";
 	mkdir -p $(DESTDIR)$(pkgdatadir)/secore || true
