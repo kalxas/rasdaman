@@ -428,6 +428,13 @@ logn "comparing images: "
 cmp $ORACLE_PATH/$f.json $f.json > /dev/null
 check_result 0 $? "input and output match"
 rm -f $f*
+
+export_to_file test_tmp "$f" "encode" ', "json", ""'
+logn "comparing images: "
+cmp $ORACLE_PATH/$f.json $f.json > /dev/null
+check_result 0 $? "input and output match"
+rm -f $f*
+
 drop_colls test_tmp
 
 # ------------------------------------------------------------------------------
