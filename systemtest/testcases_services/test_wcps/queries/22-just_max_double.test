@@ -1,1 +1,1 @@
-for c in ( rgb ) return max((double)c.2)
+for c in ( test_rgb ) return max((double)c.2)

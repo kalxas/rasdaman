@@ -5,11 +5,11 @@
     xmlns:gml="http://www.opengis.net/gml/3.2"
     xsi:schemaLocation="http://schemas.opengis.net/wcs/2.0 ../wcsAll.xsd"
     service="WCS" version="2.0.1">
-  <wcs:CoverageId>eobstest</wcs:CoverageId>
+  <wcs:CoverageId>test_eobstest</wcs:CoverageId>
   <wcs:DimensionSlice>
     <wcs:Dimension>t</wcs:Dimension>
     <!-- Problem: inconsistent CRS handling KVP/WCS : OGC12-167 change request #257 (Andrea Aime) -->
-    <wcs:SlicePoint>1</wcs:SlicePoint>
+    <wcs:SlicePoint>"1950-01-01"</wcs:SlicePoint>
   </wcs:DimensionSlice>
   <gml:format>image/jp2</gml:format>
 </wcs:GetCoverage>

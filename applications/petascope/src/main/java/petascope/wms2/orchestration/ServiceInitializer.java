@@ -30,7 +30,6 @@ import java.io.InputStream;
 import java.sql.SQLException;
 import java.util.Properties;
 import org.apache.commons.io.IOUtils;
-import org.apache.log4j.PropertyConfigurator;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -66,7 +65,6 @@ class ServiceInitializer {
         }
         this.pathToDefaultValuesFile = pathToConfigurationDirectory + "/" + WMS_SERVICE_DEFAULT_VALUES_FILE;
         this.pathToConfigurationFile = pathToConfigurationDirectory + "/" + SETTINGS_FILE;
-        this.pathToLoggingFile = pathToConfigurationDirectory + "/" + LOGGING_CONF_FILE;
         checkConfigurationPath();
     }
 
@@ -119,7 +117,6 @@ class ServiceInitializer {
             initializePersistenceConfiguration();
             initializePersistenceLayer(persistenceConfig);
             initializeDefaultValues(persistentMetadataObjectProvider);
-            initializeLogging();
             initializeCacheEngine(configManager);
             initializeRasdamanService();
         } catch (Exception e) {
@@ -134,7 +131,6 @@ class ServiceInitializer {
     private void checkConfigurationPath() {
         File defaultFile = new File(pathToDefaultValuesFile);
         File configFile = new File(pathToConfigurationFile);
-        File loggingFile = new File(pathToLoggingFile);
         if (!defaultFile.exists() || !defaultFile.canRead()) {
             throw new IllegalArgumentException("The file containing the default service provider information was not found at " + defaultFile.getAbsolutePath() +
                 ". Please make sure that the file exists and is readable by the server user. If the file path listed above is wrong " +
@@ -142,11 +138,6 @@ class ServiceInitializer {
         }
         if (!configFile.exists() || !configFile.canRead()) {
             throw new IllegalArgumentException("The file containing the configuration options for petascope was not found at " + configFile.getAbsolutePath() +
-                ". Please make sure that the file exists and is readable by the server user. If the file path listed above is wrong " +
-                "please adjust the value of <param-name>confDir</param-name> in your web.xml file (usually at $CATALINA_HOME/webapps/petascope/WEB-INF/web.xml).");
-        }
-        if (!loggingFile.exists() || !loggingFile.canRead()) {
-            throw new IllegalArgumentException("The file containing the logging options was not found at " + loggingFile.getAbsolutePath() +
                 ". Please make sure that the file exists and is readable by the server user. If the file path listed above is wrong " +
                 "please adjust the value of <param-name>confDir</param-name> in your web.xml file (usually at $CATALINA_HOME/webapps/petascope/WEB-INF/web.xml).");
         }
@@ -218,13 +209,6 @@ class ServiceInitializer {
     }
 
     /**
-     * Initializes the logging framework
-     */
-    private void initializeLogging() {
-        PropertyConfigurator.configure(pathToLoggingFile);
-    }
-
-    /**
      * Initializes the config manager
      */
     private void initializeConfigManager() {
@@ -256,8 +240,6 @@ class ServiceInitializer {
     @NotNull
     private final String pathToConfigurationFile;
     @NotNull
-    private final String pathToLoggingFile;
-    @NotNull
     private ConfigManager configManager;
     @NotNull
     private PersistenceConfig persistenceConfig;
@@ -288,9 +270,7 @@ class ServiceInitializer {
     @NotNull
     private final static String KEY_RASDAMAN_DATABASE = petascope.ConfigManager.KEY_RASDAMAN_DATABASE;
     @NotNull
-    private final static String SETTINGS_FILE = petascope.ConfigManager.SETTINGS_FILE;
-    @NotNull
-    private final static String LOGGING_CONF_FILE = petascope.ConfigManager.LOG_PROPERTIES_FILE;
+    private final static String SETTINGS_FILE = petascope.ConfigManager.SETTINGS_FILE;    
     @NotNull
     private final static String WMS_SERVICE_DEFAULT_VALUES_FILE = "wms_service.properties";
 }

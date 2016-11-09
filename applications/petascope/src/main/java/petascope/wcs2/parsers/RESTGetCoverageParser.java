@@ -37,6 +37,8 @@ import petascope.exceptions.WCSException;
 import petascope.util.AxisTypes;
 import petascope.util.ListUtil;
 import petascope.util.TimeUtil;
+import static petascope.util.XMLSymbols.LABEL_FORMAT;
+import static petascope.util.XMLSymbols.LABEL_MEDIATYPE;
 import petascope.wcs2.extensions.FormatExtension;
 import petascope.wcs2.extensions.RangeSubsettingExtension;
 import petascope.wcs2.helpers.rest.RESTUrl;
@@ -123,13 +125,9 @@ public class RESTGetCoverageParser extends RESTParser<GetCoverageRequest> {
                         throw new WCSException(ExceptionCode.InvalidParameterValue, "Timestamp \"" + high + "\" is not valid.");
                     }
                     // Check low<high
-                    try {
-                        if (low != null && high != null && low.matches(QUOTED_SUBSET) && high.matches(QUOTED_SUBSET)
-                                && !TimeUtil.isOrderedTimeSubset(low, high)) {
-                            throw new WCSException(ExceptionCode.InvalidParameterValue, "Temporal subset \"" + low + ":" + high + "\" is invalid: check order.");
-                        }
-                    } catch (PetascopeException ex) {
-                        throw new WCSException(ex.getExceptionCode(), ex);
+                    if (low != null && high != null && low.matches(QUOTED_SUBSET) && high.matches(QUOTED_SUBSET)
+                            && !TimeUtil.isOrderedTimeSubset(low, high)) {
+                        throw new WCSException(ExceptionCode.InvalidParameterValue, "Temporal subset \"" + low + ":" + high + "\" is invalid: check order.");
                     }
                 }
             } else {
@@ -160,8 +158,10 @@ public class RESTGetCoverageParser extends RESTParser<GetCoverageRequest> {
         }
         String format = ListUtil.head(rUrl.getByKey("format"));
         if (FormatExtension.MIME_MULTIPART.equals(mediaType) && FormatExtension.MIME_GML.equals(format)) {
-            throw new WCSException(ExceptionCode.InvalidRequest,
-                    "The 'MEDIATYPE=multipart/related & FORMAT=application/gml+xml' combination is not applicable");
+            throw new WCSException(ExceptionCode.InvalidRequest, "The '" +
+                    LABEL_MEDIATYPE + "=" + FormatExtension.MIME_MULTIPART + "' & '" +
+                    LABEL_FORMAT    + "=" + FormatExtension.MIME_GML +
+                    "' combination is not applicable");
         }
 
         GetCoverageRequest ret = new GetCoverageRequest(coverageIds.get(0), format,

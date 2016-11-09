@@ -1,0 +1,4 @@
+<html><head><title>PetaScope Rasql Servlet</title></head><body>
+<h1>An error has occured, please check log for more detail.</h1>
+<p>Failed evaluating query: create collection test_mr GreySet</p>
+Error evaluating rasdaman query: 'create collection test_mr GreySet

@@ -1,0 +1,102 @@
+{
+  "config": {
+    "service_url": "PETASCOPE_URL",
+    "tmp_directory": "/tmp/",
+    "crs_resolver": "http://localhost:8080/def/",
+    "default_crs": "SECORE_URL/def/OGC/0/Index2D",
+    "mock": false,
+    "automated": true,
+    "track_files": false,
+    "subset_correction": false
+  },
+  "input": {
+    "coverage_id": "test_irregular_time_nc",
+    "paths": [
+      "irr_time.nc"
+    ]
+  },
+  "recipe": {
+    "name": "general_coverage",
+    "options": {
+      "coverage": {
+        "crs": "OGC/0/UnixTime@EPSG/0/3577",
+        "metadata": {
+          "type": "xml",
+          "global": {
+            "date_created": "'${netcdf:metadata:date_created}'",
+            "Conventions": "'${netcdf:metadata:Conventions}'",
+            "history": "\"${netcdf:metadata:history}\"",
+            "title": "'${netcdf:metadata:title}'",
+            "summary": "'${netcdf:metadata:summary}'",
+            "product_version": "'${netcdf:metadata:product_version}'",
+            "source": "'${netcdf:metadata:source}'"
+          }
+        },
+        "slicer": {
+          "type": "netcdf",
+          "pixelIsPoint": true,
+          "bands": [
+            {
+              "name": "band_1",
+              "description": "Nadir BRDF Adjusted Reflectance 0.43-0.45 microns (Coastal Aerosol)",
+              "identifier": "band_1",
+              "nilValue": "-999"
+            },
+            {
+              "name": "band_2",
+              "identifier": "band_2",
+              "nilValue": "-999"
+            },
+            {
+              "name": "band_3",
+              "identifier": "band_3",
+              "nilValue": "-999"
+            },
+            {
+              "name": "band_4",
+              "identifier": "band_4",
+              "nilValue": "-999"
+            },
+            {
+              "name": "band_5",
+              "identifier": "band_5",
+              "nilValue": "-999"
+            },
+            {
+              "name": "band_6",
+              "identifier": "band_6",
+              "nilValue": "-999"
+            },
+            {
+              "name": "band_7",
+              "identifier": "band_7",
+              "nilValue": "-999"
+            }
+          ],
+          "axes": {
+            "unix": {
+              "min": "${netcdf:variable:unix:min}",
+              "max": "${netcdf:variable:unix:max}",
+              "directPositions": "${netcdf:variable:unix}",
+              "gridOrder": 0,
+              "irregular": true
+            },
+            "E": {
+              "min": "${netcdf:variable:E:min}",
+              "max": "${netcdf:variable:E:max}",
+              "gridOrder": 2,
+              "resolution": 25.0
+            },
+            "N": {
+              "min": "${netcdf:variable:N:min}",
+              "max": "${netcdf:variable:N:max}",
+              "gridOrder": 1,
+              "resolution": -25.0
+            }
+          }
+        }
+      },
+      "tiling": "ALIGNED [0:13, 0:999, 0:999] TILE SIZE 4000000"
+    }
+  }
+}

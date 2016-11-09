@@ -1,4 +1,4 @@
-for c in (mean_summer_airtemp)
+for c in (test_mean_summer_airtemp)
   return 
         (condense min
         over     $py1 y (300:301)

@@ -1,4 +1,4 @@
-for c in (mr)
+for c in (test_mr)
   return condense +
   over $x x(0:100),
        $y y(0:100)

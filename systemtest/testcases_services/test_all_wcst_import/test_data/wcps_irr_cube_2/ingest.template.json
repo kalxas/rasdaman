@@ -9,7 +9,7 @@
         "subset_correction": false
     },
     "input": {
-        "coverage_id": "irr_cube_2", 
+        "coverage_id": "test_irr_cube_2", 
         "paths": [
             "*.tif"
         ]
@@ -22,9 +22,9 @@
         	  "regex": "(.*)_(.+?)\\.(.*)", 
         	  "group": "2" 
 	        },
-		"datetime_format": "YYYY-MM-DD" 
+		"datetime_format": "YYYY-MM-DDTHH:mm:ss" 
             },
-	   "time_crs": "http://opengis.net/def/crs/OGC/0/AnsiDate",
+	   "time_crs": "SECORE_URL/crs/OGC/0/AnsiDate",
 	   "band_names": [
 	       "b1",
                "b2"

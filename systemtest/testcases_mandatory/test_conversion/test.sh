@@ -323,13 +323,10 @@ $RASQL -q "drop collection $COLL" > /dev/null 2>&1
 ################ GML in JPEG2000 encoding ####################
 
 log '------ GML in JPEG2000 conversion --------'
-# JP2OpenJPEG supports GML box from GDAL 1.10: check GDAL version
+# JP2OpenJPEG supports GML box from GDAL 1.10: check if gdal library can support this format (in common.sh)
 FORMAT_CODE="JP2OpenJPEG"
-gmljp2_enabled=$( check_gdal_version 1 10 ) # GDAL >= 1.10
-if [ "$gmljp2_enabled" -ne 0 ]
-then
-    log "skipping test for GMLJP2 encoding: GDAL 1.10 required."
-elif [ -z "$( $GDALINFO --formats | grep $FORMAT_CODE )" ]
+check_jpeg2000_enabled
+if [ $? -ne 0 ]
 then
     log "skipping test for GMLJP2 encoding: $FORMAT_CODE is not enabled (see \`$GDALINFO --formats\`)."
 else
@@ -431,6 +428,13 @@ logn "comparing images: "
 cmp $ORACLE_PATH/$f.json $f.json > /dev/null
 check_result 0 $? "input and output match"
 rm -f $f*
+
+export_to_file test_tmp "$f" "encode" ', "json", ""'
+logn "comparing images: "
+cmp $ORACLE_PATH/$f.json $f.json > /dev/null
+check_result 0 $? "input and output match"
+rm -f $f*
+
 drop_colls test_tmp
 
 # ------------------------------------------------------------------------------

@@ -1,4 +1,4 @@
-for c in (mr) return encode(switch
+for c in (test_mr) return encode(switch
 	case c > 1000
 		return {red: 107; green:17; blue:68}
 	default

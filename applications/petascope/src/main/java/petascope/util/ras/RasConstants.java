@@ -32,6 +32,7 @@ public interface RasConstants {
     // (update the list keeping alphabetic order)
     public static final String RASQL_ABS               = "abs";
     public static final String RASQL_AND               = "and";
+    public static final String RASQL_ASSIGN            = "assign";
     public static final String RASQL_AS                = "AS";
     public static final String RASQL_BIT               = "bit";
     public static final String RASQL_C                 = "c";
@@ -41,8 +42,12 @@ public interface RasConstants {
     public static final String RASQL_ENCODE            = "encode";
     public static final String RASQL_END               = "end";
     public static final String RASQL_EXTEND            = "extend";
+    public static final String RASQL_DECODE            = "decode";
     public static final String RASQL_FROM              = "from";
     public static final String RASQL_IN                = "in";
+    public static final String RASQL_INV               = "inv_";
+    public static final String RASQL_INSERT            = "insert";
+    public static final String RASQL_INTO              = "into";
     public static final String RASQL_MARRAY            = "marray";
     public static final String RASQL_NOT               = "not";
     public static final String RASQL_OVERLAY           = "overlay";
@@ -51,8 +56,10 @@ public interface RasConstants {
     public static final String RASQL_SCALE             = "scale";
     public static final String RASQL_SDOM              = "sdom";
     public static final String RASQL_SELECT            = "select";
+    public static final String RASQL_SET               = "set";
     public static final String RASQL_SQRT              = "sqrt";
     public static final String RASQL_THEN              = "then";
+    public static final String RASQL_UPDATE            = "update";
     public static final String RASQL_VALUES            = "values";
     public static final String RASQL_VERSION           = "version";
     public static final String RASQL_WHEN              = "when";

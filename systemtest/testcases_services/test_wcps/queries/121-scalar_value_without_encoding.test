@@ -1,1 +1,1 @@
-for c in (mr) return c[i(0), j(0)] + 5 + avg(c)  - 2.9323 * 5
+for c in (test_mr) return c[i(0), j(0)] + 5 + avg(c)  - 2.9323 * 5

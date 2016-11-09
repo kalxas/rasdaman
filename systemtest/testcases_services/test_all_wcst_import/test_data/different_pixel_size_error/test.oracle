@@ -1,0 +1,1 @@
+<ows:ExceptionText>The resolution of the input coverage is different from the resolution of the target coverage. Expected offset vector: "-2 0", recieved offset vector: "-1 0"</ows:ExceptionText>

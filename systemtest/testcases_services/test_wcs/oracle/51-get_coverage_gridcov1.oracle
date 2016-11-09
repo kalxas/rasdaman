@@ -5,7 +5,7 @@
     xmlns:gmlcov='http://www.opengis.net/gmlcov/1.0'
     xmlns:swe='http://www.opengis.net/swe/2.0'
     xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance'
-    xmlns:wcs='http://www.opengis.net/wcs/2.0' id="float_4d"
+    xmlns:wcs='http://www.opengis.net/wcs/2.0' id="test_float_4d"
     xsi:schemaLocation= 'http://www.opengis.net/wcs/2.0 http://schemas.opengis.net/wcs/2.0/wcsAll.xsd'>
 
   <boundedBy>
@@ -16,7 +16,7 @@
   </boundedBy>
 
   <domainSet>
-    <Grid dimension="2" id="float_4d-grid">
+    <Grid dimension="2" id="test_float_4d-grid">
       <limits>
         <GridEnvelope>
           <low>0 0</low>

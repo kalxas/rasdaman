@@ -1,5 +1,4 @@
-for c in ( rgb ) return
-encode(
+for c in ( test_rgb ) return encode(
     c.red *
      {
         red: (unsigned char) 1;

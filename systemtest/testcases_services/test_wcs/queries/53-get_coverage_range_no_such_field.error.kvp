@@ -1,5 +1,5 @@
 service=WCS&
 version=2.0.1&
 request=GetCoverage&
-coverageId=rgb&
+coverageId=test_rgb&
 rangesubset=fake_name

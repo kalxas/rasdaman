@@ -8,7 +8,7 @@
     "automated": true
   },
   "input": {
-    "coverage_id": "waxlake",
+    "coverage_id": "test_waxlake",
     "paths": [
       "*.tif"
     ]

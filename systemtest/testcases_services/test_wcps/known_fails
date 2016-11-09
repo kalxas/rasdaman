@@ -3,3 +3,7 @@
 58-overlay_performance.test
 122-time_axis_label.test
 124-scale-irr-axis.test
+90-get_metadata_domain.error.test
+95-just_slice_asterisk.error.test
+100-trim_subsettingCrs_IndexCrs_wrong_order.error.test
+145-ranges-with-scalar-error.test

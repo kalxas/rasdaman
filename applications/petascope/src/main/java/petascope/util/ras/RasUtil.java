@@ -55,10 +55,7 @@ import petascope.wcps.server.core.ProcessCoveragesRequest;
 import petascope.wcps.server.core.Wcps;
 import rasj.RasClientInternalException;
 import rasj.RasConnectionFailedException;
-import rasj.RasGMArray;
 import rasj.RasImplementation;
-import rasj.RasMInterval;
-import rasj.RasResultIsNoIntervalException;
 import rasj.odmg.RasBag;
 
 /**
@@ -488,16 +485,28 @@ public class RasUtil {
         return oid;
     }
 
-    public static BigInteger executeInsertFileStatement(String collectionName, String filePath, String mimetype,
+    /**
+     * Insert an image to an existing collection by decoding file
+     * @param collectionName
+     * @param filePath
+     * @param mime
+     * @param username
+     * @param tiling
+     * @param password
+     * @return
+     * @throws petascope.exceptions.rasdaman.RasdamanException
+     * @throws java.io.IOException
+     */
+    public static BigInteger executeInsertFileStatement(String collectionName, String filePath, String mime,
             String username, String password, String tiling) throws RasdamanException, IOException {
         BigInteger oid = new BigInteger("0");
         String query;
         String tilingClause = (tiling == null || tiling.isEmpty()) ? "" : TILING_KEYWORD + " " + tiling;
 
         query = ConfigManager.RASDAMAN_BIN_PATH + RASQL + " --user " + username + " --passwd " + password + " -q "
-              + "'" + TEMPLATE_INSERT_FILE.replace(TOKEN_COLLECTION_NAME, collectionName).replace(TOKEN_TILING, tilingClause) + "' --file " + filePath;
+              + "'" + TEMPLATE_INSERT_DECODE_FILE.replace(TOKEN_COLLECTION_NAME, collectionName).replace(TOKEN_TILING, tilingClause) + "' --file " + filePath;
         log.info("Executing " + query);
-        
+
         Process p = Runtime.getRuntime().exec(new String[]{"bash", "-c", query});
         BufferedReader stdError = new BufferedReader(new InputStreamReader(p.getErrorStream()));
         String s;
@@ -524,6 +533,40 @@ public class RasUtil {
         return oid;
     }
 
+
+    /**
+     * Insert/Update an image to an existing collection by using the posted rasql query
+     * e.g: rasql -q 'insert into float_3d values inv_netcdf($1, "vars=values")' -f "float_3d.nc"
+     *               'update mr_test1 set mr_test1 assign decode($1)'
+     * @param orgQuery
+     * @param filePath
+     * @param username
+     * @param password
+     * @throws petascope.exceptions.rasdaman.RasdamanException
+     * @throws java.io.IOException
+     */
+    public static void executeInsertUpdateFileStatement(String orgQuery, String filePath, String username, String password) throws RasdamanException, IOException {
+        String query;
+
+        query = ConfigManager.RASDAMAN_BIN_PATH + RASQL + " --user " + username + " --passwd " + password + " -q "
+              + "'"
+              + orgQuery
+              + "' --file " + filePath;
+        log.info("Executing " + query);
+
+        Process p = Runtime.getRuntime().exec(new String[]{"bash", "-c", query});
+        BufferedReader stdError = new BufferedReader(new InputStreamReader(p.getErrorStream()));
+        String s;
+        String response = "";
+        while ((s = stdError.readLine()) != null) {
+            response += s + "\n";
+        }
+        if (!response.isEmpty()) {
+            //error occured
+            throw new RasdamanException(response);
+        }
+    }
+
     public static void executeUpdateFileStatement(String query, String filePath, String username, String password) throws IOException, RasdamanException {
         String rasql = ConfigManager.RASDAMAN_BIN_PATH + RASQL + " --user " + username + " --passwd " + password + " -q "
                 + "'" + query + "' --file '" + filePath + "'";
@@ -541,6 +584,59 @@ public class RasUtil {
         }
     }
 
+    /**
+     * Check if a rasql query is "select" query
+     * @param query
+     * @return
+     */
+    public static boolean isSelectQuery(String query) {
+        query = query.toLowerCase().trim();
+        // e.g: select dbinfo(c) from mr as c
+
+        String patternTemplate = "(%s)(.*?)(%s)(.*?)";
+        String patternStr = String.format(patternTemplate, RasConstants.RASQL_SELECT.toLowerCase(), RasConstants.RASQL_FROM.toLowerCase());
+
+        Pattern pattern = Pattern.compile(patternStr);
+        Matcher matcher = pattern.matcher(query);
+        String value = null;
+
+        while (matcher.find()) {
+            value = matcher.group(1);
+        }
+
+        if (value != null) {
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * Check if the query contains decode() or inv_* to read data from file
+     * @param query
+     * @return
+     */
+    public static boolean isDecodeQuery(String query) {
+        query = query.toLowerCase().trim();
+        // e.g: insert into (mr) values decode($1)
+
+        String patternTemplate = "(%s|%s)(.*?)(%s|%s(.*?))(.*?)";
+        String patternStr = String.format(patternTemplate, RasConstants.RASQL_INSERT.toLowerCase(), RasConstants.RASQL_UPDATE.toLowerCase(),
+                                                           RasConstants.RASQL_DECODE.toLowerCase(), RasConstants.RASQL_INV.toLowerCase());
+
+        Pattern pattern = Pattern.compile(patternStr);
+        Matcher matcher = pattern.matcher(query);
+        String value = null;
+
+        while (matcher.find()) {
+            value = matcher.group(1);
+        }
+
+        if (value != null) {
+            return true;
+        }
+        return false;
+    }
+
     private static final String TOKEN_COLLECTION_NAME = "%collectionName%";
     private static final String TOKEN_COLLECTION_TYPE = "%collectionType%";
     private static final String TEMPLATE_CREATE_COLLECTION = "CREATE COLLECTION " + TOKEN_COLLECTION_NAME + " " + TOKEN_COLLECTION_TYPE;
@@ -551,7 +647,7 @@ public class RasUtil {
     private static final String TEMPLATE_SELECT_OID = "SELECT oid(" + TOKEN_COLLECTION_NAME + ") FROM " + TOKEN_COLLECTION_NAME;
     private static final String TOKEN_OID = "%oid%";
     private static final String TEMPLATE_DELETE = "DELETE FROM " + TOKEN_COLLECTION_NAME + " WHERE oid(" + TOKEN_COLLECTION_NAME + ")=" + TOKEN_OID;
-    private static final String TEMPLATE_INSERT_FILE = "INSERT INTO " + TOKEN_COLLECTION_NAME + " VALUES decode($1)" + " " + TOKEN_TILING;
+    private static final String TEMPLATE_INSERT_DECODE_FILE = "INSERT INTO " + TOKEN_COLLECTION_NAME + " VALUES decode($1)" + " " + TOKEN_TILING;
     private static final String RASQL = "rasql";
     private static final String TEMPLATE_SDOM = "SELECT sdom(m) FROM " + TOKEN_COLLECTION_NAME + " m";
     private static final String TEMPLATE_DROP_COLLECTION = "DROP COLLECTION " + TOKEN_COLLECTION_NAME;

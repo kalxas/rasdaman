@@ -1,1 +1,1 @@
-for c in (rgb) return encode(switch case c.red > 10 return {red: 107; green:17; blue:68} default return {red: 150; green:103; blue:14}, "netcdf")
+for c in (test_rgb) return encode(switch case c.red > 10 return {red: 107; green:17; blue:68} default return {red: 150; green:103; blue:14}, "netcdf")

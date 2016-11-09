@@ -5,7 +5,7 @@
     xmlns:gml="http://www.opengis.net/gml/3.2"
     xsi:schemaLocation="http://schemas.opengis.net/wcs/2.0 ../wcsAll.xsd"
     service="WCS" version="2.0.1">
-  <wcs:CoverageId>eobstest</wcs:CoverageId>
+  <wcs:CoverageId>test_eobstest</wcs:CoverageId>
   <wcs:DimensionSlice>
     <wcs:Dimension>Lat</wcs:Dimension>
     <wcs:SlicePoint>30</wcs:SlicePoint>

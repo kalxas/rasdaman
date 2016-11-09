@@ -5,7 +5,7 @@
     xmlns:gmlcov='http://www.opengis.net/gmlcov/1.0'
     xmlns:swe='http://www.opengis.net/swe/2.0'
     xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance'
-    xmlns:wcs='http://www.opengis.net/wcs/2.0' id="irr_cube_2"
+    xmlns:wcs='http://www.opengis.net/wcs/2.0' id="test_irr_cube_2"
     xsi:schemaLocation= 'http://www.opengis.net/wcs/2.0 http://schemas.opengis.net/wcs/2.0/wcsAll.xsd'>
 
   <boundedBy>
@@ -16,7 +16,7 @@
   </boundedBy>
 
   <domainSet>
-    <gmlrgrid:ReferenceableGridByVectors dimension="2" id="irr_cube_2-grid"
+    <gmlrgrid:ReferenceableGridByVectors dimension="2" id="test_irr_cube_2-grid"
         
         >
       <limits>
@@ -27,7 +27,7 @@
       </limits>
       <axisLabels>E N</axisLabels>
       <gmlrgrid:origin>
-        <Point id="irr_cube_2-origin" srsName="/crs/EPSG/0/32633" axisLabels="E N" uomLabels="metre metre" srsDimension="2">
+        <Point id="test_irr_cube_2-origin" srsName="/crs/EPSG/0/32633" axisLabels="E N" uomLabels="metre metre" srsDimension="2">
           <pos>100042.7273594 5119865.55794</pos>
         </Point>
       </gmlrgrid:origin>
@@ -54,7 +54,7 @@
   <rangeSet>
     <DataBlock>
       <rangeParameters/>
-      <tupleList ts="," cs=" ">2.33427 1.96245</tupleList>
+      <tupleList ts="," cs=" ">8.85034 4.16855,8.71487 4.17076</tupleList>
     </DataBlock>
   </rangeSet>
 

@@ -6,7 +6,7 @@
     xmlns:scal="http://www.opengis.net/wcs/scaling/1.0"
     xsi:schemaLocation="http://schemas.opengis.net/wcs/2.0 ../wcsAll.xsd"
     service="WCS" version="2.0.1">
-  <wcs:CoverageId>irr_cube_2</wcs:CoverageId>
+  <wcs:CoverageId>test_irr_cube_2</wcs:CoverageId>
   <wcs:DimensionSlice>
     <wcs:Dimension>ansi</wcs:Dimension>
     <wcs:SlicePoint>148654</wcs:SlicePoint>

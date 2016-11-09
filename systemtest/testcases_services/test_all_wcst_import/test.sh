@@ -50,20 +50,9 @@ TEST_DATA="$SCRIPT_DIR/test_data"
 # the coverageIDs need to import but will not be delete
 COVERAGE_ID_LIST=("test_time3d" "test_wms_4326" "test_wms_3857")
 
-# Check if coverage ID should be deleted or keep for other test cases (by ID)
-keepCoverageByID() {
-    for COV_ID in "${COVERAGE_ID_LIST[@]}"
-    do
-        if [[ "$COV_ID" == "$1" ]]; then
-            return 0
-        fi
-    done
-
-    return 1
-}
 
 # Check if coverage ID should be deleted or keep for other test cases (by folder name "contains")
-COVERAGE_FOLDER_LIST=("wcps")
+COVERAGE_FOLDER_LIST=("wcps" "wcs" "wms")
 keepCoverageByFolderName() {
     for FOLDER_NAME in "${COVERAGE_FOLDER_LIST[@]}"
     do
@@ -76,7 +65,15 @@ keepCoverageByFolderName() {
     return 1
 }
 
-PETASCOPE_URL=$PETASCOPE_URL/'ows'
+# after importing recipe, remove this resume.json file
+clearResumeFile() {
+    RESUME_FILE=$(find $1 -type f -name "*.resume.json")
+    if [[ ! -z "$RESUME_FILE" ]]; then
+        rm "$RESUME_FILE"
+    fi
+}
+
+PETASCOPE_URL="$PETASCOPE_URL"/'ows'
 # 1. Iterate folders in test data
 for TEST_CASE in $TEST_DATA/*; do
     # each folder is a coverage with image files and recipe
@@ -88,10 +85,11 @@ for TEST_CASE in $TEST_DATA/*; do
     cp "$RECIPE_FILE_TEMPLATE" "$RECIPE_FILE"
 
     TEST_CASE_NAME=$(basename "$TEST_CASE")
-    log "Checking test case name: "$TEST_CASE_NAME
+    log "Checking test case name: ""$TEST_CASE_NAME"
 
     # 1.2.1 If test case name is "collection_exists" then need to import a test collection in rasdaman before
-    if [[ $TEST_CASE_NAME == $COLLECTION_EXISTS ]]; then
+    if [[ "$TEST_CASE_NAME" == "$COLLECTION_EXISTS" ]]; then
+	log "Ingesting a sample collection: $COLLECTION_NAME."
         $(rasql --quiet -q "CREATE COLLECTION $COLLECTION_NAME RGBSet" --user $RASMGR_ADMIN_USER --passwd $RASMGR_ADMIN_PASSWD)
         if [[ $? != 0 ]]; then
             NUM_FAIL=$(($NUM_FAIL + 1))
@@ -105,21 +103,38 @@ for TEST_CASE in $TEST_DATA/*; do
     sed -i "s@SECORE_URL@$SECORE_URL@g" "$RECIPE_FILE"
 
     # 1.4 execute wcst_import with $RECIPE_FILE
-    python "$SCRIPT_DIR/../../../applications/wcst_import/wcst_import.py" $RECIPE_FILE
-    #echo "ABCDEF: $DIR/applications/wcst_import/wcst_import" $RECIPE_FILE
+    if [[ "$TEST_CASE" == *"error"* ]]; then
+        # This test returns error, then check with test.oracle
+        outputError=`python "$SCRIPT_DIR/../../../applications/wcst_import/wcst_import.py" $RECIPE_FILE 2>&1`
+        oracleError=`cat $TEST_CASE/test.oracle`
+
+        # 1.5 check if output contains the error message from test.oracle
+        if [[ "$outputError" == *"$oracleError"* ]]; then
+            NUM_SUC=$(($NUM_SUC + 1))
+            log "+ Pass: Output error is identical with output oracle. ""$TEST_CASE_NAME"
+        else
+            NUM_FAIL=$(($NUM_FAIL + 1))
+            log "+ Error: Output error is different from output oracle."
+        fi
+
+        clearResumeFile "$TEST_CASE"
+        # Got the test result for this test case, check next test case
+        continue
+    else
+        # This test will succeed, check coverage exists later
+        python "$SCRIPT_DIR/../../../applications/wcst_import/wcst_import.py" "$RECIPE_FILE"
+    fi
 
     # 2 Check if wcst_import runs successfully
     if [[ $? != 0 ]]; then
         # 2.1 error when ingesting data
-        log "+ Error: When ingesting data by wcst_import, test case: "$TEST_CASE_NAME
+        log "+ Error: When ingesting data by wcst_import, test case: ""$TEST_CASE_NAME"
         NUM_FAIL=$(($NUM_FAIL + 1))
+        continue
     else # 2.2 run correctly
-        log "+ Pass 1: When ingesting data by wcst_import, test case: "$TEST_CASE_NAME
+        log "+ Pass 1: When ingesting data by wcst_import, test case: ""$TEST_CASE_NAME"
         # 2.3 remove file resume.json to clean
-        RESUME_FILE=$(find $TEST_CASE -type f -name "*.resume.json")
-        if [[ ! -z "$RESUME_FILE" ]]; then
-            rm $RESUME_FILE
-        fi
+        clearResumeFile "$TEST_CASE"
 
         # 2.4 Get coverage id from ingest.json
         COVERAGE_ID=$(grep -Po -m 1 '"coverage_id":.*?[^\\]".*' $RECIPE_FILE | awk -F'"' '{print $4}')
@@ -128,44 +143,40 @@ for TEST_CASE in $TEST_DATA/*; do
         DESCRIBE_COVERAGE_URL="$PETASCOPE_URL?service=WCS&request=DescribeCoverage&version=2.0.1&coverageId=$COVERAGE_ID"
         RETURN=$(wget --spider -S "$DESCRIBE_COVERAGE_URL" 2>&1 | grep "HTTP/" | awk '{print $2}')
         if [[ $RETURN != 200 ]]; then
-            log "+ Error: Coverage ID: "$COVERAGE_ID" does not exist when describe in Petascope."
+            log "+ Error: Coverage ID: $COVERAGE_ID does not exist when describe in Petascope."
             NUM_FAIL=$(($NUM_FAIL + 1))
+            continue
         else # 2.5 coverage does exist (return HTTP 200)
-            log "+ Pass 2: Coverage ID: "$COVERAGE_ID" does exist when describe in Petascope."
+            log "+ Pass 2: Coverage ID: $COVERAGE_ID does exist when describe in Petascope."
 
             # 2.6 NOTE: if in recipe has ""wms_import" ingredient then need to check WMS service also
-            grep -q "wms_import" $RECIPE_FILE
+            grep -q "wms_import" "$RECIPE_FILE"
             # Return 0 means wms_import does exist in recipe file
             if [[ $? == 0 ]]; then
             # Get page content
                 content=$(wget "$PETASCOPE_URL?service=WMS&version=1.3.0&request=GetCapabilities" -q -O -)
                 if [[ $content != *$COVERAGE_ID* ]]; then
-                    log "+ Error: Coverage ID: "$COVERAGE_ID" does not exist in WMS Service."
+                    log "+ Error: Coverage ID: $COVERAGE_ID does not exist in WMS Service."
+                    NUM_FAIL=$(($NUM_FAIL + 1))
+                    continue
                 else
-                    log "+ Pass 2_WMS: Coverage ID: "$COVERAGE_ID" does exist in WMS Service."
+                    log "+ Pass 2_WMS: Coverage ID: $COVERAGE_ID does exist in WMS Service."
                 fi
             fi
 
-            # Keep test_time3d for using later on with WCPS query
-            #      wms_4326 and wms_3857 for wms test
-            keepCoverageByID $COVERAGE_ID
+            # Check if the folder name is in unwanted delete coverage IDs list
+            keepCoverageByFolderName "$TEST_CASE_NAME"
             IS_REMOVE=$?
 
-            # Check if the folder name is in unwanted delete coverage IDs list
-            if [[ $IS_REMOVE == 1 ]]; then
-                keepCoverageByFolderName $TEST_CASE_NAME
-                IS_REMOVE=$?
-            fi
-
-            if [[ $IS_REMOVE == 1 ]]; then
+            if [[ "$IS_REMOVE" == 1 ]]; then
                 # 2.7 it is good when coverage does exist then now delete coverage
                 DELETE_COVERAGE_URL="$PETASCOPE_URL?service=WCS&request=DeleteCoverage&version=2.0.1&coverageId=$COVERAGE_ID"
                 RETURN=$(wget --spider -S "$DELETE_COVERAGE_URL" 2>&1 | grep "HTTP/" | awk '{print $2}')
                 if [[ $RETURN != 200 ]]; then
-                    log "+ Error: Coverage ID: "$COVERAGE_ID" could not be deleted in Petascope."
+                    log "+ Error: Coverage ID: $COVERAGE_ID could not be deleted in Petascope."
                     NUM_FAIL=$(($NUM_FAIL + 1))
                 else # 2.8 coverage is deleted (return HTTP 200)
-                    log "+ Pass 3: Coverage ID: "$COVERAGE_ID" could be deleted in Petascope."
+                    log "+ Pass 3: Coverage ID: $COVERAGE_ID could be deleted in Petascope."
                     # Only when delete successfully then could say test is passed 100%
                     NUM_SUC=$(($NUM_SUC + 1))
                 fi
@@ -176,12 +187,15 @@ for TEST_CASE in $TEST_DATA/*; do
         fi
     fi
 
-    # 2.7.1 remove added collection in rasdaman
-    if [[ $TEST_CASE_NAME == $COLLECTION_EXISTS ]]; then
+    # 2.7.1 remove created collection in rasdaman
+    if [[ "$TEST_CASE_NAME" == "$COLLECTION_EXISTS" ]]; then
+	log "Cleaning collection: $COLLECTION_NAME."
         $(rasql --quiet -q "DROP COLLECTION $COLLECTION_NAME" --user $RASMGR_ADMIN_USER --passwd $RASMGR_ADMIN_PASSWD)
         if [[ $? != 0 ]]; then
             log "+ Error: Could not remove added collection: $COLLECTION_NAME."
+            NUM_FAIL=$(($NUM_FAIL + 1))
         fi
+        log "Done."
     fi
     echo -e
 done

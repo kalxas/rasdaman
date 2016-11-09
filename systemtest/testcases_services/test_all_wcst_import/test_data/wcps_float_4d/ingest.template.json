@@ -10,7 +10,7 @@
     "subset_correction": false
   },
   "input": {
-    "coverage_id": "float_4d",
+    "coverage_id": "test_float_4d",
     "paths": [
       "float_4d.nc"
     ]

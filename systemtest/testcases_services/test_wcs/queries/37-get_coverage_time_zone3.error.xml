@@ -5,7 +5,7 @@
     xmlns:gml="http://www.opengis.net/gml/3.2"
     xsi:schemaLocation="http://schemas.opengis.net/wcs/2.0 ../wcsAll.xsd"
     service="WCS" version="2.0.1">
-  <wcs:CoverageId>eobstest</wcs:CoverageId>
+  <wcs:CoverageId>test_eobstest</wcs:CoverageId>
   <wcs:DimensionSlice>
     <wcs:Dimension>Lat</wcs:Dimension>
     <wcs:SlicePoint>31</wcs:SlicePoint>
@@ -16,7 +16,7 @@
   </wcs:DimensionSlice>
   <wcs:DimensionTrim>
     <wcs:Dimension>t</wcs:Dimension>
-    <wcs:TrimLow>"1950-01-02T12:00%2B14"</wcs:TrimLow>
-    <wcs:TrimHigh>"1950-01-01T11:59:59.999%2B12"</wcs:TrimHigh>
+    <wcs:TrimLow>"1950-01-02T12:00/14"</wcs:TrimLow>
+    <wcs:TrimHigh>"1950-01-01T11:59:59.999/12"</wcs:TrimHigh>
   </wcs:DimensionTrim>
 </wcs:GetCoverage>

@@ -163,14 +163,14 @@ for f in *; do
   [ -f "$f" ] || continue
 
   # skip scripts, we only want queries
-  [[ "$f" == *.pre.sh || "$f" == *.post.sh || "$f" == *.check.sh ]] && continue
+  [[ "$f" == *.pre.sh || "$f" == *.post.sh || "$f" == *.check.sh  || "$f" == *.template ]] && continue
 
   # uncomment for single test run
   #[[ "$f" == 01-* ]] || continue
 
   if [ "$SVC_NAME" == "wcps" ]; then
-    # skip rasql/xml tests in WCPS test suite for now
-    [[ "$f" == *.rasql || "$f" == *.sql || "$f" == *.xml ]] && continue
+    # skip rasql tests in WCPS test suite for now (enable .xml for testing SOAP)
+    [[ "$f" == *.rasql || "$f" == *.sql ]] && continue
     # Skip multipoint tests if multipoint is not enabled
     [[ $multi_coll_enabled -ne 0 ]] && [[ "$f" == *multipoint* ]] && continue
   fi

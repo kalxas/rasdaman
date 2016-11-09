@@ -89,7 +89,7 @@ void r_Conv_CSV::initCSV( void )
 {
     if (params == NULL)
         params = new r_Parse_Params();
-    
+
     leftParen = LEFT_PAREN;
     rightParen = RIGHT_PAREN;
     outerParens = false;
@@ -230,6 +230,10 @@ void r_Conv_CSV::printArray(std::stringstream &f, int *dims, size_t *offsets, in
 
 void r_Conv_CSV::processEncodeOptions(const string& options)
 {
+    if (options.empty())
+    {
+        return;
+    }
     char *order_option = NULL;
     bool allocated = false;
     if (formatParams.parse(options))
@@ -264,7 +268,7 @@ void r_Conv_CSV::processEncodeOptions(const string& options)
             << "is supported.";
         throw r_Error(INVALIDFORMATPARAMETER);
     }
-    
+
     if (allocated && order_option)
     {
         delete [] order_option;

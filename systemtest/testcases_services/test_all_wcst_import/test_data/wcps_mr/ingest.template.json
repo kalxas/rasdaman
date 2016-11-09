@@ -9,7 +9,7 @@
     "track_files": false
   },
   "input": {
-    "coverage_id": "mr",
+    "coverage_id": "test_mr",
     "paths": [
       "mr_1.png"
     ]

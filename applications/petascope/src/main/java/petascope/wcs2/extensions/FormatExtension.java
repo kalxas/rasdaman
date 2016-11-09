@@ -41,19 +41,21 @@ public interface FormatExtension extends  Extension {
     String MIME_GML = "application/gml+xml";
     String MIME_XML = "text/xml";
     String MIME_TIFF = "image/tiff";
+    String MIME_JPEG = "image/jpeg";
     String MIME_JP2 = "image/jp2";
     String MIME_PNG = "image/png";
     String MIME_NETCDF = "application/netcdf";
 
     // GDAL drivers
-    String CSV_ENCODING = "csv";
-    String DEM_ENCODING = "dem";
-    String TIFF_ENCODING = "tiff";
-    String GEO_TIFF_ENCODING = "gtiff";
-    String JP2_ENCODING = "jpeg2000";
-    String OPENJP2_ENCODING = "jp2openjpeg";
-    String PNG_ENCODING = "png";
-    String NETCDF_ENCODING = "netcdf";   
+    String FORMAT_ID_CSV = "csv";
+    String FORMAT_ID_DEM = "dem";
+    String FORMAT_ID_TIFF = "tiff";
+    String FORMAT_ID_GEO_TIFF = "gtiff";
+    String FORMAT_ID_JPEG = "jpeg";
+    String FORMAT_ID_JP2 = "jpeg2000";
+    String FORMAT_ID_OPENJP2 = "jp2openjpeg";
+    String FORMAT_ID_PNG = "png";
+    String FORMAT_ID_NETCDF = "netcdf";   
     
 
     /**
@@ -61,8 +63,9 @@ public interface FormatExtension extends  Extension {
      *
      * @param req GetCoverage request
      * @return true if this extension can encode the response for req according to the format, or false otherwise
+     * @throws petascope.exceptions.WCSException
      */
-    boolean canHandle(GetCoverageRequest req);
+    boolean canHandle(GetCoverageRequest req) throws WCSException;
 
     /**
      * Return a properly encoded response, given the request req.

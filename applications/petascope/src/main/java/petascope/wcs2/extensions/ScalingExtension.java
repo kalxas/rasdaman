@@ -126,7 +126,7 @@ public class ScalingExtension implements Extension {
                         throw new WCSException(ExceptionCode.InvalidScaleFactor.locator(value));
                     }
                     gcRequest.getScaling().setFactor(scaleFactor);
-                    gcRequest.getScaling().setType(1);
+                    gcRequest.getScaling().setType(Scaling.SupportedTypes.SCALE_FACTOR);
                 }
             } else if (elname.equals(LABEL_SCALEAXESBYFACTOR)) {
                 if (cE != null && gcRequest.isScaled()) {
@@ -158,7 +158,7 @@ public class ScalingExtension implements Extension {
                         }
                         gcRequest.getScaling().addFactor(axis, scaleFactor);
                     }
-                    gcRequest.getScaling().setType(2);
+                    gcRequest.getScaling().setType(Scaling.SupportedTypes.SCALE_AXIS);
                 }
             } else if (elname.equals(LABEL_SCALETOSIZE)) {
                 if (cE != null && gcRequest.isScaled()) {
@@ -191,7 +191,7 @@ public class ScalingExtension implements Extension {
 
                         gcRequest.getScaling().addSize(axis, scaleSize);
                     }
-                    gcRequest.getScaling().setType(3);
+                    gcRequest.getScaling().setType(Scaling.SupportedTypes.SCALE_SIZE);
                 }
             } else if (elname.equals(LABEL_SCALETOEXTENT)) {
                 if (cE != null && gcRequest.isScaled()) {
@@ -235,7 +235,7 @@ public class ScalingExtension implements Extension {
 
                         gcRequest.getScaling().addExtent(axis, new Pair(lo, hi));
                     }
-                    gcRequest.getScaling().setType(4);
+                    gcRequest.getScaling().setType(Scaling.SupportedTypes.SCALE_EXTENT);
                 }
             }
         }
@@ -264,7 +264,7 @@ public class ScalingExtension implements Extension {
                 throw new WCSException(ExceptionCode.InvalidScaleFactor.locator(ListUtil.head(list)));
             }
             request.getScaling().setFactor(scaleFactor);
-            request.getScaling().setType(1);
+            request.getScaling().setType(Scaling.SupportedTypes.SCALE_FACTOR);
         }
 
         list = params.get(KEY_SCALEAXES);
@@ -294,7 +294,7 @@ public class ScalingExtension implements Extension {
                 }
                 request.getScaling().addFactor(axis, scaleFactor);
             }
-            request.getScaling().setType(2);
+            request.getScaling().setType(Scaling.SupportedTypes.SCALE_AXIS);
         }
 
         list = params.get(KEY_SCALESIZE);
@@ -325,7 +325,7 @@ public class ScalingExtension implements Extension {
 
                 request.getScaling().addSize(axis, scaleSize);
             }
-            request.getScaling().setType(3);
+            request.getScaling().setType(Scaling.SupportedTypes.SCALE_SIZE);
         }
         list = params.get(KEY_SCALEEXTENT);
         if (list != null && request.isScaled()) {
@@ -369,7 +369,7 @@ public class ScalingExtension implements Extension {
 
                 request.getScaling().addExtent(axis, new Pair(lo, hi));
             }
-            request.getScaling().setType(4);
+            request.getScaling().setType(Scaling.SupportedTypes.SCALE_EXTENT);
         }
     }
 
@@ -380,28 +380,34 @@ public class ScalingExtension implements Extension {
      * @param lowerBound The index lower bound of dim
      * @param upperBound The index upper bounf of dim
      * @return The scaling factor requested on the indices of this ("dim") grid axis.
+     * @throws petascope.exceptions.WCSException
      */
-    public static BigDecimal computeScalingFactor(Scaling scaling, String dim, BigDecimal lowerBound,  BigDecimal upperBound) {
+    public static BigDecimal computeScalingFactor(Scaling scaling, String dim, BigDecimal lowerBound,  BigDecimal upperBound) throws WCSException {
         BigDecimal scalingFactor = null;
         switch (scaling.getType()) {
-            case 1:
+            case SCALE_FACTOR:
                 // SCALE-BY-FACTOR:
                 scalingFactor = new BigDecimal(Float.toString(scaling.getFactor()));
                 break;
-            case 2:
+            case SCALE_AXIS:
                 // SCALE-AXES: divide extent by axis scaling factor
                 scalingFactor = new BigDecimal(Float.toString(scaling.getFactor(dim)));
                 break;
-            case 3:
+            case SCALE_SIZE:
                 // SCALE-SIZE: set extent of dimension
-                scalingFactor = BigDecimalUtil.divide(upperBound.subtract(lowerBound).add(BigDecimal.ONE), BigDecimal.valueOf(scaling.getSize(dim)));
+                scalingFactor = BigDecimalUtil.divide(BigDecimal.valueOf(scaling.getSize(dim)), upperBound.subtract(lowerBound).add(BigDecimal.ONE));
                 break;
-            case 4:
+            case SCALE_EXTENT:
                 // SCALE-EXTENT: set extent of dimension
-                long size = scaling.getExtent(dim).snd.longValue() - scaling.getExtent(dim).fst.longValue() + 1;
-                scalingFactor = BigDecimalUtil.divide(upperBound.subtract(lowerBound).add(BigDecimal.ONE), BigDecimal.valueOf(size));
+                long size = scaling.getExtent(dim).snd - scaling.getExtent(dim).fst + 1;
+                scalingFactor = BigDecimalUtil.divide(BigDecimal.valueOf(size), upperBound.subtract(lowerBound).add(BigDecimal.ONE));
                 break;
         }
+        // no valid scale if scaling factor is 0
+        if (scalingFactor.equals(BigDecimal.ZERO)) {
+            throw new WCSException(ExceptionCode.InvalidRequest, "Scaling factor cannot be 0.");
+        }
+
         return scalingFactor;
     }
 }

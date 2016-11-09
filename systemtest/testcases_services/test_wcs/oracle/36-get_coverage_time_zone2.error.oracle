@@ -5,9 +5,6 @@
     <ows:Exception exceptionCode="InvalidParameterValue">
         <ows:ExceptionText>Temporal subset ""1950-01-01T12-01":"1950-01-01T12Z"" is invalid: check order.</ows:ExceptionText>
     </ows:Exception>
-    <ows:Exception exceptionCode="InvalidParameterValue">
-        <ows:ExceptionText>Temporal subset ""1950-01-01T12-01":"1950-01-01T12Z"" is invalid: check order.</ows:ExceptionText>
-    </ows:Exception>
 
 </ows:ExceptionReport>
 

@@ -1,0 +1,1 @@
+for c in (test_mean_summer_airtemp) return encode(extend(c, {Long(0:10), Lat(50:60)}), "tiff")

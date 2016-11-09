@@ -1,5 +1,5 @@
 version=2.0.1&
 service=WCS&
 request=GetCoverage&
-coverageid=Parksmall&
+coverageid=test_Parksmall&
 subset=E(456377.59377495)

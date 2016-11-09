@@ -1,1 +1,1 @@
-for c in (eobstest) return domain(c, Long, "CRS:1")
+for c in (test_eobstest) return domain(c, Long, "CRS:1")

@@ -38,9 +38,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
-import java.util.logging.Level;
 import javax.servlet.ServletException;
-import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
@@ -85,12 +83,15 @@ import petascope.wcs2.templates.Templates;
 import petascope.wms2.servlet.PetascopeInterfaceAdapter;
 
 /**
- * This servlet is a unified entry-point for all the PetaScope services.
+ * This servlet is a unified entry-point for all the PetaScope services. 
+ * Extends CORSHttpServlet for the CORS requirements to allow browser clients to request
+ * resources from different origin domains. i.e. http://example.org can make
+ * requests to http://example.com.
  *
  * @author Andrei Aiordachioaie
  * @author Dimitar Misev
  */
-public class PetascopeInterface extends HttpServlet {
+public class PetascopeInterface extends CORSHttpServlet {
 
     private static final Logger log = LoggerFactory.getLogger(PetascopeInterface.class);
     private DbMetadataSource meta;
@@ -102,11 +103,6 @@ public class PetascopeInterface extends HttpServlet {
     private Wcps wcps;
     /* Instance of WcsServer service */
     private WcsServer wcs;
-
-    private static final String CORS_ACCESS_CONTROL_ALLOW_ORIGIN = "*";
-    private static final String CORS_ACCESS_CONTROL_ALLOW_METHODS = "POST, GET, OPTIONS";
-    private static final String CORS_ACCESS_CONTROL_ALLOW_HEADERS = "Content-Type";
-    private static final String CORS_ACCESS_CONTROL_MAX_AGE = "1728000";
 
     private static final String WCPS_QUERY_GET_PARAMETER = "query";
     private static final String WCPS_REQUEST_GET_PARAMETER = "request";
@@ -241,10 +237,6 @@ public class PetascopeInterface extends HttpServlet {
         }
     }
 
-    private void setCORSHeader(HttpServletResponse httpResponse) throws ServletException {
-        httpResponse.setHeader("Access-Control-Allow-Origin", CORS_ACCESS_CONTROL_ALLOW_ORIGIN);
-    }
-
     /**
      * @return a parameter map of the query string in lower case parameters
      */
@@ -259,19 +251,19 @@ public class PetascopeInterface extends HttpServlet {
 
     /* Respond to Post requests just like in the case of Get requests */
     @Override
-    public void doPost(HttpServletRequest httpRequest, HttpServletResponse httpResponse) throws ServletException, UnsupportedEncodingException {
+    public void doPost(HttpServletRequest httpRequest, HttpServletResponse httpResponse) throws ServletException, UnsupportedEncodingException, IOException {
         doGet(httpRequest, httpResponse);
     }
 
     /* Handle Get requests. This function delegates the request to the service
      specified in the request by the "service" parameter. */
     @Override
-    public void doGet(HttpServletRequest httpRequest, HttpServletResponse httpResponse) throws ServletException, UnsupportedEncodingException {
+    public void doGet(HttpServletRequest httpRequest, HttpServletResponse httpResponse) throws ServletException, UnsupportedEncodingException, IOException {
+        super.doGet(httpRequest, httpResponse);
         // NOTE: To support the "+" which is missing from URI as it is converted to space, we need to manipulate the queryString and parse it to parameter maps correctly
         CustomRequestWrapper wrapperRequest  = new CustomRequestWrapper(httpRequest);
         
         setServletURL(wrapperRequest);
-        setCORSHeader(httpResponse);
 
         // NOTE: admin can change Service Prodiver, Identification then session *reloadPage* will exist and value is true
         HttpSession session = wrapperRequest.getSession();
@@ -437,7 +429,16 @@ public class PetascopeInterface extends HttpServlet {
                     return;
                 }
                 if (root.equals(XMLSymbols.LABEL_ENVELOPE)) {
-                    handleWcs2Request(request, httpResponse, wrapperRequest);
+                    // Here we have 2 kind of requests in SOAP body-message (1 is WCS, e.g: <wcs:GetCoverage>, 2 is WCPS, e.g: <ProcessCoveragesRequest>)
+                    // Need to get the XML content inside the <env:Body>...</env:Body>
+                    String bodyContent = XMLUtil.extractWcsRequest(request);
+                    if (bodyContent.contains(XMLSymbols.LABEL_PROCESSCOVERAGE_REQUEST)) {
+                        /* WCPS XML in SOAP, need to extract the process query in body tag */
+                        handleProcessCoverages(bodyContent, httpResponse);
+                    } else {
+                        /* WCS XML in SOAP, it will be extract the body tag later in SOAP handler */
+                        handleWcs2Request(request, httpResponse, wrapperRequest);
+                    }
                 } else if (root.endsWith(XMLSymbols.LABEL_PROCESSCOVERAGE_REQUEST)) {
                     /* ProcessCoverages is defined in the WCPS extension to WcsServer */
                     handleProcessCoverages(request, httpResponse);
@@ -484,26 +485,6 @@ public class PetascopeInterface extends HttpServlet {
         }
     }
 
-    /**
-     * Implement the CORS requirements to allow browser clients to request
-     * resources from different origin domains. i.e. http://example.org can make
-     * requests to http://example.com
-     *
-     * @param req the http request
-     * @param resp the http response
-     * @throws ServletException
-     * @throws IOException
-     */
-    @Override
-    protected void doOptions(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        resp.setHeader("Access-Control-Allow-Origin", CORS_ACCESS_CONTROL_ALLOW_ORIGIN);
-        resp.setHeader("Access-Control-Allow-Methods", CORS_ACCESS_CONTROL_ALLOW_METHODS);
-        resp.setHeader("Access-Control-Allow-Headers", CORS_ACCESS_CONTROL_ALLOW_HEADERS);
-        resp.setHeader("Access-Control-Max-Age", CORS_ACCESS_CONTROL_MAX_AGE);
-        resp.setHeader("Content-Length", "0");
-        resp.setStatus(200);
-    }
-
     private void printUsage(HttpServletResponse httpResponse, String request) throws IOException {
         PrintWriter out = httpResponse.getWriter();
         httpResponse.setContentType("text/html");
@@ -529,7 +510,7 @@ public class PetascopeInterface extends HttpServlet {
             out.println(output);
             out.close();
         } else {
-            log.trace("setting response mimetype to text/html; charset=utf-8");
+            log.trace("setting response MIME type to text/html; charset=utf-8");
             response.setContentType("text/html; charset=utf-8");
             log.trace("returning the following error message.", e);
             log.trace("end of error message");
@@ -692,7 +673,8 @@ public class PetascopeInterface extends HttpServlet {
             
             // then download the result as a file (but only when the request has a specific coverage name)
             if (res.getCoverageID() != null) {
-                response.setHeader("Content-disposition", "attachment; filename=" + fileName);
+                // NOTE: Content-Disposition: attachment; will download file in WebBrowser instead of trying to display (GML/PNG/JPEG) type.
+                response.setHeader("Content-disposition", "inline; filename=" + fileName);
             }
 
             // WCS multipart
@@ -759,6 +741,16 @@ public class PetascopeInterface extends HttpServlet {
         }
     }
 
+    /**
+     * This method is used to handle WCPS 1.0 in SOAP format or as an extension parameter from WCS
+     * e.g: SERVICE=WCS&VERSION=2.0.1&REQUEST=ProcessCoverages&query=for c in (test_mr) return avg(c)
+     * @param xmlRequest
+     * @param response
+     * @throws WCSException
+     * @throws PetascopeException
+     * @throws SecoreException
+     * @throws SQLException 
+     */
     private void handleProcessCoverages(String xmlRequest, HttpServletResponse response)
             throws WCSException, PetascopeException, SecoreException, SQLException {
 

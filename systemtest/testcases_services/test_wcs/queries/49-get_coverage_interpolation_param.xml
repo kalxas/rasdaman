@@ -7,11 +7,11 @@
     xmlns:int="http://www.opengis.net/wcs/interpolation/1.0"
     xsi:schemaLocation="http://schemas.opengis.net/wcs/2.0 ../wcsAll.xsd"
     service="WCS" version="2.0.1">
-  <wcs:CoverageId>mr</wcs:CoverageId>
+  <wcs:CoverageId>test_mr</wcs:CoverageId>
   <wcs:Extension>
     <scal:Scaling>
       <scal:ScaleByFactor>
-        <scal:scaleFactor>100</scal:scaleFactor>
+        <scal:scaleFactor>0.01</scal:scaleFactor>
       </scal:ScaleByFactor>
     </scal:Scaling>
     <int:Interpolation>

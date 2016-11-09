@@ -22,12 +22,13 @@
 
 package petascope.util;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
-import petascope.HTTPRequest;
 
 /**
  * Utilities for parsing a request.
@@ -41,10 +42,11 @@ public class RequestUtil {
      * @param queryString The KVP query string (i.e. what is after "?" in the request url).
      * @return A map of the form param => value.
      */
-    public static Map<String, String> parseKVPRequestParams(String queryString){
+    public static Map<String, String> parseKVPRequestParams(String queryString) {        
         //split query string into parameters
         Map<String, String> params = new HashMap<String, String>();
-        if(queryString == null){
+        // In case of XML POST request then queryString is null
+        if (queryString == null) {
           return params;
         }
         String[] queryParts = queryString.split(KVPParamSeparator);
@@ -60,6 +62,7 @@ public class RequestUtil {
         }
         return params;
     }
+    
 
     /**
      * The separator between parameters in a KVP request, e.g.

@@ -34,9 +34,11 @@ import petascope.core.CrsDefinition;
 import petascope.exceptions.PetascopeException;
 import petascope.util.AxisTypes;
 import petascope.util.CrsUtil;
+import petascope.wcps.metadata.DomainElement;
 import petascope.wcps2.error.managed.processing.InvalidSubsettingException;
 import petascope.wcps2.error.managed.processing.OutOfBoundsSubsettingException;
 import petascope.wcps2.error.managed.processing.RangeFieldNotFound;
+import petascope.wcps2.result.parameters.SubsetDimension;
 
 /**
  * Class responsible with offering functionality for doing operations on
@@ -84,6 +86,7 @@ public class WcpsCoverageMetadataService {
      * @param checkBoundary should the subset needed to check the boundary (e.g: with scale(..., {subset})) will not need to check.
      * @param metadata
      * @param subsetList
+     * @param updateAxisCrs in some cases like scale(c, {Lat:"CRS:1", Long:"CRS:1"}) it should not consider CRS:1 is CRS of axis Lat, Long of coverage.
      * @return
      * @throws petascope.exceptions.PetascopeException
      */
@@ -96,7 +99,6 @@ public class WcpsCoverageMetadataService {
             for (Axis axis : metadata.getAxes()) {
                 // Only apply to correspondent axis with same name
                 if (axis.getLabel().equals(subset.getAxisName())) {
-                    boolean calculateGridBound = true;
                     // If subset has a given CRS, e.g: Lat:"http://../3857" then change the CRS in axis as well
                     if (subset.getCrs() != null && !subset.getCrs().equals(axis.getCrsUri())) {
                         axis.setCrsUri(subset.getCrs());
@@ -131,13 +133,17 @@ public class WcpsCoverageMetadataService {
      * Long axis
      *
      * @param metadata
+     * @param axisIteratorSubsetDimensions
      */
-    public void stripSlicingAxes(WcpsCoverageMetadata metadata) {
+    public void stripSlicingAxes(WcpsCoverageMetadata metadata, List<SubsetDimension> axisIteratorSubsetDimensions) {
         List<Integer> removedIndexs = new ArrayList<Integer>();
         int i = 0;
-        for (Axis axis : metadata.getAxes()) {
-            if (axis.getGeoBounds() instanceof NumericSlicing) {
-                removedIndexs.add(i);
+        // If coverage has slicing axis (e.g: c[Lat(0), Long(20), t(0:5)]) then will strip Lat, Long from coverage c.
+        for (Axis axis : metadata.getAxes()) {            
+            // If coverage has slicing axis from axisIterator (e.g: c[Lat($px), Long($py), t(0:5)])
+            // As $px and $py cannot be used to applySubset to translate to number, then it need to be removed by using the List<SubsetDimension>.
+            if (axis.getGeoBounds() instanceof NumericSlicing || this.containsAxisName(axis, axisIteratorSubsetDimensions)) {
+                removedIndexs.add(i);                            
             }
             i++;
         }
@@ -205,7 +211,7 @@ public class WcpsCoverageMetadataService {
         }
         return true;
     }
-    
+
     /**
      * Remove all the un-unsed range fields from coverageExpression's metadata, if at least 1 range field is used.
      * e.g: coverage has 3 bands, but only 1 band is used (e.g: c.b1) then b2, b3 need to be removed from expression (c.b1)
@@ -771,6 +777,20 @@ public class WcpsCoverageMetadataService {
             }
             //we don't check right now if the axes labels are different. If needed, add here.
         }
+    }
+    
+    /**
+     * Check if axis name is inside the subset dimensions list
+     * @param axis
+     * @param subsetDimensions 
+     */
+    private boolean containsAxisName(Axis axis, List<SubsetDimension> subsetDimensions) {        
+        for (SubsetDimension subsetDimension: subsetDimensions) {
+            if (subsetDimension.getAxisName().equals(axis.getLabel())) {
+                return true;
+            }
+        }
+        return false;
     }
 
 }

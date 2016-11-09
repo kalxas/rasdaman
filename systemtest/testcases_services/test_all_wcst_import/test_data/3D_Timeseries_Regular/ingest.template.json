@@ -1,0 +1,28 @@
+{
+  "config": {
+    "service_url": "PETASCOPE_URL",
+    "tmp_directory": "/tmp/",
+    "crs_resolver": "SECORE_URL",
+    "default_crs": "SECORE_URL/crs/EPSG/0/4326",
+    "mock": false,
+    "automated": true,
+    "retry" : true,
+    "retries" : 5
+  },
+  "input": {
+    "coverage_id": "test_AverageTemperature",
+    "paths": [
+      "SCALED*.TIFF"
+    ]
+  },
+  "recipe": {
+    "name": "time_series_regular",
+    "options": {
+      "time_start": "2012-12-02T20:12:02",
+      "time_format": "auto",
+      "time_crs": "SECORE_URL/crs/OGC/0/AnsiDate",
+      "time_step": "2 days 10 minutes 3 seconds",
+      "tiling": "ALIGNED [0:1000, 0:1000, 0:2]"
+    }
+  }
+}

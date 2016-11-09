@@ -24,25 +24,30 @@ package petascope.util;
 import java.io.StringWriter;
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.math.RoundingMode;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 import javax.xml.bind.JAXBException;
+
 import net.opengis.ows.v_1_0_0.ExceptionReport;
 import nu.xom.Element;
+import org.joda.time.DateTime;
+import org.joda.time.format.DateTimeFormat;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import petascope.PetascopeXmlNamespaceMapper;
 import petascope.core.CoverageMetadata;
+import petascope.core.CrsDefinition;
 import petascope.core.DbMetadataSource;
 import petascope.exceptions.ExceptionCode;
 import petascope.exceptions.PetascopeException;
 import petascope.exceptions.SecoreException;
 import petascope.exceptions.WCSException;
-import static petascope.util.CrsUtil.INDEX_UOM;
+
 import static petascope.util.XMLSymbols.*;
 
-import petascope.wcps.metadata.Bbox;
 import petascope.wcps.metadata.DomainElement;
 import petascope.wcs2.parsers.GetCoverageMetadata;
 import petascope.wcs2.parsers.GetCoverageMetadata.RangeField;
@@ -58,40 +63,43 @@ public class WcsUtil {
     private static final Logger log = LoggerFactory.getLogger(WcsUtil.class);
 
     /* Constants */
-    public static final String KEY_CHAR   = "char";
-    public static final String KEY_UCHAR  = "unsigned char";
-    public static final String KEY_SHORT  = "short";
+    public static final String KEY_CHAR = "char";
+    public static final String KEY_UCHAR = "unsigned char";
+    public static final String KEY_SHORT = "short";
     public static final String KEY_USHORT = "unsigned short";
-    public static final String KEY_INT    = "int";
-    public static final String KEY_UINT   = "unsigned int";
-    public static final String KEY_LONG   = "long";
-    public static final String KEY_ULONG  = "unsigned long";
-    public static final String KEY_FLOAT  = "float";
+    public static final String KEY_INT = "int";
+    public static final String KEY_UINT = "unsigned int";
+    public static final String KEY_LONG = "long";
+    public static final String KEY_ULONG = "unsigned long";
+    public static final String KEY_FLOAT = "float";
     public static final String KEY_DOUBLE = "double";
 
-    public static final String CHAR_MIN   = "-128";
-    public static final String CHAR_MAX   = "127";
-    public static final String UCHAR_MIN  = "0";
-    public static final String UCHAR_MAX  = "255";
-    public static final String SHORT_MIN  = "-32768";
-    public static final String SHORT_MAX  = "32767";
+
+
+    public static final String CHAR_MIN = "-128";
+    public static final String CHAR_MAX = "127";
+    public static final String UCHAR_MIN = "0";
+    public static final String UCHAR_MAX = "255";
+    public static final String SHORT_MIN = "-32768";
+    public static final String SHORT_MAX = "32767";
     public static final String USHORT_MIN = "0";
     public static final String USHORT_MAX = "65535";
-    public static final String INT_MIN    = "-2147483648";
-    public static final String INT_MAX    = "2147483647";
-    public static final String UINT_MIN   = "0";
-    public static final String UINT_MAX   = "4294967295";
-    public static final String LONG_MIN   = "-9223372036854775808";
-    public static final String LONG_MAX   = "9223372036854775807";
-    public static final String ULONG_MIN  = "0";
-    public static final String ULONG_MAX  = "18446744073709551615";
-    public static final String FLOAT_MIN  = "+/-3.4e-38";
-    public static final String FLOAT_MAX  = "+/-3.4e+38";
+    public static final String INT_MIN = "-2147483648";
+    public static final String INT_MAX = "2147483647";
+    public static final String UINT_MIN = "0";
+    public static final String UINT_MAX = "4294967295";
+    public static final String LONG_MIN = "-9223372036854775808";
+    public static final String LONG_MAX = "9223372036854775807";
+    public static final String ULONG_MIN = "0";
+    public static final String ULONG_MAX = "18446744073709551615";
+    public static final String FLOAT_MIN = "+/-3.4e-38";
+    public static final String FLOAT_MAX = "+/-3.4e+38";
     public static final String DOUBLE_MIN = "+/-1.7e-308";
     public static final String DOUBLE_MAX = "+/-1.7e+308";
 
     /**
      * Utility method to read coverage's metadata.
+     *
      * @param meta
      * @param coverageId
      * @throws SecoreException
@@ -116,12 +124,13 @@ public class WcsUtil {
      * Transforms a csv output returned by rasdaman server into a csv format
      * accepted by the gml:tupleList according to section 19.3.8 of the
      * OGC GML standard version 3.2.1
+     *
      * @param csv - a csv input like {b1 b2 ... bn, b1 b2 ... bn, ...}, {...}
-     * where each {...} represents a dimension and each sequence b1 ... bn n bands
+     *            where each {...} represents a dimension and each sequence b1 ... bn n bands
      * @return csv string of form b1 b2 .. bn, b1 b2 ... bn, ...
      */
     protected static String rasCsvToTupleList(String csv) {
-        return csv.replace("{", "").replace("}","").replace("\"", "");
+        return csv.replace("{", "").replace("}", "").replace("\"", "");
     }
 
     /**
@@ -248,7 +257,7 @@ public class WcsUtil {
             rangeFields += Templates.getTemplate(Templates.RANGE_FIELD,
                     Pair.of("\\{" + Templates.KEY_FIELDNAME     + "\\}", range.getFieldName()),
                     Pair.of("\\{" + Templates.KEY_SWE_COMPONENT + "\\}", range.getSWEComponent().toGML())
-                    );
+            );
         }
 
         // Coverage function and Envelope: required
@@ -256,7 +265,7 @@ public class WcsUtil {
         if (WcsUtil.isGrid(m.getCoverageType())) { // coverage function is for grids
             coverageFunction += "  <" + XMLSymbols.LABEL_COVERAGE_FUNCTION + ">\n" +
                     Templates.getTemplate(Templates.GRID_FUNCTION,
-                    Pair.of("\\{" + Templates.KEY_SEQUENCE_RULE_ORDER + "\\}", getOuterInnerAxisRuleOrder(m))
+                            Pair.of("\\{" + Templates.KEY_SEQUENCE_RULE_ORDER + "\\}", getOuterInnerAxisRuleOrder(m))
                     ) + "\n  </" + XMLSymbols.LABEL_COVERAGE_FUNCTION + ">";
         } // else: coverageFunction yet to be investigated for non-gridded coverages. Might not be necessary for multi-*.
 
@@ -265,39 +274,39 @@ public class WcsUtil {
         String ret = "";
         if (WcsUtil.isMultiPoint(m.getCoverageType())){
             ret = Templates.getTemplate(template,
-                Pair.of("\\{" + Templates.KEY_DOMAINSET             + "\\}", domainSet),
-                Pair.of("\\{" + Templates.KEY_COVERAGEID            + "\\}", m.getCoverageId()),
-                Pair.of("\\{" + Templates.KEY_COVERAGETYPE          + "\\}", m.getCoverageType()),
-                Pair.of("\\{" + Templates.KEY_GMLCOV_METADATA       + "\\}", getGmlcovMetadata(m)),
-                // multipoint
-                Pair.of("\\{" + Templates.KEY_MPID                  + "\\}", Templates.PREFIX_MP + m.getGridId()),
-                Pair.of("\\{" + Templates.KEY_SRSGROUP              + "\\}", getSrsGroup(m)),
-                Pair.of("\\{" + Templates.KEY_COVERAGEFUNCTION      + "\\}", coverageFunction),
-                Pair.of("\\{" + Templates.KEY_RANGEFIELDS           + "\\}", rangeFields));
+                    Pair.of("\\{" + Templates.KEY_DOMAINSET             + "\\}", domainSet),
+                    Pair.of("\\{" + Templates.KEY_COVERAGEID            + "\\}", m.getCoverageId()),
+                    Pair.of("\\{" + Templates.KEY_COVERAGETYPE          + "\\}", m.getCoverageType()),
+                    Pair.of("\\{" + Templates.KEY_GMLCOV_METADATA       + "\\}", getGmlcovMetadata(m)),
+                    // multipoint
+                    Pair.of("\\{" + Templates.KEY_MPID                  + "\\}", Templates.PREFIX_MP + m.getGridId()),
+                    Pair.of("\\{" + Templates.KEY_SRSGROUP              + "\\}", getSrsGroup(m)),
+                    Pair.of("\\{" + Templates.KEY_COVERAGEFUNCTION      + "\\}", coverageFunction),
+                    Pair.of("\\{" + Templates.KEY_RANGEFIELDS           + "\\}", rangeFields));
         } else {
             // gridded coverage:
             ret = Templates.getTemplate(template,
-                Pair.of("\\{" + Templates.KEY_DOMAINSET             + "\\}", domainSet),
-                Pair.of("\\{" + Templates.KEY_COVERAGEFUNCTION      + "\\}", coverageFunction),
-                // [!] domainSet/coverageFunction have to be replaced first: they (in turn) contains keywords to be replaced
-                // grid
-                Pair.of("\\{" + Templates.KEY_AXISLABELS            + "\\}", m.getGridAxisLabels()),
-                Pair.of("\\{" + Templates.KEY_GRIDDIMENSION         + "\\}", String.valueOf(m.getGridDimension())),
-                Pair.of("\\{" + Templates.KEY_GRIDID                + "\\}", m.getGridId()),
-                // + rectified grid
-                Pair.of("\\{" + Templates.KEY_ORIGINPOS             + "\\}", m.getGridOrigin()),
-                Pair.of("\\{" + Templates.KEY_POINTID               + "\\}", m.getCoverageId() + Templates.SUFFIX_ORIGIN),
-                Pair.of("\\{" + Templates.KEY_OFFSET_VECTORS        + "\\}", getGmlOffsetVectors(m)),
-                // + referenceable grid
-                Pair.of("\\{" + Templates.KEY_GENERAL_GRID_AXES     + "\\}", getGeneralGridAxes(m)),
-                // coverage
-                Pair.of("\\{" + Templates.KEY_COVERAGEID            + "\\}", m.getCoverageId()),
-                Pair.of("\\{" + Templates.KEY_COVERAGETYPE          + "\\}", m.getCoverageType()),
-                Pair.of("\\{" + Templates.KEY_COVERAGESUBTYPE       + "\\}", m.getCoverageType()),
-                Pair.of("\\{" + Templates.KEY_COVERAGESUBTYPEPARENT + "\\}", addSubTypeParents(meta.getParentCoverageType(m.getCoverageType()), meta).toXML()),
-                Pair.of("\\{" + Templates.KEY_GMLCOV_METADATA       + "\\}", getGmlcovMetadata(m)),
-                Pair.of("\\{" + Templates.KEY_RANGEFIELDS           + "\\}", rangeFields),
-                Pair.of("\\{" + Templates.KEY_SRSGROUP              + "\\}", getSrsGroup(m)));
+                    Pair.of("\\{" + Templates.KEY_DOMAINSET             + "\\}", domainSet),
+                    Pair.of("\\{" + Templates.KEY_COVERAGEFUNCTION      + "\\}", coverageFunction),
+                    // [!] domainSet/coverageFunction have to be replaced first: they (in turn) contains keywords to be replaced
+                    // grid
+                    Pair.of("\\{" + Templates.KEY_AXISLABELS            + "\\}", m.getGridAxisLabels()),
+                    Pair.of("\\{" + Templates.KEY_GRIDDIMENSION         + "\\}", String.valueOf(m.getGridDimension())),
+                    Pair.of("\\{" + Templates.KEY_GRIDID                + "\\}", m.getGridId()),
+                    // + rectified grid
+                    Pair.of("\\{" + Templates.KEY_ORIGINPOS             + "\\}", m.getGridOrigin()),
+                    Pair.of("\\{" + Templates.KEY_POINTID               + "\\}", m.getCoverageId() + Templates.SUFFIX_ORIGIN),
+                    Pair.of("\\{" + Templates.KEY_OFFSET_VECTORS        + "\\}", getGmlOffsetVectors(m)),
+                    // + referenceable grid
+                    Pair.of("\\{" + Templates.KEY_GENERAL_GRID_AXES     + "\\}", getGeneralGridAxes(m)),
+                    // coverage
+                    Pair.of("\\{" + Templates.KEY_COVERAGEID            + "\\}", m.getCoverageId()),
+                    Pair.of("\\{" + Templates.KEY_COVERAGETYPE          + "\\}", m.getCoverageType()),
+                    Pair.of("\\{" + Templates.KEY_COVERAGESUBTYPE       + "\\}", m.getCoverageType()),
+                    Pair.of("\\{" + Templates.KEY_COVERAGESUBTYPEPARENT + "\\}", addSubTypeParents(meta.getParentCoverageType(m.getCoverageType()), meta).toXML()),
+                    Pair.of("\\{" + Templates.KEY_GMLCOV_METADATA       + "\\}", getGmlcovMetadata(m)),
+                    Pair.of("\\{" + Templates.KEY_RANGEFIELDS           + "\\}", rangeFields),
+                    Pair.of("\\{" + Templates.KEY_SRSGROUP              + "\\}", getSrsGroup(m)));
         }
 
         // RGBV cannot replace bounds now, see GmlFormatExtension class
@@ -310,16 +319,17 @@ public class WcsUtil {
 
     /**
      * Creates the String for gml:SRSReferenceGroup attributes group.
+     *
      * @param m
      */
     private static String getSrsGroup(GetCoverageMetadata m) throws WCSException, SecoreException {
-        String srsGroup ;
+        String srsGroup;
         List<String> ccrsUri = CrsUtil.CrsUri.decomposeUri(m.getCrs());
         try {
             srsGroup =
-                    XMLSymbols.ATT_SRS_NAME      + "=\"" + getSrsName(m) + "\" " +
-                    XMLSymbols.ATT_AXIS_LABELS   + "=\"" + ListUtil.printList(CrsUtil.getAxesLabels(ccrsUri), " ") + "\" " +
-                    XMLSymbols.ATT_UOM_LABELS    + "=\"" + ListUtil.printList(CrsUtil.getAxesUoMs(ccrsUri),   " ") + "\" " ;
+                    XMLSymbols.ATT_SRS_NAME + "=\"" + getSrsName(m) + "\" " +
+                            XMLSymbols.ATT_AXIS_LABELS + "=\"" + ListUtil.printList(CrsUtil.getAxesLabels(ccrsUri), " ") + "\" " +
+                            XMLSymbols.ATT_UOM_LABELS + "=\"" + ListUtil.printList(CrsUtil.getAxesUoMs(ccrsUri), " ") + "\" ";
             //omit srsDimension if dimensionality == 0
             if (CrsUtil.getTotalDimensionality(ccrsUri) != 0) {
                 srsGroup += XMLSymbols.ATT_SRS_DIMENSION + "=\"" + CrsUtil.getTotalDimensionality(ccrsUri) + "\"";
@@ -337,6 +347,7 @@ public class WcsUtil {
     /**
      * Returns the full URI of the native CRS of a coverage.
      * Special XML entities are escaped (&entity;).
+     *
      * @param m
      */
     public static String getSrsName(GetCoverageMetadata m) {
@@ -350,14 +361,15 @@ public class WcsUtil {
 
     /**
      * Replaces the bounds of the grid
-     * @param gml  The GML response
-     * @param m    The metadata specific to the WCS GetCoverage request
+     *
+     * @param gml The GML response
+     * @param m   The metadata specific to the WCS GetCoverage request
      */
     public static String getBounds(String gml, GetCoverageMetadata m) {
-        gml = gml.replaceAll("\\{" + Templates.KEY_LOW         + "\\}", m.getLow())
-                 .replaceAll("\\{" + Templates.KEY_HIGH        + "\\}", m.getHigh())
-                 .replaceAll("\\{" + Templates.KEY_LOWERCORNER + "\\}", m.getDomLow())
-                 .replaceAll("\\{" + Templates.KEY_UPPERCORNER + "\\}", m.getDomHigh());
+        gml = gml.replaceAll("\\{" + Templates.KEY_LOW        + "\\}", m.getLow())
+                .replaceAll("\\{" + Templates.KEY_HIGH        + "\\}", m.getHigh())
+                .replaceAll("\\{" + Templates.KEY_LOWERCORNER + "\\}", m.getDomLow())
+                .replaceAll("\\{" + Templates.KEY_UPPERCORNER + "\\}", m.getDomHigh());
         return gml;
     }
 
@@ -365,9 +377,10 @@ public class WcsUtil {
      * Returns the configured GMLCOV metadata.
      * This information is returned along with <gmlcov:metadata> root element.
      * The content is extracted from petascopedb::ps_extrametadata.
+     *
      * @param m
      */
-    private static String getGmlcovMetadata (GetCoverageMetadata m) {
+    private static String getGmlcovMetadata(GetCoverageMetadata m) {
         // GMLCOV metadata
         Set<String> gmlcovMetadata = m.getMetadata().getExtraMetadata(XMLSymbols.PREFIX_GMLCOV);
         if (gmlcovMetadata.isEmpty()) {
@@ -376,8 +389,8 @@ public class WcsUtil {
         String gmlcovFormattedMetadata = "";
         for (String metadataValue : gmlcovMetadata) {
             gmlcovFormattedMetadata += "  " +
-                     "<" + XMLSymbols.PREFIX_GMLCOV + ":" + XMLSymbols.LABEL_GMLCOVMETADATA + ">"
-                         + metadataValue + // containts farther XML child elements: do not escape predefined entities (up to the user)
+                    "<" + XMLSymbols.PREFIX_GMLCOV + ":" + XMLSymbols.LABEL_GMLCOVMETADATA + ">"
+                    + metadataValue + // containts farther XML child elements: do not escape predefined entities (up to the user)
                     "</" + XMLSymbols.PREFIX_GMLCOV + ":" + XMLSymbols.LABEL_GMLCOVMETADATA + ">";
         }
         return gmlcovFormattedMetadata;
@@ -386,6 +399,7 @@ public class WcsUtil {
     /**
      * Builds the gml:offsetVectors element for a rectified grid.
      * The order of such elements has to follow the order of grid axes (as they are stored in rasdaman).
+     *
      * @param m
      * @return All required gml:offsetVector elements for the coverage.
      */
@@ -394,7 +408,7 @@ public class WcsUtil {
         String[] axisNames = m.getGridAxisLabels().split(" ");
         // Loop through the N dimensions
         for (int i = 0; i < axisNames.length; i++) {
-            if (i>0) {
+            if (i > 0) {
                 output += "\n";
             }
             output += getGmlOffsetVector(m, axisNames[i]);
@@ -404,19 +418,21 @@ public class WcsUtil {
 
     /**
      * Builds the gml:offsetVector element for a rectified grid along a grid axis.
+     *
      * @param m
      * @param axisName
      * @return The single gml:offsetVector element for axis "axisName" of the coverage.
      */
     private static String getGmlOffsetVector(GetCoverageMetadata m, String axisName) throws WCSException, SecoreException {
         String output = Templates.getTemplate(Templates.OFFSET_VECTOR,
-                    Pair.of("\\{" + Templates.KEY_OFFSETS + "\\}", getVectorComponents(m, axisName)));
+                Pair.of("\\{" + Templates.KEY_OFFSETS + "\\}", getVectorComponents(m, axisName)));
         return output;
     }
 
     /**
      * Gets the components of the offset vector of a certain axis of a grid.
      * The order of components here has to follow the axis order in the CRS definition.
+     *
      * @param m
      * @param axisName
      * @return The tuple of CRS coordinates for a specified offset vector.
@@ -431,12 +447,12 @@ public class WcsUtil {
                     // Example, axisName is third axis in the 3D CRS definition:
                     // offsetVector() := resolution * {0,0,1} = {0,0,resolution}
                     BigDecimal originalVector = m.getMetadata().getDomainByName(axisName).getDirectionalResolution();
-                    BigDecimal scaledVector   = originalVector.multiply(m.getScalingFactor(axisName));
-                    BigDecimal[] vectorComponents = (BigDecimal[])Vectors.scalarMultiplication(
+                    BigDecimal scaledVector = originalVector.multiply(m.getScalingFactor(axisName));
+                    BigDecimal[] vectorComponents = (BigDecimal[]) Vectors.scalarMultiplication(
                             scaledVector, // axis resolution (possibly scaled via WCS extension)
                             Vectors.unitVector( // {0,0,__,1,__,0,0}
-                            CrsUtil.getTotalDimensionality(ccrsUri),
-                            CrsUtil.getCrsAxisOrder(ccrsUri, axisName)
+                                    CrsUtil.getTotalDimensionality(ccrsUri),
+                                    CrsUtil.getCrsAxisOrder(ccrsUri, axisName)
                             ));
                     output = ListUtil.printList(Arrays.asList(vectorComponents), " ");
                 }
@@ -452,13 +468,41 @@ public class WcsUtil {
     }
 
     /**
+     * Converts the time coefficients to ISO datetime stamp yyyy-MM-dd'T'HH:mm:ssZ (e.g: 2008-01-01T00:00:00Z)
+     *
+     * @param coeffs   time coefficients from time axis (NOTE: added with the SubsetLow of start date)
+     * @param crsDefinition contains information of Time CRS
+     * @return string list of time coefficients (days, seconds) to ISO datetime stamp
+     * @throws petascope.exceptions.PetascopeException
+     */
+    public static List<String> toISODate(List<BigDecimal> coeffs, CrsDefinition crsDefinition) throws PetascopeException {
+        List<String> isoDates = new ArrayList<String>();       
+
+        // Get the UOM in milliseconds (e.g: d is 86 400 000 millis)
+        Long milliSeconds = TimeUtil.getMillis(crsDefinition);       
+        DateTime dateTime = new DateTime(crsDefinition.getDatumOrigin());        
+        
+        for (BigDecimal coeff: coeffs) {
+            // formular: Origin + (Time Coefficients * UOM in milliSeconds)
+            long duration = coeff.multiply(new BigDecimal(milliSeconds)).setScale(0, RoundingMode.HALF_UP).longValue();
+            DateTime dt = dateTime.plus(duration); 
+            
+            // Then convert the added date to ISO 8601 datetime (Z means UTC)
+            isoDates.add(dt.toString(DateTimeFormat.forPattern(TimeUtil.ISO_8061_FORMAT).withZoneUTC()));
+        }
+        return isoDates;
+    }
+
+    /**
      * Extracts the coefficients of an axis.
      * Empty string is returned on regular ones.
+     *
      * @param m
      * @param axisName
      * @param dbMeta
      * @return The whitespace-separated list of vector coefficients of an axis (empty string if not defined)
      * @throws WCSException
+     * @throws petascope.exceptions.SecoreException
      */
     public static String getCoefficients(GetCoverageMetadata m, String axisName, DbMetadataSource dbMeta) throws PetascopeException, SecoreException {
         // init
@@ -481,8 +525,8 @@ public class WcsUtil {
                     try {
                         domEl.setCoefficients(
                                 dbMeta.getAllCoefficients(
-                                m.getMetadata().getCoverageName(),
-                                m.getMetadata().getDomainIndexByName(domEl.getLabel()) // i-order of axis
+                                        m.getMetadata().getCoverageName(),
+                                        m.getMetadata().getDomainIndexByName(domEl.getLabel()) // i-order of axis
                                 ));
                         coeffs = domEl.getCoefficients();
                     } catch (PetascopeException ex) {
@@ -494,12 +538,26 @@ public class WcsUtil {
                 // Adjust the coefficients to the origin of the requested grid (originally they are relative to the native origin)
                 List<String> subsetLabels = CrsUtil.getAxesLabels(CrsUtil.CrsUri.decomposeUri(m.getCrs()));
 
-                if (subsetLabels.contains(axisName)) {
-                    BigDecimal subsetLo = new BigDecimal(m.getDomLow().split(" ")[subsetLabels.indexOf(axisName)]);
-                    coeffs = Vectors.add(coeffs, BigDecimalUtil.divide(domEl.getMinValue().subtract(subsetLo), domEl.getScalarResolution()));
+                String timeCrs = null;
+                // Check given axis is a time axis, then the coeffecients will need to be calculated into timestamp instead of numbers
+                if (domEl.getLabel().equals(axisName) && domEl.getType().equals(AxisTypes.T_AXIS)) {
+                    timeCrs = domEl.getNativeCrs();
                 }
-                // Create the XML element
-                coefficients = ListUtil.printList(coeffs, " ");
+
+                BigDecimal subsetLo = new BigDecimal(m.getDomLow().split(" ")[subsetLabels.indexOf(axisName)]);
+                coeffs = Vectors.add(coeffs, BigDecimalUtil.divide(domEl.getMinValue().subtract(subsetLo), domEl.getScalarResolution()));
+                if (timeCrs == null) {
+                    // if axis is not time axis then just get the raw coefficients
+                    coefficients = ListUtil.printList(coeffs, " ");
+                } else {
+                    // in case of time axis, subset low is a start number from the origin of CRS definition
+                    // e.g: AnsiDate origin: 1600-12-31T00:00:00Z, start date (irr_cube_2) is: 2018-01-01T00:00:00Z, then subsetlow is: 148654 days.
+                    // the coefficients for the time axis (irr_cube_2) is 0 (2008-01-01T00:00:00Z), 2 (2008-01-03T00:00:00Z), 4 (2008-01-05T00:00:00Z), 7 (2008-01-08T00:00:00Z)
+                    coeffs = Vectors.add(coeffs, subsetLo);
+                    CrsDefinition crsDefinition = CrsUtil.getGmlDefinition(timeCrs);
+                    // if axis is time axis then calculate the coefficients with the origin and uom to timestamp
+                    coefficients = ListUtil.printList(toISODate(coeffs, crsDefinition), " ");
+                }
             }
         }
         return coefficients;
@@ -509,12 +567,14 @@ public class WcsUtil {
      * Add the coefficients in a gmlrgrid:GeneralGridAxis.
      * They are not known at the time of initializing the GML output, but only after processing
      * the coverage data (see petascope.wcps.server.core.crs and DbMetadataSource.getCoefficientsOfInterval()).
-     * @param gml  The GML output already filled with data and metadata.
-     * @param m    The metadata specific to the WCS GetCoverage request
+     *
+     * @param gml    The GML output already filled with data and metadata.
+     * @param m      The metadata specific to the WCS GetCoverage request
      * @param dbMeta
      * @return GML where {coefficients} have been replaced with real values.
      * @throws WCSException
      * @throws PetascopeException
+     * @throws petascope.exceptions.SecoreException
      */
     public static String addCoefficients(String gml, GetCoverageMetadata m, DbMetadataSource dbMeta)
             throws WCSException, PetascopeException, SecoreException {
@@ -528,22 +588,22 @@ public class WcsUtil {
 
     /**
      * Returnes a gmlrgrid:generalGridZxis element, with replacements.
+     *
      * @param m
      */
     private static String getGeneralGridAxes(GetCoverageMetadata m) throws WCSException, SecoreException {
-        Bbox bbox = m.getBbox();
         String output = "";
         String[] axisNames = m.getGridAxisLabels().split(" ");
         // Loop through the N dimensions
         for (int i = 0; i < axisNames.length; i++) {
-            if (i>0) {
+            if (i > 0) {
                 output += "\n";
             }
             output += Templates.getTemplate(Templates.GENERAL_GRID_AXIS,
                     Pair.of("\\{" + Templates.KEY_GRIDAXISSPANNED + "\\}", axisNames[i]),
-                    Pair.of("\\{" + Templates.KEY_OFFSETS         + "\\}", getVectorComponents(m, axisNames[i]))
+                    Pair.of("\\{" + Templates.KEY_OFFSETS + "\\}", getVectorComponents(m, axisNames[i]))
                     // coefficients are visible /after/ WCPS processing
-                    );
+            );
         }
         return output;
     }
@@ -553,20 +613,23 @@ public class WcsUtil {
      * Specifically, this method gives the proper formatting for a gml:sequenceRule/@axisOrder attribute:
      * Eg. "+3 +2 +1" for a 3D grid.
      * Spanning from lower to upper coordinates ('+') is assumed for every dimension.
+     *
      * @param m
      * @return The whitespace-separated list of inner-outer axis order.
      */
     private static String getOuterInnerAxisRuleOrder(GetCoverageMetadata m) {
         StringBuilder outRule = new StringBuilder();
-        for (int i=m.getGridDimension(); i>0; i--) {
+        for (int i = m.getGridDimension(); i > 0; i--) {
             outRule.append('+').append(i).append(' ');
         }
         return outRule.toString().trim();
     }
+
     /**
      * Returns the XML genealogy of a specified GMLCOV type by recursive calls.
-     * @param covType  The GMLCOV child type
-     * @param meta     The link to the db info
+     *
+     * @param covType The GMLCOV child type
+     * @param meta    The link to the db info
      * @return The XML sequence of parent types (wcs:CoverageSubtypeParent)
      */
     public static Element addSubTypeParents(String covType, DbMetadataSource meta) {
@@ -663,7 +726,7 @@ public class WcsUtil {
      * @param isIrregular
      * @param crsCode
      * @param coverageType
-     * @return 
+     * @return
      */
     public static BigDecimal getSampleSpaceShift(BigDecimal offsetVector, boolean isIrregular, String crsCode, String coverageType) {
         BigDecimal shift;
@@ -699,8 +762,8 @@ public class WcsUtil {
                 List<BigDecimal> coefficients = domEl.getCoefficients();
                 // The loaded coefficients are the ones associated with points inside the input subsets
                 BigDecimal fitCoefficient = (isUpperBound) ?
-                        coefficients.get(coefficients.size()-1) : // isUpperBound : get the last point included in the response
-                        coefficients.get(0) ;                     // isLowerBound : get the first point included in the response
+                        coefficients.get(coefficients.size() - 1) : // isUpperBound : get the last point included in the response
+                        coefficients.get(0);                     // isLowerBound : get the first point included in the response
                 // coordinate = Origin + (coefficient * offset_vector)
                 fittedCoordinateValue = domEl.getMinValue().add(domEl.getDirectionalResolution().multiply(fitCoefficient));
             } else if (CrsUtil.isGridCrs(domEl.getCrsDef().getCode()) || coverageType.equals(LABEL_GRID_COVERAGE)) {
@@ -735,6 +798,7 @@ public class WcsUtil {
 
         return BigDecimalUtil.stripDecimalZeros(fittedCoordinateValue);
     }
+
     // Overload for String input
     public static String fitToSampleSpace(String coordinateValue, DomainElement domEl, boolean greaterValue, String coverageType) {
         return fitToSampleSpace(new BigDecimal(coordinateValue), domEl, greaterValue, coverageType).toPlainString();
@@ -742,6 +806,7 @@ public class WcsUtil {
 
     /**
      * Returns true in case such coverage type refers to a gridded coverage.
+     *
      * @param covType
      * @return TRUE IF covType ~ .*GridCoverage
      */
@@ -753,6 +818,7 @@ public class WcsUtil {
 
     /**
      * Returns true in case such coverage type refers to a multipoint coverage.
+     *
      * @param covType
      * @return TRUE IF covType ~ MultiPointCoverage
      */
@@ -763,6 +829,7 @@ public class WcsUtil {
     /**
      * Returns true in case the coverage of the specified type and with the given axes is aligned with the CRS axes.
      * Currently this shall always be true for grid coverages.
+     *
      * @param covType
      * @param axes
      * @return TRUE IF all grid axes are aligned with a CRS axis.
@@ -774,6 +841,7 @@ public class WcsUtil {
     /**
      * Returns true in case the coverage's geometry is a rectified grid.
      * This is not true when grid points are irregularly spaced along 1+ grid axes.
+     *
      * @param covType
      * @param axes
      * @return TRUE IF all grid axes define regular spacing of grid points.

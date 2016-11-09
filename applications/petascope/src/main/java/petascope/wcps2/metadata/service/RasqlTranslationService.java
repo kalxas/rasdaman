@@ -126,7 +126,7 @@ public class RasqlTranslationService {
     /**
      * This function will construct the rasql domain corresponding to the
      * *specific* list of axis used in extend and scale e.g: extend(c[t(0)], {
-     * Lat(0:70), Long(0:150) }) with c is 3D return Rasql: c[0: 0:20, 0:30],
+     * Lat(0:70), Long(0:150) }) with c is 3D return Rasql: c[0, 0:20, 0:30],
      * [0:200, 0:300]
      *
      * @param axes
@@ -144,10 +144,10 @@ public class RasqlTranslationService {
             if (isNeededAxis(axis.getLabel(), subsets)) {
                 NumericSubset gridBounds = axis.getGridBounds();
                 if (gridBounds instanceof NumericSlicing) {
-                    result = ((NumericSlicing) gridBounds).getBound().toPlainString();
+                    result = ((NumericSlicing) gridBounds).getBound().toBigInteger().toString();
                 } else {
-                    result = ((NumericTrimming) gridBounds).getLowerLimit() + ":"
-                            + ((NumericTrimming) gridBounds).getUpperLimit();
+                    result = ((NumericTrimming) gridBounds).getLowerLimit().toBigInteger() + ":"
+                            + ((NumericTrimming) gridBounds).getUpperLimit().toBigInteger();
                 }
                 translatedDomains.add(result);
             }

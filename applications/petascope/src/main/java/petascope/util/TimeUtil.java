@@ -20,11 +20,8 @@
  * or contact Peter Baumann via <baumann@rasdaman.com>.
  */
 package petascope.util;
-import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Random;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import org.joda.time.Duration;
@@ -32,8 +29,10 @@ import org.joda.time.format.DateTimeFormatter;
 import org.joda.time.format.ISODateTimeFormat;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import petascope.core.CrsDefinition;
 import petascope.exceptions.ExceptionCode;
 import petascope.exceptions.PetascopeException;
+import petascope.exceptions.WCSException;
 
 /**
  * Class for handling timestamps formatting and elaborations.
@@ -75,6 +74,8 @@ public class TimeUtil {
     public static final Long MILLIS_MEAN_GREGORIAN_MONTH = MILLIS_MEAN_GREGORIAN_YEAR / 12;
     public static final Long MILLIS_SYNODAL_MONTH        = (long) (MILLIS_DAY * 29.53059);
     public static final Long MILLIS_MONTH                = MILLIS_MEAN_JULIAN_MONTH;
+    
+    public static final String ISO_8061_FORMAT = "yyyy-MM-dd'T'HH:mm:ss'Z";
 
     // Logger
     private static Logger log = LoggerFactory.getLogger(TimeUtil.class);
@@ -130,6 +131,7 @@ public class TimeUtil {
     public static boolean isValidTimestamp (String timestamp) {
         boolean isValid = true;
         try {
+            // date time format valid by ISO 8601, e.g:  YYYY-MM-DDThh:mm:ss.sTZD (eg 1997-07-16T19:20:30.45+01:00)
             DateTime dt = isoFmt.parseDateTime(fix(timestamp));
         } catch (IllegalArgumentException ex) {
             log.debug(timestamp + " format is invalid or unsupported: " + ex.getMessage());
@@ -146,7 +148,7 @@ public class TimeUtil {
      * @return  True if Lo is lower or equal than Hi
      * @throws PetascopeException
      */
-    public static boolean isOrderedTimeSubset (String timestampLo, String timestampHi) throws PetascopeException {
+    public static boolean isOrderedTimeSubset (String timestampLo, String timestampHi) throws WCSException {
 
         DateTime dtLo = isoFmt.parseDateTime(fix(timestampLo));
         DateTime dtHi = isoFmt.parseDateTime(fix(timestampHi));
@@ -155,7 +157,7 @@ public class TimeUtil {
             millis = new Duration(dtLo, dtHi);
         } catch (ArithmeticException ex) {
             log.error("Error while computing milliseconds between " + dtLo + " and " + dtHi + ".");
-            throw new PetascopeException(ExceptionCode.InternalComponentError,
+            throw new WCSException(ExceptionCode.InternalComponentError,
                     "Cannot convert input datetimes to numeric time coordinates: duration exceeds a 64 bit long.", ex);
         }
         return (millis.getMillis() >= 0);
@@ -251,6 +253,17 @@ public class TimeUtil {
     public static String coordinate2timestamp(Double numCoordinate, String datumOrigin, String timeResolution) throws PetascopeException {
             return TimeUtil.plus(datumOrigin, numCoordinate, timeResolution);
     }
+    
+    /**
+     * Get the number of milliseconds from the UOM of CRS
+     * @param crsDefinition
+     * @return 
+     * @throws petascope.exceptions.PetascopeException 
+     */
+    public static Long getMillis(CrsDefinition crsDefinition) throws PetascopeException {
+        String ucumAbbreviation = crsDefinition.getAxes().get(0).getUoM();        
+        return getMillis(ucumAbbreviation);
+    }
 
     /**
      * Get the number of milliseconds fitting in the provided UoM (UCUM abbreviation).
@@ -265,7 +278,7 @@ public class TimeUtil {
                     "Unsupported temporal Unit of Measure [" + ucumAbbreviation + "].");
         }
         return millis;
-    }
+    }  
 
     /**
      * Remove quotes from a timestamp, if present.

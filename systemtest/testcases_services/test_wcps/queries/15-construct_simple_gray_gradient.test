@@ -1,4 +1,4 @@
-for c in ( rgb ) 
+for c in ( test_rgb ) 
 return encode( 
         (unsigned char)
 	coverage greyImage 

@@ -21,9 +21,11 @@
  */
 package secore.handler;
 
+import java.util.Arrays;
 import secore.req.ResolveResponse;
 import secore.req.ResolveRequest;
 import java.util.Set;
+import java.util.TreeSet;
 import secore.util.SecoreException;
 import secore.util.ExceptionCode;
 import secore.util.Pair;
@@ -38,6 +40,7 @@ import secore.req.RequestParam;
 import secore.util.Constants;
 import static secore.util.Constants.*;
 import secore.util.SecoreUtil;
+import secore.util.SecoreUtil.QueryDB;
 import secore.util.StringUtil;
 import secore.util.XMLUtil;
 
@@ -145,54 +148,54 @@ public class IncompleteUrlHandler extends AbstractHandler {
    */
   private String queryIncompleteUrl(ResolveRequest request, String url, String versionNumberParam) throws SecoreException {
     String res = "";
-    String urlTmp = url;
+    // e.g: /def/crs -> /def/crs/
+    String urlTmp = StringUtil.wrapUri(url);
 
     // if URL has both authority param and version number param (e.g: /def/crs/AUTO/1.3)
     // then try with userdb first, if it does not exist, then try with GML dictionary
     if (!versionNumberParam.equals("")) {
       Boolean existsDefInUserDB = SecoreUtil.existsDefInUserDB(url, versionNumberParam);
       if (existsDefInUserDB) {
-        // Only query in userdb
-        res = SecoreUtil.queryDef(urlTmp, false, true, false, versionNumberParam);
+        // Only query in userdb (e.g: /def/crs/AUTO/1.3)
+        res = SecoreUtil.queryDefVersion(QueryDB.USER_DB, urlTmp, versionNumberParam);
       } else {
-        // Only query in gmldb
-        res = SecoreUtil.queryDef(urlTmp, false, false, true, versionNumberParam);
+        // Only query in gmldb (e.g: /def/crs/EPSG/0)
+        res = SecoreUtil.queryDefVersion(QueryDB.EPSG_DB, urlTmp, versionNumberParam);
       }
     } else {
-      // Query in all kind of dictionaries if it don't have the version number
-      // e.g: /def/crs/EPSG/
-      String tmp = "";
-      for (DbCollection obj:DbManager.collections.keySet()) {
-        tmp = SecoreUtil.queryDef(urlTmp, false, true, true, obj.getVersionNumber());
-        res = res + tmp;
+      // NOTE: if requested URL is the parent level of versionNumber such as /def/crs/EPSG/) then it must query all the collections (not only default gml_0)
+      // as it will return multiples results: e.g: /def/crs/EPSG/0, /def/crs/EPSG/8.5, /def/crs/EPSG/8.92)     
+      if (StringUtil.parentVersionNumberUri(urlTmp)) {
+          for (DbCollection collection:DbManager.collections.keySet()) {
+             res = SecoreUtil.queryDefVersionless(urlTmp, collection.getVersionNumber());
+          }
+      } else {
+          // If don't have versionNumber in request then use the default: gml_0 versionNumber (e.g: /def/)          
+          res = SecoreUtil.queryDefVersionless(urlTmp, DbManager.FIX_GML_VERSION_ALIAS);
       }
     }
-
-    if (StringUtil.emptyQueryResult(res)) {
-      res = "";
-    } else {
-      // It needs url as same as the result in res (e.g: /def/crs/EPSG/0 will return list of /def/crs/EPSG/8.5/ definitions).
-      // then if keep the original url it cannot sort elements.
-
-      Set<Pair<String, Boolean>> tmp = SecoreUtil.sortElements(urlTmp, versionNumberParam, res);
-
-      urlTmp = url.replace(VERSION_NUMBER, versionNumberParam);
-      res = "";
-      String serviceUri = request.getServiceUri().replaceAll("/def/?", "").replaceAll("^/", "");
-      String fullUri = serviceUri + urlTmp;
-      if (!fullUri.endsWith(REST_SEPARATOR)) {
-        fullUri += REST_SEPARATOR;
+    
+    String response = "";
+    
+    if (!StringUtil.emptyQueryResult(res)) {      
+      // parse the res as it is stored as string (e.g: /def/ will return: area crs crs datum)
+      // and store these sublevel into a sorted set (remove duplicate sublevel)
+      Set<String> children = new TreeSet<String>(Arrays.asList(res.split(" ")));
+      // e.g: http://localhost:8080/def, then we only need the domain:port and urlTmp is the requested URI (e.g: /def/crs/)
+      String requestUri = request.getServiceUri().replaceAll("/" + WEB_APPLICATION_NAME + "/?", "").replaceAll("^/", "")
+                        + urlTmp.replace(VERSION_NUMBER, versionNumberParam);
+      
+      StringBuilder childrenURIs = new StringBuilder("");
+      // create the sublevel URIs
+      for (String child:children) {
+          childrenURIs.append(" <" + IDENTIFIER_LABEL + ">" + requestUri + child + "</" + IDENTIFIER_LABEL + ">\n");
       }
-      for (Pair<String, Boolean> p : tmp) {
-        res += "  <" + IDENTIFIER_LABEL + ">" + fullUri + p.fst + "</" + IDENTIFIER_LABEL + ">\n";
-      }
+      
+      response = "<" + IDENTIFIERS_LABEL + " at='" + XMLUtil.escapeXmlPredefinedEntities(request.getOriginalRequest())
+                     + "' xmlns='" + Constants.CRSNTS_NAMESPACE + "'>\n"
+                     + childrenURIs
+                  + "</" + IDENTIFIERS_LABEL + ">";
     }
-
-    res = "<" + IDENTIFIERS_LABEL + " at='" + XMLUtil.escapeXmlPredefinedEntities(request.getOriginalRequest())
-              + "' xmlns='" + Constants.CRSNTS_NAMESPACE + "'>\n"
-              + res
-              + "</" + IDENTIFIERS_LABEL + ">";
-
-    return res;
+    return response;
   }
 }

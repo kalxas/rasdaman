@@ -27,7 +27,7 @@ from master.importer.interval import Interval
 
 class UserAxisType:
     NUMBER = "number"
-    DATE = "ansidate"
+    DATE = "date"
 
     @staticmethod
     def valid_type(type):
@@ -42,7 +42,7 @@ class UserAxisType:
 
 
 class UserAxis:
-    def __init__(self, name, resolution, order, min, max=None, type=UserAxisType.NUMBER, irregular=False,
+    def __init__(self, name, resolution, order, min, max=None, type=UserAxisType.NUMBER,
                  dataBound=True):
         """
         A user axis is a an axis containing information collected from an user. The connection to the crs axis
@@ -55,14 +55,12 @@ class UserAxis:
         :param str | float min: the minimum on this axis
         :param str | float | None max: the maximum on this axis
         :param str type: the type of the values on this axis
-        :param bool irregular: true if the axis is irregular, false otherwise
         """
         self.name = name
         self.resolution = resolution
         self.order = order
         self.interval = Interval(min, max)
         self.type = type
-        self.irregular = irregular
         self.dataBound = dataBound
 
     def to_json(self):

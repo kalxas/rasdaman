@@ -27,6 +27,8 @@ from master.error.validate_exception import RecipeValidationException
 from master.evaluator.expression_evaluator_factory import ExpressionEvaluatorFactory
 from master.evaluator.sentence_evaluator import SentenceEvaluator
 from master.extra_metadata.extra_metadata_serializers import ExtraMetadataSerializerFactory
+from master.helper.irregular_user_axis import IrregularUserAxis
+from master.helper.regular_user_axis import RegularUserAxis
 from master.helper.user_axis import UserAxis, UserAxisType
 from master.helper.user_band import UserBand
 from master.importer.importer import Importer
@@ -34,6 +36,7 @@ from master.recipe.base_recipe import BaseRecipe
 from recipes.general_coverage.gdal_to_coverage_converter import GdalToCoverageConverter
 from recipes.general_coverage.grib_to_coverage_converter import GRIBToCoverageConverter
 from recipes.general_coverage.netcdf_to_coverage_converter import NetcdfToCoverageConverter
+from recipes.general_coverage.pp_netcdf_to_coverage_converter import PointPixelNetcdfToCoverageConverter
 from session import Session
 from util.crs_util import CRSUtil
 from util.gdal_validator import GDALValidator
@@ -97,10 +100,17 @@ class Recipe(BaseRecipe):
         for name, axis in self.options['coverage']['slicer']['axes'].items():
             if "min" not in axis:
                 raise RecipeValidationException("No min value given for axis " + name)
+            if "type" in axis and axis["type"] == "ansidate":
+                """backwards compatibility, support axis type 'ansidate' after moving to 'date'"""
+                axis["type"] = UserAxisType.DATE
             if "type" in axis and not UserAxisType.valid_type(axis["type"]):
-                raise RecipeValidationException("No resolution value given for axis " + name)
-            if "resolution" not in axis:
-                raise RecipeValidationException("No resolution value given for axis " + name)
+                raise RecipeValidationException("Invalid axis type \"" + axis[
+                    "type"] + "\" for axis " + name + ". Only \"" + UserAxisType.DATE + "\" and \"" + UserAxisType.NUMBER + "\" are supported.")
+            if "resolution" not in axis and "irregular" in axis and not axis["irregular"]:
+                raise RecipeValidationException("No resolution value given for regular axis " + name)
+            if "directPositions" not in axis and "irregular" in axis and axis["irregular"]:
+                log.warning("No direct positions found for irregular axis, assuming slice.")
+                axis["directPositions"] = "[0]"
 
         if "metadata" in self.options['coverage'] and "type" not in self.options['coverage']['metadata']:
             raise RecipeValidationException("No type given for the metadata parameter.")
@@ -192,9 +202,20 @@ class Recipe(BaseRecipe):
             order = axis["gridOrder"] if "gridOrder" in axis else default_order
             irregular = axis["irregular"] if "irregular" in axis else False
             data_bound = axis["dataBound"] if "dataBound" in axis else True
+            # for irregular axes we consider the resolution 1 / -1 as gmlcov requires resolution for all axis types,
+            # even irregular
+            if "resolution" in axis:
+                resolution = axis["resolution"]
+            else:
+                resolution = 1
             default_order += 1
-            user_axes.append(
-                UserAxis(crs_axis.label, axis["resolution"], order, axis["min"], max, type, irregular, data_bound))
+            if not irregular:
+                user_axes.append(
+                    RegularUserAxis(crs_axis.label, resolution, order, axis["min"], max, type, data_bound))
+            else:
+                user_axes.append(
+                    IrregularUserAxis(crs_axis.label, resolution, order, axis["min"], axis["directPositions"], max,
+                                      type, data_bound))
         return user_axes
 
     def _global_metadata_fields(self):
@@ -294,12 +315,20 @@ class Recipe(BaseRecipe):
         """
         crs = self._resolve_crs(self.options['coverage']['crs'])
         sentence_evaluator = SentenceEvaluator(ExpressionEvaluatorFactory())
-        coverage = NetcdfToCoverageConverter(sentence_evaluator, self.session.get_coverage_id(),
-                                             self._read_bands(),
-                                             self.session.get_files(), crs, self._read_axes(crs),
-                                             self.options['tiling'], self._global_metadata_fields(),
-                                             self._local_metadata_fields(), self._metadata_type(),
-                                             self.options['coverage']['grid_coverage']).to_coverage()
+        if 'pixelIsPoint' in self.options['coverage']['slicer'] and self.options['coverage']['slicer']['pixelIsPoint']:
+            coverage = PointPixelNetcdfToCoverageConverter(sentence_evaluator, self.session.get_coverage_id(),
+                                                           self._read_bands(),
+                                                           self.session.get_files(), crs, self._read_axes(crs),
+                                                           self.options['tiling'], self._global_metadata_fields(),
+                                                           self._local_metadata_fields(), self._metadata_type(),
+                                                           self.options['coverage']['grid_coverage']).to_coverage()
+        else:
+            coverage = NetcdfToCoverageConverter(sentence_evaluator, self.session.get_coverage_id(),
+                                                 self._read_bands(),
+                                                 self.session.get_files(), crs, self._read_axes(crs),
+                                                 self.options['tiling'], self._global_metadata_fields(),
+                                                 self._local_metadata_fields(), self._metadata_type(),
+                                                 self.options['coverage']['grid_coverage']).to_coverage()
         return coverage
 
     def _get_importer(self):
@@ -308,7 +337,8 @@ class Recipe(BaseRecipe):
         :rtype: Importer
         """
         if self.importer is None:
-            self.importer = Importer(self._get_coverage(), self.options['wms_import'], self.options['coverage']['grid_coverage'])
+            self.importer = Importer(self._get_coverage(), self.options['wms_import'],
+                                     self.options['coverage']['grid_coverage'])
         return self.importer
 
     @staticmethod

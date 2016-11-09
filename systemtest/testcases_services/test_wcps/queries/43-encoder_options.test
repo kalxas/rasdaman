@@ -1,2 +1,2 @@
-for a in (mr) return
+for a in (test_mr) return
     encode(a[ i(0:100), j(0:100) ],"dem", "startx=0,starty=0,endx=100,endy=100,resx=0.1,resy=0.15")

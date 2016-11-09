@@ -49,7 +49,7 @@ public class DbManager {
   public static String EPSG_DB_FILE = "GmlDictionary.xml";
   public static String USER_DB = "userdb";
   public static String USER_DB_FILE = "UserDictionary.xml";
-  public static String EPSG_FOLDER = "gml";
+  
 
   // keep backwards support (e.g: http://localhost:8080/def/crs/OGC/0/Index2D/)
   // so if request does not have the specific version, it should load the GMLDictionary from this version
@@ -64,6 +64,11 @@ public class DbManager {
 
   private Database db;
   private static DbManager instance;
+  
+  /**
+   * To notify Servlet when should clear the cache (i.e: when BaseX update/delete/insert definitions) then need to clear cache from BaseX query and also on Servlet.
+   */
+  private static boolean needToClearCache = false;
 
   // Cache query, (return and boolean) - version to know this query is from EPSG dictionary or User dictionary.
   private static final Map<String, Pair<String, String>> cache =
@@ -89,8 +94,7 @@ public class DbManager {
     String fixedGmlFilePath = "";
 
     // 1. Load all the EPSG folders with version name in the configuration of secore.conf (normally it is in etc/gml).
-    String epsgFolder = Config.configDir  + EPSG_FOLDER + "/";
-    File folder = new File(epsgFolder);
+    File folder = new File(Config.getInstance().getGMLDirectory());
     // Get the folders and 1 UserDictionary.xml in the etc/gml/
     List<File> files = new ArrayList<File>(Arrays.asList(folder.listFiles()));
 
@@ -176,6 +180,11 @@ public class DbManager {
     return versionNumber;
   }
 
+  /**
+   * Static factory method to create the BaseX database for first load SECORE or read from caches if not.
+   * @return
+   * @throws SecoreException 
+   */
   public static DbManager getInstance() throws SecoreException {
     if (instance == null || instance.getDb() == null) {
       instance = new DbManager();
@@ -222,12 +231,25 @@ public class DbManager {
   public void setDb(Database db) {
     this.db = db;
   }
-
+  
   /*
    * Cache maintenance
    */
   public static void clearCache() {
     cache.clear();
+    // servlet need to clear cache as well
+    needToClearCache = true;
+  }
+  
+  /**
+   *  Servlet already clear its cache
+   */
+  public static void clearedCache() {
+    needToClearCache = false;
+  }
+  
+  public static boolean getNeedToClearCache() {
+      return needToClearCache;
   }
 
   public static void updateCache(String key, String value, String version) {

@@ -1,0 +1,83 @@
+#
+# This file is part of rasdaman community.
+#
+# Rasdaman community is free software: you can redistribute it and/or modify
+# it under the terms of the GNU Lesser General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# Rasdaman community is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU Lesser General Public License for more details.
+#
+# You should have received a copy of the GNU Lesser General Public License
+# along with rasdaman community.  If not, see <http://www.gnu.org/licenses/>.
+#
+# Copyright 2003, 2004, 2005, 2006, 2007, 2008, 2009 Peter Baumann /
+# rasdaman GmbH.
+#
+# For more information please see <http://www.rasdaman.org>
+# or contact Peter Baumann via <baumann@rasdaman.com>.      
+#
+# ----------------------------------------------------------------------------#
+#
+# SECORE configuration file
+#
+# Notes:
+#  Settings should be specified in key=value pairs.
+#  The server needs to be restarted for any changes in this file to take effect.
+#
+
+#
+# Database connection details
+#
+username=secore
+password=secore
+
+#
+# Directory holding GML definitions to be loaded in the database
+# e.g. the EPSG dataset. Should be either absolute, or relative to secore-core.
+#
+gml.def.path=etc/gml
+
+#
+# Directory holding updates (insert, delete) CRS defintions to be changed in userdb.
+#
+db_updates.path=@SHARE_DATA_DIR@/secore
+
+
+#
+# Service URL, used in automatic substitution of URNs (urn:ogc:def)
+#
+service.url=http://www.opengis.net/def
+
+#
+# Default codeSpace to be used for definitions constructed on the fly by 
+# crs-compound. From the GML 3.2.1 XML schema:
+# The value of the codeSpace attribute (if present) shall indicate a dictionary,
+# thesaurus, classification scheme, authority, or pattern for the term.
+#
+codespace=OGC
+
+
+#
+# log4j configuration
+#
+log4j.rootLogger=TRACE, rollingFile, stdout
+
+log4j.appender.stdout=org.apache.log4j.ConsoleAppender
+log4j.appender.stdout.layout=org.apache.log4j.PatternLayout
+log4j.appender.stdout.layout.ConversionPattern=%6p [%d{HH:mm:ss}] %c{1}@%L: %m%n
+
+log4j.appender.rollingFile=org.apache.log4j.RollingFileAppender
+
+# Please make sure the path specified by log4j.appender.rollingFile.File is a
+# location where the system user running Tomcat has write access.
+# Otherwise, the secore and petascope logs can only be found in catalina.out
+log4j.appender.rollingFile.File=@LOGDIR@/secore.log
+
+log4j.appender.rollingFile.MaxFileSize=10MB
+log4j.appender.rollingFile.MaxBackupIndex=10
+log4j.appender.rollingFile.layout=org.apache.log4j.PatternLayout
+log4j.appender.rollingFile.layout.ConversionPattern=%6p [%d{HH:mm:ss}] %c{1}@%L: %m%n

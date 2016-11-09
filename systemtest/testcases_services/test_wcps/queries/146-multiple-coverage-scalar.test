@@ -1,0 +1,1 @@
+for c in (test_eobstest), d in (test_eobstest)return encode (coverage outputCov over $px x(imageCrsdomain(c, Lat)),$py y(imageCrsdomain(c, Long))values condense + over $pt t(imageCrsdomain(c, t))using (c[Lat($px), Long($py), t($pt)])* (d[Lat($px), Long($py), t("1950-01-01")] > -9999),"png")

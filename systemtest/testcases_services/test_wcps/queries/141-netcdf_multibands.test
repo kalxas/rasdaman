@@ -1,1 +1,1 @@
-for c in (irr_cube_2) return encode(c[ansi("2008-01-01":"2008-01-08")], "netcdf")
+for c in (test_irr_cube_2) return encode(c[ansi("2008-01-01T02:01:20":"2008-01-08T00:02:58")], "netcdf")

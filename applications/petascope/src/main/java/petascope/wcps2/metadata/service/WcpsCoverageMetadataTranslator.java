@@ -38,6 +38,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import org.apache.commons.lang3.math.NumberUtils;
 
 import petascope.core.CrsDefinition;
 import petascope.wcps.server.core.RangeElement;
@@ -102,12 +103,10 @@ public class WcpsCoverageMetadataTranslator {
 
     private List<Double> parseNodataValues(Iterator<NilValue> nilValueIterator){
         List<Double> ret = new ArrayList<Double>();
-        while (nilValueIterator.hasNext()){
-            try {
-                ret.add(Double.valueOf(nilValueIterator.next().getValue()));
-            } catch (Exception e){
-                //failed converting to double, don't add it
-                Logger.getLogger(WcpsCoverageMetadataTranslator.class.getName()).log(Level.SEVERE, null, e);
+        while (nilValueIterator.hasNext()) {
+            String number = nilValueIterator.next().getValue();
+            if (NumberUtils.isNumber(number)) {
+                ret.add(Double.valueOf(number));
             }
         }
         return ret;

@@ -1,0 +1,1 @@
+for c in (test_landsat8) return encode(c[E(377983:390000),N(4902991:4917275)], "tiff")

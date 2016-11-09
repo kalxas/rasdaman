@@ -70,7 +70,7 @@ public class SliceExpressionHandler {
         List<SubsetDimension> axisIteratorSubsetDimensions = subsetParsingService.getAxisIteratorSubsetDimensions(subsetDimensions);
 
         // Only apply subsets if subset dimensions don't contain the "$"
-        List<Subset> numericSubsets = subsetParsingService.convertToNumericSubsets(pureSubsetDimensions, metadataInput);
+        List<Subset> numericSubsets = subsetParsingService.convertToNumericSubsets(pureSubsetDimensions, metadataInput, false);
 
         // Update the coverag expression metadata with the new subsets
         WcpsCoverageMetadata metadata = wcpsCoverageMetadataService.applySubsets(true, metadataInput, numericSubsets);
@@ -109,7 +109,7 @@ public class SliceExpressionHandler {
 
         //now remove the sliced axis from metadata
         // then the slicing axis also need to be removed from coverage metadata.
-        wcpsCoverageMetadataService.stripSlicingAxes(metadata);
+        wcpsCoverageMetadataService.stripSlicingAxes(metadata, axisIteratorSubsetDimensions);
 
         WcpsResult result = new WcpsResult(metadata, rasqlSubset);
 

@@ -1,0 +1,1 @@
+username=RASGUEST&password=rasguest&query=select encode(c, "png") from test_mr as c

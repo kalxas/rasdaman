@@ -1,0 +1,1 @@
+username=rasguest&password=rasguest&query=UPDATE test_mr as a set a assign a[0:179,0:54] + 1c

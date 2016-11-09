@@ -1,6 +1,6 @@
 service=WCS&
 version=2.0.1&
 request=GetCoverage&
-coverageId=irr_cube_1&
+coverageId=test_irr_cube_1&
 subset=i(0,1)&
 subset=j(3,4)

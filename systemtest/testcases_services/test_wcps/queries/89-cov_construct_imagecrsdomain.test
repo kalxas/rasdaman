@@ -1,4 +1,4 @@
-for c in (eobstest)
+for c in (test_eobstest)
 return encode(
   (coverage newcov
   over $px x(imageCrsDomain(c[Lat(25:35)], Lat)),

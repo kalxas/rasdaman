@@ -1,6 +1,5 @@
-for c in ( rgb )
-return
-encode(
+for c in ( test_rgb )
+return encode(
 {
   red:   c.red;
   green: c.green;

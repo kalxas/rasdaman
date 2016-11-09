@@ -55,8 +55,8 @@ public abstract class AbstractProtocolExtension implements  ProtocolExtension {
         } else {
             log.debug("Found parser {}", parser.getClass().getSimpleName());
         }
-        Request req = parser.parse(request);
-            if (req == null) {
+        Request req = parser.parse(request);        
+        if (req == null) {
             throw new WCSException(ExceptionCode.InternalComponentError, "Error parsing the request.");
         } else {
             log.debug("Request successfully parsed.");

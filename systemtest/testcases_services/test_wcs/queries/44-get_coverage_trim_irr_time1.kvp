@@ -1,7 +1,7 @@
 service=WCS&
 version=2.0.1&
 request=GetCoverage&
-coverageId=irr_cube_2&
+coverageId=test_irr_cube_2&
 subset=E(100000)&
 subset=N(5100000)&
-subset=ansi("2008-01-02","2008-01-06")
+subset=ansi("2008-01-01T02:01:20","2008-01-08T00:02:58")

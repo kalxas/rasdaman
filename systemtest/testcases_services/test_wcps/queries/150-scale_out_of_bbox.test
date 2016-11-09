@@ -1,0 +1,1 @@
+for c in (test_mean_summer_airtemp), d in (test_mean_summer_airtemp_repeat)return encode(scale(c, {Long(0:10), Lat(50:60)}), "tiff")

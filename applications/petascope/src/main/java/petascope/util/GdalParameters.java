@@ -41,6 +41,7 @@ import petascope.wcps.server.core.TrimCoverageExpr;
  * @author pcampa
  */
 /**
+ * NOTE: Deprecated class, don't use it.
  * Inner class which gathers the required geo-parameters for GTiff/JPEG2000
  * encoding.
  */

@@ -85,13 +85,13 @@ public class EncodedCoverageHandler {
 
         adaptedFormat = adaptedFormat.toLowerCase();
         // set parameters for dem()
-        if (adaptedFormat.equals(FormatExtension.DEM_ENCODING)) {
+        if (adaptedFormat.equals(FormatExtension.FORMAT_ID_DEM)) {
             // keep the arguments without need to calculate anything else
             otherParamsString = StringUtils.join(otherParams, ";");
-        } else if (adaptedFormat.equals(FormatExtension.CSV_ENCODING)) {
+        } else if (adaptedFormat.equals(FormatExtension.FORMAT_ID_CSV)) {
             // csv()
             otherParamsString = "";
-        } else if(adaptedFormat.equals(FormatExtension.NETCDF_ENCODING)){
+        } else if(adaptedFormat.equals(FormatExtension.FORMAT_ID_NETCDF)){
             ObjectMapper objectMapper = new ObjectMapper();
             objectMapper.configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false);
             objectMapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
@@ -111,7 +111,7 @@ public class EncodedCoverageHandler {
                 throw new MetadataSerializationException();
             }
         } else {
-            // get all the output parameters to encode            
+            // get all the output parameters to encode
             otherParams.addAll(getExtraParams(coverageExpression.getMetadata()));
             otherParamsString = ", \"" + StringUtils.join(otherParams, ";").replace("\"", "") + "\"";
         }
@@ -119,8 +119,8 @@ public class EncodedCoverageHandler {
         //get the right template
         String template = getTemplate(adaptedFormat);
         resultRasql = template.replace("$arrayOps", coverageExpression.getRasql())
-            .replace("$format", '"' + adaptedFormat + '"')
-            .replace("$otherParams", otherParamsString);
+                              .replace("$format", '"' + adaptedFormat + '"')
+                              .replace("$otherParams", otherParamsString);
         WcpsResult result = new WcpsResult(coverageExpression.getMetadata(), resultRasql);
         return result;
     }
@@ -134,7 +134,7 @@ public class EncodedCoverageHandler {
         if (metadata == null) {
             return result;
         }
-        List<String> bbox = getBoundingBox(metadata);        
+        List<String> bbox = getBoundingBox(metadata);
         // check if should set bounding box or not (in case of mixing 1 axis is Time, 1 axis is Lat)
         // then it should leave empty bounding box as it will set the grid CRS by default.
         if (!isSetBoundingBox) {
@@ -150,8 +150,13 @@ public class EncodedCoverageHandler {
         String crsUri = "";
         for (Axis axis:metadata.getXYAxes()) {
             crsUri = axis.getCrsUri();
-
+            // e.g: scale(c, {Lat:"CRS:1"(0:20), Long:"CRS:1"(0:50) when CRS of c is 4326 then it must use as outputCRS, instead of CRS:1
+            if (CrsUtil.isGridCrs(crsUri) || CrsUtil.isIndexCrs(crsUri)) {
+                crsUri = metadata.getCrsUri();
+            }
+            break;
         }
+
         String outputCrsUri = "";
         if (metadata.getOutputCrsUri() != null) {
             // NOTE: not allow to transform from CRS:1 or IndexND to a geo-referenced CRS
@@ -181,24 +186,27 @@ public class EncodedCoverageHandler {
             outputCrsUri = crsUri;
         }
 
-        // e.g:epsg:4326
+        // We don't set EPSG CRS or bounding box when outputCrs is CRS:1 or IndexND
+        // or the output CRS is different for X and Y axis
+        if (CrsUtil.isGridCrs(outputCrsUri) || CrsUtil.isIndexCrs(outputCrsUri) || !isSameOutputCrs) {
+            return result;
+        }
+
+        // e.g: http://opengis.net/def/crs/epsg/0/4326 -> epsg:4326
         String crs = CrsUtil.CrsUri.getAuthorityCode(outputCrsUri);
 
         // add the params (e.g: xmin=0,xmax=10,ymin=20,ymax=25,crs=epsg:4326)
-        for (String param: EXTRA_PARAMS){
+        for (String param: EXTRA_PARAMS) {
             result.add(param.replace("$xmin", xMin)
-                    .replace("$ymin", yMin)
-                    .replace("$xmax", xMax)
-                    .replace("$ymax", yMax));
+                            .replace("$ymin", yMin)
+                            .replace("$xmax", xMax)
+                            .replace("$ymax", yMax));
         }
-        // No set outputCrs when encoding with grid coverage (e.g: mr, rgb)
-        // or X and Y of bounding box have different Crs URIs (e.g: X is Lat, Y is time)
-        if ((!CrsUtil.isIndexCrs(crs)) && (isSameOutputCrs)) {
-            // NOTE: crs here can be like: crs=OGC:AnsiDate?axis-label="time"
-            // it is not valid in Rasql then need to replace "" in the parameters as well
-            crs = crs.replace("\"", "");
-            result.add("crs=" + crs);
-        }
+
+        // NOTE: crs here can be like: crs=OGC:AnsiDate?axis-label="time"
+        // it is not valid in Rasql then need to replace "" in the parameters as well
+        crs = crs.replace("\"", "");
+        result.add("crs=" + crs);
 
         return result;
     }

@@ -63,7 +63,7 @@ public class InsertStyleHandler implements Handler<InsertStyleRequest, InsertSty
     public InsertStyleResponse handle(@NotNull InsertStyleRequest request) throws WMSException {
         try {
             List<Layer> layers = persistenceProvider.getLayer().queryForEq(Layer.NAME_COLUMN_NAME, request.getLayerName());
-            if (layers.size() == 0) {
+            if (layers.isEmpty()) {
                 throw new WMSInvalidLayerException(request.getLayerName());
             }
             persistenceProvider.getStyle().createIfNotExists(

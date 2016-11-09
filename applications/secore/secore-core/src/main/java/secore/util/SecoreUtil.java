@@ -26,6 +26,13 @@ public class SecoreUtil {
   public static String USER_FLAG_KEY = "__USER__";
   public static String USER_FLAG = "1";
   public static String EPSG_FLAG = "0";
+  
+  /**
+   * to determine which kind of db, BaseX query should query on.
+  */
+  public static enum QueryDB  {
+      BOTH_DBS, EPSG_DB, USER_DB
+  }
 
   /**
    * Insert new definition to User Dictionary (NOTE: always insert to User)
@@ -47,9 +54,9 @@ public class SecoreUtil {
     String error = Constants.EMPTY;
 
     // version in epsg database is FIX_VERSION (
-    String versionNumber = DbManager.FIX_GML_COLLECTION_NAME;        
+    String versionNumber = DbManager.FIX_GML_COLLECTION_NAME;
     String result = queryDef(id, true, true, false, versionNumber);
-    
+
     if (StringUtil.emptyQueryResult(result)) {
       String query = "declare namespace gml = \"" + NAMESPACE_GML + "\";" + NEW_LINE
           + "let $x := collection('" + COLLECTION_NAME + "')" + NEW_LINE
@@ -155,13 +162,13 @@ public class SecoreUtil {
       query = "declare namespace gml = \"" + NAMESPACE_GML + "\";" + NEW_LINE
           + "let $x := collection('" + COLLECTION_NAME + "')//gml:identifier[contains(.,'" + id + "')]/text()" + NEW_LINE
           + "return" + NEW_LINE
-          + " if (exists($x)) then for $i in $x return <" + elname + ">{$i}" + "</" + elname + ">" + NEW_LINE
+          + " if (exists($x)) then for $i in distinct-values($x) return <" + elname + ">{$i}" + "</" + elname + ">" + NEW_LINE
           + " else <empty/>";
     } else {
       query = "declare namespace gml = \"" + NAMESPACE_GML + "\";" + NEW_LINE
           + "let $x := collection('" + COLLECTION_NAME + "')//gml:identifier[contains(.,'" + id + "')]/text()" + NEW_LINE
           + "return" + NEW_LINE
-          + " if (exists($x)) then for $i in $x return <el>{$i} " + USER_FLAG_KEY + "</el>" + NEW_LINE
+          + " if (exists($x)) then for $i in distinct-values($x) return <el>{$i} " + USER_FLAG_KEY + "</el>" + NEW_LINE
           + " else <empty/>";
     }
 
@@ -202,31 +209,116 @@ public class SecoreUtil {
       return DbManager.getInstance().getDb().queryBothDB(query.replace(USER_FLAG_KEY, USER_FLAG), versionNumber);
     }
   }
-  
+
+  /**
+   * Return all the direct children nodes of the input node (e.g: def/) returns all the URI which contains /def/ in gml:identifier (e.g: /def/crs)
+   * not grand children (e.g: /def/crs/EPSG)
+   * NOTE: this is used for incomplete request without version number (e.g: /def/crs/)
+   * @param id the subset of requested URL (e.g: /def/crs) to find in gml:indentifier
+   * @param versionNumber the version of collections which needed to be query (e.g: 0 for userdb, gml_0, 8.5 for gml_8.5)
+   * @return
+     * @throws secore.util.SecoreException
+   */
+  public static String queryDefVersionless(String id, String versionNumber) throws SecoreException {
+    log.trace("Query definition with identifier: " + id);
+    // function:get-children() will return the direct childrens's URI which contains parent: id
+    // e.g: parent id is: /def/crs, then child's URI is: /def/crs/EPSG
+    String query = " declare namespace gml = \"" + NAMESPACE_GML + "\";" + NEW_LINE
+                 + " declare function local:get-children() {" + NEW_LINE
+                 + " let $x := collection('" + COLLECTION_NAME + "')//gml:identifier[matches(text(), '" + id + "')]/text()" + NEW_LINE
+                 + " return" + NEW_LINE
+                 + "      if (exists($x)) then " + NEW_LINE
+                 + "           for $i in $x" + NEW_LINE
+                 + "                return substring-before( substring-after($i, '" + id + "'), '/')" + NEW_LINE
+                 + "      else <empty/>" + NEW_LINE
+                 + " };" + NEW_LINE
+
+                 + "" + NEW_LINE
+
+                 + "  let $x := distinct-values(local:get-children())" + NEW_LINE
+                 + "  for $i in $x return $i";
+
+    String ret = null;
+    String userRes = DbManager.getInstance().getDb().queryUser(query, versionNumber);
+    String epsgRes = DbManager.getInstance().getDb().queryEpsg(query, versionNumber);
+    ret = userRes + " " + epsgRes;
+
+    return ret.trim();
+  }
+
+  /**
+   * Return all the children nodes of the input node (e.g: /def/crs/EPSG/0/) will return (/def/crs/EPSG/0/4326, /def/crs/EPSG/0/3857,...)
+   * NOTE: this is used for incomplete request with versionNumber (e.g: /def/crs/EPSG/0, /def/crs/EPSG/0/8.5,...) 
+   * @param queryDB which DB (BothDB, EPSG_DB, USER_DB) should be queried.
+   * @param id the subset of requested URL (e.g: /def/crs) to find in gml:indentifier
+   * @param versionNumber the version of collections which needed to be query (e.g: 0 for userdb, gml_0, 8.5 for gml_8.5)
+   * @return
+   * @throws SecoreException 
+   */
+  public static String queryDefVersion(QueryDB queryDB, String id, String versionNumber)  throws SecoreException {
+    log.trace("Query definition with identifier: " + id);
+    // function:get-children() will return the direct childrens's URI which contains parent: id
+    // e.g: parent id is: /def/crs, then child's URI is: /def/crs/EPSG
+    String query = " declare namespace gml = \"" + NAMESPACE_GML + "\";" + NEW_LINE
+                 + " declare function local:get-children() {" + NEW_LINE
+                 + " let $x := collection('" + COLLECTION_NAME + "')//gml:identifier[matches(text(), '" + id + "')]/text()" + NEW_LINE
+                 + " return" + NEW_LINE
+                 + "      if (exists($x)) then " + NEW_LINE
+                 + "           for $i in $x" + NEW_LINE
+                 + "                return substring-after($i, '" + id + "')" + NEW_LINE
+                 + "      else <empty/>" + NEW_LINE
+                 + " };" + NEW_LINE
+
+                 + "" + NEW_LINE
+
+                 + "  let $x := distinct-values(local:get-children())" + NEW_LINE
+                 + "  for $i in $x return $i";
+
+    String userRes = "";
+    String epsgRes = "";
+    if (null != queryDB) switch (queryDB) {
+          case BOTH_DBS:
+              userRes = DbManager.getInstance().getDb().queryUser(query, versionNumber);
+              epsgRes = DbManager.getInstance().getDb().queryEpsg(query, versionNumber);
+              break;
+          case USER_DB:
+              userRes = DbManager.getInstance().getDb().queryUser(query, versionNumber);
+              break;
+          case EPSG_DB:
+              epsgRes = DbManager.getInstance().getDb().queryEpsg(query, versionNumber);
+              break;
+          default:
+              break;
+    }
+    String ret = userRes + " " + epsgRes;
+
+    return ret.trim();
+  }
+
   /**
    * Check if a crs URI (e.g: crs/EPSG/0/4326) exist in user db.
    * @param id
    * @param versionNumber
-   * @return 
-   * @throws secore.util.SecoreException 
+   * @return
+   * @throws secore.util.SecoreException
    */
   public static boolean existsDefInUserDB(String id, String versionNumber) throws SecoreException {
-    // NOTE: userdb version number is not consistent (e.g: it can has def/crs/OGC/0 or def/crs/AUTO/1.3), not as GML Dictionary.    
+    // NOTE: userdb version number is not consistent (e.g: it can has def/crs/OGC/0 or def/crs/AUTO/1.3), not as GML Dictionary.
     String query = "declare namespace gml = \"" + NAMESPACE_GML + "\";" + NEW_LINE
           + "let $d := (collection('" + DbManager.USER_DB + "')//gml:identifier[contains(.,'" + id + "')]/..)[1]" + NEW_LINE
           + "return" + NEW_LINE
           + " if (exists($d)) then $d" + NEW_LINE
           + " else <empty/>";
-    
+
     String ret = DbManager.getInstance().getDb().queryUser(query, versionNumber);
     if (ret.equals(Constants.EMPTY_XML)) {
       return false;
     }
-    
-    return true;    
+
+    return true;
   }
 
-  /**
+/**
    * Delete definition (NOTE: only delete from User DB)
    *
    * @param id String identifier to delete
@@ -279,8 +371,8 @@ public class SecoreUtil {
         }
       }
     });
-    
-    
+
+
     List<String> urlTmps = new ArrayList<String>();
     // Try every requested and default versions to make sure it don't ignore any result.
     String urlTmp0 = url.replace(Constants.VERSION_NUMBER, versionNumber);
@@ -308,10 +400,10 @@ public class SecoreUtil {
       if (!id.isEmpty()) {
         id = StringUtil.wrapUri(id);
         String tmp = id;
-        
+
         int ind = 0;
         String urlTmp = "";
-        
+
         // Check if the result CRS has the identifier
         for (String s: urlTmps) {
           ind = tmp.indexOf(s);

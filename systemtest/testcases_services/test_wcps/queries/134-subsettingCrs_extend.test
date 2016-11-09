@@ -1,1 +1,1 @@
-for c in (mean_summer_airtemp) return encode(extend(c, {Lat:"http://www.opengis.net/def/crs/EPSG/0/3857"(-4000000:-2500000), Long:"http://www.opengis.net/def/crs/EPSG/0/4326"(120:130)} ), "png", "nodata=0")
+for c in (test_mean_summer_airtemp) return encode(extend(c, {Lat:"http://www.opengis.net/def/crs/EPSG/0/3857"(-4000000:-2500000), Long:"http://www.opengis.net/def/crs/EPSG/0/4326"(120:130)} ), "png", "nodata=0")

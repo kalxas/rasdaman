@@ -84,18 +84,26 @@ class NetcdfExpressionEvaluator(ExpressionEvaluator):
 
     def _resolve(self, expression, nc_dataset):
         """
-        Resolves the expression in the context of the netcdf dataset
+        Resolves the expression in the context of the netcdf dataset.
         :param str expression: the expression to resolve
         :param netCDF4.Dataset nc_dataset: the dataset for which to resolve
         :return:
         """
         if expression.startswith("variable:"):
+            # Each variable can either be used as is or have an operation applied on it.
+            # With operation, parse the operation and apply it to the variable
+            # Without operation (returns a list like object)
             parts = expression.split(":")
-            if len(parts) < 3:
+            if len(parts) < 2:
                 raise RuntimeException("Invalid netcdf expression given: " + expression)
             variable_name = parts[1]
-            operation = parts[2]
-            return self._apply_operation(nc_dataset.variables[variable_name], operation)
+            if len(parts) == 2:
+                # return the entire variable translated to the string representation of a python list that can be
+                # further passed to eval()
+                return "[" + ",".join(map(lambda x: str(x), list(nc_dataset.variables[variable_name]))) + "]"
+            else:
+                operation = parts[2]
+                return self._apply_operation(nc_dataset.variables[variable_name], operation)
         elif expression.startswith("metadata:"):
             meta_key = expression.replace("metadata:", "")
             try:

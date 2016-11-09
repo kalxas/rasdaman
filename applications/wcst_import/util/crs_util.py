@@ -63,6 +63,15 @@ class CRSAxis:
             return True
         return False
 
+    def is_uom_day(self):
+        if self.uom == 'http://www.opengis.net/def/uom/UCUM/0/d':
+            return True
+        return False
+
+    def is_uom_second(self):
+        if self.uom == 'http://www.opengis.net/def/uom/UCUM/0/s':
+            return True
+        return False
 
 class CRSUtil:
     def __init__(self, crs_url):
@@ -159,9 +168,11 @@ class CRSUtil:
                     direction = "east"
                 if direction.find("indexedAxisPositive") != - 1 and label == "j":
                     direction = "north"
-
-                # TODO: While not mandatory it would be nice if we could parse the uom as well
-                self.axes.append(CRSAxis(label, direction, ""))
+                if "future" in direction:
+                    uom = root.xpath(".//*[contains(local-name(), 'CoordinateSystemAxis')]")[0].attrib['uom']
+                else:
+                    uom = ""
+                self.axes.append(CRSAxis(label, direction, uom))
         except:
             raise RuntimeException(
                 "We could not parse the crs at " + crs + ". Please check that the url is correct.")

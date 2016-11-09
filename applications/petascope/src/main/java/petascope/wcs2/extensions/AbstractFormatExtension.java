@@ -44,6 +44,7 @@ import petascope.exceptions.WCPSException;
 import petascope.exceptions.WCSException;
 import petascope.util.AxisTypes;
 import petascope.util.BigDecimalUtil;
+import petascope.util.CrsProjectionUtil;
 import petascope.util.CrsUtil;
 import petascope.util.ListUtil;
 import petascope.util.Pair;
@@ -54,7 +55,6 @@ import petascope.util.XMLSymbols;
 import petascope.util.ras.RasUtil;
 import petascope.wcps.metadata.CellDomainElement;
 import petascope.wcps.metadata.DomainElement;
-import petascope.wcps.server.core.Wcps;
 import petascope.wcps2.metadata.service.CoordinateTranslationService;
 import petascope.wcps2.metadata.service.CoverageRegistry;
 import petascope.wcps2.metadata.service.RasqlTranslationService;
@@ -121,7 +121,44 @@ public abstract class AbstractFormatExtension implements FormatExtension {
         Iterator<CellDomainElement> cellDomsIt = meta.getCellDomainIterator();
         DomainElement domainEl;
         CellDomainElement cellDomainEl;
-        List<DimensionSubset> subsList = request.getSubsets();
+        List<DimensionSubset> subsList = request.getSubsets();      
+        
+        // NOTE: sourceCrs can be from subsettingCrs parameter 
+        String sourceCrs = m.getSubsettingCrs();
+        // or extract from subset parameter 
+        // (only for X, Y axes: e.g: subset=E,http://www.opengis.net/def/crs/EPSG/0/3857(-1.3637472939075228E7,-1.3636585328807762E7))
+        if (StringUtils.isEmpty(sourceCrs)) {
+            List<String> crsList = new ArrayList<String>();
+            boolean hasCrsParam = false;
+            for (DimensionSubset subset:subsList) {
+                // subset can be (subset=E,http://../3857,(0:100) or subset=Long,CRS:1(400:401))
+                if (!StringUtils.isEmpty(subset.getCrs()) && !subset.getCrs().equals(CrsUtil.GRID_CRS)) {
+                    hasCrsParam = true;
+                    crsList.add(subset.getCrs());
+                }                
+            }
+            
+            // Request has CRS parameter in subset
+            if (hasCrsParam) {
+                if (crsList.size() != 2) {
+                    throw new WCSException(ExceptionCode.InvalidRequest, "Only support 2 subsets with geo-referenced CRS parameters.");
+                } else {
+                    if (!crsList.get(0).equals(crsList.get(1))) {
+                        throw new WCSException(ExceptionCode.InvalidRequest, "Subsets are requested with different geo-referenced CRS parameters.");
+                    }
+                    // then can consider the CRS parameters in subset as same as subsettingCRS
+                    sourceCrs = crsList.get(0);
+                }
+            }
+        }
+        
+        // subsettingCrs is not null, then need to translate the subset from subsettingCrs to nativeCrs
+        if (!StringUtils.isEmpty(sourceCrs)) {
+            this.updateSubsetsListByCrs(domsIt, subsList, sourceCrs);            
+            // reset the iterator to first position.
+            domsIt = meta.getDomainIterator();
+            // after translating the subsets from subsettingCrs to nativeCrs, subsettingCrs 
+        }
 
         // NOTE: single loop since still N=M for Petascope, being N = dim(grid) and M=dim(CRS).
         // Keep domainElement order (grid order), but need to re-order the coordinates in the tuple for lowerDom/upperDom
@@ -141,7 +178,6 @@ public abstract class AbstractFormatExtension implements FormatExtension {
                     try {
                         // Compare subset with domain borders and update
                         if (subset instanceof DimensionTrim) {
-
                             // Replace asterisks and fetch subset bounds
                             stars2bounds((DimensionTrim)subset, domainEl);
                             String trimLow = ((DimensionTrim)subset).getTrimLow();
@@ -199,7 +235,7 @@ public abstract class AbstractFormatExtension implements FormatExtension {
                                 if (scaling.isScaled(axisLabel)) {
                                     BigDecimal scalingFactor = ScalingExtension.computeScalingFactor(scaling, axisLabel, new BigDecimal(cellDom[0]), new BigDecimal(cellDom[1]));
                                     // update grid envelope
-                                    long scaledExtent = Math.round(Math.floor((cellDom[1]-cellDom[0]+1)/scalingFactor.floatValue()));
+                                    long scaledExtent = Math.round(Math.floor((cellDom[1]-cellDom[0]+1) * scalingFactor.floatValue()));
                                     cellDom[1] = (long)(cellDom[0] + scaledExtent - 1);
                                     // update offset vectors
                                     // [!] NOTE: do *not* use domainEl.setScalarResolution since world2pixel conversions are cached.
@@ -251,7 +287,7 @@ public abstract class AbstractFormatExtension implements FormatExtension {
                 if (scaling.isScaled(axisLabel)) {
                     BigDecimal scalingFactor = ScalingExtension.computeScalingFactor(scaling, axisLabel, BigDecimal.valueOf(loCellDom), BigDecimal.valueOf(hiCellDom));
                     // update grid envelope
-                    long scaledExtent = Math.round(Math.floor((hiCellDom-loCellDom+1)/scalingFactor.floatValue()));
+                    long scaledExtent = Math.round(Math.floor((hiCellDom-loCellDom+1) * scalingFactor.floatValue()));
                     hiCellDom = (long)(loCellDom + scaledExtent - 1);
                     // update offset vectors
                     // [!] NOTE: do *not* use domainEl.setScalarResolution since world2pixel conversions are cached.
@@ -273,7 +309,7 @@ public abstract class AbstractFormatExtension implements FormatExtension {
         m.setLow(lowerCellDom);
         m.setHigh(upperCellDom);
         // Update **domain** bounds (GIS- and CRS-induced)
-         m.setDomLow(ListUtil.printList(new ArrayList<String>(lowerDom.values()), " "));
+        m.setDomLow(ListUtil.printList(new ArrayList<String>(lowerDom.values()), " "));
         m.setDomHigh(ListUtil.printList(new ArrayList<String>(upperDom.values()), " "));
         m.setGisDomLow(lowerGisDom);
         m.setGisDomHigh(upperGisDom);
@@ -290,9 +326,7 @@ public abstract class AbstractFormatExtension implements FormatExtension {
     }
 
     /**
-     * Execute rasql query, given GetCoverage request, request metadata, and
-     * format of result. Request subsets values are pre-transformed if necessary
-     * (e.g. CRS reprojection, timestamps).
+     * Translate from WCS query to WCPS then it will execute rasql query.
      * @param request
      * @param covmeta
      * @param meta
@@ -304,7 +338,7 @@ public abstract class AbstractFormatExtension implements FormatExtension {
      * @throws WCPSException
      * @throws WCSException
      */
-    protected Pair<Object, String> executeRasqlQuery(GetCoverageRequest request,
+    protected Pair<Object, String> executeWcsRequest(GetCoverageRequest request,
             GetCoverageMetadata covmeta, DbMetadataSource meta, String format, String params)
             throws PetascopeException, RasdamanException, WCPSException, WCSException {
 
@@ -396,26 +430,23 @@ public abstract class AbstractFormatExtension implements FormatExtension {
             }
 
             // Parametrized CRSs can have quotes and other reserved entities which break abstract WCPS queries (and XML)
-            String crs = StringUtil.escapeXmlPredefinedEntities(de.getNativeCrs());
+            String nativeCrs = StringUtil.escapeXmlPredefinedEntities(de.getNativeCrs());
 
             // in-subset CRS specification (standard inconsistency CRS hanlding in KVP/XML: see OGC 12-167 change request #257)
             // accept direct internal index subsets even if no CRS extension is provided (this is not a geo-reprojection)
             if (null != subset.getCrs() && CrsUtil.isGridCrs(subset.getCrs())) {
-                crs = subset.getCrs(); // replace native with grid crs
-            } else if (covMeta.getSubsettingCrs() != null) {
-                // CRSExestion with subsettingCrs parameters then all subsets need to be used with this CRS
-                crs = covMeta.getSubsettingCrs();
+                nativeCrs = subset.getCrs(); // replace native with grid crs
             }
 
             if (subset instanceof DimensionTrim) {
                 DimensionTrim trim = (DimensionTrim) subset;
-                proc = "trim(" + proc + ",{" + dim + ":\"" + crs + "\" ("
+                proc = "trim(" + proc + ",{" + dim + ":\"" + nativeCrs + "\" ("
                         + trim.getTrimLow() + ":" + trim.getTrimHigh() + ")})";
                 newdim.put(dim, new Pair(trim.getTrimLow(), trim.getTrimHigh()));
 
             } else if (subset instanceof DimensionSlice) {
                 DimensionSlice slice = (DimensionSlice) subset;
-                proc = "slice(" + proc + ",{" + dim + ":\"" + crs + "\" (" + slice.getSlicePoint() + ")})";
+                proc = "slice(" + proc + ",{" + dim + ":\"" + nativeCrs + "\" (" + slice.getSlicePoint() + ")})";
                 newdim.put(dim, new Pair(slice.getSlicePoint(), slice.getSlicePoint()));
                 log.debug("Dimension " + dim);
                 log.debug(axes);
@@ -458,10 +489,12 @@ public abstract class AbstractFormatExtension implements FormatExtension {
                         hi = lohi[1];
                     }
                     long hiAfterScale;
+                    // Note: scalefactor value: 1.0 leaves the coverage unscaled, scalefactor value: between 0 and 1 scales down
+                    // (reduces target domain), scalefactor value: greater than 1 scales up (enlarges target domain).
                     switch (scaling.getType()) {
-                        case 1:
+                        case SCALE_FACTOR:
                             // SCALE-BY-FACTOR: divide extent by global scaling factor
-                            scaledExtent = Math.round(Math.floor((hi-lo+1)/scaling.getFactor()));
+                            scaledExtent = Math.round(Math.floor((hi-lo+1) * scaling.getFactor()));
 
                             hiAfterScale = Math.round(Math.floor(lo + scaledExtent - 1));
                             if (lo > hiAfterScale) {
@@ -473,10 +506,10 @@ public abstract class AbstractFormatExtension implements FormatExtension {
                             proc = proc + dim + ":\"" + crs + "\"(" + lo
                                     + ":" + hiAfterScale + "),";
                             break;
-                        case 2:
+                        case SCALE_AXIS:
                             // SCALE-AXES: divide extent by axis scaling factor
                             if (scaling.isPresentFactor(dim)) {
-                                scaledExtent = Math.round(Math.floor((hi-lo+1)/scaling.getFactor(dim)));
+                                scaledExtent = Math.round(Math.floor((hi-lo+1) * scaling.getFactor(dim)));
 
                                 hiAfterScale = Math.round(Math.floor(lo + scaledExtent - 1));
                                 if (lo > hiAfterScale) {
@@ -496,7 +529,7 @@ public abstract class AbstractFormatExtension implements FormatExtension {
                                 proc = proc + dim + ":\"" + crs + "\"(" + lo + ":" + hi + "),";
                             }
                             break;
-                        case 3:
+                        case SCALE_SIZE:
                             // SCALE-SIZE: set extent of dimension
                             if (scaling.isPresentSize(dim)) {
                                 hiAfterScale = (lo + scaling.getSize(dim)-1);
@@ -517,7 +550,7 @@ public abstract class AbstractFormatExtension implements FormatExtension {
                                 proc = proc + dim + ":\"" + crs + "\"(" + lo + ":" + hi + "),";
                             }
                             break;
-                        case 4:
+                        case SCALE_EXTENT:
                             // SCALE-EXTENT: set extent of dimension
                             if (scaling.isPresentExtent(dim)) {
                                 proc = proc + dim + ":\"" + crs + "\"(" + scaling.getExtent(dim).fst
@@ -554,7 +587,8 @@ public abstract class AbstractFormatExtension implements FormatExtension {
 
         String wcpsQuery = "";
         // If outputCrs is not null then use crsTransform() with this CRS
-        if(covMeta.getOutputCrs() != null || covMeta.getSubsettingCrs() != null) {
+        // TODO: crstranform() only support to translate 2D coverage, consider encode (crstranform(3D) in csv) as it has error, need to fix when it is possible.        
+        if (covMeta.getOutputCrs() != null || covMeta.getSubsettingCrs() != null) {
             String crs = covMeta.getOutputCrs() != null ? covMeta.getOutputCrs() : covMeta.getSubsettingCrs();
             String outputCrsAxes = getOutputCrsAxes(covMeta, crs);
             wcpsQuery =  "for c in (" + req.getCoverageId() + ") return encode( crsTransform( " + proc + ", { " + outputCrsAxes + " }, {} ), \"" + format + "\")";
@@ -628,5 +662,142 @@ public abstract class AbstractFormatExtension implements FormatExtension {
             log.debug("Error while converting asterisk to time instant equivalent.");
             throw new WCSException(ExceptionCode.InternalComponentError, ex);
         }
+    }
+
+    /**
+     * When WCS request has parameters: subsettingCrs then it will need both X, Y
+     * axes translated from subsettingCrs to coverage's nativeCrs.
+     * NOTE: Must translate by pair (X,Y), e.g: (Lat, Long) not by subset (X1, X2), e.g: (Long1, Long2)
+     * as it will have large error in coordinates when translate to UTM (e.g: 32633).
+     */
+    private void updateSubsetsListByCrs(Iterator<DomainElement> domainElements, List<DimensionSubset> subsList, String sourceCrs) throws WCSException {
+        DomainElement domainElement;
+        List<String> subsetX = new ArrayList<String>();
+        List<String> subsetY = new ArrayList<String>();
+
+        int indexX = -1;
+        int indexY = -1;
+
+        String targetCrs = null;
+
+        // Get the subset from X and Y axes which is projected in subsettingCrs (e.g: E(0,20), N(25:30) & subsettingCrs=EPSG:3857)
+        while (domainElements.hasNext()) {
+            domainElement = domainElements.next();
+
+            // Loop through each subsets in the request and check if this axis is involved
+            Iterator<DimensionSubset> subsIt = subsList.iterator();
+            DimensionSubset subset;
+            int index = 0;
+            while (subsIt.hasNext()) {
+                subset = subsIt.next();
+                if (subset.getDimension().equals(domainElement.getLabel())) {
+                    if (domainElement.getType().equals(AxisTypes.X_AXIS)) {
+                        subsetX = this.parseSubsets(subset);
+                        targetCrs = domainElement.getNativeCrs();
+                        indexX = index;
+                    } else if (domainElement.getType().equals(AxisTypes.Y_AXIS)) {
+                        subsetY = this.parseSubsets(subset);
+                        indexY = index;
+                    }
+                }
+                index++;
+            }
+        }
+
+        // validate subsets
+        if (subsetX.size() != subsetY.size()) {
+           throw new WCSException(ExceptionCode.InvalidRequest, "SubsettingCrs requires X and Y subsets have same type (trimming/slicing).");
+        } else if (subsetX.isEmpty()) {
+           throw new WCSException(ExceptionCode.InvalidRequest, "SubsettingCrs requires X and Y subsets as parameters in request.");
+        }
+        
+        // Translate from subsettingCrs to nativeCrs.
+        this.translateSubsetsByCrs(subsetX, subsetY, sourceCrs, targetCrs);
+
+        // Update the translated subsets to subsets list.
+        this.updateSubsetsList(subsList, subsetX, subsetY, indexX, indexY);
+    }
+    
+    /**
+     * Translate subsets from subsettingCrs to nativeCrs.
+     * @param subsetX
+     * @param subsetY
+     * @param sourceCrs
+     * @param targetCrs
+     * @throws WCSException 
+     */
+    private void translateSubsetsByCrs(List<String> subsetX, List<String> subsetY, 
+                                       String sourceCrs, String targetCrs) throws WCSException {
+        // if both of X, Y subsets are trimming or slicing, then translate from sourceCrs to targetCrs
+        for (int i = 0; i < subsetX.size(); i++) {
+            String x = subsetX.get(i);
+            String y = subsetY.get(i);
+
+            double[] srcCoords = new double[] { Double.parseDouble(x), Double.parseDouble(y) };
+            List<BigDecimal> output = CrsProjectionUtil.transform(sourceCrs, targetCrs, srcCoords, false);
+            String newX = output.get(0).toPlainString();
+            String newY = output.get(1).toPlainString();
+
+            // update the translated subset X,Y
+            subsetX.set(i, newX);
+            subsetY.set(i, newY);
+        }
+    }
+    
+    /**
+     * After we translated the subsets from subsettingCrs to nativeCrs, this method will update the input subsList with new values.
+     *
+     */
+    private void updateSubsetsList(List<DimensionSubset> subsList, List<String> subsetX, List<String> subsetY, 
+                                   int indexX, int indexY) throws WCSException {
+
+        // update the DimensionSubset list
+        if (subsetX.size() == 1) {
+            // slicing in subset (e.g: E(75042.727))
+
+            DimensionSlice sliceX = ((DimensionSlice)subsList.get(indexX));
+            sliceX.setSlicePoint(subsetX.get(0));
+            // replace the subset coordinate from subettingCrs to nativeCrs
+            subsList.set(indexX, sliceX);
+
+            DimensionSlice sliceY = ((DimensionSlice)subsList.get(indexY));
+            sliceY.setSlicePoint(subsetY.get(0));
+            // replace the subset coordinate from subettingCrs to nativeCrs
+            subsList.set(indexY, sliceY);
+        } else {
+            // trimming in subset (e.g: E(75042.727, 705042.727))
+
+            DimensionTrim trimX = ((DimensionTrim)subsList.get(indexX));
+            trimX.setTrimLow(subsetX.get(0));
+            trimX.setTrimHigh(subsetX.get(1));
+            // replace the subset coordinate from subettingCrs to nativeCrs
+            subsList.set(indexX, trimX);
+
+            DimensionTrim trimY = ((DimensionTrim)subsList.get(indexY));
+            trimY.setTrimLow(subsetY.get(0));
+            trimY.setTrimHigh(subsetY.get(1));
+            // replace the subset coordinate from subettingCrs to nativeCrs
+            subsList.set(indexY, trimY);
+        }
+    }
+
+    /**
+     * Parse the trimming / slicing subset to list.
+     * @param subset
+     * @param domainElementType
+     * @return
+     */
+    private List<String> parseSubsets(DimensionSubset subset) {
+        List<String> subsets = new ArrayList<String>();
+        if (subset instanceof DimensionTrim) {
+            String trimLow = ((DimensionTrim)subset).getTrimLow();
+            String trimHigh = ((DimensionTrim)subset).getTrimHigh();
+            subsets.add(trimLow);
+            subsets.add(trimHigh);
+        } else if (subset instanceof DimensionSlice) {
+            String slicePoint = ((DimensionSlice)subset).getSlicePoint();
+            subsets.add(slicePoint);
+        }
+        return subsets;
     }
 }

@@ -21,6 +21,7 @@
  */
 package petascope.wcs2.parsers;
 
+import java.io.UnsupportedEncodingException;
 import petascope.HTTPRequest;
 import petascope.exceptions.WCSException;
 
@@ -33,6 +34,7 @@ import petascope.exceptions.WCSException;
 public interface RequestParser<T extends Request> {
     
     /**
+     * @param request
      * @return true if this parser can parse request, or false otherwise
      */
     boolean canParse(HTTPRequest request);
@@ -40,6 +42,7 @@ public interface RequestParser<T extends Request> {
     /**
      * Parse request.
      *
+     * @param request
      * @return bean containing parsed data
      * @throws WCSException
      */

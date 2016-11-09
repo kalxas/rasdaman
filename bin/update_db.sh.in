@@ -98,6 +98,8 @@ if [ ! -d "$SCRIPT_DIR" ]; then
   error "SQL update script directory not found: $SCRIPT_DIR"
 fi
 
+readonly last_log=$(mktemp)
+
 if [ "$BASEDBMS" == "$BASEDBMS_PGSQL" ]; then
 
   check_postgres() {
@@ -178,12 +180,12 @@ if [ "$BASEDBMS" == "$BASEDBMS_PGSQL" ]; then
   while [ -f "$SCRIPT_DIR/update$counter.sql" ]; do
     logn "  update $counter... "
           # Note for future .sql files: do not add manual BEGIN/COMMIT transactions, they are handled by psql
-    $PSQL --set ON_ERROR_STOP=on --single-transaction -f "$SCRIPT_DIR/update$counter.sql" > last.log 2>&1
+    $PSQL --set ON_ERROR_STOP=on --single-transaction -f "$SCRIPT_DIR/update$counter.sql" > "$last_log" 2>&1
     # Check if the update was successful
     ret=$?
     if [ "$ret" -ne 0 ]; then
         echo "FAILED (return value $ret)."
-        echo "Error: "$(cat last.log)
+        echo "Error: "$(cat "$last_log")
         break # So that ps_dbupdates is updated to its partial update anyway.
       else
         echo ok.
@@ -253,7 +255,7 @@ else
   #
   # determine the update number
   #
-  $SQLITE "select * from $RAS_DBUPDATE" > last.log 2>&1
+  $SQLITE "select * from $RAS_DBUPDATE" > "$last_log" 2>&1
   if [ $? -ne 0 ]; then
     # create from scratch
     counter=0
@@ -265,7 +267,7 @@ else
       counter=$($SQLITE "select UpdateNumber from $RAS_DBUPDATE where UpdateType='$DB_TYPE'" | head -n 1)
     else
       counter=0
-      $SQLITE "insert into $RAS_DBUPDATE values('$DB_TYPE', $counter)" > last.log 2>&1
+      $SQLITE "insert into $RAS_DBUPDATE values('$DB_TYPE', $counter)" > "$last_log" 2>&1
     fi
   fi
 
@@ -278,7 +280,7 @@ else
   while [ -f "$SCRIPT_DIR/update${counter}-sqlite.sql" -o -f "$SCRIPT_DIR/update${counter}-sqlite.sh" ]; do
     logn "  update $counter... "
     if [ -f "$SCRIPT_DIR/update${counter}-sqlite.sql" ]; then
-      $SQLITE < "$SCRIPT_DIR/update${counter}-sqlite.sql" > last.log 2>&1
+      $SQLITE < "$SCRIPT_DIR/update${counter}-sqlite.sql" > "$last_log" 2>&1
     else
       bash "$SCRIPT_DIR/update${counter}-sqlite.sh"
     fi
@@ -286,7 +288,7 @@ else
     ret=$?
     if [ "$ret" -ne 0 ]; then
         echo "FAILED (return value $ret)."
-        [ -f "last.log" ] && echo "Error: "$(cat last.log)
+        [ -f "$last_log" ] && echo "Error: "$(cat "$last_log")
         break # So that ps_dbupdates is updated to its partial update anyway.
       else
         echo ok.
@@ -299,7 +301,7 @@ else
   # save the last update number
   #
   if [ $updated -eq 1 ]; then
-    $SQLITE "update $RAS_DBUPDATE set UpdateNumber=$counter where UpdateType='$DB_TYPE'" > last.log 2>&1
+    $SQLITE "update $RAS_DBUPDATE set UpdateNumber=$counter where UpdateType='$DB_TYPE'" > "$last_log" 2>&1
     log "updated database to update $((counter-1))"
   else
     log "database already up-to-date, nothing to update."
@@ -307,7 +309,7 @@ else
 
 fi
 
-rm -f last.log
+rm -f "$last_log"
 
 #
 # done

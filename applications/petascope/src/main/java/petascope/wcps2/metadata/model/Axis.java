@@ -26,6 +26,7 @@ import petascope.core.CrsDefinition;
 
 /**
  * @author <a href="merticariu@rasdaman.com">Vlad Merticariu</a>
+ * @param <T>
  */
 public class Axis<T> {
 
@@ -116,5 +117,12 @@ public class Axis<T> {
 
     public void setOrigin(BigDecimal origin) {
         this.origin = origin;
+    }
+    
+    @Override
+    public Axis clone() {
+        return new Axis(getLabel(), getGeoBounds(), getGridBounds(), getDirection(),
+                            getCrsUri(), getCrsDefinition(), getAxisType(), getAxisUoM(),
+                            getScalarResolution(), getRasdamanOrder(), getOrigin());
     }
 }

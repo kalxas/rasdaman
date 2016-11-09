@@ -44,6 +44,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
+import petascope.exceptions.WCSException;
 
 
 /**
@@ -67,14 +68,15 @@ public class GribMessageConvertor implements RangeParametersConvertor {
         this.meta = meta;
     }
 
-    public String toRasdamanDecodeParameters() throws IOException {
+    @Override
+    public String toRasdamanDecodeParameters() throws IOException, WCSException {
         ObjectMapper objectMapper = new ObjectMapper();
         objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
         List<GribMessage> gribMessages = objectMapper.readValue(this.messages, new TypeReference<List<GribMessage>>(){});
         RasdamanGribInternalStructure rasdamanGribInternalStructure = new RasdamanGribInternalStructure();
 
         List<RasdamanGribMessage> rasdamanGribMessages = new ArrayList<RasdamanGribMessage>();
-        for(GribMessage gribMessage: gribMessages){
+        for (GribMessage gribMessage: gribMessages) {
             rasdamanGribMessages.add(convertToRasdamanMessage(gribMessage));
         }
         translateGribMessageDomainsToOrigin(rasdamanGribMessages);
@@ -85,7 +87,7 @@ public class GribMessageConvertor implements RangeParametersConvertor {
         return objectMapper.writeValueAsString(rasdamanDecodeParams);
     }
 
-    private RasdamanGribMessage convertToRasdamanMessage(GribMessage gribMessage){
+    private RasdamanGribMessage convertToRasdamanMessage(GribMessage gribMessage) throws WCSException{
         Map<Integer, ParsedSubset<Long>> result = new TreeMap<Integer, ParsedSubset<Long>>();
         CoverageInfo coverageInfo = new CoverageInfo(this.coverage);
         Coverage currentWcpsCoverage = new Coverage(this.coverage.getCoverageName(), coverageInfo, this.coverage);

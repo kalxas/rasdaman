@@ -61,6 +61,7 @@ relstorageif/dbstoragelayout.cc
 server/rasserver
 bin/create_db.sh
 bin/start_rasdaman.sh
+bin/watch_rasdaman.sh
 bin/stop_rasdaman.sh
 bin/rasmgr.conf
 *.class
@@ -82,6 +83,7 @@ petascope_insertdemo.sh
 rasdaman_insertdemo.sh
 applications/raswct/bin
 glassfish-web.xml
+applications/secore/secore-core/etc/secore.properties
 java/dist/
 java/target
 java/src/org/rasdaman/rasnet/message
@@ -113,7 +115,10 @@ java/dist/
 java/bin/
 output
 applications/petascope/src/main/webapp/WEB-INF/web.xml
+applications/secore/secore-web/src/main/webapp/META-INF/context.xml
+applications/secore/secore-web/src/main/webapp/WEB-INF/web.xml
 applications/petascope/src/main/resources/petascope.properties
+applications/petascope/src/main/resources/log4j.properties
 compile
 /applications/petascope/dist/
 wcps.tokens
@@ -194,3 +199,6 @@ ingest.json
 manuals_and_examples/manuals/doc-all/
 manuals_and_examples/manuals/doc-api/
 manuals_and_examples/manuals/doc-basedbms/
+
+# IDE NetBeans
+applications/secore/secore-web/nb-configuration.xml

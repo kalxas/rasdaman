@@ -1,0 +1,4 @@
+<html><head><title>PetaScope Rasql Servlet</title></head><body>
+<h1>An error has occured, please check log for more detail.</h1>
+<p>Failed evaluating query: insert into test_mr values marray x in [0:255, 0:210] values 1c</p>
+Error evaluating rasdaman query: 'insert into test_mr values marray x in [0:255, 0:210] values 1c

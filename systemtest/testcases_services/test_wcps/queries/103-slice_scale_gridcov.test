@@ -1,4 +1,4 @@
-for c in (float_4d)
+for c in (test_float_4d)
 return encode(
   scale(c[i(0),j(0)], { k(0:10), m(-2:-1) }),
 "csv")

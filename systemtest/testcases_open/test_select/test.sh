@@ -56,7 +56,7 @@ SCRIPT_DIR="$( cd -P "$( dirname "$SOURCE" )" && pwd )"
 #
 TESTDATA_PATH="$SCRIPT_DIR/testdata"
 [ -d "$TESTDATA_PATH" ] || error "Testdata directory not found: $TESTDATA_PATH"
-QUERY_PATH="$SCRIPT_DIR/test_rasql"
+QUERY_PATH="$SCRIPT_DIR/queries"
 [ -d "$QUERY_PATH" ] || error "Rasql query dir not found: $QUERY_PATH"
 
 FAILED="$SCRIPT_DIR"/failed_cases

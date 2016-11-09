@@ -55,6 +55,8 @@ import petascope.wps.server.WpsServer;
 public class ConfigManager {
 
     private static final Logger log = LoggerFactory.getLogger(ConfigManager.class);
+    // from petascope.properties used for log4j
+    private static final String LOG_FILE_PATH = "log4j.appender.rollingFile.File";
 
     public final static String PETASCOPE_LANGUAGE = "en";
     /* If the value no given in petascope.properties, this URL gets initialized
@@ -120,6 +122,9 @@ public class ConfigManager {
     public static Boolean DESCRIPTION_IN_COVSUMMARY = true;
     public static Boolean METADATA_IN_COVSUMMARY = true;
 
+    // rasql servlet upload file for decode()
+    public static String RASQL_SERVLET_UPLOAD_DIR = "/tmp/rasql_servlet_upload";
+
     // depends on ccip_version in the petascope settings, ccip_version=true
     // will make this flag true.
     public static boolean CCIP_HACK = false;
@@ -150,7 +155,6 @@ public class ConfigManager {
     public static final String CONF_DIR = "confDir";
     public static final String CONF_DIR_DEFAULT = "@confdir@";
     public static final String SETTINGS_FILE = "petascope.properties";
-    public static final String LOG_PROPERTIES_FILE = "log4j.properties";
 
     // disable write operations (WCST)
     public static boolean DISABLE_WRITE_OPERATIONS = false;
@@ -170,6 +174,7 @@ public class ConfigManager {
     public static final String KEY_METADATA_URL = "metadata_url";
     public static final String KEY_METADATA_USER = "metadata_user";
     public static final String KEY_METADATA_PASS = "metadata_pass";
+    public static final String KEY_RASQL_SERVLET_UPLOAD_PATH = "rasql_servlet_upload_path";
     // users edit service provider, service identification
     public static final String KEY_PETASCOPE_ADMIN_USER = "petascope_admin_user";
     public static final String KEY_PETASCOPE_ADMIN_PASS = "petascope_admin_pass";
@@ -223,18 +228,8 @@ public class ConfigManager {
         }
 
         confDir = IOUtil.wrapDir(confDir);
-
         // moved configuration files from the war file to a directory specified in web.xml -- DM 2012-jul-09
-        System.out.println("Configuration dir: " + confDir);
-
-        // load logging configuration
-        try {
-            PropertyConfigurator.configure(confDir + LOG_PROPERTIES_FILE);
-        } catch (Exception ex) {
-            System.err.println("Error loading logger configuration " + confDir + LOG_PROPERTIES_FILE);
-            ex.printStackTrace();
-            BasicConfigurator.configure();
-        }
+        log.debug("Configuration dir: " + confDir);
 
         // init XML parser
         XMLUtil.init();
@@ -250,6 +245,35 @@ public class ConfigManager {
         } catch (IOException e) {
             log.error("Failed loading the settings file " + confDir + SETTINGS_FILE, e);
             throw new RuntimeException("Failed loading the settings file " + confDir + SETTINGS_FILE, e);
+        }
+
+        // load logging configuration
+        try {
+            PropertyConfigurator.configure(confDir + SETTINGS_FILE);
+        } catch (Exception ex) {
+            System.err.println("Error loading logger configuration: " + confDir + SETTINGS_FILE);
+            ex.printStackTrace();
+            BasicConfigurator.configure();
+        }
+
+        String logFilePath = props.getProperty(LOG_FILE_PATH);
+
+        // there is log file path in petascope.properties
+        if (logFilePath != null) {            
+            File f = new File(logFilePath);
+            // If the log file path is configured as absolute path, we check the write permision of Tomcat username on this file.
+            if (f.isAbsolute()) {                                                
+                if (!f.canWrite()) {
+                    log.warn("Cannot write to the petascope log file defined in petascope.properties: "  + logFilePath + ".\n" 
+                           + "Please make sure the path specified by " + LOG_FILE_PATH + " in petascope.properties is"
+                           + " a location where the system user running Tomcat has write access."
+                           + " Otherwise, the petascope log can only be found in the Tomcat log (usually catalina.out).");
+                }
+            } else {
+                // log file path is relative, we don't know where directory user want to set the log file, so user will need to see the log in catalina.out
+                log.warn(LOG_FILE_PATH + " is set to relative path: " + logFilePath + " in petascope.properties; it is recommended to set it to an absolute path."
+                     + " In any case, the petascope log can be found in the Tomcat log (usually catalina.out).");
+            }
         }
     }
 
@@ -356,6 +380,9 @@ public class ConfigManager {
         if (tmp.length() > 0) {
             WCST_DEFAULT_DATATYPE = tmp;
         }
+
+        // rasql servlet upload path for decode()
+        RASQL_SERVLET_UPLOAD_DIR = get(KEY_RASQL_SERVLET_UPLOAD_PATH);
 
         log.info("------------------------------------");
         log.info("       *** PETASCOPE ***      ");

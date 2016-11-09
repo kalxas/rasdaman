@@ -39,19 +39,19 @@ public class WcpsCoverageMetadata {
 
     private final String coverageName;
     private String coverageType;
-    private final List<Axis> axes;
+    private List<Axis> axes;
     // output bounding box of coverage, used in case of scale, extend
     // e.g: scale(c, imageCrsdomain(c[Lat(0:20)], Long(0:30)])) then it has 2 axes (Lat(0:20), Long(0:30))
-    private final List<Axis> axesBBox = new ArrayList<Axis>();
+    private List<Axis> axesBBox = new ArrayList<Axis>();
     private final String crsUri;
     // use in crsTransform()
     private String outputCrsUri;
     private final List<RangeField> rangeFields;
-    
+
     private List<Double> nodata;
     private String metadata;
 
-    public WcpsCoverageMetadata(String coverageName, String coverageType, List<Axis> axes, String crsUri, 
+    public WcpsCoverageMetadata(String coverageName, String coverageType, List<Axis> axes, String crsUri,
                                 List<RangeField> rangeFields, String metadata, List<Double> nodata) {
         this.crsUri = crsUri;
         this.axes = axes;
@@ -60,6 +60,10 @@ public class WcpsCoverageMetadata {
         this.metadata = metadata;
         this.nodata = nodata;
         this.coverageType = coverageType;
+    }
+
+    public void setAxes(List<Axis> axes) {
+        this.axes = axes;
     }
 
     public List<Axis> getAxes() {

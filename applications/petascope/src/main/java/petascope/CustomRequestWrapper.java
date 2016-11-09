@@ -35,6 +35,7 @@ import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletRequestWrapper;
+import petascope.util.RequestUtil;
 import petascope.util.StringUtil;
 
 public class CustomRequestWrapper extends HttpServletRequestWrapper {
@@ -61,12 +62,12 @@ public class CustomRequestWrapper extends HttpServletRequestWrapper {
      */
     public void addParameter(String name, String value) {
         if (parameterMap == null) {
-                parameterMap = new HashMap<String, String[]>();
-                parameterMap.putAll(wrapped.getParameterMap());
+            parameterMap = new HashMap<String, String[]>();
+            parameterMap.putAll(wrapped.getParameterMap());
         }
         String[] values = parameterMap.get(name);
         if (values == null) {
-                values = new String[0];
+            values = new String[0];
         }
         List<String> list = new ArrayList<String>(values.length + 1);
         list.addAll(Arrays.asList(values));
@@ -77,12 +78,12 @@ public class CustomRequestWrapper extends HttpServletRequestWrapper {
     @Override
     public String getParameter(String name) {
         if (parameterMap == null) {
-                return wrapped.getParameter(name);
+            return wrapped.getParameter(name);
         }
 
         String[] strings = parameterMap.get(name);
         if (strings != null) {
-                return strings[0];
+            return strings[0];
         }
         return null;
     }
@@ -90,7 +91,7 @@ public class CustomRequestWrapper extends HttpServletRequestWrapper {
     @Override
     public Map<String, String[]> getParameterMap() {
         if (parameterMap == null) {
-                return wrapped.getParameterMap();
+            return wrapped.getParameterMap();
         }
 
         return Collections.unmodifiableMap(parameterMap);
@@ -99,7 +100,7 @@ public class CustomRequestWrapper extends HttpServletRequestWrapper {
     @Override
     public Enumeration<String> getParameterNames() {
         if (parameterMap == null) {
-                return wrapped.getParameterNames();
+            return wrapped.getParameterNames();
         }
 
         return Collections.enumeration(parameterMap.keySet());
@@ -108,17 +109,24 @@ public class CustomRequestWrapper extends HttpServletRequestWrapper {
     @Override
     public String[] getParameterValues(String name) {
         if (parameterMap == null) {
-                return wrapped.getParameterValues(name);
+            return wrapped.getParameterValues(name);
         }
         return parameterMap.get(name);
+    }
+    
+    @Override
+    public String getQueryString() {
+        // We will need to override the super's method as the super() is encoded() queryString and it cannot parse in handlers.
+        return this.queryString;
     }
 
     /**
      * Parse query string to parameters map
      * NOTE: replace "+" with "%2B"
      */
-    private void parseQueryString() throws UnsupportedEncodingException {
-        this.queryString = this.queryString.replace("+", "%2B");
+    private void parseQueryString() throws UnsupportedEncodingException {        
+        // decode URL
+        this.queryString = this.decodeURL(queryString);
         String[] params = this.queryString.split("&");
         params = StringUtil.clean(params);
 
@@ -131,7 +139,7 @@ public class CustomRequestWrapper extends HttpServletRequestWrapper {
             String name = param.split("=")[0];
             String value = "";
             if (paramTmp.length > 1) {
-                value = URLDecoder.decode(param.split("=")[1], "UTF-8");
+                value = param.split("=")[1];
             }
 
             Object listValues = paramsMapTmp.get(name);
@@ -155,5 +163,20 @@ public class CustomRequestWrapper extends HttpServletRequestWrapper {
             String[] paramValues = entry.getValue().toArray(new String[size]);
             parameterMap.put(paramName, paramValues);
         }
+    }
+    
+    /**
+     * Decode from KVP request
+     * @param queryString
+     * @return 
+     * @throws java.io.UnsupportedEncodingException 
+     */
+    private String decodeURL(String queryString) throws UnsupportedEncodingException {
+        // if query is not encoded then must convert the "+" to encoded character
+        queryString = queryString.replace("+", "%2B");
+        // then decode the posted query string
+        queryString = URLDecoder.decode(queryString, "UTF8");
+        queryString = queryString.replace("\n", "").replace("\r", "");
+        return queryString;
     }
 }

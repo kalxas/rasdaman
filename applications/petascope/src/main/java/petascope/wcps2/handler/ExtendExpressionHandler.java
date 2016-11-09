@@ -21,8 +21,10 @@
  */
 package petascope.wcps2.handler;
 
+import java.util.ArrayList;
 import java.util.List;
 import petascope.exceptions.PetascopeException;
+import petascope.wcps2.metadata.model.Axis;
 import petascope.wcps2.metadata.model.Subset;
 import petascope.wcps2.metadata.model.WcpsCoverageMetadata;
 import petascope.wcps2.metadata.service.RasqlTranslationService;
@@ -34,7 +36,11 @@ import petascope.wcps2.result.parameters.SubsetDimension;
 
 /**
  * Translator class for the extend operation in wcps
- *
+ * for c in (test_mean_summer_airtemp)
+ * return encode(
+ *     extend(c, {Lat:"http://www.opengis.net/def/crs/EPSG/0/3857"(-4000000:-2500000),
+ *                Long:"http://www.opengis.net/def/crs/EPSG/0/4326"(120:130)} ),
+ * "png", "nodata=0")
  * @author <a href="mailto:alex@flanche.net">Alex Dumitru</a>
  * @author <a href="mailto:vlad@flanche.net">Vlad Merticariu</a>
  */
@@ -47,13 +53,24 @@ public class ExtendExpressionHandler {
         WcpsCoverageMetadata metadata = coverageExpression.getMetadata();
         // extend(coverageExpression, {domainIntervals})
         List<SubsetDimension> intervals = dimensionIntervalList.getIntervals();
-        List<Subset> subsets = subsetParsingService.convertToNumericSubsets(intervals, metadata);
+        List<Subset> subsets = subsetParsingService.convertToNumericSubsets(intervals, metadata, true);
+        // NOTE: this method will apply subsets on coverage's axes (e.g: scale(c, {Lat:"CRS:1"(0:100), Long:"CRS:1"(20:70)})
+        // Only gridbound of the translated axis is needed to add in the intervalList below.
+        // The coverage must keep the original axes in the coverage metadata as it does not mean coverage is translated to CRS:1.
+        List<Axis> originalAxes = new ArrayList();
+        for (Axis axis:metadata.getAxes()) {
+            originalAxes.add(axis.clone());
+        }
+
         metadata = wcpsCoverageMetadataService.applySubsets(false, metadata, subsets);
 
         // it will not get all the axis to build the intervals in case of (extend() and scale())
         String domainIntervals = rasqlTranslationService.constructSpecificRasqlDomain(metadata.getAxes(), subsets);
         String rasql = TEMPLATE.replace("$coverage", coverageExpression.getRasql())
                                .replace("$intervalList", domainIntervals);
+
+        // Revert translatedAxes by originalAxes
+        metadata.setAxes(originalAxes);
         return new WcpsResult(metadata, rasql);
     }
 

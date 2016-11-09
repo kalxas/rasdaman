@@ -34,6 +34,7 @@ from master.mediator.mediator import Mediator
 from master.provider.data.tuple_list_data_provider import TupleListDataProvider
 from master.provider.metadata.axis import Axis
 from master.provider.metadata.grid_axis import GridAxis
+from master.provider.metadata.irregular_axis import IrregularAxis
 from master.provider.metadata.metadata_provider import MetadataProvider
 from util.coverage_util import CoverageUtil
 from util.file_obj import File
@@ -209,11 +210,15 @@ class Importer:
         axes_map = OrderedDict()
         for axis, grid_axis in self.coverage.get_insert_axes().iteritems():
             if axis.coefficient is not None:
+                assert type(axis.coefficient) == list, "Axis coefficients not of type list."
+                assert len(axis.coefficient) > 0, "The list of coefficients is empty."
                 # Get the first coefficient in irregular coverage  to create a initial slice
-                axis.coefficient = [axis.coefficient[0]]
+                axis = IrregularAxis(axis.label, axis.uomLabel, axis.low, axis.high, axis.origin, [axis.coefficient[0]],
+                                     axis.crs_axis)
             axes_map[axis] = GridAxis(grid_axis.order, grid_axis.label, grid_axis.resolution, 0, 0)
         metadata_provider = MetadataProvider(self.coverage.coverage_id, axes_map,
-                                             self.coverage.range_fields, self.coverage.crs, self.coverage.metadata, self.grid_coverage)
+                                             self.coverage.range_fields, self.coverage.crs, self.coverage.metadata,
+                                             self.grid_coverage)
         tuple_list = ",".join(['0'] * len(self.coverage.range_fields))
         data_provider = TupleListDataProvider(tuple_list)
         file = Mediator(metadata_provider, data_provider).get_gml_file()
@@ -225,7 +230,8 @@ class Importer:
         :rtype: File
         """
         metadata_provider = MetadataProvider(self.coverage.coverage_id, self.coverage.get_insert_axes(),
-                                             self.coverage.range_fields, self.coverage.crs, self.coverage.metadata, self.grid_coverage)
+                                             self.coverage.range_fields, self.coverage.crs, self.coverage.metadata,
+                                             self.grid_coverage)
         data_provider = self.coverage.slices[0].data_provider
         file = Mediator(metadata_provider, data_provider).get_gml_file()
         self.processed += 1

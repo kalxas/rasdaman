@@ -1,0 +1,9 @@
+service=WCS&
+version=2.0.1&
+request=GetCoverage&
+coverageId=test_irr_cube_2&
+subset=E(90369.9573136,102529.014652)&
+subset=N(5205426.8043,5265958.54617)&
+subset=ansi(148654)&
+subsettingCrs=http://www.opengis.net/def/crs/EPSG/0/32633&
+format=image/tiff

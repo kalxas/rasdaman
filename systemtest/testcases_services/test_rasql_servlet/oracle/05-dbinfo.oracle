@@ -1,0 +1,16 @@
+{
+ "oid": "74753",
+ "baseType": "marray <char>",
+ "tileNo": "3",
+ "totalSize": "54016",
+ "tiling": {
+	"tilingScheme": "aligned",
+	"tileSize": "4194304",
+	"tileConfiguration": "[0:1023,0:1023]"
+ },
+ "index": {
+	"type": "rpt_index",
+	"PCTmax": "4096",
+	"PCTmin": "2048"
+ }
+}

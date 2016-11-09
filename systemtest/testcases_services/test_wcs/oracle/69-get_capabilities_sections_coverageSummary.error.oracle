@@ -2,7 +2,7 @@
 <ows:ExceptionReport version="2.0.0"
     xsd:schemaLocation="http://www.opengis.net/ows/2.0 http://schemas.opengis.net/ows/2.0/owsExceptionReport.xsd"
       >
-    <ows:Exception locator="sections" exceptionCode="InvalidEncodingSyntax">
+    <ows:Exception exceptionCode="InvalidEncodingSyntax" locator="sections">
         <ows:ExceptionText>Document received does not conform with protocol syntax</ows:ExceptionText>
     </ows:Exception>
 

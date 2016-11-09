@@ -1,6 +1,6 @@
 service=WCS&
 version=2.0.1&
 request=GetCoverage&
-coverageId=eobstest&
-subset=t,CRS:1(1)&
+coverageId=test_eobstest&
+subset=t("1950-01-01")&
 format=image/jp2

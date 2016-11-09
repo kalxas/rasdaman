@@ -22,6 +22,7 @@
 package petascope.wcs2.handlers.wcst.helpers.decodeparameters;
 
 import java.io.IOException;
+import petascope.exceptions.WCSException;
 
 /**
  * Interface for converting range parameters from a coverage to a string passed in the decode function of rasdaman.
@@ -30,5 +31,5 @@ import java.io.IOException;
  */
 public interface RangeParametersConvertor {
 
-    public String toRasdamanDecodeParameters() throws IOException;
+    public String toRasdamanDecodeParameters() throws IOException, WCSException;
 }

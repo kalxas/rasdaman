@@ -1,0 +1,1 @@
+../petascope/update_properties.sh

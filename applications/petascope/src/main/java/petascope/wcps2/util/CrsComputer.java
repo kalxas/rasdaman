@@ -37,6 +37,7 @@ import petascope.wcps2.metadata.model.ParsedSubset;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.Arrays;
+import petascope.exceptions.WCSException;
 
 /**
  * Translates a CRS subset interval to array indices
@@ -84,7 +85,7 @@ public class CrsComputer {
         this.subset.setSubsetTrim(false);
     }
 
-    public ParsedSubset<Long> getPixelIndices() {
+    public ParsedSubset<Long> getPixelIndices() throws WCSException {
         return getPixelIndices(false);
     }
 
@@ -93,7 +94,7 @@ public class CrsComputer {
      * @param ignoreOutOfBoundsCheck
      * @return
      */
-    public ParsedSubset<Long> getPixelIndices(boolean ignoreOutOfBoundsCheck) {
+    public ParsedSubset<Long> getPixelIndices(boolean ignoreOutOfBoundsCheck) throws WCSException {
         double lowerNumericLimit, upperNumericLimit;
         DomainElement dom = coverage.getCoverageInfo().getDomainByName(axisName);
         CellDomainElement cdom = coverage.getCoverageInfo().getCellDomainByName(axisName);
@@ -315,7 +316,7 @@ public class CrsComputer {
     /**
      * Checks if the subset is valid and can be translated
      */
-    private void checkTimeSubsetValidity() {
+    private void checkTimeSubsetValidity() throws WCSException {
         if (!TimeUtil.isValidTimestamp(subset.getLowerLimit())) {
             throw new InvalidDateTimeSubsetException(axisName, subset);
         }
@@ -323,11 +324,7 @@ public class CrsComputer {
             throw new InvalidDateTimeSubsetException(axisName, subset);
         }
 
-        try {
-            if (!TimeUtil.isOrderedTimeSubset(subset.getLowerLimit(), subset.getUpperLimit())) {
-                throw new UnorderedSubsetException(axisName, subset);
-            }
-        } catch (PetascopeException e) {
+        if (!TimeUtil.isOrderedTimeSubset(subset.getLowerLimit(), subset.getUpperLimit())) {
             throw new UnorderedSubsetException(axisName, subset);
         }
     }
@@ -338,7 +335,7 @@ public class CrsComputer {
      *
      * @return
      */
-    private ParsedSubset<Long> getTimePixelIndices(boolean ignoreOutOfBoundsCheck) {
+    private ParsedSubset<Long> getTimePixelIndices(boolean ignoreOutOfBoundsCheck) throws WCSException {
         DomainElement dom = coverage.getCoverageInfo().getDomainByName(axisName);
         checkTimeSubsetValidity();
         final ParsedSubset<Long> result;

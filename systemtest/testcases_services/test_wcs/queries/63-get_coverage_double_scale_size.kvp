@@ -1,5 +1,5 @@
 SERVICE=WCS&
 VERSION=2.0.1&
 REQUEST=GetCoverage&
-CoverageId=mean_summer_airtemp&
+CoverageId=test_mean_summer_airtemp&
 SCALESIZE=Long(10.0),Lat(20.0)

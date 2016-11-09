@@ -244,12 +244,21 @@ public class DomainElement implements Cloneable {
     public boolean isPositiveForwards() {
         return positiveForwards;
     }
-    public void setCoefficients(List<BigDecimal> coeffs) {
-        this.coefficients = new ArrayList<BigDecimal>(coeffs);
+
+    /**
+     * Setter for the coefficients of the domain.
+     * @param coefficients the new list of coefficients.
+     */
+    public void setCoefficients(List<BigDecimal> coefficients) {
+        this.coefficients = coefficients;
     }
 
+    /**
+     * Getter for the coefficients of the domain.
+     * @return the list of coefficients corresponding to the domain.
+     */
     public List<BigDecimal> getCoefficients() {
-        return new ArrayList<BigDecimal>(this.coefficients);
+        return coefficients;
     }
 
     @Override

@@ -5,36 +5,36 @@
     xmlns:gmlcov='http://www.opengis.net/gmlcov/1.0'
     xmlns:swe='http://www.opengis.net/swe/2.0'
     xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance'
-    xmlns:wcs='http://www.opengis.net/wcs/2.0' id="irr_cube_2"
+    xmlns:wcs='http://www.opengis.net/wcs/2.0' id="test_irr_cube_2"
     xsi:schemaLocation= 'http://www.opengis.net/wcs/2.0 http://schemas.opengis.net/wcs/2.0/wcsAll.xsd'>
 
   <boundedBy>
     <Envelope srsName="/crs/OGC/0/AnsiDate" axisLabels="ansi" uomLabels="d" srsDimension="1">
-      <lowerCorner>148656</lowerCorner>
-      <upperCorner>148658</upperCorner>
+      <lowerCorner>148654.08425925925257615745067596435546875</lowerCorner>
+      <upperCorner>148661.002060185186564922332763671875</upperCorner>
     </Envelope>
   </boundedBy>
 
   <domainSet>
-    <gmlrgrid:ReferenceableGridByVectors dimension="1" id="irr_cube_2-grid"
+    <gmlrgrid:ReferenceableGridByVectors dimension="1" id="test_irr_cube_2-grid"
         
         >
       <limits>
         <GridEnvelope>
-          <low>1</low>
-          <high>2</high>
+          <low>0</low>
+          <high>3</high>
         </GridEnvelope>
       </limits>
       <axisLabels>ansi</axisLabels>
       <gmlrgrid:origin>
-        <Point id="irr_cube_2-origin" srsName="/crs/OGC/0/AnsiDate" axisLabels="ansi" uomLabels="d" srsDimension="1">
-          <pos>148655</pos>
+        <Point id="test_irr_cube_2-origin" srsName="/crs/OGC/0/AnsiDate" axisLabels="ansi" uomLabels="d" srsDimension="1">
+          <pos>148654.08425925925</pos>
         </Point>
       </gmlrgrid:origin>
       <gmlrgrid:generalGridAxis>
         <gmlrgrid:GeneralGridAxis>
           <gmlrgrid:offsetVector srsName="/crs/OGC/0/AnsiDate" axisLabels="ansi" uomLabels="d" srsDimension="1">1</gmlrgrid:offsetVector>
-          <gmlrgrid:coefficients>1 3</gmlrgrid:coefficients>
+          <gmlrgrid:coefficients>2008-01-01T02:01:20Z 2008-01-03T23:59:55Z 2008-01-05T01:58:30Z 2008-01-08T00:02:58Z</gmlrgrid:coefficients>
           <gmlrgrid:gridAxesSpanned>ansi</gmlrgrid:gridAxesSpanned>
           <gmlrgrid:sequenceRule axisOrder="+1">Linear</gmlrgrid:sequenceRule>
         </gmlrgrid:GeneralGridAxis>
@@ -46,14 +46,14 @@
   <rangeSet>
     <DataBlock>
       <rangeParameters/>
-      <tupleList ts="," cs=" ">0 0,0 0</tupleList>
+      <tupleList ts="," cs=" ">8.64451 4.17255,3.11651 0.451686,7.64325 0.618357,2.50987 1.96483</tupleList>
     </DataBlock>
   </rangeSet>
 
   <coverageFunction>
     <GridFunction>
       <sequenceRule axisOrder="+1">Linear</sequenceRule>
-      <startPoint>1</startPoint>
+      <startPoint>0</startPoint>
     </GridFunction>
   </coverageFunction>
 
