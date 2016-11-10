@@ -146,7 +146,7 @@ install( CODE "execute_process(COMMAND mv ${CONF_DIR}/log4j.properties ${CONF_DI
 install_if_not_exists("${CMAKE_CURRENT_SOURCE_DIR}/src/main/resources/wms/wms_service.properties" ${CONF_DIR})
 
 # Install petascope.properties if does not exist and run update_properties.sh to merge new configuration file with old configuration file
-install( CODE "execute_process(COMMAND sh  ${CMAKE_CURRENT_SOURCE_DIR}/update_properties.sh ${CONF_DIR}/petascope.properties ${SETTINGS_FILE})" )
+install( CODE "execute_process(COMMAND bash  ${CMAKE_CURRENT_SOURCE_DIR}/update_properties.sh ${CONF_DIR}/petascope.properties ${SETTINGS_FILE})" )
 
 # Install it to the war directory specified during configure
 install(FILES "${PETASCOPE_TARGET_DIR}/rasdaman.war"
