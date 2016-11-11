@@ -211,11 +211,20 @@ public class NetCDFParametersFactory {
                     double offset = resolution.multiply(new BigDecimal(i)).doubleValue();
                     // positive axis (e.g: Long) so step values from min -> max (e.g: -180, -150, -120,..., 120, 150, 180)
                     if (regularAxis.getScalarResolution().compareTo(BigDecimal.ZERO) > 0) {
-                        coord = geoDomMin.add(new BigDecimal(Math.abs(offset)));
+                        coord = geoDomMin.add(new BigDecimal(Math.abs(offset)));                        
+                        
+                        // NOTE: as netCDF point's coordinate is in the middle of pixel, so the coordinate will be shiftted to half positive pixel
+                        // e.g: resolution is: -0.42, pixel coordinate is: -80, -79.958, then point is: -80 +(0.42/2) = -79.979
+                        coord = coord.add(resolution.divide(new BigDecimal(2)).abs());
                     } else {
                         // negative axis (e.g: Lat) so step values from max -> min (e.g: 90, 80, 70,...-70, -80, -90)
                         coord = geoDomMax.subtract(new BigDecimal(Math.abs(offset)));
+                        
+                        // NOTE: as netCDF point's coordinate is in the middle of pixel, so the coordinate will be shiftted to half negative pixel
+                        // e.g: resolution is: -0.42, pixel coordinate is: -89, -89.042, then point is: -89 -(0.42/2) = -89.0.21
+                        coord = coord.subtract(resolution.divide(new BigDecimal(2)).abs());
                     }
+                    
 
                     data.add(coord.doubleValue());
                 }

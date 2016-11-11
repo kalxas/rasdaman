@@ -1,0 +1,1 @@
+for c in (test_world_temp) return encode(c, "netcdf")

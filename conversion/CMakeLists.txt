@@ -83,12 +83,10 @@ if (USE_GRIB)
     set(OPTIONAL_INCLUDE_DIRECTORIES ${OPTIONAL_INCLUDE_DIRECTORIES} ${GRIB_INCLUDE_DIR})    
 endif ()
 
-find_package(JPEG REQUIRED)
-find_package(PNG REQUIRED)
 find_package(TIFF REQUIRED)
 
 target_include_directories(conversion SYSTEM PUBLIC ${OPTIONAL_INCLUDE_DIRECTORIES})
-target_link_libraries(conversion ${JPEG_LIBRARIES} ${PNG_LIBRARIES} ${TIFF_LIBRARIES} ${OPTIONAL_LIBRARIES} ${JSONCPP_LIBRARY})
+target_link_libraries(conversion ${TIFF_LIBRARIES} ${OPTIONAL_LIBRARIES} ${JSONCPP_LIBRARY})
 
 install(TARGETS conversion
         DESTINATION ${LIB_DIR})

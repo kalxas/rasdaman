@@ -42,8 +42,12 @@ set(_HDF4_PATHS
         $ENV{HDF4_ROOT}
         $ENV{HDF4_ROOT_DIR_HINT}
         /usr/lib
+        /usr/lib/hdf
+        /usr/lib64
+        /usr/lib64/hdf
         /usr/share
         /usr/include
+        /usr/include/hdf
         /usr/local)
 
 set(_HDF4_PATH_SUFFIXES hdf)
@@ -64,8 +68,14 @@ find_library(LIBMFHDF NAMES mfhdf mfhdfalt PATHS ${_HDF4_PATHS})
 if (LIBDF AND LIBMFHDF)
     set(HDF4_LIBRARIES ${LIBDF} ${LIBMFHDF})
 else ()
-    message(FATAL_ERROR "USE_HDF4 was given but libhdf was not found! Please install libhdf or libhdf-alt.")
-endif ()
+    find_library(LIBDF NAMES df PATHS ${_HDF4_PATHS})
+    find_library(LIBMFHDF NAMES mfhdf PATHS ${_HDF4_PATHS})
+    if (LIBDF AND LIBMFHDF)
+        set(HDF4_LIBRARIES ${LIBDF} ${LIBMFHDF})
+    else ()
+        message(FATAL_ERROR "USE_HDF4 was given but libhdf was not found! Please install libhdf or libhdf-alt.")
+    endif ()
+endif()
 
 set(HDF4_INCLUDE_DIR "${HDF4_INCLUDE_DIRS}")
 
