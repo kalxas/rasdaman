@@ -609,7 +609,7 @@ run_test()
                     # run the replaced script to upload file and rasql query to rasql-servlet and redirect output to /out directory
                     sh "$templateFile".tmp.sh > "$OUTPUT_PATH/"$f".out"
                     # remove the temp bash script
-                    rm "$templateFile".tmp.sh
+                    rm -f "$templateFile".tmp.sh
               esac
               ;;
       wcps)   case "$test_type" in
@@ -638,7 +638,7 @@ run_test()
                         continue
                     fi
                     echo "Done."
-                    rm "$postdata"
+                    rm -f "$postdata"
                     ;;
                 *)   error "unknown wcs test type: $test_type"
               esac
@@ -669,7 +669,7 @@ run_test()
                         continue
                     fi
 
-                    rm "$postdata"
+                    rm -f "$postdata"
                     ;;
                 *)  error "unknown wcs test type: $test_type"
               esac
@@ -758,8 +758,8 @@ run_test()
         cmp "$out" "$oracle" 2>&1
 
         # remove the temp files
-        rm "$oracle.tmp"
-        rm "$out.tmp"
+        rm -f "$oracle.tmp"
+        rm -f "$out.tmp"
 
         update_result
 
@@ -781,16 +781,20 @@ run_test()
           # byte comparison
           if [[ "$filetype" == *XML* ]]; then
               prepare_xml_file "$out"
+              # strip indentation from $oracle -> $oracle.tmp and $out -> $out.tmp
+              trim_indentation "$oracle"
+              trim_indentation "$out"
+              log "XML comparison"
+              # diff comparison ignoring EOLs [see ticket #551]
+              diff -b "$oracle.tmp" "$out.tmp" 2>&1 > /dev/null
+              # remove the temp files
+              rm -f "$oracle.tmp"
+              rm -f "$out.tmp"
+          else 
+              log "byte comparison"
+              # diff comparison ignoring EOLs [see ticket #551]
+              diff -b "$oracle" "$out" 2>&1 > /dev/null
           fi
-          # strip indentation from $oracle -> $oracle.tmp and $out -> $out.tmp
-          trim_indentation "$oracle"
-          trim_indentation "$out"
-          log "byte comparison"
-          # diff comparison ignoring EOLs [see ticket #551]
-          diff -b "$oracle.tmp" "$out.tmp" 2>&1 > /dev/null
-          # remove the temp files
-          rm "$oracle.tmp"
-          rm "$out.tmp"
         fi
         update_result
 
