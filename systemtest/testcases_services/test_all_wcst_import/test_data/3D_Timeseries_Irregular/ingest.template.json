@@ -23,7 +23,7 @@
         },
         "datetime_format": "YYYY-MM"
       },
-      "time_crs": "SECORE_URL/crs/OGC/0/AnsiDate",
+      "time_crs": "SECORE_URL/crs/OGC/0/AnsiDate?axis-label=\"unix\"",
       "tiling": "ALIGNED [0:3600, 0:1800, 3]"
     }
   }
