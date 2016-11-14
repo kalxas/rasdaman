@@ -19,6 +19,7 @@
  * For more information please see <http://www.rasdaman.org>
  * or contact Peter Baumann via <baumann@rasdaman.com>.
 --%>
+<%@page import="secore.util.ExceptionCode"%>
 <%@page import="secore.db.DbCollection"%>
 <%@page import="java.util.ArrayList"%>
 <%@page import="java.util.List"%>
@@ -117,13 +118,13 @@
       // Normally, only add definition to userdb, only when request to a definition from userdb, the button will be changed to update
       boolean isAddOnUserDB = true;
 
-      if(tmp.length > 3) {
+      if (tmp.length > 3) {
         versionNumber = tmp[3];
         
         // then create a urlTmp with versionNumber will be changed later when query in user and gml dictionaries.
         // due to before both User and Gml dictionaries were used version "0".
         tmp[3] = Constants.VERSION_NUMBER;
-        for(int i = 0; i < tmp.length; i++) {
+        for (int i = 0; i < tmp.length; i++) {
           urlTmp += tmp[i] + "/";
         }
 
@@ -179,8 +180,8 @@
         } else {
           // if ther version number is not specific then query all the versions
           // e.g(8.5, gml_85)
-          for(DbCollection coll: DbManager.collections.keySet()) {
-            if(!coll.getCollectionName().equals(DbManager.USER_DB)) {
+          for (DbCollection coll: DbManager.collections.keySet()) {
+            if (!coll.getCollectionName().equals(DbManager.USER_DB)) {
               // Only add the gml dictionary version numbers.
               versionNumbers.add(coll.getVersionNumber());
             }
@@ -188,7 +189,7 @@
         }
 
         // Query with all the needed GML version numbers.
-        for(String verNum: versionNumbers) {
+        for (String verNum: versionNumbers) {
           result += SecoreUtil.queryDef(urlTmp, false, true, true, verNum);
         }
 
@@ -202,12 +203,24 @@
           // and it support backwards with /def/crs/EPSG/0/2000 as gmldb in /def/crs/EPSG/8.5/2000
           // then in this case if userdb has this id (/crs/EPSG/0/2000) then it will show its definition, otherwise show the original from gml_db.
           String retUserDB = SecoreUtil.queryDef(urlTmp, true, true, false, versionNumber);
-          if(!retUserDB.equals(Constants.EMPTY_XML)) {
+          if (!retUserDB.equals(Constants.EMPTY_XML)) {
             // Get definition from userdb
             result = retUserDB;
           } else {
             // Get definition from gml_db*
-            result = SecoreUtil.queryDef(urlTmp, true, false, true, versionNumber);
+            try {
+                result = SecoreUtil.queryDef(urlTmp, true, false, true, versionNumber);
+            } catch (SecoreException e) {
+                // When remove the last definition of a URN (e.g: remove: /def/axis/0GC/123/test from /def/axis/OGC/123/) from userdb, 
+                // it will reload the page and could not found any definition in /def/axis/OGC/123 from both userdb (check here first, if it cannot find then check 
+                // gml_db (which throw exception if versionNumber does not exist.)
+                if (e.getExceptionCode().equals(ExceptionCode.VersionNotFoundException)) {
+                    // Set the result to empty then it will redirect to the upper parent i.e: /def/axis/OGC/) which has children definitions.
+                    result = Constants.EMPTY_XML;
+                } else {
+                    throw e;
+                }
+            }
             isAddOnUserDB = false;
           }
 
@@ -282,20 +295,16 @@
 
             // get gml:identifier to check that user is used the correct version of userdb for definition
             String identifierUri = StringUtil.getElementValue(mod, Constants.IDENTIFIER_LABEL);
-            //e.g: 8.5
+            //e.g: 8.5 or empty if it is URN (e.g: urn:org:def:axis:EPSG::9902)
             String identifierVersionNumber = StringUtil.getVersionNumber(identifierUri);
+            // Add new CRS definition by URN to userdb.
+            if (identifierVersionNumber.equals("")) {
+              identifierVersionNumber = DbManager.FIX_USER_VERSION_NUMBER;
+            }
 
-            if(!StringUtil.isValidIdentifierURI(identifierUri)) {
+            if (!StringUtil.isValidIdentifierURI(identifierUri)) {
               errorUpdate = "<span style='color:red'>GML Identifier URI: <b> $URI </b> is not valid.</span><br/>";
               errorUpdate = errorUpdate.replace("$URI", identifierUri);
-            } else if(!identifierVersionNumber.equals(DbManager.FIX_USER_VERSION_NUMBER)) {
-              // NOTE: it can only add/update with the versionNumber of userDB (e.g: 0)
-              // not: http://localhost:8080/def/crs/EPSG/8.5/4326
-              errorUpdate = "<span style='color:red'>GML Identifier URI: <b> $URI </b> <br/> with version <b>: $versionNumber </b>"
-                           + " is not valid (must use current userdb version: <b> $userDBVersion </b>).</span><br/>";
-              errorUpdate = errorUpdate.replace("$URI", identifierUri)
-                                       .replace("$versionNumber", identifierVersionNumber)
-                                       .replace("$userDBVersion", DbManager.FIX_USER_VERSION_NUMBER);
             } else {
               // the GML Identifier is correct can add/update in userdb
               // If it does exist in userDictionary then should update it
@@ -399,20 +408,16 @@
         if (!newd.equals(Constants.EMPTY)) {
           // get gml:identifier to check that user is used the correct version of userdb for definition
           String identifierUri = StringUtil.getElementValue(newd, Constants.IDENTIFIER_LABEL);
-          //e.g: 8.5
+          //e.g: 8.5 or empty if it is URN (e.g: urn:org:def:axis:EPSG::9902)
           String identifierVersionNumber = StringUtil.getVersionNumber(identifierUri);
+          // Add new CRS definition by URN to userdb.
+          if (identifierVersionNumber.equals("")) {
+            identifierVersionNumber = DbManager.FIX_USER_VERSION_NUMBER;
+          }
 
-          if(!StringUtil.isValidIdentifierURI(identifierUri)) {
+          if (!StringUtil.isValidIdentifierURI(identifierUri)) {
             errorAdd = "<span style='color:red'>GML Identifier URI: <b> $URI </b> is not valid.</span><br/>";
             errorAdd = errorAdd.replace("$URI", identifierUri);
-          } else if(!identifierVersionNumber.equals(DbManager.FIX_USER_VERSION_NUMBER)) {
-            // NOTE: it can only add/update with the versionNumber of userDB (e.g: 0)
-            // not: http://localhost:8080/def/crs/EPSG/8.5/4326
-            errorAdd = "<span style='color:red'>GML Identifier URI: <b> $URI </b> <br/> with version <b>: $versionNumber </b>"
-                         + " is not valid (must use current userdb version: <b> $userDBVersion </b>).</span><br/>";
-            errorAdd = errorAdd.replace("$URI", identifierUri)
-                                     .replace("$versionNumber", identifierVersionNumber)
-                                     .replace("$userDBVersion", DbManager.FIX_USER_VERSION_NUMBER);
           } else { 
             // It is up to user to decide to insert definition to User Dictionary (so just insert definition)
             errorAdd = SecoreUtil.insertDef(newd, url);
@@ -470,9 +475,8 @@
     // 2. Handles removal of definitions
     String todel = request.getParameter("delete");
     if (null != todel) {
-      // NOTE: only delete in userdb then need to use userdb version.
-      String idUrlTmp = urlTmp.replace(Constants.VERSION_NUMBER, DbManager.FIX_USER_VERSION_NUMBER);
-      errorDel = SecoreUtil.deleteDef(idUrlTmp, todel);
+      // NOTE: only delete in userdb (even if versionNumber is not 0 as it can be any number but it is stored in userdb).
+      errorDel = SecoreUtil.deleteDef(url, todel);
 
       if (errorDel.equals(Constants.EMPTY)) {
         //errorDel = "<span style='font-size: large; color:green;'>The database has been updated sucessfully.</span><br/><br/>";

@@ -84,7 +84,7 @@ public class StringUtil {
   /**
    * URL-decode a string, if needed
    * @param encodedText
-   * @return 
+   * @return
    */
   public static String urldecode(String encodedText) {
     if (encodedText == null) {
@@ -105,7 +105,7 @@ public class StringUtil {
   }
 
   /**
-   * Return the substring after the "def" from URI)   
+   * Return the substring after the "def" from URI)
    * @param s
    * @return (e.g: crs/EPSG/0/4326)
    */
@@ -128,8 +128,8 @@ public class StringUtil {
     }
     return s;
   }
-  
-  
+
+
   /**
    * Strip the service URL and def (e.g: http://localhost:8080/.../4326)
    * @param url
@@ -139,82 +139,89 @@ public class StringUtil {
     int index = url.indexOf(Constants.WEB_APPLICATION_NAME);
     return url.substring(index + Constants.WEB_APPLICATION_NAME.length(), url.length());
   }
-  
+
   /**
    * Get the version number from URI (with 4 parameters)
-   * //e.g: http://localhost:8080/def/crs/EPSG/0/4326
+   * //e.g: http://localhost:8080/def/crs/EPSG/0/4326 or URN (e.g: urn:ogc:def:axis:EPSG::9902)
    * @param s (0)
-   * @return 
+   * @return
    */
   public static String getVersionNumber(String s) {
-    String versionNumber = "";
+    String versionNumber = null;
     String stripDef = stripDef(s);
-    
+
     // e.g: crs/EPSG/0/4326
     String[] tmp = stripDef.split(REST_SEPARATOR);
-    if(tmp.length > 2) {
+    if (tmp.length > 2) {
       versionNumber = tmp[2];
-    }     
+    } else {
+        // URN (axis:EPSG::9902)
+        // NOTE: version number here is empty, which means it is version 0, it can be a number, such as: "urn:ogc:def:crs:AUTO:1.3:42001"
+        tmp = stripDef.split(URN_SEPARATOR);
+        versionNumber = tmp[2];
+    }
     return versionNumber;
   }
-  
-  
+
+
   /**
    * Check if a URI is a standard URN after the service address
-   * with 4 parameters: (e.g: crs/AUTO/1.3/42001).
-   * 
+   * with 4 parameters: (e.g: crs/AUTO/1.3/42001 or axis:EPSG::9902).
+   *
    * Use to check when insert/update gml identifier in definition correctly.
    * @param s
-   * @return 
+   * @return
    */
   public static boolean isValidIdentifierURI(String s) {
     String stripDef = stripDef(s);
-    String[] tmp = stripDef.split(REST_SEPARATOR);
-    if (tmp.length != 4) {
-      return false;
+    if (stripDef.split(REST_SEPARATOR).length != 4) {
+      // check if input is URN (e.g: axis:EPSG::9902)
+      if (stripDef.split(URN_SEPARATOR).length != 4) {
+          return false;
+      }      
     }
     return true;
   }
-  
+
   /**
    * Replace the versionNumber from source to target with a full 4 parameters URL
    * (e.g: http://localhost:8080/def/crs/EPSG/0/4326)
    * Used when change the version number of URN in userdb which is belonged to EPSG database.
    * @param s
    * @param targetVersionNumber
-   * @return 
+   * @return
    */
   public static String replaceVersionNumber(String s, String targetVersionNumber) {
     String stripDef = stripDef(s);
     // e.g: crs/EPSG/0/4326
-    String[] tmp = stripDef.split(REST_SEPARATOR);   
+    String[] tmp = stripDef.split(REST_SEPARATOR);
     tmp[2] = targetVersionNumber;
     String ret = getServiceUri(s);
-   
+
     for (int i = 0; i < tmp.length; i++) {
       ret = ret + tmp[i];
       if ( i < tmp.length - 1) {
         ret = ret + REST_SEPARATOR;
-      }      
+      }
     }
-    
+
     return ret;
   }
-  
+
   /**
-   * Check if a 4 full parameters CRS URI has default userdb version (e.g: 0)   
+   * Check if a 4 full parameters CRS URI has default userdb version (e.g: 0)
    * @param s
-   * @return 
+   * @return
    */
   public static boolean hasDefaultUserDbVersion(String s) {
     String stripDef = stripDef(s);
     // e.g: crs/EPSG/0/4326
     String[] tmp = stripDef.split(REST_SEPARATOR);
-    
+
     if (tmp[2].equals(DbManager.FIX_USER_VERSION_NUMBER)) {
       return true;
     }
-    return false;    
+    return false;
   }
 
   public static String removeDuplicateDef(String s) {
@@ -226,7 +233,7 @@ public class StringUtil {
    * Return the service substring from a URL
    * @param s
    * @return (e.g: http://opengis.net/def/)
-   */  
+   */
   public static String getServiceUri(String s) {
     String servletContext = SERVLET_CONTEXT + REST_SEPARATOR;
     String ret = s;
@@ -270,14 +277,14 @@ public class StringUtil {
     }
     return ret;
   }
-  
+
   /**
    * Utility to check if collection name does exist.
    * //e.g: userdb, gml_85
    * @param query XQuery (e.g: declare ... let $x := collection('') ...)
    * @return String
    */
-  public static String getCollectionNameFromXQuery(String query) {    
+  public static String getCollectionNameFromXQuery(String query) {
     String collectionName = "";
     Pattern p = Pattern.compile(Constants.COLLECTION + "\\('(.*?)'\\)");
     Matcher m = p.matcher(query);
@@ -306,7 +313,7 @@ public class StringUtil {
   }
 
   /**
-   * Get the text content of an element in given xml. 
+   * Get the text content of an element in given xml.
    * // e.g:  <gml:identifier codeSpace="OGP">http://www.opengis.net/def/axis/EPSG/0/1_54698797</gml:identifier>
    * // return http://www.opengis.net/def/axis/EPSG/0/1_54698797
    * @param xml xml
@@ -414,7 +421,7 @@ public class StringUtil {
   }
 
   /**
-   * Replace all URNs in s with URLs in REST format.   
+   * Replace all URNs in s with URLs in REST format.
    * @param s a GML definition
    * @param versionNumber
    * @param url
@@ -425,7 +432,7 @@ public class StringUtil {
   }
 
   /**
-   * Replace all URNs in s with URLs in REST format, given a service URI and version 
+   * Replace all URNs in s with URLs in REST format, given a service URI and version
    * (e.g: 8.5, 8.6 with gml dictionary or 0 with user dictionary)
    *
    * @param s a GML definition
@@ -469,7 +476,7 @@ public class StringUtil {
 //    String prefix = "declare namespace gml = \"";
 //    String suffix = "let $x := doc('gml')/gml:Dictionary\n" +
 //                    "return namespace-uri($x)";
-//    
+//
 //    // iterate through possible namespaces to find the one we need
 //    for (String ns : GML_NAMESPACES) {
 //      String query = prefix + ns + "\";\n" + suffix;
@@ -514,11 +521,11 @@ public class StringUtil {
     }
     return uri;
   }
-  
+
   /**
    * return uri without appended / if it is already
    * @param uri
-   * @return 
+   * @return
    */
   public static String unWrapUri(String uri) {
     if (uri.endsWith(REST_SEPARATOR)) {
@@ -537,12 +544,12 @@ public class StringUtil {
     }
     return uri;
   }
-  
+
    /**
     * Check if URI is the parent node of children URI which contains version number
     * e.g: /def/crs/EPSG/0 will return /def/crs/EPSG/0/4326, /def/crs/EPSG/0/3857,...
     * @param uri
-    * @return 
+    * @return
     */
    public static boolean parentVersionNumberUri(String uri) {
        String pattern = "/def/.*/.*/?";
@@ -554,7 +561,7 @@ public class StringUtil {
        }
        return false;
    }
-  
+
   /**
    * Remove the scheme/host/port from the given url, e.g.
    *

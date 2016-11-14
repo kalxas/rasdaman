@@ -21,7 +21,9 @@
  */
 package secore.handler;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import secore.req.ResolveResponse;
 import secore.req.ResolveRequest;
 import java.util.Set;
@@ -167,7 +169,8 @@ public class IncompleteUrlHandler extends AbstractHandler {
       // as it will return multiples results: e.g: /def/crs/EPSG/0, /def/crs/EPSG/8.5, /def/crs/EPSG/8.92)     
       if (StringUtil.parentVersionNumberUri(urlTmp)) {
           for (DbCollection collection:DbManager.collections.keySet()) {
-             res = SecoreUtil.queryDefVersionless(urlTmp, collection.getVersionNumber());
+              // Get all the children URIs which contain the versionNumber of gml_db (e.g: 0 8.5 8.9.2)
+             res += " " + SecoreUtil.queryDefVersionless(urlTmp, collection.getVersionNumber());
           }
       } else {
           // If don't have versionNumber in request then use the default: gml_0 versionNumber (e.g: /def/)          
@@ -180,7 +183,10 @@ public class IncompleteUrlHandler extends AbstractHandler {
     if (!StringUtil.emptyQueryResult(res)) {      
       // parse the res as it is stored as string (e.g: /def/ will return: area crs crs datum)
       // and store these sublevel into a sorted set (remove duplicate sublevel)
-      Set<String> children = new TreeSet<String>(Arrays.asList(res.split(" ")));
+      List<String> subsetURIs = new ArrayList(Arrays.asList(res.split(" ")));
+      // remove empty elements "" from list
+      subsetURIs.removeAll(Arrays.asList("", null));
+      Set<String> children = new TreeSet<String>(subsetURIs);
       // e.g: http://localhost:8080/def, then we only need the domain:port and urlTmp is the requested URI (e.g: /def/crs/)
       String requestUri = request.getServiceUri().replaceAll("/" + WEB_APPLICATION_NAME + "/?", "").replaceAll("^/", "")
                         + urlTmp.replace(VERSION_NUMBER, versionNumberParam);
