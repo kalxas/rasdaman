@@ -1735,6 +1735,18 @@ ServerComm::executeQuery( unsigned long callingClientId,
 
                             TypeFactory::addTempType( setType );
                             TypeFactory::addTempType( mddType );
+
+                            // print total data size
+                            long totalReturnedSize = 0;
+                            for (auto it = context->transferData->begin(); it != context->transferData->end(); it++)
+                            {
+                                QtMDD* mdd = static_cast<QtMDD*>(*it);
+                                auto baseTypeSize = mddObj->getMDDObject()->getCellType()->getSize();
+                                r_Minterval domain = mddObj->getLoadDomain();
+                                totalReturnedSize += (domain.cell_count() * baseTypeSize);
+                            }
+                            LINFO << MSG_OK << ", result type '" << returnStructure.typeStructure << "', " << context->transferData->size() << " element(s)"
+                                  << ", total size " << totalReturnedSize << " bytes.";
                         }
                         else
                         {
@@ -1747,11 +1759,10 @@ ServerComm::executeQuery( unsigned long callingClientId,
                             returnStructure.typeStructure = static_cast<char*>(mymalloc( strlen(elementType) + 6 ));
                             sprintf( returnStructure.typeStructure, "set<%s>", elementType );
                             free( elementType );
+                            LINFO << MSG_OK << ", result type '" << returnStructure.typeStructure << "', " << context->transferData->size() << " element(s).";
                         }
 
                         strcpy(globalHTTPSetTypeStructure, returnStructure.typeStructure);
-
-                        LINFO << MSG_OK << ", result type '" << returnStructure.typeStructure << "', " << context->transferData->size() << " element(s).";
                     }
                     else
                     {
