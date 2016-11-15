@@ -110,9 +110,9 @@ InstallExternalLibrary(${GTEST_LIBRARY} ${GTEST_LIBRARY_PATH} google-gtest)
 ############################################################################
 # Begin JSONCPP
 ############################################################################
-# Set variables to build GTest
+# Set variables to build json-cpp
 # The name of the GoogleTest library.
-# This variable can be used throughout the code whenever the Google GTest library is needed
+# This variable can be used throughout the code whenever the json-cpp library is needed
 set(JSONCPP_LIBRARY jsoncpp)
 set(JSONCPP_SOURCE_DIR "${CMAKE_SOURCE_DIR}/third_party/jsoncpp")
 set(JSONCPP_INCLUDE_DIR "${JSONCPP_SOURCE_DIR}")
@@ -123,7 +123,7 @@ set(JSONCPP_BUILD_COMMAND ${CMAKE_CXX_COMPILER} -isystem ${JSONCPP_INCLUDE_DIR} 
 set(JSONCPP_BUILD_LIB_COMMAND ${CMAKE_AR} -rv ${JSONCPP_LIBRARY_PATH} ${JSONCPP_BINARY_DIR}/jsoncpp.o)
 
 
-# This external project will build the GoogleTest library and copy it.
+# This external project will build the json-cpp library and copy it.
 ExternalProject_add(jsoncpp_project
         DOWNLOAD_COMMAND ""
         SOURCE_DIR ${JSONCPP_SOURCE_DIR}

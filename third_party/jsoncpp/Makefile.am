@@ -24,6 +24,8 @@
 #
 ##################################################################
 
-noinst_LIBRARIES=libjsoncpp.a
+lib_LIBRARIES=libjsoncpp.a
+
+nobase_include_HEADERS = json/json.h json/json-forwards.h
 
 libjsoncpp_a_SOURCES=jsoncpp.cpp
