@@ -41,14 +41,13 @@ all:
 	if [ $(ALLOW_INSTALL) = TRUE ] ; then \
 		sed -e 's|@WCST_IMPORT_PY_SCRIPT@|$(PYTHON_SCRIPT)|g' wcst_import.sh.in > wcst_import.sh ; \
 		chmod +x wcst_import.sh ; \
-		echo "Build Process sucessfully. You can now install the application by running $ make install"; \
 	fi
+
 install:
 	if [ $(ALLOW_INSTALL) = TRUE ] ; then \
 		$(MKDIR) -p $(INSTALL_DIR); \
 		$(CP) * $(INSTALL_DIR); \
 		$(CP) wcst_import.sh $(BIN_DIR); \
-		echo "Install Process sucessfully."; \
 	fi
 
 uninstall:
