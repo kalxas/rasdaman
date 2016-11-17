@@ -27,14 +27,13 @@ import petascope.exceptions.ExceptionCode;
  *
  * @author <a href="mailto:b.phamhuu@jacobs-university.de">Bang Pham Huu</a>
  */
-public class WCSTAxisOffsetVectorMismatchException extends WCSTException {
+public class WCSTResolutionNotFoundException extends WCSTException {
 
-    public WCSTAxisOffsetVectorMismatchException(String currentOffsetVector, String inputOffsetVector) {
-        super(ExceptionCode.InconsistentChange, EXCEPTION_TEXT.replace("$currentOffsetVector", currentOffsetVector)
-                                                              .replace("$inputOffsetVector", inputOffsetVector));
+    public WCSTResolutionNotFoundException(String resolution) {
+        super(ExceptionCode.InconsistentChange, EXCEPTION_TEXT.replace("$resolution", resolution));
     }
 
-    private final static String EXCEPTION_TEXT = "The resolution of the input coverage is different from the resolution of the target coverage. "
-                                               + "Expected offset vector: \"$currentOffsetVector\", recieved offset vector: \"$inputOffsetVector\"";
+    private final static String EXCEPTION_TEXT = "Resolution $resolution was found in the input coverage, but no axis with the same "
+            + "resolution exists in the target coverage.";
 
 }

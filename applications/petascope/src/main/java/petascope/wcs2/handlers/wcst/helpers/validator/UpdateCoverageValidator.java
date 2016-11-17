@@ -32,11 +32,12 @@ import petascope.wcs2.handlers.wcst.UpdateCoverageHandler;
 import petascope.wcs2.parsers.subsets.DimensionSubset;
 
 import java.util.Iterator;
-import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Map.Entry;
-import petascope.util.ListUtil;
+import petascope.exceptions.PetascopeException;
+import petascope.exceptions.SecoreException;
+import petascope.util.CrsUtil;
+import petascope.util.Vectors;
 
 /**
  * Validator for the UpdateCoverage request, following the requirements of WCS-T specs.
@@ -75,16 +76,24 @@ public class UpdateCoverageValidator {
      * @throws WCSTAxisNumberMismatchException
      * @throws WCSTRangeFieldNumberMismatchException
      * @throws WCSTRangeFieldNameMismatchException
-     * @throws petascope.exceptions.wcst.WCSTAxisOffsetVectorMismatchException
+     * @throws petascope.exceptions.wcst.WCSTResolutionNotFoundException
+     * @throws petascope.exceptions.wcst.WCSTCrsGridAxesMismatch
+     * @throws petascope.exceptions.SecoreException
      */
     public void validate() throws WCSTSubsetDimensionMismatchException, WCSTAxisCrsMismatchException,
             WCSTAxisLabelMismatchException, WCSTDomainSetMismatchException, WCSTAxisNumberMismatchException,
-            WCSTRangeFieldNumberMismatchException, WCSTRangeFieldNameMismatchException, WCSTAxisOffsetVectorMismatchException {
+            WCSTRangeFieldNumberMismatchException, WCSTRangeFieldNameMismatchException, WCSTResolutionNotFoundException, 
+            WCSTCrsGridAxesMismatch, PetascopeException, SecoreException {
         validateSubsets(currentCoverage,subsets);
         validateCrses(currentCoverage, inputCoverage);
         validateDomainSet(currentCoverage, inputCoverage, subsets);
         validateOffsetVectors(currentCoverage, inputCoverage);
         validateRangeType(currentCoverage, inputCoverage, rangeComponents);
+        
+        /* Disabled since the irregulat time series recipe creates 2D coverages that have 3D crses. 
+           This is not an issue as long as the slicing crs is the last one. 
+         TODO enable after fixing the time series recipes */
+        //validateCrsGridAxisCorrespondence(inputCoverage);
     }
 
     /**
@@ -143,24 +152,48 @@ public class UpdateCoverageValidator {
      * @param currentCoverage
      * @param inputCoverage
      */
-    private void validateOffsetVectors(CoverageMetadata currentCoverage, CoverageMetadata inputCoverage) throws WCSTAxisOffsetVectorMismatchException {
-        Iterator<Entry<List<BigDecimal>, BigDecimal>> currentCovIterator = currentCoverage.getGridAxes().entrySet().iterator();
+    private void validateOffsetVectors(CoverageMetadata currentCoverage, CoverageMetadata inputCoverage) throws WCSTResolutionNotFoundException {
         Iterator<Entry<List<BigDecimal>, BigDecimal>> inputCovIterator = inputCoverage.getGridAxes().entrySet().iterator();
         
         // NOTE: in case of TimeSeries (e.g: 3D, offset vectors of existing coverage is 3 and offset vectors of input coverage is 2).
         // other case they have same offset vectors (so we use inputCovIterator to iterate).       
         while (inputCovIterator.hasNext()) {
-            Entry<List<BigDecimal>, BigDecimal> currentCovEntry = currentCovIterator.next();
             Entry<List<BigDecimal>, BigDecimal> inputCovEntry = inputCovIterator.next();
             // we get the non-zero offset vector from the offset vector list (e.g: [0, 1, 0] -> 1)
-            BigDecimal currentCovOffsetValue = this.getNonZeroOffsetValue(currentCovEntry.getKey());
-            BigDecimal inputCovOffsetValue = this.getNonZeroOffsetValue(inputCovEntry.getKey());
+            List<Integer> inputCovOffsetIndexList = Vectors.nonZeroComponentsIndices(inputCovEntry.getKey().toArray(new BigDecimal[inputCovEntry.getKey().size()]));
             
-            if (!currentCovOffsetValue.equals(inputCovOffsetValue)) {
-                throw new WCSTAxisOffsetVectorMismatchException(ListUtil.printList(currentCovEntry.getKey(), " "),
-                                                                ListUtil.printList(inputCovEntry.getKey(), " "));
+            //the offset vector can have just 1 non-zero component. This has been checked already when the coverage metadata object was created.
+            //no point in checking again, just asserting.
+            assert inputCovOffsetIndexList.size() == 1;
+            
+            Integer inputIndex = inputCovOffsetIndexList.get(0);
+            
+            if (!checkIfCoverageContainsResolution(currentCoverage, inputCovEntry.getKey().get(inputIndex))) {
+                throw new WCSTResolutionNotFoundException(inputCovEntry.getKey().get(inputIndex).toPlainString());
             }
         }
+    }
+    
+    /**
+     * Checks if a coverage contains an offset vector.
+     * @return true if it does, false otherwise
+     */
+    private boolean checkIfCoverageContainsResolution(CoverageMetadata coverageMetadata, BigDecimal resolution){
+        Iterator<Entry<List<BigDecimal>, BigDecimal>> axisIterator = coverageMetadata.getGridAxes().entrySet().iterator();
+        while (axisIterator.hasNext()) {
+            Entry<List<BigDecimal>, BigDecimal> axisEntry = axisIterator.next();
+            List<Integer> axisOffsetIndexList = Vectors.nonZeroComponentsIndices(axisEntry.getKey().toArray(new BigDecimal[axisEntry.getKey().size()]));
+            //the offset vector can have just 1 non-zero component. This has been checked already when the coverage metadata object was created.
+            //no point in checking again, just asserting.
+            assert axisOffsetIndexList.size() == 1;
+            
+            BigDecimal nonZeroComponent = axisEntry.getKey().get(axisOffsetIndexList.get(0));
+            if (nonZeroComponent.equals(resolution)) {
+                return true;
+            }
+        }
+        //all exhausted, found none
+        return false;
     }
 
     /**
@@ -220,20 +253,18 @@ public class UpdateCoverageValidator {
             }
         }
     }
-    
+
     /**
-     * Iterate the offset vector values to get the non-zero value
-     * @param offsetValues
-     * @return 
+     * Check if number of Crs axes is identical to number of Grid axes of a coverage
+     * @param inputCoverage
+     * @throws WCSTCrsGridAxesMismatch 
      */
-    private BigDecimal getNonZeroOffsetValue(List<BigDecimal> offsetValues) {
-        BigDecimal output = null;
-        for (BigDecimal value:offsetValues) {
-            if (!value.equals(0)) {
-                output = value;
-                break;
-            }
+    private void validateCrsGridAxisCorrespondence(CoverageMetadata inputCoverage) throws WCSTCrsGridAxesMismatch, PetascopeException, SecoreException {
+        int crsAxesSize = CrsUtil.getAxesLabels(inputCoverage.getCrsUris()).size();
+        int gridAxesSize = inputCoverage.getDomainList().size();
+                
+        if (crsAxesSize != gridAxesSize) {
+            throw new WCSTCrsGridAxesMismatch(crsAxesSize, gridAxesSize);
         }
-        return output;
     }
 }

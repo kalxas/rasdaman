@@ -81,6 +81,7 @@ class CRSUtil:
         """
         self.crs_url = crs_url
         self.axes = []
+        self.individual_crs_axes = {}
         self._parse()
         pass
 
@@ -97,6 +98,22 @@ class CRSUtil:
         :return: str
         """
         return self.crs_url.rpartition("/")[-1]
+
+    def get_crs_for_axes(self, axis_list):
+        """
+        Returns the crs corresponding to the given axes
+        :param list[CRSAxis] axis_list: the list of crs axes
+        :return: url of the resulting crs
+        """
+        found_crses = []
+        for axis in axis_list:
+            for crs in self.individual_crs_axes:
+                if axis.label in self.individual_crs_axes[crs] and crs not in found_crses:
+                    found_crses.append(crs)
+        if len(found_crses) > 1:
+            return self.get_compound_crs(found_crses)
+        elif len(found_crses) == 1:
+            return found_crses[0]
 
     @staticmethod
     def get_crs_url(authority, code):
@@ -127,13 +144,14 @@ class CRSUtil:
         return compound
 
     def _parse(self):
-        self.axes = self.get_from_cache(self.crs_url)
+        self.axes = self.get_from_cache(self.crs_url)["axes"]
+        self.individual_crs_axes = self.get_from_cache(self.crs_url)["individual_crs_axes"]
         if len(self.axes) == 0:
             if self.crs_url.find("crs-compound") != -1:
                 self._parse_compound_crs()
             else:
                 self._parse_single_crs(self.crs_url)
-            self.save_to_cache(self.crs_url, self.axes)
+            self.save_to_cache(self.crs_url, self.axes, self.individual_crs_axes)
 
     def _parse_compound_crs(self):
         # http://kahlua.eecs.jacobs-university.de:8080/def/crs-compound?1=http://www.opengis.net/def/crs/EPSG/0/28992&2=http://www.opengis.net/def/crs/EPSG/0/5709
@@ -158,6 +176,7 @@ class CRSUtil:
             root = etree.fromstring(contents)
             cselem = root.xpath("./*[contains(local-name(), 'CS')]")[0]
             xml_axes = cselem.xpath(".//*[contains(local-name(), 'SystemAxis')]")
+            axesLabels = []
             for xml_axis in xml_axes:
                 label = xml_axis.xpath(".//*[contains(local-name(), 'axisAbbrev')]")[0].text
                 direction = xml_axis.xpath(".//*[contains(local-name(), 'axisDirection')]")[0].text
@@ -172,18 +191,24 @@ class CRSUtil:
                     uom = root.xpath(".//*[contains(local-name(), 'CoordinateSystemAxis')]")[0].attrib['uom']
                 else:
                     uom = ""
-                self.axes.append(CRSAxis(label, direction, uom))
+                crsAxis = CRSAxis(label, direction, uom)
+                axesLabels.append(label)
+                self.axes.append(crsAxis)
+            # add to the list of individual crs to axes
+            self.individual_crs_axes[crs] = axesLabels
         except:
             raise RuntimeException(
                 "We could not parse the crs at " + crs + ". Please check that the url is correct.")
 
-    def save_to_cache(self, crs, axes):
-        self.__CACHE__[crs] = axes
+    def save_to_cache(self, crs, axes, individual_crs_axes):
+        self.__CACHE__[crs] = {}
+        self.__CACHE__[crs]["axes"] = axes
+        self.__CACHE__[crs]["individual_crs_axes"] = individual_crs_axes
 
     def get_from_cache(self, crs):
         if crs in self.__CACHE__:
             return self.__CACHE__[crs]
-        return []
+        return {"axes": [], "individual_crs_axes": {}}
 
     __CACHE__ = {}
 

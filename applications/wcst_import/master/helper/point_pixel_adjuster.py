@@ -24,7 +24,7 @@
 from lib import arrow
 from master.helper.regular_user_axis import RegularUserAxis
 from master.helper.user_axis import UserAxisType
-from util import log
+from util.log import log
 
 
 class PointPixelAdjuster:
@@ -108,3 +108,4 @@ class PointPixelAdjuster:
         else:
             # number of direct positions
             return len(user_axis.directPositions)
+

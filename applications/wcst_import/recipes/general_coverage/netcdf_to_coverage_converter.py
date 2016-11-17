@@ -151,7 +151,7 @@ class NetcdfToCoverageConverter(AbstractToCoverageConverter):
             grid_low = 0
             # NOTE: calculate the grid bound for the time axis as when update the boundary it will have error
             time_low = arrow.get(user_axis.interval.low).timestamp
-            time_high = arrow.get(user_axis.interval.high).timestamp
+            time_high = arrow.get(high).timestamp
             number_of_timepixels = time_high - time_low
             # convert all the time_low, time_high, resolution from datetime (date) to seconds
             resolution = user_axis.resolution * 24 * 3600
@@ -295,3 +295,4 @@ class NetcdfToCoverageConverter(AbstractToCoverageConverter):
                             self._data_type(),
                             self.tiling, self._metadata(slices))
         return coverage
+

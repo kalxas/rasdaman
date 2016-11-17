@@ -41,6 +41,7 @@ from util.file_obj import File
 from util.log import log
 from wcst.wcst import WCSTInsertRequest, WCSTUpdateRequest, WCSTSubset
 from wcst.wmst import WMSTFromWCSInsertRequest
+from util.crs_util import CRSUtil
 
 
 class Importer:
@@ -169,6 +170,20 @@ class Importer:
             subsets.append(WCSTSubset(axis_subset.coverage_axis.axis.label, low, high))
         return subsets
 
+    def _get_update_crs(self, slice, crs):
+        """
+        Returns the crs corresponding to the axes that are data bound
+        :param slice: the slice for which the gml should be created
+        :param crs: the crs of the coverage
+        :return: String
+        """
+        crsAxes = []
+        for axis_subset in slice.axis_subsets:
+            if axis_subset.coverage_axis.data_bound:
+                crsAxes.append(axis_subset.coverage_axis.axis.crs_axis)
+        crsUtil = CRSUtil(crs)
+        return crsUtil.get_crs_for_axes(crsAxes)
+
     def _generate_gml_slice(self, slice):
         """
         Generates the gml for a regular slice
@@ -176,10 +191,11 @@ class Importer:
         :rtype: File
         """
         metadata_provider = MetadataProvider(self.coverage.coverage_id, self._get_update_axes(slice),
-                                             self.coverage.range_fields, self.coverage.crs, None, self.grid_coverage)
+                                             self.coverage.range_fields, self._get_update_crs(slice, self.coverage.crs), None, self.grid_coverage)
         data_provider = slice.data_provider
         file = Mediator(metadata_provider, data_provider).get_gml_file()
         return file
+
 
     def _get_update_axes(self, slice):
         """
@@ -257,3 +273,4 @@ class Importer:
         """
         cov = CoverageUtil(self.coverage.coverage_id)
         return not cov.exists()
+

@@ -127,7 +127,7 @@ public class UpdateCoverageHandler extends AbstractRequestHandler<UpdateCoverage
             Map<Integer, String> pixelIndices = getPixelIndicesByCoordinate(currentCoverage, request.getSubsets());
             String affectedDomain = getAffectedDomain(currentCoverage, request.getSubsets(), pixelIndices);                        
             subsetValidator.validate(inputCoverage.getCellDomainList(), affectedDomain);
-            String shiftDomain = getShiftDomain(inputCoverage, pixelIndices);
+            String shiftDomain = getShiftDomain(inputCoverage, currentCoverage, pixelIndices);
             RasdamanUpdater updater;
 
             if (rangeSet.getChildElements(XMLSymbols.LABEL_DATABLOCK,
@@ -355,32 +355,37 @@ public class UpdateCoverageHandler extends AbstractRequestHandler<UpdateCoverage
     }
 
     /**
-     * Computes the domain with which the array in the values clause must be shifted.
-     *
-     * @param inputCoverage the coverage providing the cell values for replacement.
-     * @param pixelIndices  the list of pixel indices corresponding to each subset indicated in the request.
-     * @return the string representation of the rasdaman domain with which the array must be shifted.
-     */
-    private String getShiftDomain(CoverageMetadata inputCoverage, Map<Integer, String> pixelIndices) {
-        String shiftDomain = "[";
-        for (int i = 0; i < inputCoverage.getDimension(); i++) {
-            String shift = "0";
-            if (pixelIndices.containsKey(i)) {
-                //add the lower limit
-                if (pixelIndices.get(i).contains(":")) {
-                    shift = pixelIndices.get(i).split(":")[0];
-                } else {
-                    shift = pixelIndices.get(i);
-                }
-            }
-            shiftDomain += shift.toString();
-            if (i != inputCoverage.getDimension() - 1) {
-                shiftDomain += ",";
+ * Computes the domain with which the array in the values clause must be shifted.
+ *
+ * @param inputCoverage the coverage providing the cell values for replacement.
+ * @param targetCoverage the coverage where the update is being made.
+ * @param pixelIndices  the list of pixel indices corresponding to each subset indicated in the request.
+ * @return the string representation of the rasdaman domain with which the array must be shifted.
+ */
+private String getShiftDomain(CoverageMetadata inputCoverage, CoverageMetadata targetCoverage, Map<Integer, String> pixelIndices) {
+    String shiftDomain = "[";
+    for (int i = 0; i < inputCoverage.getDimension(); i++) {
+        String shift = "0";
+        //get the axis
+        DomainElement inputCoverageAxis = inputCoverage.getDomainList().get(i);
+        //get the order of the axis with the same name from the target coverage
+        int correspondingAxisOrder = targetCoverage.getDomainIndexByName(inputCoverageAxis.getLabel());
+        if (pixelIndices.containsKey(correspondingAxisOrder)) {
+            //add the lower limit
+            if (pixelIndices.get(correspondingAxisOrder).contains(":")) {
+                shift = pixelIndices.get(correspondingAxisOrder).split(":")[0];
+            } else {
+                shift = pixelIndices.get(correspondingAxisOrder);
             }
         }
-        shiftDomain += "]";
-        return shiftDomain;
+        shiftDomain += shift.toString();
+        if (i != inputCoverage.getDimension() - 1) {
+            shiftDomain += ",";
+        }
     }
+    shiftDomain += "]";
+    return shiftDomain;
+}
 
     /**
      * Computes the pixel indices corresponding to each subset given as parameter to the request.
