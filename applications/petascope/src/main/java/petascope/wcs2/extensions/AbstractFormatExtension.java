@@ -34,6 +34,7 @@ import java.util.TreeMap;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import petascope.ConfigManager;
 import petascope.core.CoverageMetadata;
 import petascope.core.DbMetadataSource;
 import petascope.exceptions.ExceptionCode;
@@ -72,6 +73,8 @@ import petascope.wcs2.parsers.subsets.DimensionSubset;
 import petascope.wcs2.parsers.subsets.DimensionTrim;
 import static petascope.wcs2.parsers.subsets.DimensionSubset.QUOTED_SUBSET;
 import petascope.wcs2.parsers.GetCoverageRequest.Scaling;
+import static petascope.wcs2.parsers.GetCoverageRequest.Scaling.SupportedTypes.SCALE_EXTENT;
+import static petascope.wcs2.parsers.GetCoverageRequest.Scaling.SupportedTypes.SCALE_SIZE;
 
 /**
  * An abstract implementation of {@link FormatExtension}, which provides some
@@ -118,9 +121,6 @@ public abstract class AbstractFormatExtension implements FormatExtension {
         CoverageMetadata meta = m.getMetadata();
         boolean domUpdated;
         Iterator<DomainElement>         domsIt = meta.getDomainIterator();
-        Iterator<CellDomainElement> cellDomsIt = meta.getCellDomainIterator();
-        DomainElement domainEl;
-        CellDomainElement cellDomainEl;
         List<DimensionSubset> subsList = request.getSubsets();
 
         // NOTE: sourceCrs can be from subsettingCrs parameter
@@ -159,16 +159,27 @@ public abstract class AbstractFormatExtension implements FormatExtension {
             domsIt = meta.getDomainIterator();
             // after translating the subsets from subsettingCrs to nativeCrs, subsettingCrs
         }
+       
+               
+        // NOTE: OGC CITE scale (req:14, 15 tests on axes and their orders must be as same as from CRS order)
+        // i.e: <GridEnvelop> </GridEnvelop> for coverage imported with CRS: 4326 will need to rewrite as Lat, Long as from CRS not by default Long, Lat (as stored in Rasdaman).
+        // Only when testing OGC CITE
+        if (ConfigManager.OGC_CITE_OUTPUT_OPTIMIZATION) {
+            this.reorderGridAxesByCrsOrder(meta);
+        }
+        
+        List<DomainElement> domainElements = meta.getDomainList();
+        List<CellDomainElement> cellDomainElements = meta.getCellDomainList();
 
         // NOTE: single loop since still N=M for Petascope, being N = dim(grid) and M=dim(CRS).
         // Keep domainElement order (grid order), but need to re-order the coordinates in the tuple for lowerDom/upperDom
-        while (domsIt.hasNext()) {
+        for (int i = 0; i < domainElements.size(); i++) {
             // Check if one subset trims on /this/ dimension:
             // Order and quantity of subsets not necessarily coincide with domain of the coverage
             // (e.g. single subset on Y over a nD coverage)
             domUpdated = false;
-            domainEl     = domsIt.next();
-            cellDomainEl = cellDomsIt.next();
+            DomainElement domainEl     = domainElements.get(i);
+            CellDomainElement cellDomainEl = cellDomainElements.get(i);
             // Loop through each subsets in the request and check if this axis is involved
             Iterator<DimensionSubset> subsIt = subsList.iterator();
             DimensionSubset subset;
@@ -229,23 +240,11 @@ public abstract class AbstractFormatExtension implements FormatExtension {
                                                      trimLow,   !trimLow.matches(QUOTED_SUBSET),
                                                      trimHigh, !trimHigh.matches(QUOTED_SUBSET));
                             // If SCALING on this dimension, fix upperCellDom and offset vector by scale factor
-                            if (request.isScaled()) {
-                                // SCALING EXTENSION: geometry changes
-                                Scaling scaling = request.getScaling();
-                                String axisLabel = subset.getDimension();
-                                if (scaling.isScaled(axisLabel)) {
-                                    BigDecimal scalingFactor = ScalingExtension.computeScalingFactor(scaling, axisLabel, new BigDecimal(cellDom[0]), new BigDecimal(cellDom[1]));
-                                    // update grid envelope
-                                    long scaledExtent = Math.round(Math.floor((cellDom[1] - cellDom[0] + 1) * scalingFactor.floatValue()));
-                                    cellDom[1] = (long)(cellDom[0] + scaledExtent - 1);
-                                    // update offset vectors
-                                    // [!] NOTE: do *not* use domainEl.setScalarResolution since world2pixel conversions are cached.
-                                    m.setScalingFactor(axisLabel, scalingFactor);
-                                }
-                            }
                             // In any case, properly trim the bounds by the image extremes
                             int cellDomainElLo = cellDomainEl.getLoInt();
-                            int cellDomainElHi = cellDomainEl.getHiInt();
+                            // If axis is not scaled then it will keep the original scale domain
+                            long cellDomainElHi = this.domainElementScaleHandle(request, m, domainEl, cellDomainEl);
+
                             lowerCellDom += (cellDomainElLo > cellDom[0]) ? cellDomainElLo + " " : cellDom[0] + " ";
                             upperCellDom += (cellDomainElHi < cellDom[1]) ? cellDomainElHi + " " : cellDom[1] + " ";
 
@@ -282,18 +281,9 @@ public abstract class AbstractFormatExtension implements FormatExtension {
 
                 // SCALING: geometry changes
                 long loCellDom = cellDomainEl.getLoInt();
-                long hiCellDom = cellDomainEl.getHiInt();
-                Scaling scaling = request.getScaling();
-                String axisLabel = domainEl.getLabel();
-                if (scaling.isScaled(axisLabel)) {
-                    BigDecimal scalingFactor = ScalingExtension.computeScalingFactor(scaling, axisLabel, BigDecimal.valueOf(loCellDom), BigDecimal.valueOf(hiCellDom));
-                    // update grid envelope
-                    long scaledExtent = Math.round(Math.floor((hiCellDom - loCellDom + 1) * scalingFactor.floatValue()));
-                    hiCellDom = (long)(loCellDom + scaledExtent - 1);
-                    // update offset vectors
-                    // [!] NOTE: do *not* use domainEl.setScalarResolution since world2pixel conversions are cached.
-                    m.setScalingFactor(axisLabel, scalingFactor);
-                }
+                // If axis is not scaled then it will keep the original scale domain
+                long hiCellDom = this.domainElementScaleHandle(request, m, domainEl, cellDomainEl);
+
                 if (hiCellDom < loCellDom) {
                     lowerCellDom += hiCellDom + " ";
                     upperCellDom += loCellDom + " ";
@@ -324,6 +314,61 @@ public abstract class AbstractFormatExtension implements FormatExtension {
             // RANGE TYPE update
             m.setRangeFields(request.getRangeSubset().getSelectedComponents());
         }
+    }
+
+    /**
+     *
+     * Check if domainElement is scaled then calculate the new interval values correctly
+     * @param m
+     * @param cellDomainEl
+     * @return highCellDom
+     */
+    private long domainElementScaleHandle(GetCoverageRequest request, GetCoverageMetadata m,
+                                          DomainElement domainEl, CellDomainElement cellDomainEl) throws WCSException {
+        long loCellDom = cellDomainEl.getLoInt();
+        long hiCellDom = cellDomainEl.getHiInt();
+        Scaling scaling = request.getScaling();
+        String axisLabel = domainEl.getLabel();
+        if (scaling.isScaled(axisLabel)) {
+            if (scaling.getType() == SCALE_SIZE) {
+                // NOTE: Scalesize means scale to grid pixels, so just apply scale on the axes (i.e: SCALESIZE=Lat(1.0),Long(2.0)) then output should be Lat with 1 pixel and Long with 2 pixels.
+                // it cannot be 0 for pixel
+                ScalingExtension.validateScalePositive(new BigDecimal(scaling.getSize(axisLabel)));
+                hiCellDom = (long) (scaling.getSize(axisLabel)) - 1;
+            } else if (scaling.getType() == SCALE_EXTENT) {
+                // i.e: SCALEEXTENT=Lat(10:20),Long(100:200) then Lat's grid domain is: 0:10
+                long size = scaling.getExtent(axisLabel).snd - scaling.getExtent(axisLabel).fst;
+                hiCellDom = size;
+            } else {
+                // SCALE_FACTOR or SCALE_AXES
+                BigDecimal scalingFactor = ScalingExtension.computeScalingFactor(scaling, axisLabel, BigDecimal.valueOf(loCellDom), BigDecimal.valueOf(hiCellDom));
+                hiCellDom = this.calculateHighCellDomScaleFactor(loCellDom, hiCellDom, scalingFactor);
+                // [!] NOTE: do *not* use domainEl.setScalarResolution since world2pixel conversions are cached.
+                m.setScalingFactor(axisLabel, scalingFactor);
+            }
+        }
+        return hiCellDom;
+    }
+
+    /**
+     * Calculate the highCellDom when axis is scaled by ScaleFactor
+     * @param  loCellDom
+     * @param hiCellDom
+     * @param scalingFactor
+     * @return
+     */
+    private long calculateHighCellDomScaleFactor(long loCellDom, long hiCellDom, BigDecimal scalingFactor) {
+        BigDecimal pixels = new BigDecimal((hiCellDom - loCellDom + 1) / scalingFactor.floatValue());
+        // If it is >= 0.5 pixel then shift it to 1 (OGC CITE test SCALE req 13)
+        BigDecimal fraction = pixels.remainder(BigDecimal.ONE);
+
+        if (fraction.compareTo(new BigDecimal(0.5)) >= 0) {
+            pixels = pixels.add(BigDecimal.ONE);
+        }
+
+        long scaledExtent = pixels.toBigInteger().longValue();
+        hiCellDom = loCellDom + scaledExtent - 1;
+        return hiCellDom;
     }
 
     /**
@@ -402,7 +447,7 @@ public abstract class AbstractFormatExtension implements FormatExtension {
 
         String axes = "";
         //keep a list of the axes defined in the coverage
-        ArrayList<String> axesList = new ArrayList<String>();
+        List<String> axesList = new ArrayList<String>();
         Iterator<DomainElement> dit = covMeta.getMetadata().getDomainIterator();
         while (dit.hasNext()) {
             String axis = dit.next().getLabel();
@@ -471,12 +516,6 @@ public abstract class AbstractFormatExtension implements FormatExtension {
                 CellDomainElement cel = cit.next();
                 String dim = el.getLabel();
 
-                //FIXME: hack for ticket #823 - number 5. to be fixed with ticket #824
-                /*if (el.isIrregular() && !req.isSliced(dim) && scaling.isScaled(dim)) {
-                    log.error("Trying to scale an irregular axis but we cannot scale coefficients' values.");
-                    throw new PetascopeException(ExceptionCode.UnsupportedCombination,
-                            "Scaling on irregular axis is not supported.");
-                }*/
                 // Sliced dimensions shall not be referenced by the scaling parameters
                 if (!req.isSliced(dim)) {
                     long lo = cel.getLoInt();
@@ -484,88 +523,89 @@ public abstract class AbstractFormatExtension implements FormatExtension {
                     long scaledExtent;
                     if (newdim.containsKey(dim)) {
                         long[] lohi = CrsUtil.convertToInternalGridIndices(covMeta.getMetadata(), dbMeta, dim,
-                                      newdim.get(dim).fst, req.getSubset(dim).isNumeric(),
-                                      newdim.get(dim).snd, req.getSubset(dim).isNumeric());
+                                newdim.get(dim).fst, req.getSubset(dim).isNumeric(),
+                                newdim.get(dim).snd, req.getSubset(dim).isNumeric());
                         lo = lohi[0];
                         hi = lohi[1];
                     }
                     long hiAfterScale;
                     // Note: scalefactor value: 1.0 leaves the coverage unscaled, scalefactor value: between 0 and 1 scales down
                     // (reduces target domain), scalefactor value: greater than 1 scales up (enlarges target domain).
+                    BigDecimal pixels;
+                    BigDecimal fraction;
+                    BigDecimal scalingFactor;
                     switch (scaling.getType()) {
-                    case SCALE_FACTOR:
-                        // SCALE-BY-FACTOR: divide extent by global scaling factor
-                        scaledExtent = Math.round(Math.floor((hi - lo + 1) * scaling.getFactor()));
-
-                        hiAfterScale = Math.round(Math.floor(lo + scaledExtent - 1));
-                        if (lo > hiAfterScale) {
-                            long temp = lo;
-                            lo = hiAfterScale;
-                            hiAfterScale = temp;
-                        }
-
-                        proc = proc + dim + ":\"" + crs + "\"(" + lo
-                               + ":" + hiAfterScale + "),";
-                        break;
-                    case SCALE_AXIS:
-                        // SCALE-AXES: divide extent by axis scaling factor
-                        if (scaling.isPresentFactor(dim)) {
-                            scaledExtent = Math.round(Math.floor((hi - lo + 1) * scaling.getFactor(dim)));
-
-                            hiAfterScale = Math.round(Math.floor(lo + scaledExtent - 1));
+                        case SCALE_FACTOR:
+                            // SCALE-BY-FACTOR: divide extent by global scaling factor
+                            scalingFactor = covMeta.getScalingFactor(el.getLabel());
+                            hiAfterScale = calculateHighCellDomScaleFactor(lo, hi, scalingFactor);
                             if (lo > hiAfterScale) {
                                 long temp = lo;
                                 lo = hiAfterScale;
                                 hiAfterScale = temp;
                             }
                             proc = proc + dim + ":\"" + crs + "\"(" + lo
-                                   + ":" + hiAfterScale + "),";
-                            axesNumber++;
-                        } else {
-                            if (lo > hi) {
-                                long temp = lo;
-                                lo = hi;
-                                hi = temp;
+                                    + ":" + hiAfterScale + "),";
+                            break;
+                        case SCALE_AXIS:
+                            // SCALE-AXES: divide extent by axis scaling factor
+                            if (scaling.isPresentFactor(dim)) {
+                                scalingFactor = covMeta.getScalingFactor(el.getLabel());
+                                hiAfterScale = calculateHighCellDomScaleFactor(lo, hi, scalingFactor);
+
+                                if (lo > hiAfterScale) {
+                                    long temp = lo;
+                                    lo = hiAfterScale;
+                                    hiAfterScale = temp;
+                                }
+                                proc = proc + dim + ":\"" + crs + "\"(" + lo
+                                        + ":" + hiAfterScale + "),";
+                                axesNumber++;
+                            } else {
+                                if (lo > hi) {
+                                    long temp = lo;
+                                    lo = hi;
+                                    hi = temp;
+                                }
+                                proc = proc + dim + ":\"" + crs + "\"(" + lo + ":" + hi + "),";
                             }
-                            proc = proc + dim + ":\"" + crs + "\"(" + lo + ":" + hi + "),";
-                        }
-                        break;
-                    case SCALE_SIZE:
-                        // SCALE-SIZE: set extent of dimension
-                        if (scaling.isPresentSize(dim)) {
-                            hiAfterScale = (lo + scaling.getSize(dim) - 1);
-                            if (lo > hiAfterScale) {
-                                long temp = lo;
-                                lo = hiAfterScale;
-                                hiAfterScale = temp;
+                            break;
+                        case SCALE_SIZE:
+                            // SCALE-SIZE: set extent of dimension
+                            if (scaling.isPresentSize(dim)) {
+                                hiAfterScale = (lo + scaling.getSize(dim) - 1);
+                                if (lo > hiAfterScale) {
+                                    long temp = lo;
+                                    lo = hiAfterScale;
+                                    hiAfterScale = temp;
+                                }
+                                proc = proc + dim + ":\"" + crs + "\"(" + lo
+                                       + ":" + hiAfterScale + "),";
+                                axesNumber++;
+                            } else {
+                                if (lo > hi) {
+                                    long temp = lo;
+                                    lo = hi;
+                                    hi = temp;
+                                }
+                                proc = proc + dim + ":\"" + crs + "\"(" + lo + ":" + hi + "),";
                             }
-                            proc = proc + dim + ":\"" + crs + "\"(" + lo
-                                   + ":" + hiAfterScale + "),";
-                            axesNumber++;
-                        } else {
-                            if (lo > hi) {
-                                long temp = lo;
-                                lo = hi;
-                                hi = temp;
+                            break;
+                        case SCALE_EXTENT:
+                            // SCALE-EXTENT: set extent of dimension
+                            if (scaling.isPresentExtent(dim)) {
+                                proc = proc + dim + ":\"" + crs + "\"(" + scaling.getExtent(dim).fst
+                                       + ":" + scaling.getExtent(dim).snd + "),";
+                                axesNumber++;
+                            } else {
+                                if (lo > hi) {
+                                    long temp = lo;
+                                    lo = hi;
+                                    hi = temp;
+                                }
+                                proc = proc + dim + ":\"" + crs + "\"(" + lo + ":" + hi + "),";
                             }
-                            proc = proc + dim + ":\"" + crs + "\"(" + lo + ":" + hi + "),";
-                        }
-                        break;
-                    case SCALE_EXTENT:
-                        // SCALE-EXTENT: set extent of dimension
-                        if (scaling.isPresentExtent(dim)) {
-                            proc = proc + dim + ":\"" + crs + "\"(" + scaling.getExtent(dim).fst
-                                   + ":" + scaling.getExtent(dim).snd + "),";
-                            axesNumber++;
-                        } else {
-                            if (lo > hi) {
-                                long temp = lo;
-                                lo = hi;
-                                hi = temp;
-                            }
-                            proc = proc + dim + ":\"" + crs + "\"(" + lo + ":" + hi + "),";
-                        }
-                        break;
+                            break;
                     }
                 }
             }
@@ -785,7 +825,6 @@ public abstract class AbstractFormatExtension implements FormatExtension {
     /**
      * Parse the trimming / slicing subset to list.
      * @param subset
-     * @param domainElementType
      * @return
      */
     private List<String> parseSubsets(DimensionSubset subset) {
@@ -800,5 +839,30 @@ public abstract class AbstractFormatExtension implements FormatExtension {
             subsets.add(slicePoint);
         }
         return subsets;
+    }
+    
+    /**
+     * OGC CITE scale (req:14, 15 test on grid axes and their orders must be as same as from CRS order)
+     * i.e: Coverage imported by EPSG:4326 should be listed lat, long in <GridAxis> not by long, lat by default.
+     * @param meta
+     * @throws PetascopeException
+     * @throws SecoreException 
+     */
+    private void reorderGridAxesByCrsOrder(CoverageMetadata meta) throws PetascopeException, SecoreException {
+        List<DomainElement> domainElementsTmp = new ArrayList<DomainElement>();
+        List<CellDomainElement> cellDomainElementsTmp = new ArrayList<CellDomainElement>();
+
+        // Iterate the axes by the CRS's order and reorder <GridEvenlope> </GridEnvelope> accordingly.
+        List<String> axisLabels = CrsUtil.getAxesLabels(meta.getCrsUris());
+        for (String axisLabel:axisLabels) {
+            DomainElement domElTmp = meta.getDomainByName(axisLabel);
+            domainElementsTmp.add(domElTmp);
+            CellDomainElement cellDomElTmp = meta.getCellDomainByName(axisLabel);
+            cellDomainElementsTmp.add(cellDomElTmp);
+        }
+
+        // Set the ordered lists by CRS back to the original lists
+        meta.setDomain(domainElementsTmp);
+        meta.setCellDomain(cellDomainElementsTmp);            
     }
 }

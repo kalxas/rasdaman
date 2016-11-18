@@ -130,6 +130,8 @@ public class XMLUtil {
     public static final String XML_STD_ENCODING = "UTF-8";
     public static final String WCS_SCHEMA = "xml/ogc/wcs/2.0.0/wcsAll.xsd";
     private static final String SET_FEATURE_XXE_FALSE = "http://xml.org/sax/features/external-general-entities";
+    
+    public static final String WCS_SCHEMA_URL = "http://schemas.opengis.net/wcs/2.0/wcsAll.xsd";
 
 
     static {

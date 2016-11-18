@@ -23,9 +23,7 @@ package petascope.wcs2.handlers;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -50,6 +48,7 @@ import petascope.exceptions.WCSException;
 import petascope.ows.Description;
 import petascope.ows.ServiceIdentification;
 import petascope.ows.ServiceProvider;
+import petascope.util.CrsUtil;
 import petascope.util.ListUtil;
 import petascope.util.Pair;
 import static petascope.util.XMLSymbols.*;
@@ -270,6 +269,31 @@ public class GetCapabilitiesHandler extends AbstractRequestHandler<GetCapabiliti
             if (null == wcsExtension) {
                 // Add the new child element
                 wcsExtension = new Element(PREFIX_WCS + ":" + LABEL_EXTENSION, NAMESPACE_WCS);
+
+                // NOTE: OGC CRS Extension requires <wcs:crsMetadata> with crsSupported elements as its children
+                // this list is fetched from SECORE (crs/EPSG/0) but this can be very long to return in GetCapabilities(), so disable by default in petascope.properties.
+                if (ConfigManager.OGC_CITE_OUTPUT_OPTIMIZATION) {
+                    // crsMetadata (it comes from CRS_Extension)
+                    Element crsMetadata = new Element(PREFIX_WCS_CRS + ":" + LABEL_CRS_METADATA, NAMESPACE_WCS_CRS);
+
+                    // crsSupporteds (list all the EPSG CRSs from SECORE, i.e: http://localhost:8080/def/crs/EPSG/0)
+                    List<String> epsgCrss = null;
+                    try {
+                        epsgCrss = CrsUtil.getAllEPSGCrss();
+                    } catch (IOException ex) {
+                        log.error("SECORE error", ex);
+                        throw new SecoreException(ExceptionCode.SecoreError, "Error parsing all EPSG CRSs from " + CrsUtil.EPSG_ALL_CRS, ex);
+                    }
+
+                    // Add all the crs from EPSG
+                    for (String crs:epsgCrss) {
+                        Element crsSupported = new Element(PREFIX_WCS_CRS + ":" + LABEL_CRS_SUPPORTED,NAMESPACE_WCS_CRS);
+                        crsSupported.appendChild(crs);
+                        crsMetadata.appendChild(crsSupported);
+                    }
+
+                    wcsExtension.appendChild(crsMetadata);
+                }
                 wcsExtension.appendChild(interpolationMetadata);
                 // Insert it on top, in case the template already contains some other fixed content
                 serviceMetadata.insertChild(wcsExtension, 0);

@@ -32,7 +32,6 @@ import petascope.exceptions.WCSException;
 import petascope.util.XMLSymbols;
 import static petascope.util.XMLSymbols.LABEL_RANGEITEM;
 import static petascope.util.XMLSymbols.LABEL_RANGESUBSET;
-import static petascope.util.XMLUtil.ch;
 import petascope.wcs2.helpers.rangesubsetting.RangeComponent;
 import petascope.wcs2.helpers.rangesubsetting.RangeInterval;
 import petascope.wcs2.helpers.rangesubsetting.RangeSubset;
@@ -40,6 +39,7 @@ import petascope.wcs2.helpers.rest.RESTUrl;
 import petascope.wcs2.parsers.GetCoverageMetadata;
 import petascope.wcs2.parsers.GetCoverageRequest;
 import petascope.wcs2.parsers.RESTParser;
+import static petascope.util.XMLUtil.ch;
 
 /**
  * This class manages the Subsetting Extension in accordance to the OGC-12-040

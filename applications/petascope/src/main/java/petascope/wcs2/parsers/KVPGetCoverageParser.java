@@ -151,8 +151,8 @@ public class KVPGetCoverageParser extends KVPParser<GetCoverageRequest> {
         } else {
             subCrs = ListUtil.head(list);
             if (!(subCrs == null) && !CrsUtil.CrsUri.isValid(subCrs)) {
-                throw new WCSException(ExceptionCode.NotASubsettingCrs,
-                                       KEY_SUBSETCRS + " " + subCrs + " is not valid.");
+                throw new WCSException(ExceptionCode.SubsettingCrsNotSupported,
+                        KEY_SUBSETCRS + " " + subCrs + " is not valid.");
             }
             if (!(subCrs == null) && !CrsUtil.isSupportedCrsCode(subCrs)) {
                 throw new WCSException(ExceptionCode.SubsettingCrsNotSupported,
@@ -167,8 +167,8 @@ public class KVPGetCoverageParser extends KVPParser<GetCoverageRequest> {
         } else {
             outCrs = ListUtil.head(list);
             if (!(outCrs == null) && !CrsUtil.CrsUri.isValid(outCrs)) {
-                throw new WCSException(ExceptionCode.NotAnOutputCrs,
-                                       KEY_OUTPUTCRS + " " + outCrs + " is not valid.");
+                throw new WCSException(ExceptionCode.OutputCrsNotSupported,
+                        KEY_OUTPUTCRS + " " + outCrs + " is not valid.");
             }
             if (!(outCrs == null) && !CrsUtil.isSupportedCrsCode(outCrs)) {
                 throw new WCSException(ExceptionCode.SubsettingCrsNotSupported,

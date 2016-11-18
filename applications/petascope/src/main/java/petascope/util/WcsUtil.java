@@ -97,6 +97,9 @@ public class WcsUtil {
     public static final String DOUBLE_MIN = "+/-1.7e-308";
     public static final String DOUBLE_MAX = "+/-1.7e+308";
 
+    // If subsetting with error greater than this value (i.e: max of geo bound is: -8.975 and subset is: -8.97499999999999999 is still valid).
+    public static final BigDecimal SUBSETTING_ALLOWED_ERROR = new BigDecimal(0.00001);
+
     /**
      * Utility method to read coverage's metadata.
      *
@@ -274,39 +277,43 @@ public class WcsUtil {
         String ret = "";
         if (WcsUtil.isMultiPoint(m.getCoverageType())) {
             ret = Templates.getTemplate(template,
-                                        Pair.of("\\{" + Templates.KEY_DOMAINSET             + "\\}", domainSet),
-                                        Pair.of("\\{" + Templates.KEY_COVERAGEID            + "\\}", m.getCoverageId()),
-                                        Pair.of("\\{" + Templates.KEY_COVERAGETYPE          + "\\}", m.getCoverageType()),
-                                        Pair.of("\\{" + Templates.KEY_GMLCOV_METADATA       + "\\}", getGmlcovMetadata(m)),
-                                        // multipoint
-                                        Pair.of("\\{" + Templates.KEY_MPID                  + "\\}", Templates.PREFIX_MP + m.getGridId()),
-                                        Pair.of("\\{" + Templates.KEY_SRSGROUP              + "\\}", getSrsGroup(m)),
-                                        Pair.of("\\{" + Templates.KEY_COVERAGEFUNCTION      + "\\}", coverageFunction),
-                                        Pair.of("\\{" + Templates.KEY_RANGEFIELDS           + "\\}", rangeFields));
+                    // gml:Envelope with full attributes of srsGroup
+                    Pair.of("\\{" + Templates.KEY_SRSGROUP_FULL_ATTRIBUTES   + "\\}", getSrsGroupFullAttributes(m)),
+                    Pair.of("\\{" + Templates.KEY_DOMAINSET             + "\\}", domainSet),
+                    Pair.of("\\{" + Templates.KEY_COVERAGEID            + "\\}", m.getCoverageId()),
+                    Pair.of("\\{" + Templates.KEY_COVERAGETYPE          + "\\}", m.getCoverageType()),
+                    Pair.of("\\{" + Templates.KEY_GMLCOV_METADATA       + "\\}", getGmlcovMetadata(m)),
+                    // multipoint
+                    Pair.of("\\{" + Templates.KEY_MPID                  + "\\}", Templates.PREFIX_MP + m.getGridId()),
+                    Pair.of("\\{" + Templates.KEY_SRSGROUP              + "\\}", getSrsGroup(m)),
+                    Pair.of("\\{" + Templates.KEY_COVERAGEFUNCTION      + "\\}", coverageFunction),
+                    Pair.of("\\{" + Templates.KEY_RANGEFIELDS           + "\\}", rangeFields));
         } else {
             // gridded coverage:
             ret = Templates.getTemplate(template,
-                                        Pair.of("\\{" + Templates.KEY_DOMAINSET             + "\\}", domainSet),
-                                        Pair.of("\\{" + Templates.KEY_COVERAGEFUNCTION      + "\\}", coverageFunction),
-                                        // [!] domainSet/coverageFunction have to be replaced first: they (in turn) contains keywords to be replaced
-                                        // grid
-                                        Pair.of("\\{" + Templates.KEY_AXISLABELS            + "\\}", m.getGridAxisLabels()),
-                                        Pair.of("\\{" + Templates.KEY_GRIDDIMENSION         + "\\}", String.valueOf(m.getGridDimension())),
-                                        Pair.of("\\{" + Templates.KEY_GRIDID                + "\\}", m.getGridId()),
-                                        // + rectified grid
-                                        Pair.of("\\{" + Templates.KEY_ORIGINPOS             + "\\}", m.getGridOrigin()),
-                                        Pair.of("\\{" + Templates.KEY_POINTID               + "\\}", m.getCoverageId() + Templates.SUFFIX_ORIGIN),
-                                        Pair.of("\\{" + Templates.KEY_OFFSET_VECTORS        + "\\}", getGmlOffsetVectors(m)),
-                                        // + referenceable grid
-                                        Pair.of("\\{" + Templates.KEY_GENERAL_GRID_AXES     + "\\}", getGeneralGridAxes(m)),
-                                        // coverage
-                                        Pair.of("\\{" + Templates.KEY_COVERAGEID            + "\\}", m.getCoverageId()),
-                                        Pair.of("\\{" + Templates.KEY_COVERAGETYPE          + "\\}", m.getCoverageType()),
-                                        Pair.of("\\{" + Templates.KEY_COVERAGESUBTYPE       + "\\}", m.getCoverageType()),
-                                        Pair.of("\\{" + Templates.KEY_COVERAGESUBTYPEPARENT + "\\}", addSubTypeParents(meta.getParentCoverageType(m.getCoverageType()), meta).toXML()),
-                                        Pair.of("\\{" + Templates.KEY_GMLCOV_METADATA       + "\\}", getGmlcovMetadata(m)),
-                                        Pair.of("\\{" + Templates.KEY_RANGEFIELDS           + "\\}", rangeFields),
-                                        Pair.of("\\{" + Templates.KEY_SRSGROUP              + "\\}", getSrsGroup(m)));
+                    // gml:Envelope with full attributes of srsGroup
+                    Pair.of("\\{" + Templates.KEY_SRSGROUP_FULL_ATTRIBUTES   + "\\}", getSrsGroupFullAttributes(m)),
+                    Pair.of("\\{" + Templates.KEY_DOMAINSET             + "\\}", domainSet),
+                    Pair.of("\\{" + Templates.KEY_COVERAGEFUNCTION      + "\\}", coverageFunction),
+                    // [!] domainSet/coverageFunction have to be replaced first: they (in turn) contains keywords to be replaced
+                    // grid
+                    Pair.of("\\{" + Templates.KEY_AXISLABELS            + "\\}", m.getGridAxisLabels()),
+                    Pair.of("\\{" + Templates.KEY_GRIDDIMENSION         + "\\}", String.valueOf(m.getGridDimension())),
+                    Pair.of("\\{" + Templates.KEY_GRIDID                + "\\}", m.getGridId()),
+                    // + rectified grid
+                    Pair.of("\\{" + Templates.KEY_ORIGINPOS             + "\\}", m.getGridOrigin()),
+                    Pair.of("\\{" + Templates.KEY_POINTID               + "\\}", m.getCoverageId() + Templates.SUFFIX_ORIGIN),
+                    Pair.of("\\{" + Templates.KEY_OFFSET_VECTORS        + "\\}", getGmlOffsetVectors(m)),
+                    // + referenceable grid
+                    Pair.of("\\{" + Templates.KEY_GENERAL_GRID_AXES     + "\\}", getGeneralGridAxes(m)),
+                    // coverage
+                    Pair.of("\\{" + Templates.KEY_COVERAGEID            + "\\}", m.getCoverageId()),
+                    Pair.of("\\{" + Templates.KEY_COVERAGETYPE          + "\\}", m.getCoverageType()),
+                    Pair.of("\\{" + Templates.KEY_COVERAGESUBTYPE       + "\\}", m.getCoverageType()),
+                    Pair.of("\\{" + Templates.KEY_COVERAGESUBTYPEPARENT + "\\}", addSubTypeParents(meta.getParentCoverageType(m.getCoverageType()), meta).toXML()),
+                    Pair.of("\\{" + Templates.KEY_GMLCOV_METADATA       + "\\}", getGmlcovMetadata(m)),
+                    Pair.of("\\{" + Templates.KEY_RANGEFIELDS           + "\\}", rangeFields),
+                    Pair.of("\\{" + Templates.KEY_SRSGROUP              + "\\}", getSrsGroup(m)));
         }
 
         // RGBV cannot replace bounds now, see GmlFormatExtension class
@@ -314,22 +321,27 @@ public class WcsUtil {
             ret = getBounds(ret, m);
         }
 
+        // Check if boundedBy element need to add the srsName (for outputCRS or subsettingCRS)
+        // NOTE: <boundedBy srsName="http://www.opengis.net/def/crs/EPSG/0/4326"> is not valid WCS Schema 2.0.1
+        // but it is valid standard so just add this feature, meanwhile OGC CITE can update the WCS Schema.
+        ret = setBoundedByOutputCRS(ret, m);
+
         return ret;
     }
 
     /**
-     * Creates the String for gml:SRSReferenceGroup attributes group.
-     *
-     * @param m
+     * Creates the String for gml:SRSReferenceGroup (all attributes)
+     * NOTE: only used gml:Envelope, e.g:
+     * <Envelope axisLabels="Lat Long" srsDimension="2" srsName="http://localhost:8080/def/crs/EPSG/0/4326" uomLabels="degree degree"><Envelope/>
+     * @param m GetCoverageMetadata
      */
-    private static String getSrsGroup(GetCoverageMetadata m) throws WCSException, SecoreException {
+    private static String getSrsGroupFullAttributes(GetCoverageMetadata m) throws WCSException, SecoreException {
         String srsGroup;
         List<String> ccrsUri = CrsUtil.CrsUri.decomposeUri(m.getCrs());
         try {
-            srsGroup =
-                XMLSymbols.ATT_SRS_NAME + "=\"" + getSrsName(m) + "\" " +
-                XMLSymbols.ATT_AXIS_LABELS + "=\"" + ListUtil.printList(CrsUtil.getAxesLabels(ccrsUri), " ") + "\" " +
-                XMLSymbols.ATT_UOM_LABELS + "=\"" + ListUtil.printList(CrsUtil.getAxesUoMs(ccrsUri), " ") + "\" ";
+            srsGroup =   XMLSymbols.ATT_SRS_NAME + "=\"" + getSrsName(m) + "\" " +
+                         XMLSymbols.ATT_AXIS_LABELS + "=\"" + ListUtil.printList(CrsUtil.getAxesLabels(ccrsUri), " ") + "\" " +
+                         XMLSymbols.ATT_UOM_LABELS + "=\"" + ListUtil.printList(CrsUtil.getAxesUoMs(ccrsUri), " ") + "\" ";
             //omit srsDimension if dimensionality == 0
             if (CrsUtil.getTotalDimensionality(ccrsUri) != 0) {
                 srsGroup += XMLSymbols.ATT_SRS_DIMENSION + "=\"" + CrsUtil.getTotalDimensionality(ccrsUri) + "\"";
@@ -343,6 +355,17 @@ public class WcsUtil {
         }
         return srsGroup;
     }
+
+    /**
+     * Creates the String for gml:SRSReferenceGroup (only 1 attribute srsName)
+     * Used in: gml:Point, gml:offsetVector (NOTE: not in gml:Envelope)
+     * @param m GetCoverageMetadata
+     */
+    private static String getSrsGroup(GetCoverageMetadata m) throws WCSException, SecoreException {
+        String srsGroup = XMLSymbols.ATT_SRS_NAME + "=\"" + getSrsName(m) + "\"";
+        return srsGroup;
+    }
+
 
     /**
      * Returns the full URI of the native CRS of a coverage.
@@ -374,12 +397,32 @@ public class WcsUtil {
     }
 
     /**
+     * If outputCrs is not null or if subsettingCrs is not null then in <boundedBy> must add attribute srsName
+     * <boundedBy srsName="http://localhost:8080/def/crs/EPSG/0/4326">
+     * </boundedBy>
+     *
+     * @return
+     */
+    public static String setBoundedByOutputCRS(String gml, GetCoverageMetadata m) {
+        String srsName = null;
+        if (m.getOutputCrs() != null) {
+            srsName = m.getOutputCrs();
+        } else if (m.getSubsettingCrs() != null) {
+            srsName = m.getSubsettingCrs();
+        }
+
+        // wcs request with SubsettingCRS or OutputCRS as parameters
+        if (srsName != null) {
+            String boundedBy = "<" + LABEL_BOUNDEDBY + " " + ATT_SRS_NAME + "=\"" + srsName + "\">";
+            gml = gml.replace("<" + LABEL_BOUNDEDBY + ">" , boundedBy);
+        }
+        return gml;
+    }
+
+    /**
      * Returns the configured GMLCOV metadata.
      * This information is returned along with <gmlcov:metadata> root element.
      * The content is extracted from petascopedb::ps_extrametadata.
-    <<<<<<< HEAD
-     *
-    =======
      * NOTE: all the extra metadata must be added inside <gmlcov:Extension> </gmlcov:Extension>
      * e.g:
      *  <gmlcov:metadata>
@@ -390,7 +433,6 @@ public class WcsUtil {
                 <slices/>
             </gmlcov:Extension>
         </gmlcov:metadata>
-    >>>>>>> ticket:1419 - Adjustment in Petascope conformance test
      * @param m
      */
     private static String getGmlcovMetadata(GetCoverageMetadata m) {
@@ -497,7 +539,7 @@ public class WcsUtil {
         Long milliSeconds = TimeUtil.getMillis(crsDefinition);
         DateTime dateTime = new DateTime(crsDefinition.getDatumOrigin());
 
-        for (BigDecimal coeff : coeffs) {
+        for (BigDecimal coeff: coeffs) {
             // formular: Origin + (Time Coefficients * UOM in milliSeconds)
             long duration = coeff.multiply(new BigDecimal(milliSeconds)).setScale(0, RoundingMode.HALF_UP).longValue();
             DateTime dt = dateTime.plus(duration);

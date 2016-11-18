@@ -65,7 +65,8 @@ public interface XMLSymbols {
     String PREFIX_WSDL = "wsdl";
     String PREFIX_XSI = "xsi";
     String PREFIX_XLINK = "xlink";
-    String PREFIX_CRS = "crs";
+    // Used in CRS-Extensions
+    String PREFIX_WCS_CRS = "wcscrs";
     String PREFIX_PROCESS_COVERAGE = "proc";
     String PREFIX_INT = "int"; // wcs interpolation
 
@@ -87,7 +88,7 @@ public interface XMLSymbols {
     String NAMESPACE_WSDL = "http://schemas.xmlsoap.org/wsdl/";
     String NAMESPACE_XSI = "http://www.w3.org/2001/XMLSchema-instance";
     String NAMESPACE_XLINK = "http://www.w3.org/1999/xlink";
-    String NAMESPACE_CRS = "http://www.opengis.net/wcs/service-extension/crs/1.0";
+    String NAMESPACE_WCS_CRS = "http://www.opengis.net/wcs/service-extension/crs/1.0";
     String NAMESPACE_PROCESS_COVERAGE = "http://www.opengis.net/wcs/processing/2.0";
     String NAMESPACE_INTERPOLATION = "http://www.opengis.net/wcs/interpolation/1.0";
 
@@ -135,6 +136,8 @@ public interface XMLSymbols {
 
     // wcs crs-extension
     String LABEL_CRS_METADATA = "CrsMetadata";
+    // this element is child of CrsMetadata
+    String LABEL_CRS_SUPPORTED = "crsSupported";
     String LABEL_CRS = "CRS";
 
     String LABEL_EXTENSION = "Extension";
@@ -334,7 +337,7 @@ public interface XMLSymbols {
 
     XPathContext CTX_XML = new XPathContext(PREFIX_XML, NAMESPACE_XML);
     XPathContext CTX_WCS = new XPathContext(PREFIX_WCS, NAMESPACE_WCS);
-    XPathContext CTX_CRS = new XPathContext(PREFIX_CRS, NAMESPACE_CRS);
+    XPathContext CTX_CRS = new XPathContext(PREFIX_WCS_CRS, NAMESPACE_WCS_CRS);
     XPathContext CTX_PROCESS_COVERAGE = new XPathContext(PREFIX_PROCESS_COVERAGE, NAMESPACE_PROCESS_COVERAGE);
 
     // ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

@@ -31,7 +31,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import petascope.exceptions.ExceptionCode;
 import petascope.exceptions.WCSException;
-import petascope.util.BigDecimalUtil;
 import static petascope.util.KVPSymbols.KEY_SCALEAXES;
 import static petascope.util.KVPSymbols.KEY_SCALEEXTENT;
 import static petascope.util.KVPSymbols.KEY_SCALEFACTOR;
@@ -49,10 +48,10 @@ import static petascope.util.XMLSymbols.LABEL_SCALETOEXTENT;
 import static petascope.util.XMLSymbols.LABEL_SCALETOSIZE;
 import static petascope.util.XMLSymbols.LABEL_SCALING;
 import static petascope.util.XMLSymbols.LABEL_TARGETSIZE;
-import static petascope.util.XMLUtil.ch;
 import static petascope.util.XMLUtil.getText;
 import petascope.wcs2.parsers.GetCoverageRequest;
 import petascope.wcs2.parsers.GetCoverageRequest.Scaling;
+import static petascope.util.XMLUtil.ch;
 
 /**
  * Manage Scaling Extension (OGC 12-039).
@@ -389,32 +388,33 @@ public class ScalingExtension implements Extension {
      * @return The scaling factor requested on the indices of this ("dim") grid axis.
      * @throws petascope.exceptions.WCSException
      */
-    public static BigDecimal computeScalingFactor(Scaling scaling, String dim, BigDecimal lowerBound,  BigDecimal upperBound) throws WCSException {
+    public static BigDecimal computeScalingFactor(Scaling scaling, String dim, BigDecimal lowerBound,  BigDecimal upperBound) throws WCSException {        
         BigDecimal scalingFactor = null;
         switch (scaling.getType()) {
-        case SCALE_FACTOR:
-            // SCALE-BY-FACTOR:
-            scalingFactor = new BigDecimal(Float.toString(scaling.getFactor()));
-            break;
-        case SCALE_AXIS:
-            // SCALE-AXES: divide extent by axis scaling factor
-            scalingFactor = new BigDecimal(Float.toString(scaling.getFactor(dim)));
-            break;
-        case SCALE_SIZE:
-            // SCALE-SIZE: set extent of dimension
-            scalingFactor = BigDecimalUtil.divide(BigDecimal.valueOf(scaling.getSize(dim)), upperBound.subtract(lowerBound).add(BigDecimal.ONE));
-            break;
-        case SCALE_EXTENT:
-            // SCALE-EXTENT: set extent of dimension
-            long size = scaling.getExtent(dim).snd - scaling.getExtent(dim).fst + 1;
-            scalingFactor = BigDecimalUtil.divide(BigDecimal.valueOf(size), upperBound.subtract(lowerBound).add(BigDecimal.ONE));
-            break;
+            case SCALE_FACTOR:
+                // SCALE-BY-FACTOR: same as SCALE_AXES (i.e: all the axis will be scaled *down* if scaleFactor > 1.0 and scale *up* if scaleFactor < 1.0)
+                scalingFactor = new BigDecimal(Float.toString(scaling.getFactor()));
+                break;
+            case SCALE_AXIS:
+                // SCALE-AXES: divide extent by axis scaling factor (check A.1.13 getCoverage scale axes by factor result in WCS Scaling Extension)
+                // so it will need to divide to the scaleNumber (i.e: SCALEAXES=Lat(2.0),Long(2.0) actually is scaling down image to 1/2 domain size).
+                scalingFactor = new BigDecimal(Float.toString(scaling.getFactor(dim)));
+                break;            
+        }        
+        // Only validate when scaleFactor is in request
+        if (scalingFactor != null) {
+            validateScalePositive(scalingFactor);
         }
-        // no valid scale if scaling factor is 0
-        if (scalingFactor.equals(BigDecimal.ZERO)) {
-            throw new WCSException(ExceptionCode.InvalidRequest, "Scaling factor cannot be 0.");
-        }
-
         return scalingFactor;
     }
+    
+    /**
+     * Check if scale factor is > 0
+     * @param scalingParameter (e.g: scaleFactor=2, SCALESIZE=Lat(0))
+     */
+    public static void validateScalePositive(BigDecimal scalingParameter) throws WCSException {
+        if (scalingParameter.compareTo(BigDecimal.ZERO) <= 0) {
+            throw new WCSException(ExceptionCode.InvalidRequest, "Scaling parameter cannot less than 0.");
+        }
+    }    
 }

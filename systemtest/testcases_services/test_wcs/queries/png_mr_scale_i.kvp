@@ -2,5 +2,5 @@ service=WCS&
 version=2.0.1&
 request=GetCoverage&
 coverageId=test_mr&
-scaleaxes=i(0.5)&
+scaleaxes=i(2)&
 format=image/png

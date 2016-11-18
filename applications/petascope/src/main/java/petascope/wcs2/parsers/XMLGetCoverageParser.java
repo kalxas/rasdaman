@@ -21,16 +21,10 @@
  */
 package petascope.wcs2.parsers;
 
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.util.List;
-import javax.xml.XMLConstants;
-import javax.xml.validation.Schema;
-import javax.xml.validation.SchemaFactory;
 import nu.xom.Element;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.xml.sax.SAXException;
 import petascope.ConfigManager;
 import petascope.HTTPRequest;
 import petascope.exceptions.ExceptionCode;
@@ -55,31 +49,6 @@ import static petascope.wcs2.parsers.subsets.DimensionSubset.QUOTED_SUBSET;
 public class XMLGetCoverageParser extends XMLParser<GetCoverageRequest> {
 
     private static final Logger log = LoggerFactory.getLogger(XMLGetCoverageParser.class);
-
-    // constants
-    public static final String LABEL_SUBSETTING_CRS = "subsettingcrs";
-    public static final String LABEL_OUTPUT_CRS = "outputcrs";
-
-    // XML validation
-    private Schema schema;
-    private SchemaFactory schemaFactory;
-    private final String WCS2_GETCOV_SCHEMA = "http://schemas.opengis.net/wcs/2.0/wcsGetCoverage.xsd";
-
-    // constructor
-    public XMLGetCoverageParser() {
-        if (ConfigManager.XML_VALIDATION) {
-            try {
-                log.debug("Loading XML schema definition from " + WCS2_GETCOV_SCHEMA + "...");
-                schemaFactory = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
-                schema = schemaFactory.newSchema(new URL(WCS2_GETCOV_SCHEMA));
-                log.debug("Done.");
-            } catch (SAXException e) {
-                log.error("Could not initialize the GetCoverage XML Schema validator. Schema validation will be disabled.", e);
-            } catch (MalformedURLException e) {
-                log.error("Could not initialize the GetCoverage XML Schema validator. Schema validation will be disabled.", e);
-            }
-        }
-    }
 
     @Override
     public GetCoverageRequest parse(HTTPRequest request) throws WCSException {

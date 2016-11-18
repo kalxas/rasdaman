@@ -23,9 +23,13 @@ package petascope.wcs2.parsers;
 
 import java.io.IOException;
 import java.io.StringReader;
+import java.net.MalformedURLException;
+import java.net.URL;
+import javax.xml.XMLConstants;
 import javax.xml.transform.Source;
 import javax.xml.transform.stream.StreamSource;
 import javax.xml.validation.Schema;
+import javax.xml.validation.SchemaFactory;
 import javax.xml.validation.Validator;
 import nu.xom.Document;
 import nu.xom.Element;
@@ -38,6 +42,7 @@ import petascope.exceptions.ExceptionCode;
 import petascope.exceptions.WCSException;
 import static petascope.util.XMLSymbols.*;
 import petascope.util.XMLUtil;
+import static petascope.util.XMLUtil.WCS_SCHEMA_URL;
 
 /**
  * An abstract superclass for XML/POST protocol binding extensions, which
@@ -50,6 +55,9 @@ import petascope.util.XMLUtil;
 public abstract class XMLParser<T extends Request> extends AbstractRequestParser<T> {
 
     private static Logger log = LoggerFactory.getLogger(XMLParser.class);
+    
+    // load WCS Schema when initializing PetascopeInterafce.
+    protected static Schema schema;
 
     @Override
     public boolean canParse(HTTPRequest request) {
@@ -98,12 +106,36 @@ public abstract class XMLParser<T extends Request> extends AbstractRequestParser
         // validate
         try {
             validator.validate(requestStream);
-        } catch (SAXException e) {
-            throw new WCSException(ExceptionCode.XmlNotValid, "The structure of the provided input is not valid.");
-        } catch (NullPointerException e) {
+        } catch(SAXException e) {
+            throw new WCSException(ExceptionCode.XmlNotValid,"The structure of the provided input is not valid.", e);
+        } catch(NullPointerException e) {
             throw new WCSException(ExceptionCode.InvalidRequest, "The received XML document is empty.");
         } catch (IOException e) {
             throw new WCSException(ExceptionCode.WcsError, "A fatal error ocurred while validating the input schema.");
+        }
+    }
+    
+    /**
+     * When xml_validation=true in petascope.properties then caching WCS schema from opengis to validate the input XML request.
+     * @throws WCSException 
+     */
+    public static void parseWcsSchema() throws WCSException {        
+        log.debug("Loading XML schema definition from " + WCS_SCHEMA_URL + "...");
+
+        URL schemaURL = null;
+        try {        
+            schemaURL = new URL(WCS_SCHEMA_URL);
+        } catch (MalformedURLException ex) {
+            log.error("Cannot load WCS 2.0.1 schema from resource file: " + WCS_SCHEMA_URL);
+            throw new WCSException(ExceptionCode.IOConnectionError, "Cannot load WCS 2.0.1 schema from: " + WCS_SCHEMA_URL, ex);
+        }
+
+        SchemaFactory schemaFactory = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
+        try {
+            schema = schemaFactory.newSchema(schemaURL);
+        } catch (SAXException ex) {
+            log.error("Cannot build WCS 2.0.1 schema object.");
+            throw new WCSException(ExceptionCode.IOConnectionError, "Cannot build WCS 2.0.1 schema object.", ex);
         }
     }
 }

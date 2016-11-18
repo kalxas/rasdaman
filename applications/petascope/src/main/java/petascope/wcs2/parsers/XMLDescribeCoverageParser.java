@@ -21,16 +21,10 @@
  */
 package petascope.wcs2.parsers;
 
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.util.List;
-import javax.xml.XMLConstants;
-import javax.xml.validation.Schema;
-import javax.xml.validation.SchemaFactory;
 import nu.xom.Element;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.xml.sax.SAXException;
 import petascope.HTTPRequest;
 import petascope.exceptions.WCSException;
 import static petascope.util.XMLSymbols.*;
@@ -48,25 +42,6 @@ import static petascope.util.KVPSymbols.KEY_COVERAGEID;
 public class XMLDescribeCoverageParser extends XMLParser<DescribeCoverageRequest> {
 
     Logger log = LoggerFactory.getLogger(XMLDescribeCoverageParser.class);
-
-    private Schema schema;
-    private SchemaFactory schemaFactory;
-    private final String WCS2_DESCRCOV_SCHEMA = "http://schemas.opengis.net/wcs/2.0/wcsDescribeCoverage.xsd";
-
-    public XMLDescribeCoverageParser() {
-        if (ConfigManager.XML_VALIDATION) {
-            try {
-                log.debug("Loading XML schema definition from " + WCS2_DESCRCOV_SCHEMA + "...");
-                schemaFactory = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
-                schema = schemaFactory.newSchema(new URL(WCS2_DESCRCOV_SCHEMA));
-                log.debug("Done.");
-            } catch (SAXException e) {
-                log.error("Could not initialize the DescribeCoverage XML Schema validator. Schema validation will be disabled.", e);
-            } catch (MalformedURLException e) {
-                log.error("Could not initialize the DescribeCoverage XML Schema validator. Schema validation will be disabled.", e);
-            }
-        }
-    }
 
     @Override
     public DescribeCoverageRequest parse(HTTPRequest request) throws WCSException {

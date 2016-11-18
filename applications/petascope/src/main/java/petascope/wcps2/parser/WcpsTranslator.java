@@ -96,8 +96,17 @@ public class WcpsTranslator {
         // Add a listener to throw WCPSProcessingError when parsing is error
         parser.addErrorListener(new ParserErrorHandler());
         VisitorResult translationTree = null;
+        ParseTree parseTree = null;
+        
+        // If query cannot be parsed, it is SyntaxError Exception (needed for OGC CITE test)
         try {
-            ParseTree parseTree = parser.wcpsQuery();
+            parseTree = parser.wcpsQuery();
+        } catch(WCPSProcessingError ex) {
+            throw new PetascopeException(ExceptionCode.SyntaxError, ex.getMessage(), ex);
+        }
+        
+        // If query can be parsed, then it can have error in handlers.
+        try {
             // When the tree is parsed, it will traverse to each node to evaluate
             // And throw WCPSProcessingError or other kind of Exceptions if possible
             translationTree = evaluator.visit(parseTree);

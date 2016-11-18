@@ -93,8 +93,11 @@ public class ConfigManager {
     public static String RASDAMAN_VERSION = "v9.0.0beta1";
     public static String RASDAMAN_BIN_PATH = "";
 
-    // XML validation schema control setting
+    // XML validation schema control setting (SOAP request validation)
     public static boolean XML_VALIDATION = false;
+    
+    // Only used when testing OGC CITE
+    public static boolean OGC_CITE_OUTPUT_OPTIMIZATION = false;
 
     //Retry settings when opening a connection to rasdaman server. Ernesto Rodriguez <ernesto4160@gmail.com>
     //Time in seconds between each re-connect attempt
@@ -162,7 +165,7 @@ public class ConfigManager {
     // keys
     public static final String KEY_BBOX_IN_COVSUMMARY = "bbox_in_covsummary";
     public static final String KEY_DESCRIPTION_IN_COVSUMMARY = "description_in_covsummary";
-    public static final String KEY_METADATA_IN_COVSUMMARY = "metadata_in_covsummary";
+    public static final String KEY_METADATA_IN_COVSUMMARY = "metadata_in_covsummary";    
     public static final String KEY_RASDAMAN_DATABASE = "rasdaman_database";
     public static final String KEY_RASDAMAN_URL = "rasdaman_url";
     public static final String KEY_RASDAMAN_USER = "rasdaman_user";
@@ -184,8 +187,10 @@ public class ConfigManager {
     public static final String KEY_WCST_DEFAULT_DATATYPE = "default_datatype";
     public static final String KEY_SECORE_URLS = "secore_urls";
     public static final String KEY_SECORE_VERSIONS = "secore_versions";
-    // Only used for OGC CITE test (validate input request with XML Schema, remove XML output indentation)
+    // validate SOAP input request with XML Schema
     public static final String KEY_XML_VALIDATION = "xml_validation";
+    // Only used for OGC CITE test as it will optimize output from WCS to bypass some test cases (xml_validation must set to false).
+    public static final String KEY_OGC_CITE_OUTPUT_OPTIMIZATION = "ogc_cite_output_optimization";
     public static final String KEY_PETASCOPE_SERVLET_URL = "petascope_servlet_url";
     public static final String KEY_RASDAMAN_BIN_PATH = "rasdaman_bin_path";
     public static final String KEY_DISABLE_WRITE_OPERATIONS = "disable_write_operations";
@@ -337,13 +342,16 @@ public class ConfigManager {
         RASDAMAN_RETRY_ATTEMPTS = get(KEY_RASDAMAN_RETRY_ATTEMPTS);
         PETASCOPE_SERVLET_URL   = get(KEY_PETASCOPE_SERVLET_URL);
 
-        /* Toggle switches (parseBoolean -> true if equalsIgnoreCase("true")) */
         // fat/thin coverage summaries in capability
         BBOX_IN_COVSUMMARY        = Boolean.parseBoolean(get(KEY_BBOX_IN_COVSUMMARY));
         DESCRIPTION_IN_COVSUMMARY = Boolean.parseBoolean(get(KEY_DESCRIPTION_IN_COVSUMMARY));
         METADATA_IN_COVSUMMARY    = Boolean.parseBoolean(get(KEY_METADATA_IN_COVSUMMARY));
-        // XML-encoded request schema validation, removed XML output indentation
-        XML_VALIDATION            = Boolean.parseBoolean(KEY_XML_VALIDATION);
+        
+        // XML-encoded request schema validation for input request in XML POST
+        XML_VALIDATION            = Boolean.parseBoolean(get(KEY_XML_VALIDATION));
+        
+        // Only used when testing OGC CITE (with xml_validation is set to false)
+        OGC_CITE_OUTPUT_OPTIMIZATION = Boolean.parseBoolean(get(KEY_OGC_CITE_OUTPUT_OPTIMIZATION));
 
         // Disable write operations
         DISABLE_WRITE_OPERATIONS = Boolean.parseBoolean(get(KEY_DISABLE_WRITE_OPERATIONS));

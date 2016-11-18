@@ -38,6 +38,8 @@ import petascope.util.BigDecimalUtil;
 import petascope.util.CrsProjectionUtil;
 import petascope.util.CrsUtil;
 import petascope.util.TimeUtil;
+import petascope.util.WcsUtil;
+import static petascope.util.WcsUtil.SUBSETTING_ALLOWED_ERROR;
 import petascope.util.XMLSymbols;
 import petascope.wcps2.error.managed.processing.InvalidDomainInSubsettingCrsTransformException;
 import petascope.wcps2.error.managed.processing.InvalidSlicingException;
@@ -491,7 +493,10 @@ public class SubsetParsingService {
      * i.e: if point is 20 and Lat's geo bound is: 30:40 then point is invalid and should throw error
      */
     private void validatePointInsideGeoBound(String axisName, BigDecimal point, BigDecimal geoMin, BigDecimal geoMax) {
-        if (point.compareTo(geoMin) < 0 || point.compareTo(geoMax) > 0) {
+        // NOTE: as WCS is translated to WCPS then request with WCS using SubsettingCRS (i.e: the input will be transformed, e.g: from 4326 to 3857)
+        // this can lead to a accepted error in subsetting (e.g: max geo bound: 4.5 and subset is: 4.5000000001 or min of geo bound: 0.101 and subset is: 0.10999999999)
+        // then it will relaxed the constraint for subsetting must be within the bound.
+        if (point.compareTo(geoMin.subtract(SUBSETTING_ALLOWED_ERROR)) < 0 || point.compareTo(geoMax.add(SUBSETTING_ALLOWED_ERROR)) > 0) {
             throw new OutOfBoundsSubsettingException(axisName, new ParsedSubset<String>(point.toPlainString()), geoMin.toPlainString(), geoMax.toPlainString());
         }
     }

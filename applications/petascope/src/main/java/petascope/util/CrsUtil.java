@@ -45,6 +45,7 @@ import nu.xom.Document;
 import nu.xom.Element;
 import nu.xom.ParsingException;
 import nu.xom.ValidityException;
+import org.apache.commons.io.IOUtils;
 import org.geotools.referencing.CRS;
 import org.opengis.referencing.FactoryException;
 import org.opengis.referencing.NoSuchAuthorityCodeException;
@@ -121,6 +122,11 @@ public class CrsUtil {
 
     // WGS84
     public static final String WGS84_EPSG_CODE = "4326";
+    
+    // used in WCS GetCapabilities to list all the possible CRSs
+    public static final String EPSG_ALL_CRS = CrsUtil.getResolverUri() + "/crs/EPSG/0";
+    // e.g: <identifier>http://localhost:8080/def/crs/EPSG/0/4326</identifier>
+    public static final String SECORE_IDENTIFIER_PATTERN = "<identifier>(.+?)</identifier>";
 
 
     /* CACHES: avoid EPSG db and SECORE redundant access */
@@ -222,6 +228,30 @@ public class CrsUtil {
     }
     public static String CrsUriDir(String committee) {
         return CrsUriDir(getResolverUri(), committee, CRS_DEFAULT_VERSION);
+    }
+    
+    
+    /**
+     * WCS GetCapabilities must contain list of EPSG CRSs as it is required in OGC CRS Extension 
+     * @return 
+     * @throws java.net.MalformedURLException 
+     */
+    public static List<String> getAllEPSGCrss() throws MalformedURLException, IOException {
+        URL url = new URL(CrsUtil.EPSG_ALL_CRS);
+        URLConnection con = url.openConnection();
+        con.setConnectTimeout(ConfigManager.CRSRESOLVER_CONN_TIMEOUT);
+        con.setReadTimeout(ConfigManager.CRSRESOLVER_READ_TIMEOUT);
+        InputStream inStream = con.getInputStream();
+        
+        String crssTmp = IOUtils.toString(inStream, ENCODING_UTF8);
+        Matcher matcher = Pattern.compile(SECORE_IDENTIFIER_PATTERN).matcher(crssTmp);
+        
+        List<String> crss = new ArrayList<String>();
+        while (matcher.find()) {
+            crss.add(matcher.group(1));
+        }
+        
+        return crss;
     }
 
     /**
@@ -834,7 +864,7 @@ public class CrsUtil {
     /**
      * Method to return the default SECORE URI (first in the configuration list)
      */
-    private static String getResolverUri() {
+    public static String getResolverUri() {
         return ConfigManager.SECORE_URLS.get(0);
     }
 

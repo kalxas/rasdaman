@@ -57,7 +57,7 @@ public abstract class AbstractRequestHandler<T extends Request> implements Reque
         root.setNamespaceURI(NAMESPACE_WCS);
 
         // xmlns:
-        root.addNamespaceDeclaration(PREFIX_CRS, NAMESPACE_CRS);
+        root.addNamespaceDeclaration(PREFIX_WCS_CRS, NAMESPACE_WCS_CRS);
         root.addNamespaceDeclaration(PREFIX_OWS, NAMESPACE_OWS);
         root.addNamespaceDeclaration(PREFIX_GML, NAMESPACE_GML);
         root.addNamespaceDeclaration(PREFIX_XSI, NAMESPACE_XSI);

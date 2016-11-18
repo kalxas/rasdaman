@@ -108,6 +108,9 @@ public class Templates {
     public static final String KEY_RANGEFIELDS = "rangeFields";
     public static final String KEY_RULE_DEFINITION = "ruleDefinition";
     public static final String KEY_SEQUENCE_RULE_ORDER = "sequenceRuleOrder";
+    // this is used to create attributes: axisLabels, srsDimension, srsName, uomLabels in gml:Envelope
+    public static final String KEY_SRSGROUP_FULL_ATTRIBUTES = "srsGroupFullAttributes";
+    // this is used to create attribute: srsName in gml:Point, gml:offsetVector
     public static final String KEY_SRSGROUP = "srsGroup";
     public static final String KEY_SWE_COMPONENT = "sweComponent";
     public static final String KEY_UPPERCORNER = "upperCorner";

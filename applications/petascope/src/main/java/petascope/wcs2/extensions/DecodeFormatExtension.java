@@ -49,6 +49,7 @@ import java.io.PrintWriter;
 import java.util.*;
 import org.apache.commons.lang3.StringUtils;
 import static petascope.core.DbMetadataSource.TABLE_MULTIPOINT;
+import petascope.wcps.metadata.DomainElement;
 
 /**
  * Common class for all format extensions.
@@ -383,7 +384,9 @@ public class DecodeFormatExtension extends AbstractFormatExtension {
     @Override
     public Response handle(GetCoverageRequest request, DbMetadataSource meta) throws PetascopeException, WCSException, SecoreException {
         //getFormat never returns null. if request has format null, the default format gml is set
-        if (request.isMultiPart()) {
+        // NOTE: OGC CITE getCoverage returning GML and multipart is valid (e.g: GetCoverage&coverageid=test_mean_summer_airtemp&mediatype=multipart/related)
+        // but by default, Petascope already returns GML so just ignore the multipart
+        if (request.isMultiPart() && !request.getFormat().equals(MIME_GML)) {
             return getMultiPartResponse(request, meta);
         }
 
@@ -392,6 +395,16 @@ public class DecodeFormatExtension extends AbstractFormatExtension {
         //Handle the range subset feature
         RangeSubsettingExtension rsubExt = (RangeSubsettingExtension) ExtensionsRegistry.getExtension(ExtensionsRegistry.RANGE_SUBSETTING_IDENTIFIER);
         rsubExt.handle(request, m);
+        
+        // Check if subsets belong to existing axes (e.g: subset=dimension(-44.525,-8.975) is not valid).
+        for (DimensionSubset subset : request.getSubsets()) {
+            String dim = subset.getDimension();
+            //Check if the supplied axis is in the coverage axes and throw exception if not
+            if (m.getMetadata().getDomainByName(dim) == null) {
+                throw new WCSException(ExceptionCode.InvalidAxisLabel,
+                        "The axis label " + dim + " was not found in the list of available axes");
+            }
+        }
 
         // Handle return only GML output
         if (request.getFormat().equals(MIME_GML)) {

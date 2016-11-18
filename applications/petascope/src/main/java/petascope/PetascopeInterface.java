@@ -21,7 +21,6 @@
  */
 package petascope;
 
-import java.io.BufferedReader;
 import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
@@ -29,7 +28,6 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintStream;
 import java.io.PrintWriter;
-import java.io.StringReader;
 import java.io.StringWriter;
 import java.io.UnsupportedEncodingException;
 import java.sql.SQLException;
@@ -40,18 +38,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
+import java.util.regex.Matcher;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import javax.xml.bind.JAXBException;
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.transform.OutputKeys;
-import javax.xml.transform.Transformer;
-import javax.xml.transform.TransformerFactory;
-import javax.xml.transform.dom.DOMSource;
-import javax.xml.transform.stream.StreamResult;
 
 import net.opengis.ows.v_1_0_0.ExceptionReport;
 import nu.xom.Document;
@@ -60,8 +52,6 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.w3c.dom.Node;
-import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 import petascope.core.DbMetadataSource;
 import petascope.exceptions.ExceptionCode;
@@ -91,6 +81,7 @@ import petascope.wcs2.extensions.ProtocolExtension;
 import petascope.wcs2.extensions.RESTProtocolExtension;
 import petascope.wcs2.handlers.RequestHandler;
 import petascope.wcs2.handlers.Response;
+import petascope.wcs2.parsers.XMLParser;
 import petascope.wcs2.templates.Templates;
 import petascope.wms2.servlet.PetascopeInterfaceAdapter;
 
@@ -129,6 +120,16 @@ public class PetascopeInterface extends CORSHttpServlet {
             ConfigManager.getInstance(confDir);
         } catch (RasdamanException ex) {
             throw new ServletException(ex);
+        }
+
+        // Initialize WSC schema (NOTE: it will take 1 - 2 minutes, so only run when xml_validation=true)
+        if (ConfigManager.XML_VALIDATION) {
+            try {
+                XMLParser.parseWcsSchema();
+            } catch (WCSException ex) {
+                log.debug("Cannot load XML schema from opengis.", ex);
+                throw new ServletException("Cannot load XML schema from opengis.", ex);
+            }
         }
 
         // Initialize the logging system
@@ -560,11 +561,9 @@ public class PetascopeInterface extends CORSHttpServlet {
             marshaller.marshal(report, strWriter);
             output = strWriter.toString();
             String sub = output.substring(output.indexOf("<ows:Exception "), output.indexOf("</ows:ExceptionReport>"));
-            try {
-                output = Templates.getTemplate(Templates.EXCEPTION_REPORT, Pair.of("\\{exception\\}", sub));
-            } catch (Exception ex) {
-                log.warn("Error handling exception report template");
-            }
+            // All of special characters for regex need to be quoted first, otherwise, getTemplate will have error.
+            sub = Matcher.quoteReplacement(sub);
+            output = Templates.getTemplate(Templates.EXCEPTION_REPORT, Pair.of("\\{exception\\}", sub));
             log.debug("Done marshalling Error Report.");
         } catch (JAXBException e2) {
             log.error("Stack trace: {}", e2);
@@ -750,8 +749,8 @@ public class PetascopeInterface extends CORSHttpServlet {
                             so the indentations are different.
                         */
 
-                        if (ConfigManager.XML_VALIDATION) {
-                            // Only when xml_validation=true in petascope.properties
+                        if (ConfigManager.OGC_CITE_OUTPUT_OPTIMIZATION) {
+                            // Only when ogc_cite_output_optimization=true in petascope.properties
                             IOUtils.write(XMLUtil.transformXML(XMLUtil.trimSpaceBetweenElements(outputXML)), os);
                         } else {
                             IOUtils.write(outputXML, os);

@@ -723,6 +723,11 @@ public class CoverageMetadata implements Cloneable {
         return domElements;
     }
 
+    /**
+     * Return the cellDomainElement (grid axis in Rasdaman) by DomainElement's name (CRS's axis name)
+     * @param name
+     * @return 
+     */
     public CellDomainElement getCellDomainByName(String name) {
 
         for (DomainElement axis : domain) {

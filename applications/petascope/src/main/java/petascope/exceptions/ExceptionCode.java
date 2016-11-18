@@ -314,13 +314,9 @@ public class ExceptionCode {
     public static final ExceptionCode CollectionExists = new ExceptionCode("CollectionExists", "Collection name already exists in rasdaman.");
 
     // WCS CRS-extension
-    public static final ExceptionCode NotASubsettingCrs = new ExceptionCode("InvalidSubsettingCrs",
-            "Parameter indicated in the subsettingCrs parameter is not a valid CRS.", 400);
-    public static final ExceptionCode SubsettingCrsNotSupported = new ExceptionCode("SubsettingCrsNotSupported",
+    public static final ExceptionCode SubsettingCrsNotSupported = new ExceptionCode("SubsettingCrs-NotSupported",
             "CRS indicated in the subsettingCrs parameter is not supported by this server.", 501);
-    public static final ExceptionCode NotAnOutputCrs = new ExceptionCode("InvalidOutputCrs",
-            "Parameter indicated in the outputCrs parameter is not a valid CRS.", 400);
-    public static final ExceptionCode OutputCrsNotSupported = new ExceptionCode("OutputCrsNotSupported",
+    public static final ExceptionCode OutputCrsNotSupported = new ExceptionCode("OutputCrs-NotSupported",
             "CRS indicated in the outputCrs parameter is not supported by this server.", 501);
     public static final ExceptionCode GridCoverageNotSupported = new ExceptionCode("GridCoverageNotSupported",
             "Grid coverage cannot be used to project (transform) by this server.", 501);
