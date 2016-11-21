@@ -28,44 +28,79 @@
 #
 ##################################################################
 
+COMPILER = g++
+LINKER   = g++
+FLAGS    = -fPIC -pthread -std=c++11 -fno-stack-protector -fno-strict-overflow -O3 -g0
+
+###############################################################################
+# ToDo
+###############################################################################
+#
+# Note: ../../rasdaman/ is the relative path to the git-clone of rasdaman.
+#
+# - Remove the line
+#   -I /usr/include/jsoncpp/
+#   if the json-lib has been added to rasdaman.
+# - Change the line
+#   ../../rasdaman/rasnet/librasnet.a     \
+#   to
+#   -lrasnet                \
+#   if the librasnet.a has been added to the lib-folder.
+# - Change the line
+#   ../../rasdaman/common/src/libcommon.a \
+#   to
+#   -lcommon                \
+#   if the libcommon.a has been added to the lib-folder.
+#
+###############################################################################
+
+INCS = -I $(RASDAMAN_INSTALLATION)/include       \
+       -I $(RASDAMAN_INSTALLATION)/include/debug \
+       -I /usr/include/jsoncpp/
+
+LIBS = -L$(RASDAMAN_INSTALLATION)/lib \
+       -lrasodmg               \
+       -lclientcomm            \
+       -lraslib                \
+       -lconversion            \
+       -lcommline              \
+       -lnetwork               \
+       ../../rasdaman/rasnet/librasnet.a     \
+       ../../rasdaman/common/src/libcommon.a \
+       -lgrpc++_unsecure       \
+       -lgrpc_unsecure         \
+       -lz                     \
+       -lprotobuf              \
+       -lpthread               \
+       -lboost_thread          \
+       -lboost_regex           \
+       -lboost_program_options \
+       -lboost_system          \
+       -lpgtypes               \
+       -lpq                    \
+       -lnetcdf_c++            \
+       -lnetcdf                \
+       -ltiff                  \
+       -ledit                  \
+       -lfl                    \
+       -ldl                    \
+       -lcrypto                \
+       -lcrypt
+
+DEFS = -DEARLY_TEMPLATE
 
 
-all: query
-
-EXEC_FILE2 				= 	query
-SOURCE_FILES2			= 	query.cc
-COMPILER				= 	g++
-FLAGS					=	-DLINUX -DEARLY_TEMPLATE -DONCRPC -DDEBUG  -I /usr/include/  -g3 -gdwarf-2 -O0 -rdynamic
-
-INCS=-I $(RASDAMAN_INSTALLATION)/include \
-     -I $(RASDAMAN_INSTALLATION)/include/debug \
-
-LIBS=-L$(RASDAMAN_INSTALLATION)/lib -lcatalogmgr  -llockmanager  -lqlparser  -lreladminif    -lrelindexif -lhttpserver \
-	 -lmddmgr  -lrelblobif  -lrelmddif -lstoragemgr -lcommline  -lindexmgr  -lrasodmg -lrelcatalogif \
-	 -lrelstorageif -ltilemgr -lrasodmg -lclientcomm -lconversion -lraslib -lnetwork -lservercomm -ltiff \
-	 -ljpeg -lpng -lcrypto -lz -lnetpbm -lnetcdf_c++
-
-#DEFS=-DRMANDEBUG \
-     -DDEBUG \
-     -DBASEDB_PGSQL \
-     -DCOMPDATE="27.08.2012 13:59:41" \
-     -DCPPSTDLIB \
-     -DX86 \
-     -DRMANVERSION=8310 \
-     -DLINUX \
-     -DEARLY_TEMPLATE \
-     -DLITTLE_ENDIAN
+all: bin
 
 
-#compile: 		$(EXEC_FILE)
+query.o: query.cc
+	$(COMPILER) $(FLAGS) $(DEFS) $(INCS) -c query.cc
 
-query: 		$(EXEC_FILE2)
 
-
-$(EXEC_FILE2):
-	$(COMPILER) $(FLAGS) -o $(EXEC_FILE2) $(SOURCE_FILES2) $(INCS) $(LIBS)
+bin: query.o
+	$(LINKER) $(FLAGS) -o query query.o $(LIBS)
 
 
 clean:
 	-rm -f *.o
-	-rm -f $(EXEC_FILE2)
+	-rm -f $(EXEC_FILE)
