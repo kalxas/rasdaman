@@ -80,13 +80,9 @@ $(PROTOBUF_BIN):
 
 $(GRPC_JAVA_BIN):
 if ENABLE_JAVA
-	export CPLUS_INCLUDE_PATH=${GRPC_BIN}/include:${PROTOBUF_BIN}/include && \
-	export LIBRARY_PATH=${GRPC_BIN}/lib:${PROTOBUF_BIN}/lib && \
-	cd grpc-java/compiler && \
-	../gradlew java_pluginExecutable && \
-	cd ../../ && \
+	cd grpc-java && make && \
 	$(MKDIR_P) $(GRPC_JAVA_BIN) && \
-	cp grpc-java/compiler/build/binaries/java_pluginExecutable/protoc-gen-grpc-java ${GRPC_JAVA_BIN}
+	cp protoc-gen-grpc-java ${GRPC_JAVA_BIN}
 endif
 
 clean-force: clean-am clean-bin clean-grpc clean-protobuf

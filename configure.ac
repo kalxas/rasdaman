@@ -128,6 +128,7 @@ AC_CHECK_FUNCS([alarm bzero clock_gettime dup2 floor getcwd gethostbyaddr gethos
 AC_CONFIG_HEADERS([config.h])
 AC_CONFIG_FILES([third_party/Makefile
                  third_party/jsoncpp/Makefile
+                 third_party/grpc-java/Makefile
                  Makefile
                  catalogmgr/Makefile         
                  relblobif/Makefile
