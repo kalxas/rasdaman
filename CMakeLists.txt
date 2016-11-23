@@ -94,25 +94,25 @@ endif ()
 
 set(USE_HDF4 OFF CACHE BOOL "This feature enables the inclusion of HDF4 library during installation.")
 if (USE_HDF4)
-    # Flag used in config.h
+    # Flag used in config-cmake.h
     set(HAVE_HDF ON)
 endif ()
 
 set(USE_NETCDF OFF CACHE BOOL "This feature enables the inclusion of netCDF library during installation.")
 if (USE_NETCDF)
-    # Flag used in config.h
+    # Flag used in config-cmake.h
     set(HAVE_NETCDF ON)
 endif ()
 
 set(USE_GDAL ON CACHE BOOL "This feature enables the inclusion of GDAL library during installation.")
 if (USE_GDAL)
-    # Flag used in config.h
+    # Flag used in config-cmake.h
     set(HAVE_GDAL ON)
 endif ()
 
 set(USE_GRIB OFF CACHE BOOL "This feature enables the inclusion of GRIB library during installation.")
 if (USE_GRIB)
-    # Flag used in config.h
+    # Flag used in config-cmake.h
     set(HAVE_GRIB ON)
 endif ()
 
@@ -161,7 +161,7 @@ set(BASEDB_INCLUDE_DIR "")
 set(POSTGRESQL_MIN_VERSION 9.1.0)
 if (${DEFAULT_BASEDB} STREQUAL sqlite)
     find_package(Sqlite REQUIRED)
-    # For config.h
+    # For config-cmake.h
     set(BASEDB_SQLITE 1)
     set(BASEDBSTRING sqlite)
 
@@ -197,7 +197,7 @@ if (${DEFAULT_BASEDB} STREQUAL sqlite)
         set(BASEDB_INCLUDE_DIR ${BASEDB_INCLUDE_DIR} ${PostgreSQL_INCLUDE_DIRS})
     endif ()
 elseif (${DEFAULT_BASEDB} STREQUAL postgresql)
-    # Used in config.h
+    # Used in config-cmake.h
     set(BASEDB_PGSQL 1)
     set(BASEDBSTRING pgsql)
 
@@ -326,7 +326,7 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fno-stack-protector -fno-strict-overflo
 
 GetVersionInformation(RMANVERSION GCCVERSION GCCTARGET)
 # Generate the configuration header files.
-configure_file("${CMAKE_CURRENT_SOURCE_DIR}/config.h.in" "${CMAKE_CURRENT_BINARY_DIR}/config.h")
+configure_file("${CMAKE_CURRENT_SOURCE_DIR}/config-cmake.h.in" "${CMAKE_CURRENT_BINARY_DIR}/config.h")
 configure_file("${CMAKE_CURRENT_SOURCE_DIR}/version.h.in" "${CMAKE_CURRENT_BINARY_DIR}/version.h")
 
 # Execute the 3rd party CMakeLists.txt

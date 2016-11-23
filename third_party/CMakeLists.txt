@@ -188,6 +188,7 @@ if (RMANRASNET)
     ############################################################################
     # TODO: Convert the Google Protobuf build process to use External Project once we give up Autotools
 
+    set(THIRD_PARTY_DIR "${CMAKE_BINARY_DIR}/third_party")
     # Google Protobuf is a third_party dependency of GRPC so we define the variables here.
     set(GRPC_SOURCE_DIR "${CMAKE_SOURCE_DIR}/third_party/grpc")
     set(GRPC_BINARY_DIR "${CMAKE_BINARY_DIR}/third_party/bin/grpc")
@@ -210,7 +211,7 @@ if (RMANRASNET)
     GetProcessorCount(PROCESSOR_COUNT)
 
     add_custom_command(OUTPUT ${PROTOBUF_LIBRARY_PATH} ${PROTOBUF_PROTOC_EXECUTABLE_PATH}
-	    # Change the URL for gmock before invoking script to build protobuf	    	        
+	    # Change the URL for gmock before invoking script to build protobuf
 	    COMMAND sed -i "s@${OLD_GMOCK_URL}@${NEW_GMOCK_URL}@g" autogen.sh
             COMMAND ./autogen.sh
             COMMAND ./configure ARGS --prefix=${PROTOBUF_BINARY_DIR} --disable-shared
@@ -290,39 +291,17 @@ if (RMANRASNET)
     ############################################################################
 
     if (ENABLE_JAVA)
-        set(GRPC_JAVA_SOURCE_DIR "${CMAKE_SOURCE_DIR}/third_party/grpc-java/compiler")
-        set(GRPC_JAVA_BINARY_DIR "${CMAKE_BINARY_DIR}/third_party/bin/grpc-java/bin")
+        # We just need to compile executable protoc-gen-grpc-java
+        add_subdirectory("${CMAKE_SOURCE_DIR}/third_party/grpc-java")
 
-        file(MAKE_DIRECTORY ${GRPC_JAVA_BINARY_DIR})
+        # GRPC Java Plugin
+        set(GRPC_JAVA_PLUGIN_EXECUTABLE_PATH ${THIRD_PARTY_DIR}/bin/grpc-java/protoc-gen-grpc-java)
+        set(GRPC_JAVA_PLUGIN_EXECUTABLE protoc-gen-grpc-java-compiled)
 
-        # Create an external project for Java GRPC that depends on the GRPC and Protobuf external projects
-        ExternalProject_Add(grpc-java
-                DEPENDS google-protobuf
-                DOWNLOAD_COMMAND ""
-                SOURCE_DIR ${GRPC_JAVA_SOURCE_DIR}
-                CONFIGURE_COMMAND ""
-                BUILD_IN_SOURCE ON
-                BUILD_COMMAND ""
-                INSTALL_COMMAND ${CMAKE_COMMAND} -E copy ${GRPC_JAVA_SOURCE_DIR}/build/binaries/java_pluginExecutable/protoc-gen-grpc-java ${GRPC_JAVA_BINARY_DIR}/
-                LOG_BUILD ON
-                LOG_INSTALL ON)
-
-        ExternalProject_Add_Step(grpc-java grpc-java-build
-                # GRPC-Java expects to find the include and library files for GRPC and Protobuf in the Path.
-                COMMAND export LIBRARY_PATH=${PROTOBUF_BINARY_DIR}/lib && export CPLUS_INCLUDE_PATH=${PROTOBUF_INCLUDE_DIR} && ../gradlew java_pluginExecutable
-                WORKING_DIRECTORY ${GRPC_JAVA_SOURCE_DIR}
-                DEPENDERS install
-                )
-
-        # GRPC CPP Plugin
-        set(GRPC_JAVA_PLUGIN_EXECUTABLE_PATH ${GRPC_JAVA_BINARY_DIR}/protoc-gen-grpc-java)
-        set(GRPC_JAVA_PLUGIN_EXECUTABLE protoc-gen-grpc-java)
-
+        # Import this executable protoc-gen-grpc-java to be used in rasj for generating java files
         add_executable(${GRPC_JAVA_PLUGIN_EXECUTABLE} IMPORTED GLOBAL)
         set_property(TARGET ${GRPC_JAVA_PLUGIN_EXECUTABLE} PROPERTY IMPORTED_LOCATION
-                ${GRPC_JAVA_PLUGIN_EXECUTABLE_PATH})
-        add_dependencies(${GRPC_JAVA_PLUGIN_EXECUTABLE} grpc-java)
-
+                    ${GRPC_JAVA_PLUGIN_EXECUTABLE_PATH})
     endif (ENABLE_JAVA)
 
 endif (RMANRASNET)

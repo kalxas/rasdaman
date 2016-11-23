@@ -92,6 +92,7 @@ java/src/rasj/RasImplementation.java
 fillpyramid
 initpyramid
 config.h
+config.h.in
 *~
 stamp-h1
 version.h
