@@ -45,7 +45,7 @@ log "Test SECORE queries's response time..."
 for i in {1..200}
 do
    #echo "test $i time..."
-   wget "$SECORE_URL" -O "$OUTPUT_FOLDER/secore$i.txt" &
+   wget -q "$SECORE_URL" -O "$OUTPUT_FOLDER/secore$i.txt" &
    # add current process pid to an array, then later it can finish the script when all processes are stopped.
    pids="$pids $!"    
 done
