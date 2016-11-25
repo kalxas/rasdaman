@@ -48,7 +48,8 @@ db_updates.path=@SHARE_DATA_DIR@/secore
 
 
 #
-# Service URL, used in automatic substitution of URNs (urn:ogc:def)
+# Service URL, used in automatic substitution of URNs (urn:ogc:def) and URLs (e.g: http://localhost:8080/def)
+# Set this parameter to your public service URL.
 #
 service.url=http://www.opengis.net/def
 

@@ -38,8 +38,7 @@ import secore.util.SecoreUtil;
 import secore.util.StringUtil;
 
 /**
- * This handler should be invoked as a fallback to the more specific handler,
- * {@link CrsCompoundHandler}, {@link AxisHandler}, etc.
+ * This handler should be invoked as a fallback to the more specific handler, {@link CrsCompoundHandler}, {@link AxisHandler}, etc.
  *
  * @author Dimitar Misev
  */
@@ -57,12 +56,7 @@ public class GeneralHandler extends AbstractHandler {
     // Format parameter
     public static final String FORMAT_KEY = "format";
     /**
-     * Default recursion depth of link (xlink:href) expansions in XML. A value of
-     * 0 means no link is expanded: increasing integer values identify the
-     * recursion level at which link expansion is applied. It is recommended to
-     * keep this parameter to a value greater or equal than 1 (to let Petascope
-     * fetch the required CRS metadata) and less or equal 2 to avoid performance
-     * degradation.
+     * Default recursion depth of link (xlink:href) expansions in XML. A value of 0 means no link is expanded: increasing integer values identify the recursion level at which link expansion is applied. It is recommended to keep this parameter to a value greater or equal than 1 (to let Petascope fetch the required CRS metadata) and less or equal 2 to avoid performance degradation.
      *
      * @see http://rasdaman.org/ticket/365
      */
@@ -75,8 +69,8 @@ public class GeneralHandler extends AbstractHandler {
     @Override
     public boolean canHandle(ResolveRequest request) throws SecoreException {
         boolean ret = request.getOperation() != null
-                      && !OP_CRS_COMPOUND.equals(request.getOperation())
-                      && !OP_EQUAL.equals(request.getOperation());
+                && !OP_CRS_COMPOUND.equals(request.getOperation())
+                && !OP_EQUAL.equals(request.getOperation());
         if (ret && request.getParams().size() < 3) {
             throw new SecoreException(ExceptionCode.MissingParameterValue, "Insufficient parameters provided");
         }
@@ -127,8 +121,11 @@ public class GeneralHandler extends AbstractHandler {
 
         ResolveResponse ret = resolveId(url, versionNumber, request.getExpandDepth(), new ArrayList<Parameter>());
 
+        // Replace the requested URL in <gml:identifier> with the replaced URL with prefix in secore.properties
+        // e.g: <gml:identifier codeSpace="OGP">http://localhost:8080/def/crs/EPSG/0/4326</gml:identifier>
+        // to: <gml:identifier codeSpace="OGP">http://opengist.net/def/crs/EPSG/0/4326</gml:identifier>
         ret = new ResolveResponse(StringUtil.replaceElementValue(
-                                      ret.getData(), IDENTIFIER_LABEL, request.getOriginalRequest()));
+                ret.getData(), IDENTIFIER_LABEL, request.getReplacedURLPrefixRequest()));
 
         // check if the result is a parameterized CRS, and forward to the ParameterizedCrsHandler
         if (ParameterizedCrsHandler.isParameterizedCrsDefinition(ret.getData())) {
@@ -142,8 +139,7 @@ public class GeneralHandler extends AbstractHandler {
     }
 
     /**
-     * Checks the request and returns a pair of URN/URL IDENTIFIER_LABELs to be
-     * looked up in the database.
+     * Checks the request and returns a pair of URN/URL IDENTIFIER_LABELs to be looked up in the database.
      *
      * @param request resolving request
      * @return pair of URN/URL IDENTIFIER_LABELs to be looked up in the database.
@@ -184,17 +180,17 @@ public class GeneralHandler extends AbstractHandler {
             if (authorityParam.equals(EMPTY)) {
                 log.error("No authority specified.");
                 throw new SecoreException(ExceptionCode.MissingParameterValue
-                                          .locator(AUTHORITY_KEY), "Insufficient parameters provided");
+                        .locator(AUTHORITY_KEY), "Insufficient parameters provided");
             }
             if (versionParam.equals(EMPTY)) {
                 log.error("No version specified.");
                 throw new SecoreException(ExceptionCode.MissingParameterValue
-                                          .locator(VERSION_KEY), "Insufficient parameters provided");
+                        .locator(VERSION_KEY), "Insufficient parameters provided");
             }
             if (codeParam.equals(EMPTY)) {
                 log.error("No code specified.");
                 throw new SecoreException(ExceptionCode.MissingParameterValue
-                                          .locator(CODE_KEY), "Insufficient parameters provided");
+                        .locator(CODE_KEY), "Insufficient parameters provided");
             }
 
             // e.g: 8.5, 8.7, 0
@@ -203,8 +199,8 @@ public class GeneralHandler extends AbstractHandler {
             versionParam = VERSION_NUMBER;
 
             String url = (request.isLocal() ? "" : request.getServiceUri())
-                         + request.getOperation() + REST_SEPARATOR
-                         + authorityParam + REST_SEPARATOR + versionParam + REST_SEPARATOR + codeParam;
+                    + request.getOperation() + REST_SEPARATOR
+                    + authorityParam + REST_SEPARATOR + versionParam + REST_SEPARATOR + codeParam;
 
             // e.g: (8.5, "/def/OGC/0/VERSION_NUMBER/")
             Pair<String, String> obj = new Pair<String, String>(versionNumber, url);

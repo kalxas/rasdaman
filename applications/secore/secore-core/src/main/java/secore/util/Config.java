@@ -46,8 +46,8 @@ public class Config {
     public final static String VERSION_MAJOR = "0";
     public final static String VERSION_MINOR = "1";
     public final static String VERSION_MICRO = "0";
-    public final static String VERSION =
-        VERSION_MAJOR + "." + VERSION_MINOR + "." + VERSION_MICRO;
+    public final static String VERSION
+            = VERSION_MAJOR + "." + VERSION_MINOR + "." + VERSION_MICRO;
     public final static String LANGUAGE = "en";
 
     // configuration keys
@@ -55,6 +55,8 @@ public class Config {
     private final static String PASSWORD_KEY = "password";
     private final static String GML_DEF_KEY = "gml.def.path";
     private final static String DB_UPDATES_PATH = "db_updates.path";
+    // This will changed the original request (before "/def") with URL prefix which is set in secore.properties
+    // e.g: http://localhost:8080/def/crs/EPSG/0/4326 to http://opengist.net/def/crs/EPSG/0/4326
     private final static String SERVICE_URL = "service.url";
     private final static String CODESPACE_KEY = "codespace";
 
@@ -62,9 +64,7 @@ public class Config {
     private static Config instance;
     private static Properties props;
 
-
     private static final String PROPERTIES_FILE = "secore.properties";
-    private static final String GML_FOLDER = "gml";
     private static final String DEFAULT_CONF_DIR = "@CONF_DIR@/etc";
     // we will search the full path for the etc/gml folder inside war file
     private static final String ETC_DIRECTORY = "etc";
@@ -99,7 +99,7 @@ public class Config {
                 try {
                     is.close();
                 } catch (IOException ex) {
-                    log.warn("Failed closing stream settings input stream" , ex);
+                    log.warn("Failed closing stream settings input stream", ex);
                 }
             }
         }
@@ -133,7 +133,6 @@ public class Config {
      * Read the log configuration from $RMANHOME/etc/secore.properties
      */
     private void initLogging(String confFile) {
-        String confDir = new File(confFile).getParent();
         try {
             // log4j is added in secore.properties
             File file = new File(confFile);
@@ -155,20 +154,20 @@ public class Config {
                 // If the log file path is configured as absolute path, we check the write permision of Tomcat username on this file.
                 if (f.isAbsolute()) {
                     if (!f.canWrite()) {
-                        log.warn("Cannot write to the secore log file defined in secore.properties: "  + logFilePath + ".\n"
-                                 + "Please make sure the path specified by " + LOG_FILE_PATH + " in secore.properties is"
-                                 + " a location where the system user running Tomcat has write access."
-                                 + " Otherwise, the secore log can only be found in the Tomcat log (usually catalina.out).");
+                        log.warn("Cannot write to the secore log file defined in secore.properties: " + logFilePath + ".\n"
+                                + "Please make sure the path specified by " + LOG_FILE_PATH + " in secore.properties is"
+                                + " a location where the system user running Tomcat has write access."
+                                + " Otherwise, the secore log can only be found in the Tomcat log (usually catalina.out).");
                     }
                 } else {
                     // log file path is relative, we don't know where directory user want to set the log file, so user will need to see the log in catalina.out
                     log.warn(LOG_FILE_PATH + " is set to relative path: " + logFilePath + " in petascope.properties; it is recommended to set it to an absolute path."
-                             + " In any case, the petascope log can be found in the Tomcat log (usually catalina.out).");
+                            + " In any case, the petascope log can be found in the Tomcat log (usually catalina.out).");
                 }
             }
         } catch (Exception ex) {
             BasicConfigurator.configure(new ConsoleAppender(
-                                            new PatternLayout("[%d{HH:mm:ss}]%6p %c{1}@%L: %m%n")));
+                    new PatternLayout("[%d{HH:mm:ss}]%6p %c{1}@%L: %m%n")));
             log.warn("No property for log4j.properties found on secore.properties file. Logging to standard output configured in code");
         }
     }
@@ -183,6 +182,7 @@ public class Config {
 
     /**
      * Initialize the singleton object with configuration directory to secore.properties (i.e: $RMANHOME/etc/secore.properties)
+     *
      * @param confDir
      */
     public static void initInstance(String confDir) {
@@ -230,6 +230,11 @@ public class Config {
         return ret;
     }
 
+    /**
+     * The prefix URL in secore.properties (secore.url) (e.g: http://opengis.net/def) then all the resolved URL will use this prefix URL.
+     *
+     * @return
+     */
     public String getServiceUrl() {
         return get(SERVICE_URL);
     }

@@ -30,12 +30,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import static secore.util.Constants.*;
 import static secore.handler.GeneralHandler.*;
+import secore.util.Config;
+import secore.util.Constants;
 import secore.util.StringUtil;
 
 /**
- * Abstracts away requests (identifiers) that secore can resolve.
- * This implements {@link ParamValue} as it can appear as a parameter value in
- * a compound CRS URI.
+ * Abstracts away requests (identifiers) that secore can resolve. This implements {@link ParamValue} as it can appear as a parameter value in a compound CRS URI.
  *
  * @author Dimitar Misev
  */
@@ -49,21 +49,16 @@ public class ResolveRequest implements ParamValue {
     private final List<RequestParam> params;
 
     /**
-     * The original request, e.g. in http://opengis.net/def/crs/EPSG/0/4326 the
-     * original request is obviously http://opengis.net/def/crs/EPSG/0/4326
+     * The original request, e.g. in http://opengis.net/def/crs/EPSG/0/4326 the original request is obviously http://opengis.net/def/crs/EPSG/0/4326
      */
     private final String originalRequest;
     /**
-     * SECORE endpoint, e.g. in http://opengis.net/def/crs/EPSG/0/4326 the
-     * service URI is http://opengis.net/def/
-     * Note that the service URI always ends with a '/' and is followed by the
-     * operation.
+     * SECORE endpoint, e.g. in http://opengis.net/def/crs/EPSG/0/4326 the service URI is http://opengis.net/def/ Note that the service URI always ends with a '/' and is followed by the operation.
      */
     private final String serviceUri;
 
     /**
-     * Request operation, e.g. in http://opengis.net/def/crs/EPSG/0/4326 the
-     * operation is "crs"
+     * Request operation, e.g. in http://opengis.net/def/crs/EPSG/0/4326 the operation is "crs"
      */
     private final String operation;
 
@@ -78,9 +73,7 @@ public class ResolveRequest implements ParamValue {
     private boolean local;
 
     /**
-     * Create a new request to resolve out of a URI. If uri is a URN, it will
-     * be converted to URI using the default service URL specified in secore.conf
-     * The URL parameters are decoded only after they have been separated.
+     * Create a new request to resolve out of a URI. If uri is a URN, it will be converted to URI using the default service URL specified in secore.conf The URL parameters are decoded only after they have been separated.
      *
      * @param uri the original request to be parsed
      * @throws SecoreException
@@ -210,8 +203,8 @@ public class ResolveRequest implements ParamValue {
      * Determine if request is local based on the service URI.
      */
     private void setLocal(String serviceUri) {
-        this.local = serviceUri == null || serviceUri.equals(EMPTY) ||
-                     serviceUri.startsWith(LOCAL_URI) || serviceUri.equals(REST_SEPARATOR);
+        this.local = serviceUri == null || serviceUri.equals(EMPTY)
+                || serviceUri.startsWith(LOCAL_URI) || serviceUri.equals(REST_SEPARATOR);
     }
 
     /**
@@ -224,7 +217,7 @@ public class ResolveRequest implements ParamValue {
     public void addParam(String key, String value) throws SecoreException {
         if (value == null) {
             throw new SecoreException(ExceptionCode.InvalidParameterValue.locator(key),
-                                      "Null value encountered");
+                    "Null value encountered");
         }
         if (key != null && key.equalsIgnoreCase(EXPAND_KEY)) {
             int expand;
@@ -237,11 +230,11 @@ public class ResolveRequest implements ParamValue {
                     expand = Integer.parseInt(value);
                     if (expand < 0) {
                         throw new SecoreException(ExceptionCode.InvalidParameterValue.locator(EXPAND_KEY),
-                                                  "Expand value must be a number >= 0: " + value);
+                                "Expand value must be a number >= 0: " + value);
                     }
                 } catch (Exception ex) {
                     throw new SecoreException(ExceptionCode.InvalidRequest,
-                                              "Invalid expand level specified, expected a number >= 0, full or none: " + value);
+                            "Invalid expand level specified, expected a number >= 0, full or none: " + value);
                 }
             }
             this.expand = new RequestParam(key, expand + "");
@@ -258,14 +251,13 @@ public class ResolveRequest implements ParamValue {
     }
 
     /**
-     * Get the param value from param key
-     * e.g: crs?authority=EPSG&code=4327&version=0
-     * key is: authority and value is: EPSG
+     * Get the param value from param key e.g: crs?authority=EPSG&code=4327&version=0 key is: authority and value is: EPSG
+     *
      * @param key
      * @return
      */
     public String getParamValueByKey(String key) {
-        // NOTE: in case of rest request
+        // NOTE: in case of rest request 
         // e.g: def/crs/EPSG/8.5/4327, param key is NULL, param value is (e.g: epsg)
 
         String value = "";
@@ -329,6 +321,20 @@ public class ResolveRequest implements ParamValue {
     }
 
     /**
+     * Using the prefix URL from service.url in secore.properties e.g: request: http://localhost:8080/def -> http://opengis.net/def or compoundCRS: http://localhost:8080/def/crs-compound? 1=http://localhost:8080/def/crs/EPSG/0/32633 &2=http://localhost:8080/def/crs/OGC/0/AnsiDate
+     *
+     * @return
+     */
+    public String getReplacedURLPrefixRequest() {
+        // split by "def", so the first path is the original prefix of request (http://localhost:8080/)
+        String[] tmp = originalRequest.split(Constants.WEB_APPLICATION_NAME);
+        String originalPrefix = tmp[0];
+        // replace all the originalPrefix occurences by the configuration prefix in secore.properties
+        String replacedURL = this.originalRequest.replace(originalPrefix + Constants.WEB_APPLICATION_NAME, Config.getInstance().getServiceUrl());
+        return replacedURL;
+    }
+
+    /**
      * @return the depth to which links in the returned XML document should be resolved
      */
     public String getExpandDepth() {
@@ -340,8 +346,7 @@ public class ResolveRequest implements ParamValue {
     }
 
     /**
-     * @return true if this request is local, directed to the local database,
-     * or false if it isn't.
+     * @return true if this request is local, directed to the local database, or false if it isn't.
      */
     public boolean isLocal() {
         return local;
@@ -349,6 +354,7 @@ public class ResolveRequest implements ParamValue {
 
     /**
      * Check if request is rest (/def/crs/EPSG/0/4326) or KVP (/def/crs?authority=EPSG&version=0&code=4326)
+     *
      * @return
      */
     public boolean isRest() {
@@ -368,12 +374,12 @@ public class ResolveRequest implements ParamValue {
     }
 
     public String toDebugString() {
-        return "ResolveRequest {\n" +
-               "\tparams=" + params +
-               "\n\toperation=" + operation +
-               "\n\tserviceUri=" + serviceUri +
-               "\n\toriginalUri=" + originalRequest +
-               "\n\texpand=" + expand +
-               "\n}";
+        return "ResolveRequest {\n"
+                + "\tparams=" + params
+                + "\n\toperation=" + operation
+                + "\n\tserviceUri=" + serviceUri
+                + "\n\toriginalUri=" + originalRequest
+                + "\n\texpand=" + expand
+                + "\n}";
     }
 }

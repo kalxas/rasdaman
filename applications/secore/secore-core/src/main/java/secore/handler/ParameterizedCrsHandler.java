@@ -252,7 +252,7 @@ public class ParameterizedCrsHandler extends GeneralHandler {
 
         // update identifier to include parameters
         String xml = StringUtil.replaceElementValue(
-                         ret.getData(), IDENTIFIER_LABEL, request.getOriginalRequest());
+                         ret.getData(), IDENTIFIER_LABEL, request.getReplacedURLPrefixRequest());
         ret = new ResolveResponse(xml);
 
         return ret;

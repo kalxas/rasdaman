@@ -69,20 +69,20 @@ public class CrsCompoundHandler extends AbstractHandler {
 
                 if (!(component.val instanceof ResolveRequest)) {
                     throw new SecoreException(ExceptionCode.InvalidParameterValue.locator(component.key),
-                                              "Invalid parameter value received for " + component.key + ": " + component.val);
+                            "Invalid parameter value received for " + component.key + ": " + component.val);
                 }
                 ++i;
                 if (component.key == null || !String.valueOf(i).equals(component.key)) {
                     throw new SecoreException(ExceptionCode.InvalidParameterValue,
-                                              "Invalid " + getOperation() + " request, expected number " + i
-                                              + " as key for parameter, but was " + component.key);
+                            "Invalid " + getOperation() + " request, expected number " + i
+                            + " as key for parameter, but was " + component.key);
                 }
                 String res = null;
                 ResolveRequest req = (ResolveRequest) component.val;
                 if (req.getOperation().equals(Handler.OP_CRS_COMPOUND)) {
                     throw new SecoreException(ExceptionCode.InvalidParameterValue.locator(component.key),
-                                              "Expected URL to simple definition as parameter value of " + component.key
-                                              + ", but got a URL to a compound CRS");
+                            "Expected URL to simple definition as parameter value of " + component.key
+                            + ", but got a URL to a compound CRS");
                 }
                 if (req.isLocal()) {
                     res = Resolver.resolve(req).getData();
@@ -92,12 +92,12 @@ public class CrsCompoundHandler extends AbstractHandler {
                     } catch (Exception ex) {
                         log.error("Failed resolving CRS definition: " + component, ex);
                         throw new SecoreException(ExceptionCode.NoSuchDefinition,
-                                                  "Failed resolving CRS definition: " + component, ex);
+                                "Failed resolving CRS definition: " + component, ex);
                     }
                 }
                 if (res.equals(EMPTY)) {
                     throw new SecoreException(ExceptionCode.NoSuchDefinition,
-                                              "Invalid CRS definition received for " + component);
+                            "Invalid CRS definition received for " + component);
                 }
                 if (!name.equals(EMPTY)) {
                     name += " / ";
@@ -106,33 +106,33 @@ public class CrsCompoundHandler extends AbstractHandler {
                 String id = StringUtil.getElementValue(res, IDENTIFIER_LABEL);
                 if (id == null) {
                     throw new SecoreException(ExceptionCode.XmlNotValid,
-                                              "Invalid CRS definition received for " + component);
+                            "Invalid CRS definition received for " + component);
                 }
                 comp += "   <componentReferenceSystem xlink:href='" + id + "'/>\n";
                 code += "-" + id.substring(id.lastIndexOf(':') + 1);
             }
 
             String res
-                = "<CompoundCRS xmlns:gml='" + NAMESPACE_GML + "'\n"
-                  + "   xmlns:epsg='" + NAMESPACE_EPSG + "'\n"
-                  + "   xmlns:xlink='" + NAMESPACE_XLINK + "'\n"
-                  + "   gml:id='crs'>\n"
-                  + "   <metaDataProperty>\n"
-                  + "      <epsg:CommonMetaData>\n"
-                  + "         <epsg:type>compound</epsg:type>\n"
-                  + "      </epsg:CommonMetaData>\n"
-                  + "   </metaDataProperty>\n"
-                  + "   <scope>not known</scope>\n"
-                  + "   <identifier codeSpace='" + Config.getInstance().getCodespace()
-                  + "'>" + request.getOriginalRequest().replaceAll("&", "%26") + "</identifier>\n"
-                  + "   <name>" + name + "</name>\n" + comp
-                  + "</CompoundCRS>";
+                    = "<CompoundCRS xmlns:gml='" + NAMESPACE_GML + "'\n"
+                    + "   xmlns:epsg='" + NAMESPACE_EPSG + "'\n"
+                    + "   xmlns:xlink='" + NAMESPACE_XLINK + "'\n"
+                    + "   gml:id='crs'>\n"
+                    + "   <metaDataProperty>\n"
+                    + "      <epsg:CommonMetaData>\n"
+                    + "         <epsg:type>compound</epsg:type>\n"
+                    + "      </epsg:CommonMetaData>\n"
+                    + "   </metaDataProperty>\n"
+                    + "   <scope>not known</scope>\n"
+                    + "   <identifier codeSpace='" + Config.getInstance().getCodespace()
+                    + "'>" + request.getReplacedURLPrefixRequest().replaceAll("&", "%26") + "</identifier>\n"
+                    + "   <name>" + name + "</name>\n" + comp
+                    + "</CompoundCRS>";
             log.debug("Done, returning response.");
             return new ResolveResponse(res);
         } else {
             log.error("Can't handle the given parameters, exiting with error.");
             throw new SecoreException(ExceptionCode.MissingParameterValue,
-                                      "Insufficient parameters provided");
+                    "Insufficient parameters provided");
         }
     }
 
@@ -140,7 +140,7 @@ public class CrsCompoundHandler extends AbstractHandler {
         if (!crsRef.contains(StringUtil.SERVLET_CONTEXT + "/crs")) {
             log.error("Invalid crs-compound request, expected a CRS reference, but got " + crsRef);
             throw new SecoreException(ExceptionCode.InvalidParameterValue,
-                                      "Invalid " + getOperation() + " request, expected a CRS reference, but got " + crsRef);
+                    "Invalid " + getOperation() + " request, expected a CRS reference, but got " + crsRef);
         }
     }
 

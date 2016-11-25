@@ -39,6 +39,7 @@ import static secore.handler.GeneralHandler.AUTHORITY_KEY;
 import static secore.handler.GeneralHandler.CODE_KEY;
 import static secore.handler.GeneralHandler.VERSION_KEY;
 import secore.req.RequestParam;
+import secore.util.Config;
 import secore.util.Constants;
 import static secore.util.Constants.*;
 import secore.util.SecoreUtil;
@@ -49,12 +50,11 @@ import secore.util.XMLUtil;
 /**
  * This handler deals with incomplete URLs such as
  *
- *  http://opengis.net/def/crs/EPSG/0/
+ * http://opengis.net/def/crs/EPSG/0/
  *
- * The result of such an incomplete URL is a listing of all the definitions
- * at that level. More details at
+ * The result of such an incomplete URL is a listing of all the definitions at that level. More details at
  *
- *  http://rasdaman.org/ticket/474
+ * http://rasdaman.org/ticket/474
  *
  * @author Dimitar Misev
  */
@@ -64,10 +64,10 @@ public class IncompleteUrlHandler extends AbstractHandler {
 
     @Override
     public boolean canHandle(ResolveRequest request) throws SecoreException {
-        return request.getOperation() == null ||
-               (!OP_CRS_COMPOUND.equals(request.getOperation()) &&
-                !OP_EQUAL.equals(request.getOperation()) &&
-                request.getParams().size() < 3);
+        return request.getOperation() == null
+                || (!OP_CRS_COMPOUND.equals(request.getOperation())
+                && !OP_EQUAL.equals(request.getOperation())
+                && request.getParams().size() < 3);
     }
 
     public ResolveResponse handle(ResolveRequest request) throws SecoreException {
@@ -81,7 +81,6 @@ public class IncompleteUrlHandler extends AbstractHandler {
 
         if (request.getOperation() != null) {
             url += request.getOperation();
-
 
             for (RequestParam param : request.getParams()) {
                 String key = param.key;
@@ -111,8 +110,8 @@ public class IncompleteUrlHandler extends AbstractHandler {
                 if (EMPTY.equals(authorityParam)) {
                     log.error("Unexpected parameter version: " + versionNumberParam);
                     throw new SecoreException(ExceptionCode.InvalidRequest
-                                              .locator(VERSION_KEY), "Extra parameter version provided: " + versionNumberParam +
-                                              ", while missing authority parameter");
+                            .locator(VERSION_KEY), "Extra parameter version provided: " + versionNumberParam
+                            + ", while missing authority parameter");
                 }
 
                 // NOTE: depend on collectionName, it will change versionNumber when query.
@@ -121,8 +120,8 @@ public class IncompleteUrlHandler extends AbstractHandler {
             if (!EMPTY.equals(codeParam)) {
                 log.error("Unexpected parameter code: " + codeParam);
                 throw new SecoreException(ExceptionCode.InvalidRequest
-                                          .locator(CODE_KEY), "Extra parameter code provided: " + codeParam +
-                                          ", while missing version or authority");
+                        .locator(CODE_KEY), "Extra parameter code provided: " + codeParam
+                        + ", while missing version or authority");
             }
         }
 
@@ -139,13 +138,10 @@ public class IncompleteUrlHandler extends AbstractHandler {
     }
 
     /**
-     * Query the URI with version number and return the list of definitions
-     * Then query to list all the defintions belonged to this current level in URN. (e.g: 8.5 -> gml_85)
-     * NOTE: if authority is not empty and version is empty (e.g: EPSG in /def/crs/EPSG)
-     * then it needs to list all the versions of available GML dictionaries files.
-     * e.g: <identifier>http://localhost:8088/def/area/EPSG/8.5</identifier>
-     *      <identifier>http://localhost:8088/def/area/EPSG/8.6</identifier>
-     *      ...
+     * Query the URI with version number and return the list of definitions Then query to list all the defintions belonged to this current level in URN. (e.g: 8.5 -> gml_85) NOTE: if authority is not empty and version is empty (e.g: EPSG in /def/crs/EPSG) then it needs to list all the versions of available GML dictionaries files. e.g: <identifier>http://localhost:8088/def/area/EPSG/8.5</identifier>
+     * <identifier>http://localhost:8088/def/area/EPSG/8.6</identifier>
+     * ...
+     *
      * @return
      */
     private String queryIncompleteUrl(ResolveRequest request, String url, String versionNumberParam) throws SecoreException {
@@ -164,18 +160,16 @@ public class IncompleteUrlHandler extends AbstractHandler {
                 // Only query in gmldb (e.g: /def/crs/EPSG/0)
                 res = SecoreUtil.queryDefVersion(QueryDB.EPSG_DB, urlTmp, versionNumberParam);
             }
-        } else {
-            // NOTE: if requested URL is the parent level of versionNumber such as /def/crs/EPSG/) then it must query all the collections (not only default gml_0)
-            // as it will return multiples results: e.g: /def/crs/EPSG/0, /def/crs/EPSG/8.5, /def/crs/EPSG/8.92)
-            if (StringUtil.parentVersionNumberUri(urlTmp)) {
-                for (DbCollection collection : DbManager.collections.keySet()) {
-                    // Get all the children URIs which contain the versionNumber of gml_db (e.g: 0 8.5 8.9.2)
-                    res += " " + SecoreUtil.queryDefVersionless(urlTmp, collection.getVersionNumber());
-                }
-            } else {
-                // If don't have versionNumber in request then use the default: gml_0 versionNumber (e.g: /def/)
-                res = SecoreUtil.queryDefVersionless(urlTmp, DbManager.FIX_GML_VERSION_ALIAS);
+        } else // NOTE: if requested URL is the parent level of versionNumber such as /def/crs/EPSG/) then it must query all the collections (not only default gml_0)
+        // as it will return multiples results: e.g: /def/crs/EPSG/0, /def/crs/EPSG/8.5, /def/crs/EPSG/8.92)     
+        if (StringUtil.parentVersionNumberUri(urlTmp)) {
+            for (DbCollection collection : DbManager.collections.keySet()) {
+                // Get all the children URIs which contain the versionNumber of gml_db (e.g: 0 8.5 8.9.2)
+                res += " " + SecoreUtil.queryDefVersionless(urlTmp, collection.getVersionNumber());
             }
+        } else {
+            // If don't have versionNumber in request then use the default: gml_0 versionNumber (e.g: /def/)          
+            res = SecoreUtil.queryDefVersionless(urlTmp, DbManager.FIX_GML_VERSION_ALIAS);
         }
 
         String response = "";
@@ -188,8 +182,8 @@ public class IncompleteUrlHandler extends AbstractHandler {
             subsetURIs.removeAll(Arrays.asList("", null));
             Set<String> children = new TreeSet<String>(subsetURIs);
             // e.g: http://localhost:8080/def, then we only need the domain:port and urlTmp is the requested URI (e.g: /def/crs/)
-            String requestUri = request.getServiceUri().replaceAll("/" + WEB_APPLICATION_NAME + "/?", "").replaceAll("^/", "")
-                                + urlTmp.replace(VERSION_NUMBER, versionNumberParam);
+            String requestUri = Config.getInstance().getServiceUrl().replaceAll("/" + WEB_APPLICATION_NAME + "/?", "").replaceAll("^/", "")
+                    + urlTmp.replace(VERSION_NUMBER, versionNumberParam);
 
             StringBuilder childrenURIs = new StringBuilder("");
             // create the sublevel URIs
@@ -197,10 +191,10 @@ public class IncompleteUrlHandler extends AbstractHandler {
                 childrenURIs.append(" <" + IDENTIFIER_LABEL + ">" + requestUri + child + "</" + IDENTIFIER_LABEL + ">\n");
             }
 
-            response = "<" + IDENTIFIERS_LABEL + " at='" + XMLUtil.escapeXmlPredefinedEntities(request.getOriginalRequest())
-                       + "' xmlns='" + Constants.CRSNTS_NAMESPACE + "'>\n"
-                       + childrenURIs
-                       + "</" + IDENTIFIERS_LABEL + ">";
+            response = "<" + IDENTIFIERS_LABEL + " at='" + XMLUtil.escapeXmlPredefinedEntities(request.getReplacedURLPrefixRequest())
+                    + "' xmlns='" + Constants.CRSNTS_NAMESPACE + "'>\n"
+                    + childrenURIs
+                    + "</" + IDENTIFIERS_LABEL + ">";
         }
         return response;
     }
