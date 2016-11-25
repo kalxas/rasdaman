@@ -85,7 +85,7 @@ endfunction()
 # Example: UnderscoreToPascalCase("bla_dla") -> "BlaDla"
 function(UnderscoreToPascalCase UNDERSCORE_STRING PASCAL_CASE_STRING)
     execute_process(
-            COMMAND cmake -E echo ${UNDERSCORE_STRING}
+            COMMAND ${CMAKE_COMMAND} -E echo ${UNDERSCORE_STRING}
             COMMAND ${SED_EXECUTABLE} -r "s/(^|_)([a-z])/\\U\\2/g"
             OUTPUT_VARIABLE OUTPUT
             OUTPUT_STRIP_TRAILING_WHITESPACE)
