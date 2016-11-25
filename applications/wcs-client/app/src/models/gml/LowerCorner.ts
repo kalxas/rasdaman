@@ -32,7 +32,7 @@ module gml {
         public SrsDimension:number;
         public AxisLabels:string[];
         public UomLabels:string[];
-        public Values:number[];
+        public Values:string[];
 
         public constructor(source:rasdaman.common.ISerializedObject) {
             rasdaman.common.ArgumentValidator.isNotNull(source, "source");
@@ -56,7 +56,7 @@ module gml {
             this.Values = [];
             var stringValues:string[] = source.getValueAsString().split(" ");
             stringValues.forEach(o=> {
-                this.Values.push(parseFloat(o));
+                this.Values.push(o);
             });
         }
     }

@@ -31,6 +31,7 @@ import org.slf4j.LoggerFactory;
 import petascope.core.CrsDefinition;
 import petascope.exceptions.ExceptionCode;
 import petascope.exceptions.WCPSException;
+import petascope.util.AxisTypes;
 import petascope.util.BigDecimalUtil;
 import petascope.util.CrsUtil;
 import static petascope.util.CrsUtil.INDEX_UOM;
@@ -273,5 +274,13 @@ public class DomainElement implements Cloneable {
                    + ","    + maxValue + "]"
                    + " | CRS:" + nativeCrs + "'}";
         return d;
+    }
+    
+    /**
+     * Check if this domainElement is time axis
+     * @return 
+     */
+    public boolean timeAxis() {
+        return type.equals(AxisTypes.T_AXIS);
     }
 }

@@ -1,0 +1,7 @@
+service=WCS&
+version=2.0.1&
+request=GetCoverage&
+coverageId=test_irr_cube_2&
+subset=E(75042.7273594)&
+subset=N(5094865.55794)&
+format=application/gml+xml

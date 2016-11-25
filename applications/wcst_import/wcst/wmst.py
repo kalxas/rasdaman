@@ -47,6 +47,14 @@ class WMSTRequest:
                self.VERSION_PARAMETER + "=" + self.VERSION_VALUE + "&" + \
                self.REQUEST_PARAMETER + "=" + self._get_request_type() + extra_params
 
+    def add_global_param(self, key, value):
+        """
+        Adds extra parameters to the request, usually through the executor
+        :param str key: the name of the parameter
+        :param str value: the value of the parameter
+        """
+        pass
+
     @abstractmethod
     def _get_request_type_parameters(self):
         """

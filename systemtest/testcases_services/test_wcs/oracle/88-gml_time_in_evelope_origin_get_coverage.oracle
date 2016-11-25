@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<gmlcov:ReferenceableGridCoverage
+    xmlns='http://www.opengis.net/gml/3.2'
+    xmlns:gml='http://www.opengis.net/gml/3.2'
+    xmlns:gmlcov='http://www.opengis.net/gmlcov/1.0'
+    xmlns:swe='http://www.opengis.net/swe/2.0'
+    xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance'
+    xmlns:wcs='http://www.opengis.net/wcs/2.0'
+    xsi:schemaLocation='http://www.opengis.net/wcs/2.0 http://schemas.opengis.net/wcs/2.0/wcsAll.xsd'
+    id="test_irr_cube_2">
+
+  <boundedBy>
+    <Envelope srsName="/crs/OGC/0/AnsiDate" axisLabels="ansi" uomLabels="d" srsDimension="1">
+      <lowerCorner>"2008-01-01T02:01:20Z"</lowerCorner>
+      <upperCorner>"2008-01-08T00:02:58Z"</upperCorner>
+    </Envelope>
+  </boundedBy>
+
+  <domainSet>
+    <gmlrgrid:ReferenceableGridByVectors dimension="1" id="test_irr_cube_2-grid"
+        
+        >
+      <limits>
+        <GridEnvelope>
+          <low>0</low>
+          <high>3</high>
+        </GridEnvelope>
+      </limits>
+      <axisLabels>ansi</axisLabels>
+      <gmlrgrid:origin>
+        <Point id="test_irr_cube_2-origin" srsName="/crs/OGC/0/AnsiDate" axisLabels="ansi" uomLabels="d" srsDimension="1">
+          <pos>"2008-01-01T02:01:20Z"</pos>
+        </Point>
+      </gmlrgrid:origin>
+      <gmlrgrid:generalGridAxis>
+        <gmlrgrid:GeneralGridAxis>
+          <gmlrgrid:offsetVector srsName="/crs/OGC/0/AnsiDate" axisLabels="ansi" uomLabels="d" srsDimension="1">1</gmlrgrid:offsetVector>
+          <gmlrgrid:coefficients>"2008-01-01T02:01:20Z" "2008-01-03T23:59:55Z" "2008-01-05T01:58:30Z" "2008-01-08T00:02:58Z"</gmlrgrid:coefficients>
+          <gmlrgrid:gridAxesSpanned>ansi</gmlrgrid:gridAxesSpanned>
+          <gmlrgrid:sequenceRule axisOrder="+1">Linear</gmlrgrid:sequenceRule>
+        </gmlrgrid:GeneralGridAxis>
+      </gmlrgrid:generalGridAxis>
+    </gmlrgrid:ReferenceableGridByVectors>
+
+  </domainSet>
+
+  <rangeSet>
+    <DataBlock>
+      <rangeParameters/>
+      <tupleList ts="," cs=" ">0 0,0 0,0 0,0 0</tupleList>
+    </DataBlock>
+  </rangeSet>
+
+  <coverageFunction>
+    <GridFunction>
+      <sequenceRule axisOrder="+1">Linear</sequenceRule>
+      <startPoint>0</startPoint>
+    </GridFunction>
+  </coverageFunction>
+
+  <gmlcov:rangeType>
+    <swe:DataRecord>
+    <swe:field name="b1">
+      <swe:Quantity ><swe:uom code="10^0" /></swe:Quantity>
+    </swe:field>    <swe:field name="b2">
+      <swe:Quantity ><swe:uom code="10^0" /></swe:Quantity>
+    </swe:field>
+    </swe:DataRecord>
+  </gmlcov:rangeType>
+  <gmlcov:metadata><gmlcov:Extension></gmlcov:Extension></gmlcov:metadata>
+</gmlcov:ReferenceableGridCoverage>

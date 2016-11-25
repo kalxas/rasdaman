@@ -24,10 +24,10 @@
 module wcs {
     export class TargetAxisExtent implements rasdaman.common.ISerializable {
         public Axis:string;
-        public Low:number;
-        public High:number;
+        public Low:string;
+        public High:string;
 
-        public constructor(axis:string, low:number, high:number) {
+        public constructor(axis:string, low:string, high:string) {
             this.Axis = axis;
             this.Low = low;
             this.High = high;

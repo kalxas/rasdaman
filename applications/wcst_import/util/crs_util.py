@@ -31,13 +31,15 @@ from master.error.runtime_exception import RuntimeException
 
 
 class CRSAxis:
-    def __init__(self, label, axisDirection, uom):
+    def __init__(self, uri, label, axisDirection, uom):
         """
         Class to represent a crs axis with a set of utility methods to better determine its type
-        :param str label: the label of the  axis
+        :param str uri: the uri of the axis
+        :param str label: the label of the axis
         :param str axisDirection: the direction of the axis
         :param str uom: the unit of measure
         """
+        self.uri = uri
         self.label = label
         self.axisDirection = axisDirection
         self.uom = uom
@@ -191,7 +193,7 @@ class CRSUtil:
                     uom = root.xpath(".//*[contains(local-name(), 'CoordinateSystemAxis')]")[0].attrib['uom']
                 else:
                     uom = ""
-                crsAxis = CRSAxis(label, direction, uom)
+                crsAxis = CRSAxis(crs, label, direction, uom)
                 axesLabels.append(label)
                 self.axes.append(crsAxis)
             # add to the list of individual crs to axes

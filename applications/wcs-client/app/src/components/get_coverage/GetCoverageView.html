@@ -65,39 +65,33 @@
                                             <li class="top5">
                                                 <input type="radio" ng-model="Core.IsTrimSelected[$index]"
                                                        ng-value="true">
-                                                trimming
-                                        <span>from
-                                        <input type="number"
-                                               string-to-number-converter
-                                               ng-model="Core.Trims[$index].TrimLow"
-                                               ng-disabled="!Core.IsTrimSelected[$index]">
-                                            <span class="important-text">
-                                                {{CoverageDescription.BoundedBy.Envelope.UomLabels[$index]}}
-                                            </span>
-                                            to
-                                            <input type="number"
-                                                   string-to-number-converter
-                                                   ng-model="Core.Trims[$index].TrimHigh"
-                                                   ng-disabled="!Core.IsTrimSelected[$index]">
-                                            <span class="important-text">
-                                                {{CoverageDescription.BoundedBy.Envelope.UomLabels[$index]}}
-                                            </span>
-                                        </span>
+                                                trimming from
+			                           <input type="string"
+			                               ng-model="Core.Trims[$index].TrimLow"
+			                               ng-disabled="!Core.IsTrimSelected[$index]">
+			                            <span class="important-text">
+			                                {{CoverageDescription.BoundedBy.Envelope.UomLabels[$index]}}
+			                            </span>
+	                                            to
+		                                    <input type="string"
+		                                           ng-model="Core.Trims[$index].TrimHigh"
+		                                           ng-disabled="!Core.IsTrimSelected[$index]">
+		                                    <span class="important-text">
+		                                        {{CoverageDescription.BoundedBy.Envelope.UomLabels[$index]}}
+		                                    </span>                                        
                                             </li>
+
+
                                             <li class="top5">
                                                 <input type="radio" ng-model="Core.IsTrimSelected[$index]"
                                                        ng-value="false">
-                                                slicing
-                                        <span>
-                                        at
-                                        <input type="number"
-                                               string-to-number-converter
-                                               ng-model="Core.Slices[$index].SlicePoint"
-                                               ng-disabled="Core.IsTrimSelected[$index]">
-                                        <span class="important-text">
-                                            {{CoverageDescription.BoundedBy.Envelope.UomLabels[$index]}}
-                                        </span>
-                                        </span>
+                                                slicing at
+		                                <input type="string"
+		                                       ng-model="Core.Slices[$index].SlicePoint"
+		                                       ng-disabled="Core.IsTrimSelected[$index]">
+		                                <span class="important-text">
+		                                    {{CoverageDescription.BoundedBy.Envelope.UomLabels[$index]}}
+		                                </span>
                                             </li>
                                         </ul>
                                     </div>

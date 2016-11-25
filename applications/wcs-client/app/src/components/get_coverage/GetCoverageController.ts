@@ -70,7 +70,7 @@ module rasdaman {
                             var min = $scope.CoverageDescription.BoundedBy.Envelope.LowerCorner.Values[i];
                             var max = $scope.CoverageDescription.BoundedBy.Envelope.UpperCorner.Values[i];
 
-                            $scope.Core.Slices.push(new wcs.DimensionSlice(dimension, "" + Math.round((min + max) / 2)));
+                            $scope.Core.Slices.push(new wcs.DimensionSlice(dimension, min + ""));
                             $scope.Core.Trims.push(new wcs.DimensionTrim(dimension, min + "", max + ""));
                             $scope.Core.IsTrimSelected.push(true);
                         }

@@ -186,8 +186,8 @@ public class GetCoverageMetadata {
     public String getGridOrigin() throws SecoreException, WCSException {
         // The origin of the grid (as is in rasdaman) is not always domLow:
         // the _direction_ of each dimension needs to be taken into account.
-        Iterator<String> domLowComponentsIt  = new ArrayList(Arrays.asList(domLow.trim().split(" "))).listIterator();
-        Iterator<String> domHighComponentsIt = new ArrayList(Arrays.asList(domHigh.trim().split(" "))).listIterator();
+        List<String> domLowValues = new ArrayList(Arrays.asList(domLow.trim().split(" ")));
+        List<String> domHighValues = new ArrayList(Arrays.asList(domHigh.trim().split(" ")));
         List<String> gridAxisLabelsList = new ArrayList(Arrays.asList(gridAxisLabels.trim().split(" ")));
 
         // Use TreeMap to store grid origin coordinates and order by CRS axis order (key)
@@ -201,6 +201,7 @@ public class GetCoverageMetadata {
             List<String> crsAxisLabels = CrsUtil.getAxesLabels(CrsUtil.CrsUri.decomposeUri(crs)); // full list of CRS axis label
 
             // Assumption : grid axis label = CRS axis label (aligned axes)
+            int i = 0;
             for (String crsAxisLabel : crsAxisLabels) {
                 if (gridAxisLabelsList.contains(crsAxisLabel)) {
                     DomainElement domEl       = metadata.getDomainByName(crsAxisLabel);
@@ -209,25 +210,28 @@ public class GetCoverageMetadata {
                     Integer crsAxisOrder      = CrsUtil.getCrsAxisOrder(metadata.getCrsUris(), crsAxisLabel);
                     BigDecimal origin;
                     log.debug("Grid axis n." + gridAxisOrder + " (" + crsAxisLabel + ") is parallel to CRS axis n." + crsAxisOrder + ".");
-                    // Grid origin is in the centre of a sample space (eg pixel centre): get half-pixel value (+ or - signed)
-                    border = (positiveDirection) ?
-                             BigDecimal.valueOf(Double.parseDouble(domLowComponentsIt.next())) :
-                             BigDecimal.valueOf(Double.parseDouble(domHighComponentsIt.next()));
-                    sspaceShift = WcsUtil.getSampleSpaceShift(domEl.getDirectionalResolution(), domEl.isIrregular(), domEl.getUom(), metadata.getCoverageType());
-                    // Now apply the shift to the border values in domLow/domHigh
-                    origin = border.subtract(sspaceShift);
-                    if (origin.compareTo(BigDecimal.ZERO) == 0) {
-                        // Java bug: http://bugs.java.com/bugdatabase/view_bug.do?bug_id=6480539
-                        // 0.0 is not stripped to 0
-                        gridOrigin.put(crsAxisOrder, BigDecimal.ZERO.toPlainString());
+                    // NOTE: if axis is time then the origin needs to be converted to ISO date time.
+                    if (domEl.timeAxis()) {
+                        String timeOrigin = WcsUtil.getReferencedPointValue(domEl.getMinValue(), domEl);
+                        gridOrigin.put(crsAxisOrder, timeOrigin);
+
                     } else {
-                        gridOrigin.put(crsAxisOrder, origin.stripTrailingZeros().toPlainString());
+                        // Grid origin is in the centre of a sample space (eg pixel centre): get half-pixel value (+ or - signed)
+                        border = (positiveDirection) ?
+                                BigDecimal.valueOf(Double.parseDouble(domLowValues.get(i))) :
+                                BigDecimal.valueOf(Double.parseDouble(domHighValues.get(i)));
+                        sspaceShift = WcsUtil.getSampleSpaceShift(domEl.getDirectionalResolution(), domEl.isIrregular(), domEl.getUom(), metadata.getCoverageType());
+                        // Now apply the shift to the border values in domLow/domHigh
+                        origin = border.subtract(sspaceShift);
+                        if (origin.compareTo(BigDecimal.ZERO) == 0) {
+                            // Java bug: http://bugs.java.com/bugdatabase/view_bug.do?bug_id=6480539
+                            // 0.0 is not stripped to 0
+                            gridOrigin.put(crsAxisOrder, BigDecimal.ZERO.toPlainString());
+                        } else {
+                            gridOrigin.put(crsAxisOrder, origin.stripTrailingZeros().toPlainString());
+                        }
                     }
-                    if (positiveDirection) {
-                        domHighComponentsIt.next(); // sync
-                    } else {
-                        domLowComponentsIt.next(); // sync
-                    }
+                    i++;
                 } // else: sliced CRS axis: skip
             }
         } catch (PetascopeException ex) {

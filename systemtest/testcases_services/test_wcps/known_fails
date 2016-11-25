@@ -1,7 +1,3 @@
 31-Discrete_Fourier.test
 53-jpeg2000-params-filling.test
 58-overlay_performance.test
-90-get_metadata_domain.error.test
-95-just_slice_asterisk.error.test
-100-trim_subsettingCrs_IndexCrs_wrong_order.error.test
-145-ranges-with-scalar-error.test

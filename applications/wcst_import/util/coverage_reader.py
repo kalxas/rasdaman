@@ -43,9 +43,11 @@ from master.provider.metadata.regular_axis import RegularAxis
 from util.crs_util import CRSUtil, CRSAxis
 from util.file_util import FileUtil
 from util.gdal_util import GDALGmlUtil
+from util.time_util import DateTimeUtil
 
 
 class CoverageReader():
+    time_util = DateTimeUtil("1600-12-31T00:00:00Z")
     def __init__(self, wcs_url, coverage_id, partitioning_scheme):
         """
         Reads a coverage from a wcs and builds an internal representation of it, including the sliced data according
@@ -258,10 +260,21 @@ class CoverageReader():
             if coverage_axes[index].axis.coefficient is not None:
                 # Axis is irregular compute it using its coefficient list
                 pop(partition_scheme)
-                origin = float(coverage_axes[index].axis.origin)
+                origin = coverage_axes[index].axis.origin
+                # if axis is time axis then need to convert coeffcient from datetime to float
+                if ("\"" in origin):
+                    origin_date = self.time_util.get_time_crs_origin(coverage_axes[index].axis.crs_axis.uri)
+                    # uom here is a URI (e.g: http://www.opengis.net/def/uom/UCUM/0/d ) so need to extract the unit only (d)
+                    time_uom = coverage_axes[index].axis.crs_axis.uom.rsplit('/', 1)[-1]
+                    origin = self.time_util.count_offset_dates(origin_date, origin, time_uom)
+
+                origin = float(origin)
                 resolution = float(coverage_axes[index].grid_axis.resolution)
-                for coeficient in coverage_axes[index].axis.coefficient:
-                    value = origin + resolution * float(coeficient)
+                for coefficient in coverage_axes[index].axis.coefficient:
+                    # if axis is time axis then need to convert coeffcient from datetime to float
+                    if ("\"" in coefficient):
+                        coefficient = float(self.time_util.count_offset_dates(origin_date, coefficient, time_uom))
+                    value = origin + resolution * float(coefficient - origin)
                     axis_intervals.append(Interval(value))
             else:
                 # Regular axis, compute it by stepping through the spatial domain
@@ -298,10 +311,18 @@ class CoverageReader():
                     # partitioning, we have to step exactly one geo pixel each time
                     pop(partition_scheme)
                     resolution = float(coverage_axes[index].grid_axis.resolution)
-                    low = float(coverage_axes[index].axis.low) if resolution > 0 else float(
-                        coverage_axes[index].axis.high)
-                    stop = float(coverage_axes[index].axis.high) if resolution > 0 else float(
-                        coverage_axes[index].axis.low)
+                    low = coverage_axes[index].axis.low
+                    high = coverage_axes[index].axis.high
+                    # if low and high are DateTime then need to calculate it to numeric values from origin of time crs
+                    if ("\"" in low):
+                        origin_date = self.time_util.get_time_crs_origin(coverage_axes[index].axis.crs_axis.uri)
+                        # uom here is a URI (e.g: http://www.opengis.net/def/uom/UCUM/0/d ) so need to extract the unit only (d)
+                        time_uom = coverage_axes[index].axis.crs_axis.uom.rsplit('/', 1)[-1]
+                        low = self.time_util.count_offset_dates(origin_date, low, time_uom)
+                        high = self.time_util.count_offset_dates(origin_date, high, time_uom)
+
+                    low = float(low) if resolution > 0 else float(high)
+                    stop = float(high) if resolution > 0 else float(low)
                     while (resolution > 0 and low <= stop) or (resolution < 0 and stop <= low):
                         axis_intervals.append(Interval(low))
                         low += resolution

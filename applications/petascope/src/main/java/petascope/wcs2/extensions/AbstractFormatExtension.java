@@ -36,6 +36,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import petascope.ConfigManager;
 import petascope.core.CoverageMetadata;
+import petascope.core.CrsDefinition;
 import petascope.core.DbMetadataSource;
 import petascope.exceptions.ExceptionCode;
 import petascope.exceptions.PetascopeException;
@@ -52,6 +53,7 @@ import petascope.util.Pair;
 import petascope.util.StringUtil;
 import petascope.util.TimeUtil;
 import petascope.util.WcsUtil;
+import static petascope.util.WcsUtil.toISODate;
 import petascope.util.XMLSymbols;
 import petascope.util.ras.RasUtil;
 import petascope.wcps.metadata.CellDomainElement;
@@ -273,11 +275,11 @@ public abstract class AbstractFormatExtension implements FormatExtension {
                 upperGisDom += BigDecimalUtil.stripDecimalZeros(domainEl.getMaxValue()) + " ";
                 // The map is automatically sorted by key value (axis order in the CRS definition)
                 lowerDom.put(
-                    CrsUtil.getCrsAxisOrder(meta.getCrsUris(), domainEl.getLabel()),
-                    BigDecimalUtil.stripDecimalZeros(domainEl.getMinValue()).toPlainString());
+                        CrsUtil.getCrsAxisOrder(meta.getCrsUris(), domainEl.getLabel()),
+                        WcsUtil.getReferencedPointValue(domainEl.getMinValue(), domainEl));
                 upperDom.put(
-                    CrsUtil.getCrsAxisOrder(meta.getCrsUris(), domainEl.getLabel()),
-                    BigDecimalUtil.stripDecimalZeros(domainEl.getMaxValue()).toPlainString());
+                        CrsUtil.getCrsAxisOrder(meta.getCrsUris(), domainEl.getLabel()),
+                        WcsUtil.getReferencedPointValue(domainEl.getMaxValue(), domainEl));
 
                 // SCALING: geometry changes
                 long loCellDom = cellDomainEl.getLoInt();

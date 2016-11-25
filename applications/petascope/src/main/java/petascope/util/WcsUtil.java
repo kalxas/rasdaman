@@ -545,7 +545,8 @@ public class WcsUtil {
             DateTime dt = dateTime.plus(duration);
 
             // Then convert the added date to ISO 8601 datetime (Z means UTC)
-            isoDates.add(dt.toString(DateTimeFormat.forPattern(TimeUtil.ISO_8061_FORMAT).withZoneUTC()));
+            // and we add the qoute to make XML parser easier as it is time value
+            isoDates.add("\"" + dt.toString(DateTimeFormat.forPattern(TimeUtil.ISO_8061_FORMAT).withZoneUTC()) + "\"");
         }
         return isoDates;
     }
@@ -597,12 +598,10 @@ public class WcsUtil {
 
                 String timeCrs = null;
                 // Check given axis is a time axis, then the coeffecients will need to be calculated into timestamp instead of numbers
-                if (domEl.getLabel().equals(axisName) && domEl.getType().equals(AxisTypes.T_AXIS)) {
+                if (domEl.getLabel().equals(axisName) && domEl.timeAxis()) {
                     timeCrs = domEl.getNativeCrs();
                 }
-
-                BigDecimal subsetLo = new BigDecimal(m.getDomLow().split(" ")[subsetLabels.indexOf(axisName)]);
-                coeffs = Vectors.add(coeffs, BigDecimalUtil.divide(domEl.getMinValue().subtract(subsetLo), domEl.getScalarResolution()));
+                                
                 if (timeCrs == null) {
                     // if axis is not time axis then just get the raw coefficients
                     coefficients = ListUtil.printList(coeffs, " ");
@@ -610,7 +609,7 @@ public class WcsUtil {
                     // in case of time axis, subset low is a start number from the origin of CRS definition
                     // e.g: AnsiDate origin: 1600-12-31T00:00:00Z, start date (irr_cube_2) is: 2018-01-01T00:00:00Z, then subsetlow is: 148654 days.
                     // the coefficients for the time axis (irr_cube_2) is 0 (2008-01-01T00:00:00Z), 2 (2008-01-03T00:00:00Z), 4 (2008-01-05T00:00:00Z), 7 (2008-01-08T00:00:00Z)
-                    coeffs = Vectors.add(coeffs, subsetLo);
+                    coeffs = Vectors.add(coeffs, domEl.getMinValue());
                     CrsDefinition crsDefinition = CrsUtil.getGmlDefinition(timeCrs);
                     // if axis is time axis then calculate the coefficients with the origin and uom to timestamp
                     coefficients = ListUtil.printList(toISODate(coeffs, crsDefinition), " ");
@@ -920,5 +919,28 @@ public class WcsUtil {
         }
 
         return isRectified;
+    }
+    
+    /**
+     * Depend on domainElement to return the point from referenced-axis, e.g: if point of Lat axis is 90 then just returns 90.
+     * If point of AnsiDate axis then instead of return value as coefficient, it needs to convert to ISO DateTime.
+     * @param point
+     * @param domainElement
+     * @return 
+     * @throws petascope.exceptions.PetascopeException 
+     * @throws petascope.exceptions.SecoreException 
+     */
+    public static String getReferencedPointValue(BigDecimal point, DomainElement domainElement) throws PetascopeException, SecoreException {
+        if (domainElement.timeAxis()) {
+            CrsDefinition crsDefinition = CrsUtil.getGmlDefinition(domainElement.getNativeCrs());
+            List<BigDecimal> coeffcient = new ArrayList<BigDecimal>();
+            coeffcient.add(point);
+            
+            // This list should have only 1 value
+            String convertedPoint = ListUtil.printList(toISODate(coeffcient, crsDefinition), " ");
+            return convertedPoint;
+        }
+        // Not time axis, just return point
+        return BigDecimalUtil.stripDecimalZeros(point).toPlainString();
     }
 }
