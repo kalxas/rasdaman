@@ -35,7 +35,7 @@ const bool AUTORESTART_SERVER = true;
  * @brief MAX_SERVER_SESSIONS Default maximum number of transactions a server can have
  * before being restarted
  */
-const boost::uint32_t MAX_SERVER_SESSIONS = 1000;
+const boost::uint32_t MAX_SERVER_SESSIONS = 10000;
 
 /**
  * @brief STARTING_SERVER_LIFETIME Number of milliseconds for which a starting server is considered alive

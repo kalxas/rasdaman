@@ -46,17 +46,17 @@ generate_pom:
 	sed -i "s|@PROJECT_VERSION@|${PROJECT_VERSION}|g" pom.xml
 	sed -i "s|@RASJ_TARGET_DIR@|${RASJ_TARGET_DIR}|g" pom.xml
 
-all: generate_pom
-	mvn package -P${NETWORK_PROTOCOL} 
+all: generate_pom javadoc
+	mvn package -P${NETWORK_PROTOCOL}
 	cp ${RASJ_TARGET_DIR}/rasj-jar-with-dependencies.jar ../applications/petascope/lib/rasj.jar
 
 if GENERATE_DOCS
 APIDOCS   = ${RASJ_TARGET_DIR}/site/apidocs
-APIFILDER=doc/doc-rasj
+APIFOLDER=doc/doc-rasj
 
 .PHONY: javadoc
 javadoc:
-	mvn javadoc:javadoc -P${NETWORK_PROTOCOL} 2>&1 /dev/null || exit 0
+	mvn javadoc:javadoc -P${NETWORK_PROTOCOL} -q || exit 0
 else
 javadoc:
 endif
