@@ -21,28 +21,41 @@
 # or contact Peter Baumann via <baumann@rasdaman.com>.
 #
 ###################################################################
-include_directories("${PROTOBUF_BINARY_DIR}/include")
-
-add_executable(protoc-gen-grpc-java java_generator.cpp java_generator.h java_plugin.cpp)
-
-# this order is important (libprotoc, libprotobuf) or it cannot link when creating protoc-gen-grpc-java
-target_link_libraries(protoc-gen-grpc-java libprotoc.a libprotobuf.a )
-
-# We can only build this executable when protobuf was compiled
-add_dependencies(protoc-gen-grpc-java google-protobuf)
 
 
-# Create the folder to store the compiled file
-add_custom_command(TARGET protoc-gen-grpc-java POST_BUILD
- 	    COMMAND ${CMAKE_COMMAND} -E make_directory "${THIRD_PARTY_DIR}/bin/grpc-java")
-# Then copy this compiled binary to be used later
-add_custom_command(
-	TARGET protoc-gen-grpc-java POST_BUILD
-	COMMAND ${CMAKE_COMMAND} -E copy
-	        "${THIRD_PARTY_DIR}/grpc-java/protoc-gen-grpc-java"
-	        "${THIRD_PARTY_DIR}/bin/grpc-java")
+############################################################################
+# Begin Google Java RPC Compiler
+############################################################################
 
+if (ENABLE_JAVA)
 
+    set(GRPC_JAVA_SOURCE_DIR "${CMAKE_SOURCE_DIR}/third_party/grpc-java/")
+    set(GRPC_JAVA_BINARY_DIR "${CMAKE_BINARY_DIR}/third_party/bin/grpc-java/bin")
+
+    set(GRPC_JAVA_PLUGIN_EXECUTABLE_PATH ${GRPC_JAVA_BINARY_DIR}/protoc-gen-grpc-java)
+    set(GRPC_JAVA_PLUGIN_EXECUTABLE protoc-gen-grpc-java)
+
+    # Compile the plugin
+    add_executable(${GRPC_JAVA_PLUGIN_EXECUTABLE}
+            ${GRPC_JAVA_SOURCE_DIR}/java_generator.cpp
+            ${GRPC_JAVA_SOURCE_DIR}/java_generator.h
+            ${GRPC_JAVA_SOURCE_DIR}/java_plugin.cpp)
+    add_dependencies(${GRPC_JAVA_PLUGIN_EXECUTABLE} google-protobuf)
+    include_directories(${PROTOBUF_INCLUDE_DIR})
+    target_link_libraries(${GRPC_JAVA_PLUGIN_EXECUTABLE}
+            ${PROTOBUF_BINARY_DIR}/lib/libprotoc.a ${PROTOBUF_BINARY_DIR}/lib/libprotobuf.a)
+
+    # Install the plugin
+    add_custom_command(TARGET ${GRPC_JAVA_PLUGIN_EXECUTABLE} POST_BUILD
+            COMMAND ${CMAKE_COMMAND} -E make_directory "${GRPC_JAVA_BINARY_DIR}"
+            COMMAND ${CMAKE_COMMAND} -E copy
+                    "${GRPC_JAVA_PLUGIN_EXECUTABLE}"
+                    "${GRPC_JAVA_PLUGIN_EXECUTABLE_PATH}")
+
+    set_property(TARGET ${GRPC_JAVA_PLUGIN_EXECUTABLE} PROPERTY IMPORTED_LOCATION
+            ${GRPC_JAVA_PLUGIN_EXECUTABLE_PATH})
+
+endif (ENABLE_JAVA)
 
 
 

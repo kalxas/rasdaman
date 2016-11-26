@@ -27,7 +27,7 @@ cmake_policy(SET CMP0012 NEW)
 cmake_policy(SET CMP0009 NEW)
 cmake_policy(SET CMP0048 NEW)
 
-project(rasdaman VERSION 9.2.1
+project(rasdaman VERSION 9.3.1
         LANGUAGES C CXX)
 
 ################################################################################

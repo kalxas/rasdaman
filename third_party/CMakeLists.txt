@@ -290,19 +290,7 @@ if (RMANRASNET)
     # Begin Google Java RPC Compiler
     ############################################################################
 
-    if (ENABLE_JAVA)
-        # We just need to compile executable protoc-gen-grpc-java
-        add_subdirectory("${CMAKE_SOURCE_DIR}/third_party/grpc-java")
-
-        # GRPC Java Plugin
-        set(GRPC_JAVA_PLUGIN_EXECUTABLE_PATH ${THIRD_PARTY_DIR}/bin/grpc-java/protoc-gen-grpc-java)
-        set(GRPC_JAVA_PLUGIN_EXECUTABLE protoc-gen-grpc-java-compiled)
-
-        # Import this executable protoc-gen-grpc-java to be used in rasj for generating java files
-        add_executable(${GRPC_JAVA_PLUGIN_EXECUTABLE} IMPORTED GLOBAL)
-        set_property(TARGET ${GRPC_JAVA_PLUGIN_EXECUTABLE} PROPERTY IMPORTED_LOCATION
-                    ${GRPC_JAVA_PLUGIN_EXECUTABLE_PATH})
-    endif (ENABLE_JAVA)
+    include("${CMAKE_SOURCE_DIR}/third_party/grpc-java/CMakeLists.txt")
 
 endif (RMANRASNET)
 
