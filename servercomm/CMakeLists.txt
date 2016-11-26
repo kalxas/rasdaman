@@ -33,8 +33,8 @@ find_package(RpcGen REQUIRED)
 find_package(AWK REQUIRED)
 
 add_custom_command(OUTPUT "${RPCGEN_DIR}/rpcif.h"
-        COMMAND cmake -E remove -f "${RPCGEN_DIR}/rpcif.h.tmp"
-        COMMAND cmake -E copy_if_different "${CLIENTCOMM_SOURCE_DIR}/rpcif.x" "${RPCGEN_DIR}/rpcif.x"
+        COMMAND ${CMAKE_COMMAND} -E remove -f "${RPCGEN_DIR}/rpcif.h.tmp"
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CLIENTCOMM_SOURCE_DIR}/rpcif.x" "${RPCGEN_DIR}/rpcif.x"
 
         COMMAND ${RPCGEN_EXECUTABLE}
         ARGS -h -o "${RPCGEN_DIR}/rpcif.h.tmp" "${RPCGEN_DIR}/rpcif.x"
@@ -42,15 +42,15 @@ add_custom_command(OUTPUT "${RPCGEN_DIR}/rpcif.h"
         COMMAND ${AWK_EXECUTABLE}
         ARGS -f "${CLIENTCOMM_SOURCE_DIR}/rpcif.h.awk" "${RPCGEN_DIR}/rpcif.h.tmp" > "${RPCGEN_DIR}/rpcif.h"
 
-        COMMAND cmake -E remove -f "${RPCGEN_DIR}/rpcif.h.tmp"
+        COMMAND ${CMAKE_COMMAND} -E remove -f "${RPCGEN_DIR}/rpcif.h.tmp"
 
         DEPENDS "${CLIENTCOMM_SOURCE_DIR}/rpcif.x"
         WORKING_DIRECTORY ${CLIENTCOMM_SOURCE_DIR}
         )
 
 add_custom_command(OUTPUT "${RPCGEN_DIR}/rpcif_svc.cc"
-        COMMAND cmake -E remove -f "${RPCGEN_DIR}/rpcif_svc.cc.tmp"
-        COMMAND cmake -E copy_if_different "${CLIENTCOMM_SOURCE_DIR}/rpcif.x" "${RPCGEN_DIR}/rpcif.x"
+        COMMAND ${CMAKE_COMMAND} -E remove -f "${RPCGEN_DIR}/rpcif_svc.cc.tmp"
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CLIENTCOMM_SOURCE_DIR}/rpcif.x" "${RPCGEN_DIR}/rpcif.x"
 
         COMMAND ${RPCGEN_EXECUTABLE}
         ARGS -m -o "${RPCGEN_DIR}/rpcif_svc.cc.tmp" "${RPCGEN_DIR}/rpcif.x"
@@ -58,14 +58,14 @@ add_custom_command(OUTPUT "${RPCGEN_DIR}/rpcif_svc.cc"
         COMMAND ${AWK_EXECUTABLE}
         ARGS -f "${CLIENTCOMM_SOURCE_DIR}/rpcif_svc.c.awk" "${RPCGEN_DIR}/rpcif_svc.cc.tmp" > "${RPCGEN_DIR}/rpcif_svc.cc"
 
-        COMMAND cmake -E remove -f "${RPCGEN_DIR}/rpcif_svc.cc.tmp"
+        COMMAND ${CMAKE_COMMAND} -E remove -f "${RPCGEN_DIR}/rpcif_svc.cc.tmp"
 
         DEPENDS "${CLIENTCOMM_SOURCE_DIR}/rpcif.x"
         WORKING_DIRECTORY ${CLIENTCOMM_SOURCE_DIR}
         )
 
 add_custom_command(OUTPUT ${RPCGEN_DIR}/rpcif_xdr.c
-        COMMAND cmake -E copy_if_different "${CLIENTCOMM_SOURCE_DIR}/rpcif.x" "${RPCGEN_DIR}/rpcif.x"
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CLIENTCOMM_SOURCE_DIR}/rpcif.x" "${RPCGEN_DIR}/rpcif.x"
 
         COMMAND ${RPCGEN_EXECUTABLE}
         ARGS -c -o "${RPCGEN_DIR}/rpcif_xdr.c" "${RPCGEN_DIR}/rpcif.x"

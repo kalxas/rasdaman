@@ -29,8 +29,8 @@ find_package(AWK REQUIRED)
 set(RPCGEN_DIR ${CMAKE_CURRENT_BINARY_DIR})
 
 add_custom_command(OUTPUT "${RPCGEN_DIR}/rpcif.h"
-        COMMAND cmake -E remove -f "${RPCGEN_DIR}/rpcif.h.tmp"
-        COMMAND cmake -E copy_if_different rpcif.x "${RPCGEN_DIR}/rpcif.x"
+        COMMAND ${CMAKE_COMMAND} -E remove -f "${RPCGEN_DIR}/rpcif.h.tmp"
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different rpcif.x "${RPCGEN_DIR}/rpcif.x"
 
         COMMAND ${RPCGEN_EXECUTABLE}
         ARGS -h -o "${RPCGEN_DIR}/rpcif.h.tmp" "${RPCGEN_DIR}/rpcif.x"
@@ -38,15 +38,15 @@ add_custom_command(OUTPUT "${RPCGEN_DIR}/rpcif.h"
         COMMAND ${AWK_EXECUTABLE}
         ARGS -f rpcif.h.awk "${RPCGEN_DIR}/rpcif.h.tmp" > "${RPCGEN_DIR}/rpcif.h"
 
-        COMMAND cmake -E remove -f "${RPCGEN_DIR}/rpcif.h.tmp"
+        COMMAND ${CMAKE_COMMAND} -E remove -f "${RPCGEN_DIR}/rpcif.h.tmp"
 
         DEPENDS rpcif.x
         WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
         )
 
 add_custom_command(OUTPUT "${RPCGEN_DIR}/rpcif_clnt.cc"
-        COMMAND cmake -E remove -f "${RPCGEN_DIR}/rpcif_clnt.cc.tmp"
-        COMMAND cmake -E copy_if_different rpcif.x "${RPCGEN_DIR}/rpcif.x"
+        COMMAND ${CMAKE_COMMAND} -E remove -f "${RPCGEN_DIR}/rpcif_clnt.cc.tmp"
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different rpcif.x "${RPCGEN_DIR}/rpcif.x"
 
         COMMAND ${RPCGEN_EXECUTABLE}
         ARGS -l -o "${RPCGEN_DIR}/rpcif_clnt.cc.tmp" "${RPCGEN_DIR}/rpcif.x"
@@ -54,14 +54,14 @@ add_custom_command(OUTPUT "${RPCGEN_DIR}/rpcif_clnt.cc"
         COMMAND ${AWK_EXECUTABLE}
         ARGS -f rpcif_clnt.c.awk "${RPCGEN_DIR}/rpcif_clnt.cc.tmp" > "${RPCGEN_DIR}/rpcif_clnt.cc"
 
-        COMMAND cmake -E remove -f "${RPCGEN_DIR}/rpcif_clnt.cc.tmp"
+        COMMAND ${CMAKE_COMMAND} -E remove -f "${RPCGEN_DIR}/rpcif_clnt.cc.tmp"
 
         DEPENDS rpcif.x
         WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
         )
 
 add_custom_command(OUTPUT "${RPCGEN_DIR}/rpcif_xdr.c"
-        COMMAND cmake -E copy_if_different rpcif.x "${RPCGEN_DIR}/rpcif.x"
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different rpcif.x "${RPCGEN_DIR}/rpcif.x"
 
         COMMAND ${RPCGEN_EXECUTABLE}
         ARGS -c -o "${RPCGEN_DIR}/rpcif_xdr.c" "${RPCGEN_DIR}/rpcif.x"
