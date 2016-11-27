@@ -1,5 +1,7 @@
 01-get_capabilities.xml
 01-get_capabilities.kvp
+48-get_coverage_gmljp2.kvp
+48-get_coverage_gmljp2.xml
 69-get_capabilities_sections_coverageSummary_All.kvp
 69-get_capabilities_sections_coverageSummary_Contents.kvp
 69-get_capabilities_sections_coverageSummary_CoverageSummary.kvp
