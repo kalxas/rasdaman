@@ -68,9 +68,11 @@ function check_petascope()
     log "no petascope database present, please install petascope first."
     return 1
   fi
-  $WGET -q $WCPS_URL -O /dev/null
+
+  # NOTE: just check if petascope is deployed by check the WCPS servlet as it is quicker than /rasdaman/ows (GetCapabilities)
+  $WGET -q "$PETASCOPE_URL/wcps" -O /dev/null
   if [ $? -ne 0 ]; then
-    log "failed connecting to petascope at $WCPS_URL, please deploy it first."
+    log "failed connecting to petascope at $PETASCOPE_URL, please deploy it first."
     return 1
   fi
   return 0

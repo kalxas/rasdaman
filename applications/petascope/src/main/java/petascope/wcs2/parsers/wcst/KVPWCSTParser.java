@@ -157,7 +157,7 @@ public class KVPWCSTParser extends KVPParser<WCSTRequest> {
      */
     @Override
     public boolean canParse(HTTPRequest request) {
-        Map<String, String> params = RequestUtil.parseKVPRequestParams(request.getQueryString());
+        Map<String, String> params = RequestUtil.parseKVPRequestParams(request.getRequestString());
         boolean canParse = request.getRequestString() != null
                            && !request.getRequestString().startsWith("<")
                            && !params.isEmpty()

@@ -21,6 +21,7 @@
  */
 package petascope;
 
+import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.util.ArrayList;
@@ -35,7 +36,7 @@ import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletRequestWrapper;
-import petascope.util.RequestUtil;
+import org.apache.commons.io.IOUtils;
 import petascope.util.StringUtil;
 
 public class CustomRequestWrapper extends HttpServletRequestWrapper {
@@ -48,10 +49,36 @@ public class CustomRequestWrapper extends HttpServletRequestWrapper {
     public CustomRequestWrapper(HttpServletRequest wrapped) throws UnsupportedEncodingException {
         super(wrapped);
         this.wrapped = wrapped;
-        // NOTE: if request in XML then no parameters in query string as it is NULL
-        if (wrapped.getQueryString() != null) {
-            this.queryString = wrapped.getQueryString();
+    }
+
+    /**
+     * Wrap the HttpServletRequest in KVP and parse the queryString and parameter map correctly (e.g: convert "+" to "%2B")
+     * @throws UnsupportedEncodingException
+     */
+    public void buildGetKvpParametersMap() throws UnsupportedEncodingException, IOException {
+        this.queryString = wrapped.getQueryString();
+        if (queryString == null) {
+            // NOTE: It can be a GET KVP request but parameters are inside request body, so have to build parameter maps from query string
+            // e.g: curl -s -X GET 'http://localhost:8080/rasdaman/ows' --data-urlencode 'SERVICE=WCS&VERSION=2.0.1&REQUEST=ProcessCoverages&query=...'
+            this.buildPostKvpParametersMap();
+        } else {
+            // Try to parse query string to parameter maps with GET
             parseQueryString();
+        }
+    }
+
+    /**
+     * When sending a POST request, the parameter map only has 1 entry (service -> ....) and queryString is null, then need to parse it correctly.
+     * e.g: curl -X POST 'http://localhost:8080/rasdaman/ows/wcs'
+     * --data-urlencode 'SERVICE=WCS&VERSION=2.0.1&REQUEST=ProcessCoverages&query=...'
+     *      */
+    public void buildPostKvpParametersMap() throws IOException {
+        // Read query string from the post request body
+        this.queryString = this.decodeURL(IOUtils.toString(this.wrapped.getReader()));
+        // NOTE: if send a XML/SOAP request not KVP request then don't parse anything.
+        if (!this.queryString.trim().startsWith("<")) {
+            // then parse query string to parameter maps
+            this.parseQueryString();
         }
     }
 
@@ -126,7 +153,7 @@ public class CustomRequestWrapper extends HttpServletRequestWrapper {
      */
     private void parseQueryString() throws UnsupportedEncodingException {
         // decode URL
-        this.queryString = this.decodeURL(queryString);
+        this.queryString = this.decodeURL(this.queryString);
         String[] params = this.queryString.split("&");
         params = StringUtil.clean(params);
 

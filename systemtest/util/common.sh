@@ -474,37 +474,40 @@ trim_indentation()
 }
 
 # -----------------------------------------------------------------------------
-# when wget returns empty file, using curl to get the error in page content.
-# $1 is request error link, $2 is output file.
+# GET KVP request
 get_request_kvp() {
-
-  # normally will have to add "?" to separate the http://host:port/servlet and URI (e.g: service=WCS&version=2.0.1&query=....)
+  # $1 is servlet endpoint (e.g: localhost:8080/rasdaman/ows)
+  # $2 is KVP parameters (e.g: service=WCS&version=2.0.1&query=....)
+  # $3 is output file
+  # $4 only use for SECORE as it will only GET KVP in the URL directly without encoding
+  url="$1"
+  kvpValues=`echo "$2" | tr -d '\n'`
   if [[ -z "$4" ]]; then
-    # URL encode query
-    query=`echo "$2" | xxd -plain | tr -d '\n' | sed 's/\(..\)/%\1/g'`
-    url="$1""?""$query"
+    echo "$url?$kvpValues"
+    curl -s -X GET "$url" --data-urlencode "$kvpValues" > "$3"
   else
-    query="$2"
-    # SECORE will not add this feature (as will have invalid URI request for resolving CRS)
-    url="$1""$query"
+    # SECORE (just send the request as it is without encoding)
+    echo "$url$kvpValues"
+    curl -s -X GET "$url""$kvpValues" > "$3"
   fi
-
-  echo $url
-
-  curl -s -R "$url" > "$3"
 }
 
-# used by WCPS test as it can be big query
+# Only use it GET parameter is too long (e.g: WCPS big query) (file name convention: *.post.test)
 post_request_kvp() {
-  # send the query to server ($1) and write the result to output file ($3)
-  query=`echo "$2" | xxd -plain | tr -d '\n' | sed 's/\(..\)/%\1/g'`
-  curl -s --data "query=$query" "$1" -o "$3"
+  # $1 is servlet endpoint (e.g: localhost:8080/rasdaman/ows)
+  # $2 is KVP parameters (e.g: service=WCS&version=2.0.1&query=....)
+  # $3 is output file
+  url="$1"
+  kvpValues=`echo "$2" | tr -d '\n'`
+
+  echo "$url?$kvpValues"
+  curl -s -X POST "$url" --data-urlencode "$kvpValues" > "$3"
 }
 
-# this function will be used to get error from WCPS/WCS in XML request
-get_request_xml(){
+# this function will be used to send XML/SOAP request for WCS, WCPS
+post_request_xml() {
   # curl -X GET -d @14-get_coverage_jp2_slice_t_crs1.xml http://localhost:8080/rasdaman/ows -o error.txt
-  curl -s -X GET -d @"$1" "$WCS_URL" -o "$2"
+  curl -s -X POST -d @"$1" "$PETASCOPE_URL" -o "$2"
 }
 
 
@@ -618,8 +621,14 @@ run_test()
                     # check if query contains "jpeg2000" and gdal supports this format, then the query should be run.
                     check_query_runable "$QUERY"
                     if [[ $? -eq 0 ]]; then
-                      # send to petascope (must use WCPS encode now)
-                      post_request_kvp "$WCPS_URL" "$QUERY" "$out"
+
+                      if [[ "$f" =~ "post.test" ]]; then
+                        # big WCPS query goes with POST (prepend the KVP parameter for WCPS extension)
+                        post_request_kvp "$PETASCOPE_URL" "query=$QUERY" "$out"
+                      else
+                        # small WCPS query goes with GET (prepend the KVP parameter for WCPS extension)
+                        get_request_kvp "$PETASCOPE_URL" "query=$QUERY" "$out"
+                      fi
                     else
                       continue
                     fi
@@ -632,8 +641,8 @@ run_test()
                     # check if query contains "jpeg2000" and gdal supports this format, then the query should be run.
                     check_query_runable "`cat $f`"
                     if [[ $? -eq 0 ]]; then
-                      # send to petascope
-                      get_request_xml "$postdata" "$out"
+                      # send SOAP to petascope
+                      post_request_xml "$postdata" "$out"
                     else
                         continue
                     fi
@@ -649,7 +658,7 @@ run_test()
                     # check if query contains "jpeg2000" and gdal supports this format, then the query should be run.
                     check_query_runable "$QUERY"
                     if [[ $? -eq 0 ]]; then
-                      get_request_kvp "$WCS_URL" "$QUERY" "$out"
+                      get_request_kvp "$PETASCOPE_URL" "$QUERY" "$out"
                     else
                       continue
                     fi
@@ -663,8 +672,8 @@ run_test()
                     # check if query contains "jpeg2000" and gdal supports this format, then the query should be run.
                     check_query_runable "`cat $f`"
                     if [[ $? -eq 0 ]]; then
-                        # get the xmlfile by curl and return error to output file
-                        get_request_xml "$postdata" "$out"
+                        # send XML by POST
+                        post_request_xml "$postdata" "$out"
                     else
                         continue
                     fi
@@ -674,10 +683,10 @@ run_test()
                 *)  error "unknown wcs test type: $test_type"
               esac
               ;;
-      wms)    get_request_kvp "$WMS_URL" "$QUERY" "$out"
+      wms)    get_request_kvp "$PETASCOPE_URL" "$QUERY" "$out"
               ;;
-      secore) QUERY=`echo "$QUERY" | sed 's|%SECORE_URL%|'$SECORE_URL'|g' | tr -d '\t' | tr -d ' '`
-              get_request_kvp "$SECORE_URL" "$QUERY" "$out" "no_encode_URL"
+      secore) QUERY=`echo "$QUERY" | sed 's|%SECORE_URL%|'$SECORE_URL'|g'`
+              get_request_kvp "$SECORE_URL" "$QUERY" "$out" "secore"
               ;;
       select|rasql|nullvalues|jit)
               QUERY=`cat $f`
@@ -790,7 +799,7 @@ run_test()
               # remove the temp files
               rm -f "$oracle.tmp"
               rm -f "$out.tmp"
-          else 
+          else
               log "byte comparison"
               # diff comparison ignoring EOLs [see ticket #551]
               diff -b "$oracle" "$out" 2>&1 > /dev/null

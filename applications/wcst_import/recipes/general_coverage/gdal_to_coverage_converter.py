@@ -159,7 +159,7 @@ class GdalToCoverageConverter(AbstractToCoverageConverter):
             else:
                 grid_low = 0
                 number_of_geopixels = user_axis.interval.high - user_axis.interval.low
-                grid_high = int(math.fabs(math.floor(grid_low + number_of_geopixels / user_axis.resolution)))
+                grid_high = int(math.fabs(round(grid_low + number_of_geopixels / user_axis.resolution)))
 
             # NOTE: Grid Coverage uses the direct intervals as in Rasdaman, modify the high bound will have error in petascope
             if not self.grid_coverage:

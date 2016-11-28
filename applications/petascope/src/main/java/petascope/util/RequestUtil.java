@@ -63,6 +63,21 @@ public class RequestUtil {
         return params;
     }
 
+    /**
+     * Build KVP parameters which depends on the number of values of the input key.
+     * e.g: id=1&id=2&id=3
+     * @param key
+     * @param values
+     * @return 
+     */
+    public static String buildKVPParameters(String key, String[] values) {
+        String output = "";
+        for (int i = 0; i < values.length; i++) {
+            output += KVPParamSeparator + key + KVPKeyValueSeparator + values[i];
+        }
+        return output;
+    }
+    
 
     /**
      * The separator between parameters in a KVP request, e.g.

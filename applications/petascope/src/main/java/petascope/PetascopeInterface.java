@@ -31,10 +31,7 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.io.UnsupportedEncodingException;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
@@ -47,7 +44,7 @@ import javax.xml.bind.JAXBException;
 
 import net.opengis.ows.v_1_0_0.ExceptionReport;
 import nu.xom.Document;
-import nu.xom.Element;
+import nu.xom.ParsingException;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
@@ -61,7 +58,6 @@ import petascope.exceptions.SecoreException;
 import petascope.exceptions.WCPSException;
 import petascope.exceptions.WCSException;
 import petascope.util.KVPSymbols;
-import petascope.util.ListUtil;
 import petascope.util.Pair;
 import petascope.util.PostgisQueryResult;
 import petascope.util.StringUtil;
@@ -69,7 +65,6 @@ import petascope.util.WcpsConstants;
 import petascope.util.XMLSymbols;
 import petascope.util.XMLUtil;
 import petascope.util.ras.RasQueryResult;
-import petascope.util.ras.RasUtil;
 import petascope.util.response.MultipartResponse;
 import petascope.wcps.server.core.ProcessCoveragesRequest;
 import petascope.wcps.server.core.Wcps;
@@ -78,7 +73,6 @@ import petascope.wcs2.extensions.DecodeFormatExtension;
 import petascope.wcs2.extensions.ExtensionsRegistry;
 import petascope.wcs2.extensions.FormatExtension;
 import petascope.wcs2.extensions.ProtocolExtension;
-import petascope.wcs2.extensions.RESTProtocolExtension;
 import petascope.wcs2.handlers.RequestHandler;
 import petascope.wcs2.handlers.Response;
 import petascope.wcs2.parsers.XMLParser;
@@ -98,17 +92,17 @@ public class PetascopeInterface extends CORSHttpServlet {
 
     private static final Logger log = LoggerFactory.getLogger(PetascopeInterface.class);
     private DbMetadataSource meta;
-    // path to the default HTML response of the interface servlet
-    private String usageFilePath = "/templates/interface-servlet.html";
-    // String containing the HTML code for the default response
-    private String usageMessage;
     /* Instance of WCPS service */
     private Wcps wcps;
     /* Instance of WcsServer service */
     private WcsServer wcs;
 
-    private static final String WCPS_QUERY_GET_PARAMETER = "query";
-    private static final String WCPS_REQUEST_GET_PARAMETER = "request";
+    private static final String WMS_SERVICE = "WMS";
+    private static final String WCS_SERVICE = "WCS";
+    private static final String REQUEST_GET_PARAMETER = "request";
+
+    // By default, this servlet will recive GET request
+    private boolean isGet = true;
 
     /* Initialize the various services: WCPS, WcsServer and WcsServer-T */
     @Override
@@ -141,15 +135,6 @@ public class PetascopeInterface extends CORSHttpServlet {
         // Force GeoTools referencing libraries to X->Y ordered CRSs
         System.setProperty("org.geotools.referencing.forceXY", "true");
 
-        // Read servlet HTML usage message from disk
-        try {
-            usageFilePath = getServletContext().getRealPath(usageFilePath);
-            usageMessage = FileUtils.readFileToString(new File(usageFilePath));
-        } catch (IOException e) {
-            log.error("Could not read default servlet HTML response. Stack trace: {}", e);
-            throw new ServletException("Could not read interface servlet HTML response", e);
-        }
-
         try {
             log.info("Initializing metadata database");
             meta = new DbMetadataSource(ConfigManager.METADATA_DRIVER,
@@ -171,9 +156,24 @@ public class PetascopeInterface extends CORSHttpServlet {
             log.error("Stack trace: {}", e);
             throw new ServletException("WCPS initialization error", e);
         }
+        
+        /**
+         * Initialize the WMS 1.1.0 service
+         * NOTE: WMS 1.1.0 is deprecated and it cannot initialize database
+         * with the error as in http://rasdaman.org/ticket/898. Use WMS 1.3.0 instead.
+         */
+        /*try {
+            log.info("WMS11: Initializing the WMS 1.1.0 service...");
+            wms13Adapter.initWMS11Servlet(this.getServletConfig());
+            log.info("WMS11: Initialization complete.");
+        } catch (Exception e) {
+            log.error("WMS 1.1.0 could not be initialized");
+        }*/
+        
 
         /**
          * Initialize the WMS 1.3.0 service
+         * NOTE: WMS 1.1.0 is deprecated and obsolete.
          */
         try {
             log.info("WMS13: Initializing the WMS 1.3.0 service...");
@@ -182,19 +182,6 @@ public class PetascopeInterface extends CORSHttpServlet {
         } catch (Exception e) {
             log.error("WMS 1.3.0 could not be initialized due to {}", e);
             throw new ServletException("WMS 1.3.0 could not be initialized due to {}", e);
-        }
-
-        /**
-         * Initialize the WMS 1.1.0 service
-         * NOTE: WMS 1.1.0 is deprecated and it cannot initialize database
-         * with the error as in http://rasdaman.org/ticket/898. Use WMS 1.3.0 instead.
-         */
-        try {
-            log.info("WMS11: Initializing the WMS 1.1.0 service...");
-            wms13Adapter.initWMS11Servlet(this.getServletConfig());
-            log.info("WMS11: Initialization complete.");
-        } catch (Exception e) {
-            log.error("WMS 1.1.0 could not be initialized");
         }
 
         /* Initialize WCS Service */
@@ -265,242 +252,208 @@ public class PetascopeInterface extends CORSHttpServlet {
     /* Respond to Post requests just like in the case of Get requests */
     @Override
     public void doPost(HttpServletRequest httpRequest, HttpServletResponse httpResponse) throws ServletException, UnsupportedEncodingException, IOException {
-        doGet(httpRequest, httpResponse);
+        CustomRequestWrapper wrapperRequest  = new CustomRequestWrapper(httpRequest);
+        // POST request KVP
+        log.debug("Received POST request.");
+        wrapperRequest.buildPostKvpParametersMap();
+        this.handleRequest(wrapperRequest, httpResponse);
     }
 
     /* Handle Get requests. This function delegates the request to the service
      specified in the request by the "service" parameter. */
     @Override
     public void doGet(HttpServletRequest httpRequest, HttpServletResponse httpResponse) throws ServletException, UnsupportedEncodingException, IOException {
-        super.doGet(httpRequest, httpResponse);
-        // NOTE: To support the "+" which is missing from URI as it is converted to space, we need to manipulate the queryString and parse it to parameter maps correctly
         CustomRequestWrapper wrapperRequest  = new CustomRequestWrapper(httpRequest);
+        // NOTE: To support the "+" which is missing from URI as it is converted to space, we need to manipulate the queryString and parse it to parameter maps correctly
+        // GET request KVP
+        log.debug("Received GET request.");
+        wrapperRequest.buildGetKvpParametersMap();
+        this.handleRequest(wrapperRequest, httpResponse);
+    }
 
-        setServletURL(wrapperRequest);
-
-        // NOTE: admin can change Service Prodiver, Identification then session *reloadPage* will exist and value is true
-        HttpSession session = wrapperRequest.getSession();
-        if (session.getAttribute("reloadMetadata") != null && Boolean.valueOf(session.getAttribute("reloadMetadata").toString()) == true) {
-            try {
-                meta = new DbMetadataSource(ConfigManager.METADATA_DRIVER,
-                                            ConfigManager.METADATA_URL,
-                                            ConfigManager.METADATA_USER,
-                                            ConfigManager.METADATA_PASS, false);
-
-                // Then remove session as it does not need anymore
-                session.removeAttribute("reloadMetadata");
-            } catch (Exception e) {
-                log.error("Stack trace: {}", e);
-                throw new ServletException("Error initializing metadata database", e);
-            }
-        } else {
-            // it is just normal query without updating metadata then session is null
-            meta.clearCache();
-        }
-
-        String request = null;
-        String requestBody = null;
-
-        /* Process the request */
+    /**
+     * After parsing the parameters for KVP (if possible) in GET/POST, we handle the request services here.
+     * @param wrapperRequest
+     * @param httpResponse
+     */
+    private void handleRequest(CustomRequestWrapper wrapperRequest, HttpServletResponse httpResponse) {
         try {
-            try {
-                //Check if this is a wms request and handled it accordingly
-                if (wms13Adapter.handleGetRequests(wrapperRequest, httpResponse)) {
-                    //this is a wms13 request, and it was handled in the handleGetRequests
-                    //stop further execution
-                    return;
-                }
+            super.doGet(wrapperRequest, httpResponse);
+            setServletURL(wrapperRequest);
 
-                meta.ensureConnection();
+            // reload the GetCapabilities when update service information from admin page
+            reloadServiceInformation(wrapperRequest);                
+            meta.ensureConnection();
 
-                requestBody = IOUtils.toString(wrapperRequest.getReader());
+            // parsing request parameters if request is KVP (e.g: ows?service=WCS&version=2.0.1&request=GetCapabilities)
+            Map<String, String> paramMap = buildParameterMap(wrapperRequest);
+            log.trace("Request parameters : {}", paramMap);
 
-                log.trace("POST Request length: {}", wrapperRequest.getContentLength());
-                log.trace("POST request body  : \n------START REQUEST--------\n{}\n------END REQUEST------\n", requestBody);
-                log.trace("GET Query string   : {}", wrapperRequest.getQueryString());
+            // Assume this is KVP request, check to get the 'service' parameter.
+            String service = paramMap.get(KVPSymbols.KEY_SERVICE);
+            // Backward support for WCPS (this is not valid extension: http://localhost:8080/rasdaman/ows?query=)
+            // the valid one is: http://localhost:8080/rasdaman/ows?service=WCS&version=2.0.1&request=ProcessCoverages&query=....
+            String query = paramMap.get(KVPSymbols.KEY_QUERY);
 
+            // *Handle KVP request*
+            if (service != null || query != null) {
+                log.debug("KVP request received: " + wrapperRequest.getQueryString());
+                this.handleKVPRequest(wrapperRequest, httpResponse);
+            } else {
+                // parsing request and call the service handler accordingly (queryString is built for POST in wrapper class).
+                String requestBody = wrapperRequest.getQueryString();
                 Map<String, String> params = buildParameterDictionary(requestBody);
-                Map<String, String> paramMap = buildParameterMap(wrapperRequest);
-                log.trace("Request parameters : {}", params);
 
-                // GET interface processing
-                String service = paramMap.get(KVPSymbols.KEY_SERVICE);
-
-                // REST interface checks
-                // get the uri contained after the context name i.e after petascope
-                // in example.com/petascope/rest/wcs/... returns [rest,wcs]
-                String pathInfo = wrapperRequest.getPathInfo();
-                log.debug("Analyzing path info \"{}\" for REST interface checks.", pathInfo);
-                // Java API: "This method returns null if there was no extra path information."
-                String[] prsUrl = (null == pathInfo) ? new String[0] : pathInfo.substring(1).split("/");
-                ArrayList<String> splitURI = new ArrayList<String>(Arrays.asList(
-                            prsUrl
-                        ));
-                if (service == null && splitURI.size() > 1
-                        && (splitURI.get(0).equalsIgnoreCase(RESTProtocolExtension.REST_PROTOCOL_WCS_IDENTIFIER)
-                            || splitURI.get(0).equals(RESTProtocolExtension.REST_PROTOCOL_WCPS_IDENTIFIER))) {
-                    service = splitURI.get(0).toUpperCase();
-                }
-
-                if (service != null) {
-                    // Removed WPS support as it doesn't work. Using 52n instead -- DM 2012-may-24
-//                    if (service.equals("WPS")) {
-//                        WpsServer wpsServer = new WpsServer(httpResponse, httpRequest);
-//                        request = wpsServer.request;
-//                    } else
-                    if (service.equals(petascope.wcs2.parsers.BaseRequest.SERVICE)) {
-                        // extract version
-                        String version = null;
-                        String operation = paramMap.get(WCPS_REQUEST_GET_PARAMETER);
-
-                        //This might be a REST operation, try to get the operation from the uri
-                        if (operation == null && splitURI.size() > 2) {
-                            operation = RESTProtocolExtension.mapRestResourcesToCoverageOperation(wrapperRequest.getRequestURI());
-                        }
-
-                        if (operation.equals(RequestHandler.GET_CAPABILITIES)) {
-                            version = paramMap.get(KVPSymbols.KEY_ACCEPTVERSIONS);
-                            if (version == null && splitURI.size() > 1) {
-                                version = splitURI.get(1);
-                            }
-                            log.trace(KVPSymbols.KEY_ACCEPTVERSIONS + ": " + version);
-                            if (version == null) {
-                                version = ConfigManager.WCS_DEFAULT_VERSION;
-                            } else {
-                                String[] versions = version.split(KVPSymbols.VERSIONS_SEP);
-                                version = "";
-                                for (String v : versions) {
-                                    if (ConfigManager.WCS_VERSIONS.contains(v)
-                                            && !v.startsWith("1")) { // the WCS 1.1 server doesn't support GET-KVP
-                                        version = v;
-                                        break;
-                                    }
-                                }
-                            }
-                        } else if (operation.equals(RequestHandler.DESCRIBE_COVERAGE) || operation.equals(RequestHandler.PROCESS_COVERAGE)
-                                   || operation.equals(RequestHandler.GET_COVERAGE) || operation.equals(RequestHandler.INSERT_COVERAGE)
-                                   || operation.equals(RequestHandler.DELETE_COVERAGE) || operation.equals(RequestHandler.UPDATE_COVERAGE)) {
-                            version = paramMap.get(KVPSymbols.KEY_VERSION);
-                            if (version == null && splitURI.size() > 1) {
-                                version = splitURI.get(1);
-                            }
-                        }
-
-                        // handle request
-                        request = StringUtil.urldecode(wrapperRequest.getQueryString(), wrapperRequest.getContentType());
-                        handleWcsRequest(version, paramMap.get(WCPS_REQUEST_GET_PARAMETER), request, httpResponse, wrapperRequest);
-                        return;
-                    }
-                }
-
-                // To preserve compatibility with previous client versions, we allow
-                // GET requests with parameter "query"
-                String request2 = null;
-                request2 = paramMap.get(WCPS_QUERY_GET_PARAMETER);
-                if (request2 == null) {
-                    request2 = StringUtil.urldecode(params.get(WCPS_QUERY_GET_PARAMETER), wrapperRequest.getContentType());
-                }
-
-                // splitURI list can be of size 0 if there is not path info in the HTTP request.
-                if (request2 == null && splitURI.size() > 0
-                        && splitURI.get(0).equalsIgnoreCase(RESTProtocolExtension.REST_PROTOCOL_WCPS_IDENTIFIER)) {
-                    if (splitURI.size() > 2 && splitURI.get(1).equals(RESTProtocolExtension.REST_PROTOCOL_WCPS_IDENTIFIER)) {
-                        String queryDecoded = StringUtil.urldecode(splitURI.get(2), wrapperRequest.getContentType());
-                        request2 = RasUtil.abstractWCPSToRasql(queryDecoded, wcps);
-                    }
-                } else if (request2 != null) {
-                    log.debug("Received Abstract Syntax Request via GET: \n\t\t{}", request2);
-                    request2 = RasUtil.abstractWCPStoXML(request2);
-                }
-                request = StringUtil.urldecode(params.get(WCPS_REQUEST_GET_PARAMETER), wrapperRequest.getContentType());
-                if (request == null && request2 != null) {
-                    request = request2;
-                }
-
-                // Empty request ?
-                if (request == null && (requestBody == null || requestBody.length() == 0)) {
-                    if (paramMap.size() > 0) {
-                        throw new WCSException(ExceptionCode.NoApplicableCode,
-                                               "Couldn't understand the recieved request, is the service attribute missing?");
-                    } else {
-                        printUsage(httpResponse, request);
-                        return;
-                    }
-                }
-
-                //   No parameters, just XML in the request body:
-                if (request == null && requestBody != null && requestBody.length() > 0) {
-                    request = StringUtil.urldecode(requestBody, wrapperRequest.getContentType());
-                }
-
-                log.debug("Petascope Request: \n------START REQUEST--------\n{}"
-                          + "\n------END REQUEST------\n", request);
-
+                // *Handle SOAP and XML request*
+                String request = StringUtil.urldecode(requestBody, wrapperRequest.getContentType());
+                // Get root element of the request in XML
                 String root = XMLUtil.getRootElementName(request);
-                log.debug("Root Element name: {}", root);
-                if (root == null) {
-                    return;
-                }
-                if (root.equals(XMLSymbols.LABEL_ENVELOPE)) {
-                    // Here we have 2 kind of requests in SOAP body-message (1 is WCS, e.g: <wcs:GetCoverage>, 2 is WCPS, e.g: <ProcessCoveragesRequest>)
-                    // Need to get the XML content inside the <env:Body>...</env:Body>
-                    String bodyContent = XMLUtil.extractWcsRequest(request);
-                    if (bodyContent.contains(XMLSymbols.LABEL_PROCESSCOVERAGE_REQUEST)) {
-                        /* WCPS XML in SOAP, need to extract the process query in body tag */
-                        handleProcessCoverages(bodyContent, httpResponse);
-                    } else {
-                        /* WCS XML in SOAP, it will be extract the body tag later in SOAP handler */
-                        handleWcs2Request(request, httpResponse, wrapperRequest);
+                if (root != null) {
+                    // SOAP request
+                    if (root.equals(XMLSymbols.LABEL_ENVELOPE)) {
+                        log.debug("SOAP request received: " + requestBody);
+                        handleSOAPRequest(request, wrapperRequest, httpResponse);
+                    } else if (!params.isEmpty()) {
+                       // XML request
+                        log.debug("XML request received: " + requestBody);
+                        handleXMLRequest(request, wrapperRequest, httpResponse);
                     }
-                } else if (root.endsWith(XMLSymbols.LABEL_PROCESSCOVERAGE_REQUEST)) {
-                    /* ProcessCoverages is defined in the WCPS extension to WcsServer */
-                    handleProcessCoverages(request, httpResponse);
-                } else if (root.equals(RequestHandler.GET_CAPABILITIES)) {
-                    // extract the version that the client prefers
-                    Document doc = XMLUtil.buildDocument(null, request);
-                    String version = "";
-                    List<Element> acceptVersions = XMLUtil.collectAll(doc.getRootElement(), XMLSymbols.LABEL_ACCEPT_VERSIONS);
-                    if (!acceptVersions.isEmpty()) {
-                        List<Element> versions = XMLUtil.collectAll(ListUtil.head(acceptVersions), XMLSymbols.LABEL_VERSION);
-                        for (Element v : versions) {
-                            String val = XMLUtil.getText(v);
-                            if (val != null && ConfigManager.WCS_VERSIONS.contains(val)) {
-                                version = val;
-                                break;
-                            }
-                        }
-                    } else {
-                        version = ConfigManager.WCS_DEFAULT_VERSION;  // by default the latest supported by petascope
-                    }
-                    handleWcsRequest(version, root, request, httpResponse, wrapperRequest);
-                } else if (root.equals(RequestHandler.DESCRIBE_COVERAGE) || root.equals(RequestHandler.GET_COVERAGE) || root.equals(RequestHandler.PROCESS_COVERAGE)
-                           || root.equals(RequestHandler.INSERT_COVERAGE) || root.equals(RequestHandler.DELETE_COVERAGE) || root.equals(RequestHandler.UPDATE_COVERAGE)) {
-                    Document doc = XMLUtil.buildDocument(null, request);
-                    String version = doc.getRootElement().getAttributeValue(KVPSymbols.KEY_VERSION);
-                    handleWcsRequest(version, root, request, httpResponse, wrapperRequest);
                 } else {
-                    // error
-                    handleUnknownRequest(request, httpResponse);
+                    // Neither KVP nor SOAP/XML and without any requested parameters, so it *must* return WCS client.
+                    // e.g: localhost:8080/rasdaman/ows
+                    showWcsClient(httpResponse);
                 }
-            } catch (WCSException e) {
-                throw e;
-            } catch (SecoreException e) {
-                throw new WCSException(ExceptionCode.SecoreError, e);
-            } catch (Exception e) {
-                // Finally, cast all other exceptions into a WCSException
-                log.error("Runtime error : {}", e.getMessage());
-                throw new WCSException(ExceptionCode.RuntimeError,
-                                       "Runtime error while processing request: " + e.getMessage(), e);
             }
-        } // And catch all WCSExceptions, to display to the client
-        catch (WCSException e) {
-            printError(httpResponse, request, e);
+        } catch (SQLException ex) {
+            log.error("Cannot connect to petascopedb: " + ex.getMessage());
+            printError(httpResponse, "Cannot connect to petascopedb: " + ex.getMessage(), ex);
+        } catch (PetascopeException ex) {
+            log.error("Petascope has internal error while processing request: " + ex.getMessage());
+            printError(httpResponse, "Petascope has internal error while processing request: " + ex.getMessage(), ex);
+        } catch (SecoreException ex) {
+            log.error("Secore has internal error while processing request: " + ex.getMessage());
+            printError(httpResponse, "Secore has internal error while processing request: " + ex.getMessage(), ex);
+        } catch (Exception ex) {
+            log.error("Runtime error while processing request: " + ex.getMessage());
+            printError(httpResponse, "Runtime error while processing request: " + ex.getMessage(), ex);
         }
     }
 
-    private void printUsage(HttpServletResponse httpResponse, String request) throws IOException {
+    /**
+     * Depend on service parameter in KVP request to call WMS/WCS KVP handler
+     * @param wrapperRequest
+     * @param httpResponse
+     * @throws ServletException
+     * @throws IOException
+     * @throws PetascopeException
+     * @throws WCSException
+     * @throws SecoreException
+     * @throws SQLException
+     */
+    private void handleKVPRequest(CustomRequestWrapper wrapperRequest, HttpServletResponse httpResponse) throws ServletException, IOException,
+                                  PetascopeException, WCSException, SecoreException, SQLException {
+        Map<String, String> paramMap = buildParameterMap(wrapperRequest);
+        String service = paramMap.get(KVPSymbols.KEY_SERVICE);
+        String version = paramMap.get(KVPSymbols.KEY_VERSION);
+        // this is for backward support WCPS (localhost:8080/rasdaman/ows?query=...)
+        String query = paramMap.get(KVPSymbols.KEY_QUERY);
+
+        if (service != null) {
+            if (service.equals(WMS_SERVICE)) {
+                // Only support WMS 1.3
+                wms13Adapter.handleGetRequests(wrapperRequest, httpResponse);
+            } else if (service.equals(WCS_SERVICE)) {
+                // Support WCS 2.0.1
+                String queryString = wrapperRequest.getQueryString();
+                handleWcsRequest(version, paramMap.get(REQUEST_GET_PARAMETER), queryString,
+                                httpResponse, wrapperRequest);
+            }
+        } else if (query != null) {
+            // WCPS backward support, e.g: localhost:8080/def/rasdaman/ows?query=for c in ( test_rgb ) return encode( c[ i(0:100), j(0:100) ], "png", "nodata=0")
+            // check if KVP request has only "query" parameter
+            String processingRequest = KVPSymbols.KEY_SERVICE + "=" + WCS_SERVICE  + "&"
+                                     + KVPSymbols.KEY_VERSION + "=" + ConfigManager.WCS_DEFAULT_VERSION  + "&"
+                                     + KVPSymbols.KEY_REQUEST + "=" + KVPSymbols.KEY_PROCESS_COVERAGES + "&"
+                                     + query;
+
+            // Using WCS 2.0.1 to handle this backward support WCPS request
+            handleWcsRequest(ConfigManager.WCS_DEFAULT_VERSION, KVPSymbols.KEY_PROCESS_COVERAGES,
+                            processingRequest, httpResponse, wrapperRequest);
+        }
+    }
+
+    /**
+     * Depend on service parameter in SOAP request to call WCS/WCPS SOAP handler
+     * @param request
+     * @param wrapperRequest
+     * @param httpResponse
+     * @throws PetascopeException
+     * @throws WCSException
+     * @throws SecoreException
+     * @throws Exception
+     */
+    private void handleSOAPRequest(String request, CustomRequestWrapper wrapperRequest, HttpServletResponse httpResponse) throws PetascopeException, WCSException,
+                                   SecoreException, Exception {
+        // Here we have 2 kind of requests in SOAP body-message
+        // (1 is WCS, e.g: <wcs:GetCoverage>, 2 is WCPS, e.g: <ProcessCoveragesRequest>)
+        // Need to get the XML content inside the <env:Body>...</env:Body>
+        String bodyContent = XMLUtil.extractWcsRequest(request);
+        if (bodyContent.contains(XMLSymbols.LABEL_PROCESSCOVERAGE_REQUEST)) {
+            // WCPS 1.0 XML in SOAP, need to extract the process query in body tag
+            handleProcessCoverages(bodyContent, httpResponse);
+        } else {
+            // WCS XML in SOAP, it will be extract the body tag later in SOAP handler
+            handleWcs2Request(request, httpResponse, wrapperRequest);
+        }
+    }
+
+    /**
+     * Depend on service parameter in XML request to call WCS/WCPS XML handler
+     * @param request
+     * @param wrapperRequest
+     * @param httpResponse
+     * @throws PetascopeException
+     * @throws WCSException
+     * @throws SecoreException
+     * @throws SQLException
+     * @throws IOException
+     * @throws ParsingException
+     */
+    private void handleXMLRequest(String request, CustomRequestWrapper wrapperRequest, HttpServletResponse httpResponse) throws PetascopeException, WCSException,
+                                SecoreException, SQLException, IOException, ParsingException {
+        // Get root element of the request in XML
+        String root = XMLUtil.getRootElementName(request);
+        if (root.endsWith(XMLSymbols.LABEL_PROCESSCOVERAGE_REQUEST)) {
+            // Assume this is valid WCPS 1.0 in XML
+            handleProcessCoverages(request, httpResponse);
+        } else {
+            // Assume this is valid WCS in XML
+            Document doc = XMLUtil.buildDocument(null, request);
+            String version = doc.getRootElement().getAttributeValue(KVPSymbols.KEY_VERSION);
+            handleWcsRequest(version, root, request, httpResponse, wrapperRequest);
+        }
+    }
+
+
+    /**
+     * A request without any parameters will get WCS client interface.
+     * @param httpResponse
+     * @throws IOException
+     */
+    private void showWcsClient(HttpServletResponse httpResponse) throws IOException, WCSException {
         PrintWriter out = httpResponse.getWriter();
         httpResponse.setContentType("text/html");
+        // Read servlet HTML usage message from disk
+        // path to the default HTML response of the interface servlet
+        String usageFilePath = "/templates/interface-servlet.html";
+        String usageMessage = null;
+        try {
+            usageFilePath = getServletContext().getRealPath(usageFilePath);
+            usageMessage = FileUtils.readFileToString(new File(usageFilePath));
+        } catch (IOException e) {
+            log.error("Could not read WCS Client interface for response. Stack trace: {}", e);
+            throw new WCSException(ExceptionCode.InternalComponentError, "Could not read WCS Client interface for response", e);
+        }
         out.write(usageMessage);
         out.flush();
     }
@@ -541,12 +494,6 @@ public class PetascopeInterface extends CORSHttpServlet {
 
     }
 
-    private void handleUnknownRequest(String request, HttpServletResponse httpResponse) {
-        request = "'" + request + "'";
-        printError(httpResponse, request, new WCSException(
-                       ExceptionCode.NoApplicableCode, "Could not understand request " + request));
-    }
-
     private String exceptionReportToXml(ExceptionReport report) {
         String output = null;
         try {
@@ -580,7 +527,7 @@ public class PetascopeInterface extends CORSHttpServlet {
      * Handle a WCS request.
      *
      * @param version WCS version
-     * @param operation WCS operation
+     * @param operation WCS operation (WCS 1.0 deprecated)
      * @param request the actual request
      * @param response stream to which the result will be written
      * @param srvRequest the servlet request
@@ -604,6 +551,7 @@ public class PetascopeInterface extends CORSHttpServlet {
     }
 
     /**
+     * @deprecated
      * Handle WCS 1.1 request.
      *
      * @param operation WCS operation
@@ -777,6 +725,7 @@ public class PetascopeInterface extends CORSHttpServlet {
     }
 
     /**
+     * @deprecated
      * This method is used to handle WCPS 1.0 in SOAP format or as an extension parameter from WCS
      * e.g: SERVICE=WCS&VERSION=2.0.1&REQUEST=ProcessCoverages&query=for c in (test_mr) return avg(c)
      * @param xmlRequest
@@ -890,4 +839,30 @@ public class PetascopeInterface extends CORSHttpServlet {
     }
 
     private final PetascopeInterfaceAdapter wms13Adapter = new PetascopeInterfaceAdapter();
+
+    /**
+     * When updating service information (e.g: service provider) from admin page, then reload these information from database
+     * @throws ServletException
+     */
+    private void reloadServiceInformation(CustomRequestWrapper wrapperRequest) throws ServletException {
+        // NOTE: admin can change Service Prodiver, Identification then session *reloadPage* will exist and value is true
+        HttpSession session = wrapperRequest.getSession();
+        if (session.getAttribute("reloadMetadata") != null && Boolean.valueOf(session.getAttribute("reloadMetadata").toString()) == true) {
+            try {
+                meta = new DbMetadataSource(ConfigManager.METADATA_DRIVER,
+                        ConfigManager.METADATA_URL,
+                        ConfigManager.METADATA_USER,
+                        ConfigManager.METADATA_PASS, false);
+
+                // Then remove session as it does not need anymore
+                session.removeAttribute("reloadMetadata");
+            } catch (Exception e) {
+                log.error("Stack trace: {}", e);
+                throw new ServletException("Error initializing metadata database", e);
+            }
+        } else {
+            // it is just normal query without updating metadata then session is null
+            meta.clearCache();
+        }
+    }
 }

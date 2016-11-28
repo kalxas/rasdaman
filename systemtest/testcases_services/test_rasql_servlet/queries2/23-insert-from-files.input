@@ -1,0 +1,1 @@
+'image=@"$SCRIPT_DIR"/../../test_all_wcst_import/test_data/wcps_mr/mr_1.png' '$RASQL_SERVLET?username=rasadmin\&password=rasadmin\&query=insert%20into%20test_mr_test1%20values%20decode(%241)'

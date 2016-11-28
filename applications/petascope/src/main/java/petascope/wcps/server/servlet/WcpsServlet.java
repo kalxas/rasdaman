@@ -41,6 +41,7 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import petascope.CORSHttpServlet;
 import petascope.ConfigManager;
 import petascope.core.DbMetadataSource;
 import petascope.exceptions.ExceptionCode;
@@ -74,7 +75,7 @@ import petascope.wcps2.result.WcpsResult;
 //the user.
 //This is the servlet interface of WCPS. It mostly consists of sanity checks and initialization,
 //the meat is onyl a few lines. The WCPS class does the actual work.
-public class WcpsServlet extends HttpServlet {
+public class WcpsServlet extends CORSHttpServlet {
 
     private static Logger log = LoggerFactory.getLogger(WcpsServlet.class);
 
@@ -122,10 +123,8 @@ public class WcpsServlet extends HttpServlet {
     @Override
     public void doPost(HttpServletRequest request, HttpServletResponse response)
     throws ServletException, IOException {
+        super.doGet(request, response);
         log.debug("WCPS: invoked with POST");
-
-        response.setHeader("Access-Control-Allow-Origin", "*");
-
         CoverageRegistry coverageRegistry = new CoverageRegistry(meta);
         CoordinateTranslationService coordinateTranslationService = new CoordinateTranslationService(coverageRegistry);
         WcpsCoverageMetadataService wcpsCoverageMetadataService = new WcpsCoverageMetadataService(coordinateTranslationService);

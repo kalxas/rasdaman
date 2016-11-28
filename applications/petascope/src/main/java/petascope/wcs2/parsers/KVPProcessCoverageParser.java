@@ -21,15 +21,14 @@
  */
 package petascope.wcs2.parsers;
 
-import java.io.UnsupportedEncodingException;
 import java.util.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import petascope.HTTPRequest;
 import petascope.exceptions.ExceptionCode;
 import petascope.exceptions.WCSException;
-import petascope.util.ListUtil;
 import petascope.util.RequestUtil;
-import petascope.util.StringUtil;
 import petascope.wcs2.handlers.RequestHandler;
 
 /**
@@ -40,17 +39,26 @@ import petascope.wcs2.handlers.RequestHandler;
  * @author <a href="mailto:vlad@flanche.net">Vlad Merticariu</a>
  */
 public class KVPProcessCoverageParser extends KVPParser<ProcessCoverageRequest> {
+    
+    private static Logger log = LoggerFactory.getLogger(KVPProcessCoverageParser.class);
     /**
      * Parses the HTTPRequest into a ProcessCoverageRequest.
      *
      * @param request the http request
      * @return the parsed process coverage request
      * @throws WCSException
-     * @throws java.io.UnsupportedEncodingException
      */
     @Override
     public ProcessCoverageRequest parse(HTTPRequest request) throws WCSException {
-        Map<String, String> params = RequestUtil.parseKVPRequestParams(request.getQueryString());
+        // NOTE: if request is POST in KVP then request.getQueryString() is null
+        Map<String, String> params;
+        if (request.getQueryString() != null) {
+            log.debug("Received a GET KVP request.");
+            params = RequestUtil.parseKVPRequestParams(request.getQueryString());
+        } else {
+            log.debug("Received a POST KVP request.");
+            params = RequestUtil.parseKVPRequestParams(request.getRequestString());
+        }
         validateRequest(params);
         ProcessCoverageRequest ret = new ProcessCoverageRequest(
             params.get(QUERY_KEY),

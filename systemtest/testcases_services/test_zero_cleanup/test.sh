@@ -35,7 +35,7 @@ while [ -h "$SOURCE" ] ; do SOURCE="$(readlink "$SOURCE")"; done
 . "$SCRIPT_DIR"/../../util/common.sh
 
 
-WCS_ENDPOINT=$PETASCOPE_URL'/ows?service=WCS&version=2.0.1&request=DeleteCoverage&coverageId='
+WCS_ENDPOINT=$PETASCOPE_URL'?service=WCS&version=2.0.1&request=DeleteCoverage&coverageId='
 
 
 # This script will iterate the test data of test wcst_import and retrieve all imported coverages by folder name prefix (wcs_, wcps_, wms_)

@@ -21,11 +21,7 @@
  */
 package petascope.rasdaman;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.OutputStream;
-import java.io.PrintStream;
-import java.io.PrintWriter;
+import java.io.*;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -87,63 +83,96 @@ public class RasqlServlet extends CORSHttpServlet {
 
     @Override
     public void doPost(HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException {
-        doGet(req, res);
+        CustomRequestWrapper wrapperRequest  = new CustomRequestWrapper(req);
+        // POST request KVP
+        log.debug("Received POST request.");
+        // NOTE: as the post will contain file content in request body so cannot parse it as KVP parameters.
+        wrapperRequest.buildGetKvpParametersMap();
+        this.handleRequest(wrapperRequest, res);
     }
 
     @Override
     public void doGet(HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException {
-        super.doGet(req, res);
         CustomRequestWrapper wrapperRequest  = new CustomRequestWrapper(req);
-        setServletURL(wrapperRequest);
+        // NOTE: To support the "+" which is missing from URI as it is converted to space, we need to manipulate the queryString and parse it to parameter maps correctly
+        // GET request KVP
+        log.debug("Received GET request.");
+        wrapperRequest.buildGetKvpParametersMap();
+        this.handleRequest(wrapperRequest, res);
+    }
+
+    /**
+     * After parsing the parameters for KVP (if possible) in GET/POST, we handle the request services here.
+     * @param wrapperRequest
+     * @param res
+     */
+    public void handleRequest(CustomRequestWrapper wrapperRequest, HttpServletResponse res) {
         OutputStream outStream = null;
         try {
-            outStream = res.getOutputStream();
-        } catch (IOException ex) {
-            log.error("Cannot initialise output stream.");
-            return;
-        }
+            super.doGet(wrapperRequest, res);
+            setServletURL(wrapperRequest);
 
-        Map<String, String> kvp = RequestUtil.parseKVPRequestParams(wrapperRequest.getQueryString());
-        String username = kvp.get(KVPSymbols.KEY_USERNAME);
-        String password = kvp.get(KVPSymbols.KEY_PASSWORD);
-        String query = kvp.get(KVPSymbols.KEY_QUERY);
-
-        // validate user before running the query
-        request validRet = validateRequest(outStream, res, username, password, query);
-        if (validRet == request.INVALID) {
-            // validation is error, return
-            return;
-        }
-
-        // check if user want to upload file to server by find decode() or inv_*() in the requested query
-        String filePath = null;
-        if (RasUtil.isDecodeQuery(query)) {
             try {
-                // write the uploaded file to upload directory
-                filePath = writeFileToUploadPath(wrapperRequest);
-            } catch (Exception ex) {
-                // NOTE: if user don't have permission to write (like rasguest), the error from Rasql will be catch here
-                printError(outStream, res, "Internal error: failed saving uploaded file on the server.", ex, 400);
+                outStream = res.getOutputStream();
+            } catch (IOException ex) {
+                printError(outStream, res, "Failed initializing output stream", ex, USE_DEFAULT_STATUS);
+                log.error("Cannot initialise output stream.");
                 return;
             }
-        }
 
-        // then run the rasql query to Rasdaman
-        try {
-            // select, delete, update without decode()
-            executeQuery(outStream, res, username, password, query, filePath);
-        } catch (PetascopeException ex) {
-            printError(outStream, res, "Failed evaluating query: " + query, ex, USE_DEFAULT_STATUS);
-            log.error("Failed evaluating query: " + query, ex);
-        } catch (Exception ex) {
-            printError(outStream, res, "Failed evaluating query: " + query, ex, USE_DEFAULT_STATUS);
-            log.error("Failed evaluating query: " + query, ex);
-        } finally {
-            try {
-                outStream.close();
-            } catch (IOException ex) {
-                log.error("Internal error: failed closing output stream.", ex);
+            Map<String, String> kvp = RequestUtil.parseKVPRequestParams(wrapperRequest.getQueryString());
+            String username = kvp.get(KVPSymbols.KEY_USERNAME);
+            String password = kvp.get(KVPSymbols.KEY_PASSWORD);
+            String query = kvp.get(KVPSymbols.KEY_QUERY);
+
+            // validate user before running the query
+            request validRet = validateRequest(outStream, res, username, password, query);
+            if (validRet == request.INVALID) {
+                // validation is error, return
+                return;
             }
+
+            // check if user want to upload file to server by find decode() or inv_*() in the requested query
+            String filePath = null;
+            if (RasUtil.isDecodeQuery(query)) {
+                try {
+                    // write the uploaded file to upload directory
+                    filePath = writeFileToUploadPath(wrapperRequest);
+                } catch (Exception ex) {
+                    // NOTE: if user don't have permission to write (like rasguest), the error from Rasql will be catch here
+                    printError(outStream, res, "Internal error: failed saving uploaded file on the server.", ex, 400);
+                    log.error("Internal error: failed saving uploaded file on the server.");
+                    return;
+                }
+            }
+
+            // then run the rasql query to Rasdaman
+            try {
+                // select, delete, update without decode()
+                executeQuery(outStream, res, username, password, query, filePath);
+            } catch (PetascopeException ex) {
+                printError(outStream, res, "Failed evaluating query: " + query, ex, USE_DEFAULT_STATUS);
+                log.error("Failed evaluating query: " + query, ex);
+            } catch (Exception ex) {
+                printError(outStream, res, "Failed evaluating query: " + query, ex, USE_DEFAULT_STATUS);
+                log.error("Failed evaluating query: " + query, ex);
+            } finally {
+                try {
+                    outStream.close();
+                } catch (IOException ex) {
+                    printError(outStream, res, "Internal error: failed closing output stream", ex, USE_DEFAULT_STATUS);
+                    log.error("Internal error: failed closing output stream.", ex);
+                }
+            }
+        } catch (UnsupportedEncodingException e) {
+            printError(outStream, res, "Internal error: unsupported encoding.", e, USE_DEFAULT_STATUS);
+            log.error("Internal error: unsupported encoding.", e);
+        } catch (ServletException e) {
+            printError(outStream, res, "Internal error: servlet exception.", e, USE_DEFAULT_STATUS);
+            log.error("Internal error: servlet exception.", e);
+        } catch (IOException e) {
+            printError(outStream, res, "Internal error: input/output exception.", e, USE_DEFAULT_STATUS);
+            log.error("Internal error: input/output exception.", e);
         }
     }
 

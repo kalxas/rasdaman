@@ -38,7 +38,7 @@ while [ -h "$SOURCE" ] ; do SOURCE="$(readlink "$SOURCE")"; done
 
 
 # test WMS query
-PETASCOPE_END_POINT="$PETASCOPE_URL/ows?"
+PETASCOPE_END_POINT="$PETASCOPE_URL?"
 WMS_TEST_END_POINT_TEMPLATE=$PETASCOPE_END_POINT"service=WMS&version=1.3.0&request=GetMap&layers=test_wms_4326&bbox=MIN_MAX_LAT_LONG_TEMPLATE&crs=EPSG:4326&width=600&height=600&format=image/png"
 
 min_lat=-40

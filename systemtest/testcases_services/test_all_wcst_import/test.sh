@@ -73,7 +73,9 @@ clearResumeFile() {
     fi
 }
 
-PETASCOPE_URL="$PETASCOPE_URL"/'ows'
+# Check if Petascope is deployed (imported from util/petascope.sh)
+check_petascope || exit $RC_ERROR
+
 # 1. Iterate folders in test data
 for TEST_CASE in $TEST_DATA/*; do
     # each folder is a coverage with image files and recipe

@@ -37,11 +37,11 @@ SCRIPT_DIR="$( cd -P "$( dirname "$SOURCE" )" && pwd )"
 . "$SCRIPT_DIR"/../../../util/common.sh
 
 log "--- Testing download result with coverage ID as file name ---"
-WCS_ENDPOINT_TEMPLATE=$PETASCOPE_URL'/ows?service=WCS&version=2.0.1&request=GetCoverage&coverageId=test_mr&subset=i(0,20)&subset=j(0,5)&format=$FORMAT'
-WCPS_ENDPOINT_TEMPLATE=$PETASCOPE_URL'/ows?service=WCS&version=2.0.1&request=ProcessCoverages&query=for c in (test_rgb) return encode(c,"$FORMAT")'
+WCS_ENDPOINT_TEMPLATE=$PETASCOPE_URL'?service=WCS&version=2.0.1&request=GetCoverage&coverageId=test_mr&subset=i(0,20)&subset=j(0,5)&format=$FORMAT'
+WCPS_ENDPOINT_TEMPLATE=$PETASCOPE_URL'?service=WCS&version=2.0.1&request=ProcessCoverages&query=for c in (test_rgb) return encode(c,"$FORMAT")'
 
 # with multipart
-WCS_ENDPOINT_MULTIPART_TEMPLATE=$PETASCOPE_URL'/ows?service=WCS&version=2.0.1&request=GetCoverage&coverageId=test_mr&subset=i(0,20)&subset=j(0,5)&format=$FORMAT&mediaType=multipart/related'
+WCS_ENDPOINT_MULTIPART_TEMPLATE=$PETASCOPE_URL'?service=WCS&version=2.0.1&request=GetCoverage&coverageId=test_mr&subset=i(0,20)&subset=j(0,5)&format=$FORMAT&mediaType=multipart/related'
 # WCPS does not have this feature, but the output should have same file name
 
 OUTPUT_DIR=$SCRIPT_DIR"/"output

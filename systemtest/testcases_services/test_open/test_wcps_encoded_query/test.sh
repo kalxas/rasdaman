@@ -36,7 +36,7 @@ SCRIPT_DIR="$( cd -P "$( dirname "$SOURCE" )" && pwd )"
 
 
 # encoded WCPS query
-WCPS_ENDPOINT=$WCPS_URL
+WCPS_ENDPOINT=$PETASCOPE_URL"?service=WCS&version=2.0.1&request=ProcessCoverages&query="
 QUERY="for%20c%20in%20(test_mr)%20return%20encode%20(c%5Bi(0%3A20)%2Cj(0%3A20)%5D%20%2B%205%2C%20%22png%22)"
 
 log "Test encoded WCPS query..."
