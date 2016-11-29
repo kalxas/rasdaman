@@ -117,19 +117,19 @@ set(SRC_SOURCES "${SRC}/util/GlobalState.js"
 
 # Get all the images in the bin directory
 
-file(GLOB IMAGE_FILES ${BIN}/img/*)
+file(GLOB IMAGE_FILES_PATH ${BIN}/img/*)
 
-set(IMAGE_FILES ${IMAGE_FILES}
+set(IMAGE_FILES ${IMAGE_FILES_PATH}
         "${LIB}/Gauges/img/jgauge_face_default.png"
         "${LIB}/Gauges/img/jgauge_needle_default.png"
         "${LIB}/Gauges/img/knob.png")
 
-set(IMAGE_FILES ${IMAGE_FILES}
+set(IMAGE_FILES ${IMAGE_FILES_PATH}
         "${LIB}/TwitterBootstrap/img/glyphicons-halflings.png"
         "${LIB}/TwitterBootstrap/img/glyphicons-halflings-white.png")
 
 set(BUILT_IMAGES "")
-foreach (IMAGE_FILE ${IMAGE_FILES})
+foreach (IMAGE_FILE ${IMAGE_FILES_PATH})
     get_filename_component(IMAGE_FILE_NAME ${IMAGE_FILE} NAME)
 
     add_custom_command(OUTPUT "${BUILD_IMG_DIR}/${IMAGE_FILE_NAME}"

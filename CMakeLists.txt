@@ -30,6 +30,11 @@ cmake_policy(SET CMP0048 NEW)
 project(rasdaman VERSION 9.3.1
         LANGUAGES C CXX)
 
+# no rebuild dependency when make install
+# https://cmake.org/Wiki/CMake_Useful_Variables#Various_Options
+set(CMAKE_SKIP_RULE_DEPENDENCY TRUE)
+set(CMAKE_SKIP_INSTALL_ALL_DEPENDENCY TRUE)
+
 ################################################################################
 # CMake configuration options
 ################################################################################

@@ -51,7 +51,7 @@ set(INSERT_DATA_SCRIPT "${SRC_DB}/petascope_insertdemo.sh")
 set(INSERT_DATA_SCRIPT_TEMPLATE "${INSERT_DATA_SCRIPT}.in")
 set(DATABASE_UPDATES_DIR "${SRC_DB}/petascope")
 
-# will not rebuild secore when make install
+# will not rebuild petascope when make install
 set(CMAKE_SKIP_INSTALL_ALL_DEPENDENCY TRUE)
 
 # Server decision: embeded vs external; JAVA_SERVER_EMBEDDED variable is provided from the main CMakeLists.txt file

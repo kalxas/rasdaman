@@ -165,8 +165,6 @@ AC_CONFIG_FILES([third_party/Makefile
                  applications/rasql/Makefile
                  applications/directql/Makefile
                  applications/rview/Makefile
-                 applications/secore/secore-core/Makefile
-                 applications/secore/secore-web/Makefile
                  applications/rasgeo/Makefile
                  applications/raswct/Makefile
                  applications/petascope/Makefile

@@ -46,9 +46,10 @@ generate_pom:
 	sed -i "s|@PROJECT_VERSION@|${PROJECT_VERSION}|g" pom.xml
 	sed -i "s|@RASJ_TARGET_DIR@|${RASJ_TARGET_DIR}|g" pom.xml
 
+# Add rasj to local maven as a dependency for Petascope
 all: generate_pom javadoc
 	mvn package -P${NETWORK_PROTOCOL}
-	cp ${RASJ_TARGET_DIR}/rasj-jar-with-dependencies.jar ../applications/petascope/lib/rasj.jar
+	mvn install:install-file -Dfile="${RASJ_TARGET_DIR}/rasj-jar-with-dependencies.jar"  -DgroupId=org.rasdaman -DartifactId=rasj -Dversion=${PROJECT_VERSION} -Dpackaging=jar
 
 if GENERATE_DOCS
 APIDOCS   = ${RASJ_TARGET_DIR}/site/apidocs
@@ -82,8 +83,9 @@ if RMANRASNET
 endif
 
 install-data-hook:
-	mkdir -p $(DESTDIR)@libdir@
-	cp ${RASJ_TARGET_DIR}/rasj-jar-with-dependencies.jar $(DESTDIR)@libdir@/rasj.jar
+	mkdir -p @libdir@
+	cp ${RASJ_TARGET_DIR}/rasj-jar-with-dependencies.jar @libdir@/rasj.jar
+
 if GENERATE_DOCS
 	mkdir -p $(DESTDIR)$(pkgdatadir)/$(APIFOLDER)
 	cp -r $(APIDOCS)/* $(DESTDIR)$(pkgdatadir)/$(APIFOLDER)

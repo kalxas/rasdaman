@@ -76,7 +76,10 @@ public class BaseX implements Database {
                 configuredDir = configuredDir.trim(); // remove ending new line
                 configuredDir = configuredDir.replace(Constants.DEFAULT_SECORE_DB_DIR_PREFIX, "");
             }
-            if (Constants.DEFAULT_SECORE_DB_DIR.equals(configuredDir)) {
+            if (configuredDir == null || 
+                configuredDir.endsWith(Constants.DEFAULT_SECORE_DB_DIR) ||
+                configuredDir.endsWith(Constants.DEFAULT_SECORE_DB_DIR_OTHER) ||
+                configuredDir.endsWith(Constants.DEFAULT_SECORE_DB_DIR_HOME)) {
                 String secoreDbDir = IOUtil.getDbDir();
                 if (secoreDbDir != null) {
                     new Set(Constants.DBPATH_BASEX_PROPERTY, secoreDbDir).execute(context);

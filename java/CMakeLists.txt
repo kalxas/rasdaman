@@ -21,6 +21,8 @@
 #
 ###################################################################
 
+# will not rebuild rasj when make install
+set(CMAKE_SKIP_INSTALL_ALL_DEPENDENCY TRUE)
 if (ENABLE_JAVA)
     if (RMANRASNET)
         set(RASNET_SRC_DIR "${CMAKE_SOURCE_DIR}/rasnet")
@@ -48,13 +50,15 @@ if (ENABLE_JAVA)
 
     endif (RMANRASNET)
 
-    # Configure the pom file    
+    # Configure the pom file
     configure_file(pom.xml.in "${CMAKE_CURRENT_SOURCE_DIR}/pom.xml" @ONLY)
 
-    # Run maven to build the project.
+    # Run maven to build the project and copy rasj.jar to maven local repository
     find_package(Maven REQUIRED)
     add_custom_target(rasj ALL
             COMMAND ${MAVEN_EXECUTABLE} package -P${NETWORK_PROTOCOL}
+            COMMAND mvn install:install-file -Dfile=${RASJ_TARGET_DIR}/rasj-jar-with-dependencies.jar
+		   -DgroupId=org.rasdaman -DartifactId=rasj -Dversion=${PROJECT_VERSION} -Dpackaging=jar
             DEPENDS ${GENERATED_PROTO_SOURCES} ${GENERATED_GRPC_SOURCES}
             WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
             VERBATIM)
@@ -64,11 +68,7 @@ if (ENABLE_JAVA)
             COMMAND ${MAVEN_EXECUTABLE} javadoc:javadoc -P${NETWORK_PROTOCOL} 2>&1 > /dev/null || exit 0
             DEPENDS ${GENERATED_PROTO_SOURCES} ${GENERATED_GRPC_SOURCES}
             WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
-            VERBATIM)   
-
-        install(DIRECTORY "${RASJ_TARGET_DIR}/site/apidocs/"            
-            DESTINATION "${SHARE_DATA_DIR}/doc/doc-rasj"
-            PATTERN "*.sh" EXCLUDE)
+            VERBATIM)
 
     endif(GENERATE_DOCS)
 

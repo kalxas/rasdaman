@@ -43,17 +43,24 @@ panic(){
   exit 1
 }
 
-# secore components
-CORE=secore-core
-WEB=secore-web
-
 # name of deployment target;
 # we want /def/... URLs but do not want to modify Tomcat config
 TARGET_SERVICE=def
 
+
+# input arguments
+# $1 is secore.war file path (e.g: /home/rasdaman/build/applications/secore/def.war)
+BUILDFILE="$1"
+
+if [ ! -f "$BUILDFILE" ]; then
+	panic "File path to built def.war does not exist."
+fi
+
+
+# $2 is the deploy path (e.g: /var/lib/tomcat/webapps)
 # optional argument passed to the script, indicating where should
 # the war file be deployed. The Makefile passes this argument.
-WARDIR="$1"
+WARDIR="$2"
 
 # deployment targets: take first argument to script if given,
 # otherwise use CATALINA_HOME.
@@ -65,7 +72,6 @@ else
   WEBAPPS=$CATALINA_HOME/webapps
 fi
 TARGET_WAR=$WEBAPPS/$TARGET_SERVICE.war
-TARGET_EXPANDED=$WEBAPPS/$TARGET_SERVICE
 
 # - plausi checks -----------------------------------------
 
@@ -88,12 +94,12 @@ fi
 
 # - prepare -----------------------------------------------
 echo -n $ME: building...
-ant -f secore-web/build.xml -DforceRedeploy=false dist > /dev/null || panic "cannot generate $WEB"
+mvn package || panic "cannot build SECORE"
 echo " ok."
 
 # - deploy ------------------------------------------------
 echo -n $ME: deploying war file...
-cp secore-web/dist/secore-web.war $TARGET_WAR || panic "failed"
+cp $BUILDFILE $TARGET_WAR || panic "failed"
 echo " ok."
 
 echo $ME: done.
