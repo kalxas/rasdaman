@@ -147,8 +147,27 @@ check_output()
         mv rasql_1.nc "$out_file"
         check_netcdf
         ncdump "$out_file" > "$out_cdl_file"
-        grep "$test_filename" known_fails > /dev/null
-        if [ $? -ne 0 ]; then
+
+        test_filename="$1"
+
+        # only when filename does exist and it is inside known_fails then it will skip this test case.
+        skip_test=false
+        if [[ ! -z "$test_filename" ]]; then
+            # check known_fails file does exist, if not then must to compare output and oracle to determine test is fail/success.            
+            if [[ -f "$SCRIPT_DIR/known_fails" ]]; then
+                # known_fails does exist
+                grep "$test_filename" "$SCRIPT_DIR""/known_fails"
+                if [[ $? -ne 0 ]]; then
+                    skip_test=true;
+                fi
+            fi
+        fi
+
+        # if test case is known_fail so just skip it
+        if $skip_test; then
+            log "$test_filename is a known_fail, skipping test"
+        else
+            # else check the output and oracle
             cmp "$out_cdl_file" "$oracle_file" > /dev/null
             check_result 0 $? "exported output matches oracle"
         fi
@@ -176,7 +195,7 @@ run_json_import_test()
     local -r base_type=octet
     local -r dim=3
     local -r desc="$2"
-    
+
     log "-----------------------------------------------------------------------------"
     log "testing JSON import: $desc, $base_type ${dim}D"
     coll_name="$(get_collname $base_type $dim)"
@@ -185,7 +204,7 @@ run_json_import_test()
     test_file="$TESTDATA_PATH/${base_type}_${dim}d.nc"
     vars="values"
     [ "$base_type" == "struct" ] && vars="v1;v2"
-    
+
     create_collection "$base_type" "$dim"
     $insert_func
     check_result 0 $? "inserting generated $base_type data with $desc parameter"
@@ -217,13 +236,13 @@ for dim in 3 4; do
         coll_name="$(get_collname $base_type $dim)"
         filename="${base_type}_${dim}d"
         update_filenames
-        
+
         log "-----------------------------------------------------------------------------"
         log "testing dimension '$dim', base type '$base_type'"
         log ""
-        
+
         create_collection $base_type $dim
-        
+
         vars="values"
         [ "$base_type" == "struct" ] && vars="v1;v2"
         if [ -f "$test_file" ]; then
@@ -237,7 +256,7 @@ for dim in 3 4; do
             fi
             check_result 0 $? "inserting generated $base_type data"
         fi
-        
+
         #$RASQL -q 'select csv(c) from '$coll_name' as c' --out string
         if [ -f "$json_file" ]; then
             json_params=$(cat "$json_file" | tr -d '\n' | tr -s ' ' | sed 's/"/\\"/g')
@@ -245,15 +264,15 @@ for dim in 3 4; do
         fi
         $RASQL -q 'select encode(c, "netcdf", "vars='$vars'") from '$coll_name' as c' --out file > /dev/null
         check_result 0 $? "exporting $coll_name to netcdf"
-        
-        check_output
+
+        check_output "$filename"
     done
 done
 
 # ------------------------------------------------------------------------------
 # Test JSON export
 #
-# It seems impossible to make this work by loading the JSON format parameters from a 
+# It seems impossible to make this work by loading the JSON format parameters from a
 # file, so that's why they are listed manually here...
 #
 

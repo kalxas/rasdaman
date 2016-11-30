@@ -79,13 +79,6 @@ export START_RAS=start_rasdaman.sh
 export STOP_RAS=stop_rasdaman.sh
 export CREATE_DB=create_db.sh
 
-# check connection itself
-export PGSQL="psql -d $RASDB --port $PG_PORT"
-
-# check for petascope
-export PSQL="psql -d $PS_DB --port $PG_PORT"
-
-export WGET="wget"
 export GDALINFO="gdalinfo -noct -checksum"
 
 # filestorage
@@ -97,24 +90,31 @@ export RASMGR_CONF="$RMANHOME/etc/rasmgr.conf"
 # logging
 #
 
-LOG="$SCRIPT_DIR/log"
-OLDLOG="$LOG.save"
-FAILED="$SCRIPT_DIR/failed_cases"
+LOG_FILE="$SCRIPT_DIR/test.log"
+OLD_LOG_FILE="$LOG_FILE.save"
+FAILED_LOG_FILE="$SCRIPT_DIR/failed_cases.log"
 FIXED=0
+
 
 log()
 {
-  echo "$PROG: $*" | tee -a $LOG
+  echo "$PROG: $*" | tee -a "$LOG_FILE"
 }
 
 loge()
 {
-  echo -e "$*" | tee -a $LOG
+  echo -e "$*" | tee -a "$LOG_FILE"
 }
 
 logn()
 {
-  echo -n "$PROG: $*" | tee -a $LOG
+  echo -n "$PROG: $*" | tee -a "$LOG_FILE"
+}
+
+# write the detail error in failed_cases.log
+log_failed()
+{
+  echo "$PROG: $*" | tee -a "$FAILED_LOG_FILE"
 }
 
 feedback()
@@ -129,7 +129,7 @@ feedback()
 check()
 {
   if [ $? -ne 0 ]; then
-    echo "$PROG: failed, exiting." | tee -a $LOG
+    echo "$PROG: failed, exiting." | tee -a "$LOG_FILE"
     exit $RC_ERROR
   else
     loge ok.
@@ -138,8 +138,8 @@ check()
 
 error()
 {
-  echo "$PROG: $*" | tee -a $LOG
-  echo "$PROG: exiting." | tee -a $LOG
+  echo "$PROG: $*" | tee -a "$LOG_FILE"
+  echo "$PROG: exiting." | tee -a "$LOG_FILE"
   exit $RC_ERROR
 }
 
@@ -148,13 +148,13 @@ error()
 #
 
 if [ -n "$SCRIPT_DIR" ] ; then
-  if [ -f $LOG ] ; then
-    echo Old logfile found, copying it to $OLDLOG
-    rm -f $OLDLOG
-    mv $LOG $OLDLOG
+  if [ -f $LOG_FILE ] ; then
+    echo "Old logfile found, copying it to $OLD_LOG_FILE"
+    rm -f "$OLD_LOG_FILE"
+    mv "$LOG_FILE" "$OLD_LOG_FILE"
   fi
 
-  rm -f "$FAILED"
+  rm -f "$FAILED_LOG_FILE"
 
   NOW=`date`
   log "starting test at $NOW"
@@ -182,15 +182,15 @@ get_time()
 #
 check_rasdaman()
 {
-  which rasmgr > /dev/null
+  type rasmgr &> /dev/null
   if [ $? -ne 0 ]; then
     error "rasdaman not installed, please add rasdaman bin directory to the PATH."
   fi
-  pgrep rasmgr > /dev/null
+  pgrep rasmgr &> /dev/null
   if [ $? -ne 0 ]; then
     error "rasdaman not started, please start with start_rasdaman.sh"
   fi
-  $RASCONTROL -x 'list srv -all' > /dev/null
+  $RASCONTROL -x 'list srv -all' &> /dev/null
   if [ $? -ne 0 ]; then
     error "no rasdaman servers started."
   fi
@@ -198,27 +198,40 @@ check_rasdaman()
 
 check_postgres()
 {
-  which psql > /dev/null
+  type psql  &> /dev/null
   if [ $? -ne 0 ]; then
     error "PostgreSQL missing, please add psql to the PATH."
   fi
-  pgrep postgres > /dev/null
+  pgrep postgres &> /dev/null
   if [ $? -ne 0 ]; then
     pgrep postmaster > /dev/null || error "The PostgreSQL service is not started."
   fi
 }
 
-check_wget()
+check_curl()
 {
-  which wget > /dev/null
+  type curl  &> /dev/null
   if [ $? -ne 0 ]; then
-    error "wget missing, please install."
+    error "curl missing, please install."
   fi
 }
 
+check_petascope()
+{
+  # already silent
+  curl -sL "$PETASCOPE_URL" -o /dev/null
+  if [[ $? -ne 0 ]]; then
+    log "failed connecting to Petascope at $PETASCOPE_URL, please deploy it first."
+    return 1
+  fi
+  return 0
+}
+
+
 check_secore()
 {
-  $WGET -q "${SECORE_URL}/crs" -O /dev/null
+  # already silent
+  curl -sL "$SECORE_URL/crs" -o /dev/null
   if [ $? -ne 0 ]; then
     log "failed connecting to SECORE at $SECORE_URL, please deploy it first."
     return 1
@@ -228,7 +241,7 @@ check_secore()
 
 check_netcdf()
 {
-  which ncdump > /dev/null
+  type ncdump  &> /dev/null
   if [ $? -ne 0 ]; then
     error "netcdf tools missing, please add ncdump to the PATH."
   fi
@@ -236,7 +249,7 @@ check_netcdf()
 
 check_gdal()
 {
-  which gdal_translate > /dev/null
+  type gdal_translate  &> /dev/null
   if [ $? -ne 0 ]; then
     error "gdal missing, please add gdal_translate to the PATH."
   fi
@@ -258,7 +271,7 @@ check_gdal_version()
 check_jpeg2000_enabled()
 {
   # check if gdal supports JP2OpenJPEG then run test cases with encode in this format
-  gdalinfo --formats | grep JP2OpenJPEG > /dev/null
+  gdalinfo --formats | grep JP2OpenJPEG &> /dev/null
   if [ $? -ne 0 ]; then
     log "skipping test for GMLJP2 encoding."
     return 1
@@ -289,7 +302,7 @@ check_filestorage_dependencies()
 {
   [ -f "$RMANHOME/bin/rasdl" ] || error "rasdl not found, RMANHOME not defined properly?"
   [ -f "$RASMGR_CONF" ] || error "$RASMGR_CONF not found, RMANHOME not defined properly?"
-  [ $(which sqlite3) ] || error "sqlite3 not found, please install."
+  [ $(type sqlite3  &> /dev/null) ] || error "sqlite3 not found, please install."
 }
 
 
@@ -312,7 +325,7 @@ print_summary()
   log "  Successful tests: $NUM_SUC"
   log "  Failed tests    : $NUM_FAIL"
   log "  Skipped tests   : $(($NUM_TOTAL - ($NUM_FAIL + $NUM_SUC)))"
-  log "  Detail test log : $LOG"
+  log "  Detail test log : $LOG_FILE"
   log "-------------------------------------------------------"
 
   # compute return code
@@ -325,7 +338,7 @@ print_summary()
 
 #
 # check if result matches expected result, automatically updating the number of
-# failed/successfull tests.
+# failed/successfull tests.log
 # arg 1: expected result
 # arg 2: actual result
 # arg 3: message to print
@@ -360,6 +373,36 @@ check()
   NUM_TOTAL=$(($NUM_TOTAL + 1))
 }
 
+# this test case is failed (and cannot check by the return of $?)
+check_failed()
+{
+  log failed.
+  NUM_FAIL=$(($NUM_FAIL + 1))
+  NUM_TOTAL=$(($NUM_TOTAL + 1))
+}
+
+# this test case is passed (and cannot check by the return of $?)
+check_passed()
+{
+  log ok.
+  NUM_SUC=$(($NUM_SUC + 1))
+  NUM_TOTAL=$(($NUM_TOTAL + 1))
+}
+
+
+#
+# Ultilities functions
+#
+
+# input is a URL return the HTTP code from the URL by curl
+get_http_return_code()
+{
+  # $1 is URL
+  http_code=$(curl -sL -w "%{http_code}\\n" "$1" -o /dev/null)
+  echo $http_code
+}
+
+
 #
 # Check return code ($?) and update variables tracking number of
 # failed/successfull tests.
@@ -367,9 +410,10 @@ check()
 #
 update_result()
 {
+
   local rc=$?
 
-  grep "$f" "$KNOWN_FAILS" > /dev/null 2>&1
+  grep "$f" "$KNOWN_FAILS" &> /dev/null
   local known_fail=$?
 
   if [ $rc != 0 ]; then
@@ -378,23 +422,34 @@ update_result()
     echo "$f" | egrep "\.fixed$" > /dev/null
     rc_fixed=$?
 
+    fail_result="TEST FAILED"
     if [ $rc_open -ne 0 -o $rc_fixed -eq 0 ]; then
       if [ $known_fail -ne 0 ]; then
         NUM_FAIL=$(($NUM_FAIL + 1))
         log " ->  TEST FAILED"
       else
+        # Known failed case, add it to known_failed_cases.log.
         log " -> TEST SKIPPED"
+        fail_result="TEST SKIPPED"
       fi
     else
       log " ->  TEST SKIPPED"
+      fail_result="TEST SKIPPED"
     fi
-    if [ -n "$FAILED" ]; then
-      echo "----------------------------------------------------------------------" >> $FAILED
+
+    # Beside writing to test.log, need to write the failed cases and test results to failed_cases.log as well
+    if [ -n "$FAILED_LOG_FILE" ]; then
+      echo "----------------------------------------------------------------------" >> "$FAILED_LOG_FILE"
       if [ -n "$f" ]; then
-        echo $f >> $FAILED
+        # log test case file name.
+        log_failed "$f"
+        log_failed ""
       fi
-      cat "$f" >> $FAILED
-      echo "" >> $FAILED
+
+      # must enquote file content in "" or it will lose the new line from test case query
+      log_failed "$(cat "$f")"
+      log_failed ""
+      log_failed "$fail_result"
     fi
   else
     NUM_SUC=$(($NUM_SUC + 1))
@@ -525,11 +580,11 @@ run_test()
   fi
 
   # check if rasdaman is running and exit if not
-  $RASQL -q 'select c from RAS_COLLECTIONNAMES as c' --out string > /dev/null 2>&1
+  $RASQL -q 'select c from RAS_COLLECTIONNAMES as c' --out string &> /dev/null
   if [ $? -ne 0 ]; then
     # retry test
     sleep 2
-    $RASQL -q 'select c from RAS_COLLECTIONNAMES as c' --out string > /dev/null
+    $RASQL -q 'select c from RAS_COLLECTIONNAMES as c' --out string &> /dev/null
     if [ $? -ne 0 ]; then
         log "rasdaman down, exiting..."
         cleanup
@@ -693,7 +748,7 @@ run_test()
               if [ "$SVC_NAME" = "jit" ]; then
                 QUERY="$QUERY [opt 4]"
               fi
-              $RASQL -q "$QUERY" --out file --outfile "$out" --quiet > /dev/null 2> "$err"
+              $RASQL -q "$QUERY" --out file --outfile "$out" > /dev/null 2> "$err"
 
               # if an exception was thrown, then the err file has non-zero size
               if [ -s "$err" ]; then
@@ -740,7 +795,7 @@ run_test()
 
     else
 
-      grep "$oracle" "Stack trace" > /dev/null 2>&1
+      grep "$oracle" "Stack trace" &> /dev/null
       if [ $? -eq 0 ]; then
         # do exception comparison
         # NOTE: this part of code is entered only if the server returns a success code 2xx
@@ -779,7 +834,7 @@ run_test()
         filetype=`file "$oracle" | awk -F ':' '{print $2;}'`
         echo "$filetype" | egrep -i "(xml|ascii|text)" > /dev/null
         rc=$?
-        gdalinfo "$out" > /dev/null 2>&1
+        gdalinfo "$out" &> /dev/null
         if [ $? -eq 0 -a $rc -ne 0 ]; then
           # do image comparison
           log "image comparison"
@@ -841,10 +896,10 @@ restart_rasdaman()
 {
   logn "restarting rasdaman... "
   if [ $(pgrep rasmgr) ]; then
-    $STOP_RAS > /dev/null 2>&1
+    $STOP_RAS &> /dev/null
     sleep 0.2 || sleep 1
   fi
-  $START_RAS > /dev/null 2>&1
+  $START_RAS &> /dev/null
   sleep 0.2 || sleep 1
   loge ok.
 }
@@ -911,4 +966,3 @@ get_server_pid()
 # load all modules
 #
 . "$UTIL_SCRIPT_DIR"/rasql.sh
-. "$UTIL_SCRIPT_DIR"/petascope.sh

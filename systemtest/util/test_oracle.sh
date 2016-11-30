@@ -112,6 +112,10 @@ trap cleanup SIGINT
 #
 # checks
 #
+check_curl
+check_gdal
+check_postgres
+
 echo "$SCRIPT_DIR" | grep "test_secore" > /dev/null
 if [ $? -eq 0 ]; then
   check_secore || exit $RC_SKIP
@@ -122,11 +126,8 @@ if [ $? -eq 0 ]; then
     check_petascope || exit $RC_SKIP
   fi
 fi
-check_postgres
 [ "$SVC_NAME" != "secore" ] && check_rasdaman
-check_wget
-check_gdal
-multi_coll_enabled=$(check_multipoint)
+
 
 #
 # check options
@@ -171,12 +172,12 @@ for f in *; do
   if [ "$SVC_NAME" == "wcps" ]; then
     # skip rasql tests in WCPS test suite for now (enable .xml for testing SOAP)
     [[ "$f" == *.rasql || "$f" == *.sql ]] && continue
-    # Skip multipoint tests if multipoint is not enabled
-    [[ $multi_coll_enabled -ne 0 ]] && [[ "$f" == *multipoint* ]] && continue
+    # Skip multipoint tests
+    [[ "$f" == *multipoint* ]] && continue
   fi
   if [ "$SVC_NAME" == "wcs" ]; then
-    # Skip multipoint tests if multipoint is not enabled
-    [[ "$multi_coll_enabled" -ne 0 ]] && [[ "$f" == *multipoint* ]] && continue
+    # Skip multipoint tests
+    [[ "$f" == *multipoint* ]] && continue
     # Skip GMLJP2 tests if GDAL version is not >= 1.10 (format mime jp2 + multipart -- @see #745)
     if grep -q "$JP2_MIME" "$f"; then
       if grep -q "$MULTIPART_MIME" "$f"; then
@@ -188,7 +189,7 @@ for f in *; do
   # print test header (also to find $LOG) with tee in util/common.sh
   loge "running test: $f"
   loge
-  cat "$f" | tee -a $LOG
+  cat "$f" | tee -a $LOG_FILE
   loge
 
   run_test

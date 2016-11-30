@@ -64,8 +64,6 @@ QUERY_PATH="$SCRIPT_DIR/queries"
 OUTPUT_PATH="$SCRIPT_DIR/output"
 mkdir -p "$OUTPUT_PATH"
 
-FAILED="$SCRIPT_DIR"/failed_cases
-
 QUERY="" # query
 Q_ID=""  # query identifier (file name)
 
@@ -94,11 +92,12 @@ function run_test()
   local f=tmp.unknown
   
   if [ ! -f $f ]; then
-    log "Failed executing select query." | tee -a $LOG
+    log "Failed executing select query."
     NUM_FAIL=$(($NUM_FAIL + 1))
-    echo "----------------------------------------------------------------------" >> $FAILED
-    echo $q_id >> $FAILED
-    echo $QUERY >> $FAILED
+
+    log_failed "----------------------------------------------------------------------"
+    log_failed "$q_id"
+    log_failed "$QUERY"    
     return
   fi
   if [ $# -gt 1 ]; then
@@ -116,9 +115,9 @@ function run_test()
   if [ $? != 0 ]; then
     log "Result of query contains error."
 	  NUM_FAIL=$(($NUM_FAIL + 1))
-    echo "----------------------------------------------------------------------" >> $FAILED
-    echo $q_id >> $FAILED
-    echo $QUERY >> $FAILED
+    log_failed "----------------------------------------------------------------------"
+    log_failed "$q_id"
+    log_failed "$QUERY"  
   else
     log "Result of query is correct."
     NUM_SUC=$(($NUM_SUC + 1))
@@ -130,17 +129,17 @@ function run_test()
 # test by queries
 #
   	
-rm -f tmp.unknown tmp.csv $FAILED
+rm -f tmp.unknown tmp.csv $FAILED_LOG_FILE
 # Query by query for extracting some aspects of tested data
 for i in $QUERY_PATH/*.rasql; do
 
   # Send query in query folder.
 	Q_ID=`basename $i`
 
-  echo "----------------------------------------------------------------------" | tee -a $LOG
-  echo | tee -a $LOG
+  log "----------------------------------------------------------------------"
+  log ""
   log "running queries in $Q_ID"
-  echo "" | tee -a $LOG
+  log ""
 
   # initialize collections
   drop_colls $TEST_COLL $TEST_COLL3
@@ -152,17 +151,17 @@ for i in $QUERY_PATH/*.rasql; do
     q_id=$Q_ID.$counter
 
     # first run insert/update query
-    echo "----------------------------------------------------------------------" | tee -a $LOG
+    log "----------------------------------------------------------------------"
     log "$q_id:"
     log "  $QUERY"
 
     $RASQL -q "$QUERY" --quiet
     if [ $? -ne 0 ]; then
-      log "Failed executing update query." | tee -a $LOG
+      log "Failed executing update query."
       NUM_FAIL=$(($NUM_FAIL + 1))
-      echo "----------------------------------------------------------------------" >> $FAILED
-      echo $q_id >> $FAILED
-      echo $QUERY >> $FAILED
+      log_failed "----------------------------------------------------------------------"
+      log_failed "$q_id"
+      log_failed "$QUERY"  
       continue
     fi
 
